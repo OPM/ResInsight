@@ -56,6 +56,9 @@
 
 #include <algorithm>
 
+namespace caf
+{
+
 //==================================================================================================
 /// Helper class used to control height of size hint
 //==================================================================================================
@@ -134,8 +137,6 @@ protected:
     }
 };
 
-namespace caf
-{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -177,6 +178,15 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_proxyModel->setFilterCaseSensitivity( Qt::CaseInsensitive );
 
         m_treeView->setModel( m_proxyModel );
+
+        if ( hasOnlyIntegers( m_model ) )
+        {
+            m_textFilterLineEdit->setPlaceholderText( "Integer filter eg. 1, 5-10" );
+        }
+        else
+        {
+            m_textFilterLineEdit->setPlaceholderText( "Type to filter items" );
+        }
     }
 
     QList<PdmOptionItemInfo> options = uiField()->valueOptions();
@@ -320,8 +330,6 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
         connect( m_toggleAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( slotToggleAll() ) );
 
         m_textFilterLineEdit = new QLineEdit();
-        m_textFilterLineEdit->setPlaceholderText( "Click to add filter" );
-
         headerLayout->addWidget( m_textFilterLineEdit );
 
         connect( m_textFilterLineEdit, SIGNAL( textChanged( QString ) ), this, SLOT( slotTextFilterChanged() ) );
@@ -555,10 +563,93 @@ void PdmUiTreeSelectionEditor::slotInvertCheckedStateOfAll()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Parse the filter text based on the following rules:
+/// 1. A comma separated list of integers
+/// 2. A range of integers separated by a dash
+///
+/// Example: 1, 3, 5-10
+///
+/// Mark matching items as checked
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::setCheckedStateForItemsMatchingFilter()
+{
+#if ( QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 ) )
+    auto SkipEmptyParts = QString::SkipEmptyParts;
+#else
+    auto SkipEmptyParts = Qt::SkipEmptyParts;
+#endif
+
+    std::set<int> filterValues;
+
+    QString     searchString = m_textFilterLineEdit->text();
+    QStringList parts        = searchString.split( ",", SkipEmptyParts );
+    for ( auto& part : parts )
+    {
+        QStringList minmax = part.split( "-", SkipEmptyParts );
+
+        switch ( minmax.size() )
+        {
+            case 1:
+            {
+                auto firstValueText = minmax.front();
+                filterValues.insert( firstValueText.toInt() );
+                break;
+            }
+            case 2:
+            {
+                auto firstValue  = minmax.front().toInt();
+                auto secondValue = minmax.back().toInt();
+
+                for ( int val = firstValue; val <= secondValue; val++ )
+                {
+                    filterValues.insert( val );
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    QModelIndexList indices = allVisibleSourceModelIndices();
+
+    QModelIndexList indicesToSetChecked;
+    QModelIndexList indicesToSetUnChecked;
+
+    for ( const auto& mi : indices )
+    {
+        auto data = mi.data();
+        if ( data.canConvert<int>() )
+        {
+            auto value = data.toInt();
+            if ( filterValues.find( value ) != filterValues.end() )
+            {
+                indicesToSetChecked.push_back( mi );
+            }
+            else
+            {
+                indicesToSetUnChecked.push_back( mi );
+            }
+        }
+    }
+
+    m_model->setCheckedStateForItems( indicesToSetChecked, true );
+    m_model->setCheckedStateForItems( indicesToSetUnChecked, false );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 {
+    if ( hasOnlyIntegers( m_model ) )
+    {
+        setCheckedStateForItemsMatchingFilter();
+
+        return;
+    }
+
     QString searchString = m_textFilterLineEdit->text();
     searchString += "*";
 
@@ -721,6 +812,31 @@ void PdmUiTreeSelectionEditor::recursiveAppendVisibleSourceModelIndices( const Q
             recursiveAppendVisibleSourceModelIndices( mi, sourceModelIndices );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeSelectionEditor::hasOnlyIntegers( const QAbstractItemModel* model )
+{
+    if ( !model ) return false;
+
+    for ( int row = 0; row < model->rowCount(); ++row )
+    {
+        for ( int column = 0; column < model->columnCount(); ++column )
+        {
+            const QModelIndex index = model->index( row, column );
+            if ( index.isValid() )
+            {
+                QVariant data = index.data();
+                if ( !data.canConvert<int>() )
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
 }
 
 } // end namespace caf

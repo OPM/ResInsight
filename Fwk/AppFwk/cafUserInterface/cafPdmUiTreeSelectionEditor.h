@@ -47,11 +47,12 @@ class QLineEdit;
 class QSortFilterProxyModel;
 class QModelIndex;
 class QItemSelection;
-class QTreeViewHeightHint;
 
 namespace caf
 {
 class PdmUiTreeSelectionQModel;
+class FilterLeafNodesOnlyProxyModel;
+class QTreeViewHeightHint;
 
 //==================================================================================================
 ///
@@ -128,9 +129,12 @@ private:
     void setCheckedStateForSubItemsOfSelected( bool checked );
     void checkAllItems();
     void unCheckAllItems();
+    void setCheckedStateForItemsMatchingFilter();
 
     QModelIndexList allVisibleSourceModelIndices() const;
     void recursiveAppendVisibleSourceModelIndices( const QModelIndex& parent, QModelIndexList* sourceModelIndices ) const;
+
+    static bool hasOnlyIntegers( const QAbstractItemModel* model );
 
 private:
     QPointer<QTreeViewHeightHint> m_treeView;

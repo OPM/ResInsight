@@ -99,7 +99,7 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexLi
         QVariant        fieldValue          = m_uiFieldHandle->uiField()->uiValue();
         QList<QVariant> fieldValueSelection = fieldValue.toList();
 
-        for ( auto v : fieldValueSelection )
+        for ( const auto& v : fieldValueSelection )
         {
             selectedIndices.insert( v.toUInt() );
         }
@@ -107,7 +107,7 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexLi
 
     if ( checked )
     {
-        for ( auto mi : sourceModelIndices )
+        for ( const auto& mi : sourceModelIndices )
         {
             const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
             if ( !optionItemInfo->isReadOnly() )
@@ -118,7 +118,7 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexLi
     }
     else
     {
-        for ( auto mi : sourceModelIndices )
+        for ( const auto& mi : sourceModelIndices )
         {
             const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
             if ( !optionItemInfo->isReadOnly() )
@@ -479,7 +479,7 @@ bool caf::PdmUiTreeSelectionQModel::setData( const QModelIndex& index, const QVa
             {
                 QList<QVariant> fieldValueSelection = fieldValue.toList();
 
-                for ( auto v : fieldValueSelection )
+                for ( const auto& v : fieldValueSelection )
                 {
                     selectedIndices.push_back( v.toUInt() );
                 }
