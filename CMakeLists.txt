@@ -37,10 +37,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" OFF)
 
-option(VCPKG_AUTO_INSTALL
+option(RESINSIGHT_VCPKG_AUTO_INSTALL
        "Automatically download build pre-requisites with VCPKG" OFF
 )
-if(VCPKG_AUTO_INSTALL)
+if(RESINSIGHT_VCPKG_AUTO_INSTALL)
   include(AutoVcpkg)
   set(AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
 endif()
@@ -321,8 +321,8 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   # Update submodules as needed
-  option(GIT_SUBMODULE "Check submodules during build" ON)
-  if(GIT_SUBMODULE)
+  option(RESINSIGHT_UPDATE_SUBMODULES "Check submodules during build" ON)
+  if(RESINSIGHT_UPDATE_SUBMODULES)
     set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty")
     message(STATUS "Initializing GIT submodules")
     execute_process(
@@ -424,7 +424,7 @@ endif() # MSVC
 # Opm
 # ##############################################################################
 
-if(VCPKG_AUTO_INSTALL)
+if(RESINSIGHT_VCPKG_AUTO_INSTALL)
   vcpkg_install(boost-filesystem)
   vcpkg_install(boost-spirit)
   include(${CMAKE_TOOLCHAIN_FILE})
