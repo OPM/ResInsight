@@ -71,7 +71,7 @@ TEST( PdmFieldSerialization, StringList )
                                                                                    &messages,
                                                                                    stringsAreQuoted );
 
-    EXPECT_EQ( 4, destination.size() );
+    EXPECT_EQ( size_t(4), destination.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ TEST( PdmFieldSerialization, StringListQuoted )
                                                                                    &messages,
                                                                                    stringsAreQuoted );
 
-    EXPECT_EQ( 2, destination.size() );
+    EXPECT_EQ( (size_t)2, destination.size() );
     EXPECT_STREQ( "B-2H", destination[0].toStdString().c_str() );
     EXPECT_STREQ( "B-4H", destination[1].toStdString().c_str() );
 }
