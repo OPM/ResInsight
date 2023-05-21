@@ -732,7 +732,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     CommonCode PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
   )
   target_compile_options(
-    cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template -Wno-deprecated-enum-enum-conversion
+    cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+                               -Wno-deprecated-enum-enum-conversion
   )
   target_compile_options(
     cafVizExtensions PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
