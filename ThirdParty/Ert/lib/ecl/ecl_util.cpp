@@ -337,7 +337,6 @@ const char * ecl_util_file_type_name( ecl_file_enum file_type ) {
 
 static bool valid_base(const char * input_base, bool * upper_case) {
   bool upper = false;
-  bool lower = false;
   const char * base = strrchr(input_base, UTIL_PATH_SEP_CHAR);
   if (base == NULL)
     base = input_base;
