@@ -346,10 +346,6 @@ static bool valid_base(const char * input_base, bool * upper_case) {
 
     if (isupper(c))
       upper = true;
-
-    if (islower(c))
-      lower = true;
-
   }
 
   if (upper_case)
