@@ -36,10 +36,13 @@ set(BUILD_SHARED_LIBS
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" OFF)
+mark_as_advanced(RESINSIGHT_BUNDLE_TESTMODELS)
 
 option(RESINSIGHT_VCPKG_AUTO_INSTALL
        "Automatically download build pre-requisites with VCPKG" OFF
 )
+mark_as_advanced(RESINSIGHT_VCPKG_AUTO_INSTALL)
+
 if(RESINSIGHT_VCPKG_AUTO_INSTALL)
   include(AutoVcpkg)
   set(AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
@@ -322,6 +325,8 @@ find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   # Update submodules as needed
   option(RESINSIGHT_UPDATE_SUBMODULES "Check submodules during build" ON)
+  mark_as_advanced(RESINSIGHT_UPDATE_SUBMODULES)
+
   if(RESINSIGHT_UPDATE_SUBMODULES)
     set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty")
     message(STATUS "Initializing GIT submodules")
@@ -435,6 +440,7 @@ add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
 
 # Option used to build opm-common from source or use precompiled binaries
 option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
+mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
 
 if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
   FetchContent_Declare(
