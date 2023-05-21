@@ -71,7 +71,7 @@ TEST( PdmFieldSerialization, StringList )
                                                                                    &messages,
                                                                                    stringsAreQuoted );
 
-    EXPECT_EQ( size_t(4), destination.size() );
+    EXPECT_EQ( size_t( 4 ), destination.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
