@@ -64,15 +64,15 @@ RimWellLogDiffCurve::~RimWellLogDiffCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogDiffCurve::setWellLogCurves( RimWellLogCurve* firstWellLogCurve, RimWellLogCurve* secondWellLogCurve )
 {
+    disconnectWellLogCurveChangedFromSlots( m_firstWellLogCurve );
+    disconnectWellLogCurveChangedFromSlots( m_secondWellLogCurve );
     if ( firstWellLogCurve )
     {
-        disconnectWellLogCurveChangedFromSlots( m_firstWellLogCurve );
         m_firstWellLogCurve = firstWellLogCurve;
         connectWellLogCurveChangedToSlots( m_firstWellLogCurve );
     }
     if ( secondWellLogCurve )
     {
-        disconnectWellLogCurveChangedFromSlots( m_secondWellLogCurve );
         m_secondWellLogCurve = secondWellLogCurve;
         connectWellLogCurveChangedToSlots( m_secondWellLogCurve );
     }
@@ -88,7 +88,7 @@ void RimWellLogDiffCurve::setWellLogCurves( RimWellLogCurve* firstWellLogCurve, 
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogDiffCurve::createCurveAutoName()
 {
-    if ( !m_firstWellLogCurve() || !m_secondWellLogCurve() ) return QString( "Invalid well log curves" );
+    if ( !m_firstWellLogCurve() || !m_secondWellLogCurve() ) return QString( "Not able to find source curves for difference curve" );
     return QString( "Diff (%1 - %2)" ).arg( m_firstWellLogCurve->curveName() ).arg( m_secondWellLogCurve->curveName() );
 }
 

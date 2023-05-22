@@ -92,6 +92,9 @@ RimGeoMechFaultReactivationResult::~RimGeoMechFaultReactivationResult()
     delete m_faceBWellPath;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechFaultReactivationResult::onLoadDataAndUpdate()
 {
     createWellGeometry();
@@ -225,7 +228,7 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
     const cvf::Vec3d b          = points[1];
     const cvf::Vec3d wellVector = b - a;
 
-    // Cross product off well path vector and z-axis (New vector must be normalized)
+    // Cross product of well path vector and z-axis (New vector must be normalized)
     const cvf::Vec3d normVector     = wellVector ^ cvf::Vector3<double>::Z_AXIS;
     const cvf::Vec3d distanceVector = m_distanceFromIntersection() * normVector.getNormalized();
 
@@ -358,7 +361,7 @@ RimWellLogExtractionCurve* RimGeoMechFaultReactivationResult::createWellLogExtra
     if ( !view ) return nullptr;
 
     const int  branchIndex        = -1;
-    const bool useBranchDetection = true;
+    const bool useBranchDetection = false;
     const bool updateParentPlot   = true;
 
     RimWellLogExtractionCurve* wellLogExtractionCurve =
