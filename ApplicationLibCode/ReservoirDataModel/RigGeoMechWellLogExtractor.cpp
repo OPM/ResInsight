@@ -1033,7 +1033,7 @@ std::vector<size_t> RigGeoMechWellLogExtractor::findCloseCells( const cvf::Bound
 
     if ( m_caseData->femParts()->partCount() )
     {
-        m_caseData->femParts()->part( m_partId )->findIntersectingCells( bb, &closeCells );
+        m_caseData->femParts()->part( m_partId )->findIntersectingElementIndices( bb, &closeCells );
     }
     return closeCells;
 }

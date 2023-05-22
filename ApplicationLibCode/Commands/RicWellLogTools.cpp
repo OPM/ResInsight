@@ -31,6 +31,7 @@
 #include "RimSimWellInView.h"
 #include "RimSummaryCase.h"
 #include "RimWellLogCurveCommonDataSource.h"
+#include "RimWellLogDiffCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -566,6 +567,32 @@ RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTra
     RimWellMeasurementCurve* curve = new RimWellMeasurementCurve;
     curve->setWellPath( wellPath );
     curve->setMeasurementKind( measurementKind );
+
+    plotTrack->addCurve( curve );
+    plotTrack->updateConnectedEditors();
+
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
+
+    if ( showPlotWindow )
+    {
+        // Make sure the summary plot window is visible
+        RiuPlotMainWindowTools::showPlotMainWindow();
+    }
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogDiffCurve* RicWellLogTools::addWellLogDiffCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
+{
+    CVF_ASSERT( plotTrack );
+
+    RimWellLogDiffCurve* curve      = new RimWellLogDiffCurve();
+    const cvf::Color3f   curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
+    curve->setColor( curveColor );
 
     plotTrack->addCurve( curve );
     plotTrack->updateConnectedEditors();

@@ -236,7 +236,7 @@ void RimWellPathGeometryDef::setFixedMeasuredDepths( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createTargets( const std::vector<cvf::Vec3d>& points )
+std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createAndInsertTargets( const std::vector<cvf::Vec3d>& points )
 {
     CAF_ASSERT( points.size() >= 2u );
 

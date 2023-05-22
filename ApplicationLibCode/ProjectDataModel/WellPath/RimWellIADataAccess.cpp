@@ -67,11 +67,11 @@ int RimWellIADataAccess::elementIndex( cvf::Vec3d position )
     cvf::BoundingBox bb;
     bb.add( position );
 
-    std::vector<size_t> closeCells;
-    m_caseData->femParts()->part( 0 )->findIntersectingCells( bb, &closeCells );
-    if ( closeCells.size() == 0 ) return -1;
+    std::vector<size_t> closeElements;
+    m_caseData->femParts()->part( 0 )->findIntersectingElementIndices( bb, &closeElements );
+    if ( closeElements.size() == 0 ) return -1;
 
-    return (int)closeCells[0];
+    return (int)closeElements[0];
 }
 
 //--------------------------------------------------------------------------------------------------

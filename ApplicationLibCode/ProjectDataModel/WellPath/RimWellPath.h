@@ -139,6 +139,7 @@ public:
 
     bool showWellPathLabel() const;
     bool showWellPath() const;
+    void setShowWellPath( bool showWellPath );
 
     cvf::Color3f wellPathColor() const;
     void         setWellPathColor( const cvf::Color3f& color );

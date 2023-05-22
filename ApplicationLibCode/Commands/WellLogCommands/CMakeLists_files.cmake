@@ -30,6 +30,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPhaseRftSegmentPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogDiffCurveFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -64,6 +65,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPhaseRftSegmentPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogDiffCurveFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
