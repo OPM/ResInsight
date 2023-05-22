@@ -23,8 +23,6 @@
 #include "RiaPlotDefines.h"
 #include "RiaResultNames.h"
 
-#include "RicNewWellLogCurveExtractionFeature.h"
-#include "RicNewWellLogFileCurveFeature.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogTools.h"
 

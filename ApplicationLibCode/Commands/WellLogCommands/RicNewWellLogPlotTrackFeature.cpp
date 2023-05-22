@@ -24,7 +24,6 @@
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogPlot.h"
 
-#include "RicNewWellLogCurveExtractionFeature.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicWellLogTools.h"
 

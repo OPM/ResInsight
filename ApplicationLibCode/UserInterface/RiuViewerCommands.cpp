@@ -484,7 +484,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             // TODO: Update so these also use RiuWellPathSelectionItem
             caf::SelectionManager::instance()->setSelectedItem( wellPath );
 
-            menuBuilder << "RicNewWellLogCurveExtractionFeature";
+            menuBuilder << "RicNewWellLogExtractionCurveFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
 
             menuBuilder.addSeparator();
@@ -549,7 +549,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                                                                          eclipseWellSourceInfo->branchIndex() );
                 Riu3dSelectionManager::instance()->setSelectedItem( selItem, Riu3dSelectionManager::RUI_TEMPORARY );
 
-                menuBuilder << "RicNewWellLogCurveExtractionFeature";
+                menuBuilder << "RicNewWellLogExtractionCurveFeature";
                 menuBuilder << "RicNewWellLogRftCurveFeature";
 
                 menuBuilder.addSeparator();

@@ -19,8 +19,6 @@
 
 #include "RicNewWellLogPlotFeature.h"
 
-#include "RicNewWellLogCurveExtractionFeature.h"
-#include "RicNewWellLogFileCurveFeature.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
 
 #include "RimProject.h"
