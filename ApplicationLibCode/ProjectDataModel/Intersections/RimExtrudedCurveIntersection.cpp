@@ -955,7 +955,7 @@ void RimExtrudedCurveIntersection::setBaseColor( bool enable, caf::PdmUiListEdit
 {
     if ( attribute )
     {
-        attribute->m_qssState = enable ? "ExternalInput" : QString();
+        attribute->qssState = enable ? "ExternalInput" : QString();
     }
 }
 

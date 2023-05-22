@@ -34,8 +34,8 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <algorithm>
 
@@ -77,7 +77,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterMode", "Filter Mode" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleParameterName, "EnsembleParameter", "Ensemble Parameter" );
-    m_ensembleParameterName.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_ensembleParameterName.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
@@ -99,7 +99,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveFilter::onObjectionFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function" );
-    m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_minValue, "MinValue", m_lowerLimit, "Min" );
     m_minValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );

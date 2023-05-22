@@ -49,9 +49,9 @@
 #include "RivReservoirViewPartMgr.h"
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <set>
 
@@ -217,7 +217,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_wellDiskSummaryCase, "WellDiskSummaryCase", "Summary Case" );
 
     CAF_PDM_InitField( &m_wellDiskQuantity, "WellDiskQuantity", QString( "WOPT" ), "Disk Quantity" );
-    m_wellDiskQuantity.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_wellDiskQuantity.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_wellDiskQuantity.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyType, "WellDiskPropertyType", "Property Type" );

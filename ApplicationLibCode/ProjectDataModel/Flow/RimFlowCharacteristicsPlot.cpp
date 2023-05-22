@@ -42,7 +42,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafUtils.h"
 
@@ -97,7 +96,6 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "CellFilterView", "View" );
     CAF_PDM_InitField( &m_tracerFilter, "TracerFilter", QString(), "Tracer Filter" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTracerNames, "SelectedTracerNames", " " );
-    m_selectedTracerNames.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_showRegion, "ShowRegion", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_showRegion );
 

@@ -51,6 +51,8 @@ class QItemSelection;
 namespace caf
 {
 class PdmUiTreeSelectionQModel;
+class FilterLeafNodesOnlyProxyModel;
+class QTreeViewHeightHint;
 
 //==================================================================================================
 ///
@@ -62,6 +64,7 @@ public:
     bool showToggleAllCheckbox;
     bool singleSelectionMode;
     bool setCurrentIndexWhenItemIsChecked;
+    int  heightHint;
 
     /// currentIndexFieldHandle is used to communicate the value of current item in the tree view
     /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on
@@ -76,6 +79,7 @@ public:
         showToggleAllCheckbox            = true;
         singleSelectionMode              = false;
         setCurrentIndexWhenItemIsChecked = false;
+        heightHint                       = -1;
 
         currentIndexFieldHandle = nullptr;
     }
@@ -125,20 +129,25 @@ private:
     void setCheckedStateForSubItemsOfSelected( bool checked );
     void checkAllItems();
     void unCheckAllItems();
+    void setCheckedStateForIntegerItemsMatchingFilter();
 
     QModelIndexList allVisibleSourceModelIndices() const;
     void recursiveAppendVisibleSourceModelIndices( const QModelIndex& parent, QModelIndexList* sourceModelIndices ) const;
 
+    static bool hasOnlyIntegers( const QAbstractItemModel* model );
+
 private:
-    QPointer<QTreeView>       m_treeView;
-    QPointer<QShortenedLabel> m_label;
-    QPointer<QCheckBox>       m_toggleAllCheckBox;
-    QPointer<QLineEdit>       m_textFilterLineEdit;
+    QPointer<QTreeViewHeightHint> m_treeView;
+    QPointer<QShortenedLabel>     m_label;
+    QPointer<QCheckBox>           m_toggleAllCheckBox;
+    QPointer<QLineEdit>           m_textFilterLineEdit;
 
     PdmUiTreeSelectionQModel* m_model;
     QSortFilterProxyModel*    m_proxyModel;
 
     PdmUiTreeSelectionEditorAttribute m_attributes;
+
+    bool m_useSingleSelectionMode;
 };
 
 } // end namespace caf

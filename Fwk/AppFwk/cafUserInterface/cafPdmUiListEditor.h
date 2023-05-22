@@ -54,19 +54,19 @@ class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     PdmUiListEditorAttribute()
-        : m_heightHint( 2000 )
-        , m_allowHorizontalScrollBar( true )
+        : heightHint( 2000 )
+        , allowHorizontalScrollBar( true )
     {
         QPalette myPalette;
 
-        m_baseColor = myPalette.color( QPalette::Active, QPalette::Base );
+        baseColor = myPalette.color( QPalette::Active, QPalette::Base );
     }
 
 public:
-    QColor  m_baseColor;
-    QString m_qssState;
-    int     m_heightHint;
-    bool    m_allowHorizontalScrollBar;
+    QColor  baseColor;
+    QString qssState;
+    int     heightHint;
+    bool    allowHorizontalScrollBar;
 };
 
 //==================================================================================================

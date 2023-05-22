@@ -118,6 +118,7 @@ RimFishbones::RimFishbones()
                        "Orientation" );
 
     CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]" );
+    m_installationRotationAngles.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_installationRotationAngles.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]" );
 

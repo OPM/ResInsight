@@ -19,9 +19,11 @@
 #include "RiaMemoryCleanup.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultInfo.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigGeoMechCaseData.h"
+
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
@@ -29,8 +31,6 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimProject.h"
 
-#include "RigEclipseResultInfo.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -46,17 +46,15 @@ CAF_PDM_SOURCE_INIT( RiaMemoryCleanup, "RiaMemoryCleanup" );
 //--------------------------------------------------------------------------------------------------
 RiaMemoryCleanup::RiaMemoryCleanup()
 {
-    // clang-format off
-    CAF_PDM_InitFieldNoDefault(&m_case, "DataCase", "Case");
+    CAF_PDM_InitFieldNoDefault( &m_case, "DataCase", "Case" );
     m_case = nullptr;
 
-    CAF_PDM_InitFieldNoDefault(&m_resultsToDelete, "ResultsToDelete", "Results In Memory");
-    m_resultsToDelete.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-    m_resultsToDelete.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_resultsToDelete, "ResultsToDelete", "Results In Memory" );
+    m_resultsToDelete.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_resultsToDelete.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_performDelete, "ClearSelectedData", "");
-    caf::PdmUiPushButtonEditor::configureEditorForField(&m_performDelete);
-    // clang-format on
+    CAF_PDM_InitFieldNoDefault( &m_performDelete, "ClearSelectedData", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_performDelete );
 }
 
 //--------------------------------------------------------------------------------------------------

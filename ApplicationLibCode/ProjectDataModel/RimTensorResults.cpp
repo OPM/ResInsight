@@ -28,8 +28,8 @@
 #include "RigGeoMechCaseData.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimTensorResults, "RimTensorResults" );
 
@@ -92,7 +92,7 @@ RimTensorResults::RimTensorResults()
                        "Switches between automatic and user defined range",
                        "" );
 
-    m_resultFieldNameUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_resultFieldNameUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_resultFieldNameUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 }
 
@@ -354,10 +354,10 @@ void RimTensorResults::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 {
     if ( field == &m_resultFieldNameUiField )
     {
-        caf::PdmUiListEditorAttribute* listEditAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
-        if ( listEditAttr )
+        auto attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
+        if ( attr )
         {
-            listEditAttr->m_heightHint = 50;
+            attr->heightHint = 50;
         }
     }
 }

@@ -46,6 +46,8 @@ RimAsciiDataCurve::RimAsciiDataCurve()
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
     CAF_PDM_InitFieldNoDefault( &m_timeSteps, "TimeSteps", "Time Steps" );
     CAF_PDM_InitFieldNoDefault( &m_values, "Values", "Values" );
+    m_values.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_title, "Title", "Title" );
 
     setSymbolSkipDistance( 10.0f );

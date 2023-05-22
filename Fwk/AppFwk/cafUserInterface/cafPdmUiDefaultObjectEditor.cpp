@@ -47,6 +47,7 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTimeEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QGridLayout>
 
@@ -58,17 +59,19 @@ namespace caf
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiCheckBoxEditor, bool );
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, QString );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDate );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDateTime );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTimeEditor, QTime );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, int );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, double );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, float );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, quint64 );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<QString> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<int> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<unsigned int> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<float> );
+
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDate );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDateTime );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTimeEditor, QTime );
+
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<QString> );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<int> );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<unsigned int> );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<float> );
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiFilePathEditor, FilePath );
 

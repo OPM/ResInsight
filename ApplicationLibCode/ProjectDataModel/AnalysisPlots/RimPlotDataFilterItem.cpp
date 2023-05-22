@@ -19,19 +19,20 @@
 
 #include "RiaResultNames.h"
 
+#include "RifSummaryReaderInterface.h"
+
 #include "RimAnalysisPlot.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
-#include "RifSummaryReaderInterface.h"
-#include "RimSummaryCase.h"
-
-#include "QFontMetrics"
 #include "cafPdmUiActionPushButtonEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QFontMetrics>
 
 #include <limits>
 
@@ -116,7 +117,7 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     CAF_PDM_InitFieldNoDefault( &m_ensembleParameterValueCategories, "EnsembleParameterValueCategories", "one of" );
     CAF_PDM_InitFieldNoDefault( &m_consideredTimestepsType, "ConsideredTimestepsType", "at the" );
     CAF_PDM_InitFieldNoDefault( &m_explicitlySelectedTimeSteps, "ExplicitlySelectedTimeSteps", "TimeSteps" );
-    m_explicitlySelectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_explicitlySelectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     setDeletable( true );

@@ -70,7 +70,6 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
@@ -166,7 +165,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function" );
-    m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Text Box in Plot" );
 

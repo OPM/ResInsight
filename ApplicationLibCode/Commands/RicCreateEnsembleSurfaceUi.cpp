@@ -22,8 +22,8 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RicCreateEnsembleSurfaceUi, "RicCreateEnsembleSurfaceUi" );
 
@@ -75,10 +75,10 @@ void RicCreateEnsembleSurfaceUi::defineEditorAttribute( const caf::PdmFieldHandl
 {
     if ( field == &m_layers )
     {
-        caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
+        auto myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->m_heightHint = 280;
+            myAttr->heightHint = 280;
         }
     }
 }

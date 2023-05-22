@@ -66,7 +66,6 @@
 #endif
 
 #include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafUtils.h"
@@ -147,8 +146,8 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 
     CAF_PDM_InitField( &m_resultVariableUiField, "MResultVariable", RiaResultNames::undefinedResultName(), "Result Property" );
     m_resultVariableUiField.xmlCapability()->disableIO();
-    m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
+    m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyFileName, "InputPropertyFileName", "File Name" );
     m_inputPropertyFileName.xmlCapability()->disableIO();
@@ -166,17 +165,14 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 
     CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers" );
     m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
-    m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers" );
     m_selectedProducerTracersUiField.xmlCapability()->disableIO();
-    m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers" );
     m_selectedSouringTracersUiField.xmlCapability()->disableIO();
-    m_selectedSouringTracersUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_selectedSouringTracersUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
 }
 
@@ -1592,29 +1588,13 @@ void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandl
 {
     if ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
     {
-        if ( field == &m_resultVariableUiField )
-        {
-            caf::PdmUiListEditorAttribute* listEditAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
-            if ( listEditAttr )
-            {
-                listEditAttr->m_heightHint = 50;
-            }
-        }
-        else if ( field == &m_syncInjectorToProducerSelection || field == &m_syncProducerToInjectorSelection )
+        if ( field == &m_syncInjectorToProducerSelection || field == &m_syncProducerToInjectorSelection )
         {
             caf::PdmUiToolButtonEditorAttribute* toolButtonAttr = dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>( attribute );
             if ( toolButtonAttr )
             {
                 toolButtonAttr->m_sizePolicy.setHorizontalPolicy( QSizePolicy::MinimumExpanding );
             }
-        }
-    }
-    if ( field == &m_resultVariableUiField )
-    {
-        caf::PdmUiListEditorAttribute* listEditAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
-        if ( listEditAttr )
-        {
-            listEditAttr->m_allowHorizontalScrollBar = false;
         }
     }
 }
