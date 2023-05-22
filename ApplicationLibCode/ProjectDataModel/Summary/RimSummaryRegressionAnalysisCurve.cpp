@@ -26,6 +26,7 @@
 #include "PowerFitRegression.hpp"
 
 #include <cmath>
+#include <vector>
 
 CAF_PDM_SOURCE_INIT( RimSummaryRegressionAnalysisCurve, "RegressionAnalysisCurve" );
 
@@ -149,8 +150,23 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
+        auto filterValues = []( const std::vector<double>& timeSteps, const std::vector<double>& values )
+        {
+            std::vector<double> filteredTimeSteps;
+            std::vector<double> filteredValues;
+            for ( size_t i = 0; i < timeSteps.size(); i++ )
+            {
+                if ( timeSteps[i] > 0.0 && values[i] > 0.0 )
+                {
+                    filteredTimeSteps.push_back( timeSteps[i] );
+                    filteredValues.push_back( values[i] );
+                }
+            }
+            return std::make_pair( filteredTimeSteps, filteredValues );
+        };
+        auto [filteredTimeSteps, filteredValues] = filterValues( timeStepsD, values );
         regression::PowerFitRegression powerFitRegression;
-        powerFitRegression.fit( timeStepsD, values );
+        powerFitRegression.fit( filteredTimeSteps, filteredValues );
         std::vector<double> predictedValues = powerFitRegression.predict( timeStepsD );
         return { timeSteps, predictedValues, generateRegressionText( powerFitRegression ) };
     }
