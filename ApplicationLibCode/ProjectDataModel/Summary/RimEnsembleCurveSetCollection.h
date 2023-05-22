@@ -76,6 +76,8 @@ private:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
+    void onCurveSetsReordered( const SignalEmitter* emitter );
+
 private:
     caf::PdmField<bool>                           m_showCurves;
     caf::PdmChildArrayField<RimEnsembleCurveSet*> m_curveSets;

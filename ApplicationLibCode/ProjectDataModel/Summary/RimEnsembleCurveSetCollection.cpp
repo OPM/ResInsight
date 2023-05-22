@@ -31,6 +31,8 @@
 
 #include "RiuPlotCurve.h"
 
+#include "cafPdmFieldReorderCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -43,6 +45,7 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
     CAF_PDM_InitFieldNoDefault( &m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
     m_curveSets.uiCapability()->setUiTreeHidden( true );
     m_curveSets.uiCapability()->setUiTreeChildrenHidden( false );
+    caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curveSets, this, &RimEnsembleCurveSetCollection::onCurveSetsReordered );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
@@ -338,4 +341,11 @@ void RimEnsembleCurveSetCollection::onChildDeleted( caf::PdmChildArrayFieldHandl
 {
     auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot ) plot->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::onCurveSetsReordered( const SignalEmitter* emitter )
+{
 }
