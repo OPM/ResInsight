@@ -101,48 +101,12 @@ QRect PdmUiTreeViewItemDelegate::tagRect( const QRect& itemRect, QModelIndex ind
     auto it = m_tags.find( index );
     if ( it == m_tags.end() ) return QRect();
 
-    if ( it->second.size() == 1 )
+    if ( tagIndex < it->second.size() )
     {
-        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[0].get();
-        if ( !tag->icon.valid() && tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
-        {
-            // Special case for single tag at end, which is not an icon
-
-            QPoint bottomRight = itemRect.bottomRight();
-            QPoint topLeft     = itemRect.topRight() - QPoint( itemRect.height() * 1.5, 0 );
-            return QRect( topLeft, bottomRight );
-        }
+        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[tagIndex].get();
+        return tag->rect;
     }
 
-    QSize fullSize = itemRect.size();
-
-    QPoint offset( 0, 0 );
-
-    for ( size_t i = 0; i < it->second.size(); ++i )
-    {
-        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[i].get();
-        if ( tag->icon.valid() )
-        {
-            auto  icon     = tag->icon.icon();
-            QSize iconSize = icon->actualSize( fullSize );
-            QRect iconRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
-            {
-                QPoint bottomRight = itemRect.bottomRight() - offset;
-                QPoint topLeft     = bottomRight - QPoint( iconSize.width(), iconSize.height() );
-                iconRect           = QRect( topLeft, bottomRight );
-            }
-            else
-            {
-                QPoint topLeft     = itemRect.topLeft() + offset;
-                QPoint bottomRight = topLeft + QPoint( iconSize.width(), iconSize.height() );
-                iconRect           = QRect( topLeft, bottomRight );
-            }
-            offset += QPoint( iconSize.width() + 2, 0 );
-
-            if ( i == tagIndex ) return iconRect;
-        }
-    }
     return QRect();
 }
 
@@ -189,6 +153,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             }
             offset += QPoint( iconSize.width() + 2, 0 );
             icon->paint( painter, iconRect );
+            tag->rect = iconRect;
         }
         else
         {
@@ -246,6 +211,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
 
             painter->setPen( fgColor );
             painter->drawText( textRect, Qt::AlignCenter, text );
+            tag->rect = tagRect;
         }
     }
     // Restore painter

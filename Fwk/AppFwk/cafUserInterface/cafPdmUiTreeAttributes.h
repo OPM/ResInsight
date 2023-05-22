@@ -69,6 +69,7 @@ public:
         QColor       bgColor;
         QColor       fgColor;
         bool         selectedOnly;
+        QRect        rect;
 
         caf::Signal<size_t> clicked;
 
