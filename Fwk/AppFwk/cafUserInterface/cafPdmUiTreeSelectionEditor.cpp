@@ -178,15 +178,6 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_proxyModel->setFilterCaseSensitivity( Qt::CaseInsensitive );
 
         m_treeView->setModel( m_proxyModel );
-
-        if ( hasOnlyIntegers( m_model ) )
-        {
-            m_textFilterLineEdit->setPlaceholderText( "Integer filter eg. 1, 5-10" );
-        }
-        else
-        {
-            m_textFilterLineEdit->setPlaceholderText( "Type to filter items" );
-        }
     }
 
     QList<PdmOptionItemInfo> options = uiField()->valueOptions();
@@ -300,6 +291,16 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
                 }
             }
         }
+    }
+
+    // Set placeholder text based on content
+    if ( hasOnlyIntegers( m_model ) )
+    {
+        m_textFilterLineEdit->setPlaceholderText( "Integer filter e.g. 1, 5-10" );
+    }
+    else
+    {
+        m_textFilterLineEdit->setPlaceholderText( "Type to filter items" );
     }
 
     // It is required to use a timer here, as the layout of the widgets are handled by events
@@ -821,6 +822,14 @@ bool PdmUiTreeSelectionEditor::hasOnlyIntegers( const QAbstractItemModel* model 
 {
     if ( !model ) return false;
 
+    // Lambda function to check if a string is an integer
+    auto isInteger = []( const QString& s ) -> bool
+    {
+        bool ok;
+        s.toInt( &ok );
+        return ok;
+    };
+
     for ( int row = 0; row < model->rowCount(); ++row )
     {
         for ( int column = 0; column < model->columnCount(); ++column )
@@ -829,7 +838,7 @@ bool PdmUiTreeSelectionEditor::hasOnlyIntegers( const QAbstractItemModel* model 
             if ( index.isValid() )
             {
                 QVariant data = index.data();
-                if ( !data.canConvert<int>() )
+                if ( !data.canConvert<QString>() || !isInteger( data.toString() ) )
                 {
                     return false;
                 }
