@@ -68,6 +68,8 @@ RimFaultReactivationModel* RimFaultReactivationModelCollection::addNewModel( Rim
     newModel->setTargets( target1, target2 );
 
     m_models.push_back( newModel );
+
+    updateView();
     return newModel;
 }
 
@@ -146,8 +148,7 @@ void RimFaultReactivationModelCollection::onChildDeleted( caf::PdmChildArrayFiel
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModelCollection::updateView()
 {
-    Rim3dView* view = nullptr;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
 

@@ -43,6 +43,7 @@ CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationModel::RimFaultReactivationModel()
+    : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
     CAF_PDM_InitObject( "Fault Reactivation Model", ":/fault_react_24x24.png" );
 
@@ -56,6 +57,11 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( false );
+
+    this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
+    this->uiCapability()->setUiTreeChildrenHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +134,7 @@ void RimFaultReactivationModel::setTargets( cvf::Vec3d target1, cvf::Vec3d targe
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimFaultReactivationModel::activeTargets() const
 {
-    return m_targets.children();
+    return m_targets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,6 +174,8 @@ caf::PickEventHandler* RimFaultReactivationModel::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::updateVisualization()
 {
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
+    if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,10 +213,11 @@ QList<caf::PdmOptionItemInfo> RimFaultReactivationModel::calculateValueOptions( 
 
     if ( fieldNeedingOptions == &m_fault )
     {
-        RimFaultInViewCollection* coll = nullptr;
-        if ( m_fault() != nullptr ) m_fault->firstAncestorOrThisOfType( coll );
-
-        if ( coll != nullptr ) RimTools::faultOptionItems( &options, coll );
+        if ( m_fault() != nullptr )
+        {
+            auto coll = m_fault->firstAncestorOrThisOfType<RimFaultInViewCollection>();
+            if ( coll != nullptr ) RimTools::faultOptionItems( &options, coll );
+        }
     }
 
     return options;

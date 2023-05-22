@@ -36,6 +36,8 @@
 #include "RigMainGrid.h"
 
 #include "cafCmdExecCommandManager.h"
+#include "cafDisplayCoordTransform.h"
+
 #include "cvfCamera.h"
 #include "cvfStructGrid.h"
 
@@ -87,6 +89,7 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 normal.normalize();
                 normal *= eclView->ownerCase()->characteristicCellSize();
                 normal *= 3;
+                normal.z() = normal.z() / eclView->scaleZ();
 
                 auto antiNormal = -1.0 * normal;
 
