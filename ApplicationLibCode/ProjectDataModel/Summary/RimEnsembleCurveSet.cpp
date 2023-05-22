@@ -1778,7 +1778,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     deleteEnsembleCurves();
-    if ( m_plotCurveForLegendText ) m_plotCurveForLegendText->detach();
     deleteStatisticsCurves();
 
     if ( m_statistics->hideEnsembleCurves() ) return;
