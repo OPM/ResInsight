@@ -32,13 +32,16 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuGuiTheme.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotCurveSymbol.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
 
 #include "cafAssert.h"
+#include "cafPdmUiColorEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QPen>
@@ -1242,4 +1245,49 @@ QString RimPlotCurve::curveName() const
 QString RimPlotCurve::curveExportDescription( const RifEclipseSummaryAddress& address ) const
 {
     return m_curveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        treeItemAttribute->tags.clear();
+        auto tag = caf::PdmUiTreeViewItemAttribute::Tag::create();
+
+        // Blend with background for a nice look
+        auto   backgroundColor  = RiuGuiTheme::getColorByVariableName( "backgroundColor1" );
+        auto   color            = RiaColorTools::toQColor( m_curveAppearance->color() );
+        auto   sourceWeight     = 100;
+        double transparency     = 0.3;
+        int    backgroundWeight = std::max( 1, static_cast<int>( sourceWeight * 10 * transparency ) );
+        auto   blendedColor     = RiaColorTools::blendQColors( backgroundColor, color, backgroundWeight, sourceWeight );
+
+        tag->bgColor = blendedColor;
+        tag->fgColor = RiaColorTools::toQColor( m_curveAppearance->color() );
+        tag->text    = "---";
+
+        tag->clicked.connect( this, &RimPlotCurve::onColorTagClicked );
+
+        treeItemAttribute->tags.push_back( std::move( tag ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::onColorTagClicked( const SignalEmitter* emitter, size_t index )
+{
+    QColor sourceColor = RiaColorTools::toQColor( m_curveAppearance->color() );
+    QColor newColor    = caf::PdmUiColorEditor::getColor( sourceColor );
+
+    if ( newColor.isValid() && newColor != sourceColor )
+    {
+        auto myColor = RiaColorTools::fromQColorTo3f( newColor );
+        m_curveAppearance->setColor( myColor );
+        updateCurveAppearance();
+        replotParentPlot();
+    }
 }
