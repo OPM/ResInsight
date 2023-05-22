@@ -56,7 +56,6 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( false );
-    m_targets.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------
