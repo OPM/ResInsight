@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellLogCurveExtractionFeature.h"
+#include "RicNewWellLogExtractionCurveFeature.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
@@ -48,12 +48,12 @@
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT( RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtractionFeature" );
+CAF_CMD_SOURCE_INIT( RicNewWellLogExtractionCurveFeature, "RicNewWellLogExtractionCurveFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
+bool RicNewWellLogExtractionCurveFeature::isCommandEnabled()
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
@@ -67,7 +67,7 @@ bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
+void RicNewWellLogExtractionCurveFeature::onActionTriggered( bool isChecked )
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
@@ -122,7 +122,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogCurveExtractionFeature::setupActionLook( QAction* actionToSetup )
+void RicNewWellLogExtractionCurveFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Well Log Extraction Curve" );
     actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
@@ -131,7 +131,7 @@ void RicNewWellLogCurveExtractionFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogCurveExtractionFeature::caseAvailable()
+bool RicNewWellLogExtractionCurveFeature::caseAvailable()
 {
     std::vector<RimCase*> cases;
     RimProject::current()->allCases( cases );

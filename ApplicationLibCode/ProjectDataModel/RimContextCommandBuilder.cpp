@@ -401,7 +401,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicShowWellAllocationPlotFeature";
             menuBuilder << "RicNewWellBoreStabilityPlotFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
-            menuBuilder << "RicNewWellLogCurveExtractionFeature";
+            menuBuilder << "RicNewWellLogExtractionCurveFeature";
             menuBuilder.subMenuEnd();
 
             menuBuilder.subMenuStart( "3D Well Log Curves", QIcon( ":/WellLogCurve16x16.png" ) );
@@ -634,7 +634,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteWellLogTrackFeature";
             menuBuilder << "RicPasteWellLogCurveFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicNewWellLogCurveExtractionFeature";
+            menuBuilder << "RicNewWellLogExtractionCurveFeature";
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
             menuBuilder << "RicNewWellMeasurementCurveFeature";
@@ -870,7 +870,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSimWellInView*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewWellLogCurveExtractionFeature";
+            menuBuilder << "RicNewWellLogExtractionCurveFeature";
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewSimWellIntersectionFeature";
 
