@@ -109,6 +109,7 @@ public:
     void            onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
 
     bool isDeletable() const override;
+    bool isCurveHighlightSupported() const override;
 
 protected:
     void deleteViewWidget() override;
