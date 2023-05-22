@@ -535,10 +535,15 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
     if ( m_toggleAllCheckBox->isChecked() )
     {
         checkAllItems();
+        return;
     }
-    else
+
+    unCheckAllItems();
+
+    // Apply integer filtering if the model contains only integers
+    if ( hasOnlyIntegers( m_model ) )
     {
-        unCheckAllItems();
+        setCheckedStateForIntegerItemsMatchingFilter();
     }
 }
 
@@ -572,7 +577,7 @@ void PdmUiTreeSelectionEditor::slotInvertCheckedStateOfAll()
 ///
 /// Mark matching items as checked
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::setCheckedStateForItemsMatchingFilter()
+void PdmUiTreeSelectionEditor::setCheckedStateForIntegerItemsMatchingFilter()
 {
 #if ( QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 ) )
     auto SkipEmptyParts = QString::SkipEmptyParts;
@@ -646,7 +651,7 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 {
     if ( hasOnlyIntegers( m_model ) )
     {
-        setCheckedStateForItemsMatchingFilter();
+        setCheckedStateForIntegerItemsMatchingFilter();
 
         return;
     }

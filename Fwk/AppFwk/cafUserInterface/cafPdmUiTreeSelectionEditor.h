@@ -129,7 +129,7 @@ private:
     void setCheckedStateForSubItemsOfSelected( bool checked );
     void checkAllItems();
     void unCheckAllItems();
-    void setCheckedStateForItemsMatchingFilter();
+    void setCheckedStateForIntegerItemsMatchingFilter();
 
     QModelIndexList allVisibleSourceModelIndices() const;
     void recursiveAppendVisibleSourceModelIndices( const QModelIndex& parent, QModelIndexList* sourceModelIndices ) const;
