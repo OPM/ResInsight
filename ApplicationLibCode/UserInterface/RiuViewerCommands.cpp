@@ -534,6 +534,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicNewWellPathLateralAtDepthFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
             menuBuilder << "RicLinkWellPathFeature";
+            menuBuilder << "RicDuplicateWellPathFeature";
         }
 
         const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
