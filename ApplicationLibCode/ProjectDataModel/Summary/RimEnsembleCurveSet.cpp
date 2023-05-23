@@ -1777,7 +1777,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     deleteEnsembleCurves();
-    if ( m_plotCurveForLegendText ) m_plotCurveForLegendText->detach();
     deleteStatisticsCurves();
 
     if ( m_statistics->hideEnsembleCurves() ) return;
@@ -2187,8 +2186,8 @@ RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifE
 {
     auto qName = QString::fromStdString( address.vectorName() );
 
-    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
     if ( qName.contains( ENSEMBLE_STAT_P50_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
     return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
 }
