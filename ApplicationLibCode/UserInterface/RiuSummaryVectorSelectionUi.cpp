@@ -1398,7 +1398,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::Pdm
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK );
 
-    if ( m_hideCalculationIncompatibleCategories )
+    if ( !m_hideCalculationIncompatibleCategories )
     {
         sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT );
         sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR );
