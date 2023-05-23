@@ -239,8 +239,6 @@ void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePerio
                                                        const RimSummaryCurvesData& inputCurvesData,
                                                        RimSummaryCurvesData*       resultCurvesData )
 {
-    RiaTimeHistoryCurveResampler resampler;
-
     resultCurvesData->clear();
 
     if ( period != RiaDefines::DateTimePeriod::NONE )
@@ -259,21 +257,13 @@ void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePerio
 
             for ( auto& curveDataItem : caseCurveData )
             {
-                resampler.setCurveData( curveDataItem.values, caseTimeSteps );
-
-                if ( RiaSummaryTools::hasAccumulatedData( curveDataItem.address ) || algorithm == ResampleAlgorithm::PERIOD_END )
-                {
-                    resampler.resampleAndComputePeriodEndValues( period );
-                }
-                else
-                {
-                    resampler.resampleAndComputeWeightedMeanValues( period );
-                }
+                const auto [resampledTime, resampledValues] =
+                    RiaSummaryTools::resampledValuesForPeriod( curveDataItem.address, caseTimeSteps, curveDataItem.values, period );
 
                 auto cd   = curveDataItem;
-                cd.values = resampler.resampledValues();
+                cd.values = resampledValues;
 
-                resultCurvesData->addCurveData( caseId, "", resampler.resampledTimeSteps(), cd );
+                resultCurvesData->addCurveData( caseId, "", resampledTime, cd );
             }
         }
     }
