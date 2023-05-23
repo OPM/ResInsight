@@ -41,9 +41,9 @@ public:
     void setWellLogCurves( RimWellLogCurve* firstWellLogCurve, RimWellLogCurve* secondWellLogCurve );
 
     // Inherited via RimWellLogCurve
-    virtual QString wellName() const override;
-    virtual QString wellLogChannelUiName() const override;
-    virtual QString wellLogChannelUnits() const override;
+    QString wellName() const override;
+    QString wellLogChannelUiName() const override;
+    QString wellLogChannelUnits() const override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -53,8 +53,8 @@ protected:
 
 private:
     // Inherited via RimWellLogCurve
-    virtual QString createCurveAutoName() override;
-    virtual void    onLoadDataAndUpdate( bool updateParentPlot ) override;
+    QString createCurveAutoName() override;
+    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
 
     void setAutomaticName();
 
