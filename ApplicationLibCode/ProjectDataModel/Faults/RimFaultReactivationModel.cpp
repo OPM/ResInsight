@@ -37,6 +37,8 @@
 
 #include "cafPdmUiTableViewEditor.h"
 
+#include "cvfPlane.h"
+
 CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +160,7 @@ void RimFaultReactivationModel::deleteTarget( RimPolylineTarget* targetToDelete 
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationModel::pickingEnabled() const
 {
+    // never pick, we only have our 2 predefined targets
     return false;
 }
 
@@ -231,4 +234,32 @@ RivFaultReactivationModelPartMgr* RimFaultReactivationModel::partMgr()
     if ( m_partMgr.isNull() ) m_partMgr = new RivFaultReactivationModelPartMgr( this );
 
     return m_partMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Plane> RimFaultReactivationModel::faultPlane() const
+{
+    cvf::ref<cvf::Plane> plane = new cvf::Plane();
+
+    cvf::Vec3d normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
+    normal.normalize();
+
+    plane->setFromPointAndNormal( m_targets[0]->targetPointXYZ(), normal );
+    return plane;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Plane> RimFaultReactivationModel::modelPlane() const
+{
+    cvf::ref<cvf::Plane> plane = new cvf::Plane();
+
+    cvf::Vec3d p3 = m_targets[0]->targetPointXYZ();
+    p3.z()        = p3.z() + 1000.0;
+
+    plane->setFromPoints( m_targets[0]->targetPointXYZ(), m_targets[1]->targetPointXYZ(), p3 );
+    return plane;
 }

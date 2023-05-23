@@ -43,6 +43,7 @@ class RivFaultReactivationModelPartMgr;
 namespace cvf
 {
 class BoundingBox;
+class Plane;
 } // namespace cvf
 
 class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
@@ -74,6 +75,10 @@ public:
 
     // polyline data interface
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
+
+    cvf::ref<cvf::Plane> faultPlane() const;
+
+    cvf::ref<cvf::Plane> modelPlane() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
