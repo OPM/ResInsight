@@ -53,6 +53,27 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # ##############################################################################
+# OPTIONAL: Configuration of ccache for MSVC
+# ##############################################################################
+option(RESINSIGHT_USE_CCACHE
+       "Use ccache" OFF
+)
+mark_as_advanced(RESINSIGHT_USE_CCACHE)
+
+if (RESINSIGHT_USE_CCACHE)
+  find_program(ccache_exe ccache)
+  if(MSVC AND ccache_exe)
+    file(COPY_FILE ${ccache_exe} ${CMAKE_BINARY_DIR}/cl.exe ONLY_IF_DIFFERENT)
+
+    set(CMAKE_VS_GLOBALS
+        "CLToolExe=cl.exe" "CLToolPath=${CMAKE_BINARY_DIR}"
+        "TrackFileAccess=false" "UseMultiToolTask=true"
+        "DebugInformationFormat=OldStyle"
+    )
+  endif()
+endif()
+
+# ##############################################################################
 # Setup the main platform defines
 # ##############################################################################
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
