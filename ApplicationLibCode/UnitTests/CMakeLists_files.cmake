@@ -91,6 +91,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigDeclineCurveCalculator-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
