@@ -359,20 +359,20 @@ void RigWellLogCurveData::interpolateSegment( RiaDefines::DepthTypeEnum         
 {
     if ( !originalDepths.contains( resamplingDepthType ) ) return;
 
-    const auto& depthValues = originalDepths.find( resamplingDepthType )->second;
-    size_t      secondIndex = firstIndex + 1;
+    const size_t secondIndex = firstIndex + 1;
+    const auto&  depthValues = originalDepths.find( resamplingDepthType )->second;
     if ( secondIndex >= depthValues.size() ) return;
 
-    double depth0 = depthValues[firstIndex];
-    double depth1 = depthValues[secondIndex];
-    double x0     = propertyValues[firstIndex];
-    double x1     = propertyValues[secondIndex];
-    double slope  = 0.0;
+    const double depth0 = depthValues[firstIndex];
+    const double depth1 = depthValues[secondIndex];
+    const double x0     = propertyValues[firstIndex];
+    const double x1     = propertyValues[secondIndex];
+    double       slope  = 0.0;
     if ( std::fabs( depth1 - depth0 ) > eps )
     {
         slope = ( x1 - x0 ) / ( depth1 - depth0 );
     }
-    double resampledValue = slope * ( targetDepthValue - depth0 ) + x0;
+    const double resampledValue = slope * ( targetDepthValue - depth0 ) + x0;
     resampledValues.push_back( resampledValue );
 
     for ( const auto& [depthType, depthTypeValues] : originalDepths )
@@ -381,9 +381,9 @@ void RigWellLogCurveData::interpolateSegment( RiaDefines::DepthTypeEnum         
         if ( depthType == resamplingDepthType ) continue;
         if ( depthTypeValues.size() < secondIndex - 1 ) continue;
 
-        double otherDepth0 = depthTypeValues[firstIndex];
-        double otherDepth1 = depthTypeValues[secondIndex];
-        double otherSlope  = ( otherDepth1 - otherDepth0 ) / ( depth1 - depth0 );
+        const double otherDepth0 = depthTypeValues[firstIndex];
+        const double otherDepth1 = depthTypeValues[secondIndex];
+        const double otherSlope  = ( otherDepth1 - otherDepth0 ) / ( depth1 - depth0 );
         resampledDepths[depthType].push_back( otherSlope * ( targetDepthValue - depth0 ) + otherDepth0 );
     }
 }
