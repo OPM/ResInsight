@@ -61,14 +61,14 @@ TEST( RigWellLogCurveData, interpolateSegment_first )
                                              eps );
 
     // Check the results
-    ASSERT_EQ( resampledValues.size(), 1 );
+    ASSERT_EQ( resampledValues.size(), size_t( 1 ) );
     ASSERT_DOUBLE_EQ( resampledValues[0], 50.0 );
 
-    ASSERT_EQ( resampledDepths.size(), 2 );
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), 1 );
+    ASSERT_EQ( resampledDepths.size(), size_t( 2 ) );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), size_t( 1 ) );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][0], 15.0 );
 
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH].size(), 1 );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH].size(), size_t( 1 ) );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][0], 20.0 );
 }
 
@@ -117,16 +117,16 @@ TEST( RigWellLogCurveData, interpolateSegment_second )
                                              eps );
 
     // Check the results
-    ASSERT_EQ( resampledValues.size(), 2 );
+    ASSERT_EQ( resampledValues.size(), size_t( 2 ) );
     ASSERT_DOUBLE_EQ( resampledValues[0], 50.0 );
     ASSERT_DOUBLE_EQ( resampledValues[1], 125.0 );
 
-    ASSERT_EQ( resampledDepths.size(), 2 );
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), 2 );
+    ASSERT_EQ( resampledDepths.size(), size_t( 2 ) );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), size_t( 2 ) );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][0], 15.0 );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][1], 45.0 );
 
-    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH].size(), 2 );
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH].size(), size_t( 2 ) );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][0], 20.0 );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::PSEUDO_LENGTH][1], 60.0 );
 }
