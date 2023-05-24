@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogDiffCurve.h"
+#include "RimWellLogCalculatedCurve.h"
 
 #include "RiaDefines.h"
 #include "RiaLogging.h"
@@ -34,16 +34,36 @@
 
 #include "RiuPlotCurve.h"
 
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
-CAF_PDM_SOURCE_INIT( RimWellLogDiffCurve, "WellLogDiffCurve" );
+CAF_PDM_SOURCE_INIT( RimWellLogCalculatedCurve, "WellLogCalculatedCurve" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogDiffCurve::RimWellLogDiffCurve()
+namespace caf
 {
-    CAF_PDM_InitObject( "Well Log Diff Curve", ":/WellLogCurve16x16.png" );
+template <>
+void AppEnum<RimWellLogCalculatedCurve::Operators>::setUp()
+{
+    addItem( RimWellLogCalculatedCurve::Operators::ADD, "ADD", "+" );
+    addItem( RimWellLogCalculatedCurve::Operators::SUBTRACT, "SUBTRACT", "-" );
+    addItem( RimWellLogCalculatedCurve::Operators::MULTIPLY, "MULTIPLY", "*" );
+    addItem( RimWellLogCalculatedCurve::Operators::DIVIDE, "DIVIDE", "/" );
+    setDefault( RimWellLogCalculatedCurve::Operators::SUBTRACT );
+}
+} // namespace caf
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogCalculatedCurve::RimWellLogCalculatedCurve()
+{
+    CAF_PDM_InitObject( "Well Log Calculated Curve", ":/WellLogCurve16x16.png" );
+
+    CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator" );
+    m_operator.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_firstWellLogCurve, "FirstWellLogCurve", "First Well Log Curve" );
     CAF_PDM_InitFieldNoDefault( &m_secondWellLogCurve, "SecondWellLogCurve", "Second Well Log Curve" );
@@ -55,14 +75,26 @@ RimWellLogDiffCurve::RimWellLogDiffCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogDiffCurve::~RimWellLogDiffCurve()
+RimWellLogCalculatedCurve::~RimWellLogCalculatedCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::setWellLogCurves( RimWellLogCurve* firstWellLogCurve, RimWellLogCurve* secondWellLogCurve )
+void RimWellLogCalculatedCurve::setOperator( Operators operatorValue )
+{
+    m_operator = operatorValue;
+    if ( m_namingMethod() == RiaDefines::ObjectNamingMethod::AUTO )
+    {
+        setAutomaticName();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCalculatedCurve::setWellLogCurves( RimWellLogCurve* firstWellLogCurve, RimWellLogCurve* secondWellLogCurve )
 {
     disconnectWellLogCurveChangedFromSlots( m_firstWellLogCurve );
     disconnectWellLogCurveChangedFromSlots( m_secondWellLogCurve );
@@ -86,16 +118,18 @@ void RimWellLogDiffCurve::setWellLogCurves( RimWellLogCurve* firstWellLogCurve, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogDiffCurve::createCurveAutoName()
+QString RimWellLogCalculatedCurve::createCurveAutoName()
 {
-    if ( !m_firstWellLogCurve() || !m_secondWellLogCurve() ) return QString( "Not able to find source curves for difference curve" );
-    return QString( "Diff (%1 - %2)" ).arg( m_firstWellLogCurve->curveName() ).arg( m_secondWellLogCurve->curveName() );
+    if ( !m_firstWellLogCurve() || !m_secondWellLogCurve() ) return QString( "Not able to find source curves for calculated curve" );
+
+    const auto& operatorStr = m_operator().uiText();
+    return QString( "Calculated (%1 %2 %3)" ).arg( m_firstWellLogCurve->curveName() ).arg( operatorStr ).arg( m_secondWellLogCurve->curveName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::onLoadDataAndUpdate( bool updateParentPlot )
+void RimWellLogCalculatedCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     if ( !m_firstWellLogCurve() || !m_secondWellLogCurve() ) return;
 
@@ -136,13 +170,13 @@ void RimWellLogDiffCurve::onLoadDataAndUpdate( bool updateParentPlot )
     if ( firstCurveDepthValues.size() != secondCurveDepthValuesResampled.size() ) return;
     if ( firstCurveDepthValues.size() != secondCurvePropertyValuesResampled.size() ) return;
 
-    // Calculate diff curve
-    std::vector<double> curveDiffDepthValues( firstCurveDepthValues.size() );
-    std::vector<double> curveDiffPropertyValues( firstCurvePropertyValues.size() );
+    // Calculate curve
+    std::vector<double> calculatedDepthValues( firstCurveDepthValues.size() );
+    std::vector<double> calculatedPropertyValues( firstCurvePropertyValues.size() );
     for ( size_t i = 0; i < firstCurvePropertyValues.size(); ++i )
     {
-        curveDiffPropertyValues[i] = firstCurvePropertyValues[i] - secondCurvePropertyValuesResampled[i];
-        curveDiffDepthValues[i]    = firstCurveDepthValues[i];
+        calculatedPropertyValues[i] = calculateValue( firstCurvePropertyValues[i], secondCurvePropertyValuesResampled[i], m_operator() );
+        calculatedDepthValues[i]    = firstCurveDepthValues[i];
     }
 
     const bool useLogarithmicScale = false;
@@ -150,8 +184,8 @@ void RimWellLogDiffCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     // Set curve data
     auto depthsMap       = std::map<RiaDefines::DepthTypeEnum, std::vector<double>>();
-    depthsMap[depthType] = curveDiffDepthValues;
-    setPropertyValuesAndDepths( curveDiffPropertyValues, depthsMap, 0.0, depthUnit, isExtractionCurve, useLogarithmicScale, propertyUnit );
+    depthsMap[depthType] = calculatedDepthValues;
+    setPropertyValuesAndDepths( calculatedPropertyValues, depthsMap, 0.0, depthUnit, isExtractionCurve, useLogarithmicScale, propertyUnit );
 
     // Set curve data to plot
     std::vector<double> xPlotValues = curveData()->propertyValuesByIntervals();
@@ -163,7 +197,7 @@ void RimWellLogDiffCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::setAutomaticName()
+void RimWellLogCalculatedCurve::setAutomaticName()
 {
     m_curveName = createCurveAutoName();
 }
@@ -171,7 +205,7 @@ void RimWellLogDiffCurve::setAutomaticName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::onWellLogCurveChanged( const SignalEmitter* emitter )
+void RimWellLogCalculatedCurve::onWellLogCurveChanged( const SignalEmitter* emitter )
 {
     onLoadDataAndUpdate( true );
 }
@@ -179,17 +213,17 @@ void RimWellLogDiffCurve::onWellLogCurveChanged( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::connectWellLogCurveChangedToSlots( RimWellLogCurve* wellLogCurve )
+void RimWellLogCalculatedCurve::connectWellLogCurveChangedToSlots( RimWellLogCurve* wellLogCurve )
 {
     if ( !wellLogCurve ) return;
 
-    wellLogCurve->dataChanged.connect( this, &RimWellLogDiffCurve::onWellLogCurveChanged );
+    wellLogCurve->dataChanged.connect( this, &RimWellLogCalculatedCurve::onWellLogCurveChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::disconnectWellLogCurveChangedFromSlots( RimWellLogCurve* wellLogCurve )
+void RimWellLogCalculatedCurve::disconnectWellLogCurveChangedFromSlots( RimWellLogCurve* wellLogCurve )
 {
     if ( !wellLogCurve ) return;
 
@@ -199,7 +233,31 @@ void RimWellLogDiffCurve::disconnectWellLogCurveChangedFromSlots( RimWellLogCurv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogDiffCurve::wellName() const
+double RimWellLogCalculatedCurve::calculateValue( double firstValue, double secondValue, Operators operatorValue )
+{
+    if ( operatorValue == Operators::ADD )
+    {
+        return firstValue + secondValue;
+    }
+    if ( operatorValue == Operators::SUBTRACT )
+    {
+        return firstValue - secondValue;
+    }
+    if ( operatorValue == Operators::MULTIPLY )
+    {
+        return firstValue * secondValue;
+    }
+    if ( operatorValue == Operators::DIVIDE )
+    {
+        return firstValue / secondValue;
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogCalculatedCurve::wellName() const
 {
     return m_curveName;
 }
@@ -207,7 +265,7 @@ QString RimWellLogDiffCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogDiffCurve::wellLogChannelUiName() const
+QString RimWellLogCalculatedCurve::wellLogChannelUiName() const
 {
     return m_curveName;
 }
@@ -215,13 +273,15 @@ QString RimWellLogDiffCurve::wellLogChannelUiName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogDiffCurve::wellLogChannelUnits() const
+QString RimWellLogCalculatedCurve::wellLogChannelUnits() const
 {
-    CAF_ASSERT( "TO BE IMPLEMETNED!" );
-
     if ( m_firstWellLogCurve->wellLogChannelUnits() != m_secondWellLogCurve->wellLogChannelUnits() )
     {
-        return QString( "%1 - %2" ).arg( m_firstWellLogCurve->wellLogChannelUnits() ).arg( m_secondWellLogCurve->wellLogChannelUnits() );
+        const auto& operatorStr = m_operator().uiText();
+        return QString( "%1 %2 %3" )
+            .arg( m_firstWellLogCurve->wellLogChannelUnits() )
+            .arg( operatorStr )
+            .arg( m_secondWellLogCurve->wellLogChannelUnits() );
     }
     return m_firstWellLogCurve->wellLogChannelUnits();
 }
@@ -229,11 +289,12 @@ QString RimWellLogDiffCurve::wellLogChannelUnits() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimWellLogCalculatedCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Data Source" );
+    group->add( &m_operator );
     group->add( &m_firstWellLogCurve );
     group->add( &m_secondWellLogCurve );
 
@@ -245,7 +306,7 @@ void RimWellLogDiffCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+void RimWellLogCalculatedCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -253,7 +314,7 @@ void RimWellLogDiffCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogDiffCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimWellLogCalculatedCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -266,16 +327,20 @@ void RimWellLogDiffCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         disconnectWellLogCurveChangedFromSlots( prevWellLogCurve );
 
         if ( changedField == &m_firstWellLogCurve ) connectWellLogCurveChangedToSlots( m_firstWellLogCurve );
-        if ( changedField == &m_secondWellLogCurve ) connectWellLogCurveChangedToSlots( m_firstWellLogCurve );
+        if ( changedField == &m_secondWellLogCurve ) connectWellLogCurveChangedToSlots( m_secondWellLogCurve );
 
-        onLoadDataAndUpdate( true );
+        loadDataAndUpdate( true );
+    }
+    if ( changedField == &m_operator )
+    {
+        loadDataAndUpdate( true );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellLogDiffCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimWellLogCalculatedCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

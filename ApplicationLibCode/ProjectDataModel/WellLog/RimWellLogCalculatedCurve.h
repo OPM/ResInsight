@@ -30,20 +30,32 @@ class RimWellPath;
 ///
 ///
 //==================================================================================================
-class RimWellLogDiffCurve : public RimWellLogCurve
+class RimWellLogCalculatedCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogDiffCurve();
-    ~RimWellLogDiffCurve() override;
+    enum class Operators
+    {
+        ADD,
+        SUBTRACT,
+        DIVIDE,
+        MULTIPLY
+    };
 
+public:
+    RimWellLogCalculatedCurve();
+    ~RimWellLogCalculatedCurve() override;
+
+    void setOperator( Operators operatorValue );
     void setWellLogCurves( RimWellLogCurve* firstWellLogCurve, RimWellLogCurve* secondWellLogCurve );
 
     // Inherited via RimWellLogCurve
     QString wellName() const override;
     QString wellLogChannelUiName() const override;
     QString wellLogChannelUnits() const override;
+
+    static double calculateValue( double firstValue, double secondValue, Operators operatorValue );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -64,6 +76,8 @@ private:
 
 private:
     caf::PdmPtrField<RimCase*> m_case;
+
+    caf::PdmField<caf::AppEnum<Operators>> m_operator;
 
     caf::PdmPtrField<RimWellLogCurve*> m_firstWellLogCurve;
     caf::PdmPtrField<RimWellLogCurve*> m_secondWellLogCurve;

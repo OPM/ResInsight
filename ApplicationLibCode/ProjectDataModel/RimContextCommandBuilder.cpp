@@ -639,7 +639,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
             menuBuilder << "RicNewWellMeasurementCurveFeature";
-            menuBuilder << "RicNewWellLogDiffCurveFeature";
+            menuBuilder << "RicNewWellLogCalculatedCurveFeature";
             menuBuilder << "RicNewEnsembleWellLogCurveSetFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicDeleteSubPlotFeature";
@@ -1245,7 +1245,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimWellLogCurve*>( firstUiItem ) || dynamic_cast<RimWellLogTrack*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewWellLogDiffCurveFeature";
+            menuBuilder << "RicNewWellLogCalculatedCurveFeature";
             menuBuilder << "RicExportToLasFileFeature";
             menuBuilder << "RicChangeDataSourceFeature";
         }

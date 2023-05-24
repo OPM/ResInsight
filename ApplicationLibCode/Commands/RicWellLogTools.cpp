@@ -30,8 +30,8 @@
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSummaryCase.h"
+#include "RimWellLogCalculatedCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
-#include "RimWellLogDiffCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -586,12 +586,12 @@ RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogDiffCurve* RicWellLogTools::addWellLogDiffCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
+RimWellLogCalculatedCurve* RicWellLogTools::addWellLogCalculatedCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
 {
     CVF_ASSERT( plotTrack );
 
-    RimWellLogDiffCurve* curve      = new RimWellLogDiffCurve();
-    const cvf::Color3f   curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
+    RimWellLogCalculatedCurve* curve      = new RimWellLogCalculatedCurve();
+    const cvf::Color3f         curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );
 
     plotTrack->addCurve( curve );

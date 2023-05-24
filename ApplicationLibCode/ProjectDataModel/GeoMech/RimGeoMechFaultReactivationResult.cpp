@@ -35,7 +35,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimModeledWellPath.h"
-#include "RimWellLogDiffCurve.h"
+#include "RimWellLogCalculatedCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlotNameConfig.h"
@@ -286,8 +286,8 @@ void RimGeoMechFaultReactivationResult::createWellLogCurves()
     const bool       doUpdateAfter = true;
     RimWellLogTrack* wellLogExtractionDisplacementTrack =
         RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( doUpdateAfter, QString( "Fault Reactivation Displacement Curves" ), newPlot );
-    RimWellLogTrack* wellLogDiffTrack =
-        RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( doUpdateAfter, QString( "Fault Reactivation Displacement Diff" ), newPlot );
+    RimWellLogTrack* wellLogCalculatedTrack =
+        RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( doUpdateAfter, QString( "Fault Reactivation Displacement Difference" ), newPlot );
     RimWellLogTrack* wellLogExtractionFaultmobTrack =
         RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( doUpdateAfter, QString( "Fault Reactivation Faultmob Curves" ), newPlot );
 
@@ -308,11 +308,12 @@ void RimGeoMechFaultReactivationResult::createWellLogCurves()
         return;
     }
 
-    // Create well log diff curve for m_faceAWellPath and m_faceBWellPath
-    RimWellLogDiffCurve* faceWellLogDiffCurve = RicWellLogTools::addWellLogDiffCurve( wellLogDiffTrack );
-    faceWellLogDiffCurve->setWellLogCurves( faceADisplacementCurve, faceBDisplacementCurve );
-    faceWellLogDiffCurve->loadDataAndUpdate( true );
-    faceWellLogDiffCurve->updateConnectedEditors();
+    // Create well log calculated curve for m_faceAWellPath and m_faceBWellPath
+    RimWellLogCalculatedCurve* wellLogCalculatedCurve = RicWellLogTools::addWellLogCalculatedCurve( wellLogCalculatedTrack );
+    wellLogCalculatedCurve->setOperator( RimWellLogCalculatedCurve::Operators::SUBTRACT );
+    wellLogCalculatedCurve->setWellLogCurves( faceADisplacementCurve, faceBDisplacementCurve );
+    wellLogCalculatedCurve->loadDataAndUpdate( true );
+    wellLogCalculatedCurve->updateConnectedEditors();
 
     // Well log extraction faultmob curves
     RigFemResultAddress wellLogExtractionFaultmobResult( RigFemResultPosEnum::RIG_ELEMENT_NODAL_FACE, "SE", "FAULTMOB" );

@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewWellLogDiffCurveFeature.h"
+#include "RicNewWellLogCalculatedCurveFeature.h"
 
 #include "RicWellLogTools.h"
 
+#include "RimWellLogCalculatedCurve.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogDiffCurve.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -33,12 +33,12 @@
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT( RicNewWellLogDiffCurveFeature, "RicNewWellLogDiffCurveFeature" );
+CAF_CMD_SOURCE_INIT( RicNewWellLogCalculatedCurveFeature, "RicNewWellLogCalculatedCurveFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogDiffCurveFeature::isCommandEnabled()
+bool RicNewWellLogCalculatedCurveFeature::isCommandEnabled()
 {
     std::vector<RimWellLogCurve*> wellLogCurves;
     caf::SelectionManager::instance()->objectsByType( &wellLogCurves );
@@ -49,12 +49,12 @@ bool RicNewWellLogDiffCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogDiffCurveFeature::onActionTriggered( bool isChecked )
+void RicNewWellLogCalculatedCurveFeature::onActionTriggered( bool isChecked )
 {
     RimWellLogTrack* wellLogTrack = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>();
     if ( wellLogTrack )
     {
-        RicWellLogTools::addWellLogDiffCurve( wellLogTrack );
+        RicWellLogTools::addWellLogCalculatedCurve( wellLogTrack );
     }
     else
     {
@@ -65,7 +65,7 @@ void RicNewWellLogDiffCurveFeature::onActionTriggered( bool isChecked )
         RimWellLogTrack* wellLogTrack = wellLogCurves[0]->firstAncestorOrThisOfType<RimWellLogTrack>();
         if ( !wellLogTrack ) return;
 
-        RimWellLogDiffCurve* newCurve = RicWellLogTools::addWellLogDiffCurve( wellLogTrack );
+        RimWellLogCalculatedCurve* newCurve = RicWellLogTools::addWellLogCalculatedCurve( wellLogTrack );
         newCurve->setWellLogCurves( wellLogCurves[0], wellLogCurves[1] );
         newCurve->updateConnectedEditors();
     }
@@ -75,8 +75,8 @@ void RicNewWellLogDiffCurveFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogDiffCurveFeature::setupActionLook( QAction* actionToSetup )
+void RicNewWellLogCalculatedCurveFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Well Log Diff Curve" );
+    actionToSetup->setText( "New Well Log Calculated Curve" );
     actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }
