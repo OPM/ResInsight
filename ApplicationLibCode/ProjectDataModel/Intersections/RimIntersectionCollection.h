@@ -103,4 +103,7 @@ private:
     caf::PdmField<double>                                  m_depthUpperThreshold;
     caf::PdmField<double>                                  m_depthLowerThreshold;
     caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_depthFilterType;
+
+    caf::PdmField<bool>    m_kFilterOverridden;
+    caf::PdmField<QString> m_kFilterStr;
 };

@@ -58,6 +58,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
@@ -267,6 +268,15 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitFieldNoDefault( &m_collectionDepthFilterType, "CollectionDepthFilterType", "Collection Controlled Filter Type" );
     m_collectionDepthFilterType.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_kFilterText, "KRangeFilter", "K Range Filter", "", "Example: 2,4,10-20,31", "" );
+
+    CAF_PDM_InitField( &m_kFilterCollectionOverride, "KFilterCollectionOverride", false, "K Range Filter is Controlled by Intersection Collection" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_kFilterCollectionOverride );
+
+    CAF_PDM_InitFieldNoDefault( &m_kFilterCollectionText, "KRangeCollectionFilter", "Collection K Range Filter", "", "Example: 2,4,10-20,31", "" );
+    m_kFilterCollectionText.uiCapability()->setUiHidden( true );
+
     setDeletable( true );
 }
 
@@ -400,13 +410,40 @@ void RimExtrudedCurveIntersection::setDepthOverrideParameters( double upperThres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimExtrudedCurveIntersection::kLayerFilterEnabled() const
+{
+    return m_enableKFilter() || m_kFilterCollectionOverride();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimExtrudedCurveIntersection::kFilterText() const
+{
+    if ( m_kFilterCollectionOverride() ) return m_kFilterCollectionText();
+    return m_kFilterText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::setKFilterOverride( bool collectionOverride, QString kFilterText )
+{
+    m_kFilterCollectionOverride = collectionOverride;
+    m_kFilterCollectionText     = kFilterText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive || changedField == &m_type || changedField == &m_direction || changedField == &m_wellPath ||
          changedField == &m_simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength ||
          changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &m_showInactiveCells ||
          changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold ||
-         changedField == &m_depthLowerThreshold || changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType )
+         changedField == &m_depthLowerThreshold || changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType ||
+         changedField == &m_enableKFilter || changedField == &m_kFilterText || changedField == &m_kFilterCollectionOverride )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -573,6 +610,21 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
             case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
             default:
                 break;
+        }
+
+        if ( eclipseView() != nullptr )
+        {
+            auto kgroup = uiOrdering.addNewGroup( "K Range Filter" );
+
+            if ( m_kFilterCollectionOverride() )
+            {
+                kgroup->add( &m_kFilterCollectionOverride );
+            }
+            else
+            {
+                kgroup->add( &m_enableKFilter );
+                kgroup->add( &m_kFilterText );
+            }
         }
     }
 

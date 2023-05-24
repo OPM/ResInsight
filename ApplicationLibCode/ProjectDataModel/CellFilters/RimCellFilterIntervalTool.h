@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include <QString>
 #include <list>
+#include <string>
 
 class RimCellFilterInterval
 {
@@ -42,14 +42,14 @@ public:
     RimCellFilterIntervalTool( bool includeAllByDefault = true );
     ~RimCellFilterIntervalTool();
 
-    void setInterval( bool enabled, QString intervalText );
+    void setInterval( bool enabled, std::string intervalText );
     bool isNumberIncluded( size_t number ) const;
 
 private:
-    size_t numberFromPart( QString strVal ) const;
+    size_t numberFromPart( std::string strVal ) const;
 
-    bool    m_includeAllByDefault;
-    QString m_intervalText;
+    bool        m_includeAllByDefault;
+    std::string m_intervalText;
 
     std::list<RimCellFilterInterval> m_intervals;
 };

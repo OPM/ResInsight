@@ -90,9 +90,10 @@ bool RimCellFilterIntervalTool::isNumberIncluded( size_t number ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimCellFilterIntervalTool::numberFromPart( QString strVal ) const
+size_t RimCellFilterIntervalTool::numberFromPart( std::string strVal ) const
 {
-    return strVal.toUInt();
+    QString qStrVal = QString::fromStdString( strVal );
+    return qStrVal.toUInt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,13 +101,15 @@ size_t RimCellFilterIntervalTool::numberFromPart( QString strVal ) const
 // Define a range with the comma separated format A,B,C-D, etc.,  i.e. 1,4,5-8
 // Only positive numbers are supported.
 //--------------------------------------------------------------------------------------------------
-void RimCellFilterIntervalTool::setInterval( bool enabled, QString intervalText )
+void RimCellFilterIntervalTool::setInterval( bool enabled, std::string intervalText )
 {
     m_intervals.clear();
 
     if ( !enabled ) return;
 
-    QStringList parts = RiaTextStringTools::splitSkipEmptyParts( intervalText, "," );
+    QString qIntervalText = QString::fromStdString( intervalText );
+
+    QStringList parts = RiaTextStringTools::splitSkipEmptyParts( qIntervalText, "," );
 
     for ( auto& part : parts )
     {
@@ -114,10 +117,11 @@ void RimCellFilterIntervalTool::setInterval( bool enabled, QString intervalText 
         switch ( minmax.size() )
         {
             case 1:
-                m_intervals.push_back( RimCellFilterInterval( numberFromPart( minmax[0] ) ) );
+                m_intervals.push_back( RimCellFilterInterval( numberFromPart( minmax[0].toStdString() ) ) );
                 break;
             case 2:
-                m_intervals.push_back( RimCellFilterInterval( numberFromPart( minmax[0] ), numberFromPart( minmax[1] ) ) );
+                m_intervals.push_back(
+                    RimCellFilterInterval( numberFromPart( minmax[0].toStdString() ), numberFromPart( minmax[1].toStdString() ) ) );
                 break;
 
             default:

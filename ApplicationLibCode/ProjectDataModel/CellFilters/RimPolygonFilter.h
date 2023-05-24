@@ -125,16 +125,16 @@ private:
     caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
     caf::PdmPtrField<RimCase*>                         m_srcCase;
     caf::PdmField<bool>                                m_enableFiltering;
-    caf::PdmField<bool>                                m_enableKFilter;
     caf::PdmField<bool>                                m_showLines;
     caf::PdmField<bool>                                m_showSpheres;
-    caf::PdmField<QString>                             m_kFilterStr;
     caf::PdmField<int>                                 m_lineThickness;
     caf::PdmField<double>                              m_sphereRadiusFactor;
     caf::PdmField<cvf::Color3f>                        m_lineColor;
     caf::PdmField<cvf::Color3f>                        m_sphereColor;
     caf::PdmField<double>                              m_polygonPlaneDepth;
     caf::PdmField<bool>                                m_lockPolygonToPlane;
+    caf::PdmField<bool>                                m_enableKFilter;
+    caf::PdmField<QString>                             m_kFilterStr;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
