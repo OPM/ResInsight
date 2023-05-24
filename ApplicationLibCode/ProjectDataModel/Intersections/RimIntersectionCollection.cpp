@@ -69,12 +69,10 @@ RimIntersectionCollection::RimIntersectionCollection()
     m_depthLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_depthThresholdOverridden, "DepthFilterOverride", false, "Override Intersection Depth Filters" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_depthThresholdOverridden );
 
     CAF_PDM_InitFieldNoDefault( &m_depthFilterType, "CollectionDepthFilterType", "Depth Filter Type" );
 
     CAF_PDM_InitField( &m_kFilterOverridden, "OverrideKFilter", false, "Override K Range Filter" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_kFilterOverridden );
 
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4,10-20,31", "" );
 }
