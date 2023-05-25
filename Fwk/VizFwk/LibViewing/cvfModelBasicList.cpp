@@ -111,8 +111,7 @@ size_t ModelBasicList::partCount() const
 //--------------------------------------------------------------------------------------------------
 void ModelBasicList::removePart(Part* part)
 {
-    CVF_ASSERT(part);
-    m_parts.erase(part);
+    if (part != nullptr) m_parts.erase(part);
 }
 
 
@@ -175,7 +174,7 @@ void ModelBasicList::findVisibleParts(PartRenderHintCollection* visibleParts, co
     for (i = 0; i < numParts; i++)
     {
         Part* part = m_parts[i].p();
-        CVF_ASSERT(part);
+        if (part == nullptr) continue;
 
         double projectedAreaPixels = -1;
         
@@ -224,7 +223,7 @@ bool ModelBasicList::partVisible(cvf::Part* part, const Camera* camera, const Cu
         if (cullSettings && cullSettings->isPixelSizeCullingEnabled())
         {
             const BoundingBox& bb = part->boundingBox();
-            CVF_ASSERT(bb.isValid());
+            if (!bb.isValid()) return false;
 
             *projectedAreaPixels = camera->computeProjectedBoundingSpherePixelArea(bb.center(), bb.radius());
 
@@ -279,7 +278,7 @@ bool ModelBasicList::rayIntersect(const RayIntersectSpec& rayIntersectSpec, HitI
     for (partIdx = 0; partIdx < numParts; partIdx++)
     {
         Part* part = allPartsColl.at(partIdx);
-        CVF_ASSERT(part);
+        if (part == nullptr) continue;
 
         if (partVisible(part, rayIntersectSpec.camera(), rayIntersectSpec.cullSettings(), combinedEnableMask, NULL))
         {
@@ -301,7 +300,7 @@ Part* ModelBasicList::findPartByID(int64 id)
     for (i = 0; i < numParts; i++)
     {
         Part* p = m_parts.at(i);
-        CVF_ASSERT(p);
+        if (p == nullptr) continue;
 
         if (p->id() == id)
         {
@@ -323,7 +322,7 @@ Part* ModelBasicList::findPartByName(String name)
     for (i = 0; i < numParts; i++)
     {
         Part* p = m_parts.at(i);
-        CVF_ASSERT(p);
+        if (p == nullptr) continue;
 
         if (p->name() == name)
         {
