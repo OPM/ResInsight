@@ -24,7 +24,7 @@
 class RimCellFilterInterval
 {
 public:
-    RimCellFilterInterval( size_t minIncludeVal, size_t maxIncludeVal );
+    RimCellFilterInterval( size_t minIncludeVal, size_t maxIncludeVal, size_t step = 1 );
     RimCellFilterInterval( size_t includeVal );
     ~RimCellFilterInterval();
 
@@ -33,6 +33,7 @@ public:
 private:
     size_t m_minIncludeVal;
     size_t m_maxIncludeVal;
+    size_t m_step;
     bool   m_valid;
 };
 
