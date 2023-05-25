@@ -47,7 +47,7 @@ public:
     bool isStandardColorLegend( RimColorLegend* colorLegend );
     void deleteCustomColorLegends();
 
-    RimColorLegend* createColorLegend( const QString& name, const std::vector<std::pair<int, QString>>& valuesAndNames );
+    RimColorLegend* createColorLegend( const QString& colorLegendName, const std::map<int, QString>& valuesAndNames );
     void            deleteColorLegend( int caseId, const QString& resultName );
     void            setDefaultColorLegendForResult( int caseId, const QString& resultName, RimColorLegend* colorLegend );
 

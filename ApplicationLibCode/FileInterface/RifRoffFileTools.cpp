@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RicFaciesPropertiesImportTools.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -504,6 +506,31 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
         return std::make_pair( false, keywordMapping );
     }
 
+    auto codeNamesAndValuesForKeyword = []( const std::string& keyword, roff::Reader& reader ) -> std::map<int, QString>
+    {
+        const std::string codeNamesKeyword  = keyword + roff::Parser::postFixCodeNames();
+        const std::string codeValuesKeyword = keyword + roff::Parser::postFixCodeValues();
+
+        auto codeNamesSize  = reader.getArrayLength( codeNamesKeyword );
+        auto codeValuesSize = reader.getArrayLength( codeValuesKeyword );
+
+        if ( codeNamesSize > 0 && codeNamesSize == codeValuesSize )
+        {
+            const auto fileCodeNames  = reader.getStringArray( codeNamesKeyword );
+            const auto fileCodeValues = reader.getIntArray( codeValuesKeyword );
+
+            std::map<int, QString> codeNamesAndValues;
+            for ( size_t i = 0; i < std::min( fileCodeValues.size(), fileCodeNames.size() ); i++ )
+            {
+                codeNamesAndValues[fileCodeValues[i]] = QString::fromStdString( fileCodeNames[i] ).trimmed();
+            }
+
+            return codeNamesAndValues;
+        };
+
+        return {};
+    };
+
     try
     {
         roff::Reader reader( stream );
@@ -521,6 +548,9 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                                       .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
                                       .arg( keywordLength ) );
             }
+
+            QString keywordUpperCase = QString::fromStdString( keyword ).toUpper();
+
             if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
             {
                 QString newResultName = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
@@ -538,60 +568,50 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                     return std::make_pair( false, keywordMapping );
                 }
 
-                // Create color legend
+                const auto codeNames            = codeNamesAndValuesForKeyword( keyword, reader );
+                bool       anyValidCategoryName = false;
+                for ( const auto& codeName : codeNames )
                 {
-                    const std::string codeNamesKeyword  = keyword + roff::Parser::postFixCodeNames();
-                    const std::string codeValuesKeyword = keyword + roff::Parser::postFixCodeValues();
-
-                    auto codeNamesSize  = reader.getArrayLength( codeNamesKeyword );
-                    auto codeValuesSize = reader.getArrayLength( codeValuesKeyword );
-
-                    if ( codeNamesSize != 0 && codeNamesSize == codeValuesSize )
+                    if ( !codeName.second.isEmpty() )
                     {
-                        const auto fileCodeNames  = reader.getStringArray( codeNamesKeyword );
-                        const auto fileCodeValues = reader.getIntArray( codeValuesKeyword );
-
-                        QStringList trimmedCodeNames;
-                        bool        anyValidName = false;
-                        for ( const std::string& codeName : fileCodeNames )
-                        {
-                            QString trimmedCodeName = QString::fromStdString( codeName ).trimmed();
-                            trimmedCodeNames.push_back( trimmedCodeName );
-
-                            if ( !trimmedCodeName.isEmpty() )
-                            {
-                                anyValidName = true;
-                            }
-                        }
-
-                        if ( anyValidName )
-                        {
-                            std::vector<std::pair<int, QString>> valuesAndNames;
-
-                            for ( int i = 0; i < static_cast<int>( trimmedCodeNames.size() ); i++ )
-                            {
-                                const auto& codeName = trimmedCodeNames[i];
-                                valuesAndNames.emplace_back( fileCodeValues[i], codeName );
-                            }
-
-                            RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
-
-                            int  caseId  = 0;
-                            auto rimCase = eclipseCaseData->ownerCase();
-                            if ( rimCase ) caseId = rimCase->caseId();
-
-                            // Delete existing color legend, as new legend will be populated by values from file
-                            colorLegendCollection->deleteColorLegend( caseId, newResultName );
-
-                            auto colorLegend = colorLegendCollection->createColorLegend( newResultName, valuesAndNames );
-
-                            colorLegendCollection->setDefaultColorLegendForResult( caseId, newResultName, colorLegend );
-                            colorLegendCollection->updateAllRequiredEditors();
-                        }
+                        anyValidCategoryName = true;
                     }
                 }
 
+                if ( anyValidCategoryName )
+                {
+                    RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
+
+                    int  caseId  = 0;
+                    auto rimCase = eclipseCaseData->ownerCase();
+                    if ( rimCase ) caseId = rimCase->caseId();
+
+                    // Delete existing color legend, as new legend will be populated by values from file
+                    colorLegendCollection->deleteColorLegend( caseId, newResultName );
+
+                    RimColorLegend* colorLegend = nullptr;
+                    if ( keywordUpperCase == "FACIES" )
+                    {
+                        colorLegend = RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
+                    }
+                    else
+                    {
+                        colorLegend = colorLegendCollection->createColorLegend( newResultName, codeNames );
+                    }
+
+                    colorLegendCollection->setDefaultColorLegendForResult( caseId, newResultName, colorLegend );
+                    colorLegendCollection->updateAllRequiredEditors();
+                }
+
                 keywordMapping[QString::fromStdString( keyword )] = newResultName;
+            }
+            else if ( keywordUpperCase == "FACIES" )
+            {
+                // We have facies color and name data, but we do not have values for cells. Create color legend and get values from other
+                // sources, ie. Eclipse results
+
+                const auto codeNames = codeNamesAndValuesForKeyword( keyword, reader );
+                RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
             }
         }
     }

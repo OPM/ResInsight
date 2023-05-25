@@ -84,12 +84,12 @@ void RimColorLegendCollection::deleteCustomColorLegends()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& name, const std::vector<std::pair<int, QString>>& valuesAndNames )
+RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& colorLegendName, const std::map<int, QString>& valuesAndNames )
 {
     auto colors = RiaColorTables::categoryPaletteColors().color3ubArray();
 
     auto colorLegend = new RimColorLegend();
-    colorLegend->setColorLegendName( name );
+    colorLegend->setColorLegendName( colorLegendName );
     int colorIndex = 0;
     for ( const auto& [value, name] : valuesAndNames )
     {

@@ -65,39 +65,14 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
 
     faciesProperties->clearFaciesCodeNames();
 
-    for ( auto it : codeNames )
+    for ( const auto& it : codeNames )
     {
         faciesProperties->setFaciesCodeName( it.first, it.second );
     }
 
     if ( createColorLegend )
     {
-        const caf::ColorTable&    colorTable            = RiaColorTables::contrastCategoryPaletteColors();
-        RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
-        RimColorLegend*           rockTypeColorLegend   = colorLegendCollection->findByName( RiaDefines::rockTypeColorLegendName() );
-
-        RimColorLegend* colorLegend = new RimColorLegend;
-        colorLegend->setColorLegendName( RiaDefines::faciesColorLegendName() );
-
-        for ( auto it : codeNames )
-        {
-            RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
-
-            // Try to find a color from the rock type color legend by fuzzy matching names
-            cvf::Color3f color;
-            if ( !predefinedColorMatch( it.second, rockTypeColorLegend, color ) && !matchByName( it.second, rockTypeColorLegend, color ) )
-            {
-                // No match use a random color
-                color = colorTable.cycledColor3f( it.first );
-            }
-
-            colorLegendItem->setValues( it.second, it.first, color );
-            colorLegend->appendColorLegendItem( colorLegendItem );
-        }
-
-        colorLegendCollection->appendCustomColorLegend( colorLegend );
-        colorLegendCollection->updateConnectedEditors();
-
+        auto colorLegend = RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
         faciesProperties->setColorLegend( colorLegend );
     }
 
@@ -105,6 +80,41 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
 
     stimPlanModelTemplate->setFaciesProperties( faciesProperties );
     stimPlanModelTemplate->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( const std::map<int, QString>& codeNames )
+{
+    const caf::ColorTable&    colorTable            = RiaColorTables::contrastCategoryPaletteColors();
+    RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
+    RimColorLegend*           rockTypeColorLegend   = colorLegendCollection->findByName( RiaDefines::rockTypeColorLegendName() );
+
+    auto colorLegend = new RimColorLegend;
+    colorLegend->setColorLegendName( RiaDefines::faciesColorLegendName() );
+
+    for ( const auto& it : codeNames )
+    {
+        auto colorLegendItem = new RimColorLegendItem;
+
+        // Try to find a color from the rock type color legend by fuzzy matching names
+        cvf::Color3f color;
+        if ( rockTypeColorLegend && !predefinedColorMatch( it.second, rockTypeColorLegend, color ) &&
+             !matchByName( it.second, rockTypeColorLegend, color ) )
+        {
+            // No match use a random color
+            color = colorTable.cycledColor3f( it.first );
+        }
+
+        colorLegendItem->setValues( it.second, it.first, color );
+        colorLegend->appendColorLegendItem( colorLegendItem );
+    }
+
+    colorLegendCollection->appendCustomColorLegend( colorLegend );
+    colorLegendCollection->updateConnectedEditors();
+
+    return colorLegend;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,7 +140,7 @@ bool RicFaciesPropertiesImportTools::matchByName( const QString& name, RimColorL
 
     // Allow only small difference when determining if something matches
     const int maximumScoreToMatch = 1;
-    if ( bestScore <= maximumScoreToMatch )
+    if ( bestItem && bestScore <= maximumScoreToMatch )
     {
         color = bestItem->color();
         return true;
