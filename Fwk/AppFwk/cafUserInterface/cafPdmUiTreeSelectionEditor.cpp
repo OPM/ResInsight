@@ -593,10 +593,14 @@ void PdmUiTreeSelectionEditor::setCheckedStateForIntegerItemsMatchingFilter()
     for ( auto& part : parts )
     {
         QStringList subparts = part.split( ":", SkipEmptyParts );
-        QStringList minmax   = subparts[0].split( "-", SkipEmptyParts );
+        QStringList minmax   = subparts.front().split( "-", SkipEmptyParts );
 
         int step = 1;
-        if ( subparts.size() > 1 ) step = subparts[1].toInt();
+        if ( subparts.size() > 1 )
+        {
+            step = subparts.back().toInt();
+            if ( step < 1 ) step = 1;
+        }
 
         switch ( minmax.size() )
         {
