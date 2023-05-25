@@ -64,8 +64,8 @@ cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimExtrudedCur
 RivExtrudedCurveIntersectionGeometryGenerator::RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection* crossSection,
                                                                                               std::vector<std::vector<cvf::Vec3d>>& polylines,
                                                                                               const cvf::Vec3d& extrusionDirection,
-                                                                                              const RivIntersectionHexGridInterface* grid,
-                                                                                              bool isFlattened,
+                                                                                              RivIntersectionHexGridInterface* grid,
+                                                                                              bool                             isFlattened,
                                                                                               const cvf::Vec3d& flattenedPolylineStartPoint )
     : m_intersection( crossSection )
     , m_polylines( polylines )
@@ -277,6 +277,8 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
     MeshLinesAccumulator meshAcc( m_hexGrid.p() );
 
     cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
+
+    m_hexGrid->setKIntervalFilter( m_intersection->kLayerFilterEnabled(), m_intersection->kFilterText().toStdString() );
 
     calculateLineSegementTransforms();
     calculateTransformedPolyline();

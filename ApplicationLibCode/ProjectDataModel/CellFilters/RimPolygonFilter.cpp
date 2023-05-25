@@ -812,7 +812,7 @@ void RimPolygonFilter::updateCells()
     initializeCellList();
 
     // get optional k-cell filter
-    m_intervalTool.setInterval( m_enableKFilter, m_kFilterStr );
+    m_intervalTool.setInterval( m_enableKFilter, m_kFilterStr().toStdString() );
 
     // get polyline as vector
     std::vector<cvf::Vec3d> points;

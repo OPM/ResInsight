@@ -129,3 +129,11 @@ const RigFault* RivFemIntersectionGrid::findFaultFromCellIndexAndCellFace( size_
 {
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivFemIntersectionGrid::setKIntervalFilter( bool enabled, std::string kIntervalStr )
+{
+    // not supported for geomech grids
+}

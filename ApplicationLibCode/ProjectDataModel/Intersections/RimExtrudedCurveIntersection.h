@@ -26,6 +26,8 @@
 #include "cafPdmChildField.h"
 #include "cafPdmProxyValueField.h"
 
+#include <QString>
+
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
 class RimEclipseView;
@@ -80,6 +82,10 @@ public:
     double                    upperFilterDepth( double upperGridLimit ) const;
     double                    lowerFilterDepth( double lowerGridLimit ) const;
     RimIntersectionFilterEnum depthFilterType() const;
+
+    bool    kLayerFilterEnabled() const;
+    QString kFilterText() const;
+    void    setKFilterOverride( bool collectionOverride, QString kFilterText );
 
     void setDepthOverride( bool collectionOverride );
     void setDepthOverrideParameters( double upperThreshold, double lowerThreshold, RimIntersectionFilterEnum filterType );
@@ -197,4 +203,10 @@ private:
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;
 
     mutable std::vector<std::vector<cvf::Vec3d>> m_simulationWellBranchCenterlines;
+
+    caf::PdmField<bool>    m_enableKFilter;
+    caf::PdmField<QString> m_kFilterText;
+
+    caf::PdmField<bool>    m_kFilterCollectionOverride;
+    caf::PdmField<QString> m_kFilterCollectionText;
 };
