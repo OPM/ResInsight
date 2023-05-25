@@ -42,6 +42,12 @@ public:
         DIVIDE,
         MULTIPLY
     };
+    enum class DepthSource
+    {
+        FIRST,
+        SECOND,
+        UNION
+    };
 
 public:
     RimWellLogCalculatedCurve();
@@ -56,6 +62,7 @@ public:
     QString wellLogChannelUnits() const override;
 
     static double calculateValue( double firstValue, double secondValue, Operators operatorValue );
+    static std::vector<double> unionDepthValuesFromVectors( const std::vector<double>& firstDepths, const std::vector<double>& secondDepths );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -74,10 +81,14 @@ private:
     void connectWellLogCurveChangedToSlots( RimWellLogCurve* wellLogCurve );
     void disconnectWellLogCurveChangedFromSlots( RimWellLogCurve* wellLogCurve );
 
+    std::vector<double> depthValuesFromSource( RiaDefines::DepthTypeEnum depthType ) const;
+    std::vector<double> unionDepthValuesFromCurves( RiaDefines::DepthTypeEnum depthType ) const;
+
 private:
     caf::PdmPtrField<RimCase*> m_case;
 
-    caf::PdmField<caf::AppEnum<Operators>> m_operator;
+    caf::PdmField<caf::AppEnum<Operators>>   m_operator;
+    caf::PdmField<caf::AppEnum<DepthSource>> m_depthSource;
 
     caf::PdmPtrField<RimWellLogCurve*> m_firstWellLogCurve;
     caf::PdmPtrField<RimWellLogCurve*> m_secondWellLogCurve;

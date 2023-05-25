@@ -53,6 +53,15 @@ void AppEnum<RimWellLogCalculatedCurve::Operators>::setUp()
     addItem( RimWellLogCalculatedCurve::Operators::DIVIDE, "DIVIDE", "/" );
     setDefault( RimWellLogCalculatedCurve::Operators::SUBTRACT );
 }
+
+template <>
+void AppEnum<RimWellLogCalculatedCurve::DepthSource>::setUp()
+{
+    addItem( RimWellLogCalculatedCurve::DepthSource::FIRST, "FIRST", "First Curve" );
+    addItem( RimWellLogCalculatedCurve::DepthSource::SECOND, "SECOND", "Second Curve" );
+    addItem( RimWellLogCalculatedCurve::DepthSource::UNION, "UNION", "Union" );
+    setDefault( RimWellLogCalculatedCurve::DepthSource::FIRST );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +73,8 @@ RimWellLogCalculatedCurve::RimWellLogCalculatedCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator" );
     m_operator.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_depthSource, "DepthSource", "Depth Source" );
+    m_depthSource.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_firstWellLogCurve, "FirstWellLogCurve", "First Well Log Curve" );
     CAF_PDM_InitFieldNoDefault( &m_secondWellLogCurve, "SecondWellLogCurve", "Second Well Log Curve" );
@@ -152,31 +163,44 @@ void RimWellLogCalculatedCurve::onLoadDataAndUpdate( bool updateParentPlot )
         RiaLogging::warning( "Well log curve property value units are not the same" );
     }
 
-    const auto depthUnit    = firstCurveData->depthUnit();
-    const auto depthType    = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
-    const auto propertyUnit = firstCurveData->propertyValueUnit();
+    // Find the data for resampling
+    const auto                depthType    = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
+    const std::vector<double> depthValues  = depthValuesFromSource( depthType );
+    const auto                depthUnit    = firstCurveData->depthUnit();
+    const auto                propertyUnit = firstCurveData->propertyValueUnit();
 
-    // Get curve A depths and property values
-    const auto firstCurveDepthValues    = firstCurveData->depths( depthType );
-    const auto firstCurvePropertyValues = firstCurveData->propertyValues();
+    auto firstCurveDepthValues     = firstCurveData->depths( depthType );
+    auto firstCurvePropertyValues  = firstCurveData->propertyValues();
+    auto secondCurveDepthValues    = secondCurveData->depths( depthType );
+    auto secondCurvePropertyValues = secondCurveData->propertyValues();
 
-    // Resample curve B to curve A
-    cvf::ref<RigWellLogCurveData> secondCurveDataResampled = secondCurveData->calculateResampledCurveData( depthType, firstCurveDepthValues );
-    auto secondCurveDepthValuesResampled    = secondCurveDataResampled->depths( depthType );
-    auto secondCurvePropertyValuesResampled = secondCurveDataResampled->propertyValues();
+    // Resample curve depth and property values if needed
+    if ( m_depthSource() != DepthSource::FIRST )
+    {
+        cvf::ref<RigWellLogCurveData> firstCurveDataResampled = firstCurveData->calculateResampledCurveData( depthType, depthValues );
+        firstCurveDepthValues                                 = firstCurveDataResampled->depths( depthType );
+        firstCurvePropertyValues                              = firstCurveDataResampled->propertyValues();
+    }
+    if ( m_depthSource() != DepthSource::SECOND )
+    {
+        cvf::ref<RigWellLogCurveData> secondCurveDataResampled = secondCurveData->calculateResampledCurveData( depthType, depthValues );
+        secondCurveDepthValues                                 = secondCurveDataResampled->depths( depthType );
+        secondCurvePropertyValues                              = secondCurveDataResampled->propertyValues();
+    }
 
     // Verify equal sizes
+    if ( firstCurveDepthValues.size() != depthValues.size() ) return;
     if ( firstCurveDepthValues.size() != firstCurvePropertyValues.size() ) return;
-    if ( firstCurveDepthValues.size() != secondCurveDepthValuesResampled.size() ) return;
-    if ( firstCurveDepthValues.size() != secondCurvePropertyValuesResampled.size() ) return;
+    if ( firstCurveDepthValues.size() != secondCurveDepthValues.size() ) return;
+    if ( firstCurveDepthValues.size() != secondCurvePropertyValues.size() ) return;
 
     // Calculate curve
-    std::vector<double> calculatedDepthValues( firstCurveDepthValues.size() );
-    std::vector<double> calculatedPropertyValues( firstCurvePropertyValues.size() );
-    for ( size_t i = 0; i < firstCurvePropertyValues.size(); ++i )
+    std::vector<double> calculatedDepthValues( depthValues.size() );
+    std::vector<double> calculatedPropertyValues( depthValues.size() );
+    for ( size_t i = 0; i < depthValues.size(); ++i )
     {
-        calculatedPropertyValues[i] = calculateValue( firstCurvePropertyValues[i], secondCurvePropertyValuesResampled[i], m_operator() );
-        calculatedDepthValues[i]    = firstCurveDepthValues[i];
+        calculatedPropertyValues[i] = calculateValue( firstCurvePropertyValues[i], secondCurvePropertyValues[i], m_operator() );
+        calculatedDepthValues[i]    = depthValues[i];
     }
 
     const bool useLogarithmicScale = false;
@@ -257,6 +281,95 @@ double RimWellLogCalculatedCurve::calculateValue( double firstValue, double seco
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogCalculatedCurve::depthValuesFromSource( RiaDefines::DepthTypeEnum depthType ) const
+{
+    if ( !m_firstWellLogCurve || !m_firstWellLogCurve->curveData() || !m_secondWellLogCurve || !m_secondWellLogCurve->curveData() )
+    {
+        return {};
+    }
+
+    if ( m_depthSource() == DepthSource::FIRST )
+    {
+        return m_firstWellLogCurve->curveData()->depths( depthType );
+    }
+    else if ( m_depthSource() == DepthSource::SECOND )
+    {
+        return m_secondWellLogCurve->curveData()->depths( depthType );
+    }
+    else if ( m_depthSource() == DepthSource::UNION )
+    {
+        return unionDepthValuesFromCurves( depthType );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// As each depth value is repeated twice, the depth values are sorted, the duplicates cannot
+/// be removed with unionDepths.erease() and std::unique. Instead, the duplicates are removed
+/// manually.
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromVectors( const std::vector<double>& firstDepths,
+                                                                            const std::vector<double>& secondDepths )
+{
+    // Get union of depths
+    std::vector<double> unionDepths;
+    unionDepths.insert( unionDepths.end(), firstDepths.begin(), firstDepths.end() );
+    unionDepths.insert( unionDepths.end(), secondDepths.begin(), secondDepths.end() );
+
+    // Sort vector
+    std::sort( unionDepths.begin(), unionDepths.end() );
+
+    // Filter the union vector - allow maximum 2 occurrences of same depth
+    std::vector<double> result;
+    auto                it             = unionDepths.begin();
+    const int           maxOccurrences = 2;
+    while ( it != unionDepths.end() )
+    {
+        result.push_back( *it );
+
+        // Count the number of occurrences of the current element
+        int  count = 1;
+        auto next  = std::next( it );
+        while ( next != unionDepths.end() && *next == *it )
+        {
+            ++count;
+            if ( count <= maxOccurrences )
+            {
+                result.push_back( *next );
+            }
+            ++next;
+        }
+
+        // Move the iterator to the next unique element
+        it = next;
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// As each depth value is repeated twice, the depth values are sorted, the duplicates cannot
+/// be removed with unionDepths.erease() and std::unique. Instead, the duplicates are removed
+/// manually.
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromCurves( RiaDefines::DepthTypeEnum depthType ) const
+{
+    if ( !m_firstWellLogCurve || !m_firstWellLogCurve->curveData() || !m_secondWellLogCurve || !m_secondWellLogCurve->curveData() )
+    {
+        return {};
+    }
+
+    // Get union of depths
+    const auto firstDepths  = m_firstWellLogCurve->curveData()->depths( depthType );
+    const auto secondDepths = m_secondWellLogCurve->curveData()->depths( depthType );
+
+    return unionDepthValuesFromVectors( firstDepths, secondDepths );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogCalculatedCurve::wellName() const
 {
     return m_curveName;
@@ -294,9 +407,10 @@ void RimWellLogCalculatedCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Data Source" );
-    group->add( &m_operator );
+    group->add( &m_depthSource );
     group->add( &m_firstWellLogCurve );
     group->add( &m_secondWellLogCurve );
+    group->add( &m_operator );
 
     RimStackablePlotCurve::defaultUiOrdering( uiOrdering );
 
@@ -331,7 +445,7 @@ void RimWellLogCalculatedCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
 
         loadDataAndUpdate( true );
     }
-    if ( changedField == &m_operator )
+    if ( changedField == &m_operator || changedField == &m_depthSource )
     {
         loadDataAndUpdate( true );
     }
