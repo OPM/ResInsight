@@ -75,6 +75,7 @@ QString                 indexKResultName();
 RigEclipseResultAddress staticIntegerAddress( const QString& resultName );
 
 QString faultDistanceName();
+QString facies();
 
 QString soil();
 QString sgas();
