@@ -305,53 +305,51 @@ std::vector<double> RimWellLogCalculatedCurve::depthValuesFromSource( RiaDefines
 }
 
 //--------------------------------------------------------------------------------------------------
-/// As each depth value is repeated twice, the depth values are sorted, the duplicates cannot
-/// be removed with unionDepths.erease() and std::unique. Instead, the duplicates are removed
-/// manually.
+/// As this method creates an union of depths from two vectors, the duplicated depths are neglected.
+/// The duplicated depths in a depth vector represent enter and exist of a k-layer. When resampling
+/// the curves using the union of depths, one does not know if the new depth values are at enter
+/// or exit of a layer. Therefore, the duplicated depths are neglected.
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromVectors( const std::vector<double>& firstDepths,
-                                                                            const std::vector<double>& secondDepths )
+                                                                            const std::vector<double>& secondDepths,
+                                                                            double                     threshold )
 {
+    auto isWithinThreshold = [&]( double value, const std::vector<double>& existingValues ) -> bool
+    {
+        auto calculateDistance = []( double value1, double value2 ) -> double { return std::abs( value1 - value2 ); };
+        for ( const auto& existingValue : existingValues )
+        {
+            if ( calculateDistance( value, existingValue ) < threshold )
+            {
+                return true;
+            }
+        }
+        return false;
+    };
+
     // Get union of depths
     std::vector<double> unionDepths;
-    unionDepths.insert( unionDepths.end(), firstDepths.begin(), firstDepths.end() );
-    unionDepths.insert( unionDepths.end(), secondDepths.begin(), secondDepths.end() );
+    auto                insertIntoUnionDepthsVector = [&]( const std::vector<double>& depths, std::vector<double>& unionDepthsVector )
+    {
+        for ( const auto& depth : depths )
+        {
+            if ( isWithinThreshold( depth, unionDepthsVector ) ) continue;
+            unionDepthsVector.push_back( depth );
+        }
+    };
+    insertIntoUnionDepthsVector( firstDepths, unionDepths );
+    insertIntoUnionDepthsVector( secondDepths, unionDepths );
 
     // Sort vector
     std::sort( unionDepths.begin(), unionDepths.end() );
 
-    // Filter the union vector - allow maximum 2 occurrences of same depth
-    std::vector<double> result;
-    auto                it             = unionDepths.begin();
-    const int           maxOccurrences = 2;
-    while ( it != unionDepths.end() )
-    {
-        result.push_back( *it );
-
-        // Count the number of occurrences of the current element
-        int  count = 1;
-        auto next  = std::next( it );
-        while ( next != unionDepths.end() && *next == *it )
-        {
-            ++count;
-            if ( count <= maxOccurrences )
-            {
-                result.push_back( *next );
-            }
-            ++next;
-        }
-
-        // Move the iterator to the next unique element
-        it = next;
-    }
-
-    return result;
+    return unionDepths;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// As each depth value is repeated twice, the depth values are sorted, the duplicates cannot
-/// be removed with unionDepths.erease() and std::unique. Instead, the duplicates are removed
-/// manually.
+/// When creating an union depth vector, the duplicated depth values are neglected. These duplicates
+/// indicates enter and exit of k-layer. However, when curves are resampled, this info is not
+/// representative and duplicated depth values are not needed.
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromCurves( RiaDefines::DepthTypeEnum depthType ) const
 {
@@ -360,11 +358,13 @@ std::vector<double> RimWellLogCalculatedCurve::unionDepthValuesFromCurves( RiaDe
         return {};
     }
 
+    constexpr double depthThreshold = 0.1;
+
     // Get union of depths
     const auto firstDepths  = m_firstWellLogCurve->curveData()->depths( depthType );
     const auto secondDepths = m_secondWellLogCurve->curveData()->depths( depthType );
 
-    return unionDepthValuesFromVectors( firstDepths, secondDepths );
+    return unionDepthValuesFromVectors( firstDepths, secondDepths, depthThreshold );
 }
 
 //--------------------------------------------------------------------------------------------------

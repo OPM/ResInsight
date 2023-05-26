@@ -27,12 +27,14 @@ TEST( RimWellLogCalculatedCurve, unionDepthValuesFromVectors_singleValuesInDepth
     // Depth vectors without duplicates
     const std::vector<double> depthValues1 = { 1.0, 2.0, 3.0, 4.0 };
     const std::vector<double> depthValues2 = { 2.0, 3.0, 4.0, 5.0 };
+    const double              threshold    = 0.1;
 
     // Expected duplicate occurrence of common depth values
-    const std::vector<double> expectedUnionDepthValues = { 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0 };
+    const std::vector<double> expectedUnionDepthValues = { 1.0, 2.0, 3.0, 4.0, 5.0 };
 
     // Call the function under test
-    const std::vector<double> unionDepthValues = RimWellLogCalculatedCurve::unionDepthValuesFromVectors( depthValues1, depthValues2 );
+    const std::vector<double> unionDepthValues =
+        RimWellLogCalculatedCurve::unionDepthValuesFromVectors( depthValues1, depthValues2, threshold );
 
     ASSERT_EQ( unionDepthValues, expectedUnionDepthValues );
 }
@@ -43,14 +45,36 @@ TEST( RimWellLogCalculatedCurve, unionDepthValuesFromVectors_singleValuesInDepth
 TEST( RimWellLogCalculatedCurve, unionDepthValuesFromVectors_duplicateValuesInDepthVectors )
 {
     // Depth vectors with duplicates
-    const std::vector<double> depthValues1 = { 0.0, 1.0, 1.0, 2.0, 2.0, 3.0, 3.0 };
-    const std::vector<double> depthValues2 = { 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0 };
+    const std::vector<double> depthValues1 = { 0.0, 0.5, 0.5, 1.0, 1.0, 1.5, 1.5 };
+    const std::vector<double> depthValues2 = { 1.5, 1.5, 2.0, 2.0, 2.5, 2.5, 3.0 };
+    const double              threshold    = 0.1;
 
-    // Expected maximum 2 duplicate occurrences of common depth values
-    const std::vector<double> expectedUnionDepthValues = { 0.0, 1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0 };
+    // Expected no duplicate occurrences of depth values
+    const std::vector<double> expectedUnionDepthValues = { 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0 };
 
     // Call the function under test
-    const std::vector<double> unionDepthValues = RimWellLogCalculatedCurve::unionDepthValuesFromVectors( depthValues1, depthValues2 );
+    const std::vector<double> unionDepthValues =
+        RimWellLogCalculatedCurve::unionDepthValuesFromVectors( depthValues1, depthValues2, threshold );
+
+    ASSERT_EQ( unionDepthValues, expectedUnionDepthValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RimWellLogCalculatedCurve, unionDepthValuesFromVectors_thresholdVerification )
+{
+    // Depth vectors with duplicates
+    const std::vector<double> depthValues1 = { 0.0, 0.5, 1.0, 1.5 };
+    const std::vector<double> depthValues2 = { 2.0, 2.5, 3.0, 4.0 };
+    const double              threshold    = 0.6;
+
+    // Expected every second value to be skipped due to threshold
+    const std::vector<double> expectedUnionDepthValues = { 0.0, 1.0, 2.0, 3.0, 4.0 };
+
+    // Call the function under test
+    const std::vector<double> unionDepthValues =
+        RimWellLogCalculatedCurve::unionDepthValuesFromVectors( depthValues1, depthValues2, threshold );
 
     ASSERT_EQ( unionDepthValues, expectedUnionDepthValues );
 }

@@ -62,7 +62,8 @@ public:
     QString wellLogChannelUnits() const override;
 
     static double calculateValue( double firstValue, double secondValue, Operators operatorValue );
-    static std::vector<double> unionDepthValuesFromVectors( const std::vector<double>& firstDepths, const std::vector<double>& secondDepths );
+    static std::vector<double>
+        unionDepthValuesFromVectors( const std::vector<double>& firstDepths, const std::vector<double>& secondDepths, double threshold );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
