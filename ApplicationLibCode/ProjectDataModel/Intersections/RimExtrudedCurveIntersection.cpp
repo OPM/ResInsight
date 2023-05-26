@@ -268,12 +268,12 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     m_collectionDepthFilterType.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter" );
-    CAF_PDM_InitFieldNoDefault( &m_kFilterText, "KRangeFilter", "K Range Filter", "", "Example: 2,4,10-20,31", "" );
+    CAF_PDM_InitFieldNoDefault( &m_kFilterText, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-30:2", "" );
 
     CAF_PDM_InitField( &m_kFilterCollectionOverride, "KFilterCollectionOverride", false, "K Range Filter is Controlled by Intersection Collection" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_kFilterCollectionOverride );
 
-    CAF_PDM_InitFieldNoDefault( &m_kFilterCollectionText, "KRangeCollectionFilter", "Collection K Range Filter", "", "Example: 2,4,10-20,31", "" );
+    CAF_PDM_InitFieldNoDefault( &m_kFilterCollectionText, "KRangeCollectionFilter", "Collection K Range Filter", "", "Example: 2,4-6,10-30:2", "" );
     m_kFilterCollectionText.uiCapability()->setUiHidden( true );
 
     setDeletable( true );

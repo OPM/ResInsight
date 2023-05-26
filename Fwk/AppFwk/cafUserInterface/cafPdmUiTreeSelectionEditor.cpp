@@ -296,7 +296,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
     // Set placeholder text based on content
     if ( hasOnlyIntegers( m_model ) )
     {
-        m_textFilterLineEdit->setPlaceholderText( "Integer filter e.g. 1, 5-10" );
+        m_textFilterLineEdit->setPlaceholderText( "Integer filter e.g. 1, 5-7, 9-18:3" );
     }
     else
     {
@@ -572,8 +572,9 @@ void PdmUiTreeSelectionEditor::slotInvertCheckedStateOfAll()
 /// Parse the filter text based on the following rules:
 /// 1. A comma separated list of integers
 /// 2. A range of integers separated by a dash
+/// 3. An optional step value for a range
 ///
-/// Example: 1, 3, 5-10
+/// Example: 1, 3, 5-10, 4-10:2
 ///
 /// Mark matching items as checked
 //--------------------------------------------------------------------------------------------------
@@ -591,7 +592,15 @@ void PdmUiTreeSelectionEditor::setCheckedStateForIntegerItemsMatchingFilter()
     QStringList parts        = searchString.split( ",", SkipEmptyParts );
     for ( auto& part : parts )
     {
-        QStringList minmax = part.split( "-", SkipEmptyParts );
+        QStringList subparts = part.split( ":", SkipEmptyParts );
+        QStringList minmax   = subparts.front().split( "-", SkipEmptyParts );
+
+        int step = 1;
+        if ( subparts.size() > 1 )
+        {
+            step = subparts.back().toInt();
+            if ( step < 1 ) step = 1;
+        }
 
         switch ( minmax.size() )
         {
@@ -606,7 +615,7 @@ void PdmUiTreeSelectionEditor::setCheckedStateForIntegerItemsMatchingFilter()
                 auto firstValue  = minmax.front().toInt();
                 auto secondValue = minmax.back().toInt();
 
-                for ( int val = firstValue; val <= secondValue; val++ )
+                for ( int val = firstValue; val <= secondValue; val += step )
                 {
                     filterValues.insert( val );
                 }

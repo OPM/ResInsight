@@ -74,7 +74,7 @@ RimIntersectionCollection::RimIntersectionCollection()
 
     CAF_PDM_InitField( &m_kFilterOverridden, "OverrideKFilter", false, "Override K Range Filter" );
 
-    CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4,10-20,31", "" );
+    CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-30:2", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -25,17 +25,20 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellFilterInterval::RimCellFilterInterval( size_t minIncludeVal, size_t maxIncludeVal )
+RimCellFilterInterval::RimCellFilterInterval( size_t minIncludeVal, size_t maxIncludeVal, size_t step )
     : m_minIncludeVal( minIncludeVal )
     , m_maxIncludeVal( maxIncludeVal )
+    , m_step( step )
 {
     m_valid = maxIncludeVal >= minIncludeVal;
     m_valid = m_valid && minIncludeVal > 0;
+    m_valid = m_valid && step > 0;
 }
 
 RimCellFilterInterval::RimCellFilterInterval( size_t includeVal )
     : m_minIncludeVal( includeVal )
     , m_maxIncludeVal( includeVal )
+    , m_step( 1 )
 {
     m_valid = includeVal > 0;
 }
@@ -52,7 +55,12 @@ RimCellFilterInterval::~RimCellFilterInterval()
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilterInterval::isIncluded( size_t val ) const
 {
-    if ( ( val >= m_minIncludeVal ) && ( val <= m_maxIncludeVal ) ) return m_valid;
+    if ( ( val < m_minIncludeVal ) || ( val > m_maxIncludeVal ) ) return false;
+
+    size_t tmp = val - m_minIncludeVal;
+
+    if ( m_valid && ( tmp % m_step == 0 ) ) return true;
+
     return false;
 }
 
@@ -99,7 +107,8 @@ size_t RimCellFilterIntervalTool::numberFromPart( std::string strVal ) const
 //--------------------------------------------------------------------------------------------------
 ///
 // Define a range with the comma separated format A,B,C-D, etc.,  i.e. 1,4,5-8
-// Only positive numbers are supported.
+// Only numbers > 0 are supported.
+// For a range with increment > 1, use i.e. 4-8:2
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterIntervalTool::setInterval( bool enabled, std::string intervalText )
 {
@@ -113,7 +122,14 @@ void RimCellFilterIntervalTool::setInterval( bool enabled, std::string intervalT
 
     for ( auto& part : parts )
     {
-        QStringList minmax = RiaTextStringTools::splitSkipEmptyParts( part, "-" );
+        QStringList rangeStep = RiaTextStringTools::splitSkipEmptyParts( part, ":" );
+        QStringList minmax    = RiaTextStringTools::splitSkipEmptyParts( rangeStep[0], "-" );
+        size_t      step      = 1;
+        if ( rangeStep.size() == 2 )
+        {
+            step = numberFromPart( rangeStep[1].toStdString() );
+        }
+
         switch ( minmax.size() )
         {
             case 1:
@@ -121,7 +137,7 @@ void RimCellFilterIntervalTool::setInterval( bool enabled, std::string intervalT
                 break;
             case 2:
                 m_intervals.push_back(
-                    RimCellFilterInterval( numberFromPart( minmax[0].toStdString() ), numberFromPart( minmax[1].toStdString() ) ) );
+                    RimCellFilterInterval( numberFromPart( minmax[0].toStdString() ), numberFromPart( minmax[1].toStdString() ), step ) );
                 break;
 
             default:
