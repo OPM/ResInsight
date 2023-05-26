@@ -231,7 +231,7 @@ void RimWellLogCalculatedCurve::setAutomaticName()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCalculatedCurve::onWellLogCurveChanged( const SignalEmitter* emitter )
 {
-    onLoadDataAndUpdate( true );
+    loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
