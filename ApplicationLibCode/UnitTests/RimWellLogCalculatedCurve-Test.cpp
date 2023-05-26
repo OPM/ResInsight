@@ -64,4 +64,8 @@ TEST( RimWellLogCalculatedCurve, calculateValue )
     ASSERT_DOUBLE_EQ( 3.0, RimWellLogCalculatedCurve::calculateValue( 5.0, 2.0, RimWellLogCalculatedCurve::Operators::SUBTRACT ) );
     ASSERT_DOUBLE_EQ( 2.5, RimWellLogCalculatedCurve::calculateValue( 5.0, 2.0, RimWellLogCalculatedCurve::Operators::DIVIDE ) );
     ASSERT_DOUBLE_EQ( 10.0, RimWellLogCalculatedCurve::calculateValue( 5.0, 2.0, RimWellLogCalculatedCurve::Operators::MULTIPLY ) );
+
+    // Divide by zero
+    ASSERT_DOUBLE_EQ( std::numeric_limits<double>::infinity(),
+                      RimWellLogCalculatedCurve::calculateValue( 5.0, 0.0, RimWellLogCalculatedCurve::Operators::DIVIDE ) );
 }

@@ -273,7 +273,7 @@ double RimWellLogCalculatedCurve::calculateValue( double firstValue, double seco
     }
     if ( operatorValue == Operators::DIVIDE )
     {
-        return firstValue / secondValue;
+        return secondValue == 0.0 ? std::numeric_limits<double>::infinity() : firstValue / secondValue;
     }
     return 0.0;
 }
