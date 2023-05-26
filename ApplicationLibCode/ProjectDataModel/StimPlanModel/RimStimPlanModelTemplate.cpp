@@ -88,6 +88,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", RiaDefines::defaultPorosity(), "Default Porosity" );
     CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", RiaDefines::defaultPermeability(), "Default Permeability" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_defaultFacies, "DefaultFacies", "Default Facies" );
 
     // Stress unit: bar
     // Stress gradient unit: bar/m
@@ -194,7 +195,8 @@ QList<caf::PdmOptionItemInfo> RimStimPlanModelTemplate::calculateValueOptions( c
             options.push_back( caf::PdmOptionItemInfo( formationName, formationName ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_overburdenFacies || fieldNeedingOptions == &m_underburdenFacies )
+    else if ( fieldNeedingOptions == &m_overburdenFacies || fieldNeedingOptions == &m_underburdenFacies ||
+              fieldNeedingOptions == &m_defaultFacies )
     {
         if ( !m_faciesProperties ) return options;
 
@@ -240,9 +242,10 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     pressureDataSourceGroup->add( &m_useEqlnumForPressureInterpolation );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_useTableForInitialPressure() );
 
-    caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );
+    caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Reservoir Defaults" );
     defaultsGroup->add( &m_defaultPorosity );
     defaultsGroup->add( &m_defaultPermeability );
+    defaultsGroup->add( &m_defaultFacies );
 
     caf::PdmUiOrdering* referenceStressGroup = uiOrdering.addNewGroup( "Reference Stress" );
     referenceStressGroup->add( &m_verticalStress );
@@ -494,6 +497,11 @@ void RimStimPlanModelTemplate::initAfterRead()
     {
         m_nonNetLayers->setEclipseCase( eclipseCase );
     }
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.03" ) )
+    {
+        m_defaultFacies = m_overburdenFacies;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -558,6 +566,14 @@ double RimStimPlanModelTemplate::defaultPorosity() const
 double RimStimPlanModelTemplate::defaultPermeability() const
 {
     return m_defaultPermeability();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStimPlanModelTemplate::defaultFacies() const
+{
+    return m_defaultFacies;
 }
 
 //--------------------------------------------------------------------------------------------------

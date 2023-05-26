@@ -59,8 +59,9 @@ public:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    double defaultPorosity() const;
-    double defaultPermeability() const;
+    double  defaultPorosity() const;
+    double  defaultPermeability() const;
+    QString defaultFacies() const;
 
     double overburdenHeight() const;
     double underburdenHeight() const;
@@ -152,6 +153,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>         m_staticEclipseCase;
     caf::PdmField<double>                     m_defaultPorosity;
     caf::PdmField<double>                     m_defaultPermeability;
+    caf::PdmField<QString>                    m_defaultFacies;
     caf::PdmField<double>                     m_verticalStress;
     caf::PdmField<double>                     m_verticalStressGradient;
     caf::PdmField<double>                     m_stressDepth;

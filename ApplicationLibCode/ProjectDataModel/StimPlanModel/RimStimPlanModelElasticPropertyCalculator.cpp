@@ -221,8 +221,9 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     for ( size_t i = 0; i < tvDepthValues.size(); i++ )
     {
         // Avoid using the field name in the match for now
-        QString fieldName                  = "";
-        auto [foundFaciesName, faciesName] = findFaciesName( *colorLegend, faciesValues[i] );
+        QString fieldName = "";
+        auto [foundFaciesName, faciesName] =
+            findFaciesName( *colorLegend, faciesValues[i], stimPlanModel->stimPlanModelTemplate()->defaultFacies() );
         if ( !foundFaciesName )
         {
             RiaLogging::error( QString( "Missing facies name for facies value: %1 (%2). Color legend: '%3'" )
@@ -321,8 +322,12 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, QString> RimStimPlanModelElasticPropertyCalculator::findFaciesName( const RimColorLegend& colorLegend, double value )
+std::pair<bool, QString> RimStimPlanModelElasticPropertyCalculator::findFaciesName( const RimColorLegend& colorLegend,
+                                                                                    double                value,
+                                                                                    const QString&        defaultFaciesName )
 {
+    if ( std::isinf( value ) || std::isnan( value ) ) return { true, defaultFaciesName };
+
     for ( auto item : colorLegend.colorLegendItems() )
     {
         if ( item->categoryValue() == static_cast<int>( value ) ) return { true, item->categoryName() };
