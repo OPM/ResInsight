@@ -714,7 +714,8 @@ std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator:
 
     for ( auto value : values )
     {
-        auto [isFound, faciesName] = RimStimPlanModelElasticPropertyCalculator::findFaciesName( *colorLegend, value );
+        auto [isFound, faciesName] =
+            RimStimPlanModelElasticPropertyCalculator::findFaciesName( *colorLegend, value, stimPlanModelTemplate->defaultFacies() );
         faciesNames.push_back( faciesName );
     }
 

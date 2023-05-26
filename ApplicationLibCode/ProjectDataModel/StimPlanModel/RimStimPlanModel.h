@@ -105,6 +105,7 @@ public:
 
     double defaultPorosity() const;
     double defaultPermeability() const;
+    double defaultFaciesValue() const;
 
     double verticalStress() const;
     double verticalStressGradient() const;

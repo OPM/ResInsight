@@ -994,6 +994,29 @@ double RimStimPlanModel::defaultPermeability() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimStimPlanModel::defaultFaciesValue() const
+{
+    RimStimPlanModelTemplate* templ = m_stimPlanModelTemplate();
+    if ( templ )
+    {
+        // Map the facies to a value using the color legend
+        RimFaciesProperties* faciesProperties = templ->faciesProperties();
+        if ( faciesProperties )
+        {
+            RimColorLegend* faciesColorLegend = faciesProperties->colorLegend();
+            if ( faciesColorLegend )
+            {
+                return findFaciesValue( *faciesColorLegend, templ->defaultFacies() );
+            }
+        }
+    }
+
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty curveProperty ) const
 {
     if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
@@ -1007,6 +1030,10 @@ double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty cu
     else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
     {
         return 1.0;
+    }
+    else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
+    {
+        return defaultFaciesValue();
     }
     else
     {
