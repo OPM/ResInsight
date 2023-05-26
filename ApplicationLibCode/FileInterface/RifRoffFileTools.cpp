@@ -511,16 +511,14 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
         const std::string codeNamesKeyword  = keyword + roff::Parser::postFixCodeNames();
         const std::string codeValuesKeyword = keyword + roff::Parser::postFixCodeValues();
 
-        auto codeNamesSize  = reader.getArrayLength( codeNamesKeyword );
-        auto codeValuesSize = reader.getArrayLength( codeValuesKeyword );
-
-        if ( codeNamesSize > 0 && codeNamesSize == codeValuesSize )
+        if ( reader.getArrayLength( codeNamesKeyword ) > 0 &&
+             reader.getArrayLength( codeNamesKeyword ) == reader.getArrayLength( codeValuesKeyword ) )
         {
             const auto fileCodeNames  = reader.getStringArray( codeNamesKeyword );
             const auto fileCodeValues = reader.getIntArray( codeValuesKeyword );
 
             std::map<int, QString> codeNamesAndValues;
-            for ( size_t i = 0; i < std::min( fileCodeValues.size(), fileCodeNames.size() ); i++ )
+            for ( size_t i = 0; i < fileCodeNames.size(); i++ )
             {
                 codeNamesAndValues[fileCodeValues[i]] = QString::fromStdString( fileCodeNames[i] ).trimmed();
             }
@@ -590,7 +588,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                     colorLegendCollection->deleteColorLegend( caseId, newResultName );
 
                     RimColorLegend* colorLegend = nullptr;
-                    if ( keywordUpperCase == "FACIES" )
+                    if ( keywordUpperCase == RiaResultNames::facies() )
                     {
                         colorLegend = RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
                     }
@@ -605,10 +603,10 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 
                 keywordMapping[QString::fromStdString( keyword )] = newResultName;
             }
-            else if ( keywordUpperCase == "FACIES" )
+            else if ( keywordUpperCase == RiaResultNames::facies() )
             {
-                // We have facies color and name data, but we do not have values for cells. Create color legend and get values from other
-                // sources, ie. Eclipse results
+                // We have the definition of facies name and value, but we do not have values for cells. Create color legend and get values
+                // from other sources, i.e. Eclipse result files
 
                 const auto codeNames = codeNamesAndValuesForKeyword( keyword, reader );
                 RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
