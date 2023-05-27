@@ -30,20 +30,40 @@ class RimWellPath;
 ///
 ///
 //==================================================================================================
-class RimWellLogDiffCurve : public RimWellLogCurve
+class RimWellLogCalculatedCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellLogDiffCurve();
-    ~RimWellLogDiffCurve() override;
+    enum class Operators
+    {
+        ADD,
+        SUBTRACT,
+        DIVIDE,
+        MULTIPLY
+    };
+    enum class DepthSource
+    {
+        FIRST,
+        SECOND,
+        UNION
+    };
 
+public:
+    RimWellLogCalculatedCurve();
+    ~RimWellLogCalculatedCurve() override;
+
+    void setOperator( Operators operatorValue );
     void setWellLogCurves( RimWellLogCurve* firstWellLogCurve, RimWellLogCurve* secondWellLogCurve );
 
     // Inherited via RimWellLogCurve
     QString wellName() const override;
     QString wellLogChannelUiName() const override;
     QString wellLogChannelUnits() const override;
+
+    static double calculateValue( double firstValue, double secondValue, Operators operatorValue );
+    static std::vector<double>
+        unionDepthValuesFromVectors( const std::vector<double>& firstDepths, const std::vector<double>& secondDepths, double threshold );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -62,8 +82,14 @@ private:
     void connectWellLogCurveChangedToSlots( RimWellLogCurve* wellLogCurve );
     void disconnectWellLogCurveChangedFromSlots( RimWellLogCurve* wellLogCurve );
 
+    std::vector<double> depthValuesFromSource( RiaDefines::DepthTypeEnum depthType ) const;
+    std::vector<double> unionDepthValuesFromCurves( RiaDefines::DepthTypeEnum depthType ) const;
+
 private:
     caf::PdmPtrField<RimCase*> m_case;
+
+    caf::PdmField<caf::AppEnum<Operators>>   m_operator;
+    caf::PdmField<caf::AppEnum<DepthSource>> m_depthSource;
 
     caf::PdmPtrField<RimWellLogCurve*> m_firstWellLogCurve;
     caf::PdmPtrField<RimWellLogCurve*> m_secondWellLogCurve;
