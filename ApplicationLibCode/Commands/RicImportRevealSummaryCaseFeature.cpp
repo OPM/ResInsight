@@ -59,7 +59,6 @@ void RicImportRevealSummaryCaseFeature::onActionTriggered( bool isChecked )
         auto newSumCase = new RimCsvSummaryCase();
 
         newSumCase->setSummaryHeaderFileName( filePath );
-        newSumCase->updateOptionSensitivity();
         project->assignCaseIdToSummaryCase( newSumCase );
 
         sumCaseColl->addCase( newSumCase );
