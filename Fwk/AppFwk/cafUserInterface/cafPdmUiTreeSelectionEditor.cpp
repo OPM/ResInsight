@@ -51,6 +51,7 @@
 #include <QPalette>
 #include <QSortFilterProxyModel>
 #include <QStyleOption>
+#include <QStyledItemDelegate>
 #include <QTimer>
 #include <QTreeView>
 
@@ -58,6 +59,48 @@
 
 namespace caf
 {
+
+class RadioButtonItemDelegate : public QStyledItemDelegate
+{
+public:
+    RadioButtonItemDelegate( QObject* parent = nullptr )
+        : QStyledItemDelegate( parent )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override
+    {
+        bool isChecked = false;
+
+        if ( index.data( Qt::CheckStateRole ).toBool() ) isChecked = true;
+
+        auto widget = option.widget;
+        auto opt    = QStyleOptionButton();
+
+        // Init from widget causes the rendering of the radio button to be offset by 1 pixel
+        // opt.initFrom( widget );
+
+        opt.rect   = option.rect;
+        opt.text   = index.data().toString();
+        auto style = widget->style();
+
+        if ( isChecked )
+        {
+            painter->fillRect( option.rect, option.palette.mid() );
+
+            opt.state |= QStyle::State_On;
+        }
+        else
+        {
+            opt.state |= QStyle::State_Off;
+        }
+
+        style->drawControl( QStyle::CE_RadioButton, &opt, painter, widget );
+    }
+};
 
 //==================================================================================================
 /// Helper class used to control height of size hint
@@ -253,6 +296,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
     {
         m_treeView->setSelectionMode( QAbstractItemView::SingleSelection );
         m_treeView->setContextMenuPolicy( Qt::NoContextMenu );
+        m_treeView->setItemDelegate( new RadioButtonItemDelegate() );
 
         m_model->enableSingleSelectionMode( m_attributes.singleSelectionMode );
 
@@ -456,7 +500,8 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
 
     if ( !menu.actions().empty() )
     {
-        // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
+        // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the
+        // viewport().
         QPoint globalPos = m_treeView->viewport()->mapToGlobal( pos );
 
         menu.exec( globalPos );
