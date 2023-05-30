@@ -135,6 +135,8 @@ private:
 
     void populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData );
 
+    static QString axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase );
+
 private:
     caf::PdmField<QString>                                               m_plotTitle;
     caf::PdmField<caf::FilePath>                                         m_filePath;

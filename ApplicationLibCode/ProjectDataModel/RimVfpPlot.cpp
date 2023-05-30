@@ -249,7 +249,7 @@ QString RimVfpPlot::asciiDataForPlotExport() const
         {
             if ( m_injectionTable )
             {
-                populatePlotData( *m_injectionTable.get(), m_interpolatedVariable(), m_flowingPhase(), plotData );
+                populatePlotData( *m_injectionTable, m_interpolatedVariable(), m_flowingPhase(), plotData );
             }
         }
 
@@ -296,7 +296,7 @@ QString RimVfpPlot::asciiDataForPlotExport() const
         return QString( "%1\n\n%2" ).arg( plotTitle ).arg( dataText );
     }
 
-    return QString();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -486,20 +486,7 @@ void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&                 table
                                    RimVfpDefines::FlowingPhaseType         flowingPhase,
                                    VfpPlotData&                            plotData )
 {
-    QString xAxisTitle;
-
-    if ( flowingPhase == RimVfpDefines::FlowingPhaseType::GAS )
-    {
-        xAxisTitle = "Gas ";
-    }
-    else
-    {
-        xAxisTitle = "Liquid ";
-    }
-    xAxisTitle +=
-        QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( RimVfpDefines::ProductionVariableType::FLOW_RATE ),
-                                getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::FLOW_RATE ) );
-
+    QString xAxisTitle = axisTitle( RimVfpDefines::ProductionVariableType::FLOW_RATE, flowingPhase );
     plotData.setXAxisTitle( xAxisTitle );
 
     QString yAxisTitle = QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( interpolatedVariable ),
@@ -587,6 +574,27 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimVfpPlot::axisTitle( RimVfpDefines::ProductionVariableType variableType, RimVfpDefines::FlowingPhaseType flowingPhase )
+{
+    QString title;
+
+    if ( flowingPhase == RimVfpDefines::FlowingPhaseType::GAS )
+    {
+        title = "Gas ";
+    }
+    else
+    {
+        title = "Liquid ";
+    }
+    title += QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( variableType ),
+                                     getDisplayUnitWithBracket( variableType ) );
+
+    return title;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimVfpPlot::populatePlotData( const Opm::VFPProdTable&                table,
                                    RimVfpDefines::ProductionVariableType   primaryVariable,
                                    RimVfpDefines::ProductionVariableType   familyVariable,
@@ -594,18 +602,7 @@ void RimVfpPlot::populatePlotData( const Opm::VFPProdTable&                table
                                    RimVfpDefines::FlowingPhaseType         flowingPhase,
                                    VfpPlotData&                            plotData ) const
 {
-    QString xAxisTitle;
-
-    if ( flowingPhase == RimVfpDefines::FlowingPhaseType::GAS )
-    {
-        xAxisTitle = "Gas ";
-    }
-    else
-    {
-        xAxisTitle = "Liquid ";
-    }
-    xAxisTitle += QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( primaryVariable ),
-                                          getDisplayUnitWithBracket( primaryVariable ) );
+    QString xAxisTitle = axisTitle( primaryVariable, flowingPhase );
     plotData.setXAxisTitle( xAxisTitle );
 
     QString yAxisTitle = QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( interpolatedVariable ),
@@ -669,7 +666,8 @@ double RimVfpPlot::convertToDisplayUnit( double value, RimVfpDefines::Production
     {
         return RiaEclipseUnitTools::pascalToBar( value );
     }
-    else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
+
+    if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
     {
         // Convert to m3/sec to m3/day
         return value * static_cast<double>( 24 * 60 * 60 );
@@ -693,10 +691,9 @@ void RimVfpPlot::convertToDisplayUnit( std::vector<double>& values, RimVfpDefine
 QString RimVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType )
 {
     QString unit = getDisplayUnit( variableType );
-    if ( !unit.isEmpty() )
-        return QString( "[%1]" ).arg( unit );
-    else
-        return unit;
+    if ( !unit.isEmpty() ) return QString( "[%1]" ).arg( unit );
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -705,13 +702,10 @@ QString RimVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariable
 QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType )
 
 {
-    if ( variableType == RimVfpDefines::ProductionVariableType::THP )
-        return "Bar";
-    else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
-        return "Sm3/day";
-    else if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT ||
-              variableType == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
-        return "";
+    if ( variableType == RimVfpDefines::ProductionVariableType::THP ) return "Bar";
+
+    if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE ) return "Sm3/day";
+
     return "";
 }
 
@@ -755,35 +749,15 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
                                      RimVfpDefines::ProductionVariableType familyVariable,
                                      size_t                                familyValue ) const
 {
-    if ( targetVariable == primaryVariable )
-        return primaryValue;
-    else if ( targetVariable == familyVariable )
-        return familyValue;
-    else
-    {
-        if ( targetVariable == RimVfpDefines::ProductionVariableType::WATER_CUT )
-        {
-            return m_waterCutIdx;
-        }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
-        {
-            return m_gasLiquidRatioIdx;
-        }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
-        {
-            return m_articifialLiftQuantityIdx;
-        }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::FLOW_RATE )
-        {
-            return m_flowRateIdx;
-        }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::THP )
-        {
-            return m_thpIdx;
-        }
+    if ( targetVariable == primaryVariable ) return primaryValue;
+    if ( targetVariable == familyVariable ) return familyValue;
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::WATER_CUT ) return m_waterCutIdx;
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO ) return m_gasLiquidRatioIdx;
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY ) return m_articifialLiftQuantityIdx;
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::FLOW_RATE ) return m_flowRateIdx;
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::THP ) return m_thpIdx;
 
-        return getProductionTableData( table, targetVariable ).size() - 1;
-    }
+    return getProductionTableData( table, targetVariable ).size() - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -950,7 +924,7 @@ void RimVfpPlot::calculateTableValueOptions( RimVfpDefines::ProductionVariableTy
 {
     if ( m_prodTable )
     {
-        std::vector<double> values = getProductionTableData( *m_prodTable.get(), variableType );
+        std::vector<double> values = getProductionTableData( *m_prodTable, variableType );
 
         for ( size_t i = 0; i < values.size(); i++ )
         {
