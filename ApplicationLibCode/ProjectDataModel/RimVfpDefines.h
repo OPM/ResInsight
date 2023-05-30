@@ -34,7 +34,7 @@ enum class TableType
 
 enum class ProductionVariableType
 {
-    LIQUID_FLOW_RATE,
+    FLOW_RATE,
     THP,
     ARTIFICIAL_LIFT_QUANTITY,
     WATER_CUT,

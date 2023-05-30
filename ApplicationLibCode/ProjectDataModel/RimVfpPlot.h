@@ -127,9 +127,8 @@ private:
                            RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                            VfpPlotData&                            plotData ) const;
 
-    void populatePlotData( const Opm::VFPInjTable&                 table,
-                           RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                           VfpPlotData&                            plotData ) const;
+    static void
+        populatePlotData( const Opm::VFPInjTable& table, RimVfpDefines::InterpolatedVariableType interpolatedVariable, VfpPlotData& plotData );
 
     void populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData );
 
@@ -147,7 +146,7 @@ private:
     caf::PdmField<caf::AppEnum<RimVfpDefines::ProductionVariableType>>   m_primaryVariable;
     caf::PdmField<caf::AppEnum<RimVfpDefines::ProductionVariableType>>   m_familyVariable;
 
-    caf::PdmField<int> m_liquidFlowRateIdx;
+    caf::PdmField<int> m_flowRateIdx;
     caf::PdmField<int> m_thpIdx;
     caf::PdmField<int> m_articifialLiftQuantityIdx;
     caf::PdmField<int> m_waterCutIdx;

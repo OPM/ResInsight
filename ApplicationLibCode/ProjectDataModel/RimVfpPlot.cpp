@@ -116,14 +116,14 @@ RimVfpPlot::RimVfpPlot()
     caf::AppEnum<RimVfpDefines::InterpolatedVariableType> defaultInterpolatedVariable = RimVfpDefines::InterpolatedVariableType::BHP;
     CAF_PDM_InitField( &m_interpolatedVariable, "InterpolatedVariable", defaultInterpolatedVariable, "Interpolated Variable" );
 
-    caf::AppEnum<RimVfpDefines::ProductionVariableType> defaultPrimaryVariable = RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE;
+    caf::AppEnum<RimVfpDefines::ProductionVariableType> defaultPrimaryVariable = RimVfpDefines::ProductionVariableType::FLOW_RATE;
     CAF_PDM_InitField( &m_primaryVariable, "PrimaryVariable", defaultPrimaryVariable, "Primary Variable" );
 
     caf::AppEnum<RimVfpDefines::ProductionVariableType> defaultFamilyVariable = RimVfpDefines::ProductionVariableType::THP;
     CAF_PDM_InitField( &m_familyVariable, "FamilyVariable", defaultFamilyVariable, "Family Variable" );
 
-    CAF_PDM_InitField( &m_liquidFlowRateIdx, "LiquidFlowRateIdx", 0, "Liquid Flow Rate" );
-    m_liquidFlowRateIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_flowRateIdx, "LiquidFlowRateIdx", 0, "Flow Rate" );
+    m_flowRateIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_thpIdx, "THPIdx", 0, "THP" );
     m_thpIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -483,15 +483,15 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget* plotWidget, con
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&                 table,
                                    RimVfpDefines::InterpolatedVariableType interpolatedVariable,
-                                   VfpPlotData&                            plotData ) const
+                                   VfpPlotData&                            plotData )
 {
-    QString xAxisTitle = QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText(
-                                                     RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE ),
-                                                 getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE ) );
+    QString xAxisTitle =
+        QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( RimVfpDefines::ProductionVariableType::FLOW_RATE ),
+                                getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::FLOW_RATE ) );
 
     plotData.setXAxisTitle( xAxisTitle );
 
-    QString yAxisTitle = QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( m_interpolatedVariable() ),
+    QString yAxisTitle = QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( interpolatedVariable ),
                                                  getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::THP ) );
     plotData.setYAxisTitle( yAxisTitle );
 
@@ -505,7 +505,7 @@ void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&                 table
         for ( size_t y = 0; y < numValues; y++ )
         {
             yVals[y] = table( thp, y );
-            if ( m_interpolatedVariable == RimVfpDefines::InterpolatedVariableType::BHP_THP_DIFF )
+            if ( interpolatedVariable == RimVfpDefines::InterpolatedVariableType::BHP_THP_DIFF )
             {
                 yVals[y] -= thpValues[thp];
             }
@@ -519,7 +519,7 @@ void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&                 table
                             .arg( unit );
 
         convertToDisplayUnit( yVals, RimVfpDefines::ProductionVariableType::THP );
-        convertToDisplayUnit( xVals, RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE );
+        convertToDisplayUnit( xVals, RimVfpDefines::ProductionVariableType::FLOW_RATE );
 
         plotData.appendCurve( title, xVals, yVals );
     }
@@ -612,7 +612,7 @@ void RimVfpPlot::populatePlotData( const Opm::VFPProdTable&                table
                                                familyVariable,
                                                familyIdx );
             size_t flo_idx =
-                getVariableIndex( table, RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE, primaryVariable, y, familyVariable, familyIdx );
+                getVariableIndex( table, RimVfpDefines::ProductionVariableType::FLOW_RATE, primaryVariable, y, familyVariable, familyIdx );
             size_t thp_idx =
                 getVariableIndex( table, RimVfpDefines::ProductionVariableType::THP, primaryVariable, y, familyVariable, familyIdx );
 
@@ -646,7 +646,7 @@ double RimVfpPlot::convertToDisplayUnit( double value, RimVfpDefines::Production
     {
         return RiaEclipseUnitTools::pascalToBar( value );
     }
-    else if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
+    else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
     {
         // Convert to m3/sec to m3/day
         return value * static_cast<double>( 24 * 60 * 60 );
@@ -684,7 +684,7 @@ QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variab
 {
     if ( variableType == RimVfpDefines::ProductionVariableType::THP )
         return "Bar";
-    else if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
+    else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
         return "m3/day";
     else if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT ||
               variableType == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
@@ -710,7 +710,7 @@ std::vector<double> RimVfpPlot::getProductionTableData( const Opm::VFPProdTable&
     {
         xVals = table.getALQAxis();
     }
-    else if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
+    else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
     {
         xVals = table.getFloAxis();
     }
@@ -750,9 +750,9 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
         {
             return m_articifialLiftQuantityIdx;
         }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
+        else if ( targetVariable == RimVfpDefines::ProductionVariableType::FLOW_RATE )
         {
-            return m_liquidFlowRateIdx;
+            return m_flowRateIdx;
         }
         else if ( targetVariable == RimVfpDefines::ProductionVariableType::THP )
         {
@@ -787,14 +787,14 @@ void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
             uiOrdering.add( &m_familyVariable );
 
             caf::PdmUiOrdering* fixedVariablesGroup = uiOrdering.addNewGroup( "Fixed Variables" );
-            fixedVariablesGroup->add( &m_liquidFlowRateIdx );
+            fixedVariablesGroup->add( &m_flowRateIdx );
             fixedVariablesGroup->add( &m_thpIdx );
             fixedVariablesGroup->add( &m_articifialLiftQuantityIdx );
             fixedVariablesGroup->add( &m_waterCutIdx );
             fixedVariablesGroup->add( &m_gasLiquidRatioIdx );
 
             // Disable the choices for variables as primary or family
-            setFixedVariableUiEditability( m_liquidFlowRateIdx, RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE );
+            setFixedVariableUiEditability( m_flowRateIdx, RimVfpDefines::ProductionVariableType::FLOW_RATE );
             setFixedVariableUiEditability( m_thpIdx, RimVfpDefines::ProductionVariableType::THP );
             setFixedVariableUiEditability( m_articifialLiftQuantityIdx, RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY );
             setFixedVariableUiEditability( m_waterCutIdx, RimVfpDefines::ProductionVariableType::WATER_CUT );
@@ -820,9 +820,9 @@ QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmF
 {
     QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
 
-    if ( fieldNeedingOptions == &m_liquidFlowRateIdx )
+    if ( fieldNeedingOptions == &m_flowRateIdx )
     {
-        calculateTableValueOptions( RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE, options );
+        calculateTableValueOptions( RimVfpDefines::ProductionVariableType::FLOW_RATE, options );
     }
 
     else if ( fieldNeedingOptions == &m_thpIdx )

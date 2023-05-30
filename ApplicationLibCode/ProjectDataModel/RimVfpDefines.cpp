@@ -41,12 +41,12 @@ void caf::AppEnum<RimVfpDefines::TableType>::setUp()
 template <>
 void caf::AppEnum<RimVfpDefines::ProductionVariableType>::setUp()
 {
-    addItem( RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE, "LIQUID_FLOW_RATE", "Liquid Flow Rate" );
+    addItem( RimVfpDefines::ProductionVariableType::FLOW_RATE, "LIQUID_FLOW_RATE", "Flow Rate" );
     addItem( RimVfpDefines::ProductionVariableType::THP, "THP", "THP" );
     addItem( RimVfpDefines::ProductionVariableType::WATER_CUT, "WATER_CUT", "Water Cut" );
     addItem( RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO, "GAS_LIQUID_RATIO", "Gas Liquid Ratio" );
     addItem( RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY, "ALQ", "Artificial Lift Quantity" );
-    setDefault( RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE );
+    setDefault( RimVfpDefines::ProductionVariableType::FLOW_RATE );
 }
 
 template <>
