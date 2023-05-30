@@ -242,14 +242,14 @@ QString RimVfpPlot::asciiDataForPlotExport() const
         {
             if ( m_prodTable )
             {
-                populatePlotData( *m_prodTable, m_primaryVariable(), m_familyVariable(), m_interpolatedVariable(), plotData );
+                populatePlotData( *m_prodTable, m_primaryVariable(), m_familyVariable(), m_interpolatedVariable(), m_flowingPhase(), plotData );
             }
         }
         else
         {
             if ( m_injectionTable )
             {
-                populatePlotData( *m_injectionTable.get(), m_interpolatedVariable(), plotData );
+                populatePlotData( *m_injectionTable.get(), m_interpolatedVariable(), m_flowingPhase(), plotData );
             }
         }
 
@@ -474,7 +474,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
 void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget* plotWidget, const Opm::VFPInjTable& table )
 {
     VfpPlotData plotData;
-    populatePlotData( table, m_interpolatedVariable(), plotData );
+    populatePlotData( table, m_interpolatedVariable(), m_flowingPhase(), plotData );
     populatePlotWidgetWithPlotData( plotWidget, plotData );
 }
 
@@ -483,9 +483,20 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget* plotWidget, con
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&                 table,
                                    RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                   RimVfpDefines::FlowingPhaseType         flowingPhase,
                                    VfpPlotData&                            plotData )
 {
-    QString xAxisTitle =
+    QString xAxisTitle;
+
+    if ( flowingPhase == RimVfpDefines::FlowingPhaseType::GAS )
+    {
+        xAxisTitle = "Gas ";
+    }
+    else
+    {
+        xAxisTitle = "Liquid ";
+    }
+    xAxisTitle +=
         QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( RimVfpDefines::ProductionVariableType::FLOW_RATE ),
                                 getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::FLOW_RATE ) );
 
@@ -534,7 +545,7 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget*                
                                                   RimVfpDefines::ProductionVariableType familyVariable )
 {
     VfpPlotData plotData;
-    populatePlotData( table, primaryVariable, familyVariable, m_interpolatedVariable(), plotData );
+    populatePlotData( table, primaryVariable, familyVariable, m_interpolatedVariable(), m_flowingPhase(), plotData );
     populatePlotWidgetWithPlotData( plotWidget, plotData );
 }
 
@@ -580,11 +591,23 @@ void RimVfpPlot::populatePlotData( const Opm::VFPProdTable&                table
                                    RimVfpDefines::ProductionVariableType   primaryVariable,
                                    RimVfpDefines::ProductionVariableType   familyVariable,
                                    RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                   RimVfpDefines::FlowingPhaseType         flowingPhase,
                                    VfpPlotData&                            plotData ) const
 {
-    QString xAxisTitle = QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( primaryVariable ),
-                                                 getDisplayUnitWithBracket( primaryVariable ) );
+    QString xAxisTitle;
+
+    if ( flowingPhase == RimVfpDefines::FlowingPhaseType::GAS )
+    {
+        xAxisTitle = "Gas ";
+    }
+    else
+    {
+        xAxisTitle = "Liquid ";
+    }
+    xAxisTitle += QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( primaryVariable ),
+                                          getDisplayUnitWithBracket( primaryVariable ) );
     plotData.setXAxisTitle( xAxisTitle );
+
     QString yAxisTitle = QString( "%1 %2" ).arg( caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( interpolatedVariable ),
                                                  getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType::THP ) );
     plotData.setYAxisTitle( yAxisTitle );

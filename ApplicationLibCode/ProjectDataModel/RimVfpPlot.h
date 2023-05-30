@@ -125,10 +125,13 @@ private:
                            RimVfpDefines::ProductionVariableType   primaryVariable,
                            RimVfpDefines::ProductionVariableType   familyVariable,
                            RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                           RimVfpDefines::FlowingPhaseType         flowingPhase,
                            VfpPlotData&                            plotData ) const;
 
-    static void
-        populatePlotData( const Opm::VFPInjTable& table, RimVfpDefines::InterpolatedVariableType interpolatedVariable, VfpPlotData& plotData );
+    static void populatePlotData( const Opm::VFPInjTable&                 table,
+                                  RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                  RimVfpDefines::FlowingPhaseType         flowingPhase,
+                                  VfpPlotData&                            plotData );
 
     void populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData );
 
