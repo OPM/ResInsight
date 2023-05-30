@@ -81,7 +81,6 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    setNameAsReadOnly();
     setName( "Delta Ensemble" );
 
     setAsEnsemble( true );
