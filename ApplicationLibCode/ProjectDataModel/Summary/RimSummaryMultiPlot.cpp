@@ -807,7 +807,16 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
     if ( analyzer.wellNames().size() == 1 )
     {
-        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL;
+        auto wellName = *( analyzer.wellNames().begin() );
+
+        if ( analyzer.wellSegmentNumbers( wellName ).size() == 1 )
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT;
+        }
+        else
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL;
+        }
     }
     else if ( analyzer.groupNames().size() == 1 )
     {

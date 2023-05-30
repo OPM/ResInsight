@@ -1155,6 +1155,10 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
             m_aquifer = other->m_aquifer();
             break;
 
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT:
+            m_wellSegment = other->m_wellSegment();
+            break;
+
         default:
             break;
     }
