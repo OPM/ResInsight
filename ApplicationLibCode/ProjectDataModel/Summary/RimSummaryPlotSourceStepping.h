@@ -123,7 +123,7 @@ private:
     caf::PdmField<QString> m_placeholderForLabel;
 
     caf::PdmField<QString> m_cellBlock;
-    caf::PdmField<QString> m_segment;
+    caf::PdmField<QString> m_wellSegment;
     caf::PdmField<QString> m_completion;
 
     caf::PdmField<int> m_aquifer;

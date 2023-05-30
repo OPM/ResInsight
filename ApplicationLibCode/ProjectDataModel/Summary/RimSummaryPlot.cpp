@@ -2308,6 +2308,16 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             curveAdr.setRegion( droppedRegion );
             newCurveDef.setSummaryAddress( curveAdr );
         }
+        else if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT ) &&
+                  ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_SEGMENT ) )
+        {
+            objectIdentifierString = std::to_string( curveAdr.wellSegmentNumber() );
+
+            int droppedWellSegmentNumber = std::stoi( droppedName );
+
+            curveAdr.setWellSegmentNumber( droppedWellSegmentNumber );
+            newCurveDef.setSummaryAddress( curveAdr );
+        }
 
         if ( !objectIdentifierString.empty() )
         {
