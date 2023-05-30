@@ -30,7 +30,10 @@
 
 namespace regression
 {
+class ExponentialRegression;
 class LinearRegression;
+class LogarithmicRegression;
+class LogisticRegression;
 class PolynominalRegression;
 class PowerFitRegression;
 } // namespace regression
@@ -48,7 +51,10 @@ public:
     {
         LINEAR,
         POLYNOMINAL,
-        POWER_FIT
+        POWER_FIT,
+        EXPONENTIAL,
+        LOGARITHMIC,
+        LOGISTIC
     };
 
     RimSummaryRegressionAnalysisCurve();
@@ -79,6 +85,9 @@ private:
     static QString generateRegressionText( const regression::LinearRegression& reg );
     static QString generateRegressionText( const regression::PolynominalRegression& reg );
     static QString generateRegressionText( const regression::PowerFitRegression& reg );
+    static QString generateRegressionText( const regression::LogarithmicRegression& reg );
+    static QString generateRegressionText( const regression::ExponentialRegression& reg );
+    static QString generateRegressionText( const regression::LogisticRegression& reg );
 
     static QString formatDouble( double v );
 

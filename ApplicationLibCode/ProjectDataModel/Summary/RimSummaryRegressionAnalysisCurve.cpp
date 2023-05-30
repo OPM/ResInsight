@@ -21,7 +21,10 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 
+#include "ExponentialRegression.hpp"
 #include "LinearRegression.hpp"
+#include "LogarithmicRegression.hpp"
+#include "LogisticRegression.hpp"
 #include "PolynominalRegression.hpp"
 #include "PowerFitRegression.hpp"
 
@@ -38,6 +41,9 @@ void caf::AppEnum<RimSummaryRegressionAnalysisCurve::RegressionType>::setUp()
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LINEAR, "LINEAR", "Linear" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::POLYNOMINAL, "POLYNOMINAL", "Polynominal" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::POWER_FIT, "POWER_FIT", "Power Fit" );
+    addItem( RimSummaryRegressionAnalysisCurve::RegressionType::EXPONENTIAL, "EXPONENTIAL", "Exponential" );
+    addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LOGARITHMIC, "LOGARITHMIC", "Logarithmic" );
+    addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LOGISTIC, "LOGISTIC", "Logistic" );
     setDefault( RimSummaryRegressionAnalysisCurve::RegressionType::LINEAR );
 }
 }; // namespace caf
@@ -132,6 +138,31 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
         return doubleVector;
     };
 
+    auto convertToTimeT = []( const std::vector<double>& timeSteps )
+    {
+        std::vector<time_t> tVector( timeSteps.size() );
+        std::transform( timeSteps.begin(),
+                        timeSteps.end(),
+                        tVector.begin(),
+                        []( const auto& timeVal ) { return static_cast<time_t>( timeVal ); } );
+        return tVector;
+    };
+
+    auto filterValues = []( const std::vector<double>& timeSteps, const std::vector<double>& values )
+    {
+        std::vector<double> filteredTimeSteps;
+        std::vector<double> filteredValues;
+        for ( size_t i = 0; i < timeSteps.size(); i++ )
+        {
+            if ( timeSteps[i] > 0.0 && values[i] > 0.0 )
+            {
+                filteredTimeSteps.push_back( timeSteps[i] );
+                filteredValues.push_back( values[i] );
+            }
+        }
+        return std::make_pair( filteredTimeSteps, filteredValues );
+    };
+
     std::vector<double> timeStepsD = convertToDouble( timeSteps );
 
     if ( m_regressionType == RegressionType::LINEAR )
@@ -150,25 +181,34 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
-        auto filterValues = []( const std::vector<double>& timeSteps, const std::vector<double>& values )
-        {
-            std::vector<double> filteredTimeSteps;
-            std::vector<double> filteredValues;
-            for ( size_t i = 0; i < timeSteps.size(); i++ )
-            {
-                if ( timeSteps[i] > 0.0 && values[i] > 0.0 )
-                {
-                    filteredTimeSteps.push_back( timeSteps[i] );
-                    filteredValues.push_back( values[i] );
-                }
-            }
-            return std::make_pair( filteredTimeSteps, filteredValues );
-        };
         auto [filteredTimeSteps, filteredValues] = filterValues( timeStepsD, values );
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = powerFitRegression.predict( timeStepsD );
-        return { timeSteps, predictedValues, generateRegressionText( powerFitRegression ) };
+        std::vector<double> predictedValues = powerFitRegression.predict( filteredTimeSteps );
+        return { convertToTimeT( filteredTimeSteps ), predictedValues, generateRegressionText( powerFitRegression ) };
+    }
+    else if ( m_regressionType == RegressionType::EXPONENTIAL )
+    {
+        auto [filteredTimeSteps, filteredValues] = filterValues( timeStepsD, values );
+        regression::ExponentialRegression exponentialRegression;
+        exponentialRegression.fit( filteredTimeSteps, filteredValues );
+        std::vector<double> predictedValues = exponentialRegression.predict( filteredTimeSteps );
+        return { convertToTimeT( filteredTimeSteps ), predictedValues, generateRegressionText( exponentialRegression ) };
+    }
+    else if ( m_regressionType == RegressionType::LOGARITHMIC )
+    {
+        auto [filteredTimeSteps, filteredValues] = filterValues( timeStepsD, values );
+        regression::LogarithmicRegression logarithmicRegression;
+        logarithmicRegression.fit( filteredTimeSteps, filteredValues );
+        std::vector<double> predictedValues = logarithmicRegression.predict( filteredTimeSteps );
+        return { convertToTimeT( filteredTimeSteps ), predictedValues, generateRegressionText( logarithmicRegression ) };
+    }
+    else if ( m_regressionType == RegressionType::LOGISTIC )
+    {
+        regression::LogisticRegression logisticRegression;
+        logisticRegression.fit( timeStepsD, values );
+        std::vector<double> predictedValues = logisticRegression.predict( timeStepsD );
+        return { timeSteps, predictedValues, generateRegressionText( logisticRegression ) };
     }
 
     return { timeSteps, values, "" };
@@ -314,4 +354,31 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 {
     return QString( "y = %1 + x<sup>%2</sup>" ).arg( formatDouble( reg.scale() ) ).arg( formatDouble( reg.exponent() ) ) +
            QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::ExponentialRegression& reg )
+{
+    return QString( "y = %1 * e<sup>%2x</sup>" ).arg( formatDouble( reg.a() ) ).arg( formatDouble( reg.b() ) ) +
+           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LogarithmicRegression& reg )
+{
+    return QString( "y = %1 + %2 * ln(x)" ).arg( formatDouble( reg.a() ) ).arg( formatDouble( reg.b() ) ) +
+           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LogisticRegression& reg )
+{
+    // TODO: Display more parameters here.
+    return "";
 }
