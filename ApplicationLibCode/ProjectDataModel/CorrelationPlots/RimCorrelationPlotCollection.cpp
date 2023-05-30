@@ -275,7 +275,8 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAbstr
             {
                 curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
                 auto correlationSortedEnsembleParameters = ensemble->correlationSortedEnsembleParameters( address, timeStep );
-                highestCorrelationParameters.push_back( correlationSortedEnsembleParameters.front().first.name );
+                if ( !correlationSortedEnsembleParameters.empty() )
+                    highestCorrelationParameters.push_back( correlationSortedEnsembleParameters.front().first.name );
             }
         }
         plot->setCurveDefinitions( curveDefs );
