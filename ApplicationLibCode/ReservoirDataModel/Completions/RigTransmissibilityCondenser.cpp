@@ -118,8 +118,6 @@ std::set<RigTransmissibilityCondenser::CellAddress> RigTransmissibilityCondenser
 //--------------------------------------------------------------------------------------------------
 double RigTransmissibilityCondenser::condensedTransmissibility( CellAddress externalCell1, CellAddress externalCell2 )
 {
-    CAF_ASSERT( !( externalCell1 == externalCell2 ) );
-
     if ( m_condensedTransmissibilities.empty() )
     {
         calculateCondensedTransmissibilities();

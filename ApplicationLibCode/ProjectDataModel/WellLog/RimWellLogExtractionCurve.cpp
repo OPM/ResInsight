@@ -158,7 +158,7 @@ RimWellLogExtractionCurve::~RimWellLogExtractionCurve()
 void RimWellLogExtractionCurve::setWellPath( RimWellPath* wellPath )
 {
     m_wellPath = wellPath;
-    if ( m_wellPath == m_refWellPath ) m_refWellPath = nullptr;
+    if ( m_wellPath() == m_refWellPath() ) m_refWellPath = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,7 +306,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
     }
     else if ( changedField == &m_wellPath )
     {
-        if ( m_wellPath == m_refWellPath ) m_refWellPath = nullptr;
+        if ( m_wellPath() == m_refWellPath() ) m_refWellPath = nullptr;
         this->loadDataAndUpdate( true );
     }
     else if ( ( changedField == &m_refWellPath ) || ( changedField == &m_timeStep ) || ( changedField == &m_trajectoryType ) ||
