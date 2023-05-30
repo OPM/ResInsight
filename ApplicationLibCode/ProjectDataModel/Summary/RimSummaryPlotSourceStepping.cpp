@@ -76,7 +76,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitFieldNoDefault( &m_vectorName, "VectorName", "Vector" );
 
     CAF_PDM_InitFieldNoDefault( &m_cellBlock, "CellBlock", "Block" );
-    CAF_PDM_InitFieldNoDefault( &m_segment, "Segment", "Segment" );
+    CAF_PDM_InitFieldNoDefault( &m_wellSegment, "Segment", "Segment" );
     CAF_PDM_InitFieldNoDefault( &m_completion, "Completion", "Completion" );
     CAF_PDM_InitFieldNoDefault( &m_aquifer, "Aquifer", "Aquifer" );
 
@@ -271,7 +271,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
             {
                 category = RifEclipseSummaryAddress::SUMMARY_BLOCK;
             }
-            else if ( fieldNeedingOptions == &m_segment )
+            else if ( fieldNeedingOptions == &m_wellSegment )
             {
                 secondaryIdentifier = m_wellName().toStdString();
                 category            = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
@@ -453,7 +453,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_BLOCK;
         }
-        else if ( changedField == &m_segment )
+        else if ( changedField == &m_wellSegment )
         {
             summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
         }
@@ -576,6 +576,9 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
             return &m_aquifer;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT:
+            return &m_wellSegment;
 
         default:
             break;
@@ -779,10 +782,10 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
 
             if ( analyzer.wellSegmentNumbers( m_wellName().toStdString() ).size() == 1 )
             {
-                QString txt = QString::number( *( analyzer.wellSegmentNumbers( m_wellName().toStdString() ).begin() ) );
-                m_segment   = txt;
+                QString txt   = QString::number( *( analyzer.wellSegmentNumbers( m_wellName().toStdString() ).begin() ) );
+                m_wellSegment = txt;
 
-                fieldsCommonForAllCurves.push_back( &m_segment );
+                fieldsCommonForAllCurves.push_back( &m_wellSegment );
             }
 
             if ( analyzer.blocks().size() == 1 )
@@ -1150,6 +1153,10 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
             m_aquifer = other->m_aquifer();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT:
+            m_wellSegment = other->m_wellSegment();
             break;
 
         default:

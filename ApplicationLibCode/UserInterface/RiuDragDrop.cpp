@@ -251,7 +251,8 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 
         if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
              dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) ||
-             dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryCurve*>( uiItem ) || dynamic_cast<RimSurface*>( uiItem ) )
+             dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryCaseCollection*>( uiItem ) ||
+             dynamic_cast<RimSummaryCurve*>( uiItem ) || dynamic_cast<RimSurface*>( uiItem ) )
         {
             itemflags |= Qt::ItemIsDragEnabled;
         }

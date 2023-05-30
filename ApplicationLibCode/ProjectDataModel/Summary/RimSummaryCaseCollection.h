@@ -137,7 +137,6 @@ protected:
     virtual void onLoadDataAndUpdate();
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void         defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void         setNameAsReadOnly();
 
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 

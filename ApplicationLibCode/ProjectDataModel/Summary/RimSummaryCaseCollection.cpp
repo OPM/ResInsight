@@ -1073,6 +1073,7 @@ void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
     if ( changedField == &m_name )
     {
+        m_autoName = false;
         caseNameChanged.send();
     }
 }
@@ -1092,7 +1093,6 @@ void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     uiOrdering.add( &m_autoName );
     uiOrdering.add( &m_name );
-    m_name.uiCapability()->setUiReadOnly( m_autoName() );
     if ( m_isEnsemble() )
     {
         uiOrdering.add( &m_ensembleId );
@@ -1122,14 +1122,6 @@ void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 
         uiTreeOrdering.skipRemainingChildren( true );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::setNameAsReadOnly()
-{
-    m_name.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------

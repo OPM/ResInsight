@@ -579,7 +579,6 @@ std::vector<RimSummaryCase*>
                     }
 
                     newSumCase->setSummaryHeaderFileName( smspecFileName );
-                    newSumCase->updateOptionSensitivity();
                     project->assignCaseIdToSummaryCase( newSumCase );
 
                     sumCases.push_back( newSumCase );

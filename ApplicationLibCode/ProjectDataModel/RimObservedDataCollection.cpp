@@ -168,7 +168,6 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummar
     observedData->setSummaryHeaderFileName( fileName );
     observedData->createSummaryReaderInterface();
     observedData->updateMetaData();
-    observedData->updateOptionSensitivity();
 
     if ( errorText && !observedData->errorMessagesFromReader().isEmpty() )
     {
@@ -224,7 +223,6 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummar
     userData->setSummaryHeaderFileName( fileName );
     userData->createSummaryReaderInterface();
     userData->updateMetaData();
-    userData->updateOptionSensitivity();
 
     if ( errorText && !userData->errorMessagesFromReader().isEmpty() )
     {
