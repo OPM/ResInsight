@@ -708,7 +708,7 @@ QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variab
     if ( variableType == RimVfpDefines::ProductionVariableType::THP )
         return "Bar";
     else if ( variableType == RimVfpDefines::ProductionVariableType::FLOW_RATE )
-        return "m3/day";
+        return "Sm3/day";
     else if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT ||
               variableType == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
         return "";
