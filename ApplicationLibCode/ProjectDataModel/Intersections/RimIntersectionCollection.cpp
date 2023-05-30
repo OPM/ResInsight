@@ -75,6 +75,8 @@ RimIntersectionCollection::RimIntersectionCollection()
     CAF_PDM_InitField( &m_kFilterOverridden, "OverrideKFilter", false, "Override K Range Filter" );
 
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-30:2", "" );
+
+    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", false, "Use Cell Filters for Curve Intersections" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,6 +454,9 @@ void RimIntersectionCollection::updateIntersectionBoxGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    caf::PdmUiGroup* genGroup = uiOrdering.addNewGroup( "General" );
+    genGroup->add( &m_applyCellFilters );
+
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Depth Filter - Curve Intersections" );
 
     m_depthFilterType.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
@@ -538,4 +543,12 @@ void RimIntersectionCollection::rebuild3dView() const
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionCollection::shouldApplyCellFiltersToIntersections() const
+{
+    return m_applyCellFilters();
 }
