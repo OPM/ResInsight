@@ -204,6 +204,10 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
                 text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
 
                 if ( m_vectorName ) text += " (" + summaryAddress.vectorName() + ")";
+
+                // Handle cases where longNameFromVectorName fails to produce a long name.
+                // This can happen for non-standard vector names.
+                if ( text.empty() && !summaryAddress.vectorName().empty() ) text = summaryAddress.vectorName();
             }
             else
             {
