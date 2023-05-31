@@ -439,6 +439,9 @@ void RimEclipseView::onCreateDisplayModel()
 
     if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() ) ) return;
 
+    const bool cellFiltersActive     = cellFilterCollection()->hasActiveFilters();
+    const bool propertyFiltersActive = eclipsePropertyFilterCollection()->hasActiveFilters();
+
     // Define a vector containing time step indices to produce geometry for.
     // First entry in this vector is used to define the geometry only result mode with no results.
     std::vector<size_t> timeStepIndices;
@@ -458,9 +461,9 @@ void RimEclipseView::onCreateDisplayModel()
             timeStepIndices.push_back( i );
         }
     }
-    else if ( this->cellResult()->hasStaticResult() || this->cellEdgeResult()->hasResult() ||
-              this->eclipsePropertyFilterCollection()->hasActiveFilters() || this->intersectionCollection()->hasAnyActiveSeparateResults() ||
-              ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
+    else if ( cellResult()->hasStaticResult() || cellEdgeResult()->hasResult() || propertyFiltersActive ||
+              intersectionCollection()->hasAnyActiveSeparateResults() ||
+              ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
     {
         // The one and only static result entry
         timeStepIndices.push_back( 0 );
@@ -480,7 +483,7 @@ void RimEclipseView::onCreateDisplayModel()
     wellCollection()->scheduleIsWellPipesVisibleRecalculation();
 
     // Create vector of grid indices to render
-    std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
+    std::vector<size_t> gridIndices = indicesToVisibleGrids();
 
     ///
     // Get or create the parts for "static" type geometry. The same geometry is used
@@ -488,36 +491,35 @@ void RimEclipseView::onCreateDisplayModel()
     // For property filtered geometry : just set all the models as empty scenes
     // updateCurrentTimeStep requests the actual parts
 
-    if ( !this->eclipsePropertyFilterCollection()->hasActiveFilters() ||
-         ( this->viewController() && this->viewController()->isVisibleCellsOveridden() ) )
+    if ( !propertyFiltersActive || ( viewController() && viewController()->isVisibleCellsOveridden() ) )
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;
 
-        if ( this->viewController() && this->viewController()->isVisibleCellsOveridden() )
+        if ( viewController() && viewController()->isVisibleCellsOveridden() )
         {
             geometryTypesToAdd.push_back( OVERRIDDEN_CELL_VISIBILITY );
         }
-        else if ( this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
+        else if ( cellFiltersActive && wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( RANGE_FILTERED );
             geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
             geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER );
             geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER );
-            if ( this->showInactiveCells() )
+            if ( showInactiveCells() )
             {
                 geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
             }
         }
-        else if ( !this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
+        else if ( !cellFiltersActive && wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS );
             geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS );
         }
-        else if ( this->cellFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells() )
+        else if ( cellFiltersActive && !wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( RANGE_FILTERED );
             geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
-            if ( this->showInactiveCells() )
+            if ( showInactiveCells() )
             {
                 geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
             }
@@ -527,7 +529,7 @@ void RimEclipseView::onCreateDisplayModel()
             geometryTypesToAdd.push_back( ALL_WELL_CELLS ); // Should be all well cells
             geometryTypesToAdd.push_back( ACTIVE );
 
-            if ( this->showInactiveCells() )
+            if ( showInactiveCells() )
             {
                 geometryTypesToAdd.push_back( INACTIVE );
             }
@@ -555,7 +557,7 @@ void RimEclipseView::onCreateDisplayModel()
             }
         }
         // Set static colors
-        this->onUpdateStaticCellColors();
+        onUpdateStaticCellColors();
     }
     else
     {
@@ -565,7 +567,7 @@ void RimEclipseView::onCreateDisplayModel()
 
     m_reservoirGridPartManager->clearWatertightGeometryFlags();
 
-    if ( faultCollection()->showFaultCollection() || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
+    if ( faultCollection()->showFaultCollection() || !propertyFiltersActive )
     {
         setVisibleGridPartsWatertight();
 
@@ -600,10 +602,29 @@ void RimEclipseView::onCreateDisplayModel()
     //
 
     m_intersectionVizModel->removeAllParts();
-    m_intersectionCollection->rebuildGeometry();
-    m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+    if ( m_intersectionCollection->isActive )
+    {
+        m_intersectionCollection->clearGeometry();
 
+        if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
+        {
+            if ( !propertyFiltersActive )
+            {
+                cvf::UByteArray visibleCells;
+                calculateStaticCellVisibility( &visibleCells );
+                m_intersectionCollection->appendPartsToModel( *this,
+                                                              m_intersectionVizModel.p(),
+                                                              m_reservoirGridPartManager->scaleTransform(),
+                                                              &visibleCells );
+                nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+            }
+        }
+        else
+        {
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
+            nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+        }
+    }
     // Seismic sections
 
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
@@ -669,7 +690,7 @@ void RimEclipseView::onCreateDisplayModel()
         updateFaultColors();
     }
 
-    std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots = this->objectsWithReferringPtrFieldsOfType<RimFlowCharacteristicsPlot>();
+    std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots = objectsWithReferringPtrFieldsOfType<RimFlowCharacteristicsPlot>();
     for ( auto plot : characteristicsPlots )
     {
         if ( plot != nullptr )
@@ -2214,6 +2235,32 @@ void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
             {
                 ( *totalVisibility )[grid->reservoirCellIndex( lcIdx )] |= ( *visibility )[lcIdx];
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::calculateStaticCellVisibility( cvf::UByteArray* visibility )
+{
+    size_t cellCount = this->mainGrid()->globalCellArray().size();
+
+    visibility->resize( cellCount );
+    visibility->setAll( false );
+
+    std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
+
+    for ( auto gridIdx : gridIndices )
+    {
+        RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid( gridIdx );
+        int          gridCellCount = static_cast<int>( grid->cellCount() );
+
+        const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( ACTIVE, gridIdx, 0 );
+
+        for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
+        {
+            ( *visibility )[grid->reservoirCellIndex( lcIdx )] |= ( *gridVisibility )[lcIdx];
         }
     }
 }

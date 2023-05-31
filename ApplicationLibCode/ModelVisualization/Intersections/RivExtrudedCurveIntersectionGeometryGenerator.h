@@ -60,7 +60,7 @@ public:
     ~RivExtrudedCurveIntersectionGeometryGenerator() override;
 
     // Generate geometry
-    cvf::ref<cvf::DrawableGeo> generateSurface();
+    cvf::ref<cvf::DrawableGeo> generateSurface( cvf::UByteArray* visibleCells );
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
     cvf::ref<cvf::DrawableGeo> createFaultMeshDrawable();
 
@@ -87,7 +87,7 @@ public:
     void ensureGeometryIsCalculated();
 
 private:
-    void calculateArrays();
+    void calculateArrays( cvf::UByteArray* visibleCells );
     void calculateLineSegementTransforms();
     void calculateTransformedPolyline();
     void calculateSurfaceIntersectionPoints();

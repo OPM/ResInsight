@@ -321,7 +321,7 @@ void RimGeoMechView::onCreateDisplayModel()
     // Cross sections
 
     m_intersectionVizModel->removeAllParts();
-    m_intersectionCollection->rebuildGeometry();
+    m_intersectionCollection->clearGeometry();
     m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
 
@@ -482,7 +482,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
         // Intersections
         {
             m_intersectionVizModel->removeAllParts();
-            m_intersectionCollection->rebuildGeometry();
+            m_intersectionCollection->clearGeometry();
             m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
             m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
         }

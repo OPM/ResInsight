@@ -23,6 +23,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfArray.h"
+
 #include "RimIntersectionEnums.h"
 
 class Rim3dView;
@@ -76,8 +78,8 @@ public:
 
     void applySingleColorEffect();
     void updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex );
-    void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
-    void rebuildGeometry();
+    void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform, cvf::UByteArray* visibleCells = nullptr );
+    void clearGeometry();
 
     std::vector<RimExtrudedCurveIntersection*> intersections() const;
     std::vector<RimBoxIntersection*>           intersectionBoxes() const;

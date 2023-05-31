@@ -667,7 +667,6 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
             if ( m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE )
             {
                 cvf::UByteArray visibleCells;
-                m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
                 if ( m_cellFilterView )
                 {

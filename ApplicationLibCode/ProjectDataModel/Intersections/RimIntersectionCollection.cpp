@@ -42,6 +42,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "IntersectionCollection", "CrossSectionCollection" );
@@ -203,7 +204,10 @@ bool RimIntersectionCollection::hasAnyActiveSeparateResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
+                                                    cvf::ModelBasicList* model,
+                                                    cvf::Transform*      scaleTransform,
+                                                    cvf::UByteArray*     visibleCells )
 {
     if ( !isActive() ) return;
 
@@ -211,6 +215,7 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelB
     {
         if ( cs->isActive() )
         {
+            cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
             cs->intersectionPartMgr()->appendIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendPolylinePartsToModel( view, model, scaleTransform );
@@ -237,16 +242,16 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelB
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::rebuildGeometry()
+void RimIntersectionCollection::clearGeometry()
 {
     for ( RimExtrudedCurveIntersection* intersection : m_intersections )
     {
-        intersection->rebuildGeometry();
+        intersection->clearGeometry();
     }
 
     for ( RimBoxIntersection* intersectionBox : m_intersectionBoxes )
     {
-        intersectionBox->rebuildGeometry();
+        intersectionBox->clearGeometry();
     }
 }
 

@@ -231,7 +231,7 @@ void RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMech
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry()
+void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCells )
 {
     if ( m_intersectionGenerator.isNull() ) return;
 
@@ -242,7 +242,7 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry()
     bool useBufferObjects = true;
     // Surface geometry
     {
-        cvf::ref<cvf::DrawableGeo> geo = m_intersectionGenerator->generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo = m_intersectionGenerator->generateSurface( visibleCells );
         if ( geo.notNull() )
         {
             geo->computeNormals();

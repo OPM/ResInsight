@@ -267,7 +267,7 @@ void RimBoxIntersection::appendManipulatorPartsToModel( cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBoxIntersection::rebuildGeometry()
+void RimBoxIntersection::clearGeometry()
 {
     m_intersectionBoxPartMgr = nullptr;
 }

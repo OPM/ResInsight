@@ -109,7 +109,7 @@ public:
 
     Rim2dIntersectionView*                           correspondingIntersectionView() const;
     RivExtrudedCurveIntersectionPartMgr*             intersectionPartMgr();
-    void                                             rebuildGeometry();
+    void                                             clearGeometry();
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
     std::vector<cvf::Vec3d> polyLinesForExtrusionDirection() const;

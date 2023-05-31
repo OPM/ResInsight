@@ -20,13 +20,13 @@
 #pragma once
 
 #include "cvfArray.h"
+#include "cvfCollection.h"
 #include "cvfColor4.h"
 #include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include "cafPdmPointer.h"
-#include "cvfCollection.h"
 
 #include <QString>
 
@@ -81,8 +81,9 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const;
 
+    void generatePartGeometry( cvf::UByteArray* visibleCells );
+
 private:
-    void generatePartGeometry();
     void createFaultLabelParts( const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors );
     void createPolyLineParts( bool useBufferObjects );
     void createExtrusionDirParts( bool useBufferObjects );
