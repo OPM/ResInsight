@@ -242,6 +242,14 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex, cvf::UByteArray* visibleCells )
+{
+    model->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::clearGeometry()
 {
     for ( RimExtrudedCurveIntersection* intersection : m_intersections )
@@ -366,7 +374,7 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
         updateUiIconFromToggleField();
         rebuildView = true;
     }
-    if ( changedField == &m_depthThresholdOverridden )
+    else if ( changedField == &m_depthThresholdOverridden )
     {
         for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
@@ -379,8 +387,8 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
         }
         rebuildView = true;
     }
-
-    if ( ( changedField == &m_depthUpperThreshold ) || ( changedField == &m_depthLowerThreshold ) || ( changedField == &m_depthFilterType ) )
+    else if ( ( changedField == &m_depthUpperThreshold ) || ( changedField == &m_depthLowerThreshold ) ||
+              ( changedField == &m_depthFilterType ) )
     {
         for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
@@ -389,14 +397,17 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
         }
         rebuildView = true;
     }
-
-    if ( changedField == &m_kFilterOverridden || changedField == &m_kFilterStr )
+    else if ( changedField == &m_kFilterOverridden || changedField == &m_kFilterStr )
     {
         for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
             cs->setKFilterOverride( m_kFilterOverridden, m_kFilterStr );
             cs->rebuildGeometryAndScheduleCreateDisplayModel();
         }
+        rebuildView = true;
+    }
+    else if ( changedField == &m_applyCellFilters )
+    {
         rebuildView = true;
     }
 

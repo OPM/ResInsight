@@ -386,7 +386,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteA
 
             for ( auto globalCellIdx : columnCellCandidates )
             {
-                if ( ( *visibleCells )[globalCellIdx] == 0 ) continue;
+                if ( ( visibleCells != nullptr ) && ( ( *visibleCells )[globalCellIdx] == 0 ) ) continue;
                 if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
                 hexPlaneCutTriangleVxes.clear();
@@ -782,7 +782,7 @@ const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::faultMeshV
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionGeometryGenerator::ensureGeometryIsCalculated()
 {
-    calculateArrays();
+    calculateArrays( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

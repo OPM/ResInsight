@@ -79,6 +79,7 @@ public:
     void applySingleColorEffect();
     void updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex );
     void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform, cvf::UByteArray* visibleCells = nullptr );
+    void appendDynamicPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex, cvf::UByteArray* visibleCells );
     void clearGeometry();
 
     std::vector<RimExtrudedCurveIntersection*> intersections() const;

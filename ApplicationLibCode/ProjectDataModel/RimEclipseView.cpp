@@ -758,6 +758,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     appendWellsAndFracturesToModel();
     appendElementVectorResultToModel();
     appendStreamlinesToModel();
+    if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() ) appendIntersectionsToModel();
 
     m_overlayInfoConfig()->update3DInfo();
 
@@ -1058,6 +1059,33 @@ void RimEclipseView::appendStreamlinesToModel()
             frameParts->setName( name );
 
             m_streamlinesPartManager->appendDynamicGeometryPartsToModel( frameParts.p(), m_currentTimeStep );
+
+            frameScene->addModel( frameParts.p() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::appendIntersectionsToModel()
+{
+    if ( nativeOrOverrideViewer() )
+    {
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+        if ( frameScene )
+        {
+            cvf::String name = "IntersectionDynamicModel";
+            RimEclipseView::removeModelByName( frameScene, name );
+
+            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+            frameParts->setName( name );
+
+            cvf::UByteArray totalVisibility;
+
+            calculateCurrentTotalCellVisibility( &totalVisibility, m_currentTimeStep );
+
+            m_intersectionCollection->appendDynamicPartsToModel( frameParts.p(), m_currentTimeStep, &totalVisibility );
 
             frameScene->addModel( frameParts.p() );
         }
@@ -2251,12 +2279,14 @@ void RimEclipseView::calculateStaticCellVisibility( cvf::UByteArray* visibility 
 
     std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
 
-    for ( auto gridIdx : gridIndices )
+    const auto gridCount = this->eclipseCase()->eclipseCaseData()->gridCount();
+
+    for ( size_t gridIdx = 0; gridIdx < gridCount; gridIdx++ )
     {
         RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid( gridIdx );
         int          gridCellCount = static_cast<int>( grid->cellCount() );
 
-        const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( ACTIVE, gridIdx, 0 );
+        const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( RANGE_FILTERED, gridIdx, 0 );
 
         for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
         {

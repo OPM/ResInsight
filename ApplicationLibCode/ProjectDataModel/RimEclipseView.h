@@ -178,6 +178,7 @@ protected:
     void appendWellsAndFracturesToModel();
     void appendElementVectorResultToModel();
     void appendStreamlinesToModel();
+    void appendIntersectionsToModel();
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
