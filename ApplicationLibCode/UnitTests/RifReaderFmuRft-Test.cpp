@@ -39,7 +39,7 @@ TEST( RifReaderFmuRftTest, OldFormatLoadFile )
     QString folderName = QString( "%1/RifReaderFmuRft_old_format/" ).arg( TEST_DATA_DIR );
 
     auto folderNames = RifReaderFmuRft::findSubDirectoriesWithFmuRftData( folderName );
-    EXPECT_EQ( 1u, folderNames.size() );
+    EXPECT_EQ( 1, folderNames.size() );
 
     RifReaderFmuRft reader( folderName );
     reader.load();
@@ -55,7 +55,7 @@ TEST( RifReaderFmuRftTest, LoadFile )
     QString folderName = QString( "%1/RifReaderFmuRft/" ).arg( TEST_DATA_DIR );
 
     auto folderNames = RifReaderFmuRft::findSubDirectoriesWithFmuRftData( folderName );
-    EXPECT_EQ( 1u, folderNames.size() );
+    EXPECT_EQ( 1, folderNames.size() );
 
     RifReaderFmuRft reader( folderName );
     reader.load();
