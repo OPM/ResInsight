@@ -382,8 +382,10 @@ QString RiaEnsembleNameTools::findCommonBaseName( const QStringList& fileNames )
 //--------------------------------------------------------------------------------------------------
 QString RiaEnsembleNameTools::uniqueShortName( const QString& sourceFileName, const QStringList& allFileNames, const QString& ensembleCaseName )
 {
-    std::map<QString, QStringList> keyFileComponentsForAllFiles = RiaFilePathTools::keyPathComponentsForEachFilePath( allFileNames );
+    // Handle ensemble with only one realizations separately.
+    if ( allFileNames.size() == 1 ) return ensembleCaseName;
 
+    std::map<QString, QStringList> keyFileComponentsForAllFiles = RiaFilePathTools::keyPathComponentsForEachFilePath( allFileNames );
     return uniqueShortNameFromComponents( sourceFileName, keyFileComponentsForAllFiles, ensembleCaseName );
 }
 
