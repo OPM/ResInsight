@@ -15,10 +15,12 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RifReaderFmuRft.h"
 
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaTextStringTools.h"
 
 #include "cafAssert.h"
 
@@ -122,18 +124,14 @@ bool RifReaderFmuRft::directoryContainsFmuRftData( const QString& filePath )
              << "*.txt";
     QFileInfoList fileInfos = dir.entryInfoList( obsFiles, QDir::Files, QDir::Name );
 
-    std::map<QString, int> fileStemCounts;
+    bool foundObsFile = false;
+    bool foundTxtFile = false;
     for ( QFileInfo fileInfo : fileInfos )
     {
-        // TODO:
-        // Uses completeBaseName() to support wells with a dot in the name.
-        // Not sure if this is necessary or desired
-        fileStemCounts[fileInfo.completeBaseName()]++;
-        if ( fileStemCounts[fileInfo.completeBaseName()] == 2 )
-        {
-            // At least one matching obs and txt file.
-            return true;
-        }
+        if ( fileInfo.fileName().endsWith( "obs" ) ) foundObsFile = true;
+        if ( fileInfo.fileName().endsWith( "txt" ) ) foundTxtFile = true;
+
+        if ( foundObsFile && foundTxtFile ) return true;
     }
     return false;
 }
@@ -285,7 +283,16 @@ void RifReaderFmuRft::load()
         const QString&      wellName           = it->first;
         WellObservationSet& wellObservationSet = it->second;
         QString             txtFile            = QString( "%1.txt" ).arg( wellName );
-        QString             obsFile            = QString( "%1.obs" ).arg( wellName );
+
+        QStringList searchFilter;
+        searchFilter << QString( "%1*.obs" ).arg( wellName );
+        QFileInfoList fileInfos = dir.entryInfoList( searchFilter, QDir::Files, QDir::Name );
+
+        QStringList obsFiles;
+        for ( const auto& fi : fileInfos )
+        {
+            obsFiles << fi.fileName();
+        }
 
         if ( !readTxtFile( dir.absoluteFilePath( txtFile ), &errorMsg, &wellObservationSet ) )
         {
@@ -293,10 +300,13 @@ void RifReaderFmuRft::load()
             continue;
         }
 
-        if ( !readObsFile( dir.absoluteFilePath( obsFile ), &errorMsg, &wellObservationSet ) )
+        for ( const auto& obsFile : obsFiles )
         {
-            RiaLogging::warning( errorMsg );
-            continue;
+            if ( !readObsFile( dir.absoluteFilePath( obsFile ), &errorMsg, &wellObservationSet ) )
+            {
+                RiaLogging::warning( errorMsg );
+                continue;
+            }
         }
         validObservations.insert( *it );
     }
@@ -423,13 +433,36 @@ RifReaderFmuRft::WellObservationMap RifReaderFmuRft::loadWellDates( QDir& dir, Q
                 continue;
             }
 
-            QTextStream lineStream( &line );
-
             QString wellName;
             int     day, month, year, measurementIndex;
 
-            lineStream >> wellName >> day >> month >> year >> measurementIndex;
-            if ( lineStream.status() != QTextStream::Ok )
+            auto words = RiaTextStringTools::splitSkipEmptyParts( line );
+            if ( words.size() == 5 )
+            {
+                wellName         = words[0];
+                day              = words[1].toInt();
+                month            = words[2].toInt();
+                year             = words[3].toInt();
+                measurementIndex = words[4].toInt();
+            }
+            else if ( words.size() == 3 )
+            {
+                wellName = words[0];
+
+                QStringList dateWords = words[1].split( "-" );
+                if ( dateWords.size() != 3 )
+                {
+                    *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
+                    return WellObservationMap();
+                }
+
+                year  = dateWords[0].toInt();
+                month = dateWords[1].toInt();
+                day   = dateWords[2].toInt();
+
+                measurementIndex = words[2].toInt();
+            }
+            else
             {
                 *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
                 return WellObservationMap();
