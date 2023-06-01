@@ -65,6 +65,7 @@ RiuMainWindowBase::RiuMainWindowBase()
 {
     ads::CDockManager::setAutoHideConfigFlags( ads::CDockManager::DefaultAutoHideConfig );
     m_dockManager = new ads::CDockManager( this );
+    m_dockManager->setStyleSheet( "" );
 
     if ( RiaPreferences::current()->useUndoRedo() && RiaApplication::enableDevelopmentFeatures() )
     {
