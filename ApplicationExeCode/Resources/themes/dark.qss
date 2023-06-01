@@ -613,8 +613,8 @@ ads--CTitleBarButton {
  *****************************************************************************/
 
 ads--CDockWidgetTab {
-    background: $backgroundColor1;
-    border-color: $backgroundColor2;
+    background: $mainBackgroundColor;
+    border-color: $backgroundColor1;
     border-style: solid;
     border-width: 0 1px 0 0;
     padding: 0 0px;
@@ -626,7 +626,7 @@ ads--CDockWidgetTab[activeTab="true"] {
 
 ads--CDockWidgetTab QLabel {
     color: $textColor;
-    background: $backgroundColor2;
+    background: $mainBackgroundColor;
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel {
@@ -636,7 +636,7 @@ ads--CDockWidgetTab[activeTab="true"] QLabel {
 
 #tabCloseButton {
     margin-top: 2px;
-    background: $backgroundColor1;
+    background: $backgroundColor2;
     border: none;
     padding: 0px -2px;
     qproperty-icon: url(:/ads/images/close-button.svg), url(:/ads/images/close-button-disabled.svg) disabled;
@@ -644,12 +644,12 @@ ads--CDockWidgetTab[activeTab="true"] QLabel {
 }
 
 #tabCloseButton:hover {
-    border: 1px solid $backgroundColor1;
-    background: $backgroundColor1;
+    border: 1px solid $backgroundColor3;
+    background: $backgroundColor3;
 }
 
 #tabCloseButton:pressed {
-    background: $backgroundColor1;
+    background: $backgroundColor2;
 }
 
 
