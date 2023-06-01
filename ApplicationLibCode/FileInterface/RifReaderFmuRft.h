@@ -36,6 +36,22 @@
 class RifReaderFmuRft : public RifReaderRftInterface, public cvf::Object
 {
 public:
+    struct WellDate
+    {
+        QString   wellName;
+        QDateTime dateTime;
+        int       measurementIndex;
+    };
+
+    struct ObservationLocation
+    {
+        double  utmx;
+        double  utmy;
+        double  mdrkb;
+        double  tvdmsl;
+        QString formation;
+    };
+
     struct Observation
     {
         double utmx;
@@ -50,6 +66,20 @@ public:
         Observation();
 
         bool valid() const;
+    };
+
+    struct Observation_new
+    {
+        QString   wellName;
+        QDateTime dateTime;
+        int       measurementIndex;
+        double    utmx;
+        double    utmy;
+        double    mdrkb;
+        double    tvdmsl;
+        double    pressure;
+        double    pressureError;
+        QString   formation;
     };
 
     struct WellObservationSet
@@ -84,17 +114,27 @@ public:
     std::set<QString>                                     wellNames() override;
 
 public:
+    void load_old();
     void load();
 
 private:
     using WellObservationPair = std::pair<const QString, WellObservationSet>;
     using WellObservationMap  = std::map<QString, WellObservationSet>;
 
-    WellObservationMap loadWellDates( QDir& dir, QString* errorMsg );
-    static bool        readTxtFile( const QString& txtFileName, QString* errorMsg, WellObservationSet* wellObservationSet );
-    static bool        readObsFile( const QString& obsFileName, QString* errorMsg, WellObservationSet* wellObservationSet );
+    WellObservationMap loadWellDates_old( QDir& dir, QString* errorMsg );
+    static bool readObservationLocationData_old( const QString& txtFileName, QString* errorMsg, WellObservationSet* wellObservationSet );
+    static bool readObsFile( const QString& obsFileName, QString* errorMsg, WellObservationSet* wellObservationSet );
+
+    std::vector<WellDate> loadWellDates( QDir& dir, QString* errorMsg );
+
+    static std::vector<ObservationLocation> loadLocations( const QString& fileName, QString* errorMsg );
+    static std::vector<Observation_new>     loadObservations( const QString&                          fileName,
+                                                              const std::vector<ObservationLocation>& locations,
+                                                              const WellDate&                         wellDate,
+                                                              QString*                                errorMsg );
 
 private:
-    QString            m_filePath;
-    WellObservationMap m_allWellObservations;
+    QString                      m_filePath;
+    WellObservationMap           m_allWellObservations;
+    std::vector<Observation_new> m_allWellObservations2;
 };
