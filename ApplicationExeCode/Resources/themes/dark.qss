@@ -187,7 +187,7 @@ QLabel {
     color: $textColor;
 }
 
-.QWidget,
+QWidget,
 QFrame,
 QMainWindow,
 QDialog,
