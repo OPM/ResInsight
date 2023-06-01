@@ -215,9 +215,6 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
     {
         if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
-            cs->intersectionPartMgr()->appendIntersectionFacesToModel( model, scaleTransform );
-            cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendPolylinePartsToModel( view, model, scaleTransform );
         }
     }
@@ -235,16 +232,27 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
             }
         }
     }
-
-    model->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex, cvf::UByteArray* visibleCells )
+void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* model,
+                                                           cvf::Transform*      scaleTransform,
+                                                           size_t               timeStepIndex,
+                                                           cvf::UByteArray*     visibleCells )
 {
-    model->updateBoundingBoxesRecursive();
+    if ( !isActive() ) return;
+
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
+    {
+        if ( cs->isActive() )
+        {
+            cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
+            cs->intersectionPartMgr()->appendIntersectionFacesToModel( model, scaleTransform );
+            cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

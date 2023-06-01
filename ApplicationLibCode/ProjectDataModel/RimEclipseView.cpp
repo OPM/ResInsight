@@ -608,20 +608,30 @@ void RimEclipseView::onCreateDisplayModel()
 
         if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
         {
+            cvf::UByteArray visibleCells;
+            calculateStaticCellVisibility( &visibleCells );
+            m_intersectionCollection->appendPartsToModel( *this,
+                                                          m_intersectionVizModel.p(),
+                                                          m_reservoirGridPartManager->scaleTransform(),
+                                                          &visibleCells );
+
             if ( !propertyFiltersActive )
             {
-                cvf::UByteArray visibleCells;
-                calculateStaticCellVisibility( &visibleCells );
-                m_intersectionCollection->appendPartsToModel( *this,
-                                                              m_intersectionVizModel.p(),
-                                                              m_reservoirGridPartManager->scaleTransform(),
-                                                              &visibleCells );
-                nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+                m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(),
+                                                                     m_reservoirGridPartManager->scaleTransform(),
+                                                                     currentTimeStep(),
+                                                                     &visibleCells );
             }
+            m_intersectionVizModel->updateBoundingBoxesRecursive();
+            nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
         }
         else
         {
             m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
+            m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(),
+                                                                 m_reservoirGridPartManager->scaleTransform(),
+                                                                 currentTimeStep() );
+            m_intersectionVizModel->updateBoundingBoxesRecursive();
             nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
         }
     }
@@ -742,14 +752,18 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 {
     clearReservoirCellVisibilities();
 
-    // m_surfaceCollection->clearGeometry();
-
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
     m_streamlineCollection()->updateFromCurrentTimeStep( currentTimeStep() );
 
     updateVisibleGeometries();
 
     onUpdateLegends(); // To make sure the scalar mappers are set up correctly
+
+    if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && eclipsePropertyFilterCollection()->hasActiveFilters() )
+    {
+        m_intersectionCollection->clearGeometry();
+        appendIntersectionsToModel();
+    }
 
     updateVisibleCellColors();
 
@@ -758,7 +772,6 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     appendWellsAndFracturesToModel();
     appendElementVectorResultToModel();
     appendStreamlinesToModel();
-    if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() ) appendIntersectionsToModel();
 
     m_overlayInfoConfig()->update3DInfo();
 
@@ -1083,9 +1096,12 @@ void RimEclipseView::appendIntersectionsToModel()
 
             cvf::UByteArray totalVisibility;
 
-            calculateCurrentTotalCellVisibility( &totalVisibility, m_currentTimeStep );
+            calculateDynamicCellVisibility( &totalVisibility, m_currentTimeStep );
 
-            m_intersectionCollection->appendDynamicPartsToModel( frameParts.p(), m_currentTimeStep, &totalVisibility );
+            m_intersectionCollection->appendDynamicPartsToModel( frameParts.p(),
+                                                                 m_reservoirGridPartManager->scaleTransform(),
+                                                                 m_currentTimeStep,
+                                                                 &totalVisibility );
 
             frameScene->addModel( frameParts.p() );
         }
@@ -2286,11 +2302,45 @@ void RimEclipseView::calculateStaticCellVisibility( cvf::UByteArray* visibility 
         RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid( gridIdx );
         int          gridCellCount = static_cast<int>( grid->cellCount() );
 
-        const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( RANGE_FILTERED, gridIdx, 0 );
-
-        for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
+        for ( auto vizType : { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } )
         {
-            ( *visibility )[grid->reservoirCellIndex( lcIdx )] |= ( *gridVisibility )[lcIdx];
+            const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( vizType, gridIdx, 0 );
+
+            for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
+            {
+                ( *visibility )[grid->reservoirCellIndex( lcIdx )] |= ( *gridVisibility )[lcIdx];
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::calculateDynamicCellVisibility( cvf::UByteArray* visibility, int timeStep )
+{
+    size_t cellCount = this->mainGrid()->globalCellArray().size();
+
+    visibility->resize( cellCount );
+    visibility->setAll( false );
+
+    std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
+
+    const auto gridCount = this->eclipseCase()->eclipseCaseData()->gridCount();
+
+    for ( size_t gridIdx = 0; gridIdx < gridCount; gridIdx++ )
+    {
+        RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid( gridIdx );
+        int          gridCellCount = static_cast<int>( grid->cellCount() );
+
+        for ( auto vizType : { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS } )
+        {
+            const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( vizType, gridIdx, timeStep );
+
+            for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
+            {
+                ( *visibility )[grid->reservoirCellIndex( lcIdx )] |= ( *gridVisibility )[lcIdx];
+            }
         }
     }
 }

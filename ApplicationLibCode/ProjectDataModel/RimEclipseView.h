@@ -155,6 +155,7 @@ public:
 
     void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) override;
     void calculateStaticCellVisibility( cvf::UByteArray* visibility );
+    void calculateDynamicCellVisibility( cvf::UByteArray* visibility, int timeStep );
 
     std::vector<RimLegendConfig*> legendConfigs() const override;
     cvf::Color4f                  colorFromCellCategory( RivCellSetEnum geometryType ) const;
