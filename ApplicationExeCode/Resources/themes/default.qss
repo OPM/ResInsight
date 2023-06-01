@@ -23,12 +23,16 @@ $lineMarkerColor: #eeeeee; // Color of line marker
 $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #fff2a7; // Background color for external input fields
+
+/* 
+*/
+
 QwtPlot {
-    background-color: QPalette: : Base;
+    background-color: $mainBackgroundColor;
 }
 
 QwtPlot>QWidget {
-    background-color: QPalette: : Base;
+    background-color: $mainBackgroundColor;
 }
 
 QwtPlot["*"]::grid["*"] {

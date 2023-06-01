@@ -26,6 +26,10 @@ $lineMarkerColor: #eeeeee; // Color of line marker
 $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #e82257; // External input background color
+
+/* 
+*/
+
 QCheckBox::indicator,
 QTreeView::indicator,
 QTableView::indicator,
