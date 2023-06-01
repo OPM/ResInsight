@@ -26,40 +26,55 @@ $lineMarkerColor: #eeeeee; // Color of line marker
 $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #e82257; // External input background color
-
-QCheckBox::indicator, QTreeView::indicator, QTableView::indicator, QListWidget::indicator {
+QCheckBox::indicator,
+QTreeView::indicator,
+QTableView::indicator,
+QListWidget::indicator {
     background-color: $backgroundColor1;
     border-radius: 3px;
     width: 16px;
     height: 16px;
 }
 
-QCheckBox::indicator:unchecked, QTreeView::indicator:unchecked, QTableView::indicator:unchecked, QListWidget::indicator:unchecked
-{
+QCheckBox::indicator:unchecked,
+QTreeView::indicator:unchecked,
+QTableView::indicator:unchecked,
+QListWidget::indicator:unchecked {
     image: url(:/themes/dark/checkbox-unchecked.svg);
 }
 
-QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked, QListWidget::indicator:checked
-{
+QCheckBox::indicator:checked,
+QTreeView::indicator:checked,
+QTableView::indicator:checked,
+QListWidget::indicator:checked {
     image: url(:/themes/dark/checkbox-checked.svg);
 }
-QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate, QListWidget::indicator:indeterminate
-{
+
+QCheckBox::indicator:indeterminate,
+QTreeView::indicator:indeterminate,
+QTableView::indicator:indeterminate,
+QListWidget::indicator:indeterminate {
     image: url(:/themes/dark/checkbox-indeterminate.svg);
 }
 
-QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled, QListWidget::indicator:unchecked:disabled
-{
+QCheckBox::indicator:unchecked:disabled,
+QTreeView::indicator:unchecked:disabled,
+QTableView::indicator:unchecked:disabled,
+QListWidget::indicator:unchecked:disabled {
     image: url(:/themes/dark/checkbox-unchecked-disabled.svg);
 }
 
-QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled, QListWidget::indicator:checked:disabled
-{
+QCheckBox::indicator:checked:disabled,
+QTreeView::indicator:checked:disabled,
+QTableView::indicator:checked:disabled,
+QListWidget::indicator:checked:disabled {
     image: url(:/themes/dark/checkbox-checked-disabled.svg);
 }
 
-QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:disabled, QTableView::indicator:indeterminate:disabled, QListWidget::indicator:indeterminate:disabled
-{
+QCheckBox::indicator:indeterminate:disabled,
+QTreeView::indicator:indeterminate:disabled,
+QTableView::indicator:indeterminate:disabled,
+QListWidget::indicator:indeterminate:disabled {
     image: url(:/themes/dark/checkbox-indeterminate-disabled.svg);
 }
 
@@ -76,7 +91,7 @@ RiuQwtPlotWidget {
 }
 
 QwtPlot QWidget {
-   color: $textColor;
+    color: $textColor;
 }
 
 QwtTextLabel {
@@ -93,42 +108,42 @@ QwtPlot["PvtPlot"]::curve["Auxiliary"] {
 
 QwtPlot["PvtPlot"]::curve["Oil"] {
     line-color: $curveColorOil;
-    symbol-color:  $curveColorOil;
+    symbol-color: $curveColorOil;
 }
 
 QwtPlot["PvtPlot"]::curve["Gas"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["KRW"] {
     line-color: $curveColorWater;
-    symbol-color:  $curveColorWater;
+    symbol-color: $curveColorWater;
 }
 
 QwtPlot["RelPermPlot"]::curve["KROW"] {
     line-color: $curveColorWater;
-    symbol-color:  $curveColorWater;
+    symbol-color: $curveColorWater;
 }
 
 QwtPlot["RelPermPlot"]::curve["PCOW"] {
     line-color: $tertiaryColor;
-    symbol-color:  $tertiaryColor;
+    symbol-color: $tertiaryColor;
 }
 
 QwtPlot["RelPermPlot"]::curve["KRG"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["KROG"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["PCOG"] {
     line-color: $senaryColor;
-    symbol-color:  $senaryColor;
+    symbol-color: $senaryColor;
 }
 
 QwtPlot["PvtPlot"]::lineMarker["*"] {
@@ -146,38 +161,52 @@ QToolBox {
 QToolButton {
     background-color: $backgroundColor1;
     color: $textColor;
-    border-width : 0px;
+    border-width: 0px;
     padding-top: 6px;
-	padding-bottom: 6px;
-	padding-left: 4px;
-	padding-right: 4px;
+    padding-bottom: 6px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 QToolButton:checked {
     background-color: $backgroundColor3;
     color: $textColor;
-    border-width : 0px;
+    border-width: 0px;
     padding-top: 6px;
-	padding-bottom: 6px;
-	padding-left: 4px;
-	padding-right: 4px;
+    padding-bottom: 6px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
-
 
 QLabel {
     background-color: transparent;
     color: $textColor;
 }
 
-.QWidget, QFrame, QMainWindow, QDialog, QMenu, QLabel, QCheckBox, QTabBar, QDockWidget, QTextEdit, QPlainTextEdit, QScrollArea, QTextBrowser, QGroupBox, QRadioButton {
+.QWidget,
+QFrame,
+QMainWindow,
+QDialog,
+QMenu,
+QLabel,
+QCheckBox,
+QTabBar,
+QDockWidget,
+QTextEdit,
+QPlainTextEdit,
+QScrollArea,
+QTextBrowser,
+QGroupBox,
+QRadioButton {
     background-color: $mainBackgroundColor;
     color: $textColor;
     border-color: $borderColor;
     selection-background-color: $primaryColor;
 }
 
-RiuAbstractOverlayContentFrame, RiuDraggableOverlayFrame {
-    background-color: rgba(36,41,46,0.3);
+RiuAbstractOverlayContentFrame,
+RiuDraggableOverlayFrame {
+    background-color: rgba(36, 41, 46, 0.3);
 }
 
 QProgressBar {
@@ -221,8 +250,7 @@ QTreeView::branch:open:has-children:has-siblings {
     icon-size: 12px;
 }
 
-QHeaderView::section 
-{
+QHeaderView::section {
     background-color: $backgroundColor1;
     color: $textColor;
     padding: 4px;
@@ -232,22 +260,22 @@ QTableView QTableCornerButton::section {
     background: transparent;
 }
 
-QHeaderView
-{
+QHeaderView {
     background-color: $backgroundColor1;
 }
 
 QDockWidget {
     background-color: $mainBackgroundColor;
-    titlebar-close-icon:  url(:/themes/dark/blank.svg);
-    titlebar-normal-icon:  url(:/themes/dark/blank.svg);
+    titlebar-close-icon: url(:/themes/dark/blank.svg);
+    titlebar-normal-icon: url(:/themes/dark/blank.svg);
 }
 
 QDockWidget::title {
     background-color: $backgroundColor1;
 }
 
-QDockWidget::close-button, QDockWidget::float-button {
+QDockWidget::close-button,
+QDockWidget::float-button {
     background: transparent;
     border: none;
     icon-size: 12px;
@@ -255,19 +283,19 @@ QDockWidget::close-button, QDockWidget::float-button {
 }
 
 QDockWidget::float-button {
-     image: url(:/themes/dark/float.svg);
+    image: url(:/themes/dark/float.svg);
 }
 
 QDockWidget::close-button {
-     image: url(:/themes/dark/close.svg);
+    image: url(:/themes/dark/close.svg);
 }
 
 QDockWidget::float-button:hover {
-     image: url(:/themes/dark/float-hover.svg);
+    image: url(:/themes/dark/float-hover.svg);
 }
 
 QDockWidget::close-button:hover {
-     image: url(:/themes/dark/close-hover.svg);
+    image: url(:/themes/dark/close-hover.svg);
 }
 
 QToolBar QWidget {
@@ -293,8 +321,12 @@ QMenu::item:selected {
     color: $textColor;
 }
 
-QLineEdit, QComboBox, QSpinBox, 
-QDoubleSpinBox, QDateEdit, QDateTimeEdit {
+QLineEdit,
+QComboBox,
+QSpinBox,
+QDoubleSpinBox,
+QDateEdit,
+QDateTimeEdit {
     background-color: $inputColor;
     color: $textColor;
     padding: 3px;
@@ -302,8 +334,12 @@ QDoubleSpinBox, QDateEdit, QDateTimeEdit {
     selection-background-color: $secondaryColor;
 }
 
-QLineEdit:focus, QComboBox:focus, QSpinBox:focus, 
-QDoubleSpinBox:focus, QDateEdit:focus, QDateTimeEdit:focus {
+QLineEdit:focus,
+QComboBox:focus,
+QSpinBox:focus,
+QDoubleSpinBox:focus,
+QDateEdit:focus,
+QDateTimeEdit:focus {
     border: 2px solid $primaryColor;
 }
 
@@ -324,7 +360,7 @@ QToolBar QToolButton:hover {
 QLCDNumber {
     color: $textColor;
     border-color: $borderColor;
-    border-width : 1.5px;
+    border-width: 1.5px;
     border-style: solid;
     border-radius: 5px;
 }
@@ -345,7 +381,7 @@ QTabWidget {
     background-color: #535353;
 }
 
-QTabWidget::pane { 
+QTabWidget::pane {
     border-top: 1px solid $backgroundColor3;
     background-color: $mainBackgroundColor;
 }
@@ -358,7 +394,8 @@ QTabBar::tab {
     padding: 6px;
 }
 
-QTabBar::tab:selected, QTabBar::tab:hover {
+QTabBar::tab:selected,
+QTabBar::tab:hover {
     background-color: $backgroundColor3;
 }
 
@@ -370,76 +407,78 @@ QTabBar::tab:!selected {
     color: $textColor;
 }
 
+
 /* Scrollbars */
 
 QScrollBar:vertical {
-     border: 0px;;
-     background: transparent;
-     width: 15px;
-     margin: 0px 0px 0px 0px;
- }
-
- QScrollBar:vertical:hover {
-     background: $backgroundColor2;
- }
-
- QScrollBar::handle:vertical {
-     background: $backgroundColor4;
-     min-height: 20px;
-     margin: 3px 3px 3px 3px;
-     border-radius: 3px;
- }
-
-QScrollBar::handle:vertical::hover,
-QScrollBar::handle:horizontal::hover  {
-     background: $backgroundColor5;
- }
-
-QScrollBar::handle:vertical::pressed,
-QScrollBar::handle:horizontal::pressed  {
-     background: white;
- }
-
-QScrollBar::add-line:vertical,  
-QScrollBar::sub-line:vertical,  
-QScrollBar::add-line:horizontal, 
-QScrollBar::sub-line:horizontal {
-     border: 0px;
-     height: 0px;
- }
-
-QScrollBar::up-arrow:vertical, 
-QScrollBar::down-arrow:vertical, 
-QScrollBar::down-arrow:horizontal, 
-QScrollBar::up-arrow:horizontal {
-     border: 0px;
-     background: none;
+    border: 0px;
+    ;
+    background: transparent;
+    width: 15px;
+    margin: 0px 0px 0px 0px;
 }
 
-QScrollBar::add-page:vertical, 
-QScrollBar::sub-page:vertical,  
-QScrollBar::add-page:horizontal, 
+QScrollBar:vertical:hover {
+    background: $backgroundColor2;
+}
+
+QScrollBar::handle:vertical {
+    background: $backgroundColor4;
+    min-height: 20px;
+    margin: 3px 3px 3px 3px;
+    border-radius: 3px;
+}
+
+QScrollBar::handle:vertical::hover,
+QScrollBar::handle:horizontal::hover {
+    background: $backgroundColor5;
+}
+
+QScrollBar::handle:vertical::pressed,
+QScrollBar::handle:horizontal::pressed {
+    background: white;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical,
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    border: 0px;
+    height: 0px;
+}
+
+QScrollBar::up-arrow:vertical,
+QScrollBar::down-arrow:vertical,
+QScrollBar::down-arrow:horizontal,
+QScrollBar::up-arrow:horizontal {
+    border: 0px;
+    background: none;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical,
+QScrollBar::add-page:horizontal,
 QScrollBar::sub-page:horizontal {
-     background: none;
- }
+    background: none;
+}
 
 QScrollBar:horizontal {
-     border: 0px;
-     background: transparent;
-     height: 15px;
-     margin: 0px 0px 0px 0px;
- }
+    border: 0px;
+    background: transparent;
+    height: 15px;
+    margin: 0px 0px 0px 0px;
+}
 
 QScrollBar:horizontal:hover {
-     background: $backgroundColor2;
- }
+    background: $backgroundColor2;
+}
 
- QScrollBar::handle:horizontal {
-     background: $backgroundColor4;
-     min-width: 20px;
-     margin: 3px 3px 3px 3px;
-     border-radius: 3px;
- }
+QScrollBar::handle:horizontal {
+    background: $backgroundColor4;
+    min-width: 20px;
+    margin: 3px 3px 3px 3px;
+    border-radius: 3px;
+}
 
 QFrame#FramedGroupContent {
     background-color: $mainBackgroundColor;
@@ -460,11 +499,14 @@ QMinimizePanel {
     border: 2px solid $backgroundColor2;
 }
 
-QMinimizePanel QLabel, QMinimizePanel QCheckBox, QToolButton {
+QMinimizePanel QLabel,
+QMinimizePanel QCheckBox,
+QToolButton {
     background-color: transparent;
 }
 
-QTextEdit, QPlainTextEdit {
+QTextEdit,
+QPlainTextEdit {
     border: 2px solid $borderColor;
 }
 

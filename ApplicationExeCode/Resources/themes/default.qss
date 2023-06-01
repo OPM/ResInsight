@@ -23,13 +23,12 @@ $lineMarkerColor: #eeeeee; // Color of line marker
 $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #fff2a7; // Background color for external input fields
-
 QwtPlot {
-    background-color: QPalette::Base;
+    background-color: QPalette: : Base;
 }
 
-QwtPlot > QWidget {
-    background-color: QPalette::Base;
+QwtPlot>QWidget {
+    background-color: QPalette: : Base;
 }
 
 QwtPlot["*"]::grid["*"] {
@@ -42,49 +41,50 @@ QwtPlot["PvtPlot"]::curve["Auxiliary"] {
 
 QwtPlot["PvtPlot"]::curve["Oil"] {
     line-color: $curveColorOil;
-    symbol-color:  $curveColorOil;
+    symbol-color: $curveColorOil;
 }
 
 QwtPlot["PvtPlot"]::curve["Gas"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["KRW"] {
     line-color: $curveColorWater;
-    symbol-color:  $curveColorWater;
+    symbol-color: $curveColorWater;
 }
 
 QwtPlot["RelPermPlot"]::curve["KROW"] {
     line-color: $curveColorWater;
-    symbol-color:  $curveColorWater;
+    symbol-color: $curveColorWater;
 }
 
 QwtPlot["RelPermPlot"]::curve["PCOW"] {
     line-color: $tertiaryColor;
-    symbol-color:  $tertiaryColor;
+    symbol-color: $tertiaryColor;
 }
 
 QwtPlot["RelPermPlot"]::curve["KRG"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["KROG"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["PCOG"] {
     line-color: $senaryColor;
-    symbol-color:  $senaryColor;
+    symbol-color: $senaryColor;
 }
 
 QwtPlot["PvtPlot"]::lineMarker["*"] {
     color: $textColor;
 }
 
-QLabel, RiuQwtPlotLegend {
+QLabel,
+RiuQwtPlotLegend {
     background-color: transparent;
 }
 
@@ -97,6 +97,7 @@ QListView[state="ExternalInput"] {
     border: 2px solid $borderColor;
 }
 
-RiuAbstractOverlayContentFrame, RiuDraggableOverlayFrame {
-    background-color: rgba(255,255,255,0.4);
+RiuAbstractOverlayContentFrame,
+RiuDraggableOverlayFrame {
+    background-color: rgba(255, 255, 255, 0.4);
 }
