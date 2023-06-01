@@ -1613,7 +1613,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction( bool showLabels )
 
     if ( !activeRiv ) return;
 
-    activeRiv->faultCollection()->showFaultLabel.setValueWithFieldChanged( showLabels );
+    activeRiv->faultCollection()->setShowFaultLabelWithFieldChanged( showLabels );
 
     refreshDrawStyleActions();
 }

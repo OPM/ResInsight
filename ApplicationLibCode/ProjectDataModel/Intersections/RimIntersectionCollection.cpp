@@ -77,7 +77,7 @@ RimIntersectionCollection::RimIntersectionCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-30:2", "" );
 
-    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", false, "Use Cell Filters for Curve Intersections" );
+    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters for Curve Intersections" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -311,8 +311,8 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
         rimEclipseView->cellResult()->setFromEclipseResultAddress( defaultResult );
     }
 
-    auto prefs                                             = RiaPreferences::current();
-    rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
+    auto prefs = RiaPreferences::current();
+    rimEclipseView->faultCollection()->setActive( prefs->enableFaultsByDefault() );
 
     rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
     rimEclipseView->cellEdgeResult()->setActive( false );

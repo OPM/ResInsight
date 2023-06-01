@@ -31,6 +31,8 @@
 
 #include <QString>
 
+#include <vector>
+
 class RimEclipseView;
 class RimFaultInView;
 
@@ -54,29 +56,30 @@ public:
     RimFaultInViewCollection();
     ~RimFaultInViewCollection() override;
 
+    bool isActive() const;
+    void setActive( bool bActive );
+
+    std::vector<RimFaultInView*>       faults() const;
+    cvf::Color3f                       faultLabelColor() const;
+    caf::AppEnum<FaultFaceCullingMode> faultResult() const;
+    bool                               showFaultFaces() const;
+    bool                               showFaultLabel() const;
+    bool                               showOppositeFaultFaces() const;
+    bool                               showNNCs() const;
+    bool                               hideNNCsWhenNoResultIsAvailable() const;
+
+    void setFaultResult( caf::AppEnum<FaultFaceCullingMode> resultType );
+    void setShouldApplyCellFiltersToFaults( bool bEnabled );
+    void setShowOppositeFaultFaces( bool bEnabled );
+    void setShowFaultLabelWithFieldChanged( bool bEnabled );
+
     void syncronizeFaults();
 
     bool isGridVisualizationMode() const;
-
-    bool isShowingFaultsAndFaultsOutsideFilters() const;
-    void setShowFaultsOutsideFilter( bool show );
-
+    bool shouldApplyCellFiltersToFaults() const;
     bool onlyShowFacesWithDefinedNeighbor() const;
 
-    caf::PdmField<bool> showFaultFaces;
-    caf::PdmField<bool> showOppositeFaultFaces;
-
-    caf::PdmField<caf::AppEnum<FaultFaceCullingMode>> faultResult;
-
-    caf::PdmField<bool>         showFaultLabel;
-    caf::PdmField<cvf::Color3f> faultLabelColor;
-
-    caf::PdmField<bool> showFaultCollection;
-    caf::PdmField<bool> showNNCs;
-    caf::PdmField<bool> hideNncsWhenNoResultIsAvailable;
-
-    caf::PdmChildArrayField<RimFaultInView*> faults;
-    RimFaultInView*                          findFaultByName( QString name );
+    RimFaultInView* findFaultByName( QString name );
 
     void uiOrderingFaults( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
@@ -90,6 +93,19 @@ private:
     RimEclipseView* parentView() const;
 
 private:
-    caf::PdmField<bool> m_showFaultsOutsideFilters;
-    caf::PdmField<bool> m_onlyShowWithNeighbor;
+    caf::PdmField<bool> m_showFaultsOutsideFilters_obsolete;
+
+    caf::PdmField<bool>         m_applyCellFilters;
+    caf::PdmField<bool>         m_onlyShowWithNeighbor;
+    caf::PdmField<bool>         m_showFaultFaces;
+    caf::PdmField<bool>         m_showOppositeFaultFaces;
+    caf::PdmField<bool>         m_showFaultLabel;
+    caf::PdmField<cvf::Color3f> m_faultLabelColor;
+    caf::PdmField<bool>         m_showFaultCollection;
+    caf::PdmField<bool>         m_showNNCs;
+    caf::PdmField<bool>         m_hideNNCsWhenNoResultIsAvailable;
+
+    caf::PdmField<caf::AppEnum<FaultFaceCullingMode>> m_faultResult;
+
+    caf::PdmChildArrayField<RimFaultInView*> m_faults;
 };

@@ -567,14 +567,14 @@ void RimEclipseView::onCreateDisplayModel()
 
     m_reservoirGridPartManager->clearWatertightGeometryFlags();
 
-    if ( faultCollection()->showFaultCollection() || !propertyFiltersActive )
+    if ( faultCollection()->isActive() || !propertyFiltersActive )
     {
         setVisibleGridPartsWatertight();
 
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
         RivCellSetEnum           faultLabelType =
             m_reservoirGridPartManager->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
-                                                                    faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
+                                                                    !faultCollection()->shouldApplyCellFiltersToFaults() );
 
         for ( size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx )
         {
@@ -822,7 +822,7 @@ void RimEclipseView::updateVisibleGeometries()
 
         RivCellSetEnum faultLabelType =
             m_reservoirGridPartManager->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
-                                                                    faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
+                                                                    !faultCollection()->shouldApplyCellFiltersToFaults() );
         if ( faultLabelType == PROPERTY_FILTERED )
         {
             m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel( frameParts.p(), faultLabelType, m_currentTimeStep );
@@ -845,7 +845,7 @@ void RimEclipseView::updateVisibleGeometries()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices );
 
-                if ( !faultCollection()->isShowingFaultsAndFaultsOutsideFilters() )
+                if ( faultCollection()->shouldApplyCellFiltersToFaults() )
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel( frameParts.p(), RANGE_FILTERED_INACTIVE );
                 }
@@ -854,7 +854,7 @@ void RimEclipseView::updateVisibleGeometries()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameParts.p(), INACTIVE, gridIndices );
 
-                if ( !faultCollection()->isShowingFaultsAndFaultsOutsideFilters() )
+                if ( faultCollection()->shouldApplyCellFiltersToFaults() )
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel( frameParts.p(), INACTIVE );
                 }
@@ -1999,7 +1999,7 @@ std::set<RivCellSetEnum> RimEclipseView::allVisibleFaultGeometryTypes() const
     std::set<RivCellSetEnum> faultGeoTypes;
     faultGeoTypes.insert( m_visibleGridParts.begin(), m_visibleGridParts.end() );
 
-    if ( faultCollection()->isShowingFaultsAndFaultsOutsideFilters() )
+    if ( !faultCollection()->shouldApplyCellFiltersToFaults() )
     {
         faultGeoTypes.insert( ACTIVE );
         faultGeoTypes.insert( ALL_WELL_CELLS );
