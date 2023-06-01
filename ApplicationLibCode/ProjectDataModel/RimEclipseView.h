@@ -178,7 +178,8 @@ protected:
     void appendWellsAndFracturesToModel();
     void appendElementVectorResultToModel();
     void appendStreamlinesToModel();
-    void appendIntersectionsToModel();
+    void appendIntersectionsForCurrentTimeStep();
+    void appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive );
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();

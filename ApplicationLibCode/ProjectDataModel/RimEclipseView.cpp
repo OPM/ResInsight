@@ -590,50 +590,15 @@ void RimEclipseView::onCreateDisplayModel()
     }
 
     // Intersections
+    appendIntersectionsToModel( cellFiltersActive, propertyFiltersActive );
 
-    m_intersectionVizModel->removeAllParts();
-    if ( m_intersectionCollection->isActive() )
-    {
-        m_intersectionCollection->clearGeometry();
-
-        if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
-        {
-            cvf::UByteArray visibleCells;
-            calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
-            m_intersectionCollection->appendPartsToModel( *this,
-                                                          m_intersectionVizModel.p(),
-                                                          m_reservoirGridPartManager->scaleTransform(),
-                                                          &visibleCells );
-
-            if ( !propertyFiltersActive )
-            {
-                m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(),
-                                                                     m_reservoirGridPartManager->scaleTransform(),
-                                                                     currentTimeStep(),
-                                                                     &visibleCells );
-            }
-            m_intersectionVizModel->updateBoundingBoxesRecursive();
-            nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
-        }
-        else
-        {
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
-            m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(),
-                                                                 m_reservoirGridPartManager->scaleTransform(),
-                                                                 currentTimeStep() );
-            m_intersectionVizModel->updateBoundingBoxesRecursive();
-            nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
-        }
-    }
     // Seismic sections
-
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
     m_seismicVizModel->removeAllParts();
     m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
 
     // Surfaces
-
     m_surfaceVizModel->removeAllParts();
     if ( surfaceInViewCollection() )
     {
@@ -642,7 +607,6 @@ void RimEclipseView::onCreateDisplayModel()
     }
 
     // Well path model
-
     m_wellPathPipeVizModel->removeAllParts();
 
     // NB! StimPlan legend colors must be updated before well path geometry is added to the model
@@ -752,7 +716,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
         m_intersectionCollection->clearGeometry();
-        appendIntersectionsToModel();
+        appendIntersectionsForCurrentTimeStep();
     }
 
     updateVisibleCellColors();
@@ -1071,7 +1035,7 @@ void RimEclipseView::appendStreamlinesToModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::appendIntersectionsToModel()
+void RimEclipseView::appendIntersectionsForCurrentTimeStep()
 {
     if ( nativeOrOverrideViewer() )
     {
@@ -1095,6 +1059,45 @@ void RimEclipseView::appendIntersectionsToModel()
 
             frameScene->addModel( frameParts.p() );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive )
+{
+    m_intersectionVizModel->removeAllParts();
+    if ( m_intersectionCollection->isActive() )
+    {
+        m_intersectionCollection->clearGeometry();
+
+        if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
+        {
+            cvf::UByteArray visibleCells;
+            calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
+            m_intersectionCollection->appendPartsToModel( *this,
+                                                          m_intersectionVizModel.p(),
+                                                          m_reservoirGridPartManager->scaleTransform(),
+                                                          &visibleCells );
+
+            if ( !propertyFiltersActive )
+            {
+                m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(),
+                                                                     m_reservoirGridPartManager->scaleTransform(),
+                                                                     currentTimeStep(),
+                                                                     &visibleCells );
+            }
+        }
+        else
+        {
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
+            m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(),
+                                                                 m_reservoirGridPartManager->scaleTransform(),
+                                                                 currentTimeStep() );
+        }
+        m_intersectionVizModel->updateBoundingBoxesRecursive();
+        nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
     }
 }
 
