@@ -123,7 +123,7 @@ RiuDraggableOverlayFrame {
  *****************************************************************************/
 
 ads--CDockContainerWidget {
-    background: $mainBackgroundColor;
+    background: palette(window);
 }
 
 
@@ -136,7 +136,7 @@ ads--CDockContainerWidget>QSplitter {
 }
 
 ads--CDockContainerWidget ads--CDockSplitter::handle {
-    background: $backgroundColor2;
+    background: palette(dark);
 }
 
 
@@ -145,12 +145,11 @@ ads--CDockContainerWidget ads--CDockSplitter::handle {
  *****************************************************************************/
 
 ads--CDockAreaWidget {
-    background: $backgroundColor1;
+    background: palette(window);
 }
 
 ads--CTitleBarButton {
     padding: 0px 0px;
-    background: $backgroundColor1;
 }
 
 #tabsMenuButton::menu-indicator {
@@ -178,30 +177,29 @@ ads--CTitleBarButton {
  *****************************************************************************/
 
 ads--CDockWidgetTab {
-    background: $backgroundColor1;
-    border-color: $backgroundColor2;
+    background: palette(window);
+    border-color: palette(light);
     border-style: solid;
     border-width: 0 1px 0 0;
     padding: 0 0px;
 }
 
 ads--CDockWidgetTab[activeTab="true"] {
-    background: $mainBackgroundColor;
+    background: qlineargradient(spread: pad, x1: 0, y1: 0, x2: 0, y2: 0.5, stop: 0 palette(window), stop: 1 palette(light));
+    /*background: palette(highlight);*/
 }
 
 ads--CDockWidgetTab QLabel {
-    color: $textColor;
-    background: $backgroundColor1;
+    color: palette(dark);
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel {
-    color: $textColor;
-    background: $mainBackgroundColor;
+    color: palette(foreground);
 }
 
 #tabCloseButton {
     margin-top: 2px;
-    background: $mainBackgroundColor;
+    background: none;
     border: none;
     padding: 0px -2px;
     qproperty-icon: url(:/ads/images/close-button.svg), url(:/ads/images/close-button-disabled.svg) disabled;
@@ -209,12 +207,12 @@ ads--CDockWidgetTab[activeTab="true"] QLabel {
 }
 
 #tabCloseButton:hover {
-    border: 1px solid $backgroundColor3;
-    background: $backgroundColor1;
+    border: 1px solid rgba(0, 0, 0, 32);
+    background: rgba(0, 0, 0, 16);
 }
 
 #tabCloseButton:pressed {
-    background: $backgroundColor2;
+    background: rgba(0, 0, 0, 32);
 }
 
 
@@ -223,8 +221,8 @@ ads--CDockWidgetTab[activeTab="true"] QLabel {
  *****************************************************************************/
 
 ads--CDockWidget {
-    background: $mainBackgroundColor;
-    border-color: $backgroundColor1;
+    background: palette(light);
+    border-color: palette(light);
     border-style: solid;
     border-width: 1px 0 0 0;
 }
