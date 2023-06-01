@@ -571,7 +571,7 @@ ads--CDockContainerWidget>QSplitter {
 }
 
 ads--CDockContainerWidget ads--CDockSplitter::handle {
-    background: $backgroundColor2;
+    background: $backgroundColor3;
 }
 
 
@@ -580,7 +580,7 @@ ads--CDockContainerWidget ads--CDockSplitter::handle {
  *****************************************************************************/
 
 ads--CDockAreaWidget {
-    background: $backgroundColor2;
+    background: $mainBackgroundColor;
 }
 
 ads--CTitleBarButton {
@@ -613,7 +613,7 @@ ads--CTitleBarButton {
  *****************************************************************************/
 
 ads--CDockWidgetTab {
-    background: $backgroundColor2;
+    background: $backgroundColor1;
     border-color: $backgroundColor2;
     border-style: solid;
     border-width: 0 1px 0 0;
@@ -621,16 +621,16 @@ ads--CDockWidgetTab {
 }
 
 ads--CDockWidgetTab[activeTab="true"] {
-    background: $mainBackgroundColor;
+    background: $backgroundColor1;
 }
 
 ads--CDockWidgetTab QLabel {
-    color: $backgroundColor1;
-    background: $mainBackgroundColor;
+    color: $textColor;
+    background: $backgroundColor2;
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel {
-    color: $backgroundColor1;
+    color: $textColor;
     background: $backgroundColor1;
 }
 
@@ -644,7 +644,7 @@ ads--CDockWidgetTab[activeTab="true"] QLabel {
 }
 
 #tabCloseButton:hover {
-    border: 1px solid rgba(0, 0, 0, 32);
+    border: 1px solid $backgroundColor1;
     background: $backgroundColor1;
 }
 
