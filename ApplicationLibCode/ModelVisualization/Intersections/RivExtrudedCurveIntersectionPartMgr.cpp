@@ -772,11 +772,6 @@ cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const 
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionPartMgr::appendIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    // if ( m_intersectionFaces.isNull() )
-    //{
-    //     generatePartGeometry( nullptr );
-    // }
-
     if ( m_intersectionFaces.notNull() )
     {
         m_intersectionFaces->setTransform( scaleTransform );
@@ -789,11 +784,6 @@ void RivExtrudedCurveIntersectionPartMgr::appendIntersectionFacesToModel( cvf::M
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    // if ( m_intersectionGridLines.isNull() )
-    //{
-    //     generatePartGeometry( nullptr );
-    // }
-
     if ( m_intersectionGridLines.notNull() )
     {
         m_intersectionGridLines->setTransform( scaleTransform );
@@ -873,7 +863,7 @@ void RivExtrudedCurveIntersectionPartMgr::appendPolylinePartsToModel( Rim3dView&
 
     for ( size_t i = 0; i < m_annotationParts.size(); i++ )
     {
-        auto part = m_annotationParts[i];
+        auto& part = m_annotationParts[i];
         if ( part.notNull() )
         {
             part->setTransform( scaleTransform );

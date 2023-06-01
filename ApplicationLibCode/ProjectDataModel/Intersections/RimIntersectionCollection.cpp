@@ -60,8 +60,8 @@ RimIntersectionCollection::RimIntersectionCollection()
     CAF_PDM_InitFieldNoDefault( &m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes" );
     m_intersectionBoxes.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &isActive, "Active", true, "Active" );
-    isActive.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_depthUpperThreshold, "UpperDepthThreshold", "Upper Threshold" );
     m_depthUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -94,7 +94,15 @@ RimIntersectionCollection::~RimIntersectionCollection()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 {
-    return &isActive;
+    return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionCollection::isActive() const
+{
+    return m_isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,7 +385,7 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 {
     bool rebuildView = false;
 
-    if ( changedField == &isActive )
+    if ( changedField == &m_isActive )
     {
         updateUiIconFromToggleField();
         rebuildView = true;

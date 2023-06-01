@@ -590,19 +590,9 @@ void RimEclipseView::onCreateDisplayModel()
     }
 
     // Intersections
-    //
-    // Need to split into
-    // - static (as today)
-    // - dynamic like i.e. streamlines in case property filters are active and "use filters for intersections" are enabled
-    //
-    // In the second case, the intersection geometry will be added in onUpdateDisplayModelForCurrentTimestep
-    //
-    // In the both cases, if filters are enabled for intersections, the total cell visibility must be passed on
-    // to the intersection geometry generator (the useCell(cellIndex) call needs the info)
-    //
 
     m_intersectionVizModel->removeAllParts();
-    if ( m_intersectionCollection->isActive )
+    if ( m_intersectionCollection->isActive() )
     {
         m_intersectionCollection->clearGeometry();
 

@@ -55,8 +55,6 @@ public:
     RimIntersectionCollection();
     ~RimIntersectionCollection() override;
 
-    caf::PdmField<bool> isActive;
-
     void appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange = true );
     void appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection );
 
@@ -92,6 +90,8 @@ public:
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
+    bool isActive() const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -103,6 +103,8 @@ protected:
 private:
     RimEclipseView* eclipseView() const;
     void            rebuild3dView() const;
+
+    caf::PdmField<bool> m_isActive;
 
     caf::PdmChildArrayField<RimExtrudedCurveIntersection*> m_intersections;
     caf::PdmChildArrayField<RimBoxIntersection*>           m_intersectionBoxes;
