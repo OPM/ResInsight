@@ -154,8 +154,7 @@ public:
     bool isUsingFormationNames() const override;
 
     void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) override;
-    void calculateStaticCellVisibility( cvf::UByteArray* visibility );
-    void calculateDynamicCellVisibility( cvf::UByteArray* visibility, int timeStep );
+    void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 );
 
     std::vector<RimLegendConfig*> legendConfigs() const override;
     cvf::Color4f                  colorFromCellCategory( RivCellSetEnum geometryType ) const;

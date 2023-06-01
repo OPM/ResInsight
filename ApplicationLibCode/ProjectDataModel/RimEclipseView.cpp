@@ -599,7 +599,7 @@ void RimEclipseView::onCreateDisplayModel()
         if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
         {
             cvf::UByteArray visibleCells;
-            calculateStaticCellVisibility( &visibleCells );
+            calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
             m_intersectionCollection->appendPartsToModel( *this,
                                                           m_intersectionVizModel.p(),
                                                           m_reservoirGridPartManager->scaleTransform(),
@@ -1086,7 +1086,7 @@ void RimEclipseView::appendIntersectionsToModel()
 
             cvf::UByteArray totalVisibility;
 
-            calculateDynamicCellVisibility( &totalVisibility, m_currentTimeStep );
+            calculateCellVisibility( &totalVisibility, { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS }, m_currentTimeStep );
 
             m_intersectionCollection->appendDynamicPartsToModel( frameParts.p(),
                                                                  m_reservoirGridPartManager->scaleTransform(),
@@ -2276,7 +2276,7 @@ void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::calculateStaticCellVisibility( cvf::UByteArray* visibility )
+void RimEclipseView::calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep )
 {
     size_t cellCount = this->mainGrid()->globalCellArray().size();
 
@@ -2292,38 +2292,7 @@ void RimEclipseView::calculateStaticCellVisibility( cvf::UByteArray* visibility 
         RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid( gridIdx );
         int          gridCellCount = static_cast<int>( grid->cellCount() );
 
-        for ( auto vizType : { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } )
-        {
-            const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( vizType, gridIdx, 0 );
-
-            for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
-            {
-                ( *visibility )[grid->reservoirCellIndex( lcIdx )] |= ( *gridVisibility )[lcIdx];
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::calculateDynamicCellVisibility( cvf::UByteArray* visibility, int timeStep )
-{
-    size_t cellCount = this->mainGrid()->globalCellArray().size();
-
-    visibility->resize( cellCount );
-    visibility->setAll( false );
-
-    std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
-
-    const auto gridCount = this->eclipseCase()->eclipseCaseData()->gridCount();
-
-    for ( size_t gridIdx = 0; gridIdx < gridCount; gridIdx++ )
-    {
-        RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid( gridIdx );
-        int          gridCellCount = static_cast<int>( grid->cellCount() );
-
-        for ( auto vizType : { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS } )
+        for ( auto vizType : geomTypes )
         {
             const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( vizType, gridIdx, timeStep );
 
