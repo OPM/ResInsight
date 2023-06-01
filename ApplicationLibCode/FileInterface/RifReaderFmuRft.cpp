@@ -31,6 +31,8 @@
 
 #include <limits>
 
+#pragma optimize( "", off )
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -151,21 +153,15 @@ std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAdd
 {
     std::vector<QString> formationLabels;
 
-    if ( m_allWellObservations.empty() )
+    for ( const auto& observation : m_allWellObservations2 )
     {
-        load();
-    }
-
-    auto it = m_allWellObservations.find( rftAddress.wellName() );
-    if ( it != m_allWellObservations.end() )
-    {
-        const std::vector<Observation>& observations = it->second.observations;
-        for ( const Observation& observation : observations )
+        if ( observation.wellName == rftAddress.wellName() )
         {
             formationLabels.push_back(
                 QString( "%1 - Pressure: %2 +/- %3" ).arg( observation.formation ).arg( observation.pressure ).arg( observation.pressureError ) );
         }
     }
+
     return formationLabels;
 }
 
@@ -174,37 +170,35 @@ std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAdd
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()
 {
-    if ( m_allWellObservations.empty() )
+    if ( m_allWellObservations2.empty() )
     {
         load();
     }
 
-    std::set<RifEclipseRftAddress> allAddresses;
-    for ( const WellObservationPair& wellObservationPair : m_allWellObservations )
+    std::set<std::pair<QString, QDateTime>> wellDateTimePairs;
+    for ( const auto& observation : m_allWellObservations2 )
     {
-        const QString&                  wellName     = wellObservationPair.first;
-        const QDateTime&                dateTime     = wellObservationPair.second.dateTime;
-        const std::vector<Observation>& observations = wellObservationPair.second.observations;
-
-        for ( const Observation& observation : observations )
-        {
-            if ( observation.valid() )
-            {
-                RifEclipseRftAddress tvdAddress =
-                    RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::TVD );
-                RifEclipseRftAddress mdAddress =
-                    RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::MD );
-                RifEclipseRftAddress pressureAddress =
-                    RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
-                RifEclipseRftAddress pressureErrorAddress =
-                    RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
-                allAddresses.insert( tvdAddress );
-                allAddresses.insert( mdAddress );
-                allAddresses.insert( pressureAddress );
-                allAddresses.insert( pressureErrorAddress );
-            }
-        }
+        wellDateTimePairs.insert( { observation.wellName, observation.dateTime } );
     }
+
+    std::set<RifEclipseRftAddress> allAddresses;
+
+    for ( const auto& [wellName, dateTime] : wellDateTimePairs )
+    {
+        RifEclipseRftAddress tvdAddress =
+            RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+        RifEclipseRftAddress mdAddress =
+            RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::MD );
+        RifEclipseRftAddress pressureAddress =
+            RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        RifEclipseRftAddress pressureErrorAddress =
+            RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
+        allAddresses.insert( tvdAddress );
+        allAddresses.insert( mdAddress );
+        allAddresses.insert( pressureAddress );
+        allAddresses.insert( pressureErrorAddress );
+    }
+
     return allAddresses;
 }
 
@@ -215,18 +209,14 @@ void RifReaderFmuRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 {
     CAF_ASSERT( values );
 
-    if ( m_allWellObservations.empty() )
+    if ( m_allWellObservations2.empty() )
     {
         load();
     }
 
-    auto it = m_allWellObservations.find( rftAddress.wellName() );
-    if ( it != m_allWellObservations.end() )
+    for ( const auto& observation : m_allWellObservations2 )
     {
-        const std::vector<Observation>& observations = it->second.observations;
-        values->clear();
-        values->reserve( observations.size() );
-        for ( const Observation& observation : observations )
+        if ( observation.wellName == rftAddress.wellName() )
         {
             switch ( rftAddress.wellLogChannel() )
             {
@@ -243,7 +233,7 @@ void RifReaderFmuRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                     values->push_back( observation.pressureError );
                     break;
                 default:
-                    CAF_ASSERT( false && "Wrong channel type sent to Fmu RFT reader" );
+                    CAF_ASSERT( false );
             }
         }
     }
@@ -311,7 +301,7 @@ void RifReaderFmuRft::load_old()
         validObservations.insert( *it );
     }
 
-    m_allWellObservations.swap( validObservations );
+    // m_allWellObservations.swap( validObservations );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,29 +331,56 @@ void RifReaderFmuRft::load()
         return;
     }
 
-    std::map<QString, int> uniqueWellNames;
+    std::map<QString, int> nameAndMeasurementCount;
+
+    // Find the number of well measurements for each well
     for ( const auto& wellDate : wellDates )
     {
-        auto it = uniqueWellNames[wellDate.wellName];
-        it++;
+        auto it = nameAndMeasurementCount.find( wellDate.wellName );
+        if ( it == nameAndMeasurementCount.end() )
+        {
+            nameAndMeasurementCount[wellDate.wellName] = 1;
+        }
+        else
+        {
+            it->second++;
+        }
     }
 
-    for ( const auto& [wellName, measurementCount] : uniqueWellNames )
+    for ( const auto& [wellName, measurementCount] : nameAndMeasurementCount )
     {
         QString txtFile   = QString( "%1.txt" ).arg( wellName );
-        auto    locations = loadLocations( txtFile, &errorMsg );
+        auto    locations = loadLocations( dir.absoluteFilePath( txtFile ), &errorMsg );
         if ( locations.empty() ) continue;
 
         for ( int i = 0; i < measurementCount; i++ )
         {
-            QString observationFileName = QString( "%1_%2.obs" ).arg( wellName ).arg( i );
+            int measurementId = i + 1;
+
+            QString observationFileName;
+
+            QString candidate = dir.absoluteFilePath( QString( "%1_%2.obs" ).arg( wellName ).arg( measurementId ) );
+            if ( QFile::exists( candidate ) )
+            {
+                observationFileName = candidate;
+            }
+            else
+            {
+                QString candidateOldFormat = dir.absoluteFilePath( QString( "%1.obs" ).arg( wellName ) );
+                if ( QFile::exists( candidateOldFormat ) )
+                {
+                    observationFileName = candidateOldFormat;
+                }
+            }
+
+            if ( observationFileName.isEmpty() ) continue;
 
             for ( const auto& wellDate : wellDates )
             {
-                if ( wellDate.wellName == wellName && wellDate.measurementIndex == i )
+                if ( wellDate.wellName == wellName && wellDate.measurementId == measurementId )
                 {
                     QString localErrorMsg;
-                    auto    observations = loadObservations( observationFileName, locations, wellDate, &localErrorMsg );
+                    auto observations = loadObservations( dir.absoluteFilePath( observationFileName ), locations, wellDate, &localErrorMsg );
                     if ( !localErrorMsg.isEmpty() )
                     {
                         RiaLogging::warning( localErrorMsg );
@@ -371,7 +388,7 @@ void RifReaderFmuRft::load()
 
                     m_allWellObservations2.insert( m_allWellObservations2.end(), observations.begin(), observations.end() );
 
-                    continue;
+                    break;
                 }
             }
         }
@@ -398,17 +415,18 @@ std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString&         
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString& wellName )
 {
-    if ( m_allWellObservations.empty() )
+    if ( m_allWellObservations2.empty() )
     {
         load();
     }
 
-    auto it = m_allWellObservations.find( wellName );
-    if ( it != m_allWellObservations.end() )
+    std::set<QDateTime> dateTimes;
+    for ( const auto& observation : m_allWellObservations2 )
     {
-        return { it->second.dateTime };
+        if ( observation.wellName != wellName ) continue;
+        dateTimes.insert( observation.dateTime );
     }
-    return {};
+    return dateTimes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,12 +449,12 @@ std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString&         
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderFmuRft::availableWellLogChannels( const QString& wellName )
 {
-    if ( m_allWellObservations.empty() )
+    if ( m_allWellObservations2.empty() )
     {
         load();
     }
 
-    if ( !m_allWellObservations.empty() )
+    if ( !m_allWellObservations2.empty() )
     {
         return { RifEclipseRftAddress::RftWellLogChannelType::TVD,
                  RifEclipseRftAddress::RftWellLogChannelType::MD,
@@ -450,17 +468,18 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderFmuRft::available
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RifReaderFmuRft::wellNames()
 {
-    if ( m_allWellObservations.empty() )
+    if ( m_allWellObservations2.empty() )
     {
         load();
     }
 
-    std::set<QString> wellNames;
-    for ( auto it = m_allWellObservations.begin(); it != m_allWellObservations.end(); ++it )
+    std::set<QString> names;
+
+    for ( const auto& observation : m_allWellObservations2 )
     {
-        wellNames.insert( it->first );
+        names.insert( observation.wellName );
     }
-    return wellNames;
+    return names;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -812,16 +831,19 @@ std::vector<RifReaderFmuRft::Observation_new> RifReaderFmuRft::loadObservations(
             return {};
         }
 
-        observations.push_back( { .wellName         = wellDate.wellName,
-                                  .dateTime         = wellDate.dateTime,
-                                  .measurementIndex = wellDate.measurementIndex,
-                                  .utmx             = locations[lineNumber].utmx,
-                                  .utmy             = locations[lineNumber].utmy,
-                                  .mdrkb            = locations[lineNumber].mdrkb,
-                                  .tvdmsl           = locations[lineNumber].tvdmsl,
-                                  .pressure         = pressure,
-                                  .pressureError    = pressureError,
-                                  .formation        = locations[lineNumber].formation } );
+        if ( pressure != -1.0 )
+        {
+            observations.push_back( { .wellName      = wellDate.wellName,
+                                      .dateTime      = wellDate.dateTime,
+                                      .measurementId = wellDate.measurementId,
+                                      .utmx          = locations[lineNumber].utmx,
+                                      .utmy          = locations[lineNumber].utmy,
+                                      .mdrkb         = locations[lineNumber].mdrkb,
+                                      .tvdmsl        = locations[lineNumber].tvdmsl,
+                                      .pressure      = pressure,
+                                      .pressureError = pressureError,
+                                      .formation     = locations[lineNumber].formation } );
+        }
 
         lineNumber++;
     }

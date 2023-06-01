@@ -40,7 +40,7 @@ public:
     {
         QString   wellName;
         QDateTime dateTime;
-        int       measurementIndex;
+        int       measurementId;
     };
 
     struct ObservationLocation
@@ -72,7 +72,7 @@ public:
     {
         QString   wellName;
         QDateTime dateTime;
-        int       measurementIndex;
+        int       measurementId;
         double    utmx;
         double    utmy;
         double    mdrkb;
@@ -135,6 +135,5 @@ private:
 
 private:
     QString                      m_filePath;
-    WellObservationMap           m_allWellObservations;
     std::vector<Observation_new> m_allWellObservations2;
 };
