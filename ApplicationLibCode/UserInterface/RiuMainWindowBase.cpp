@@ -24,13 +24,15 @@
 #include "RiaRegressionTestRunner.h"
 #include "RiaVersionInfo.h"
 
-#include "RiuDockWidgetTools.h"
-#include "RiuDragDrop.h"
-#include "RiuMdiArea.h"
-#include "RiuMdiSubWindow.h"
-
 #include "RimProject.h"
 #include "RimViewWindow.h"
+
+#include "RiuDockWidgetTools.h"
+#include "RiuDragDrop.h"
+#include "RiuGuiTheme.h"
+#include "RiuMainWindowTools.h"
+#include "RiuMdiArea.h"
+#include "RiuMdiSubWindow.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmObject.h"
@@ -83,6 +85,13 @@ RiuMainWindowBase::RiuMainWindowBase()
     m_redoAction = new QAction( QIcon( ":/redo.png" ), tr( "Redo" ), this );
     m_redoAction->setShortcut( QKeySequence::Redo );
     connect( m_redoAction, SIGNAL( triggered() ), SLOT( slotRedo() ) );
+
+#ifdef Q_OS_WIN
+    if ( RiaPreferences::current()->guiTheme() == RiaDefines::ThemeEnum::DARK )
+    {
+        RiuMainWindowTools::setDarkTitleBarWindows( this );
+    }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
