@@ -104,6 +104,10 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
         return false;
     }
 
+    // Check if result is already computed. If not having an early return here, the same result is recomputed every time data is requested,
+    // and this is a huge performance hit on larger grids.
+    if ( sourceCaseResults->isResultLoaded( address ) ) return true;
+
     RigEclipseResultAddress nativeAddress( address );
     nativeAddress.setDeltaCaseId( RigEclipseResultAddress::noCaseDiffValue() );
     nativeAddress.setDeltaTimeStepIndex( RigEclipseResultAddress::noTimeLapseValue() );
@@ -178,7 +182,8 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
                 RigResultAccessorFactory::createFromResultAddress( baseCase, gridIdx, porosityModel, baseFrameIdx, nativeAddress );
             if ( baseResultAccessor.isNull() ) continue;
 
-            for ( size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++ )
+#pragma omp parallel for
+            for ( long localGridCellIdx = 0; localGridCellIdx < static_cast<long>( grid->cellCount() ); localGridCellIdx++ )
             {
                 size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
                 if ( activeCellInfo->isActive( reservoirCellIndex ) )
