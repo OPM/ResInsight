@@ -80,11 +80,13 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     m_integerLowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     m_integerLowerBound.registerGetMethod( this, &RimEclipsePropertyFilter::lowerBound );
     m_integerLowerBound.registerSetMethod( this, &RimEclipsePropertyFilter::setLowerBound );
+    m_integerLowerBound.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_integerUpperBound, "IntegerUpperBound", "Max" );
     m_integerUpperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     m_integerUpperBound.registerGetMethod( this, &RimEclipsePropertyFilter::upperBound );
     m_integerUpperBound.registerSetMethod( this, &RimEclipsePropertyFilter::setUpperBound );
+    m_integerUpperBound.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_useCategorySelection, "CategorySelection", false, "Category Selection" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
