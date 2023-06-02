@@ -53,7 +53,7 @@ void RimObservedFmuRftData::setDirectoryPath( const QString& path )
 void RimObservedFmuRftData::createRftReaderInterface()
 {
     m_fmuRftReader = new RifReaderFmuRft( m_directoryPath );
-    m_fmuRftReader->load();
+    m_fmuRftReader->importData();
 }
 
 //--------------------------------------------------------------------------------------------------
