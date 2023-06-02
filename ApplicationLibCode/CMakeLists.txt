@@ -55,6 +55,12 @@ if(Qt5Core_FOUND)
   endif(Qt5Charts_FOUND)
 endif(Qt5Core_FOUND)
 
+if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+  set(Python3_EXECUTABLE ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+  find_package(Python3)
+  message(STATUS "Using Python Version: ${Python3_VERSION}")
+endif()
+
 # NB: The generated file is written to Cmake binary folder to avoid source tree
 # pollution This folder is added to include_directories
 configure_file(
