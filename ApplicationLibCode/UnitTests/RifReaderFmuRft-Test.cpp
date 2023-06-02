@@ -18,7 +18,7 @@ TEST( RifReaderFmuRftTest, OldFormatLoadFile )
     EXPECT_EQ( 1, folderNames.size() );
 
     RifReaderFmuRft reader( folderName );
-    reader.load();
+    reader.importData();
 
     auto wellNames = reader.wellNames();
     EXPECT_EQ( 2u, wellNames.size() );
@@ -50,7 +50,7 @@ TEST( RifReaderFmuRftTest, LoadFile )
     EXPECT_EQ( 1, folderNames.size() );
 
     RifReaderFmuRft reader( folderName );
-    reader.load();
+    reader.importData();
 
     QString wellName  = "R_A6";
     auto    timeSteps = reader.availableTimeSteps( wellName );

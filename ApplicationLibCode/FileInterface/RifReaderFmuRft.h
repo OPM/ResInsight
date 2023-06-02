@@ -81,14 +81,13 @@ public:
     std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) override;
     std::set<QString>                                     wellNames() override;
 
-public:
-    void load();
+    void importData();
 
 private:
-    static std::vector<WellDate> importWellDates( const QString& fileName, QString* errorMsg );
-    static std::vector<Location> importLocations( const QString& fileName, QString* errorMsg );
+    static std::vector<WellDate> importWellDates( const QString& fileName );
+    static std::vector<Location> importLocations( const QString& fileName );
     static std::vector<Observation>
-        importObservations( const QString& fileName, const std::vector<Location>& locations, const WellDate& wellDate, QString* errorMsg );
+        importObservations( const QString& fileName, const std::vector<Location>& locations, const WellDate& wellDate );
 
 private:
     QString                  m_filePath;
