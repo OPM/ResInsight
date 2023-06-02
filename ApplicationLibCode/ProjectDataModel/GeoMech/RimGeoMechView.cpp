@@ -318,12 +318,9 @@ void RimGeoMechView::onCreateDisplayModel()
 
     nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
 
-    // Cross sections
+    // Intersections
 
-    m_intersectionVizModel->removeAllParts();
-    m_intersectionCollection->clearGeometry();
-    m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+    appendIntersectionsToModel( cellFilterCollection()->hasActiveFilters(), propertyFilterCollection()->hasActiveDynamicFilters() );
 
     // Seismic sections
 
@@ -480,12 +477,13 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
         // Intersections
+        if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && propertyFilterCollection()->hasActiveDynamicFilters() )
         {
-            m_intersectionVizModel->removeAllParts();
             m_intersectionCollection->clearGeometry();
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
-            m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+            appendIntersectionsForCurrentTimeStep();
         }
+
+        m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
 
         if ( m_surfaceCollection )
         {
@@ -1132,4 +1130,13 @@ void RimGeoMechView::resetVizLogic()
     {
         m_vizLogic->resetPartMgrs();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int viewerTimeStep )
+{
+    CAF_ASSERT( m_vizLogic.notNull() );
+    m_vizLogic->calculateCellVisibility( visibility, geomTypes, viewerTimeStep );
 }

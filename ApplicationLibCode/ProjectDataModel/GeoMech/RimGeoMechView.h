@@ -128,6 +128,8 @@ protected:
 
     RimPropertyFilterCollection* nativePropertyFilterCollection();
 
+    void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 ) override;
+
 private:
     QString createAutoName() const override;
 

@@ -212,10 +212,7 @@ bool RimIntersectionCollection::hasAnyActiveSeparateResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
-                                                    cvf::ModelBasicList* model,
-                                                    cvf::Transform*      scaleTransform,
-                                                    cvf::UByteArray*     visibleCells )
+void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
     if ( !isActive() ) return;
 
@@ -490,6 +487,7 @@ void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::Pdm
     genGroup->add( &m_applyCellFilters );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Depth Filter - Curve Intersections" );
+    filterGroup->setCollapsedByDefault();
 
     m_depthFilterType.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
     m_depthUpperThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
@@ -523,12 +521,13 @@ void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::Pdm
     }
     if ( eclipseView() )
     {
-        caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "K Filter - Curve Intersections" );
+        caf::PdmUiGroup* kfilterGroup = uiOrdering.addNewGroup( "K Filter - Curve Intersections" );
+        kfilterGroup->setCollapsedByDefault();
 
         m_kFilterStr.uiCapability()->setUiReadOnly( !m_kFilterOverridden() );
 
-        filterGroup->add( &m_kFilterOverridden );
-        filterGroup->add( &m_kFilterStr );
+        kfilterGroup->add( &m_kFilterOverridden );
+        kfilterGroup->add( &m_kFilterStr );
     }
 
     uiOrdering.skipRemainingFields( true );

@@ -154,7 +154,8 @@ public:
     bool isUsingFormationNames() const override;
 
     void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) override;
-    void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 );
+
+    void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 ) override;
 
     std::vector<RimLegendConfig*> legendConfigs() const override;
     cvf::Color4f                  colorFromCellCategory( RivCellSetEnum geometryType ) const;
@@ -178,8 +179,6 @@ protected:
     void appendWellsAndFracturesToModel();
     void appendElementVectorResultToModel();
     void appendStreamlinesToModel();
-    void appendIntersectionsForCurrentTimeStep();
-    void appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive );
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
