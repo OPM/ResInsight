@@ -36,39 +36,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderFmuRft::Observation::Observation()
-    : utmx( -std::numeric_limits<double>::infinity() )
-    , utmy( -std::numeric_limits<double>::infinity() )
-    , mdrkb( -std::numeric_limits<double>::infinity() )
-    , tvdmsl( -std::numeric_limits<double>::infinity() )
-    , pressure( -std::numeric_limits<double>::infinity() )
-    , pressureError( -std::numeric_limits<double>::infinity() )
-    , formation()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderFmuRft::Observation::valid() const
-{
-    return utmx != std::numeric_limits<double>::infinity() && utmy != std::numeric_limits<double>::infinity() &&
-           mdrkb != std::numeric_limits<double>::infinity() && tvdmsl != std::numeric_limits<double>::infinity() &&
-           pressure != std::numeric_limits<double>::infinity() && pressureError != std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifReaderFmuRft::WellObservationSet::WellObservationSet( const QDateTime& dateTime, int measurementIndex )
-    : dateTime( dateTime )
-    , measurementIndex( measurementIndex )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifReaderFmuRft::RifReaderFmuRft( const QString& filePath )
     : m_filePath( filePath )
 {
@@ -153,12 +120,12 @@ std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAdd
 {
     std::vector<QString> formationLabels;
 
-    for ( const auto& observation : m_allWellObservations2 )
+    for ( const auto& observation : m_observations )
     {
-        if ( observation.wellName == rftAddress.wellName() )
+        if ( observation.wellDate.wellName == rftAddress.wellName() )
         {
             formationLabels.push_back(
-                QString( "%1 - Pressure: %2 +/- %3" ).arg( observation.formation ).arg( observation.pressure ).arg( observation.pressureError ) );
+                QString( "%1 - Pressure: %2 +/- %3" ).arg( observation.location.formation ).arg( observation.pressure ).arg( observation.pressureError ) );
         }
     }
 
@@ -170,15 +137,15 @@ std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAdd
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()
 {
-    if ( m_allWellObservations2.empty() )
+    if ( m_observations.empty() )
     {
         load();
     }
 
     std::set<std::pair<QString, QDateTime>> wellDateTimePairs;
-    for ( const auto& observation : m_allWellObservations2 )
+    for ( const auto& observation : m_observations )
     {
-        wellDateTimePairs.insert( { observation.wellName, observation.dateTime } );
+        wellDateTimePairs.insert( { observation.wellDate.wellName, observation.wellDate.dateTime } );
     }
 
     std::set<RifEclipseRftAddress> allAddresses;
@@ -209,22 +176,22 @@ void RifReaderFmuRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 {
     CAF_ASSERT( values );
 
-    if ( m_allWellObservations2.empty() )
+    if ( m_observations.empty() )
     {
         load();
     }
 
-    for ( const auto& observation : m_allWellObservations2 )
+    for ( const auto& observation : m_observations )
     {
-        if ( observation.wellName == rftAddress.wellName() )
+        if ( observation.wellDate.wellName == rftAddress.wellName() )
         {
             switch ( rftAddress.wellLogChannel() )
             {
                 case RifEclipseRftAddress::RftWellLogChannelType::TVD:
-                    values->push_back( observation.tvdmsl );
+                    values->push_back( observation.location.tvdmsl );
                     break;
                 case RifEclipseRftAddress::RftWellLogChannelType::MD:
-                    values->push_back( observation.mdrkb );
+                    values->push_back( observation.location.mdrkb );
                     break;
                 case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE:
                     values->push_back( observation.pressure );
@@ -237,71 +204,6 @@ void RifReaderFmuRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderFmuRft::load_old()
-{
-    QString errorMsg;
-
-    QFileInfo fileInfo( m_filePath );
-    if ( !( fileInfo.exists() && fileInfo.isDir() && fileInfo.isReadable() ) )
-    {
-        errorMsg = QString( "Directory '%1' does not exist or isn't readable" ).arg( m_filePath );
-        RiaLogging::error( errorMsg );
-        return;
-    }
-
-    QDir dir( m_filePath );
-
-    WellObservationMap wellObservations = loadWellDates_old( dir, &errorMsg );
-    WellObservationMap validObservations;
-    if ( wellObservations.empty() )
-    {
-        if ( errorMsg.isEmpty() )
-        {
-            errorMsg = QString( "'%1' contains no valid FMU RFT data" ).arg( m_filePath );
-        }
-        RiaLogging::error( errorMsg );
-        return;
-    }
-
-    for ( auto it = wellObservations.begin(); it != wellObservations.end(); ++it )
-    {
-        const QString&      wellName           = it->first;
-        WellObservationSet& wellObservationSet = it->second;
-        QString             txtFile            = QString( "%1.txt" ).arg( wellName );
-
-        QStringList searchFilter;
-        searchFilter << QString( "%1_%2.obs" ).arg( wellName ).arg( wellObservationSet.measurementIndex );
-        QFileInfoList fileInfos = dir.entryInfoList( searchFilter, QDir::Files, QDir::Name );
-
-        QStringList obsFiles;
-        for ( const auto& fi : fileInfos )
-        {
-            obsFiles << fi.fileName();
-        }
-
-        if ( !readObservationLocationData_old( dir.absoluteFilePath( txtFile ), &errorMsg, &wellObservationSet ) )
-        {
-            RiaLogging::warning( errorMsg );
-            continue;
-        }
-
-        for ( const auto& obsFile : obsFiles )
-        {
-            if ( !readObsFile( dir.absoluteFilePath( obsFile ), &errorMsg, &wellObservationSet ) )
-            {
-                RiaLogging::warning( errorMsg );
-                continue;
-            }
-        }
-        validObservations.insert( *it );
-    }
-
-    // m_allWellObservations.swap( validObservations );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +222,8 @@ void RifReaderFmuRft::load()
     QDir dir( m_filePath );
 
     QString errorMsg;
-    auto    wellDates = loadWellDates( dir, &errorMsg );
+
+    auto wellDates = importWellDates( dir.absoluteFilePath( RifReaderFmuRft::wellPathFileName() ), &errorMsg );
     if ( wellDates.empty() )
     {
         if ( errorMsg.isEmpty() )
@@ -350,7 +253,7 @@ void RifReaderFmuRft::load()
     for ( const auto& [wellName, measurementCount] : nameAndMeasurementCount )
     {
         QString txtFile   = QString( "%1.txt" ).arg( wellName );
-        auto    locations = loadLocations( dir.absoluteFilePath( txtFile ), &errorMsg );
+        auto    locations = importLocations( dir.absoluteFilePath( txtFile ), &errorMsg );
         if ( locations.empty() ) continue;
 
         for ( int i = 0; i < measurementCount; i++ )
@@ -380,13 +283,13 @@ void RifReaderFmuRft::load()
                 if ( wellDate.wellName == wellName && wellDate.measurementId == measurementId )
                 {
                     QString localErrorMsg;
-                    auto observations = loadObservations( dir.absoluteFilePath( observationFileName ), locations, wellDate, &localErrorMsg );
+                    auto observations = importObservations( dir.absoluteFilePath( observationFileName ), locations, wellDate, &localErrorMsg );
                     if ( !localErrorMsg.isEmpty() )
                     {
                         RiaLogging::warning( localErrorMsg );
                     }
 
-                    m_allWellObservations2.insert( m_allWellObservations2.end(), observations.begin(), observations.end() );
+                    m_observations.insert( m_observations.end(), observations.begin(), observations.end() );
 
                     break;
                 }
@@ -415,16 +318,16 @@ std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString&         
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString& wellName )
 {
-    if ( m_allWellObservations2.empty() )
+    if ( m_observations.empty() )
     {
         load();
     }
 
     std::set<QDateTime> dateTimes;
-    for ( const auto& observation : m_allWellObservations2 )
+    for ( const auto& observation : m_observations )
     {
-        if ( observation.wellName != wellName ) continue;
-        dateTimes.insert( observation.dateTime );
+        if ( observation.wellDate.wellName != wellName ) continue;
+        dateTimes.insert( observation.wellDate.dateTime );
     }
     return dateTimes;
 }
@@ -449,12 +352,12 @@ std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString&         
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderFmuRft::availableWellLogChannels( const QString& wellName )
 {
-    if ( m_allWellObservations2.empty() )
+    if ( m_observations.empty() )
     {
         load();
     }
 
-    if ( !m_allWellObservations2.empty() )
+    if ( !m_observations.empty() )
     {
         return { RifEclipseRftAddress::RftWellLogChannelType::TVD,
                  RifEclipseRftAddress::RftWellLogChannelType::MD,
@@ -468,16 +371,16 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderFmuRft::available
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RifReaderFmuRft::wellNames()
 {
-    if ( m_allWellObservations2.empty() )
+    if ( m_observations.empty() )
     {
         load();
     }
 
     std::set<QString> names;
 
-    for ( const auto& observation : m_allWellObservations2 )
+    for ( const auto& observation : m_observations )
     {
-        names.insert( observation.wellName );
+        names.insert( observation.wellDate.wellName );
     }
     return names;
 }
@@ -485,205 +388,20 @@ std::set<QString> RifReaderFmuRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderFmuRft::WellObservationMap RifReaderFmuRft::loadWellDates_old( QDir& dir, QString* errorMsg )
+std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::importWellDates( const QString& fileName, QString* errorMsg )
 {
     CAF_ASSERT( errorMsg );
 
-    WellObservationMap validObservations;
-
-    QFileInfo wellDateFileInfo( dir.absoluteFilePath( RifReaderFmuRft::wellPathFileName() ) );
-    if ( !( wellDateFileInfo.exists() && wellDateFileInfo.isFile() && wellDateFileInfo.isReadable() ) )
+    if ( !( QFile::exists( fileName ) ) )
     {
-        *errorMsg = QString( "%1 cannot be found at '%s'" ).arg( RifReaderFmuRft::wellPathFileName() ).arg( m_filePath );
-        return WellObservationMap();
-    }
-
-    {
-        QFile wellDateFile( wellDateFileInfo.absoluteFilePath() );
-        if ( !wellDateFile.open( QIODevice::Text | QIODevice::ReadOnly ) )
-        {
-            *errorMsg = QString( "Could not read '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
-            return WellObservationMap();
-        }
-        QTextStream fileStream( &wellDateFile );
-        while ( !fileStream.atEnd() )
-        {
-            QString line = fileStream.readLine();
-
-            line = line.simplified();
-            if ( line.isNull() || line.isEmpty() )
-            {
-                continue;
-            }
-
-            QString wellName;
-            int     day, month, year, measurementIndex;
-
-            auto words = RiaTextStringTools::splitSkipEmptyParts( line );
-            if ( words.size() == 5 )
-            {
-                wellName         = words[0];
-                day              = words[1].toInt();
-                month            = words[2].toInt();
-                year             = words[3].toInt();
-                measurementIndex = words[4].toInt();
-            }
-            else if ( words.size() == 3 )
-            {
-                wellName = words[0];
-
-                QStringList dateWords = words[1].split( "-" );
-                if ( dateWords.size() != 3 )
-                {
-                    *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
-                    return WellObservationMap();
-                }
-
-                year  = dateWords[0].toInt();
-                month = dateWords[1].toInt();
-                day   = dateWords[2].toInt();
-
-                measurementIndex = words[2].toInt();
-            }
-            else
-            {
-                *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
-                return WellObservationMap();
-            }
-
-            QDateTime dateTime = RiaQDateTimeTools::createDateTime( QDate( year, month, day ) );
-            dateTime.setTimeSpec( Qt::UTC );
-            WellObservationSet observationSet( dateTime, measurementIndex );
-            validObservations.insert( std::make_pair( wellName, observationSet ) );
-        }
-    }
-
-    return validObservations;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderFmuRft::readObservationLocationData_old( const QString& fileName, QString* errorMsg, WellObservationSet* wellObservationSet )
-{
-    CAF_ASSERT( wellObservationSet );
-
-    QFile file( fileName );
-    if ( !( file.open( QIODevice::Text | QIODevice::ReadOnly ) ) )
-    {
-        *errorMsg = QString( "Could not open '%1'" ).arg( fileName );
-        return false;
-    }
-
-    QTextStream stream( &file );
-    while ( true )
-    {
-        QString line = stream.readLine().trimmed();
-        if ( line.isNull() || line.isEmpty() )
-        {
-            break;
-        }
-        else
-        {
-            QTextStream lineStream( &line );
-
-            double  utmx, utmy, mdrkb, tvdmsl;
-            QString formationName;
-
-            lineStream >> utmx >> utmy >> mdrkb >> tvdmsl >> formationName;
-
-            if ( lineStream.status() != QTextStream::Ok )
-            {
-                *errorMsg = QString( "Failed to parse '%1'" ).arg( fileName );
-                return false;
-            }
-
-            Observation observation;
-            observation.utmx      = utmx;
-            observation.utmy      = utmy;
-            observation.mdrkb     = mdrkb;
-            observation.tvdmsl    = tvdmsl;
-            observation.formation = formationName;
-            wellObservationSet->observations.push_back( observation );
-        }
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifReaderFmuRft::readObsFile( const QString& fileName, QString* errorMsg, WellObservationSet* wellObservationSet )
-{
-    QFile file( fileName );
-    if ( !( file.open( QIODevice::Text | QIODevice::ReadOnly ) ) )
-    {
-        *errorMsg = QString( "Could not open '%1'" ).arg( fileName );
-        return false;
-    }
-
-    size_t lineNumber = 0u;
-
-    QTextStream stream( &file );
-    while ( true )
-    {
-        QString line = stream.readLine().trimmed();
-        if ( line.isNull() || line.isEmpty() )
-        {
-            break;
-        }
-        else if ( lineNumber >= wellObservationSet->observations.size() )
-        {
-            *errorMsg = QString( "'%1' has more lines than corresponding txt file" ).arg( fileName );
-            return false;
-        }
-        else
-        {
-            QTextStream lineStream( &line );
-
-            double pressure, pressureError;
-
-            lineStream >> pressure >> pressureError;
-
-            if ( lineStream.status() != QTextStream::Ok )
-            {
-                *errorMsg = QString( "Failed to parse line %1 of '%2'" ).arg( lineNumber + 1 ).arg( fileName );
-                return false;
-            }
-
-            Observation& observation  = wellObservationSet->observations[lineNumber];
-            observation.pressure      = pressure;
-            observation.pressureError = pressureError;
-        }
-        lineNumber++;
-    }
-
-    if ( lineNumber != wellObservationSet->observations.size() )
-    {
-        *errorMsg = QString( "'%1' has less lines than corresponding txt file" ).arg( fileName );
-        return false;
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::loadWellDates( QDir& dir, QString* errorMsg )
-{
-    CAF_ASSERT( errorMsg );
-
-    QFileInfo wellDateFileInfo( dir.absoluteFilePath( RifReaderFmuRft::wellPathFileName() ) );
-    if ( !( wellDateFileInfo.exists() && wellDateFileInfo.isFile() && wellDateFileInfo.isReadable() ) )
-    {
-        *errorMsg = QString( "%1 cannot be found at '%s'" ).arg( RifReaderFmuRft::wellPathFileName() ).arg( m_filePath );
+        *errorMsg = QString( "%1 cannot be found at '%s'" ).arg( RifReaderFmuRft::wellPathFileName() ).arg( fileName );
         return {};
     }
 
-    QFile wellDateFile( wellDateFileInfo.absoluteFilePath() );
+    QFile wellDateFile( fileName );
     if ( !wellDateFile.open( QIODevice::Text | QIODevice::ReadOnly ) )
     {
-        *errorMsg = QString( "Could not read '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
+        *errorMsg = QString( "Could not read '%1'" ).arg( fileName );
         return {};
     }
 
@@ -719,7 +437,7 @@ std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::loadWellDates( QDir& dir
             QStringList dateWords = words[1].split( "-" );
             if ( dateWords.size() != 3 )
             {
-                *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
+                *errorMsg = QString( "Failed to parse '%1'" ).arg( fileName );
                 return {};
             }
 
@@ -731,7 +449,7 @@ std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::loadWellDates( QDir& dir
         }
         else
         {
-            *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
+            *errorMsg = QString( "Failed to parse '%1'" ).arg( fileName );
             return {};
         }
 
@@ -747,7 +465,7 @@ std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::loadWellDates( QDir& dir
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifReaderFmuRft::ObservationLocation> RifReaderFmuRft::loadLocations( const QString& fileName, QString* errorMsg )
+std::vector<RifReaderFmuRft::Location> RifReaderFmuRft::importLocations( const QString& fileName, QString* errorMsg )
 {
     QFile file( fileName );
     if ( !( file.open( QIODevice::Text | QIODevice::ReadOnly ) ) )
@@ -756,7 +474,7 @@ std::vector<RifReaderFmuRft::ObservationLocation> RifReaderFmuRft::loadLocations
         return {};
     }
 
-    std::vector<RifReaderFmuRft::ObservationLocation> locations;
+    std::vector<RifReaderFmuRft::Location> locations;
 
     QTextStream stream( &file );
     while ( true )
@@ -789,10 +507,10 @@ std::vector<RifReaderFmuRft::ObservationLocation> RifReaderFmuRft::loadLocations
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifReaderFmuRft::Observation_new> RifReaderFmuRft::loadObservations( const QString&                          fileName,
-                                                                                 const std::vector<ObservationLocation>& locations,
-                                                                                 const WellDate&                         wellDate,
-                                                                                 QString*                                errorMsg )
+std::vector<RifReaderFmuRft::Observation> RifReaderFmuRft::importObservations( const QString&               fileName,
+                                                                               const std::vector<Location>& locations,
+                                                                               const WellDate&              wellDate,
+                                                                               QString*                     errorMsg )
 {
     QFile file( fileName );
     if ( !( file.open( QIODevice::Text | QIODevice::ReadOnly ) ) )
@@ -801,7 +519,7 @@ std::vector<RifReaderFmuRft::Observation_new> RifReaderFmuRft::loadObservations(
         return {};
     }
 
-    std::vector<RifReaderFmuRft::Observation_new> observations;
+    std::vector<RifReaderFmuRft::Observation> observations;
 
     QTextStream stream( &file );
     size_t      lineNumber = 0u;
@@ -833,16 +551,8 @@ std::vector<RifReaderFmuRft::Observation_new> RifReaderFmuRft::loadObservations(
 
         if ( pressure != -1.0 )
         {
-            observations.push_back( { .wellName      = wellDate.wellName,
-                                      .dateTime      = wellDate.dateTime,
-                                      .measurementId = wellDate.measurementId,
-                                      .utmx          = locations[lineNumber].utmx,
-                                      .utmy          = locations[lineNumber].utmy,
-                                      .mdrkb         = locations[lineNumber].mdrkb,
-                                      .tvdmsl        = locations[lineNumber].tvdmsl,
-                                      .pressure      = pressure,
-                                      .pressureError = pressureError,
-                                      .formation     = locations[lineNumber].formation } );
+            observations.push_back(
+                { .wellDate = wellDate, .location = locations[lineNumber], .pressure = pressure, .pressureError = pressureError } );
         }
 
         lineNumber++;
