@@ -27,39 +27,58 @@ $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #e82257; // External input background color
 
-QCheckBox::indicator, QTreeView::indicator, QTableView::indicator, QListWidget::indicator {
+/* 
+*/
+
+QCheckBox::indicator,
+QTreeView::indicator,
+QTableView::indicator,
+QListWidget::indicator {
     background-color: $backgroundColor1;
     border-radius: 3px;
     width: 16px;
     height: 16px;
 }
 
-QCheckBox::indicator:unchecked, QTreeView::indicator:unchecked, QTableView::indicator:unchecked, QListWidget::indicator:unchecked
-{
+QCheckBox::indicator:unchecked,
+QTreeView::indicator:unchecked,
+QTableView::indicator:unchecked,
+QListWidget::indicator:unchecked {
     image: url(:/themes/dark/checkbox-unchecked.svg);
 }
 
-QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked, QListWidget::indicator:checked
-{
+QCheckBox::indicator:checked,
+QTreeView::indicator:checked,
+QTableView::indicator:checked,
+QListWidget::indicator:checked {
     image: url(:/themes/dark/checkbox-checked.svg);
 }
-QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate, QListWidget::indicator:indeterminate
-{
+
+QCheckBox::indicator:indeterminate,
+QTreeView::indicator:indeterminate,
+QTableView::indicator:indeterminate,
+QListWidget::indicator:indeterminate {
     image: url(:/themes/dark/checkbox-indeterminate.svg);
 }
 
-QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled, QListWidget::indicator:unchecked:disabled
-{
+QCheckBox::indicator:unchecked:disabled,
+QTreeView::indicator:unchecked:disabled,
+QTableView::indicator:unchecked:disabled,
+QListWidget::indicator:unchecked:disabled {
     image: url(:/themes/dark/checkbox-unchecked-disabled.svg);
 }
 
-QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled, QListWidget::indicator:checked:disabled
-{
+QCheckBox::indicator:checked:disabled,
+QTreeView::indicator:checked:disabled,
+QTableView::indicator:checked:disabled,
+QListWidget::indicator:checked:disabled {
     image: url(:/themes/dark/checkbox-checked-disabled.svg);
 }
 
-QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:disabled, QTableView::indicator:indeterminate:disabled, QListWidget::indicator:indeterminate:disabled
-{
+QCheckBox::indicator:indeterminate:disabled,
+QTreeView::indicator:indeterminate:disabled,
+QTableView::indicator:indeterminate:disabled,
+QListWidget::indicator:indeterminate:disabled {
     image: url(:/themes/dark/checkbox-indeterminate-disabled.svg);
 }
 
@@ -76,7 +95,7 @@ RiuQwtPlotWidget {
 }
 
 QwtPlot QWidget {
-   color: $textColor;
+    color: $textColor;
 }
 
 QwtTextLabel {
@@ -93,42 +112,42 @@ QwtPlot["PvtPlot"]::curve["Auxiliary"] {
 
 QwtPlot["PvtPlot"]::curve["Oil"] {
     line-color: $curveColorOil;
-    symbol-color:  $curveColorOil;
+    symbol-color: $curveColorOil;
 }
 
 QwtPlot["PvtPlot"]::curve["Gas"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["KRW"] {
     line-color: $curveColorWater;
-    symbol-color:  $curveColorWater;
+    symbol-color: $curveColorWater;
 }
 
 QwtPlot["RelPermPlot"]::curve["KROW"] {
     line-color: $curveColorWater;
-    symbol-color:  $curveColorWater;
+    symbol-color: $curveColorWater;
 }
 
 QwtPlot["RelPermPlot"]::curve["PCOW"] {
     line-color: $tertiaryColor;
-    symbol-color:  $tertiaryColor;
+    symbol-color: $tertiaryColor;
 }
 
 QwtPlot["RelPermPlot"]::curve["KRG"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["KROG"] {
     line-color: $curveColorGas;
-    symbol-color:  $curveColorGas;
+    symbol-color: $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["PCOG"] {
     line-color: $senaryColor;
-    symbol-color:  $senaryColor;
+    symbol-color: $senaryColor;
 }
 
 QwtPlot["PvtPlot"]::lineMarker["*"] {
@@ -146,38 +165,52 @@ QToolBox {
 QToolButton {
     background-color: $backgroundColor1;
     color: $textColor;
-    border-width : 0px;
+    border-width: 0px;
     padding-top: 6px;
-	padding-bottom: 6px;
-	padding-left: 4px;
-	padding-right: 4px;
+    padding-bottom: 6px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 QToolButton:checked {
     background-color: $backgroundColor3;
     color: $textColor;
-    border-width : 0px;
+    border-width: 0px;
     padding-top: 6px;
-	padding-bottom: 6px;
-	padding-left: 4px;
-	padding-right: 4px;
+    padding-bottom: 6px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
-
 
 QLabel {
     background-color: transparent;
     color: $textColor;
 }
 
-.QWidget, QFrame, QMainWindow, QDialog, QMenu, QLabel, QCheckBox, QTabBar, QDockWidget, QTextEdit, QPlainTextEdit, QScrollArea, QTextBrowser, QGroupBox, QRadioButton {
+QWidget,
+QFrame,
+QMainWindow,
+QDialog,
+QMenu,
+QLabel,
+QCheckBox,
+QTabBar,
+QDockWidget,
+QTextEdit,
+QPlainTextEdit,
+QScrollArea,
+QTextBrowser,
+QGroupBox,
+QRadioButton {
     background-color: $mainBackgroundColor;
     color: $textColor;
     border-color: $borderColor;
     selection-background-color: $primaryColor;
 }
 
-RiuAbstractOverlayContentFrame, RiuDraggableOverlayFrame {
-    background-color: rgba(36,41,46,0.3);
+RiuAbstractOverlayContentFrame,
+RiuDraggableOverlayFrame {
+    background-color: rgba(36, 41, 46, 0.3);
 }
 
 QProgressBar {
@@ -221,8 +254,7 @@ QTreeView::branch:open:has-children:has-siblings {
     icon-size: 12px;
 }
 
-QHeaderView::section 
-{
+QHeaderView::section {
     background-color: $backgroundColor1;
     color: $textColor;
     padding: 4px;
@@ -232,22 +264,22 @@ QTableView QTableCornerButton::section {
     background: transparent;
 }
 
-QHeaderView
-{
+QHeaderView {
     background-color: $backgroundColor1;
 }
 
 QDockWidget {
     background-color: $mainBackgroundColor;
-    titlebar-close-icon:  url(:/themes/dark/blank.svg);
-    titlebar-normal-icon:  url(:/themes/dark/blank.svg);
+    titlebar-close-icon: url(:/themes/dark/blank.svg);
+    titlebar-normal-icon: url(:/themes/dark/blank.svg);
 }
 
 QDockWidget::title {
     background-color: $backgroundColor1;
 }
 
-QDockWidget::close-button, QDockWidget::float-button {
+QDockWidget::close-button,
+QDockWidget::float-button {
     background: transparent;
     border: none;
     icon-size: 12px;
@@ -255,19 +287,19 @@ QDockWidget::close-button, QDockWidget::float-button {
 }
 
 QDockWidget::float-button {
-     image: url(:/themes/dark/float.svg);
+    image: url(:/themes/dark/float.svg);
 }
 
 QDockWidget::close-button {
-     image: url(:/themes/dark/close.svg);
+    image: url(:/themes/dark/close.svg);
 }
 
 QDockWidget::float-button:hover {
-     image: url(:/themes/dark/float-hover.svg);
+    image: url(:/themes/dark/float-hover.svg);
 }
 
 QDockWidget::close-button:hover {
-     image: url(:/themes/dark/close-hover.svg);
+    image: url(:/themes/dark/close-hover.svg);
 }
 
 QToolBar QWidget {
@@ -293,8 +325,12 @@ QMenu::item:selected {
     color: $textColor;
 }
 
-QLineEdit, QComboBox, QSpinBox, 
-QDoubleSpinBox, QDateEdit, QDateTimeEdit {
+QLineEdit,
+QComboBox,
+QSpinBox,
+QDoubleSpinBox,
+QDateEdit,
+QDateTimeEdit {
     background-color: $inputColor;
     color: $textColor;
     padding: 3px;
@@ -302,8 +338,12 @@ QDoubleSpinBox, QDateEdit, QDateTimeEdit {
     selection-background-color: $secondaryColor;
 }
 
-QLineEdit:focus, QComboBox:focus, QSpinBox:focus, 
-QDoubleSpinBox:focus, QDateEdit:focus, QDateTimeEdit:focus {
+QLineEdit:focus,
+QComboBox:focus,
+QSpinBox:focus,
+QDoubleSpinBox:focus,
+QDateEdit:focus,
+QDateTimeEdit:focus {
     border: 2px solid $primaryColor;
 }
 
@@ -324,7 +364,7 @@ QToolBar QToolButton:hover {
 QLCDNumber {
     color: $textColor;
     border-color: $borderColor;
-    border-width : 1.5px;
+    border-width: 1.5px;
     border-style: solid;
     border-radius: 5px;
 }
@@ -345,7 +385,7 @@ QTabWidget {
     background-color: #535353;
 }
 
-QTabWidget::pane { 
+QTabWidget::pane {
     border-top: 1px solid $backgroundColor3;
     background-color: $mainBackgroundColor;
 }
@@ -358,7 +398,8 @@ QTabBar::tab {
     padding: 6px;
 }
 
-QTabBar::tab:selected, QTabBar::tab:hover {
+QTabBar::tab:selected,
+QTabBar::tab:hover {
     background-color: $backgroundColor3;
 }
 
@@ -370,76 +411,78 @@ QTabBar::tab:!selected {
     color: $textColor;
 }
 
+
 /* Scrollbars */
 
 QScrollBar:vertical {
-     border: 0px;;
-     background: transparent;
-     width: 15px;
-     margin: 0px 0px 0px 0px;
- }
-
- QScrollBar:vertical:hover {
-     background: $backgroundColor2;
- }
-
- QScrollBar::handle:vertical {
-     background: $backgroundColor4;
-     min-height: 20px;
-     margin: 3px 3px 3px 3px;
-     border-radius: 3px;
- }
-
-QScrollBar::handle:vertical::hover,
-QScrollBar::handle:horizontal::hover  {
-     background: $backgroundColor5;
- }
-
-QScrollBar::handle:vertical::pressed,
-QScrollBar::handle:horizontal::pressed  {
-     background: white;
- }
-
-QScrollBar::add-line:vertical,  
-QScrollBar::sub-line:vertical,  
-QScrollBar::add-line:horizontal, 
-QScrollBar::sub-line:horizontal {
-     border: 0px;
-     height: 0px;
- }
-
-QScrollBar::up-arrow:vertical, 
-QScrollBar::down-arrow:vertical, 
-QScrollBar::down-arrow:horizontal, 
-QScrollBar::up-arrow:horizontal {
-     border: 0px;
-     background: none;
+    border: 0px;
+    ;
+    background: transparent;
+    width: 15px;
+    margin: 0px 0px 0px 0px;
 }
 
-QScrollBar::add-page:vertical, 
-QScrollBar::sub-page:vertical,  
-QScrollBar::add-page:horizontal, 
+QScrollBar:vertical:hover {
+    background: $backgroundColor2;
+}
+
+QScrollBar::handle:vertical {
+    background: $backgroundColor4;
+    min-height: 20px;
+    margin: 3px 3px 3px 3px;
+    border-radius: 3px;
+}
+
+QScrollBar::handle:vertical::hover,
+QScrollBar::handle:horizontal::hover {
+    background: $backgroundColor5;
+}
+
+QScrollBar::handle:vertical::pressed,
+QScrollBar::handle:horizontal::pressed {
+    background: white;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical,
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    border: 0px;
+    height: 0px;
+}
+
+QScrollBar::up-arrow:vertical,
+QScrollBar::down-arrow:vertical,
+QScrollBar::down-arrow:horizontal,
+QScrollBar::up-arrow:horizontal {
+    border: 0px;
+    background: none;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical,
+QScrollBar::add-page:horizontal,
 QScrollBar::sub-page:horizontal {
-     background: none;
- }
+    background: none;
+}
 
 QScrollBar:horizontal {
-     border: 0px;
-     background: transparent;
-     height: 15px;
-     margin: 0px 0px 0px 0px;
- }
+    border: 0px;
+    background: transparent;
+    height: 15px;
+    margin: 0px 0px 0px 0px;
+}
 
 QScrollBar:horizontal:hover {
-     background: $backgroundColor2;
- }
+    background: $backgroundColor2;
+}
 
- QScrollBar::handle:horizontal {
-     background: $backgroundColor4;
-     min-width: 20px;
-     margin: 3px 3px 3px 3px;
-     border-radius: 3px;
- }
+QScrollBar::handle:horizontal {
+    background: $backgroundColor4;
+    min-width: 20px;
+    margin: 3px 3px 3px 3px;
+    border-radius: 3px;
+}
 
 QFrame#FramedGroupContent {
     background-color: $mainBackgroundColor;
@@ -460,11 +503,14 @@ QMinimizePanel {
     border: 2px solid $backgroundColor2;
 }
 
-QMinimizePanel QLabel, QMinimizePanel QCheckBox, QToolButton {
+QMinimizePanel QLabel,
+QMinimizePanel QCheckBox,
+QToolButton {
     background-color: transparent;
 }
 
-QTextEdit, QPlainTextEdit {
+QTextEdit,
+QPlainTextEdit {
     border: 2px solid $borderColor;
 }
 
@@ -493,4 +539,350 @@ QComboBox::down-arrow {
     image: url(:/themes/dark/expanded.svg);
     width: 18px;
     height: 16px;
+}
+
+
+/*
+ * Styling for advanced docking system
+ * Based on \ResInsight\ThirdParty\qtadvanceddocking\src\stylesheets\default.css
+ */
+
+
+/*
+ * Default style sheet on Windows Platforms
+ */
+
+
+/*****************************************************************************
+ * CDockContainerWidget
+ *****************************************************************************/
+
+ads--CDockContainerWidget {
+    background: $mainBackgroundColor;
+}
+
+
+/*****************************************************************************
+ * CDockSplitter
+ *****************************************************************************/
+
+ads--CDockContainerWidget>QSplitter {
+    padding: 1 0 1 0;
+}
+
+ads--CDockContainerWidget ads--CDockSplitter::handle {
+    background: $backgroundColor3;
+}
+
+
+/*****************************************************************************
+ * CDockAreaWidget
+ *****************************************************************************/
+
+ads--CDockAreaWidget {
+    background: $mainBackgroundColor;
+}
+
+ads--CTitleBarButton {
+    padding: 0px 0px;
+    background: $backgroundColor2;
+}
+
+#tabsMenuButton::menu-indicator {
+    image: none;
+}
+
+#tabsMenuButton {
+    qproperty-icon: url(:/ads/images/tabs-menu-button.svg);
+    qproperty-iconSize: 16px;
+}
+
+#dockAreaCloseButton {
+    qproperty-icon: url(:/ads/images/close-button.svg), url(:/ads/images/close-button-disabled.svg) disabled;
+    qproperty-iconSize: 16px;
+}
+
+#detachGroupButton {
+    qproperty-icon: url(:/ads/images/detach-button.svg), url(:/ads/images/detach-button-disabled.svg) disabled;
+    qproperty-iconSize: 16px;
+}
+
+
+/*****************************************************************************
+ * CDockWidgetTab and close button styling
+ *****************************************************************************/
+
+ads--CDockWidgetTab {
+    background: $mainBackgroundColor;
+    border-color: $backgroundColor1;
+    border-style: solid;
+    border-width: 0 1px 0 0;
+    padding: 0 0px;
+}
+
+ads--CDockWidgetTab[activeTab="true"] {
+    background: $backgroundColor1;
+}
+
+ads--CDockWidgetTab QLabel {
+    color: $textColor;
+    background: $mainBackgroundColor;
+}
+
+ads--CDockWidgetTab[activeTab="true"] QLabel {
+    color: $textColor;
+    background: $backgroundColor1;
+}
+
+#tabCloseButton {
+    margin-top: 2px;
+    background: $backgroundColor2;
+    border: none;
+    padding: 0px -2px;
+    qproperty-icon: url(:/ads/images/close-button.svg), url(:/ads/images/close-button-disabled.svg) disabled;
+    qproperty-iconSize: 16px;
+}
+
+#tabCloseButton:hover {
+    border: 1px solid $backgroundColor3;
+    background: $backgroundColor3;
+}
+
+#tabCloseButton:pressed {
+    background: $backgroundColor2;
+}
+
+
+/*****************************************************************************
+ * CDockWidget
+ *****************************************************************************/
+
+ads--CDockWidget {
+    background: $mainBackgroundColor;
+    border-color: $backgroundColor1;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+}
+
+QScrollArea#dockWidgetScrollArea {
+    padding: 0px;
+    border: none;
+}
+
+
+/*****************************************************************************
+ *
+ * Styling of auto hide functionality
+ *
+ *****************************************************************************/
+
+
+/*****************************************************************************
+ * CAutoHideTab
+ *****************************************************************************/
+
+ads--CAutoHideTab {
+    qproperty-iconSize: 16px 16px;
+    /* this is optional in case you would like to change icon size*/
+    background: none;
+    border: none;
+    padding-left: 2px;
+    padding-right: 0px;
+    text-align: center;
+    min-height: 20px;
+    padding-bottom: 2px;
+}
+
+ads--CAutoHideTab:hover {
+    color: palette(highlight);
+}
+
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="0"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="2"] {
+    border-top: 6px solid rgba(0, 0, 0, 48);
+}
+
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="1"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="3"] {
+    border-bottom: 6px solid rgba(0, 0, 0, 48);
+}
+
+ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="0"],
+ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="2"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="0"][activeTab="true"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="2"][activeTab="true"] {
+    border-top: 6px solid palette(highlight);
+}
+
+ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="1"],
+ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="3"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="1"][activeTab="true"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="3"][activeTab="true"] {
+    border-bottom: 6px solid palette(highlight);
+}
+
+
+/**
+ * Auto hide tabs with icon only
+ */
+
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="0"] {
+    border-top: 6px solid rgba(0, 0, 0, 48);
+}
+
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="1"] {
+    border-left: 6px solid rgba(0, 0, 0, 48);
+}
+
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="2"] {
+    border-right: 6px solid rgba(0, 0, 0, 48);
+}
+
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="3"] {
+    border-bottom: 6px solid rgba(0, 0, 0, 48);
+}
+
+
+/**
+ * Auto hide tabs with icon only hover
+ */
+
+ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="0"],
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="0"][activeTab="true"] {
+    border-top: 6px solid palette(highlight);
+}
+
+ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="1"],
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="1"][activeTab="true"] {
+    border-left: 6px solid palette(highlight);
+}
+
+ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="2"],
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="2"][activeTab="true"] {
+    border-right: 6px solid palette(highlight);
+}
+
+ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="3"],
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="3"][activeTab="true"] {
+    border-bottom: 6px solid palette(highlight);
+}
+
+
+/*****************************************************************************
+ * CAutoHideSideBar
+ *****************************************************************************/
+
+ads--CAutoHideSideBar {
+    background: palette(window);
+    border: none;
+    qproperty-spacing: 12;
+}
+
+#sideTabsContainerWidget {
+    background: transparent;
+}
+
+ads--CAutoHideSideBar[sideBarLocation="0"] {
+    border-bottom: 1px solid palette(dark);
+}
+
+ads--CAutoHideSideBar[sideBarLocation="1"] {
+    border-right: 1px solid palette(dark);
+}
+
+ads--CAutoHideSideBar[sideBarLocation="2"] {
+    border-left: 1px solid palette(dark);
+}
+
+ads--CAutoHideSideBar[sideBarLocation="3"] {
+    border-top: 1px solid palette(dark);
+}
+
+
+/*****************************************************************************
+ * CAutoHideDockContainer
+ *****************************************************************************/
+
+ads--CAutoHideDockContainer {
+    background: palette(window);
+}
+
+ads--CAutoHideDockContainer ads--CDockAreaTitleBar {
+    background: palette(highlight);
+    padding: 0px;
+    border: none;
+}
+
+
+/*
+ * This is required because the ads--CDockAreaWidget[focused="true"] will 
+ * overwrite the ads--CAutoHideDockContainer ads--CDockAreaTitleBar rule
+ */
+
+ads--CAutoHideDockContainer ads--CDockAreaWidget[focused="true"] ads--CDockAreaTitleBar {
+    background: palette(highlight);
+    padding: 0px;
+    border: none;
+}
+
+#autoHideTitleLabel {
+    padding-left: 4px;
+    color: palette(light);
+}
+
+
+/*****************************************************************************
+ * CAutoHideDockContainer titlebar buttons
+ *****************************************************************************/
+
+#dockAreaAutoHideButton {
+    qproperty-icon: url(:/ads/images/vs-pin-button.svg);
+    qproperty-iconSize: 16px;
+}
+
+ads--CAutoHideDockContainer #dockAreaAutoHideButton {
+    qproperty-icon: url(:/ads/images/vs-pin-button-pinned-focused.svg);
+    qproperty-iconSize: 16px;
+}
+
+ads--CAutoHideDockContainer #dockAreaCloseButton {
+    qproperty-icon: url(:/ads/images/close-button-focused.svg)
+}
+
+ads--CAutoHideDockContainer ads--CTitleBarButton:hover {
+    background: rgba(255, 255, 255, 48);
+}
+
+ads--CAutoHideDockContainer ads--CTitleBarButton:pressed {
+    background: rgba(255, 255, 255, 96);
+}
+
+
+/*****************************************************************************
+ * CAutoHideDockContainer Titlebar and Buttons
+ *****************************************************************************/
+
+
+/*****************************************************************************
+ * CResizeHandle
+ *****************************************************************************/
+
+ads--CResizeHandle {
+    background: palette(window);
+}
+
+ads--CAutoHideDockContainer[sideBarLocation="0"] ads--CResizeHandle {
+    border-top: 1px solid palette(dark);
+}
+
+ads--CAutoHideDockContainer[sideBarLocation="1"] ads--CResizeHandle {
+    border-left: 1px solid palette(dark);
+}
+
+ads--CAutoHideDockContainer[sideBarLocation="2"] ads--CResizeHandle {
+    border-right: 1px solid palette(dark);
+}
+
+ads--CAutoHideDockContainer[sideBarLocation="3"] ads--CResizeHandle {
+    border-top: 1px solid palette(dark);
 }
