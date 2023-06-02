@@ -60,7 +60,7 @@ QStringList RifReaderFmuRft::findSubDirectoriesWithFmuRftData( const QString& fi
     QDir dir( filePath );
 
     QStringList subDirs = dir.entryList( QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable, QDir::Name );
-    for ( QString subDir : subDirs )
+    for ( const QString& subDir : subDirs )
     {
         QString absDir = dir.absoluteFilePath( subDir );
         subDirsContainingFmuRftData.append( findSubDirectoriesWithFmuRftData( absDir ) );
@@ -93,13 +93,15 @@ bool RifReaderFmuRft::directoryContainsFmuRftData( const QString& filePath )
 
     bool foundObsFile = false;
     bool foundTxtFile = false;
-    for ( QFileInfo fileInfo : fileInfos )
+    for ( const QFileInfo& fileInfo : fileInfos )
     {
         if ( fileInfo.fileName().endsWith( "obs" ) ) foundObsFile = true;
         if ( fileInfo.fileName().endsWith( "txt" ) ) foundTxtFile = true;
 
+        // At least one matching obs and txt file.
         if ( foundObsFile && foundTxtFile ) return true;
     }
+
     return false;
 }
 
@@ -231,15 +233,7 @@ void RifReaderFmuRft::importData()
     // Find the number of well measurements for each well
     for ( const auto& wellDate : wellDates )
     {
-        auto it = nameAndMeasurementCount.find( wellDate.wellName );
-        if ( it == nameAndMeasurementCount.end() )
-        {
-            nameAndMeasurementCount[wellDate.wellName] = 1;
-        }
-        else
-        {
-            it->second++;
-        }
+        nameAndMeasurementCount[wellDate.wellName]++;
     }
 
     for ( const auto& [wellName, measurementCount] : nameAndMeasurementCount )
@@ -252,22 +246,24 @@ void RifReaderFmuRft::importData()
         {
             int measurementId = i + 1;
 
-            QString observationFileName;
+            auto findObservationFileName = [wellName, measurementId, &dir]() -> QString
+            {
+                QString candidate = dir.absoluteFilePath( QString( "%1_%2.obs" ).arg( wellName ).arg( measurementId ) );
+                if ( QFile::exists( candidate ) )
+                {
+                    return candidate;
+                }
 
-            QString candidate = dir.absoluteFilePath( QString( "%1_%2.obs" ).arg( wellName ).arg( measurementId ) );
-            if ( QFile::exists( candidate ) )
-            {
-                observationFileName = candidate;
-            }
-            else
-            {
                 QString candidateOldFormat = dir.absoluteFilePath( QString( "%1.obs" ).arg( wellName ) );
                 if ( QFile::exists( candidateOldFormat ) )
                 {
-                    observationFileName = candidateOldFormat;
+                    return candidateOldFormat;
                 }
-            }
 
+                return {};
+            };
+
+            QString observationFileName = findObservationFileName();
             if ( observationFileName.isEmpty() ) continue;
 
             for ( const auto& wellDate : wellDates )
@@ -452,7 +448,7 @@ std::vector<RifReaderFmuRft::WellDate> RifReaderFmuRft::importWellDates( const Q
 std::vector<RifReaderFmuRft::Location> RifReaderFmuRft::importLocations( const QString& fileName )
 {
     QFile file( fileName );
-    if ( !( file.open( QIODevice::Text | QIODevice::ReadOnly ) ) )
+    if ( !file.open( QIODevice::Text | QIODevice::ReadOnly ) )
     {
         RiaLogging::error( QString( "Could not open '%1'" ).arg( fileName ) );
         return {};
@@ -495,7 +491,7 @@ std::vector<RifReaderFmuRft::Observation>
     RifReaderFmuRft::importObservations( const QString& fileName, const std::vector<Location>& locations, const WellDate& wellDate )
 {
     QFile file( fileName );
-    if ( !( file.open( QIODevice::Text | QIODevice::ReadOnly ) ) )
+    if ( !file.open( QIODevice::Text | QIODevice::ReadOnly ) )
     {
         RiaLogging::error( QString( "Could not open '%1'" ).arg( fileName ) );
         return {};
