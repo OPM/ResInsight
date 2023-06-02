@@ -59,6 +59,7 @@ void RicAppendIntersectionBoxFeature::onActionTriggered( bool isChecked )
         coll->appendIntersectionBoxAndUpdate( intersectionBox );
 
         intersectionBox->setToDefaultSizeBox();
+        intersectionBox->updateConnectedEditors();
 
         coll->updateConnectedEditors();
         Riu3DMainWindowTools::selectAsCurrentItem( intersectionBox );
