@@ -57,6 +57,13 @@ public:
         LOGISTIC
     };
 
+    enum class ForecastUnit
+    {
+        DAYS,
+        MONTHS,
+        YEARS,
+    };
+
     RimSummaryRegressionAnalysisCurve();
     ~RimSummaryRegressionAnalysisCurve() override;
 
@@ -67,6 +74,8 @@ public:
     // X Axis functions
     std::vector<double> valuesX() const override;
     std::vector<time_t> timeStepsX() const override;
+    static std::vector<time_t>
+        getOutputTimeSteps( const std::vector<time_t>& timeSteps, int forecastBackward, int forecastForward, ForecastUnit forecastUnit );
 
 private:
     void onLoadDataAndUpdate( bool updateParentPlot ) override;
@@ -82,6 +91,12 @@ private:
     std::tuple<std::vector<time_t>, std::vector<double>, QString> computeRegressionCurve( const std::vector<time_t>& timeSteps,
                                                                                           const std::vector<double>& values ) const;
 
+    static std::vector<double> convertToDouble( const std::vector<time_t>& timeSteps );
+    static std::vector<time_t> convertToTimeT( const std::vector<double>& timeSteps );
+
+    static std::pair<std::vector<double>, std::vector<double>> getPositiveValues( const std::vector<double>& timeSteps,
+                                                                                  const std::vector<double>& values );
+
     static QString generateRegressionText( const regression::LinearRegression& reg );
     static QString generateRegressionText( const regression::PolynominalRegression& reg );
     static QString generateRegressionText( const regression::PowerFitRegression& reg );
@@ -91,9 +106,14 @@ private:
 
     static QString formatDouble( double v );
 
+    static void appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps );
+
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
     caf::PdmField<int>                          m_polynominalDegree;
     caf::PdmField<QString>                      m_expressionText;
+    caf::PdmField<int>                          m_forecastForward;
+    caf::PdmField<int>                          m_forecastBackward;
+    caf::PdmField<caf::AppEnum<ForecastUnit>>   m_forecastUnit;
 
     std::vector<double> m_valuesX;
     std::vector<time_t> m_timeStepsX;

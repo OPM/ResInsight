@@ -18,6 +18,9 @@
 
 #include "RimSummaryRegressionAnalysisCurve.h"
 
+#include "RiaQDateTimeTools.h"
+#include "RiaTimeTTools.h"
+
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -27,6 +30,8 @@
 #include "LogisticRegression.hpp"
 #include "PolynominalRegression.hpp"
 #include "PowerFitRegression.hpp"
+
+#include <QDateTime>
 
 #include <cmath>
 #include <vector>
@@ -46,6 +51,16 @@ void caf::AppEnum<RimSummaryRegressionAnalysisCurve::RegressionType>::setUp()
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LOGISTIC, "LOGISTIC", "Logistic" );
     setDefault( RimSummaryRegressionAnalysisCurve::RegressionType::LINEAR );
 }
+
+template <>
+void caf::AppEnum<RimSummaryRegressionAnalysisCurve::ForecastUnit>::setUp()
+{
+    addItem( RimSummaryRegressionAnalysisCurve::ForecastUnit::DAYS, "DAYS", "Days" );
+    addItem( RimSummaryRegressionAnalysisCurve::ForecastUnit::MONTHS, "MONTHS", "Months" );
+    addItem( RimSummaryRegressionAnalysisCurve::ForecastUnit::YEARS, "YEARS", "Years" );
+    setDefault( RimSummaryRegressionAnalysisCurve::ForecastUnit::YEARS );
+}
+
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -56,6 +71,9 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     CAF_PDM_InitObject( "Regression Analysis Curve", ":/SummaryCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_regressionType, "RegressionType", "Type" );
+    CAF_PDM_InitField( &m_forecastForward, "ForecastForward", 0, "Forward" );
+    CAF_PDM_InitField( &m_forecastBackward, "ForecastBackward", 0, "Backward" );
+    CAF_PDM_InitFieldNoDefault( &m_forecastUnit, "ForecastUnit", "Unit" );
     CAF_PDM_InitField( &m_polynominalDegree, "PolynominalDegree", 3, "Degree" );
 
     CAF_PDM_InitFieldNoDefault( &m_expressionText, "ExpressionText", "Expression" );
@@ -128,87 +146,56 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
 {
     if ( values.empty() || timeSteps.empty() ) return { timeSteps, values, "" };
 
-    auto convertToDouble = []( const std::vector<time_t>& timeSteps )
-    {
-        std::vector<double> doubleVector( timeSteps.size() );
-        std::transform( timeSteps.begin(),
-                        timeSteps.end(),
-                        doubleVector.begin(),
-                        []( const auto& timeVal ) { return static_cast<double>( timeVal ); } );
-        return doubleVector;
-    };
-
-    auto convertToTimeT = []( const std::vector<double>& timeSteps )
-    {
-        std::vector<time_t> tVector( timeSteps.size() );
-        std::transform( timeSteps.begin(),
-                        timeSteps.end(),
-                        tVector.begin(),
-                        []( const auto& timeVal ) { return static_cast<time_t>( timeVal ); } );
-        return tVector;
-    };
-
-    auto filterValues = []( const std::vector<double>& timeSteps, const std::vector<double>& values )
-    {
-        std::vector<double> filteredTimeSteps;
-        std::vector<double> filteredValues;
-        for ( size_t i = 0; i < timeSteps.size(); i++ )
-        {
-            if ( timeSteps[i] > 0.0 && values[i] > 0.0 )
-            {
-                filteredTimeSteps.push_back( timeSteps[i] );
-                filteredValues.push_back( values[i] );
-            }
-        }
-        return std::make_pair( filteredTimeSteps, filteredValues );
-    };
-
     std::vector<double> timeStepsD = convertToDouble( timeSteps );
+
+    std::vector<time_t> outputTimeSteps = getOutputTimeSteps( timeSteps, m_forecastBackward(), m_forecastForward(), m_forecastUnit() );
+
+    std::vector<double> outputTimeStepsD = convertToDouble( outputTimeSteps );
 
     if ( m_regressionType == RegressionType::LINEAR )
     {
         regression::LinearRegression linearRegression;
         linearRegression.fit( timeStepsD, values );
-        std::vector<double> predictedValues = linearRegression.predict( timeStepsD );
-        return { timeSteps, predictedValues, generateRegressionText( linearRegression ) };
+        std::vector<double> predictedValues = linearRegression.predict( outputTimeStepsD );
+        return { outputTimeSteps, predictedValues, generateRegressionText( linearRegression ) };
     }
     else if ( m_regressionType == RegressionType::POLYNOMINAL )
     {
         regression::PolynominalRegression polynominalRegression;
         polynominalRegression.fit( timeStepsD, values, m_polynominalDegree );
-        std::vector<double> predictedValues = polynominalRegression.predict( timeStepsD );
-        return { timeSteps, predictedValues, generateRegressionText( polynominalRegression ) };
+        std::vector<double> predictedValues = polynominalRegression.predict( outputTimeStepsD );
+        return { outputTimeSteps, predictedValues, generateRegressionText( polynominalRegression ) };
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
-        auto [filteredTimeSteps, filteredValues] = filterValues( timeStepsD, values );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, values );
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = powerFitRegression.predict( filteredTimeSteps );
-        return { convertToTimeT( filteredTimeSteps ), predictedValues, generateRegressionText( powerFitRegression ) };
+        std::vector<double> predictedValues = powerFitRegression.predict( outputTimeStepsD );
+        return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( powerFitRegression ) };
     }
     else if ( m_regressionType == RegressionType::EXPONENTIAL )
     {
-        auto [filteredTimeSteps, filteredValues] = filterValues( timeStepsD, values );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, values );
         regression::ExponentialRegression exponentialRegression;
         exponentialRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = exponentialRegression.predict( filteredTimeSteps );
-        return { convertToTimeT( filteredTimeSteps ), predictedValues, generateRegressionText( exponentialRegression ) };
+        std::vector<double> predictedValues = exponentialRegression.predict( outputTimeStepsD );
+        return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( exponentialRegression ) };
     }
     else if ( m_regressionType == RegressionType::LOGARITHMIC )
     {
-        auto [filteredTimeSteps, filteredValues] = filterValues( timeStepsD, values );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, values );
         regression::LogarithmicRegression logarithmicRegression;
         logarithmicRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = logarithmicRegression.predict( filteredTimeSteps );
-        return { convertToTimeT( filteredTimeSteps ), predictedValues, generateRegressionText( logarithmicRegression ) };
+        std::vector<double> predictedValues = logarithmicRegression.predict( outputTimeStepsD );
+        return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( logarithmicRegression ) };
     }
     else if ( m_regressionType == RegressionType::LOGISTIC )
     {
         regression::LogisticRegression logisticRegression;
         logisticRegression.fit( timeStepsD, values );
-        std::vector<double> predictedValues = logisticRegression.predict( timeStepsD );
-        return { timeSteps, predictedValues, generateRegressionText( logisticRegression ) };
+        std::vector<double> predictedValues = logisticRegression.predict( outputTimeStepsD );
+        return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( logisticRegression ) };
     }
 
     return { timeSteps, values, "" };
@@ -231,6 +218,11 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
 
     regressionCurveGroup->add( &m_expressionText );
 
+    caf::PdmUiGroup* forecastingGroup = uiOrdering.addNewGroup( "Forecasting" );
+    forecastingGroup->add( &m_forecastForward );
+    forecastingGroup->add( &m_forecastBackward );
+    forecastingGroup->add( &m_forecastUnit );
+
     RimSummaryCurve::defineUiOrdering( uiConfigName, uiOrdering );
 }
 
@@ -242,7 +234,8 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            newValue )
 {
     RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_regressionType || changedField == &m_polynominalDegree )
+    if ( changedField == &m_regressionType || changedField == &m_polynominalDegree || changedField == &m_forecastBackward ||
+         changedField == &m_forecastForward || changedField == &m_forecastUnit )
     {
         loadAndUpdateDataAndPlot();
     }
@@ -263,6 +256,14 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
         {
             // Polynominal degree should be a positive number.
             lineEditorAttr->validator = new QIntValidator( 1, 50, nullptr );
+        }
+    }
+    else if ( field == &m_forecastForward || field == &m_forecastBackward )
+    {
+        if ( auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
+        {
+            // Block negative forecast
+            lineEditorAttr->validator = new QIntValidator( 0, 50, nullptr );
         }
     }
     else if ( field == &m_expressionText )
@@ -381,4 +382,97 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 {
     // TODO: Display more parameters here.
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryRegressionAnalysisCurve::appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps )
+{
+    for ( const QDateTime& t : sourceTimeSteps )
+        destinationTimeSteps.push_back( RiaTimeTTools::fromQDateTime( t ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<time_t> RimSummaryRegressionAnalysisCurve::getOutputTimeSteps( const std::vector<time_t>& timeSteps,
+                                                                           int                        forecastBackward,
+                                                                           int                        forecastForward,
+                                                                           ForecastUnit               forecastUnit )
+{
+    auto getTimeSpan = []( int value, ForecastUnit unit )
+    {
+        if ( unit == ForecastUnit::YEARS ) return DateTimeSpan( value, 0, 0 );
+        if ( unit == ForecastUnit::MONTHS ) return DateTimeSpan( 0, value, 0 );
+        CAF_ASSERT( unit == ForecastUnit::DAYS );
+        return DateTimeSpan( 0, 0, value );
+    };
+
+    int numDates = 50;
+
+    std::vector<time_t> outputTimeSteps;
+    if ( forecastBackward > 0 )
+    {
+        QDateTime firstTimeStepInData = RiaQDateTimeTools::fromTime_t( timeSteps.front() );
+        QDateTime forecastStartTimeStep = RiaQDateTimeTools::subtractSpan( firstTimeStepInData, getTimeSpan( forecastBackward, forecastUnit ) );
+        auto forecastTimeSteps =
+            RiaQDateTimeTools::createEvenlyDistributedDatesInInterval( forecastStartTimeStep, firstTimeStepInData, numDates );
+        appendTimeSteps( outputTimeSteps, forecastTimeSteps );
+    }
+
+    outputTimeSteps.insert( std::end( outputTimeSteps ), std::begin( timeSteps ), std::end( timeSteps ) );
+
+    if ( forecastForward > 0 )
+    {
+        QDateTime lastTimeStepInData  = RiaQDateTimeTools::fromTime_t( timeSteps.back() );
+        QDateTime forecastEndTimeStep = RiaQDateTimeTools::addSpan( lastTimeStepInData, getTimeSpan( forecastForward, forecastUnit ) );
+        auto forecastTimeSteps = RiaQDateTimeTools::createEvenlyDistributedDatesInInterval( lastTimeStepInData, forecastEndTimeStep, numDates );
+        appendTimeSteps( outputTimeSteps, forecastTimeSteps );
+    }
+
+    return outputTimeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSummaryRegressionAnalysisCurve::convertToDouble( const std::vector<time_t>& timeSteps )
+{
+    std::vector<double> doubleVector( timeSteps.size() );
+    std::transform( timeSteps.begin(),
+                    timeSteps.end(),
+                    doubleVector.begin(),
+                    []( const auto& timeVal ) { return static_cast<double>( timeVal ); } );
+    return doubleVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<time_t> RimSummaryRegressionAnalysisCurve::convertToTimeT( const std::vector<double>& timeSteps )
+{
+    std::vector<time_t> tVector( timeSteps.size() );
+    std::transform( timeSteps.begin(), timeSteps.end(), tVector.begin(), []( const auto& timeVal ) { return static_cast<time_t>( timeVal ); } );
+    return tVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<double>, std::vector<double>>
+    RimSummaryRegressionAnalysisCurve::getPositiveValues( const std::vector<double>& timeSteps, const std::vector<double>& values )
+{
+    std::vector<double> filteredTimeSteps;
+    std::vector<double> filteredValues;
+    for ( size_t i = 0; i < timeSteps.size(); i++ )
+    {
+        if ( timeSteps[i] > 0.0 && values[i] > 0.0 )
+        {
+            filteredTimeSteps.push_back( timeSteps[i] );
+            filteredValues.push_back( values[i] );
+        }
+    }
+
+    return std::make_pair( filteredTimeSteps, filteredValues );
 }
