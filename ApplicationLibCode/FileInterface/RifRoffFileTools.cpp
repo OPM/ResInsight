@@ -666,7 +666,7 @@ std::vector<double>
         std::vector<float> values = reader.getFloatArray( keyword );
         convertToReservoirIndexOrder<float, double>( nx, ny, nz, values, doubleVals );
     }
-    else if ( kind == roff::Token::Kind::BOOL )
+    else if ( kind == roff::Token::Kind::BOOL || kind == roff::Token::Kind::BYTE )
     {
         std::vector<char> values = reader.getByteArray( keyword );
         convertToReservoirIndexOrder<char, double>( nx, ny, nz, values, doubleVals );
@@ -734,6 +734,8 @@ RiaDefines::ResultDataType RifRoffFileTools::mapFromType( roff::Token::Kind kind
     switch ( kind )
     {
         case roff::Token::Kind::BOOL:
+            return RiaDefines::ResultDataType::INTEGER;
+        case roff::Token::Kind::BYTE:
             return RiaDefines::ResultDataType::INTEGER;
         case roff::Token::Kind::INT:
             return RiaDefines::ResultDataType::INTEGER;
