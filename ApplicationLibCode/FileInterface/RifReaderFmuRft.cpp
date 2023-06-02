@@ -246,7 +246,7 @@ void RifReaderFmuRft::importData()
         {
             int measurementId = i + 1;
 
-            auto findObservationFileName = [wellName, measurementId, &dir]() -> QString
+            auto findObservationFileName = []( const QString& wellName, int measurementId, const QDir& dir ) -> QString
             {
                 QString candidate = dir.absoluteFilePath( QString( "%1_%2.obs" ).arg( wellName ).arg( measurementId ) );
                 if ( QFile::exists( candidate ) )
@@ -263,7 +263,7 @@ void RifReaderFmuRft::importData()
                 return {};
             };
 
-            QString observationFileName = findObservationFileName();
+            QString observationFileName = findObservationFileName( wellName, measurementId, dir );
             if ( observationFileName.isEmpty() ) continue;
 
             for ( const auto& wellDate : wellDates )
