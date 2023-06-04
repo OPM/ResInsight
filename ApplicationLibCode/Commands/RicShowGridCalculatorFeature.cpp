@@ -23,6 +23,7 @@
 #include "RiaGuiApplication.h"
 
 #include "RimGridCalculationCollection.h"
+#include "RimGridCalculationVariable.h"
 #include "RimProject.h"
 #include "RimSummaryCalculationCollection.h"
 
@@ -31,6 +32,31 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicShowGridCalculatorFeature, "RicShowGridCalculatorFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicShowGridCalculatorFeature::addCalculationAndShowDialog( const RimEclipseResultAddress& address )
+{
+    RimProject*                   proj     = RimProject::current();
+    RimGridCalculationCollection* calcColl = proj->gridCalculationCollection();
+
+    auto calculation = calcColl->addCalculation();
+
+    for ( auto& v : calculation->allVariables() )
+    {
+        if ( auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( v ) )
+        {
+            gridVariable->setEclipseResultAddress( address );
+        }
+    }
+
+    RicGridCalculatorDialog* dialog = RicShowGridCalculatorFeature::gridCalculatorDialog( true );
+    dialog->setCalculationAndUpdateUi( calculation );
+
+    dialog->show();
+    dialog->raise();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

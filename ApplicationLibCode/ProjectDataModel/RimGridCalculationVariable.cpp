@@ -245,7 +245,7 @@ void RimGridCalculationVariable::handleDroppedMimeData( const QMimeData* data, Q
     {
         if ( auto address = dynamic_cast<RimEclipseResultAddress*>( objects.front() ) )
         {
-            setEclipseResultAddress( address->eclipseCase(), address->resultType(), address->resultName() );
+            setEclipseResultAddress( *address );
         }
     }
 }
@@ -264,4 +264,12 @@ void RimGridCalculationVariable::setEclipseResultAddress( RimEclipseCase*       
     eclipseResultChanged.send();
 
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculationVariable::setEclipseResultAddress( const RimEclipseResultAddress& resultAddress )
+{
+    setEclipseResultAddress( resultAddress.eclipseCase(), resultAddress.resultType(), resultAddress.resultName() );
 }

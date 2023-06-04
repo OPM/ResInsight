@@ -54,6 +54,7 @@ public:
     static int allTimeStepsValue();
 
     void handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) override;
+    void setEclipseResultAddress( const RimEclipseResultAddress& resultAddress );
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

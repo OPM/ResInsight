@@ -56,6 +56,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultAddress.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
@@ -1120,6 +1121,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicOpenInTextEditorFeature";
             menuBuilder << "RicReloadPressureDepthDataFeature";
+        }
+        else if ( dynamic_cast<RimEclipseResultAddress*>( firstUiItem ) )
+        {
+            menuBuilder << "RicAddGridCalculationFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
