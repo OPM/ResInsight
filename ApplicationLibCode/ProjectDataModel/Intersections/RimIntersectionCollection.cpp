@@ -77,7 +77,7 @@ RimIntersectionCollection::RimIntersectionCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-30:2", "" );
 
-    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters for Curve Intersections" );
+    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,15 +226,9 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelB
 
     for ( RimBoxIntersection* cs : m_intersectionBoxes )
     {
-        if ( cs->isActive() )
+        if ( cs->isActive() && cs->show3dManipulator() )
         {
-            cs->intersectionBoxPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
-            cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
-
-            if ( cs->show3dManipulator() )
-            {
-                cs->appendManipulatorPartsToModel( model );
-            }
+            cs->appendManipulatorPartsToModel( model );
         }
     }
 }
@@ -256,6 +250,16 @@ void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* 
             cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
             cs->intersectionPartMgr()->appendIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+        }
+    }
+
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
+    {
+        if ( cs->isActive() )
+        {
+            cs->intersectionBoxPartMgr()->generatePartGeometry( visibleCells );
+            cs->intersectionBoxPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
+            cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
         }
     }
 }

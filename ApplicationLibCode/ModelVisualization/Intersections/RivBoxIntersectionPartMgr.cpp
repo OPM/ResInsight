@@ -96,12 +96,12 @@ void RivBoxIntersectionPartMgr::updateCellResultColor( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivBoxIntersectionPartMgr::generatePartGeometry()
+void RivBoxIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCells )
 {
     bool useBufferObjects = true;
     // Surface geometry
     {
-        cvf::ref<cvf::DrawableGeo> geo = m_intersectionBoxGenerator->generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo = m_intersectionBoxGenerator->generateSurface( visibleCells );
         if ( geo.notNull() )
         {
             geo->computeNormals();
@@ -187,11 +187,6 @@ void RivBoxIntersectionPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 void RivBoxIntersectionPartMgr::appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull() )
-    {
-        generatePartGeometry();
-    }
-
     if ( m_intersectionBoxFaces.notNull() )
     {
         m_intersectionBoxFaces->setTransform( scaleTransform );
@@ -204,11 +199,6 @@ void RivBoxIntersectionPartMgr::appendNativeIntersectionFacesToModel( cvf::Model
 //--------------------------------------------------------------------------------------------------
 void RivBoxIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull() )
-    {
-        generatePartGeometry();
-    }
-
     if ( m_intersectionBoxGridLines.notNull() )
     {
         m_intersectionBoxGridLines->setTransform( scaleTransform );

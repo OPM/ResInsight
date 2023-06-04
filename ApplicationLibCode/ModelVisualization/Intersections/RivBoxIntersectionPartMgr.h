@@ -63,9 +63,10 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const;
 
+    void generatePartGeometry( cvf::UByteArray* visibleCells );
+
 private:
     void updatePartEffect();
-    void generatePartGeometry();
 
 private:
     RimBoxIntersection* m_rimIntersectionBox;
