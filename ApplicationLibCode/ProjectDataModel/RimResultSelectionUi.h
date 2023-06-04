@@ -18,58 +18,32 @@
 
 #pragma once
 
-#include "RimUserDefinedCalculationVariable.h"
-
-#include "RiaDefines.h"
-
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 #include "cafSignal.h"
 
+class RimEclipseResultDefinition;
 class RimEclipseCase;
-class RimEclipseResultAddress;
-class RigCaseCellResultsData;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGridCalculationVariable : public RimUserDefinedCalculationVariable
+class RimResultSelectionUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGridCalculationVariable();
-
-    caf::Signal<> eclipseResultChanged;
-
-    QString displayString() const override;
-
-    RimEclipseCase*           eclipseCase() const;
-    RiaDefines::ResultCatType resultCategoryType() const;
-    QString                   resultVariable() const;
-    int                       timeStep() const;
-
-    static int allTimeStepsValue();
-
-    void handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) override;
-
-    void setEclipseResultAddress( const RimEclipseResultAddress& address );
+    RimResultSelectionUi();
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    RigCaseCellResultsData* currentGridCellResults() const;
-    QStringList             getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
-
 private:
-    caf::PdmPtrField<RimEclipseCase*>                      m_eclipseCase;
-    caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_resultType;
-    caf::PdmField<QString>                                 m_resultVariable;
-    caf::PdmField<int>                                     m_timeStep;
-    caf::PdmField<bool>                                    m_button;
+    caf::PdmPtrField<RimEclipseCase*>               m_eclipseCase;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResult;
 };
