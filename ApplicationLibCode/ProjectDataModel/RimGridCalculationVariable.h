@@ -55,8 +55,6 @@ public:
 
     void handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) override;
 
-    void setEclipseResultAddress( const RimEclipseResultAddress& address );
-
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
@@ -65,6 +63,8 @@ private:
 
     RigCaseCellResultsData* currentGridCellResults() const;
     QStringList             getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
+
+    void setEclipseResultAddress( RimEclipseCase* eclipseCase, caf::AppEnum<RiaDefines::ResultCatType> resultType, const QString& resultName );
 
 private:
     caf::PdmPtrField<RimEclipseCase*>                      m_eclipseCase;

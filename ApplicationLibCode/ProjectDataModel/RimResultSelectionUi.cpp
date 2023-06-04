@@ -18,22 +18,10 @@
 
 #include "RimResultSelectionUi.h"
 
-#include "RiaApplication.h"
-#include "RiaDefines.h"
-#include "RiaPorosityModel.h"
-#include "RiaResultNames.h"
-
-#include "RigCaseCellResultsData.h"
-
 #include "RimEclipseCase.h"
-#include "RimEclipseResultAddress.h"
-#include "RimEclipseResultDefinition.h"
-#include "RimGridCalculation.h"
-#include "RimTools.h"
-
-#include "RiuDragDrop.h"
-
 #include "RimEclipseCaseTools.h"
+#include "RimEclipseResultDefinition.h"
+
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
@@ -51,6 +39,44 @@ RimResultSelectionUi::RimResultSelectionUi()
     CAF_PDM_InitFieldNoDefault( &m_eclipseResult, "Result", "Result" );
 
     m_eclipseResult = new RimEclipseResultDefinition();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimResultSelectionUi::setEclipseResultAddress( RimEclipseCase*                         eclipseCase,
+                                                    caf::AppEnum<RiaDefines::ResultCatType> resultType,
+                                                    const QString&                          resultName )
+{
+    m_eclipseCase = eclipseCase;
+
+    m_eclipseResult->setEclipseCase( m_eclipseCase() );
+    m_eclipseResult->setResultType( resultType );
+    m_eclipseResult->setResultVariable( resultName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimResultSelectionUi::eclipseCase() const
+{
+    return m_eclipseCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ResultCatType RimResultSelectionUi::resultType() const
+{
+    return m_eclipseResult->resultType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimResultSelectionUi::resultVariable() const
+{
+    return m_eclipseResult->resultVariable();
 }
 
 //--------------------------------------------------------------------------------------------------

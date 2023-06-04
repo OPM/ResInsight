@@ -26,6 +26,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseResultAddress.h"
 #include "RimGridCalculation.h"
 #include "RimResultSelectionUi.h"
@@ -109,12 +110,23 @@ void RimGridCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( changedField == &m_button )
     {
-        RimResultSelectionUi ui;
+        auto eclipseCase = m_eclipseCase();
+        if ( !eclipseCase )
+        {
+            auto cases = RimEclipseCaseTools::eclipseCases();
+            if ( !cases.empty() )
+            {
+                eclipseCase = cases.front();
+            }
+        }
 
-        caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), &ui, "Select Result", "" );
+        RimResultSelectionUi selectionUi;
+        selectionUi.setEclipseResultAddress( eclipseCase, m_resultType(), m_resultVariable );
 
+        caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), &selectionUi, "Select Result", "" );
         if ( propertyDialog.exec() == QDialog::Accepted )
         {
+            setEclipseResultAddress( selectionUi.eclipseCase(), selectionUi.resultType(), selectionUi.resultVariable() );
         }
     }
 }
@@ -179,7 +191,7 @@ RigCaseCellResultsData* RimGridCalculationVariable::currentGridCellResults() con
 QStringList RimGridCalculationVariable::getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
                                                                      const RigCaseCellResultsData* results )
 {
-    if ( !results ) return QStringList();
+    if ( !results ) return {};
     return results->resultNames( resultCatType );
 }
 
@@ -231,19 +243,23 @@ void RimGridCalculationVariable::handleDroppedMimeData( const QMimeData* data, Q
     auto objects = RiuDragDrop::convertToObjects( data );
     if ( !objects.empty() )
     {
-        auto address = dynamic_cast<RimEclipseResultAddress*>( objects.front() );
-        if ( address ) setEclipseResultAddress( *address );
+        if ( auto address = dynamic_cast<RimEclipseResultAddress*>( objects.front() ) )
+        {
+            setEclipseResultAddress( address->eclipseCase(), address->resultType(), address->resultName() );
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculationVariable::setEclipseResultAddress( const RimEclipseResultAddress& address )
+void RimGridCalculationVariable::setEclipseResultAddress( RimEclipseCase*                         eclipseCase,
+                                                          caf::AppEnum<RiaDefines::ResultCatType> resultType,
+                                                          const QString&                          resultName )
 {
-    m_resultVariable = address.resultName();
-    m_resultType     = address.resultType();
-    m_eclipseCase    = address.eclipseCase();
+    m_eclipseCase    = eclipseCase;
+    m_resultVariable = resultName;
+    m_resultType     = resultType;
 
     eclipseResultChanged.send();
 

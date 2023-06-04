@@ -18,11 +18,11 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cafPdmChildField.h"
-#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cafSignal.h"
 
 class RimEclipseResultDefinition;
 class RimEclipseCase;
@@ -37,6 +37,12 @@ class RimResultSelectionUi : public caf::PdmObject
 
 public:
     RimResultSelectionUi();
+
+    void setEclipseResultAddress( RimEclipseCase* eclipseCase, caf::AppEnum<RiaDefines::ResultCatType> resultType, const QString& resultName );
+
+    RimEclipseCase*           eclipseCase() const;
+    RiaDefines::ResultCatType resultType() const;
+    QString                   resultVariable() const;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
