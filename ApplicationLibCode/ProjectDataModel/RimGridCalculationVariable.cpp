@@ -26,11 +26,18 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseResultAddress.h"
 #include "RimGridCalculation.h"
+#include "RimResultSelectionUi.h"
 #include "RimTools.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuDragDrop.h"
+
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTableViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCalculationVariable, "RimGridCalculationVariable" );
 
@@ -47,6 +54,10 @@ RimGridCalculationVariable::RimGridCalculationVariable()
     CAF_PDM_InitField( &m_resultVariable, "ResultVariable", RiaResultNames::undefinedResultName(), "Variable" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseGridCase", "Grid Case" );
     CAF_PDM_InitField( &m_timeStep, "TimeStep", allTimeStepsValue(), "Time Step" );
+
+    CAF_PDM_InitFieldNoDefault( &m_button, "PushButton", "" );
+    m_button.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_button.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,11 +83,52 @@ void RimGridCalculationVariable::defineUiOrdering( QString uiConfigName, caf::Pd
     uiOrdering.add( &m_resultType );
     uiOrdering.add( &m_resultVariable );
     uiOrdering.add( &m_timeStep );
+    uiOrdering.add( &m_button );
 
     uiOrdering.skipRemainingFields();
 
     m_resultType.uiCapability()->setUiReadOnly( m_eclipseCase == nullptr );
     m_timeStep.uiCapability()->setUiReadOnly( m_resultType == RiaDefines::ResultCatType::STATIC_NATIVE );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculationVariable::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    auto attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>( attribute );
+    if ( attr )
+    {
+        attr->registerPushButtonTextForFieldKeyword( m_button.keyword(), "Edit" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_button )
+    {
+        auto eclipseCase = m_eclipseCase();
+        if ( !eclipseCase )
+        {
+            auto cases = RimEclipseCaseTools::eclipseCases();
+            if ( !cases.empty() )
+            {
+                eclipseCase = cases.front();
+            }
+        }
+
+        RimResultSelectionUi selectionUi;
+        selectionUi.setEclipseResultAddress( eclipseCase, m_resultType(), m_resultVariable );
+
+        caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), &selectionUi, "Select Result", "" );
+        if ( propertyDialog.exec() == QDialog::Accepted )
+        {
+            setEclipseResultAddress( selectionUi.eclipseCase(), selectionUi.resultType(), selectionUi.resultVariable() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +191,7 @@ RigCaseCellResultsData* RimGridCalculationVariable::currentGridCellResults() con
 QStringList RimGridCalculationVariable::getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
                                                                      const RigCaseCellResultsData* results )
 {
-    if ( !results ) return QStringList();
+    if ( !results ) return {};
     return results->resultNames( resultCatType );
 }
 
@@ -191,21 +243,33 @@ void RimGridCalculationVariable::handleDroppedMimeData( const QMimeData* data, Q
     auto objects = RiuDragDrop::convertToObjects( data );
     if ( !objects.empty() )
     {
-        auto address = dynamic_cast<RimEclipseResultAddress*>( objects.front() );
-        if ( address ) setEclipseResultAddress( *address );
+        if ( auto address = dynamic_cast<RimEclipseResultAddress*>( objects.front() ) )
+        {
+            setEclipseResultAddress( *address );
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculationVariable::setEclipseResultAddress( const RimEclipseResultAddress& address )
+void RimGridCalculationVariable::setEclipseResultAddress( RimEclipseCase*                         eclipseCase,
+                                                          caf::AppEnum<RiaDefines::ResultCatType> resultType,
+                                                          const QString&                          resultName )
 {
-    m_resultVariable = address.resultName();
-    m_resultType     = address.resultType();
-    m_eclipseCase    = address.eclipseCase();
+    m_eclipseCase    = eclipseCase;
+    m_resultVariable = resultName;
+    m_resultType     = resultType;
 
     eclipseResultChanged.send();
 
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculationVariable::setEclipseResultAddress( const RimEclipseResultAddress& resultAddress )
+{
+    setEclipseResultAddress( resultAddress.eclipseCase(), resultAddress.resultType(), resultAddress.resultName() );
 }

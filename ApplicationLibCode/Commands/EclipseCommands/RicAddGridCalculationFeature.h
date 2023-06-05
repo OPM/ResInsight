@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,23 +20,14 @@
 
 #include "cafCmdFeature.h"
 
-class RicGridCalculatorDialog;
-class RimEclipseResultAddress;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicShowGridCalculatorFeature : public caf::CmdFeature
+class RicAddGridCalculationFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static void addCalculationAndShowDialog( const RimEclipseResultAddress& address );
-
-private:
-    static RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
-    static void                     hideGridCalculatorDialog();
-
+protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
