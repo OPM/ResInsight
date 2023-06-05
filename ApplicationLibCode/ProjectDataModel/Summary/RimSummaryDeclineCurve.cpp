@@ -24,6 +24,8 @@
 
 #include "RigDeclineCurveCalculator.h"
 
+#include "RimSummaryPlot.h"
+
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
 
@@ -295,6 +297,8 @@ void RimSummaryDeclineCurve::fieldChangedByUi( const caf::PdmFieldHandle* change
     if ( changedField == &m_declineCurveType || changedField == &m_predictionYears || changedField == &m_hyperbolicDeclineConstant )
     {
         loadAndUpdateDataAndPlot();
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+        if ( plot ) plot->zoomAll();
     }
 }
 
