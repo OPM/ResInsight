@@ -158,7 +158,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
 
     Riu3DMainWindowTools::setExpanded( propertyFilterCollection );
 
-    viewToModify->faultCollection()->showFaultCollection = false;
+    viewToModify->faultCollection()->setActive( false );
     viewToModify->faultCollection()->updateConnectedEditors();
 
     viewToModify->updateDisplayModelForCurrentTimeStepAndRedraw();

@@ -265,7 +265,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
+void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visibleCells )
 {
     if ( m_triangleVxes->size() ) return;
 
@@ -386,6 +386,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 
             for ( auto globalCellIdx : columnCellCandidates )
             {
+                if ( ( visibleCells != nullptr ) && ( ( *visibleCells )[globalCellIdx] == 0 ) ) continue;
                 if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
                 hexPlaneCutTriangleVxes.clear();
@@ -618,9 +619,9 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 /// Generate surface drawable geo from the specified region
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::generateSurface()
+cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::generateSurface( cvf::UByteArray* visibleCells )
 {
-    calculateArrays();
+    calculateArrays( visibleCells );
 
     CVF_ASSERT( m_triangleVxes.notNull() );
 
@@ -781,7 +782,7 @@ const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::faultMeshV
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionGeometryGenerator::ensureGeometryIsCalculated()
 {
-    calculateArrays();
+    calculateArrays( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

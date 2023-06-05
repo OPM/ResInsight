@@ -48,7 +48,10 @@ public:
     void updateStaticCellColors( int viewerStepIndex );
     void scheduleGeometryRegen( RivCellSetEnum geometryType );
     void scheduleGeometryRegenOfVisiblePartMgrs( int viewerStepIndex );
+
     void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int viewerStepIndex );
+    void calculateCellVisibility( cvf::UByteArray* totalVisibility, std::vector<RivCellSetEnum> geomTypes, int viewerStepIndex );
+
     void resetPartMgrs();
 
     std::vector<RivGeoMechPartMgrCache::Key> keysToVisiblePartMgrs( int viewerStepIndex ) const;

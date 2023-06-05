@@ -334,3 +334,55 @@ void RivGeoMechVizLogic::resetPartMgrs()
 {
     m_partMgrCache = new RivGeoMechPartMgrCache;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivGeoMechVizLogic::calculateCellVisibility( cvf::UByteArray* totalVisibility, std::vector<RivCellSetEnum> geomTypes, int viewerStepIndex )
+{
+    if ( !m_geomechView->geoMechCase() ) return;
+
+    int partCount = m_geomechView->femParts()->partCount();
+    if ( partCount == 0 ) return;
+
+    int elmCount = 0;
+    for ( int i = 0; i < partCount; i++ )
+    {
+        RigFemPart* part = m_geomechView->femParts()->part( i );
+        elmCount += part->elementCount();
+    }
+    totalVisibility->resize( elmCount );
+    totalVisibility->setAll( false );
+
+    std::vector<RivGeoMechPartMgrCache::Key> partMgrs;
+
+    for ( auto geomType : geomTypes )
+    {
+        // skip types not support in geomech
+        if ( geomType == PROPERTY_FILTERED_WELL_CELLS ) continue;
+        if ( geomType == RANGE_FILTERED_WELL_CELLS ) continue;
+
+        partMgrs.push_back( RivGeoMechPartMgrCache::Key( geomType, viewerStepIndex ) );
+    }
+
+    for ( size_t pmIdx = 0; pmIdx < partMgrs.size(); ++pmIdx )
+    {
+        RivGeoMechPartMgr* partMgr = getUpdatedPartMgr( partMgrs[pmIdx] );
+        CVF_ASSERT( partMgr );
+        if ( partMgr )
+        {
+            int elmOffset = 0;
+            for ( int i = 0; i < partCount; i++ )
+            {
+                RigFemPart* part = m_geomechView->femParts()->part( i );
+
+                cvf::ref<cvf::UByteArray> visibility = partMgr->cellVisibility( i );
+                for ( int elmIdx = 0; elmIdx < part->elementCount(); ++elmIdx )
+                {
+                    ( *totalVisibility )[elmOffset + elmIdx] |= ( *visibility )[elmIdx];
+                }
+                elmOffset += part->elementCount();
+            }
+        }
+    }
+}

@@ -73,7 +73,7 @@ public:
 
     RivBoxIntersectionPartMgr* intersectionBoxPartMgr();
     void                       appendManipulatorPartsToModel( cvf::ModelBasicList* model );
-    void                       rebuildGeometry();
+    void                       clearGeometry();
 
     void setToDefaultSizeBox();
     void setToDefaultSizeSlice( SinglePlaneState plane, const cvf::Vec3d& position );

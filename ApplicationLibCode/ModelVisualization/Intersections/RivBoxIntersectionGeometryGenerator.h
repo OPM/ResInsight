@@ -46,7 +46,7 @@ public:
     ~RivBoxIntersectionGeometryGenerator() override;
 
     // Generate geometry
-    cvf::ref<cvf::DrawableGeo> generateSurface();
+    cvf::ref<cvf::DrawableGeo> generateSurface( cvf::UByteArray* visibleCells );
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
 
     RimBoxIntersection* intersectionBox() const;
@@ -60,7 +60,7 @@ public:
     const cvf::Vec3fArray*                           triangleVxes() const override;
 
 private:
-    void calculateArrays();
+    void calculateArrays( cvf::UByteArray* visibleCells );
 
     cvf::cref<RivIntersectionHexGridInterface> m_hexGrid;
 

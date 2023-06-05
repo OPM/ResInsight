@@ -46,6 +46,7 @@
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
+#include "RiuViewer.h"
 
 #include "RivSingleCellPartGenerator.h"
 
@@ -112,6 +113,9 @@ RimGridView::RimGridView()
 
     m_surfaceVizModel = new cvf::ModelBasicList;
     m_surfaceVizModel->setName( "SurfaceModel" );
+
+    m_intersectionVizModel = new cvf::ModelBasicList;
+    m_intersectionVizModel->setName( "CrossSectionModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -492,4 +496,64 @@ void RimGridView::updateSurfacesInViewTreeItems()
     }
 
     this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::appendIntersectionsForCurrentTimeStep()
+{
+    if ( nativeOrOverrideViewer() )
+    {
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+        if ( frameScene )
+        {
+            cvf::String name = "IntersectionDynamicModel";
+            Rim3dView::removeModelByName( frameScene, name );
+
+            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+            frameParts->setName( name );
+
+            cvf::UByteArray visibility;
+
+            calculateCellVisibility( &visibility, { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS }, m_currentTimeStep );
+
+            m_intersectionCollection->appendDynamicPartsToModel( frameParts.p(), scaleTransform(), m_currentTimeStep, &visibility );
+
+            frameParts->updateBoundingBoxesRecursive();
+
+            frameScene->addModel( frameParts.p() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive )
+{
+    m_intersectionVizModel->removeAllParts();
+    if ( m_intersectionCollection->isActive() )
+    {
+        m_intersectionCollection->clearGeometry();
+
+        if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
+        {
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+
+            if ( !propertyFiltersActive )
+            {
+                cvf::UByteArray visibleCells;
+                calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
+                m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep(), &visibleCells );
+            }
+        }
+        else
+        {
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+            m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep() );
+        }
+        m_intersectionVizModel->updateBoundingBoxesRecursive();
+        nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+    }
 }

@@ -150,9 +150,6 @@ Rim3dView::Rim3dView()
 
     CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size" );
 
-    m_intersectionVizModel = new cvf::ModelBasicList;
-    m_intersectionVizModel->setName( "CrossSectionModel" );
-
     m_seismicVizModel = new cvf::ModelBasicList;
     m_seismicVizModel->setName( "SeismicSectionModel" );
 

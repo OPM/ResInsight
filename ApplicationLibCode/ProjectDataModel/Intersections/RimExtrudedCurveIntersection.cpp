@@ -844,7 +844,7 @@ RivExtrudedCurveIntersectionPartMgr* RimExtrudedCurveIntersection::intersectionP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::rebuildGeometry()
+void RimExtrudedCurveIntersection::clearGeometry()
 {
     m_crossSectionPartMgr = nullptr;
 }

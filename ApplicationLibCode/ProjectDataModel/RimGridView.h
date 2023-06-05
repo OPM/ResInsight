@@ -84,8 +84,14 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
+    void appendIntersectionsForCurrentTimeStep();
+    void appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive );
+
+    virtual void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 ) = 0;
+
 protected:
     cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
+    cvf::ref<cvf::ModelBasicList> m_intersectionVizModel;
 
     // Fields
     caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
