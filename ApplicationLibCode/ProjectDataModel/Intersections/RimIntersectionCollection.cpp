@@ -73,11 +73,11 @@ RimIntersectionCollection::RimIntersectionCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_depthFilterType, "CollectionDepthFilterType", "Depth Filter Type" );
 
-    CAF_PDM_InitField( &m_kFilterOverridden, "OverrideKFilter", false, "Override K Range Filter" );
+    CAF_PDM_InitField( &m_kFilterOverridden, "OverrideKFilter", false, "Override Intersection K Range Filters" );
 
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-30:2", "" );
 
-    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters" );
+    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters for Intersections" );
 }
 
 //--------------------------------------------------------------------------------------------------
