@@ -17,11 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicAddGridCalculationFeature.h"
+#include "RicShowGridCalculatorFeature.h"
+
+#include "RimEclipseResultAddress.h"
 
 #include "cafSelectionManager.h"
 
-#include "RicShowGridCalculatorFeature.h"
-#include "RimEclipseResultAddress.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicAddGridCalculationFeature, "RicAddGridCalculationFeature" );
