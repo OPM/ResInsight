@@ -21,6 +21,8 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 
+#include "RimSummaryPlot.h"
+
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -238,6 +240,8 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
          changedField == &m_forecastForward || changedField == &m_forecastUnit )
     {
         loadAndUpdateDataAndPlot();
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+        if ( plot ) plot->zoomAll();
     }
 }
 
