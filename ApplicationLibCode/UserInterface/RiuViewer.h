@@ -86,9 +86,10 @@ public:
     RiuViewerToViewInterface* ownerReservoirView();
     RimViewWindow*            ownerViewWindow() const override;
 
-    void showInfoText( bool enable );
-    void showVersionInfo( bool enable );
-    void setInfoText( QString text );
+    void    showInfoText( bool enable );
+    void    showVersionInfo( bool enable );
+    void    setInfoText( QString text );
+    QString infoText() const;
 
     void hideZScaleCheckbox( bool hide );
     void showZScaleLabel( bool enable );
