@@ -1156,8 +1156,8 @@ void RiuQwtPlotWidget::resetPlotAxisHighlighting()
                                                      QwtAxis::Position::XBottom };
 
     // Use text color from theme
-    QColor  textColor = RiuGuiTheme::getColorByVariableName( "text-color" );
-    QString style     = QString( "color: rgb(%1, %2, %3);" ).arg( textColor.red() ).arg( textColor.green() ).arg( textColor.blue() );
+    QColor  textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
+    QString style     = QString( "color: %1;" ).arg( textColor.name() );
 
     for ( auto pos : axisPositions )
     {
@@ -1216,7 +1216,11 @@ void RiuQwtPlotWidget::highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY )
             if ( axisId != axisIdX && axisId != axisIdY )
             {
                 auto axisWidget = m_plot->axisWidget( axisId );
-                axisWidget->setStyleSheet( "color: #D9D9D9" );
+
+                auto color     = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
+                auto colorText = color.name();
+
+                axisWidget->setStyleSheet( QString( "color: %1;" ).arg( colorText ) );
             }
         }
     }
