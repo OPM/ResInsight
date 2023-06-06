@@ -93,6 +93,11 @@ public:
 
     void keepCurrentPageAfterUpdate();
 
+    // https://github.com/OPM/ResInsight/issues/10349
+    // This function is used to force an update of the plot book. It is intended to be used from RimMultiPlot::onLoadDataAndUpdate()
+    // The code used to be called from RiuMultiPlotBook::showEvent(), but this caused a crash when a dock widget was hidden and shown again.
+    void forcePerformUpdate();
+
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 

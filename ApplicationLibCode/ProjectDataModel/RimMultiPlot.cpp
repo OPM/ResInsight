@@ -805,6 +805,8 @@ void RimMultiPlot::onLoadDataAndUpdate()
     RiuPlotMainWindowTools::refreshToolbars();
 
     m_showPlotLegends = originalShowState;
+
+    if ( m_viewer ) m_viewer->forcePerformUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

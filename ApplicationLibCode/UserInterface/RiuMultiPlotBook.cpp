@@ -399,7 +399,6 @@ void RiuMultiPlotBook::showEvent( QShowEvent* event )
     m_goToPageAfterUpdate = true;
     QWidget::showEvent( event );
 
-    performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
     if ( m_previewMode )
     {
         applyPagePreviewBookSize( width() );
@@ -536,6 +535,14 @@ void RiuMultiPlotBook::updatePageTitles()
     {
         m_pages[0]->setPlotTitle( QString( "%1" ).arg( m_plotTitle ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::forcePerformUpdate()
+{
+    performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
 }
 
 //--------------------------------------------------------------------------------------------------
