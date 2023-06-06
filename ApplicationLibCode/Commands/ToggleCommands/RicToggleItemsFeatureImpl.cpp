@@ -190,9 +190,7 @@ QString RicToggleItemsFeatureImpl::findCollectionName( SelectionToggleType state
             if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
             {
                 QString objectName = uiObjectHandle->uiName();
-
-                // Include 's' to make it plural
-                return objectName + "s";
+                return objectName;
             }
         }
     }
