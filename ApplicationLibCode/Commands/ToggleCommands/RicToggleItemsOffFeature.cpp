@@ -49,7 +49,13 @@ void RicToggleItemsOffFeature::onActionTriggered( bool isChecked )
 void RicToggleItemsOffFeature::setupActionLook( QAction* actionToSetup )
 {
     if ( RicToggleItemsFeatureImpl::isToggleCommandsForSubItems() )
-        actionToSetup->setText( "Sub Items Off" );
+    {
+        QString objectName = "Sub Items";
+        auto childObjectName = RicToggleItemsFeatureImpl::findCollectionName( RicToggleItemsFeatureImpl::SelectionToggleType::TOGGLE_OFF );
+        if ( !childObjectName.isEmpty() ) objectName = childObjectName;
+
+        actionToSetup->setText( objectName + " Off" );
+    }
     else
         actionToSetup->setText( "Off" );
 
