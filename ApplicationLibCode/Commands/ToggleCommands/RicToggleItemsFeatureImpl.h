@@ -49,6 +49,8 @@ public:
     static bool isToggleCommandsForSubItems();
     static void setObjectToggleStateForSelection( SelectionToggleType state );
 
+    static QString findCollectionName( SelectionToggleType state );
+
 private:
     static caf::PdmUiTreeView*               findTreeView( const caf::PdmUiItem* uiItem );
     static caf::PdmUiTreeOrdering*           findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem );

@@ -89,12 +89,11 @@ private:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void initAfterRead() override;
 
     RimEclipseView* parentView() const;
 
 private:
-    caf::PdmField<bool> m_showFaultsOutsideFilters_obsolete;
-
     caf::PdmField<bool>         m_applyCellFilters;
     caf::PdmField<bool>         m_onlyShowWithNeighbor;
     caf::PdmField<bool>         m_showFaultFaces;
@@ -108,4 +107,6 @@ private:
     caf::PdmField<caf::AppEnum<FaultFaceCullingMode>> m_faultResult;
 
     caf::PdmChildArrayField<RimFaultInView*> m_faults;
+
+    caf::PdmField<bool> m_showFaultsOutsideFilters_obsolete;
 };

@@ -619,6 +619,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 #endif
         menuBuilder << "RicShowGridStatisticsFeature";
         menuBuilder << "RicSelectColorResult";
+        menuBuilder << "RicCopyGridStatisticsToClipboardFeature";
     }
 
     menuBuilder << "RicExportContourMapToTextFeature";

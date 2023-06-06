@@ -61,7 +61,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryAddress, "SummaryAddress" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddress::RimSummaryAddress()
 {
-    CAF_PDM_InitObject( "SummaryAddress", ":/DataVector.png", "", "" );
+    CAF_PDM_InitObject( "SummaryAddress", ":/DataVector.svg", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_category, "SummaryVarType", "Type" );
     CAF_PDM_InitFieldNoDefault( &m_vectorName, "SummaryQuantityName", "Vector" );

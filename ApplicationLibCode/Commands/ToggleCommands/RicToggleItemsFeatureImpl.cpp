@@ -21,9 +21,11 @@
 
 #include "RiaFeatureCommandContext.h"
 #include "RiaGuiApplication.h"
+
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiObjectHandle.h"
@@ -151,6 +153,54 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RicToggleItemsFeatureImpl::findCollectionName( SelectionToggleType state )
+{
+    std::vector<caf::PdmUiItem*> selectedItems;
+    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    if ( state != TOGGLE && selectedItems.size() == 1 )
+    {
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
+        if ( !treeItem ) return {};
+
+        for ( int cIdx = 0; cIdx < treeItem->childCount(); ++cIdx )
+        {
+            caf::PdmUiTreeOrdering* child = treeItem->child( cIdx );
+            if ( !child ) continue;
+            if ( !child->isRepresentingObject() ) continue;
+
+            caf::PdmObjectHandle*   childObj            = child->object();
+            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
+            if ( !uiObjectHandleChild ) continue;
+
+            // https://github.com/OPM/ResInsight/issues/8382
+            // Toggling state is only supported for objects in an array.
+            // For example, this will ensure that faults are toggled without altering the fault result object.
+            auto arrayField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( childObj->parentField() );
+            if ( arrayField && arrayField->ownerObject() )
+            {
+                return arrayField->ownerObject()->uiCapability()->uiName();
+            }
+        }
+    }
+    else
+    {
+        for ( auto& selectedItem : selectedItems )
+        {
+            auto* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItem );
+            if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
+            {
+                QString objectName = uiObjectHandle->uiName();
+                return objectName;
+            }
+        }
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmUiTreeView* RicToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
 {
     RiaFeatureCommandContext* context = RiaFeatureCommandContext::instance();
@@ -214,7 +264,6 @@ std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFro
         // We need to get the children through the tree view, because that is where the actually shown children is
 
         caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
-
         if ( !treeItem ) return {};
 
         for ( int cIdx = 0; cIdx < treeItem->childCount(); ++cIdx )
@@ -225,10 +274,17 @@ std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFro
 
             caf::PdmObjectHandle*   childObj            = child->object();
             caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
+            if ( !uiObjectHandleChild ) continue;
 
-            if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() )
+            // https://github.com/OPM/ResInsight/issues/8382
+            // Toggling state is only supported for objects in an array.
+            // For example, this will ensure that faults are toggled without altering the fault result object.
+            auto arrayField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( childObj->parentField() );
+            if ( !arrayField ) continue;
+
+            if ( uiObjectHandleChild->objectToggleField() )
             {
-                auto* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
+                auto field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
                 if ( !field ) continue;
 
                 if ( state == SelectionToggleType::TOGGLE_ON && field->value() ) continue;
