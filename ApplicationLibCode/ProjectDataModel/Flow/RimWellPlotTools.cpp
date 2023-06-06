@@ -378,7 +378,6 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell( const QSt
             if ( eclCase->eclipseCaseData()->findSimWellData( simWellName ) )
             {
                 cases.push_back( resultCase );
-                break;
             }
         }
     }
