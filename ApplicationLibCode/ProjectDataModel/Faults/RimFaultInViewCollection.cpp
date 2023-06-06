@@ -32,6 +32,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimIntersectionCollection.h"
+#include "RimProject.h"
 
 #include "RiuMainWindow.h"
 
@@ -98,6 +99,10 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_faults, "Faults", "Faults" );
     m_faults.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitField( &m_showFaultsOutsideFilters_obsolete, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
+    m_showFaultsOutsideFilters_obsolete.xmlCapability()->setIOWritable( false );
+    m_showFaultsOutsideFilters_obsolete.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -401,6 +406,17 @@ void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 RimEclipseView* RimFaultInViewCollection::parentView() const
 {
     return firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.03.0" ) )
+    {
+        m_applyCellFilters = !m_showFaultsOutsideFilters_obsolete();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
