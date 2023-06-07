@@ -78,8 +78,13 @@ RimSeismicData::RimSeismicData()
     m_metadata.uiCapability()->setUiReadOnly( true );
     m_metadata.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_overrideDataRange, "overrideDataRange", false, "Override Data Range" );
-    CAF_PDM_InitField( &m_userClipValue, "userClipValue", 0.0, "Clip Value" );
+    CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 0.0 ), "Clip Value" );
+    CAF_PDM_InitField( &m_userMuteThreshold,
+                       "userMuteThreshold",
+                       std::make_pair( false, 0.0 ),
+                       "Mute Threshold",
+                       "",
+                       "Samples with an absolute value below the threshold will be replaced with 0." );
 
     setDeletable( true );
 
@@ -238,9 +243,10 @@ void RimSeismicData::updateMetaData()
     auto [minDataValue, maxDataValue] = m_filereader->dataRange();
     double maxAbsDataValue            = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
 
-    if ( m_userClipValue <= 0.0 ) m_userClipValue = maxAbsDataValue;
-
-    m_userClipValue = std::clamp( m_userClipValue(), 0.0, maxAbsDataValue );
+    auto [userClipEnabled, userClipValue] = m_userClipValue();
+    if ( userClipValue <= 0.0 ) userClipValue = maxAbsDataValue;
+    userClipValue   = std::clamp( userClipValue, 0.0, maxAbsDataValue );
+    m_userClipValue = std::make_pair( userClipEnabled, userClipValue );
 
     m_filereader->histogramData( m_histogramXvalues, m_histogramYvalues );
 
@@ -281,11 +287,8 @@ void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     auto cmGroup = uiOrdering.addNewGroup( "Color Mapping" );
     m_legendConfig->defineUiOrderingColorOnly( cmGroup );
-    cmGroup->add( &m_overrideDataRange );
-    if ( m_overrideDataRange() )
-    {
-        cmGroup->add( &m_userClipValue );
-    }
+    cmGroup->add( &m_userClipValue );
+    cmGroup->add( &m_userMuteThreshold );
 
     auto metaGroup = uiOrdering.addNewGroup( "File Information" );
     metaGroup->add( &m_metadata );
@@ -467,7 +470,7 @@ std::vector<double> RimSeismicData::alphaValues() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicData::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_overrideDataRange ) || ( changedField == &m_userClipValue ) )
+    if ( ( changedField == &m_userMuteThreshold ) || ( changedField == &m_userClipValue ) )
     {
         updateDataRange( true );
     }
@@ -482,11 +485,11 @@ void RimSeismicData::updateDataRange( bool updatePlot )
     m_clippedHistogramYvalues.clear();
     m_clippedAlphaValues.clear();
 
-    double clipValue = m_userClipValue;
+    auto [clipEnabled, clipValue] = m_userClipValue();
 
-    if ( m_overrideDataRange() )
+    if ( clipEnabled )
     {
-        m_activeDataRange = std::make_pair( -m_userClipValue, m_userClipValue );
+        m_activeDataRange = std::make_pair( -clipValue, clipValue );
     }
     else
     {
@@ -573,19 +576,11 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
     auto data = m_filereader->slice( direction, sliceIndex, zMinIndex, zMaxIndex - zMinIndex );
 
-    double tmp                  = 0.0;
-    float* pValue               = data->values();
     const auto [minVal, maxVal] = dataRangeMinMax();
-    const int nSize             = data->size();
+    data->limitTo( minVal, maxVal );
 
-    for ( int i = 0; i < nSize; i++, pValue++ )
-    {
-        tmp = *pValue;
-        if ( tmp < minVal )
-            *pValue = minVal;
-        else if ( tmp > maxVal )
-            *pValue = maxVal;
-    }
+    auto [doMute, muteThreshold] = m_userMuteThreshold();
+    if ( doMute ) data->mute( muteThreshold );
 
     return data;
 }
@@ -703,6 +698,12 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
             pOut += zSize;
         }
     }
+
+    const auto [minVal, maxVal] = dataRangeMinMax();
+    retdata->limitTo( minVal, maxVal );
+
+    auto [doMute, muteThreshold] = m_userMuteThreshold();
+    if ( doMute ) retdata->mute( muteThreshold );
 
     return retdata;
 }

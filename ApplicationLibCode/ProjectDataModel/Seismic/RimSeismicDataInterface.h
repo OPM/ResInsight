@@ -46,8 +46,6 @@ class RimSeismicDataInterface : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    virtual void updateMetaData() = 0;
-
     virtual double zMin() const  = 0;
     virtual double zMax() const  = 0;
     virtual double zStep() const = 0;

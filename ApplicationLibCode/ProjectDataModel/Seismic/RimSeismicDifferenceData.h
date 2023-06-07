@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2023     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,20 +25,19 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 
 class RimGenericParameter;
-class RifSeismicReader;
 
-class RimSeismicData : public RimSeismicDataInterface
+class RimSeismicDifferenceData : public RimSeismicDataInterface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSeismicData();
-    ~RimSeismicData() override;
+    RimSeismicDifferenceData();
+    ~RimSeismicDifferenceData() override;
 
-    void    setFileName( QString filename );
-    QString fileName() const;
+    void setInputData( RimSeismicDataInterface* data1, RimSeismicDataInterface* data2 );
 
     std::string userDescription() const override;
     void        setUserDescription( QString description );
@@ -79,50 +78,40 @@ public:
     cvf::BoundingBox* boundingBox() const override;
 
 protected:
-    void updateMetaData();
-    void initAfterRead() override;
-
+    void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
-
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     void updateDataRange( bool updatePlot );
-    bool openFileIfNotOpen();
-    void logError( QString msg );
     void initColorLegend();
+    void updateMetaData();
+    bool isInputDataOK() const;
 
-    int toInlineIndex( int inLine ) const;
-    int toXlineIndex( int xLine ) const;
-    int toZIndex( double z ) const;
+    caf::PdmField<QString>                      m_userDescription;
+    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
-private:
-    caf::PdmField<caf::FilePath>                  m_filename;
-    caf::PdmField<QString>                        m_userDescription;
-    caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
-    caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;
+    caf::PdmField<bool>   m_overrideDataRange;
+    caf::PdmField<double> m_userClipValue;
 
-    caf::PdmField<std::pair<bool, double>> m_userClipValue;
-    caf::PdmField<std::pair<bool, double>> m_userMuteThreshold;
+    caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData1;
+    caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData2;
 
-    double                            m_zStep;
-    cvf::Vec3i                        m_inlineInfo;
-    cvf::Vec3i                        m_xlineInfo;
+    std::pair<double, double> m_activeDataRange;
+    std::pair<double, double> m_fileDataRange;
+
+    std::vector<double> m_histogramXvalues;
+    std::vector<double> m_histogramYvalues;
+    std::vector<double> m_clippedHistogramXvalues;
+    std::vector<double> m_clippedHistogramYvalues;
+    std::vector<double> m_clippedAlphaValues;
+
     std::shared_ptr<cvf::BoundingBox> m_boundingBox;
-    std::vector<double>               m_histogramXvalues;
-    std::vector<double>               m_histogramYvalues;
-    std::vector<double>               m_clippedHistogramXvalues;
-    std::vector<double>               m_clippedHistogramYvalues;
-    std::vector<double>               m_clippedAlphaValues;
-    std::vector<cvf::Vec3d>           m_worldOutline;
-    std::pair<double, double>         m_activeDataRange;
-    std::pair<double, double>         m_fileDataRange;
 
     std::shared_ptr<RimSeismicAlphaMapper> m_alphaValueMapper;
 
-    std::shared_ptr<RifSeismicReader> m_filereader;
-    int                               m_nErrorsLogged;
+    bool m_inputDataOK;
 };
