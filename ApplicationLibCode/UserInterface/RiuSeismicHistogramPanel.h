@@ -27,6 +27,7 @@
 
 class RiuDockedQwtPlot;
 class RiuSelectionItem;
+class RimSeismicDataInterface;
 
 //==================================================================================================
 //
@@ -46,6 +47,7 @@ public:
     void applyFontSizes( bool replot );
 
     void showHistogram( caf::PdmObjectHandle* selectedObject );
+    void showHistogram( RimSeismicDataInterface* selectedObject );
 
 private:
     QPointer<RiuDockedQwtPlot> m_qwtPlot;

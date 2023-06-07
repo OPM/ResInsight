@@ -48,7 +48,7 @@ class RigWellPath;
 class RigTexturedSection;
 class RivSeismicSectionPartMgr;
 class Rim3dView;
-class RimSeismicData;
+class RimSeismicDataInterface;
 class RimRegularLegendConfig;
 class RimSeismicAlphaMapper;
 class RimWellPath;
@@ -86,8 +86,8 @@ public:
 
     RivSeismicSectionPartMgr* partMgr();
 
-    RimSeismicData* seismicData() const;
-    void            setSeismicData( RimSeismicData* seisData );
+    RimSeismicDataInterface* seismicData() const;
+    void                     setSeismicData( RimSeismicDataInterface* seisData );
 
     RimRegularLegendConfig* legendConfig() const;
     RimSeismicAlphaMapper*  alphaValueMapper() const;
@@ -130,14 +130,15 @@ private:
     void                    updateTextureSectionFromPoints( std::vector<cvf::Vec3d> points, double zmin, double zmax );
     std::vector<cvf::Vec3d> wellPathToSectionPoints( RigWellPath* wellpath, double zmin );
 
-    caf::PdmField<QString>            m_userDescription;
-    caf::PdmPtrField<RimSeismicData*> m_seismicData;
-    caf::PdmPtrField<RimWellPath*>    m_wellPath;
-    caf::PdmProxyValueField<QString>  m_nameProxy;
+    caf::PdmField<QString>                     m_userDescription;
+    caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData;
+    caf::PdmPtrField<RimWellPath*>             m_wellPath;
+    caf::PdmProxyValueField<QString>           m_nameProxy;
 
     caf::PdmField<caf::AppEnum<RiaDefines::SeismicSectionType>> m_type;
     caf::PdmChildArrayField<RimPolylineTarget*>                 m_targets;
 
+    caf::PdmField<double>       m_muteDataLimit;
     caf::PdmField<bool>         m_showSeismicOutline;
     caf::PdmField<bool>         m_enablePicking;
     caf::PdmField<bool>         m_showSectionLine;

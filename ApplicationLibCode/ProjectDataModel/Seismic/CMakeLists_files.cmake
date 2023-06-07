@@ -1,5 +1,6 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSeismicDataCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSeismicDataInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSeismicData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSeismicSectionCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSeismicSection.h
@@ -14,6 +15,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSeismicSection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSeismicAlphaMapper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSEGYConvertOptions.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSeismicDataInterface.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

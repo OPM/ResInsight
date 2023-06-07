@@ -189,9 +189,9 @@ QString RimSeismicData::fileName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSeismicData::userDescription()
+std::string RimSeismicData::userDescription() const
 {
-    return m_userDescription;
+    return m_userDescription().toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -513,7 +513,7 @@ void RimSeismicData::updateDataRange( bool updatePlot )
     m_alphaValueMapper->setDataRangeAndAlphas( m_activeDataRange.first, m_activeDataRange.second, m_clippedAlphaValues );
     m_legendConfig->setUserDefinedRange( m_activeDataRange.first, m_activeDataRange.second );
 
-    if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( this );
+    if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( (RimSeismicDataInterface*)this );
 }
 
 //--------------------------------------------------------------------------------------------------

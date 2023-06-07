@@ -1,0 +1,87 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2023     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+#pragma once
+
+#include "RiaSeismicDefines.h"
+
+#include "cafPdmObject.h"
+
+#include "cvfVector3.h"
+
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+class RimSeismicAlphaMapper;
+class RimRegularLegendConfig;
+
+namespace cvf
+{
+class BoundingBox;
+} // namespace cvf
+
+namespace ZGYAccess
+{
+class SeismicSliceData;
+}
+
+class RimSeismicDataInterface : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    virtual void updateMetaData() = 0;
+
+    virtual double zMin() const  = 0;
+    virtual double zMax() const  = 0;
+    virtual double zStep() const = 0;
+
+    virtual int inlineMin() const  = 0;
+    virtual int inlineMax() const  = 0;
+    virtual int inlineStep() const = 0;
+
+    virtual int xlineMin() const  = 0;
+    virtual int xlineMax() const  = 0;
+    virtual int xlineStep() const = 0;
+
+    virtual std::vector<double> histogramXvalues() const = 0;
+    virtual std::vector<double> histogramYvalues() const = 0;
+    virtual std::vector<double> alphaValues() const      = 0;
+
+    virtual std::vector<cvf::Vec3d> worldOutline() const = 0;
+
+    virtual cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth ) = 0;
+    virtual std::pair<int, int> convertToInlineXline( cvf::Vec3d worldCoords )             = 0;
+
+    virtual std::shared_ptr<ZGYAccess::SeismicSliceData>
+        sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber, double zMin, double zMax ) = 0;
+    virtual std::shared_ptr<ZGYAccess::SeismicSliceData>
+        sliceData( double worldX1, double worldY1, double worldX2, double worldY2, double zMin, double zMax ) = 0;
+
+    virtual float valueAt( cvf::Vec3d worldCoord ) = 0;
+
+    virtual std::pair<double, double> dataRangeMinMax() const = 0;
+
+    virtual RimRegularLegendConfig* legendConfig() const     = 0;
+    virtual RimSeismicAlphaMapper*  alphaValueMapper() const = 0;
+
+    virtual cvf::BoundingBox* boundingBox() const = 0;
+
+    virtual std::string userDescription() const = 0;
+};

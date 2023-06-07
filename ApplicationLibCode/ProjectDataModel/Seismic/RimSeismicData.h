@@ -17,37 +17,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimSeismicDataInterface.h"
+
 #include "RiaSeismicDefines.h"
 
 #include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-#include "cvfVector3.h"
-
-#include <QString>
-
-#include <memory>
-#include <utility>
 
 class RimGenericParameter;
-class RimSeismicAlphaMapper;
-class RimRegularLegendConfig;
 class RifSeismicReader;
 
-namespace cvf
-{
-class BoundingBox;
-} // namespace cvf
-
-namespace ZGYAccess
-{
-class SeismicSliceData;
-}
-
-class RimSeismicData : public caf::PdmObject
+class RimSeismicData : public RimSeismicDataInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -58,45 +40,45 @@ public:
     void    setFileName( QString filename );
     QString fileName() const;
 
-    QString userDescription();
-    void    setUserDescription( QString description );
+    std::string userDescription() const override;
+    void        setUserDescription( QString description );
 
-    void updateMetaData();
+    void updateMetaData() override;
 
-    double zMin() const;
-    double zMax() const;
-    double zStep() const;
+    double zMin() const override;
+    double zMax() const override;
+    double zStep() const override;
 
-    int inlineMin() const;
-    int inlineMax() const;
-    int inlineStep() const;
+    int inlineMin() const override;
+    int inlineMax() const override;
+    int inlineStep() const override;
 
-    int xlineMin() const;
-    int xlineMax() const;
-    int xlineStep() const;
+    int xlineMin() const override;
+    int xlineMax() const override;
+    int xlineStep() const override;
 
-    std::vector<double> histogramXvalues() const;
-    std::vector<double> histogramYvalues() const;
-    std::vector<double> alphaValues() const;
+    std::vector<double> histogramXvalues() const override;
+    std::vector<double> histogramYvalues() const override;
+    std::vector<double> alphaValues() const override;
 
-    std::vector<cvf::Vec3d> worldOutline() const;
+    std::vector<cvf::Vec3d> worldOutline() const override;
 
-    cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth );
-    std::pair<int, int> convertToInlineXline( cvf::Vec3d worldCoords );
+    cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth ) override;
+    std::pair<int, int> convertToInlineXline( cvf::Vec3d worldCoords ) override;
 
     std::shared_ptr<ZGYAccess::SeismicSliceData>
-        sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber, double zMin, double zMax );
+        sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber, double zMin, double zMax ) override;
     std::shared_ptr<ZGYAccess::SeismicSliceData>
-        sliceData( double worldX1, double worldY1, double worldX2, double worldY2, double zMin, double zMax );
+        sliceData( double worldX1, double worldY1, double worldX2, double worldY2, double zMin, double zMax ) override;
 
-    float valueAt( cvf::Vec3d worldCoord );
+    float valueAt( cvf::Vec3d worldCoord ) override;
 
-    std::pair<double, double> dataRangeMinMax() const;
+    std::pair<double, double> dataRangeMinMax() const override;
 
-    RimRegularLegendConfig* legendConfig() const;
-    RimSeismicAlphaMapper*  alphaValueMapper() const;
+    RimRegularLegendConfig* legendConfig() const override;
+    RimSeismicAlphaMapper*  alphaValueMapper() const override;
 
-    cvf::BoundingBox* boundingBox() const;
+    cvf::BoundingBox* boundingBox() const override;
 
 protected:
     void                 initAfterRead() override;

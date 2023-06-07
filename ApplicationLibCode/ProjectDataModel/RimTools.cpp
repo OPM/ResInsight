@@ -388,7 +388,7 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, c
         for ( auto* c : coll->seismicData() )
         {
             if ( c->boundingBox()->intersects( worldBBox ) )
-                options->push_back( caf::PdmOptionItemInfo( c->userDescription(), c, false, c->uiIconProvider() ) );
+                options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( c->userDescription() ), c, false, c->uiIconProvider() ) );
         }
     }
 }

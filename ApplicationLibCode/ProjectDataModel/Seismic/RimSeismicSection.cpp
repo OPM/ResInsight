@@ -24,7 +24,7 @@
 #include "Rim3dView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
-#include "RimSeismicData.h"
+#include "RimSeismicDataInterface.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 
@@ -165,7 +165,7 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     genGrp->add( &m_userDescription );
     genGrp->add( &m_seismicData );
 
-    if ( m_seismicData() != nullptr )
+    if ( m_seismicData != nullptr )
     {
         genGrp->add( &m_type );
 
@@ -295,27 +295,27 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
     else if ( ( field == &m_depthIndex ) || ( field == &m_inlineIndex ) || ( field == &m_xlineIndex ) )
     {
-        if ( ( m_seismicData() != nullptr ) && m_seismicData->boundingBox()->isValid() )
+        if ( ( m_seismicData != nullptr ) && m_seismicData->boundingBox()->isValid() )
         {
             auto* sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
             if ( sliderAttrib != nullptr )
             {
                 sliderAttrib->m_showSpinBox = true;
-                int minVal                  = m_seismicData()->inlineMin();
-                int maxVal                  = m_seismicData()->inlineMax();
-                int stepVal                 = m_seismicData()->inlineStep();
+                int minVal                  = m_seismicData->inlineMin();
+                int maxVal                  = m_seismicData->inlineMax();
+                int stepVal                 = m_seismicData->inlineStep();
 
                 if ( field == &m_xlineIndex )
                 {
-                    minVal  = m_seismicData()->xlineMin();
-                    maxVal  = m_seismicData()->xlineMax();
-                    stepVal = m_seismicData()->xlineStep();
+                    minVal  = m_seismicData->xlineMin();
+                    maxVal  = m_seismicData->xlineMax();
+                    stepVal = m_seismicData->xlineStep();
                 }
                 else if ( field == &m_depthIndex )
                 {
-                    minVal  = m_seismicData()->zMin();
-                    maxVal  = m_seismicData()->zMax();
-                    stepVal = m_seismicData()->zStep();
+                    minVal  = m_seismicData->zMin();
+                    maxVal  = m_seismicData->zMax();
+                    stepVal = m_seismicData->zStep();
                 }
                 sliderAttrib->m_maximum = maxVal;
                 sliderAttrib->m_minimum = minVal;
@@ -326,9 +326,9 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
     else if ( ( field == &m_zUpperThreshold ) || ( field == &m_zLowerThreshold ) )
     {
         auto* sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( ( sliderAttrib ) && ( m_seismicData() != nullptr ) )
+        if ( ( sliderAttrib ) && ( m_seismicData != nullptr ) )
         {
-            auto bb = m_seismicData()->boundingBox();
+            auto bb = m_seismicData->boundingBox();
             if ( bb->isValid() )
             {
                 sliderAttrib->m_minimum = -1 * bb->max().z();
@@ -476,9 +476,9 @@ cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
         pld->setPolyLine( line );
     }
 
-    if ( m_showSeismicOutline() && m_seismicData() != nullptr )
+    if ( m_showSeismicOutline() && m_seismicData != nullptr )
     {
-        auto outline = m_seismicData()->worldOutline();
+        auto outline = m_seismicData->worldOutline();
         if ( outline.size() == 8 )
         {
             // seismic bounding box could be all the way up to the sea surface,
@@ -762,11 +762,11 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 
         if ( changedField == &m_seismicData )
         {
-            RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( m_seismicData() );
+            RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( m_seismicData );
             initSliceRanges();
 
             PdmObjectHandle* prevValue    = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
-            auto             prevSeisData = dynamic_cast<RimSeismicData*>( prevValue );
+            auto             prevSeisData = dynamic_cast<RimSeismicDataInterface*>( prevValue );
             if ( prevSeisData != nullptr )
             {
                 prevSeisData->legendConfig()->changed.disconnect( this );
@@ -801,15 +801,15 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicData* RimSeismicSection::seismicData() const
+RimSeismicDataInterface* RimSeismicSection::seismicData() const
 {
-    return m_seismicData();
+    return m_seismicData;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicSection::setSeismicData( RimSeismicData* seisData )
+void RimSeismicSection::setSeismicData( RimSeismicDataInterface* seisData )
 {
     if ( m_seismicData != nullptr ) m_seismicData->legendConfig()->changed.disconnect( this );
 
@@ -849,7 +849,7 @@ bool RimSeismicSection::isTransparent() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::initSliceRanges()
 {
-    if ( ( m_seismicData() == nullptr ) || ( !m_seismicData->boundingBox()->isValid() ) ) return;
+    if ( ( m_seismicData == nullptr ) || ( !m_seismicData->boundingBox()->isValid() ) ) return;
 
     if ( m_zLowerThreshold < 0 ) m_zLowerThreshold = m_seismicData->zMax();
     if ( m_zUpperThreshold < 0 ) m_zUpperThreshold = m_seismicData->zMin();

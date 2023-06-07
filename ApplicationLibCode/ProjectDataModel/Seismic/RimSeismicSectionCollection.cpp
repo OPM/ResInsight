@@ -191,7 +191,7 @@ std::vector<RimRegularLegendConfig*> RimSeismicSectionCollection::legendConfigs(
 {
     std::vector<RimRegularLegendConfig*> retVals;
 
-    std::set<RimSeismicData*> usedSeisData;
+    std::set<RimSeismicDataInterface*> usedSeisData;
 
     for ( auto& section : m_seismicSections )
     {
@@ -220,7 +220,8 @@ void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer
             QString subtitle;
             if ( section->seismicData() )
             {
-                subtitle          = section->seismicData()->userDescription();
+                subtitle = QString::fromStdString( section->seismicData()->userDescription() );
+
                 const int maxChar = 20;
                 if ( subtitle.size() > maxChar )
                 {
