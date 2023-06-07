@@ -115,6 +115,8 @@ protected:
 
     virtual std::vector<time_t> timeStepsX() const;
 
+    virtual void updateTimeAnnotations();
+
     // Overridden PDM methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

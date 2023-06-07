@@ -101,7 +101,9 @@ public:
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
-    void                                removeAllAnnotations() override;
+    void                                removeAnnotation( RimTimeAxisAnnotation* annotation );
+
+    void removeAllAnnotations() override;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;

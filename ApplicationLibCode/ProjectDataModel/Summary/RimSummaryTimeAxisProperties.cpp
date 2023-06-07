@@ -150,6 +150,7 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "" );
     m_annotations.uiCapability()->setUiTreeHidden( true );
+    m_annotations.uiCapability()->setUiTreeChildrenHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -756,6 +757,14 @@ void RimSummaryTimeAxisProperties::appendAnnotation( RimPlotAxisAnnotation* anno
 void RimSummaryTimeAxisProperties::removeAllAnnotations()
 {
     m_annotations.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::removeAnnotation( RimTimeAxisAnnotation* annotation )
+{
+    m_annotations.removeChild( annotation );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -708,6 +708,8 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 shouldPopulateViewWithEmptyData = true;
             }
+
+            updateTimeAnnotations();
         }
 
         if ( shouldPopulateViewWithEmptyData )
@@ -1292,4 +1294,11 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
             m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::updateTimeAnnotations()
+{
 }
