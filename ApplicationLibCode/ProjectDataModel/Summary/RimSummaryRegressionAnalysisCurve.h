@@ -18,13 +18,11 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include "RimSummaryCurve.h"
-
-#include "cafAppEnum.h"
-#include "regression-analysis/src/PowerFitRegression.hpp"
 
 #include <utility>
 
@@ -37,6 +35,8 @@ class LogisticRegression;
 class PolynominalRegression;
 class PowerFitRegression;
 } // namespace regression
+
+class RimTimeAxisAnnotation;
 
 //==================================================================================================
 ///
@@ -77,6 +77,11 @@ public:
     static std::vector<time_t>
         getOutputTimeSteps( const std::vector<time_t>& timeSteps, int forecastBackward, int forecastForward, ForecastUnit forecastUnit );
 
+    void updateDefaultValues();
+
+protected:
+    void updateTimeAnnotations() override;
+
 private:
     void onLoadDataAndUpdate( bool updateParentPlot ) override;
 
@@ -97,6 +102,9 @@ private:
     static std::pair<std::vector<double>, std::vector<double>> getPositiveValues( const std::vector<double>& timeSteps,
                                                                                   const std::vector<double>& values );
 
+    static std::pair<std::vector<time_t>, std::vector<double>>
+        getInRangeValues( const std::vector<time_t>& timeSteps, const std::vector<double>& values, time_t minTimeStep, time_t maxTimeStep );
+
     static QString generateRegressionText( const regression::LinearRegression& reg );
     static QString generateRegressionText( const regression::PolynominalRegression& reg );
     static QString generateRegressionText( const regression::PowerFitRegression& reg );
@@ -109,14 +117,19 @@ private:
     static void appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps );
 
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
-    caf::PdmField<int>                          m_polynominalDegree;
-    caf::PdmField<QString>                      m_expressionText;
-    caf::PdmField<int>                          m_forecastForward;
-    caf::PdmField<int>                          m_forecastBackward;
-    caf::PdmField<caf::AppEnum<ForecastUnit>>   m_forecastUnit;
+    caf::PdmField<time_t>                       m_minTimeStep;
+    caf::PdmField<time_t>                       m_maxTimeStep;
+    caf::PdmField<bool>                         m_showTimeSelectionInPlot;
 
-    std::vector<double> m_valuesX;
-    std::vector<time_t> m_timeStepsX;
-    std::vector<double> m_valuesY;
-    std::vector<time_t> m_timeStepsY;
+    caf::PdmField<int>                        m_polynominalDegree;
+    caf::PdmField<QString>                    m_expressionText;
+    caf::PdmField<int>                        m_forecastForward;
+    caf::PdmField<int>                        m_forecastBackward;
+    caf::PdmField<caf::AppEnum<ForecastUnit>> m_forecastUnit;
+
+    caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;
+    std::vector<double>                    m_valuesX;
+    std::vector<time_t>                    m_timeStepsX;
+    std::vector<double>                    m_valuesY;
+    std::vector<time_t>                    m_timeStepsY;
 };

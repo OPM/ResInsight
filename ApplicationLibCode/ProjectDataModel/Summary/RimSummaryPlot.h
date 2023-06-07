@@ -60,6 +60,7 @@ class RimSummaryNameHelper;
 class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
 class RimSummaryPlotSourceStepping;
+class RimTimeAxisAnnotation;
 class RiaSummaryCurveDefinition;
 
 class QwtInterval;
@@ -122,9 +123,10 @@ public:
     void reattachAllCurves() override;
     void updateCaseNameHasChanged();
 
-    void addTimeAnnotation( time_t time );
-    void addTimeRangeAnnotation( time_t startTime, time_t endTime );
-    void removeAllTimeAnnotations();
+    RimTimeAxisAnnotation* addTimeAnnotation( time_t time );
+    RimTimeAxisAnnotation* addTimeRangeAnnotation( time_t startTime, time_t endTime );
+    void                   removeTimeAnnotation( RimTimeAxisAnnotation* annotation );
+    void                   removeAllTimeAnnotations();
 
     void updateAxes() override;
 

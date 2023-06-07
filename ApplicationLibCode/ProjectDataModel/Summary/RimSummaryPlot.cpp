@@ -1345,29 +1345,29 @@ void RimSummaryPlot::updateCaseNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addTimeAnnotation( time_t time )
+RimTimeAxisAnnotation* RimSummaryPlot::addTimeAnnotation( time_t time )
 {
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
-    {
-        auto* annotation = new RimTimeAxisAnnotation;
-        annotation->setTime( time );
 
-        axisProps->appendAnnotation( annotation );
-    }
+    auto* annotation = new RimTimeAxisAnnotation;
+    annotation->setTime( time );
+
+    axisProps->appendAnnotation( annotation );
+    return annotation;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addTimeRangeAnnotation( time_t startTime, time_t endTime )
+RimTimeAxisAnnotation* RimSummaryPlot::addTimeRangeAnnotation( time_t startTime, time_t endTime )
 {
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
-    {
-        auto* annotation = new RimTimeAxisAnnotation;
-        annotation->setTimeRange( startTime, endTime );
 
-        axisProps->appendAnnotation( annotation );
-    }
+    auto* annotation = new RimTimeAxisAnnotation;
+    annotation->setTimeRange( startTime, endTime );
+
+    axisProps->appendAnnotation( annotation );
+    return annotation;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1377,6 +1377,15 @@ void RimSummaryPlot::removeAllTimeAnnotations()
 {
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
     axisProps->removeAllAnnotations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::removeTimeAnnotation( RimTimeAxisAnnotation* annotation )
+{
+    RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
+    axisProps->removeAnnotation( annotation );
 }
 
 //--------------------------------------------------------------------------------------------------

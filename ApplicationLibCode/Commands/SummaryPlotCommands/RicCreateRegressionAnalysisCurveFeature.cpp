@@ -90,6 +90,7 @@ RimSummaryRegressionAnalysisCurve*
 
     summaryPlot->addCurveAndUpdate( newCurve );
 
+    newCurve->updateDefaultValues();
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 

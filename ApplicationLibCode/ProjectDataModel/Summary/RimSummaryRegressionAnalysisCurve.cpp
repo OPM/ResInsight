@@ -22,8 +22,11 @@
 #include "RiaTimeTTools.h"
 
 #include "RimSummaryPlot.h"
+#include "RimTimeAxisAnnotation.h"
 
+#include "cafPdmUiDateEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTextEditor.h"
 
 #include "ExponentialRegression.hpp"
@@ -78,6 +81,14 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     CAF_PDM_InitFieldNoDefault( &m_forecastUnit, "ForecastUnit", "Unit" );
     CAF_PDM_InitField( &m_polynominalDegree, "PolynominalDegree", 3, "Degree" );
 
+    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From" );
+    m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "To" );
+    m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_showTimeSelectionInPlot, "ShowTimeSelectionInPlot", false, "Show In Plot" );
+
     CAF_PDM_InitFieldNoDefault( &m_expressionText, "ExpressionText", "Expression" );
     m_expressionText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_expressionText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -90,6 +101,8 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
 //--------------------------------------------------------------------------------------------------
 RimSummaryRegressionAnalysisCurve::~RimSummaryRegressionAnalysisCurve()
 {
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
+    if ( plot && m_timeRangeAnnotation ) plot->removeTimeAnnotation( m_timeRangeAnnotation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,29 +161,38 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
 {
     if ( values.empty() || timeSteps.empty() ) return { timeSteps, values, "" };
 
-    std::vector<double> timeStepsD = convertToDouble( timeSteps );
+    auto [timeStepsInRange, valuesInRange] = getInRangeValues( timeSteps, values, m_minTimeStep, m_maxTimeStep );
 
-    std::vector<time_t> outputTimeSteps = getOutputTimeSteps( timeSteps, m_forecastBackward(), m_forecastForward(), m_forecastUnit() );
+    if ( timeStepsInRange.empty() || valuesInRange.empty() ) return {};
+
+    std::vector<double> timeStepsD = convertToDouble( timeStepsInRange );
+
+    std::vector<time_t> outputTimeSteps = getOutputTimeSteps( timeStepsInRange, m_forecastBackward(), m_forecastForward(), m_forecastUnit() );
 
     std::vector<double> outputTimeStepsD = convertToDouble( outputTimeSteps );
+
+    if ( timeStepsD.empty() || valuesInRange.empty() )
+    {
+        return {};
+    }
 
     if ( m_regressionType == RegressionType::LINEAR )
     {
         regression::LinearRegression linearRegression;
-        linearRegression.fit( timeStepsD, values );
+        linearRegression.fit( timeStepsD, valuesInRange );
         std::vector<double> predictedValues = linearRegression.predict( outputTimeStepsD );
         return { outputTimeSteps, predictedValues, generateRegressionText( linearRegression ) };
     }
     else if ( m_regressionType == RegressionType::POLYNOMINAL )
     {
         regression::PolynominalRegression polynominalRegression;
-        polynominalRegression.fit( timeStepsD, values, m_polynominalDegree );
+        polynominalRegression.fit( timeStepsD, valuesInRange, m_polynominalDegree );
         std::vector<double> predictedValues = polynominalRegression.predict( outputTimeStepsD );
         return { outputTimeSteps, predictedValues, generateRegressionText( polynominalRegression ) };
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, values );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( filteredTimeSteps, filteredValues );
         std::vector<double> predictedValues = powerFitRegression.predict( outputTimeStepsD );
@@ -178,7 +200,7 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     }
     else if ( m_regressionType == RegressionType::EXPONENTIAL )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, values );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
         regression::ExponentialRegression exponentialRegression;
         exponentialRegression.fit( filteredTimeSteps, filteredValues );
         std::vector<double> predictedValues = exponentialRegression.predict( outputTimeStepsD );
@@ -186,7 +208,7 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     }
     else if ( m_regressionType == RegressionType::LOGARITHMIC )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, values );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
         regression::LogarithmicRegression logarithmicRegression;
         logarithmicRegression.fit( filteredTimeSteps, filteredValues );
         std::vector<double> predictedValues = logarithmicRegression.predict( outputTimeStepsD );
@@ -195,7 +217,7 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     else if ( m_regressionType == RegressionType::LOGISTIC )
     {
         regression::LogisticRegression logisticRegression;
-        logisticRegression.fit( timeStepsD, values );
+        logisticRegression.fit( timeStepsD, valuesInRange );
         std::vector<double> predictedValues = logisticRegression.predict( outputTimeStepsD );
         return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( logisticRegression ) };
     }
@@ -220,6 +242,11 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
 
     regressionCurveGroup->add( &m_expressionText );
 
+    caf::PdmUiGroup* timeSelectionGroup = uiOrdering.addNewGroup( "Time Selection" );
+    timeSelectionGroup->add( &m_minTimeStep );
+    timeSelectionGroup->add( &m_maxTimeStep );
+    timeSelectionGroup->add( &m_showTimeSelectionInPlot );
+
     caf::PdmUiGroup* forecastingGroup = uiOrdering.addNewGroup( "Forecasting" );
     forecastingGroup->add( &m_forecastForward );
     forecastingGroup->add( &m_forecastBackward );
@@ -235,11 +262,23 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            oldValue,
                                                           const QVariant&            newValue )
 {
+    if ( &m_minTimeStep == changedField && m_minTimeStep > m_maxTimeStep )
+    {
+        m_maxTimeStep = m_minTimeStep;
+    }
+
+    if ( &m_maxTimeStep == changedField && m_maxTimeStep < m_minTimeStep )
+    {
+        m_minTimeStep = m_maxTimeStep;
+    }
+
     RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_regressionType || changedField == &m_polynominalDegree || changedField == &m_forecastBackward ||
-         changedField == &m_forecastForward || changedField == &m_forecastUnit )
+         changedField == &m_forecastForward || changedField == &m_forecastUnit || changedField == &m_minTimeStep ||
+         changedField == &m_maxTimeStep || changedField == &m_showTimeSelectionInPlot )
     {
         loadAndUpdateDataAndPlot();
+
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         if ( plot ) plot->zoomAll();
     }
@@ -268,6 +307,19 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
         {
             // Block negative forecast
             lineEditorAttr->validator = new QIntValidator( 0, 50, nullptr );
+        }
+    }
+    else if ( field == &m_minTimeStep || field == &m_maxTimeStep )
+    {
+        if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
+        {
+            auto timeSteps = RimSummaryCurve::timeStepsY();
+            if ( !timeSteps.empty() )
+            {
+                myAttr->m_minimum = *timeSteps.begin();
+                myAttr->m_maximum = *timeSteps.rbegin();
+            }
+            myAttr->m_showSpinBox = false;
         }
     }
     else if ( field == &m_expressionText )
@@ -479,4 +531,56 @@ std::pair<std::vector<double>, std::vector<double>>
     }
 
     return std::make_pair( filteredTimeSteps, filteredValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<time_t>, std::vector<double>> RimSummaryRegressionAnalysisCurve::getInRangeValues( const std::vector<time_t>& timeSteps,
+                                                                                                         const std::vector<double>& values,
+                                                                                                         time_t minTimeStep,
+                                                                                                         time_t maxTimeStep )
+{
+    CAF_ASSERT( timeSteps.size() == values.size() );
+
+    std::vector<time_t> filteredTimeSteps;
+    std::vector<double> filteredValues;
+    for ( size_t i = 0; i < timeSteps.size(); i++ )
+    {
+        time_t timeStep = timeSteps[i];
+        if ( timeStep >= minTimeStep && timeStep <= maxTimeStep )
+        {
+            filteredTimeSteps.push_back( timeStep );
+            filteredValues.push_back( values[i] );
+        }
+    }
+
+    return std::make_pair( filteredTimeSteps, filteredValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryRegressionAnalysisCurve::updateTimeAnnotations()
+{
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+    if ( m_timeRangeAnnotation ) plot->removeTimeAnnotation( m_timeRangeAnnotation );
+
+    if ( m_showTimeSelectionInPlot )
+    {
+        m_timeRangeAnnotation = plot->addTimeRangeAnnotation( m_minTimeStep, m_maxTimeStep );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryRegressionAnalysisCurve::updateDefaultValues()
+{
+    auto timeSteps = RimSummaryCurve::timeStepsY();
+    if ( !timeSteps.empty() )
+    {
+        m_minTimeStep = timeSteps.front();
+        m_maxTimeStep = timeSteps.back();
+    }
 }
