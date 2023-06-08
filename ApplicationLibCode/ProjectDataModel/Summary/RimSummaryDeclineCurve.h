@@ -18,14 +18,15 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include "RimSummaryCurve.h"
 
-#include "cafAppEnum.h"
-
 #include <utility>
+
+class RimTimeAxisAnnotation;
 
 //==================================================================================================
 ///
@@ -55,6 +56,11 @@ public:
     // X Axis functions
     std::vector<double> valuesX() const override;
 
+    void updateDefaultValues();
+
+protected:
+    void updateTimeAnnotations() override;
+
 private:
     QString createCurveAutoName() override;
     QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
@@ -68,8 +74,15 @@ private:
 
     void appendFutureTimeSteps( std::vector<time_t>& timeSteps ) const;
 
-    std::vector<double>
-        createDeclineCurveValues( const std::vector<double>& values, const std::vector<time_t>& timeSteps, bool isAccumulatedResult ) const;
+    std::vector<double> createDeclineCurveValues( const std::vector<double>& values,
+                                                  const std::vector<time_t>& timeSteps,
+                                                  time_t                     minTimeStep,
+                                                  time_t                     maxTimeStep,
+                                                  bool                       isAccumulatedResult ) const;
+
+    static std::pair<std::vector<time_t>, std::vector<double>>
+        getInRangeValues( const std::vector<time_t>& timeSteps, const std::vector<double>& values, time_t minTimeStep, time_t maxTimeStep );
+    static std::vector<time_t> getTimeStepsInRange( const std::vector<time_t>& timeSteps, time_t minTimeStep, time_t maxTimeStep );
 
     std::set<QDateTime> createFutureTimeSteps( const std::vector<time_t>& timeSteps ) const;
     static void         appendTimeSteps( std::vector<time_t>& timeSteps, const std::set<QDateTime>& moreTimeSteps );
@@ -83,4 +96,9 @@ private:
     caf::PdmField<caf::AppEnum<DeclineCurveType>> m_declineCurveType;
     caf::PdmField<int>                            m_predictionYears;
     caf::PdmField<double>                         m_hyperbolicDeclineConstant;
+    caf::PdmField<time_t>                         m_minTimeStep;
+    caf::PdmField<time_t>                         m_maxTimeStep;
+    caf::PdmField<bool>                           m_showTimeSelectionInPlot;
+
+    caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;
 };

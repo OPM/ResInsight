@@ -105,6 +105,7 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
 
     summaryPlot->addCurveAndUpdate( newCurve );
 
+    newCurve->updateDefaultValues();
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 
