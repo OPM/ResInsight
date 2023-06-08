@@ -53,6 +53,8 @@ public:
     void         setColor( const cvf::Color3f& color );
     cvf::Color3f color() const;
 
+    void setColorWithFieldChanged( const QColor& color );
+
     void                                  setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
     RiuQwtPlotCurveDefines::LineStyleEnum lineStyle() const;
 
