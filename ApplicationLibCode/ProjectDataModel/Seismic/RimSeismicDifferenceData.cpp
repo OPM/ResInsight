@@ -23,14 +23,21 @@
 #include "RifOpenVDSReader.h"
 #include "RifSeismicZGYReader.h"
 
+#include "Rim3dView.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
+#include "RimSeismicData.h"
+#include "RimSeismicDataCollection.h"
 #include "RimStringParameter.h"
+#include "RimTools.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSeismicHistogramPanel.h"
 
 #include <zgyaccess/seismicslice.h>
+#include <zgyaccess/zgy_histogram.h>
 
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -57,7 +64,7 @@ RimSeismicDifferenceData::RimSeismicDifferenceData()
     , m_activeDataRange( 0, 0 )
     , m_inputDataOK( false )
 {
-    CAF_PDM_InitObject( "SeismicDifferenceData", ":/Seismic16x16.png" );
+    CAF_PDM_InitObject( "SeismicDifferenceData", ":/SeismicDelta16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "SeismicUserDecription", "Name" );
 
@@ -65,14 +72,20 @@ RimSeismicDifferenceData::RimSeismicDifferenceData()
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_overrideDataRange, "overrideDataRange", false, "Override Data Range" );
-    CAF_PDM_InitField( &m_userClipValue, "userClipValue", 0.0, "Clip Value" );
+    CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 1.0 ), "Clip Value" );
+    CAF_PDM_InitField( &m_userMuteThreshold,
+                       "userMuteThreshold",
+                       std::make_pair( false, 0.0 ),
+                       "Mute Threshold",
+                       "",
+                       "Samples with an absolute value below the threshold will be replaced with 0." );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicData1, "SeismicData1", "Seismic Data 1" );
     CAF_PDM_InitFieldNoDefault( &m_seismicData2, "SeismicData2", "Seismic Data 2" );
 
     setDeletable( true );
 
+    m_boundingBox      = std::make_shared<cvf::BoundingBox>();
     m_alphaValueMapper = std::make_shared<RimSeismicAlphaMapper>();
 
     initColorLegend();
@@ -155,9 +168,19 @@ void RimSeismicDifferenceData::updateMetaData()
     m_inputDataOK = false;
     if ( ( m_seismicData1 == nullptr ) || ( m_seismicData2 == nullptr ) ) return;
 
-    // todo - check that data use same grid - use the same method to select valid entries for seismic input 2
+    m_inputDataOK = m_seismicData1->gridIsEqual( m_seismicData2 );
 
-    // todo - generate histogram
+    if ( !m_inputDataOK ) return;
+
+    m_boundingBox->reset();
+    m_boundingBox->add( *m_seismicData1->boundingBox() );
+
+    auto [min1, max1] = m_seismicData1->dataRangeMinMax();
+    auto [min2, max2] = m_seismicData2->dataRangeMinMax();
+
+    m_fileDataRange = std::make_pair( std::min( min1, min2 ), std::max( max1, max2 ) );
+
+    generateHistogram();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,11 +208,8 @@ void RimSeismicDifferenceData::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     auto cmGroup = uiOrdering.addNewGroup( "Color Mapping" );
     m_legendConfig->defineUiOrderingColorOnly( cmGroup );
-    cmGroup->add( &m_overrideDataRange );
-    if ( m_overrideDataRange() )
-    {
-        cmGroup->add( &m_userClipValue );
-    }
+    cmGroup->add( &m_userClipValue );
+    cmGroup->add( &m_userMuteThreshold );
 
     uiOrdering.skipRemainingFields();
 }
@@ -335,7 +355,7 @@ std::vector<double> RimSeismicDifferenceData::alphaValues() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicDifferenceData::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_overrideDataRange ) || ( changedField == &m_userClipValue ) )
+    if ( ( changedField == &m_userMuteThreshold ) || ( changedField == &m_userClipValue ) )
     {
         updateDataRange( true );
     }
@@ -361,11 +381,11 @@ void RimSeismicDifferenceData::updateDataRange( bool updatePlot )
         return;
     }
 
-    double clipValue = m_userClipValue;
+    auto [clipEnabled, clipValue] = m_userClipValue();
 
-    if ( m_overrideDataRange() )
+    if ( clipEnabled )
     {
-        m_activeDataRange = std::make_pair( -m_userClipValue, m_userClipValue );
+        m_activeDataRange = std::make_pair( -clipValue, clipValue );
     }
     else
     {
@@ -435,7 +455,15 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     auto data1 = m_seismicData1->sliceData( direction, sliceNumber, zMin, zMax );
     auto data2 = m_seismicData2->sliceData( direction, sliceNumber, zMin, zMax );
 
-    return data1;
+    auto retdata = difference( data1.get(), data2.get() );
+
+    const auto [minVal, maxVal] = dataRangeMinMax();
+    retdata->limitTo( minVal, maxVal );
+
+    auto [doMute, muteThreshold] = m_userMuteThreshold();
+    if ( doMute ) retdata->mute( muteThreshold );
+
+    return retdata;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -465,7 +493,15 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     auto data1 = m_seismicData1->sliceData( worldX1, worldY1, worldX2, worldY2, zMin, zMax );
     auto data2 = m_seismicData1->sliceData( worldX1, worldY1, worldX2, worldY2, zMin, zMax );
 
-    return data1;
+    auto retdata = difference( data1.get(), data2.get() );
+
+    const auto [minVal, maxVal] = dataRangeMinMax();
+    retdata->limitTo( minVal, maxVal );
+
+    auto [doMute, muteThreshold] = m_userMuteThreshold();
+    if ( doMute ) retdata->mute( muteThreshold );
+
+    return retdata;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -479,4 +515,99 @@ float RimSeismicDifferenceData::valueAt( cvf::Vec3d worldCoord )
     float val2 = m_seismicData2->valueAt( worldCoord );
 
     return val1 - val2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimSeismicDifferenceData::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_seismicData1 )
+    {
+        RimTools::seismicDataOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_seismicData2 )
+    {
+        RimProject* proj = RimProject::current();
+        if ( ( proj != nullptr ) && ( m_seismicData1() != nullptr ) )
+        {
+            const auto& coll = proj->activeOilField()->seismicCollection().p();
+
+            for ( auto seisData : coll->seismicData() )
+            {
+                if ( m_seismicData1()->gridIsEqual( seisData ) )
+                {
+                    options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( seisData->userDescription() ),
+                                                               seisData,
+                                                               false,
+                                                               seisData->uiIconProvider() ) );
+                }
+            }
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicDifferenceData::difference( ZGYAccess::SeismicSliceData* data1,
+                                                                                   ZGYAccess::SeismicSliceData* data2 )
+{
+    std::shared_ptr<ZGYAccess::SeismicSliceData> retData = std::make_shared<ZGYAccess::SeismicSliceData>( data1->width(), data1->depth() );
+
+    float* pInput1 = data1->values();
+    float* pInput2 = data2->values();
+    float* pOutput = retData->values();
+
+    const int nValues = retData->size();
+
+    for ( int i = 0; i < nValues; i++, pInput1++, pInput2++, pOutput++ )
+    {
+        *pOutput = *pInput1 - *pInput2;
+    }
+
+    return retData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicDifferenceData::generateHistogram()
+{
+    auto [minVal, maxVal] = m_fileDataRange;
+
+    auto generator = std::make_unique<ZGYAccess::HistogramGenerator>( 201, minVal, maxVal );
+
+    const int iLineMin  = m_seismicData1->inlineMin();
+    const int iLineMax  = m_seismicData1->inlineMax();
+    const int iLineStep = m_seismicData1->inlineStep();
+
+    const double zMin = m_seismicData1->zMin();
+    const double zMax = m_seismicData1->zMax();
+
+    for ( int iline = iLineMin; iline <= iLineMax; iline += iLineStep )
+    {
+        auto slicedata = sliceData( RiaDefines::SeismicSliceDirection::INLINE, iline, zMin, zMax );
+
+        if ( slicedata->size() > 0 )
+        {
+            std::vector<float> vec( slicedata->values(), slicedata->values() + slicedata->size() );
+
+            generator->addData( vec );
+
+            minVal = std::min( minVal, (double)*std::min_element( vec.begin(), vec.end() ) );
+            maxVal = std::max( maxVal, (double)*std::max_element( vec.begin(), vec.end() ) );
+        }
+    }
+
+    auto hist = generator->getHistogram();
+
+    m_histogramXvalues = hist->Xvalues;
+    m_histogramYvalues = hist->Yvalues;
+
+    m_fileDataRange = std::make_pair( minVal, maxVal );
 }

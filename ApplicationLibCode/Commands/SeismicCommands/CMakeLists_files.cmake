@@ -7,6 +7,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineSeismicSectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellpathSeismicSectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSeismicSectionFromIntersectionFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewSeismicDifferenceFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -18,6 +19,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineSeismicSectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellpathSeismicSectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSeismicSectionFromIntersectionFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewSeismicDifferenceFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

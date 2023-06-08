@@ -24,7 +24,9 @@
 
 #include <QString>
 
+class RimSeismicDataInterface;
 class RimSeismicData;
+class RimSeismicDifferenceData;
 
 class RimSeismicDataCollection : public caf::PdmObject
 {
@@ -34,11 +36,13 @@ public:
     RimSeismicDataCollection();
     ~RimSeismicDataCollection() override;
 
-    RimSeismicData* importSeismicFromFile( const QString file );
+    RimSeismicDataInterface* importSeismicFromFile( const QString file );
+    RimSeismicDataInterface* createDifferenceSeismicData( RimSeismicData* data1, RimSeismicData* data2 );
 
     bool isEmpty();
 
-    std::vector<RimSeismicData*> seismicData() const;
+    std::vector<RimSeismicData*>           seismicData() const;
+    std::vector<RimSeismicDifferenceData*> differenceData() const;
 
 protected:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
@@ -46,5 +50,6 @@ protected:
     void updateTreeForAllViews();
 
 private:
-    caf::PdmChildArrayField<RimSeismicData*> m_seismicData;
+    caf::PdmChildArrayField<RimSeismicData*>           m_seismicData;
+    caf::PdmChildArrayField<RimSeismicDifferenceData*> m_differenceData;
 };

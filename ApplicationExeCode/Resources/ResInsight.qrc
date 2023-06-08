@@ -273,7 +273,8 @@
         <file>DataVectorCalculated.svg</file>
         <file>open-text-editor.svg</file>
         <file>Seismic16x16.png</file>
-        <file>Fullscreen.png</file>
+		<file>SeismicDelta16x16.png</file>
+		<file>Fullscreen.png</file>
         <file>plot-template-standard.svg</file>
         <file>plot-template-ensemble.svg</file>
         <file>decline-curve.svg</file>

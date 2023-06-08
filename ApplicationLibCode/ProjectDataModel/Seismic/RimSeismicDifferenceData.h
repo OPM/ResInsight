@@ -84,18 +84,22 @@ protected:
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    std::shared_ptr<ZGYAccess::SeismicSliceData> difference( ZGYAccess::SeismicSliceData* data1, ZGYAccess::SeismicSliceData* data2 );
 
 private:
     void updateDataRange( bool updatePlot );
     void initColorLegend();
     void updateMetaData();
     bool isInputDataOK() const;
+    void generateHistogram();
 
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
-    caf::PdmField<bool>   m_overrideDataRange;
-    caf::PdmField<double> m_userClipValue;
+    caf::PdmField<std::pair<bool, double>> m_userClipValue;
+    caf::PdmField<std::pair<bool, double>> m_userMuteThreshold;
 
     caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData1;
     caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData2;

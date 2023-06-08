@@ -24,6 +24,7 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimSeismicData.h"
+#include "RimSeismicDifferenceData.h"
 #include "RimSeismicSectionCollection.h"
 
 #include <QFile>
@@ -41,6 +42,9 @@ RimSeismicDataCollection::RimSeismicDataCollection()
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
     m_seismicData.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_differenceData, "DifferenceData", "Seismic Difference Data" );
+    m_differenceData.uiCapability()->setUiTreeHidden( true );
+
     setDeletable( false );
 }
 
@@ -54,7 +58,7 @@ RimSeismicDataCollection::~RimSeismicDataCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicData* RimSeismicDataCollection::importSeismicFromFile( const QString fileName )
+RimSeismicDataInterface* RimSeismicDataCollection::importSeismicFromFile( const QString fileName )
 {
     RimSeismicData* seisData = new RimSeismicData();
     seisData->setFileName( fileName );
@@ -75,6 +79,14 @@ RimSeismicData* RimSeismicDataCollection::importSeismicFromFile( const QString f
 std::vector<RimSeismicData*> RimSeismicDataCollection::seismicData() const
 {
     return m_seismicData.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSeismicDifferenceData*> RimSeismicDataCollection::differenceData() const
+{
+    return m_differenceData.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,4 +136,24 @@ void RimSeismicDataCollection::updateTreeForAllViews()
             view->updateAllRequiredEditors();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicDataInterface* RimSeismicDataCollection::createDifferenceSeismicData( RimSeismicData* data1, RimSeismicData* data2 )
+{
+    if ( ( data1 == nullptr ) || ( data2 == nullptr ) ) return nullptr;
+
+    if ( !data1->gridIsEqual( data2 ) ) return nullptr;
+
+    RimSeismicDifferenceData* retdata = new RimSeismicDifferenceData();
+    retdata->setInputData( data1, data2 );
+
+    m_differenceData.push_back( retdata );
+
+    updateAllRequiredEditors();
+    if ( m_differenceData.size() == 1 ) updateTreeForAllViews();
+
+    return retdata;
 }

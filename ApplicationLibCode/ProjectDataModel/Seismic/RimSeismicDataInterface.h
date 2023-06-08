@@ -45,6 +45,10 @@ class RimSeismicDataInterface : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
+protected:
+    RimSeismicDataInterface();
+    ~RimSeismicDataInterface() override;
+
 public:
     virtual double zMin() const  = 0;
     virtual double zMax() const  = 0;
@@ -82,4 +86,6 @@ public:
     virtual cvf::BoundingBox* boundingBox() const = 0;
 
     virtual std::string userDescription() const = 0;
+
+    virtual bool gridIsEqual( RimSeismicDataInterface* other );
 };

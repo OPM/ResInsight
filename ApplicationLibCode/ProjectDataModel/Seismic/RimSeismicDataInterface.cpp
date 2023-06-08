@@ -19,3 +19,31 @@
 #include "RimSeismicDataInterface.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimSeismicDataInterface, "SeismicDataInterface" ); // Abstract class.
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicDataInterface::RimSeismicDataInterface()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicDataInterface::~RimSeismicDataInterface()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSeismicDataInterface::gridIsEqual( RimSeismicDataInterface* other )
+{
+    if ( other == nullptr ) return false;
+
+    bool equal = ( inlineMin() == other->inlineMin() ) && ( inlineMax() == other->inlineMax() ) && ( inlineStep() == other->inlineStep() );
+    equal = equal && ( xlineMin() == other->xlineMin() ) && ( xlineMax() == other->xlineMax() ) && ( xlineStep() == other->xlineStep() );
+    equal = equal && ( zMin() == other->zMin() ) && ( zMax() == other->zMax() ) && ( zStep() == other->zStep() );
+
+    return equal;
+}

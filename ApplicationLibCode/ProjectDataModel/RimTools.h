@@ -60,7 +60,8 @@ public:
     static void eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
-    static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox );
+    static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly = false );
+    static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options );
 
     static RimWellPathCollection* wellPathCollection();
     static RimWellPath*           firstWellPath();
