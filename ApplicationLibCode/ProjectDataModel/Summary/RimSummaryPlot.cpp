@@ -1351,6 +1351,7 @@ RimTimeAxisAnnotation* RimSummaryPlot::addTimeAnnotation( time_t time )
 
     auto* annotation = new RimTimeAxisAnnotation;
     annotation->setTime( time );
+    annotation->setDefaultColor();
 
     axisProps->appendAnnotation( annotation );
     return annotation;
@@ -1365,6 +1366,7 @@ RimTimeAxisAnnotation* RimSummaryPlot::addTimeRangeAnnotation( time_t startTime,
 
     auto* annotation = new RimTimeAxisAnnotation;
     annotation->setTimeRange( startTime, endTime );
+    annotation->setDefaultColor();
 
     axisProps->appendAnnotation( annotation );
     return annotation;

@@ -25,6 +25,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfColor3.h"
+
 #include <QString>
 
 //==================================================================================================
@@ -42,6 +44,14 @@ public:
     void   setTimeRange( time_t startTime, time_t endTime );
     QColor color() const override;
 
+    void setColor( const cvf::Color3f& color );
+    void setDefaultColor();
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
+
+    static QColor defaultColor( AnnotationType annotationType );
+
+    caf::PdmField<cvf::Color3f> m_color;
 };
