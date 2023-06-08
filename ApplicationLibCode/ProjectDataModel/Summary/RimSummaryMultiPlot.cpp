@@ -500,10 +500,15 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         setAutoValueStates();
         analyzePlotsAndAdjustAppearanceSettings();
     }
-    else
+    else if ( changedField == &m_plotWindowTitle )
     {
-        RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+        // If the user has changed the plot title, disable the auto plot title
+        // Workaround for https://github.com/OPM/ResInsight/issues/9681
+
+        m_autoPlotTitle = false;
     }
+
+    RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
