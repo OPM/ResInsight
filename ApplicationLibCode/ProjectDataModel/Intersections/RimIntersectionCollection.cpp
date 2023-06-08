@@ -31,6 +31,7 @@
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
+#include "RimProject.h"
 #include "RimSimWellInView.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -557,6 +558,17 @@ void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle
                 doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.03.0" ) )
+    {
+        m_applyCellFilters = false;
     }
 }
 
