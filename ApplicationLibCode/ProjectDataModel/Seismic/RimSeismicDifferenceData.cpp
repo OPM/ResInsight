@@ -74,10 +74,6 @@ RimSeismicDifferenceData::RimSeismicDifferenceData()
     m_nameProxy.uiCapability()->setUiHidden( true );
     m_nameProxy.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
-    m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig.uiCapability()->setUiTreeHidden( true );
-
     CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 1.0 ), "Clip Value" );
     CAF_PDM_InitField( &m_userMuteThreshold,
                        "userMuteThreshold",
@@ -210,17 +206,6 @@ void RimSeismicDifferenceData::updateMetaData()
     m_fileDataRange = std::make_pair( std::min( min1, min2 ), std::max( max1, max2 ) );
 
     generateHistogram();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicDifferenceData::initColorLegend()
-{
-    m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
-    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
-    m_legendConfig->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
-    m_legendConfig->setCenterLegendAroundZero( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -493,22 +478,6 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     if ( doMute ) retdata->mute( muteThreshold );
 
     return retdata;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimSeismicDifferenceData::legendConfig() const
-{
-    return m_legendConfig();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSeismicAlphaMapper* RimSeismicDifferenceData::alphaValueMapper() const
-{
-    return m_alphaValueMapper.get();
 }
 
 //--------------------------------------------------------------------------------------------------

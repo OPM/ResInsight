@@ -18,6 +18,8 @@
 
 #include "RimSeismicDataInterface.h"
 
+#include "RimRegularLegendConfig.h"
+
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimSeismicDataInterface, "SeismicDataInterface" ); // Abstract class.
 
 //--------------------------------------------------------------------------------------------------
@@ -25,6 +27,11 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimSeismicDataInterface, "SeismicDataInterface
 //--------------------------------------------------------------------------------------------------
 RimSeismicDataInterface::RimSeismicDataInterface()
 {
+    CAF_PDM_InitObject( "SeismicDataBase" );
+
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
+    m_legendConfig = new RimRegularLegendConfig();
+    m_legendConfig.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,4 +53,31 @@ bool RimSeismicDataInterface::gridIsEqual( RimSeismicDataInterface* other )
     equal = equal && ( zMin() == other->zMin() ) && ( zMax() == other->zMax() ) && ( zStep() == other->zStep() );
 
     return equal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRegularLegendConfig* RimSeismicDataInterface::legendConfig() const
+{
+    return m_legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicDataInterface::initColorLegend()
+{
+    m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
+    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
+    m_legendConfig->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
+    m_legendConfig->setCenterLegendAroundZero( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicAlphaMapper* RimSeismicDataInterface::alphaValueMapper() const
+{
+    return m_alphaValueMapper.get();
 }

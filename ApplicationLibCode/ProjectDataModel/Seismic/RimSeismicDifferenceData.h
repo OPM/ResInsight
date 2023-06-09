@@ -73,9 +73,6 @@ public:
 
     std::pair<double, double> dataRangeMinMax() const override;
 
-    RimRegularLegendConfig* legendConfig() const override;
-    RimSeismicAlphaMapper*  alphaValueMapper() const override;
-
     cvf::BoundingBox* boundingBox() const override;
 
     QString fullName() const;
@@ -93,14 +90,12 @@ protected:
 
 private:
     void updateDataRange( bool updatePlot );
-    void initColorLegend();
     void updateMetaData();
     bool isInputDataOK() const;
     void generateHistogram();
 
-    caf::PdmField<QString>                      m_userDescription;
-    caf::PdmProxyValueField<QString>            m_nameProxy;
-    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
+    caf::PdmField<QString>           m_userDescription;
+    caf::PdmProxyValueField<QString> m_nameProxy;
 
     caf::PdmField<std::pair<bool, double>> m_userClipValue;
     caf::PdmField<std::pair<bool, double>> m_userMuteThreshold;
@@ -118,8 +113,6 @@ private:
     std::vector<double> m_clippedAlphaValues;
 
     std::shared_ptr<cvf::BoundingBox> m_boundingBox;
-
-    std::shared_ptr<RimSeismicAlphaMapper> m_alphaValueMapper;
 
     bool m_inputDataOK;
 };

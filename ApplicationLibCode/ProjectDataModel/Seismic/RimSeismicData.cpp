@@ -66,10 +66,6 @@ RimSeismicData::RimSeismicData()
     CAF_PDM_InitFieldNoDefault( &m_filename, "SeismicFilePath", "File" );
     m_filename.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
-    m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig.uiCapability()->setUiTreeHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_metadata, "Metadata", "Metadata" );
     m_metadata.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_metadata.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -583,33 +579,6 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     if ( doMute ) data->mute( muteThreshold );
 
     return data;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimSeismicData::legendConfig() const
-{
-    return m_legendConfig();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSeismicAlphaMapper* RimSeismicData::alphaValueMapper() const
-{
-    return m_alphaValueMapper.get();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicData::initColorLegend()
-{
-    m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
-    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
-    m_legendConfig->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
-    m_legendConfig->setCenterLegendAroundZero( true );
 }
 
 //--------------------------------------------------------------------------------------------------

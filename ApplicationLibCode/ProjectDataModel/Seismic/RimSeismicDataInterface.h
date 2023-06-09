@@ -19,6 +19,8 @@
 
 #include "RiaSeismicDefines.h"
 
+#include "cafPdmChildField.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include "cvfVector3.h"
@@ -49,6 +51,13 @@ protected:
     RimSeismicDataInterface();
     ~RimSeismicDataInterface() override;
 
+    // common functionality
+public:
+    virtual bool                    gridIsEqual( RimSeismicDataInterface* other );
+    virtual RimRegularLegendConfig* legendConfig() const;
+    virtual RimSeismicAlphaMapper*  alphaValueMapper() const;
+
+    // interface to be implemented by subclasses
 public:
     virtual double zMin() const  = 0;
     virtual double zMax() const  = 0;
@@ -80,12 +89,14 @@ public:
 
     virtual std::pair<double, double> dataRangeMinMax() const = 0;
 
-    virtual RimRegularLegendConfig* legendConfig() const     = 0;
-    virtual RimSeismicAlphaMapper*  alphaValueMapper() const = 0;
-
     virtual cvf::BoundingBox* boundingBox() const = 0;
 
     virtual std::string userDescription() const = 0;
 
-    virtual bool gridIsEqual( RimSeismicDataInterface* other );
+protected:
+    void initColorLegend();
+
+protected:
+    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
+    std::shared_ptr<RimSeismicAlphaMapper>      m_alphaValueMapper;
 };

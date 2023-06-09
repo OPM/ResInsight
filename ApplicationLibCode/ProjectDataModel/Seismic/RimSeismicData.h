@@ -73,9 +73,6 @@ public:
 
     std::pair<double, double> dataRangeMinMax() const override;
 
-    RimRegularLegendConfig* legendConfig() const override;
-    RimSeismicAlphaMapper*  alphaValueMapper() const override;
-
     cvf::BoundingBox* boundingBox() const override;
 
 protected:
@@ -93,7 +90,6 @@ private:
     void updateDataRange( bool updatePlot );
     bool openFileIfNotOpen();
     void logError( QString msg );
-    void initColorLegend();
 
     int toInlineIndex( int inLine ) const;
     int toXlineIndex( int xLine ) const;
@@ -120,8 +116,6 @@ private:
     std::vector<cvf::Vec3d>           m_worldOutline;
     std::pair<double, double>         m_activeDataRange;
     std::pair<double, double>         m_fileDataRange;
-
-    std::shared_ptr<RimSeismicAlphaMapper> m_alphaValueMapper;
 
     std::shared_ptr<RifSeismicReader> m_filereader;
     int                               m_nErrorsLogged;
