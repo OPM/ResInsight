@@ -33,7 +33,7 @@
 #include "LinearRegression.hpp"
 #include "LogarithmicRegression.hpp"
 #include "LogisticRegression.hpp"
-#include "PolynominalRegression.hpp"
+#include "PolynomialRegression.hpp"
 #include "PowerFitRegression.hpp"
 
 #include <QDateTime>
@@ -49,7 +49,7 @@ template <>
 void caf::AppEnum<RimSummaryRegressionAnalysisCurve::RegressionType>::setUp()
 {
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LINEAR, "LINEAR", "Linear" );
-    addItem( RimSummaryRegressionAnalysisCurve::RegressionType::POLYNOMINAL, "POLYNOMINAL", "Polynominal" );
+    addItem( RimSummaryRegressionAnalysisCurve::RegressionType::POLYNOMIAL, "POLYNOMIAL", "Polynomial" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::POWER_FIT, "POWER_FIT", "Power Fit" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::EXPONENTIAL, "EXPONENTIAL", "Exponential" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LOGARITHMIC, "LOGARITHMIC", "Logarithmic" );
@@ -79,7 +79,7 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     CAF_PDM_InitField( &m_forecastForward, "ForecastForward", 0, "Forward" );
     CAF_PDM_InitField( &m_forecastBackward, "ForecastBackward", 0, "Backward" );
     CAF_PDM_InitFieldNoDefault( &m_forecastUnit, "ForecastUnit", "Unit" );
-    CAF_PDM_InitField( &m_polynominalDegree, "PolynominalDegree", 3, "Degree" );
+    CAF_PDM_InitField( &m_polynomialDegree, "PolynomialDegree", 3, "Degree" );
 
     CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From" );
     m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -183,12 +183,12 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
         std::vector<double> predictedValues = linearRegression.predict( outputTimeStepsD );
         return { outputTimeSteps, predictedValues, generateRegressionText( linearRegression ) };
     }
-    else if ( m_regressionType == RegressionType::POLYNOMINAL )
+    else if ( m_regressionType == RegressionType::POLYNOMIAL )
     {
-        regression::PolynominalRegression polynominalRegression;
-        polynominalRegression.fit( timeStepsD, valuesInRange, m_polynominalDegree );
-        std::vector<double> predictedValues = polynominalRegression.predict( outputTimeStepsD );
-        return { outputTimeSteps, predictedValues, generateRegressionText( polynominalRegression ) };
+        regression::PolynomialRegression polynomialRegression;
+        polynomialRegression.fit( timeStepsD, valuesInRange, m_polynomialDegree );
+        std::vector<double> predictedValues = polynomialRegression.predict( outputTimeStepsD );
+        return { outputTimeSteps, predictedValues, generateRegressionText( polynomialRegression ) };
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
@@ -235,9 +235,9 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
     caf::PdmUiGroup* regressionCurveGroup = uiOrdering.addNewGroup( "Regression Analysis" );
     regressionCurveGroup->add( &m_regressionType );
 
-    if ( m_regressionType == RegressionType::POLYNOMINAL )
+    if ( m_regressionType == RegressionType::POLYNOMIAL )
     {
-        regressionCurveGroup->add( &m_polynominalDegree );
+        regressionCurveGroup->add( &m_polynomialDegree );
     }
 
     regressionCurveGroup->add( &m_expressionText );
@@ -273,7 +273,7 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
     }
 
     RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_regressionType || changedField == &m_polynominalDegree || changedField == &m_forecastBackward ||
+    if ( changedField == &m_regressionType || changedField == &m_polynomialDegree || changedField == &m_forecastBackward ||
          changedField == &m_forecastForward || changedField == &m_forecastUnit || changedField == &m_minTimeStep ||
          changedField == &m_maxTimeStep || changedField == &m_showTimeSelectionInPlot )
     {
@@ -293,11 +293,11 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
 {
     RimSummaryCurve::defineEditorAttribute( field, uiConfigName, attribute );
 
-    if ( field == &m_polynominalDegree )
+    if ( field == &m_polynomialDegree )
     {
         if ( auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute ) )
         {
-            // Polynominal degree should be a positive number.
+            // Polynomial degree should be a positive number.
             lineEditorAttr->validator = new QIntValidator( 1, 50, nullptr );
         }
     }
@@ -370,7 +370,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PolynominalRegression& reg )
+QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PolynomialRegression& reg )
 {
     QString str = "y = ";
 

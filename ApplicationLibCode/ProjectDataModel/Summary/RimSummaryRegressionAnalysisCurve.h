@@ -32,7 +32,7 @@ class ExponentialRegression;
 class LinearRegression;
 class LogarithmicRegression;
 class LogisticRegression;
-class PolynominalRegression;
+class PolynomialRegression;
 class PowerFitRegression;
 } // namespace regression
 
@@ -50,7 +50,7 @@ public:
     enum class RegressionType
     {
         LINEAR,
-        POLYNOMINAL,
+        POLYNOMIAL,
         POWER_FIT,
         EXPONENTIAL,
         LOGARITHMIC,
@@ -106,7 +106,7 @@ private:
         getInRangeValues( const std::vector<time_t>& timeSteps, const std::vector<double>& values, time_t minTimeStep, time_t maxTimeStep );
 
     static QString generateRegressionText( const regression::LinearRegression& reg );
-    static QString generateRegressionText( const regression::PolynominalRegression& reg );
+    static QString generateRegressionText( const regression::PolynomialRegression& reg );
     static QString generateRegressionText( const regression::PowerFitRegression& reg );
     static QString generateRegressionText( const regression::LogarithmicRegression& reg );
     static QString generateRegressionText( const regression::ExponentialRegression& reg );
@@ -121,7 +121,7 @@ private:
     caf::PdmField<time_t>                       m_maxTimeStep;
     caf::PdmField<bool>                         m_showTimeSelectionInPlot;
 
-    caf::PdmField<int>                        m_polynominalDegree;
+    caf::PdmField<int>                        m_polynomialDegree;
     caf::PdmField<QString>                    m_expressionText;
     caf::PdmField<int>                        m_forecastForward;
     caf::PdmField<int>                        m_forecastBackward;
