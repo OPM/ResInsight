@@ -31,7 +31,6 @@ namespace regression
 class ExponentialRegression;
 class LinearRegression;
 class LogarithmicRegression;
-class LogisticRegression;
 class PolynomialRegression;
 class PowerFitRegression;
 } // namespace regression
@@ -110,7 +109,6 @@ private:
     static QString generateRegressionText( const regression::PowerFitRegression& reg );
     static QString generateRegressionText( const regression::LogarithmicRegression& reg );
     static QString generateRegressionText( const regression::ExponentialRegression& reg );
-    static QString generateRegressionText( const regression::LogisticRegression& reg );
 
     static QString formatDouble( double v );
 
