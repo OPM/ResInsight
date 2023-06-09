@@ -289,7 +289,7 @@ void RicSaveMultiPlotTemplateFeature::replaceStrings( const std::set<QString>& s
 void RicSaveMultiPlotTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Save As Plot Template" );
-    actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/plot-template-standard.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

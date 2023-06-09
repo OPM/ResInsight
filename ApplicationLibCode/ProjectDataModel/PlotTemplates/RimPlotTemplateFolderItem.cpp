@@ -243,7 +243,7 @@ void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QL
         }
     }
 
-    caf::IconProvider templateIcon( ":/SummaryTemplate16x16.png" );
+    caf::IconProvider templateIcon( ":/plot-template-standard.svg" );
     caf::IconProvider ensTemplateIcon( ":/SummaryEnsembleTemplate16x16.png" );
 
     auto files = templateFolderItem->fileItems();

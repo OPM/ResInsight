@@ -145,7 +145,6 @@
         <file>SummaryPlotLight16x16.png</file>
         <file>SummaryPlots16x16.png</file>
         <file>SummaryPlotsLight16x16.png</file>
-        <file>SummaryTemplate16x16.png</file>
         <file>SummaryEnsembleTemplate16x16.png</file>
         <file>SummaryXPlotLight16x16.png</file>
         <file>SummaryXPlotsLight16x16.png</file>
@@ -276,6 +275,8 @@
         <file>open-text-editor.svg</file>
         <file>Seismic16x16.png</file>
         <file>Fullscreen.png</file>
+        <file>plot-template-standard.svg</file>
+        <file>plot-template-ensemble.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
