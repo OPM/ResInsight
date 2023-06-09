@@ -72,7 +72,7 @@ void caf::AppEnum<RimSummaryRegressionAnalysisCurve::ForecastUnit>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
 {
-    CAF_PDM_InitObject( "Regression Analysis Curve", ":/SummaryCurve16x16.png" );
+    CAF_PDM_InitObject( "Regression Analysis Curve", ":/regression-curve.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_regressionType, "RegressionType", "Type" );
     CAF_PDM_InitField( &m_forecastForward, "ForecastForward", 0, "Forward" );

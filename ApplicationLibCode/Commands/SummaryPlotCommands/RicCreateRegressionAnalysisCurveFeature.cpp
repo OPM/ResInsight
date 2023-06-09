@@ -64,7 +64,7 @@ void RicCreateRegressionAnalysisCurveFeature::onActionTriggered( bool isChecked 
 void RicCreateRegressionAnalysisCurveFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Regression Analysis Curve" );
-    actionToSetup->setIcon( QIcon( ":/SummaryCurve16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/regression-curve.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

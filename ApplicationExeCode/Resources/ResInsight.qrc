@@ -276,6 +276,8 @@
         <file>Fullscreen.png</file>
         <file>plot-template-standard.svg</file>
         <file>plot-template-ensemble.svg</file>
+        <file>decline-curve.svg</file>
+        <file>regression-curve.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
