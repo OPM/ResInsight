@@ -97,9 +97,6 @@ private:
     caf::PdmField<QString>           m_userDescription;
     caf::PdmProxyValueField<QString> m_nameProxy;
 
-    caf::PdmField<std::pair<bool, double>> m_userClipValue;
-    caf::PdmField<std::pair<bool, double>> m_userMuteThreshold;
-
     caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData1;
     caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData2;
 
@@ -111,8 +108,6 @@ private:
     std::vector<double> m_clippedHistogramXvalues;
     std::vector<double> m_clippedHistogramYvalues;
     std::vector<double> m_clippedAlphaValues;
-
-    std::shared_ptr<cvf::BoundingBox> m_boundingBox;
 
     bool m_inputDataOK;
 };

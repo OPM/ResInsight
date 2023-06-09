@@ -99,4 +99,8 @@ protected:
 protected:
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     std::shared_ptr<RimSeismicAlphaMapper>      m_alphaValueMapper;
+    std::shared_ptr<cvf::BoundingBox>           m_boundingBox;
+
+    caf::PdmField<std::pair<bool, double>> m_userClipValue;
+    caf::PdmField<std::pair<bool, double>> m_userMuteThreshold;
 };

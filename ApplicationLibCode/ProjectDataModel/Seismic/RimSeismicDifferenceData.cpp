@@ -74,23 +74,10 @@ RimSeismicDifferenceData::RimSeismicDifferenceData()
     m_nameProxy.uiCapability()->setUiHidden( true );
     m_nameProxy.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 1.0 ), "Clip Value" );
-    CAF_PDM_InitField( &m_userMuteThreshold,
-                       "userMuteThreshold",
-                       std::make_pair( false, 0.0 ),
-                       "Mute Threshold",
-                       "",
-                       "Samples with an absolute value below the threshold will be replaced with 0." );
-
     CAF_PDM_InitFieldNoDefault( &m_seismicData1, "SeismicData1", "Seismic Data 1" );
     CAF_PDM_InitFieldNoDefault( &m_seismicData2, "SeismicData2", "Seismic Data 2" );
 
     setDeletable( true );
-
-    m_boundingBox      = std::make_shared<cvf::BoundingBox>();
-    m_alphaValueMapper = std::make_shared<RimSeismicAlphaMapper>();
-
-    initColorLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

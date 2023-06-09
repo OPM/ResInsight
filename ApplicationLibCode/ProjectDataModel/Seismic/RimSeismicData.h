@@ -101,21 +101,17 @@ private:
     caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
     caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;
 
-    caf::PdmField<std::pair<bool, double>> m_userClipValue;
-    caf::PdmField<std::pair<bool, double>> m_userMuteThreshold;
-
-    double                            m_zStep;
-    cvf::Vec3i                        m_inlineInfo;
-    cvf::Vec3i                        m_xlineInfo;
-    std::shared_ptr<cvf::BoundingBox> m_boundingBox;
-    std::vector<double>               m_histogramXvalues;
-    std::vector<double>               m_histogramYvalues;
-    std::vector<double>               m_clippedHistogramXvalues;
-    std::vector<double>               m_clippedHistogramYvalues;
-    std::vector<double>               m_clippedAlphaValues;
-    std::vector<cvf::Vec3d>           m_worldOutline;
-    std::pair<double, double>         m_activeDataRange;
-    std::pair<double, double>         m_fileDataRange;
+    double                    m_zStep;
+    cvf::Vec3i                m_inlineInfo;
+    cvf::Vec3i                m_xlineInfo;
+    std::vector<double>       m_histogramXvalues;
+    std::vector<double>       m_histogramYvalues;
+    std::vector<double>       m_clippedHistogramXvalues;
+    std::vector<double>       m_clippedHistogramYvalues;
+    std::vector<double>       m_clippedAlphaValues;
+    std::vector<cvf::Vec3d>   m_worldOutline;
+    std::pair<double, double> m_activeDataRange;
+    std::pair<double, double> m_fileDataRange;
 
     std::shared_ptr<RifSeismicReader> m_filereader;
     int                               m_nErrorsLogged;

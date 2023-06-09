@@ -19,6 +19,9 @@
 #include "RimSeismicDataInterface.h"
 
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicAlphaMapper.h"
+
+#include "cvfBoundingBox.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimSeismicDataInterface, "SeismicDataInterface" ); // Abstract class.
 
@@ -32,6 +35,19 @@ RimSeismicDataInterface::RimSeismicDataInterface()
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 1.0 ), "Clip Value" );
+    CAF_PDM_InitField( &m_userMuteThreshold,
+                       "userMuteThreshold",
+                       std::make_pair( false, 0.0 ),
+                       "Mute Threshold",
+                       "",
+                       "Samples with an absolute value below the threshold will be replaced with 0." );
+
+    m_alphaValueMapper = std::make_shared<RimSeismicAlphaMapper>();
+    m_boundingBox      = std::make_shared<cvf::BoundingBox>();
+
+    initColorLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

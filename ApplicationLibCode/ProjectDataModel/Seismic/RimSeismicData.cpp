@@ -74,20 +74,7 @@ RimSeismicData::RimSeismicData()
     m_metadata.uiCapability()->setUiReadOnly( true );
     m_metadata.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 0.0 ), "Clip Value" );
-    CAF_PDM_InitField( &m_userMuteThreshold,
-                       "userMuteThreshold",
-                       std::make_pair( false, 0.0 ),
-                       "Mute Threshold",
-                       "",
-                       "Samples with an absolute value below the threshold will be replaced with 0." );
-
     setDeletable( true );
-
-    m_boundingBox      = std::make_shared<cvf::BoundingBox>();
-    m_alphaValueMapper = std::make_shared<RimSeismicAlphaMapper>();
-
-    initColorLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
