@@ -79,6 +79,8 @@ void RicNewDerivedSummaryFeature::onActionTriggered( bool isChecked )
             derivedCase->createSummaryReaderInterface();
         }
 
+        RimProject::current()->assignCaseIdToSummaryCase( derivedCase );
+
         mainColl->addCase( derivedCase );
         derivedCase->updateDisplayNameFromCases();
 
