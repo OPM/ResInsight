@@ -23,6 +23,7 @@
 #include "RimAbstractCorrelationPlot.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmFieldCvfColor.h"
 
 #include <QDateTime>
 
@@ -79,4 +80,5 @@ private:
     caf::PdmField<bool>                 m_showOnlyTopNCorrelations;
     caf::PdmField<int>                  m_topNFilterCount;
     caf::PdmField<std::vector<QString>> m_selectedParametersList;
+    caf::PdmField<cvf::Color3f>         m_barColor;
 };

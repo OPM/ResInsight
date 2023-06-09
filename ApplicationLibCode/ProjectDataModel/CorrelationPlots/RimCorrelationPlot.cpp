@@ -18,8 +18,10 @@
 
 #include "RimCorrelationPlot.h"
 
+#include "RiaColorTools.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotItem.h"
@@ -70,6 +72,10 @@ RimCorrelationPlot::RimCorrelationPlot()
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
+    // Color taken from https://webviz-subsurface-example.azurewebsites.net/parameters-vs-rft
+    QColor qColor = QColor( "#3173b2" );
+    CAF_PDM_InitField( &m_barColor, "BarColor", RiaColorTools::fromQColorTo3f( qColor ), "Bar Color" );
+
     setLegendsVisible( false );
     setDeletable( true );
 }
@@ -90,9 +96,10 @@ RimCorrelationPlot::~RimCorrelationPlot()
 void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_showAbsoluteValues || changedField == &m_sortByAbsoluteValues ||
          changedField == &m_excludeParametersWithoutVariation || changedField == &m_selectedParametersList ||
-         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount )
+         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount || changedField == &m_barColor )
     {
         if ( changedField == &m_excludeParametersWithoutVariation )
         {
@@ -134,6 +141,7 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     plotGroup->add( &m_titleFontSize );
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
+    plotGroup->add( &m_barColor );
 
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     uiOrdering.skipRemainingFields( true );
@@ -176,6 +184,8 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
         m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
 
         RiuGroupedBarChartBuilder chartBuilder;
+
+        chartBuilder.setBarColor( RiaColorTools::toQColor( m_barColor() ) );
 
         addDataToChartBuilder( chartBuilder );
 

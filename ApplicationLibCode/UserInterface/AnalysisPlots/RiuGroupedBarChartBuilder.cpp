@@ -353,9 +353,10 @@ void RiuGroupedBarChartBuilder::addBarEntry( const QString& majorTickText,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGroupedBarChartBuilder::setLegendColorMap( const std::map<QString, QColor>& legendColors )
+void RiuGroupedBarChartBuilder::setBarColor( const QColor& color )
 {
-    m_legendColors = legendColors;
+    m_useBarColor = true;
+    m_barColor    = color;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -654,15 +655,11 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
     int idx = 0;
     for ( const auto& legendToBarPointsPair : legendToBarPointsMap )
     {
-        QColor legendColor = RiaColorTables::categoryPaletteColors().cycledQColor( idx );
+        QColor color = RiaColorTables::categoryPaletteColors().cycledQColor( idx );
 
-        auto legendColorPairIt = m_legendColors.find( legendToBarPointsPair.first );
-        if ( legendColorPairIt != m_legendColors.end() )
-        {
-            legendColor = legendColorPairIt->second;
-        }
+        if ( m_useBarColor ) color = m_barColor;
 
-        addQwtBarChart( plot, legendToBarPointsPair.second, legendToBarPointsPair.first, legendColor, barOrientation );
+        addQwtBarChart( plot, legendToBarPointsPair.second, legendToBarPointsPair.first, color, barOrientation );
         idx++;
     }
 
