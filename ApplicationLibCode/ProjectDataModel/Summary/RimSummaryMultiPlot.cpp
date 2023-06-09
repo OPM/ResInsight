@@ -417,9 +417,12 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
     titlesGroup->setCollapsedByDefault();
+
+    // If a checkbox is first in the group, it is not responding to mouse clicks. Set title as first element.
+    // https://github.com/OPM/ResInsight/issues/10321
+    titlesGroup->add( &m_plotWindowTitle );
     titlesGroup->add( &m_autoPlotTitle );
     titlesGroup->add( &m_showPlotWindowTitle );
-    titlesGroup->add( &m_plotWindowTitle );
     titlesGroup->add( &m_titleFontSize );
 
     auto subPlotSettingsGroup = uiOrdering.addNewGroup( "Sub Plot Settings" );
