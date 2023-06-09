@@ -53,7 +53,6 @@ void caf::AppEnum<RimSummaryRegressionAnalysisCurve::RegressionType>::setUp()
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::POWER_FIT, "POWER_FIT", "Power Fit" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::EXPONENTIAL, "EXPONENTIAL", "Exponential" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LOGARITHMIC, "LOGARITHMIC", "Logarithmic" );
-    addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LOGISTIC, "LOGISTIC", "Logistic" );
     setDefault( RimSummaryRegressionAnalysisCurve::RegressionType::LINEAR );
 }
 
@@ -213,13 +212,6 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
         logarithmicRegression.fit( filteredTimeSteps, filteredValues );
         std::vector<double> predictedValues = logarithmicRegression.predict( outputTimeStepsD );
         return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( logarithmicRegression ) };
-    }
-    else if ( m_regressionType == RegressionType::LOGISTIC )
-    {
-        regression::LogisticRegression logisticRegression;
-        logisticRegression.fit( timeStepsD, valuesInRange );
-        std::vector<double> predictedValues = logisticRegression.predict( outputTimeStepsD );
-        return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( logisticRegression ) };
     }
 
     return { timeSteps, values, "" };
@@ -429,15 +421,6 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 {
     return QString( "y = %1 + %2 * ln(x)" ).arg( formatDouble( reg.a() ) ).arg( formatDouble( reg.b() ) ) +
            QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LogisticRegression& reg )
-{
-    // TODO: Display more parameters here.
-    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
