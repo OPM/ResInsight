@@ -84,6 +84,7 @@ public:
     caf::Signal<>                plotZoomedByUser;
     caf::Signal<>                titleChanged;
     caf::Signal<RimSummaryPlot*> axisChangedReloadRequired;
+    caf::Signal<bool>            autoTitleChanged;
 
 public:
     RimSummaryPlot( bool isCrossPlot = false );
