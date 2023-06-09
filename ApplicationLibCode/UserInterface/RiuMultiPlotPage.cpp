@@ -31,6 +31,7 @@
 #include "RimPlotWindow.h"
 
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuGuiTheme.h"
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotObjectPicker.h"
@@ -1095,7 +1096,8 @@ std::pair<int, int> RiuMultiPlotPage::findAvailableRowAndColumn( int startRow, i
 void RiuMultiPlotPage::applyLook()
 {
     QPalette newPalette( palette() );
-    newPalette.setColor( QPalette::Window, Qt::white );
+    auto     backgroundColor = RiuGuiTheme::getColorByVariableName( "mainBackgroundColor" );
+    newPalette.setColor( QPalette::Window, backgroundColor );
     setPalette( newPalette );
 
     setAutoFillBackground( true );

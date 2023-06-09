@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QColor>
 #include <QPointF>
 #include <QString>
 #include <QVector>
@@ -27,7 +28,6 @@
 #include <set>
 
 class QwtPlot;
-class QColor;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -45,7 +45,7 @@ public:
                       const QString& barText,
                       const double   value );
 
-    void setLegendColorMap( const std::map<QString, QColor>& legendColors );
+    void setBarColor( const QColor& color );
 
     void addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation, int maxBarCount = -1 );
     void setLabelFontSize( int labelPointSize );
@@ -85,8 +85,10 @@ private:
         bool operator<( const BarEntry& other ) const;
     };
 
-    std::multiset<BarEntry>   m_sortedBarEntries;
-    std::map<QString, QColor> m_legendColors;
-    bool                      m_isSortingByMaxValueInGroups;
-    int                       m_labelPointSize;
+    std::multiset<BarEntry> m_sortedBarEntries;
+    bool                    m_isSortingByMaxValueInGroups;
+    int                     m_labelPointSize;
+
+    bool   m_useBarColor = false;
+    QColor m_barColor;
 };

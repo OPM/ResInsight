@@ -1285,9 +1285,6 @@ void RimPlotCurve::onColorTagClicked( const SignalEmitter* emitter, size_t index
 
     if ( newColor.isValid() && newColor != sourceColor )
     {
-        auto myColor = RiaColorTools::fromQColorTo3f( newColor );
-        m_curveAppearance->setColor( myColor );
-        updateCurveAppearance();
-        replotParentPlot();
+        m_curveAppearance->setColorWithFieldChanged( newColor );
     }
 }

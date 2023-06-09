@@ -127,6 +127,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     , titleChanged( this )
     , m_isValid( true )
     , axisChangedReloadRequired( this )
+    , autoTitleChanged( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -1618,6 +1619,16 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
+    if ( changedField == &m_description )
+    {
+        m_useAutoPlotTitle = false;
+    }
+
+    if ( changedField == &m_useAutoPlotTitle || changedField == &m_description )
+    {
+        autoTitleChanged.send( m_useAutoPlotTitle() );
+    }
+
     if ( changedField == &m_showPlotTitle || changedField == &m_description || changedField == &m_useAutoPlotTitle )
     {
         updatePlotTitle();
@@ -2600,7 +2611,6 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         mainOptions->add( &m_description );
         mainOptions->add( &m_colSpan );
     }
-    m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
     mainOptions->add( &m_normalizeCurveYValues );
 

@@ -212,6 +212,7 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
         sumPlot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         sumPlot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         sumPlot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
+        sumPlot->autoTitleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAutoTitleChanged );
 
         bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
         setAutoValueStatesForPlot( sumPlot, isMinMaxOverridden, m_autoAdjustAppearance() );
@@ -417,9 +418,12 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
     titlesGroup->setCollapsedByDefault();
+
+    // If a checkbox is first in the group, it is not responding to mouse clicks. Set title as first element.
+    // https://github.com/OPM/ResInsight/issues/10321
+    titlesGroup->add( &m_plotWindowTitle );
     titlesGroup->add( &m_autoPlotTitle );
     titlesGroup->add( &m_showPlotWindowTitle );
-    titlesGroup->add( &m_plotWindowTitle );
     titlesGroup->add( &m_titleFontSize );
 
     auto subPlotSettingsGroup = uiOrdering.addNewGroup( "Sub Plot Settings" );
@@ -500,10 +504,15 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         setAutoValueStates();
         analyzePlotsAndAdjustAppearanceSettings();
     }
-    else
+    else if ( changedField == &m_plotWindowTitle )
     {
-        RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+        // If the user has changed the plot title, disable the auto plot title
+        // Workaround for https://github.com/OPM/ResInsight/issues/9681
+
+        m_autoPlotTitle = false;
     }
+
+    RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -716,6 +725,7 @@ void RimSummaryMultiPlot::initAfterRead()
         plot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         plot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         plot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
+        plot->autoTitleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAutoTitleChanged );
     }
     updateStepDimensionFromDefault();
 }
@@ -1434,6 +1444,16 @@ void RimSummaryMultiPlot::onSubPlotAxisReloadRequired( const caf::SignalEmitter*
     {
         summaryPlot->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onSubPlotAutoTitleChanged( const caf::SignalEmitter* emitter, bool isEnabled )
+{
+    m_autoSubPlotTitle = isEnabled;
+
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

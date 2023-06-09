@@ -85,6 +85,7 @@ private:
     caf::PdmPtrField<RimCase*> m_case;
     caf::PdmField<int>         m_oneBasedSliceIndex;
     caf::PdmField<bool>        m_watertight;
+    caf::PdmField<bool>        m_includeInactiveCells;
 
     std::vector<unsigned>                      m_triangleIndices;
     std::vector<cvf::Vec3d>                    m_vertices;

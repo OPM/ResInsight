@@ -616,3 +616,47 @@ FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 for more details.
 
+===============================================================================
+ Notice for the open-vds library
+===============================================================================
+
+https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-vds/-/blob/master/LICENSE
+
+
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+
+===============================================================================
+ Notice for the open-zgy library
+===============================================================================
+
+https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-zgy/-/blob/master/LICENSE.txt
+
+
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+
+===============================================================================
+ Notice for the regression-analysis library
+===============================================================================
+
+https://github.com/CeetronSolutions/regression-analysis
+
+
+Copyright (C) 2023-     Equinor ASA
+
+regression-analysis is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+regression-analysis is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+for more details.

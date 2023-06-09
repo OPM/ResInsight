@@ -18,6 +18,8 @@
 
 #include "RimGridCaseSurface.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
 #include "RigSurface.h"
@@ -48,6 +50,7 @@ RimGridCaseSurface::RimGridCaseSurface()
     m_oneBasedSliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_watertight, "Watertight", false, "Watertight Surface (fill gaps)" );
+    CAF_PDM_InitScriptableField( &m_includeInactiveCells, "IncludeInactiveCells", false, "Include Inactive Cells" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,7 +141,8 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_case || changedField == &m_oneBasedSliceIndex || changedField == &m_watertight )
+    if ( changedField == &m_case || changedField == &m_oneBasedSliceIndex || changedField == &m_watertight ||
+         changedField == &m_includeInactiveCells )
     {
         clearCachedNativeData();
         updateSurfaceData();
@@ -284,6 +288,8 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
     {
         const RigMainGrid* grid = eclCase->mainGrid();
 
+        auto activeCells = eclCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeCellInfo();
+
         size_t minI = 0;
         size_t minJ = 0;
         size_t maxI = grid->cellCountI();
@@ -305,6 +311,12 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                 size_t      currentCellIndex = grid->cellIndexFromIJK( i, j, zeroBasedLayerIndex );
                 const auto& cell             = grid->cell( currentCellIndex );
                 if ( cell.isInvalid() ) continue;
+
+                if ( !m_includeInactiveCells() && activeCells )
+                {
+                    auto reservoirCellIndex = grid->reservoirCellIndex( currentCellIndex );
+                    if ( !activeCells->isActive( reservoirCellIndex ) ) continue;
+                }
 
                 cvf::Vec3d currentCornerVerts[8];
 
