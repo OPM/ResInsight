@@ -63,6 +63,7 @@ void RicNewSeismicDifferenceFeature::onActionTriggered( bool isChecked )
     }
 
     RimSeismicDataInterface* newData = seisColl->createDifferenceSeismicData( seismicInput[0], seismicInput[1] );
+
     // workaround to make tree selection work, otherwise "Cell Results" gets selected for some reason
     QApplication::processEvents();
 

@@ -25,6 +25,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 class RimGenericParameter;
@@ -77,6 +78,8 @@ public:
 
     cvf::BoundingBox* boundingBox() const override;
 
+    QString fullName() const;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -96,6 +99,7 @@ private:
     void generateHistogram();
 
     caf::PdmField<QString>                      m_userDescription;
+    caf::PdmProxyValueField<QString>            m_nameProxy;
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
     caf::PdmField<std::pair<bool, double>> m_userClipValue;

@@ -149,6 +149,7 @@ RimSeismicDataInterface* RimSeismicDataCollection::createDifferenceSeismicData( 
 
     RimSeismicDifferenceData* retdata = new RimSeismicDifferenceData();
     retdata->setInputData( data1, data2 );
+    retdata->setUserDescription( "Difference" );
 
     m_differenceData.push_back( retdata );
 

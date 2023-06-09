@@ -68,6 +68,12 @@ RimSeismicDifferenceData::RimSeismicDifferenceData()
 
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "SeismicUserDecription", "Name" );
 
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
+    m_nameProxy.registerGetMethod( this, &RimSeismicDifferenceData::fullName );
+    m_nameProxy.uiCapability()->setUiReadOnly( true );
+    m_nameProxy.uiCapability()->setUiHidden( true );
+    m_nameProxy.xmlCapability()->disableIO();
+
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
@@ -148,7 +154,30 @@ void RimSeismicDifferenceData::setUserDescription( QString description )
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSeismicDifferenceData::userDescriptionField()
 {
-    return &m_userDescription;
+    return &m_nameProxy;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSeismicDifferenceData::fullName() const
+{
+    QString name = m_userDescription();
+
+    if ( name.isEmpty() ) name = "Difference";
+
+    if ( isInputDataOK() )
+    {
+        name += QString( " [%1 - %2]" )
+                    .arg( QString::fromStdString( m_seismicData1->userDescription() ) )
+                    .arg( QString::fromStdString( m_seismicData2->userDescription() ) );
+    }
+    else
+    {
+        name += "  [Input data not valid]";
+    }
+
+    return name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,7 +231,7 @@ void RimSeismicDifferenceData::defineUiOrdering( QString uiConfigName, caf::PdmU
     auto genGroup = uiOrdering.addNewGroup( "General" );
     genGroup->add( &m_userDescription );
 
-    auto diffGroup = uiOrdering.addNewGroup( "Difference Data" );
+    auto diffGroup = uiOrdering.addNewGroup( "Input Data" );
     diffGroup->add( &m_seismicData1 );
     diffGroup->add( &m_seismicData2 );
 
