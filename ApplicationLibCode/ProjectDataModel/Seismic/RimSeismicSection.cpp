@@ -600,8 +600,16 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 {
     if ( m_texturedSection.isNull() ) m_texturedSection = new RigTexturedSection();
 
-    if ( m_texturedSection->isValid() || ( m_seismicData == nullptr ) || ( !m_seismicData->boundingBox()->isValid() ) )
+    if ( ( m_seismicData == nullptr ) || ( !m_seismicData->hasValidData() ) || ( !m_seismicData->boundingBox()->isValid() ) )
+    {
+        m_texturedSection->setWhatToUpdate( RigTexturedSection::WhatToUpdateEnum::UPDATE_ALL );
         return m_texturedSection;
+    }
+
+    if ( m_texturedSection->isValid() )
+    {
+        return m_texturedSection;
+    }
 
     std::vector<cvf::Vec3dArray> rects;
     std::vector<int>             widths;

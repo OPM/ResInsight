@@ -166,6 +166,14 @@ QString RimSeismicDifferenceData::fullName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSeismicDifferenceData::hasValidData() const
+{
+    return m_inputDataOK && ( m_seismicData1 != nullptr ) && ( m_seismicData2 != nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimSeismicDifferenceData::worldOutline() const
 {
     if ( !isInputDataOK() ) return {};
@@ -193,6 +201,14 @@ void RimSeismicDifferenceData::updateMetaData()
     m_fileDataRange = std::make_pair( std::min( min1, min2 ), std::max( max1, max2 ) );
 
     generateHistogram();
+
+    auto [minDataValue, maxDataValue] = m_fileDataRange;
+    double maxAbsDataValue            = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
+
+    auto [userClipEnabled, userClipValue] = m_userClipValue();
+    if ( userClipValue <= 0.0 ) userClipValue = maxAbsDataValue;
+    userClipValue   = std::clamp( userClipValue, 0.0, maxAbsDataValue );
+    m_userClipValue = std::make_pair( userClipEnabled, userClipValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -569,7 +585,7 @@ void RimSeismicDifferenceData::generateHistogram()
 {
     auto [minVal, maxVal] = m_fileDataRange;
 
-    auto generator = std::make_unique<ZGYAccess::HistogramGenerator>( 201, minVal, maxVal );
+    auto generator = std::make_unique<ZGYAccess::HistogramGenerator>( 200, minVal, maxVal );
 
     const int iLineMin  = m_seismicData1->inlineMin();
     const int iLineMax  = m_seismicData1->inlineMax();

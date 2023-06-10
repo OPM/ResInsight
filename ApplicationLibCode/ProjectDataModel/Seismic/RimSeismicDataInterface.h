@@ -93,6 +93,9 @@ public:
 
     virtual std::string userDescription() const = 0;
 
+    // optional subclass overrides
+    virtual bool hasValidData() const;
+
 protected:
     void initColorLegend();
 

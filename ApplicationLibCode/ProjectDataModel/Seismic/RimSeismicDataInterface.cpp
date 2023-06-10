@@ -36,7 +36,7 @@ RimSeismicDataInterface::RimSeismicDataInterface()
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 1.0 ), "Clip Value" );
+    CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 0.0 ), "Clip Value" );
     CAF_PDM_InitField( &m_userMuteThreshold,
                        "userMuteThreshold",
                        std::make_pair( false, 0.0 ),
@@ -77,6 +77,14 @@ bool RimSeismicDataInterface::gridIsEqual( RimSeismicDataInterface* other )
 RimRegularLegendConfig* RimSeismicDataInterface::legendConfig() const
 {
     return m_legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSeismicDataInterface::hasValidData() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

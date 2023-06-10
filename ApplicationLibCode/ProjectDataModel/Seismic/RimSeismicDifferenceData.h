@@ -77,6 +77,8 @@ public:
 
     QString fullName() const;
 
+    bool hasValidData() const override;
+
 protected:
     void                          initAfterRead() override;
     caf::PdmFieldHandle*          userDescriptionField() override;
