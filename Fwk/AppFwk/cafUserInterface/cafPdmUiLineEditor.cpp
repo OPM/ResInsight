@@ -107,8 +107,11 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
     if ( uiField()->isAutoValueSupported() )
     {
         // If we return the placeholder widget to be used in a table editor, Qt will crash when the editor is closed
+        m_placeholder->show();
         return m_placeholder;
     }
+
+    m_placeholder->hide();
 
     // Return line edit if no auto value is supported
     return m_lineEdit;

@@ -72,7 +72,7 @@ void caf::AppEnum<RimSummaryRegressionAnalysisCurve::ForecastUnit>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
 {
-    CAF_PDM_InitObject( "Regression Analysis Curve", ":/SummaryCurve16x16.png" );
+    CAF_PDM_InitObject( "Regression Analysis Curve", ":/regression-curve.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_regressionType, "RegressionType", "Type" );
     CAF_PDM_InitField( &m_forecastForward, "ForecastForward", 0, "Forward" );
@@ -192,6 +192,8 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
         auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
+
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( filteredTimeSteps, filteredValues );
         std::vector<double> predictedValues = powerFitRegression.predict( outputTimeStepsD );
@@ -200,6 +202,8 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     else if ( m_regressionType == RegressionType::EXPONENTIAL )
     {
         auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
+
         regression::ExponentialRegression exponentialRegression;
         exponentialRegression.fit( filteredTimeSteps, filteredValues );
         std::vector<double> predictedValues = exponentialRegression.predict( outputTimeStepsD );
@@ -208,6 +212,8 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     else if ( m_regressionType == RegressionType::LOGARITHMIC )
     {
         auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
+
         regression::LogarithmicRegression logarithmicRegression;
         logarithmicRegression.fit( filteredTimeSteps, filteredValues );
         std::vector<double> predictedValues = logarithmicRegression.predict( outputTimeStepsD );

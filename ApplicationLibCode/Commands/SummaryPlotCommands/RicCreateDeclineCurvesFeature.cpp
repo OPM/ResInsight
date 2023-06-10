@@ -71,7 +71,7 @@ void RicCreateDeclineCurvesFeature::onActionTriggered( bool isChecked )
 void RicCreateDeclineCurvesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Decline Curves" );
-    actionToSetup->setIcon( QIcon( ":/SummaryCurve16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/decline-curve.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

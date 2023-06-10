@@ -320,7 +320,7 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
     else if ( dockWidgetName == plotMainWindowDataSourceTreeName() )
         return QIcon( ":/data-sources.svg" );
     else if ( dockWidgetName == plotMainWindowTemplateTreeName() )
-        return QIcon( ":/SummaryTemplate16x16.png" );
+        return QIcon( ":/plot-template-standard.svg" );
     else if ( dockWidgetName == plotMainWindowScriptsTreeName() )
         return QIcon( ":/scripts.svg" );
     else if ( dockWidgetName == plotMainWindowPropertyEditorName() )

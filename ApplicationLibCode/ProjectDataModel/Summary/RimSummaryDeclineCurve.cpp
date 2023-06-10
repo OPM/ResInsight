@@ -54,7 +54,7 @@ void caf::AppEnum<RimSummaryDeclineCurve::DeclineCurveType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimSummaryDeclineCurve::RimSummaryDeclineCurve()
 {
-    CAF_PDM_InitObject( "Decline Curve", ":/SummaryCurve16x16.png" );
+    CAF_PDM_InitObject( "Decline Curve", ":/decline-curve.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_declineCurveType, "DeclineCurveType", "Type" );
     CAF_PDM_InitField( &m_predictionYears, "PredictionYears", 5, "Years" );
@@ -424,6 +424,7 @@ void RimSummaryDeclineCurve::updateTimeAnnotations()
     {
         m_timeRangeAnnotation = plot->addTimeRangeAnnotation( m_minTimeStep, m_maxTimeStep );
         m_timeRangeAnnotation->setColor( color() );
+        m_timeRangeAnnotation->setName( "" );
     }
 }
 
