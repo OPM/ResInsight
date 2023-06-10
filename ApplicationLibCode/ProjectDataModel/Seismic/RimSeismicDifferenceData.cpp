@@ -113,7 +113,7 @@ void RimSeismicDifferenceData::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RimSeismicDifferenceData::isInputDataOK() const
 {
-    return m_inputDataOK;
+    return m_inputDataOK && ( m_seismicData1 != nullptr ) && ( m_seismicData2 != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,7 +121,7 @@ bool RimSeismicDifferenceData::isInputDataOK() const
 //--------------------------------------------------------------------------------------------------
 std::string RimSeismicDifferenceData::userDescription() const
 {
-    return m_userDescription().toStdString();
+    return fullName().toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -456,6 +456,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     auto data1 = m_seismicData1->sliceData( direction, sliceNumber, zMin, zMax );
     auto data2 = m_seismicData2->sliceData( direction, sliceNumber, zMin, zMax );
 
+    if ( ( data1 == nullptr ) || ( data2 == nullptr ) ) return nullptr;
+
     auto retdata = difference( data1.get(), data2.get() );
 
     const auto [minVal, maxVal] = dataRangeMinMax();
@@ -477,6 +479,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
     auto data1 = m_seismicData1->sliceData( worldX1, worldY1, worldX2, worldY2, zMin, zMax );
     auto data2 = m_seismicData1->sliceData( worldX1, worldY1, worldX2, worldY2, zMin, zMax );
+
+    if ( ( data1 == nullptr ) || ( data2 == nullptr ) ) return nullptr;
 
     auto retdata = difference( data1.get(), data2.get() );
 

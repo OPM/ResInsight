@@ -99,7 +99,6 @@ private:
     caf::PdmField<caf::FilePath>                  m_filename;
     caf::PdmField<QString>                        m_userDescription;
     caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
-    caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;
 
     double                    m_zStep;
     cvf::Vec3i                m_inlineInfo;

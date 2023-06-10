@@ -557,6 +557,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
             return nullptr;
     }
 
+    if ( ( sliceIndex < 0 ) || ( zMinIndex < 0 ) ) return nullptr;
+
     auto data = m_filereader->slice( direction, sliceIndex, zMinIndex, zMaxIndex - zMinIndex );
 
     const auto [minVal, maxVal] = dataRangeMinMax();
@@ -585,6 +587,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     int stopXlineIndex   = toXlineIndex( stopXline );
     int zMinIndex        = toZIndex( zMin );
     int zMaxIndex        = toZIndex( zMax );
+
+    if ( ( startInlineIndex < 0 ) || ( startXlineIndex < 0 ) || ( zMinIndex < 0 ) ) return nullptr;
 
     int diffI = std::abs( startInlineIndex - stopInlineIndex );
     int diffX = std::abs( startXlineIndex - stopXlineIndex );
@@ -677,9 +681,11 @@ float RimSeismicData::valueAt( cvf::Vec3d worldCoord )
         int xIndex = toXlineIndex( xline );
         int zIndex = toZIndex( std::abs( worldCoord[2] ) );
 
-        auto slice = m_filereader->trace( iIndex, xIndex, zIndex, 1 );
-
-        if ( slice->size() == 1 ) return slice->values()[0];
+        if ( ( iIndex >= 0 ) && ( xIndex >= 0 ) && ( zIndex >= 0 ) )
+        {
+            auto slice = m_filereader->trace( iIndex, xIndex, zIndex, 1 );
+            if ( slice->size() == 1 ) return slice->values()[0];
+        }
     }
 
     return std::nanf( "" );

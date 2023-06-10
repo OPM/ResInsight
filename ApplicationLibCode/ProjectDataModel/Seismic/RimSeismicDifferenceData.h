@@ -78,13 +78,14 @@ public:
     QString fullName() const;
 
 protected:
-    void                 initAfterRead() override;
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void                          initAfterRead() override;
+    caf::PdmFieldHandle*          userDescriptionField() override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     std::shared_ptr<ZGYAccess::SeismicSliceData> difference( ZGYAccess::SeismicSliceData* data1, ZGYAccess::SeismicSliceData* data2 );
 

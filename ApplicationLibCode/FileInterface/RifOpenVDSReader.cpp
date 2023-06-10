@@ -249,15 +249,24 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
 
     auto accessManager = OpenVDS::GetAccessManager( m_handle );
 
-    auto request = accessManager.RequestVolumeSubset<float>( buffer.data(),
-                                                             buffer.size() * sizeof( float ),
-                                                             OpenVDS::Dimensions_012,
-                                                             0,
-                                                             m_dataChannelToUse,
-                                                             voxelMin,
-                                                             voxelMax );
+    bool success = false;
 
-    bool success = request->WaitForCompletion();
+    try
+    {
+        auto request = accessManager.RequestVolumeSubset<float>( buffer.data(),
+                                                                 buffer.size() * sizeof( float ),
+                                                                 OpenVDS::Dimensions_012,
+                                                                 0,
+                                                                 m_dataChannelToUse,
+                                                                 voxelMin,
+                                                                 voxelMax );
+
+        success = request->WaitForCompletion();
+    }
+    catch ( const std::exception& )
+    {
+    }
+
     if ( success )
     {
         auto chanDesc = m_layout->GetChannelDescriptor( m_dataChannelToUse );
@@ -460,15 +469,24 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
     auto accessManager = OpenVDS::GetAccessManager( m_handle );
 
-    auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
-                                                             totalSize * sizeof( float ),
-                                                             OpenVDS::Dimensions_012,
-                                                             0,
-                                                             m_dataChannelToUse,
-                                                             voxelMin,
-                                                             voxelMax );
+    bool success = false;
 
-    bool success = request->WaitForCompletion();
+    try
+    {
+        auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
+                                                                 totalSize * sizeof( float ),
+                                                                 OpenVDS::Dimensions_012,
+                                                                 0,
+                                                                 m_dataChannelToUse,
+                                                                 voxelMin,
+                                                                 voxelMax );
+
+        success = request->WaitForCompletion();
+    }
+    catch ( const std::exception& )
+    {
+    }
+
     if ( !success ) retData.reset();
 
     return retData;
@@ -503,15 +521,24 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inline
 
     auto accessManager = OpenVDS::GetAccessManager( m_handle );
 
-    auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
-                                                             zSize * sizeof( float ),
-                                                             OpenVDS::Dimensions_012,
-                                                             0,
-                                                             m_dataChannelToUse,
-                                                             voxelMin,
-                                                             voxelMax );
+    bool success = false;
 
-    bool success = request->WaitForCompletion();
+    try
+    {
+        auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
+                                                                 zSize * sizeof( float ),
+                                                                 OpenVDS::Dimensions_012,
+                                                                 0,
+                                                                 m_dataChannelToUse,
+                                                                 voxelMin,
+                                                                 voxelMax );
+
+        success = request->WaitForCompletion();
+    }
+    catch ( const std::exception& )
+    {
+    }
+
     if ( !success ) retData.reset();
 
     return retData;

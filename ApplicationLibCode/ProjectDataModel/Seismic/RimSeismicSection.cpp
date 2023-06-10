@@ -771,8 +771,8 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
             {
                 prevSeisData->legendConfig()->changed.disconnect( this );
             }
-
-            m_seismicData->legendConfig()->changed.connect( this, &RimSeismicSection::onLegendConfigChanged );
+            if ( m_seismicData != nullptr )
+                m_seismicData->legendConfig()->changed.connect( this, &RimSeismicSection::onLegendConfigChanged );
 
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_ALL;
         }

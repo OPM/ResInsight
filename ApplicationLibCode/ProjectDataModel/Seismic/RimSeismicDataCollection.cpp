@@ -103,7 +103,7 @@ bool RimSeismicDataCollection::isEmpty()
 void RimSeismicDataCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateViews();
-    if ( m_seismicData.size() == 0 ) updateTreeForAllViews();
+    if ( ( m_seismicData.size() + m_differenceData.size() ) == 0 ) updateTreeForAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
