@@ -257,14 +257,6 @@ void RimSeismicDifferenceData::defineEditorAttribute( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox* RimSeismicDifferenceData::boundingBox() const
-{
-    return m_boundingBox.get();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimSeismicDifferenceData::zMin() const
 {
     if ( !isInputDataOK() ) return 0.0;
@@ -341,30 +333,6 @@ int RimSeismicDifferenceData::xlineStep() const
 {
     if ( !isInputDataOK() ) return 1;
     return m_seismicData1->xlineStep();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimSeismicDifferenceData::histogramXvalues() const
-{
-    return m_clippedHistogramXvalues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimSeismicDifferenceData::histogramYvalues() const
-{
-    return m_clippedHistogramYvalues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimSeismicDifferenceData::alphaValues() const
-{
-    return m_clippedAlphaValues;
 }
 
 //--------------------------------------------------------------------------------------------------

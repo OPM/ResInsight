@@ -55,10 +55,6 @@ public:
     int xlineMax() const override;
     int xlineStep() const override;
 
-    std::vector<double> histogramXvalues() const override;
-    std::vector<double> histogramYvalues() const override;
-    std::vector<double> alphaValues() const override;
-
     std::vector<cvf::Vec3d> worldOutline() const override;
 
     cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth ) override;
@@ -72,8 +68,6 @@ public:
     float valueAt( cvf::Vec3d worldCoord ) override;
 
     std::pair<double, double> dataRangeMinMax() const override;
-
-    cvf::BoundingBox* boundingBox() const override;
 
     QString fullName() const;
 
@@ -105,12 +99,6 @@ private:
 
     std::pair<double, double> m_activeDataRange;
     std::pair<double, double> m_fileDataRange;
-
-    std::vector<double> m_histogramXvalues;
-    std::vector<double> m_histogramYvalues;
-    std::vector<double> m_clippedHistogramXvalues;
-    std::vector<double> m_clippedHistogramYvalues;
-    std::vector<double> m_clippedAlphaValues;
 
     bool m_inputDataOK;
 };

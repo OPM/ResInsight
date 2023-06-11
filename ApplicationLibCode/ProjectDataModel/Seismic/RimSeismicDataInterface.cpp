@@ -105,3 +105,35 @@ RimSeismicAlphaMapper* RimSeismicDataInterface::alphaValueMapper() const
 {
     return m_alphaValueMapper.get();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox* RimSeismicDataInterface::boundingBox() const
+{
+    return m_boundingBox.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSeismicDataInterface::histogramXvalues() const
+{
+    return m_clippedHistogramXvalues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSeismicDataInterface::histogramYvalues() const
+{
+    return m_clippedHistogramYvalues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSeismicDataInterface::alphaValues() const
+{
+    return m_clippedAlphaValues;
+}
