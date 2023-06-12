@@ -133,7 +133,7 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step" );
-    CAF_PDM_InitField( &m_geomPartId, "GeomPartId", 0, "Part Id" );
+    CAF_PDM_InitField( &m_geomPartId, "GeomPartId", 0, "Part" );
     m_geomPartId.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     // Add some space before name to indicate these belong to the Auto Name field
@@ -1006,10 +1006,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions( 
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
         if ( !geomCase || !geomCase->geoMechData() || !geomCase->geoMechData()->femParts() ) return options;
 
-        const auto numGeomParts = geomCase->geoMechData()->femParts()->partCount();
-        for ( int i = 0; i < numGeomParts; ++i )
+        const auto femParts = geomCase->geoMechData()->femParts();
+        for ( int i = 0; i < femParts->partCount(); ++i )
         {
-            options.push_back( caf::PdmOptionItemInfo( QString( "%1" ).arg( i ), i ) );
+            const auto name = femParts->part( i )->name();
+            options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( name ), i ) );
         }
     }
     else if ( fieldNeedingOptions == &m_simWellName )
