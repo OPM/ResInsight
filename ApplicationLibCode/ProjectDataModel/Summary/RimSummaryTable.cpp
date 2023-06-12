@@ -27,7 +27,6 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimTools.h"
@@ -42,6 +41,20 @@
 #include "cvfScalarMapper.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryTable, "RimSummaryTable" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+namespace caf
+{
+template <>
+void AppEnum<RimSummaryTable::RangeType>::setUp()
+{
+    addItem( RimSummaryTable::RangeType::AUTOMATIC, "AUTOMATIC", "Min and Max in Table" );
+    addItem( RimSummaryTable::RangeType::USER_DEFINED, "USER_DEFINED_MAX_MIN", "User Defined Range" );
+    setDefault( RimSummaryTable::RangeType::AUTOMATIC );
+}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,6 +99,9 @@ RimSummaryTable::RimSummaryTable()
     m_legendConfig->setShowLegend( true );
     m_legendConfig->setAutomaticRanges( 0.0, 100.0, 0.0, 100.0 );
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::HEAT_MAP ) );
+
+    CAF_PDM_InitFieldNoDefault( &m_mappingType, "MappingType", "Mapping Type" );
+    CAF_PDM_InitFieldNoDefault( &m_rangeType, "RangeType", "Range Type" );
 
     setLegendsVisible( true );
     setAsPlotMdiWindow();
@@ -250,6 +266,23 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_matrixPlotWidget->setValueFontSize( valueLabelFontSize() );
     }
+    else if ( changedField == &m_rangeType && m_legendConfig )
+    {
+        auto rangeMode = m_rangeType == RangeType::AUTOMATIC ? RimLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS
+                                                             : RimLegendConfig::RangeModeType::USER_DEFINED;
+        m_legendConfig->setRangeMode( rangeMode );
+        m_legendConfig->updateTickCountAndUserDefinedRange();
+        onLoadDataAndUpdate();
+    }
+    else if ( changedField == &m_mappingType && m_legendConfig )
+    {
+        m_legendConfig->setMappingMode( m_mappingType() );
+        if ( m_rangeType == RangeType::AUTOMATIC )
+        {
+            m_legendConfig->updateTickCountAndUserDefinedRange();
+        }
+        onLoadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -279,7 +312,10 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     caf::PdmUiGroup* tableSettingsGroup = uiOrdering.addNewGroup( "Table Settings" );
     tableSettingsGroup->add( &m_showValueLabels );
-    m_legendConfig->uiOrdering( "FlagColorsAndMappingModeOnly", *tableSettingsGroup );
+    m_legendConfig->uiOrdering( "FlagAndColorsOnly", *tableSettingsGroup );
+    tableSettingsGroup->add( &m_mappingType );
+    tableSettingsGroup->add( &m_rangeType );
+    m_legendConfig->uiOrdering( "UserDefinedMinMaxOnly", *tableSettingsGroup );
 
     caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
     fontGroup->setCollapsedByDefault();
@@ -346,6 +382,17 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
+    else if ( fieldNeedingOptions == &m_mappingType )
+    {
+        std::vector<RimRegularLegendConfig::MappingType> mappingTypes = { RimRegularLegendConfig::MappingType::LINEAR_DISCRETE,
+                                                                          RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS,
+                                                                          RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS,
+                                                                          RimRegularLegendConfig::MappingType::LOG10_DISCRETE };
+        for ( const auto mappingType : mappingTypes )
+        {
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RimRegularLegendConfig::MappingType>::uiText( mappingType ), mappingType ) );
+        }
+    }
     return options;
 }
 
@@ -382,9 +429,19 @@ void RimSummaryTable::onLoadDataAndUpdate()
     // Clear matrix plot
     m_matrixPlotWidget->clearPlotData();
     m_matrixPlotWidget->setColumnHeaders( timeStepStrings );
+
+    double posClosestToZeroValue = std::numeric_limits<double>::max();
+    double negClosestToZeroValue = std::numeric_limits<double>::min();
     for ( const auto& vectorData : m_tableData.vectorDataCollection )
     {
         if ( excludedRows.contains( vectorData.category ) ) continue;
+
+        // Find positive and negative value closest to zero
+        for ( const auto& value : vectorData.values )
+        {
+            if ( value > 0.0 && value < posClosestToZeroValue ) posClosestToZeroValue = value;
+            if ( value < 0.0 && value > negClosestToZeroValue ) negClosestToZeroValue = value;
+        }
 
         m_matrixPlotWidget->setRowValues( vectorData.category, vectorData.values );
     }
@@ -392,6 +449,7 @@ void RimSummaryTable::onLoadDataAndUpdate()
     if ( m_legendConfig )
     {
         m_legendConfig->setAutomaticRanges( m_tableData.minValue, m_tableData.maxValue, 0.0, 0.0 );
+        m_legendConfig->setClosestToZeroValues( posClosestToZeroValue, negClosestToZeroValue, posClosestToZeroValue, negClosestToZeroValue );
     }
 
     // Set titles and font sizes

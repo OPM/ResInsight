@@ -174,6 +174,8 @@ public:
 
     void defineUiOrderingColorOnly( caf::PdmUiOrdering* colorGroup );
 
+    void updateTickCountAndUserDefinedRange();
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void sendChangedSignal( const caf::PdmFieldHandle* changedField );
@@ -189,7 +191,6 @@ private:
 
     void updateCategoryItems();
     void configureCategoryMapper();
-    void updateTickCountAndUserDefinedRange();
 
     friend class RimViewLinker;
 

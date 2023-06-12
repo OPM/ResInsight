@@ -80,6 +80,14 @@ void RiuScalarMapperLegendFrame::updateTickValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuScalarMapperLegendFrame::setScalarMapper( cvf::ScalarMapper* scalarMapper )
+{
+    m_scalarMapper = scalarMapper;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
 {
     QFontMetrics fontMetrics( this->font() );

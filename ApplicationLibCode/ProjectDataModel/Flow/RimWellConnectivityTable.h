@@ -22,6 +22,8 @@
 
 #include "RigFlowDiagResultAddress.h"
 
+#include "RimRegularLegendConfig.h"
+
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
@@ -77,6 +79,12 @@ public:
     {
         NONE,
         TIME_STEP_COUNT,
+    };
+
+    enum class RangeType
+    {
+        AUTOMATIC,
+        USER_DEFINED
     };
 
 public:
@@ -185,6 +193,9 @@ private:
     caf::PdmField<bool>                 m_syncSelectedProducersFromInjectorSelection;
     caf::PdmField<bool>                 m_syncSelectedInjectorsFromProducerSelection;
     caf::PdmField<bool>                 m_applySelectedInectorProducerTracers;
+
+    caf::PdmField<RimRegularLegendConfig::MappingEnum> m_mappingType;
+    caf::PdmField<caf::AppEnum<RangeType>>             m_rangeType;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisLabelFontSize;
