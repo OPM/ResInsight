@@ -103,6 +103,14 @@ void AppEnum<RimWellConnectivityTable::TimeStepRangeFilterMode>::setUp()
     addItem( RimWellConnectivityTable::TimeStepRangeFilterMode::TIME_STEP_COUNT, "TIME_STEP_COUNT", "Time Step Count" );
     setDefault( RimWellConnectivityTable::TimeStepRangeFilterMode::TIME_STEP_COUNT );
 }
+
+template <>
+void AppEnum<RimWellConnectivityTable::RangeType>::setUp()
+{
+    addItem( RimWellConnectivityTable::RangeType::AUTOMATIC, "AUTOMATIC", "Min and Max in Table" );
+    addItem( RimWellConnectivityTable::RangeType::USER_DEFINED, "USER_DEFINED_MAX_MIN", "User Defined Range" );
+    setDefault( RimWellConnectivityTable::RangeType::AUTOMATIC );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -177,6 +185,9 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     m_legendConfig->setShowLegend( true );
     m_legendConfig->setAutomaticRanges( 0.0, 100.0, 0.0, 100.0 );
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::HEAT_MAP ) );
+
+    CAF_PDM_InitFieldNoDefault( &m_mappingType, "MappingType", "Mapping Type" );
+    CAF_PDM_InitFieldNoDefault( &m_rangeType, "RangeType", "Range Type" );
 
     setLegendsVisible( true );
     setAsPlotMdiWindow();
@@ -405,6 +416,23 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
     {
         m_matrixPlotWidget->setValueFontSize( valueLabelFontSize() );
     }
+    else if ( changedField == &m_rangeType && m_legendConfig )
+    {
+        auto rangeMode = m_rangeType == RangeType::AUTOMATIC ? RimLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS
+                                                             : RimLegendConfig::RangeModeType::USER_DEFINED;
+        m_legendConfig->setRangeMode( rangeMode );
+        m_legendConfig->updateTickCountAndUserDefinedRange();
+        onLoadDataAndUpdate();
+    }
+    else if ( changedField == &m_mappingType && m_legendConfig )
+    {
+        m_legendConfig->setMappingMode( m_mappingType() );
+        if ( m_rangeType == RangeType::AUTOMATIC )
+        {
+            m_legendConfig->updateTickCountAndUserDefinedRange();
+        }
+        onLoadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,7 +500,10 @@ void RimWellConnectivityTable::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     caf::PdmUiGroup* tableSettingsGroup = uiOrdering.addNewGroup( "Table Settings" );
     tableSettingsGroup->add( &m_showValueLabels );
-    m_legendConfig->uiOrdering( "FlagColorsAndMappingModeOnly", *tableSettingsGroup );
+    m_legendConfig->uiOrdering( "FlagAndColorsOnly", *tableSettingsGroup );
+    tableSettingsGroup->add( &m_mappingType );
+    tableSettingsGroup->add( &m_rangeType );
+    m_legendConfig->uiOrdering( "UserDefinedMinMaxOnly", *tableSettingsGroup );
 
     caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
     fontGroup->setCollapsedByDefault();
@@ -605,6 +636,9 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
     // Fill matrix plot widget with filtered rows/columns
     double maxValue = 0.0;
     m_matrixPlotWidget->setColumnHeaders( filteredColumnHeaders );
+
+    double posClosestToZeroValue = std::numeric_limits<double>::max();
+    double negClosestToZeroValue = std::numeric_limits<double>::lowest();
     for ( const auto& [rowName, rowValues] : filteredRows )
     {
         // Add columns with values above threshold
@@ -615,16 +649,24 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
 
             maxValue = maxValue < rowValues[i] ? rowValues[i] : maxValue;
             columns.push_back( rowValues[i] );
+
+            // Find positive and negative value closest to zero
+            if ( rowValues[i] > 0.0 && rowValues[i] < posClosestToZeroValue ) posClosestToZeroValue = rowValues[i];
+            if ( rowValues[i] < 0.0 && rowValues[i] > negClosestToZeroValue ) negClosestToZeroValue = rowValues[i];
         }
 
         m_matrixPlotWidget->setRowValues( rowName, columns );
     }
+
+    if ( negClosestToZeroValue == std::numeric_limits<double>::lowest() ) negClosestToZeroValue = -0.1;
+    if ( posClosestToZeroValue == std::numeric_limits<double>::max() ) posClosestToZeroValue = 0.1;
 
     // Set ranges using max value
     if ( m_legendConfig )
     {
         const auto [min, max] = createLegendMinMaxValues( maxValue );
         m_legendConfig->setAutomaticRanges( min, max, 0.0, 0.0 );
+        m_legendConfig->setClosestToZeroValues( posClosestToZeroValue, negClosestToZeroValue, posClosestToZeroValue, negClosestToZeroValue );
     }
 
     // Set titles and font sizes
@@ -712,6 +754,17 @@ QList<caf::PdmOptionItemInfo> RimWellConnectivityTable::calculateValueOptions( c
               fieldNeedingOptions == &m_valueLabelFontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
+    }
+    else if ( fieldNeedingOptions == &m_mappingType )
+    {
+        std::vector<RimRegularLegendConfig::MappingType> mappingTypes = { RimRegularLegendConfig::MappingType::LINEAR_DISCRETE,
+                                                                          RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS,
+                                                                          RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS,
+                                                                          RimRegularLegendConfig::MappingType::LOG10_DISCRETE };
+        for ( const auto mappingType : mappingTypes )
+        {
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RimRegularLegendConfig::MappingType>::uiText( mappingType ), mappingType ) );
+        }
     }
     return options;
 }

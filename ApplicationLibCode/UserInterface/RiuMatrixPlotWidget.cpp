@@ -25,6 +25,7 @@
 #include "RimViewWindow.h"
 
 #include "RiuAbstractLegendFrame.h"
+#include "RiuCategoryLegendFrame.h"
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
@@ -176,9 +177,18 @@ void RiuMatrixPlotWidget::createPlot()
     createMatrixCells();
     scheduleReplot();
 
-    auto frame = dynamic_cast<RiuScalarMapperLegendFrame*>( m_legendFrame.data() );
-    frame->updateTickValues();
-    frame->update();
+    auto scalarMapperFrame = dynamic_cast<RiuScalarMapperLegendFrame*>( m_legendFrame.data() );
+    auto categoryFrame     = dynamic_cast<RiuCategoryLegendFrame*>( m_legendFrame.data() );
+    if ( scalarMapperFrame )
+    {
+        scalarMapperFrame->setScalarMapper( m_legendConfig->scalarMapper() );
+        scalarMapperFrame->updateTickValues();
+        scalarMapperFrame->update();
+    }
+    if ( categoryFrame )
+    {
+        categoryFrame->update();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

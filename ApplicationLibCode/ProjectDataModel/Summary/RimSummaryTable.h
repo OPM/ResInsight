@@ -24,6 +24,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimRegularLegendConfig.h"
 #include "RimSummaryTableTools.h"
 
 #include "cafPdmField.h"
@@ -44,6 +45,13 @@ class RiuMatrixPlotWidget;
 class RimSummaryTable : public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    enum class RangeType
+    {
+        AUTOMATIC,
+        USER_DEFINED
+    };
 
 public:
     RimSummaryTable();
@@ -119,6 +127,9 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisLabelFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valueLabelFontSize;
     caf::PdmField<bool>                             m_showValueLabels;
+
+    caf::PdmField<RimRegularLegendConfig::MappingEnum> m_mappingType;
+    caf::PdmField<caf::AppEnum<RangeType>>             m_rangeType;
 
 private:
     using VectorData = RimSummaryTableTools::VectorData;

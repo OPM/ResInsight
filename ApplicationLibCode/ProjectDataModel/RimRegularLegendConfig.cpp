@@ -1244,11 +1244,24 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         uiOrdering.add( &m_colorLegend );
         uiOrdering.skipRemainingFields( true );
     }
-    else if ( uiConfigName == "FlagColorsAndMappingModeOnly" )
+    else if ( uiConfigName == "FlagAndColorsOnly" )
     {
         uiOrdering.add( &m_showLegend );
         uiOrdering.add( &m_colorLegend );
-        uiOrdering.add( &m_mappingMode );
+        uiOrdering.skipRemainingFields( true );
+    }
+    else if ( uiConfigName == "UserDefinedMinMaxOnly" )
+    {
+        uiOrdering.add( &m_userDefinedMaxValue );
+        uiOrdering.add( &m_userDefinedMinValue );
+        uiOrdering.skipRemainingFields( true );
+    }
+    else if ( uiConfigName == "RangeModeAndUserDefinedMinMaxOnly" )
+    {
+        // TODO: DELETE!!!
+        uiOrdering.add( &m_rangeMode );
+        uiOrdering.add( &m_userDefinedMaxValue );
+        uiOrdering.add( &m_userDefinedMinValue );
         uiOrdering.skipRemainingFields( true );
     }
     else
