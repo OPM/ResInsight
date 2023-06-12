@@ -30,7 +30,7 @@
 #include "qwt_text.h"
 
 #include "RimRegularLegendConfig.h"
-#include "RimSeismicData.h"
+#include "RimSeismicDataInterface.h"
 #include "RimSeismicSection.h"
 
 #include <QFont>
@@ -133,7 +133,7 @@ void RiuSeismicHistogramPanel::applyFontSizes( bool replot )
 //--------------------------------------------------------------------------------------------------
 void RiuSeismicHistogramPanel::showHistogram( caf::PdmObjectHandle* selectedObject )
 {
-    RimSeismicData* seisData = dynamic_cast<RimSeismicData*>( selectedObject );
+    RimSeismicDataInterface* seisData = dynamic_cast<RimSeismicDataInterface*>( selectedObject );
     if ( seisData == nullptr )
     {
         RimSeismicSection* section = dynamic_cast<RimSeismicSection*>( selectedObject );
@@ -156,11 +156,19 @@ void RiuSeismicHistogramPanel::showHistogram( caf::PdmObjectHandle* selectedObje
         }
     }
 
+    showHistogram( seisData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSeismicHistogramPanel::showHistogram( RimSeismicDataInterface* seisData )
+{
     if ( seisData == nullptr )
     {
         clearPlot();
         return;
     }
 
-    setPlotData( seisData->userDescription(), seisData->histogramXvalues(), seisData->histogramYvalues() );
+    setPlotData( QString::fromStdString( seisData->userDescription() ), seisData->histogramXvalues(), seisData->histogramYvalues() );
 }

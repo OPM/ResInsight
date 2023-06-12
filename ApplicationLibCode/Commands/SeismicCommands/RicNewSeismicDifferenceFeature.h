@@ -18,37 +18,22 @@
 
 #pragma once
 
-#include <QPointer>
-#include <QWidget>
+#include "cafCmdFeature.h"
 
-#include "cafPdmObject.h"
-
-#include <vector>
-
-class RiuDockedQwtPlot;
-class RiuSelectionItem;
-class RimSeismicDataInterface;
+class RimSeismicData;
 
 //==================================================================================================
-//
-//
-//
+///
 //==================================================================================================
-class RiuSeismicHistogramPanel : public QWidget
+class RicNewSeismicDifferenceFeature : public caf::CmdFeature
 {
-    Q_OBJECT
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RiuSeismicHistogramPanel( QWidget* parent );
-    ~RiuSeismicHistogramPanel() override;
-
-    void setPlotData( QString title, std::vector<double> xvals, std::vector<double> yvals );
-    void clearPlot();
-    void applyFontSizes( bool replot );
-
-    void showHistogram( caf::PdmObjectHandle* selectedObject );
-    void showHistogram( RimSeismicDataInterface* selectedObject );
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    QPointer<RiuDockedQwtPlot> m_qwtPlot;
+    std::vector<RimSeismicData*> selectedSeismic();
 };

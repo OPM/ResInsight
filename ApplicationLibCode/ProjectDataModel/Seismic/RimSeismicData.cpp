@@ -66,10 +66,6 @@ RimSeismicData::RimSeismicData()
     CAF_PDM_InitFieldNoDefault( &m_filename, "SeismicFilePath", "File" );
     m_filename.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
-    m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig.uiCapability()->setUiTreeHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_metadata, "Metadata", "Metadata" );
     m_metadata.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_metadata.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -78,15 +74,7 @@ RimSeismicData::RimSeismicData()
     m_metadata.uiCapability()->setUiReadOnly( true );
     m_metadata.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_overrideDataRange, "overrideDataRange", false, "Override Data Range" );
-    CAF_PDM_InitField( &m_userClipValue, "userClipValue", 0.0, "Clip Value" );
-
     setDeletable( true );
-
-    m_boundingBox      = std::make_shared<cvf::BoundingBox>();
-    m_alphaValueMapper = std::make_shared<RimSeismicAlphaMapper>();
-
-    initColorLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,9 +177,9 @@ QString RimSeismicData::fileName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSeismicData::userDescription()
+std::string RimSeismicData::userDescription() const
 {
-    return m_userDescription;
+    return m_userDescription().toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,9 +226,10 @@ void RimSeismicData::updateMetaData()
     auto [minDataValue, maxDataValue] = m_filereader->dataRange();
     double maxAbsDataValue            = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
 
-    if ( m_userClipValue <= 0.0 ) m_userClipValue = maxAbsDataValue;
-
-    m_userClipValue = std::clamp( m_userClipValue(), 0.0, maxAbsDataValue );
+    auto [userClipEnabled, userClipValue] = m_userClipValue();
+    if ( userClipValue <= 0.0 ) userClipValue = maxAbsDataValue;
+    userClipValue   = std::clamp( userClipValue, 0.0, maxAbsDataValue );
+    m_userClipValue = std::make_pair( userClipEnabled, userClipValue );
 
     m_filereader->histogramData( m_histogramXvalues, m_histogramYvalues );
 
@@ -281,11 +270,8 @@ void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     auto cmGroup = uiOrdering.addNewGroup( "Color Mapping" );
     m_legendConfig->defineUiOrderingColorOnly( cmGroup );
-    cmGroup->add( &m_overrideDataRange );
-    if ( m_overrideDataRange() )
-    {
-        cmGroup->add( &m_userClipValue );
-    }
+    cmGroup->add( &m_userClipValue );
+    cmGroup->add( &m_userMuteThreshold );
 
     auto metaGroup = uiOrdering.addNewGroup( "File Information" );
     metaGroup->add( &m_metadata );
@@ -325,14 +311,6 @@ void RimSeismicData::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
             myAttr->validator = new QDoubleValidator( 0.00001, std::numeric_limits<double>::infinity(), 6 );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::BoundingBox* RimSeismicData::boundingBox() const
-{
-    return m_boundingBox.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,33 +419,9 @@ int RimSeismicData::toZIndex( double z ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimSeismicData::histogramXvalues() const
-{
-    return m_clippedHistogramXvalues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimSeismicData::histogramYvalues() const
-{
-    return m_clippedHistogramYvalues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimSeismicData::alphaValues() const
-{
-    return m_clippedAlphaValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSeismicData::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_overrideDataRange ) || ( changedField == &m_userClipValue ) )
+    if ( ( changedField == &m_userMuteThreshold ) || ( changedField == &m_userClipValue ) )
     {
         updateDataRange( true );
     }
@@ -482,11 +436,11 @@ void RimSeismicData::updateDataRange( bool updatePlot )
     m_clippedHistogramYvalues.clear();
     m_clippedAlphaValues.clear();
 
-    double clipValue = m_userClipValue;
+    auto [clipEnabled, clipValue] = m_userClipValue();
 
-    if ( m_overrideDataRange() )
+    if ( clipEnabled )
     {
-        m_activeDataRange = std::make_pair( -m_userClipValue, m_userClipValue );
+        m_activeDataRange = std::make_pair( -clipValue, clipValue );
     }
     else
     {
@@ -513,7 +467,7 @@ void RimSeismicData::updateDataRange( bool updatePlot )
     m_alphaValueMapper->setDataRangeAndAlphas( m_activeDataRange.first, m_activeDataRange.second, m_clippedAlphaValues );
     m_legendConfig->setUserDefinedRange( m_activeDataRange.first, m_activeDataRange.second );
 
-    if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( this );
+    if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( (RimSeismicDataInterface*)this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,50 +525,17 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
             return nullptr;
     }
 
+    if ( ( sliceIndex < 0 ) || ( zMinIndex < 0 ) ) return nullptr;
+
     auto data = m_filereader->slice( direction, sliceIndex, zMinIndex, zMaxIndex - zMinIndex );
 
-    double tmp                  = 0.0;
-    float* pValue               = data->values();
     const auto [minVal, maxVal] = dataRangeMinMax();
-    const int nSize             = data->size();
+    data->limitTo( minVal, maxVal );
 
-    for ( int i = 0; i < nSize; i++, pValue++ )
-    {
-        tmp = *pValue;
-        if ( tmp < minVal )
-            *pValue = minVal;
-        else if ( tmp > maxVal )
-            *pValue = maxVal;
-    }
+    auto [doMute, muteThreshold] = m_userMuteThreshold();
+    if ( doMute ) data->mute( muteThreshold );
 
     return data;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimSeismicData::legendConfig() const
-{
-    return m_legendConfig();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSeismicAlphaMapper* RimSeismicData::alphaValueMapper() const
-{
-    return m_alphaValueMapper.get();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicData::initColorLegend()
-{
-    m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
-    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
-    m_legendConfig->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
-    m_legendConfig->setCenterLegendAroundZero( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -634,6 +555,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     int stopXlineIndex   = toXlineIndex( stopXline );
     int zMinIndex        = toZIndex( zMin );
     int zMaxIndex        = toZIndex( zMax );
+
+    if ( ( startInlineIndex < 0 ) || ( startXlineIndex < 0 ) || ( zMinIndex < 0 ) ) return nullptr;
 
     int diffI = std::abs( startInlineIndex - stopInlineIndex );
     int diffX = std::abs( startXlineIndex - stopXlineIndex );
@@ -704,6 +627,12 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
         }
     }
 
+    const auto [minVal, maxVal] = dataRangeMinMax();
+    retdata->limitTo( minVal, maxVal );
+
+    auto [doMute, muteThreshold] = m_userMuteThreshold();
+    if ( doMute ) retdata->mute( muteThreshold );
+
     return retdata;
 }
 
@@ -720,9 +649,11 @@ float RimSeismicData::valueAt( cvf::Vec3d worldCoord )
         int xIndex = toXlineIndex( xline );
         int zIndex = toZIndex( std::abs( worldCoord[2] ) );
 
-        auto slice = m_filereader->trace( iIndex, xIndex, zIndex, 1 );
-
-        if ( slice->size() == 1 ) return slice->values()[0];
+        if ( ( iIndex >= 0 ) && ( xIndex >= 0 ) && ( zIndex >= 0 ) )
+        {
+            auto slice = m_filereader->trace( iIndex, xIndex, zIndex, 1 );
+            if ( slice->size() == 1 ) return slice->values()[0];
+        }
     }
 
     return std::nanf( "" );

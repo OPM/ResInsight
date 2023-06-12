@@ -29,6 +29,7 @@
 #include "RimProject.h"
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
+#include "RimSeismicDifferenceData.h"
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -376,7 +377,26 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox )
+void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options )
+{
+    if ( !options ) return;
+
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        const auto& coll = proj->activeOilField()->seismicCollection().p();
+
+        for ( auto* c : coll->seismicData() )
+        {
+            options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( c->userDescription() ), c, false, c->uiIconProvider() ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly )
 {
     if ( !options ) return;
 
@@ -388,7 +408,17 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, c
         for ( auto* c : coll->seismicData() )
         {
             if ( c->boundingBox()->intersects( worldBBox ) )
-                options->push_back( caf::PdmOptionItemInfo( c->userDescription(), c, false, c->uiIconProvider() ) );
+                options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( c->userDescription() ), c, false, c->uiIconProvider() ) );
+        }
+
+        if ( !basicDataOnly )
+        {
+            for ( auto* c : coll->differenceData() )
+            {
+                if ( c->boundingBox()->intersects( worldBBox ) )
+                    options->push_back(
+                        caf::PdmOptionItemInfo( QString::fromStdString( c->userDescription() ), c, false, c->uiIconProvider() ) );
+            }
         }
     }
 }
