@@ -636,7 +636,9 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
     // Fill matrix plot widget with filtered rows/columns
     double maxValue = 0.0;
     m_matrixPlotWidget->setColumnHeaders( filteredColumnHeaders );
+
     double posClosestToZeroValue = std::numeric_limits<double>::max();
+    double negClosestToZeroValue = std::numeric_limits<double>::lowest();
     for ( const auto& [rowName, rowValues] : filteredRows )
     {
         // Add columns with values above threshold
@@ -648,21 +650,23 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
             maxValue = maxValue < rowValues[i] ? rowValues[i] : maxValue;
             columns.push_back( rowValues[i] );
 
-            if ( rowValues[i] > 0.0 && rowValues[i] < posClosestToZeroValue )
-            {
-                posClosestToZeroValue = rowValues[i];
-            }
+            // Find positive and negative value closest to zero
+            if ( rowValues[i] > 0.0 && rowValues[i] < posClosestToZeroValue ) posClosestToZeroValue = rowValues[i];
+            if ( rowValues[i] < 0.0 && rowValues[i] > negClosestToZeroValue ) negClosestToZeroValue = rowValues[i];
         }
 
         m_matrixPlotWidget->setRowValues( rowName, columns );
     }
+
+    if ( negClosestToZeroValue == std::numeric_limits<double>::lowest() ) negClosestToZeroValue = -0.1;
+    if ( posClosestToZeroValue == std::numeric_limits<double>::max() ) posClosestToZeroValue = 0.1;
 
     // Set ranges using max value
     if ( m_legendConfig )
     {
         const auto [min, max] = createLegendMinMaxValues( maxValue );
         m_legendConfig->setAutomaticRanges( min, max, 0.0, 0.0 );
-        m_legendConfig->setClosestToZeroValues( posClosestToZeroValue, -posClosestToZeroValue, posClosestToZeroValue, -posClosestToZeroValue );
+        m_legendConfig->setClosestToZeroValues( posClosestToZeroValue, negClosestToZeroValue, posClosestToZeroValue, negClosestToZeroValue );
     }
 
     // Set titles and font sizes

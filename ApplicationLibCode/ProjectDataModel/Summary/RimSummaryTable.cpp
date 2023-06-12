@@ -431,7 +431,7 @@ void RimSummaryTable::onLoadDataAndUpdate()
     m_matrixPlotWidget->setColumnHeaders( timeStepStrings );
 
     double posClosestToZeroValue = std::numeric_limits<double>::max();
-    double negClosestToZeroValue = std::numeric_limits<double>::min();
+    double negClosestToZeroValue = std::numeric_limits<double>::lowest();
     for ( const auto& vectorData : m_tableData.vectorDataCollection )
     {
         if ( excludedRows.contains( vectorData.category ) ) continue;
