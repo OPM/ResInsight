@@ -346,22 +346,26 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// The function creates and adds interpolated values for property and depths. The interpolated
+/// values are added to the end of the resampledValues. Target depth is added to the end of the
+/// resampledDepths vector for the resampling type. The depth values for remaining depth types
+/// are created by linear interpolation between first and second depth value of the resampling type.
 //--------------------------------------------------------------------------------------------------
-void RigWellLogCurveData::interpolateSegment( RiaDefines::DepthTypeEnum                                       resamplingDepthType,
-                                              std::vector<double>&                                            resampledValues,
-                                              std::map<RiaDefines::DepthTypeEnum, std::vector<double>>&       resampledDepths,
-                                              double                                                          targetDepthValue,
-                                              size_t                                                          firstIndex,
-                                              const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& originalDepths,
-                                              const std::vector<double>&                                      propertyValues,
-                                              double                                                          eps )
+void RigWellLogCurveData::createAndAddInterpolatedSegmentValueAndDepths(
+    std::vector<double>&                                            resampledValues,
+    std::map<RiaDefines::DepthTypeEnum, std::vector<double>>&       resampledDepths,
+    RiaDefines::DepthTypeEnum                                       resamplingDepthType,
+    double                                                          targetDepthValue,
+    size_t                                                          firstIndex,
+    size_t                                                          secondIndex,
+    const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& originalDepths,
+    const std::vector<double>&                                      propertyValues,
+    double                                                          eps )
 {
     if ( !originalDepths.contains( resamplingDepthType ) ) return;
 
     const auto& depthValues = originalDepths.find( resamplingDepthType )->second;
-    size_t      secondIndex = firstIndex + 1;
-    if ( secondIndex >= depthValues.size() ) return;
+    if ( firstIndex >= depthValues.size() || secondIndex >= depthValues.size() ) return;
 
     double depth0 = depthValues[firstIndex];
     double depth1 = depthValues[secondIndex];
@@ -374,12 +378,13 @@ void RigWellLogCurveData::interpolateSegment( RiaDefines::DepthTypeEnum         
     }
     double resampledValue = slope * ( targetDepthValue - depth0 ) + x0;
     resampledValues.push_back( resampledValue );
+    resampledDepths[resamplingDepthType].push_back( targetDepthValue );
 
+    // Add depth values for remaining depth types
     for ( const auto& [depthType, depthTypeValues] : originalDepths )
     {
-        // Skip the depth type we are resampling and ensure depth values are available
         if ( depthType == resamplingDepthType ) continue;
-        if ( depthTypeValues.size() < secondIndex - 1 ) continue;
+        if ( firstIndex >= depthTypeValues.size() || secondIndex >= depthTypeValues.size() ) continue;
 
         double otherDepth0 = depthTypeValues[firstIndex];
         double otherDepth1 = depthTypeValues[secondIndex];
@@ -423,13 +428,10 @@ std::pair<std::vector<double>, std::map<RiaDefines::DepthTypeEnum, std::vector<d
     if ( depthIt == originalDepths.end() || depthIt->second.empty() ) return {};
     const auto& depthValues = depthIt->second;
 
+    bool reverseOrder = resamplingDepthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
+
     std::vector<double>                                      resampledValues;
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths;
-    resampledDepths.insert( std::make_pair( resamplingDepthType, targetDepths ) );
-
-    cvf::ref<RigWellLogCurveData> resampledCurveData = new RigWellLogCurveData;
-
-    bool reverseOrder = resamplingDepthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
 
     size_t segmentSearchStartIdx = 0;
     for ( const auto& targetDepth : targetDepths )
@@ -439,33 +441,34 @@ std::pair<std::vector<double>, std::map<RiaDefines::DepthTypeEnum, std::vector<d
         {
             if ( std::fabs( depthValues[segmentStartIdx] - targetDepth ) < eps ) // already have this depth point, reuse it
             {
+                // Copy all depth data for this segment
                 resampledValues.push_back( propertyValues[segmentStartIdx] );
-                // Copy all depth types for this segment
-                for ( const auto& depthTypeValuesPair : originalDepths )
+                for ( const auto& [depthType, depthValues] : originalDepths )
                 {
-                    if ( depthTypeValuesPair.first != resamplingDepthType )
-                    {
-                        resampledDepths[depthTypeValuesPair.first].push_back( depthTypeValuesPair.second[segmentStartIdx] );
-                    }
+                    resampledDepths[depthType].push_back( depthValues[segmentStartIdx] );
                 }
-                segmentSearchStartIdx = segmentStartIdx;
+                segmentSearchStartIdx = segmentStartIdx + 1;
                 foundPoint            = true;
                 break;
             }
-            else if ( segmentStartIdx < depthValues.size() - 1 )
+            else if ( segmentStartIdx > 0 && segmentStartIdx < depthValues.size() )
             {
-                double minDepthSegment = std::min( depthValues[segmentStartIdx], depthValues[segmentStartIdx + 1] );
-                double maxDepthSegment = std::max( depthValues[segmentStartIdx], depthValues[segmentStartIdx + 1] );
+                // Interpolate between current and previous depth point
+                const size_t firstIndex      = segmentStartIdx - 1;
+                const size_t secondIndex     = segmentStartIdx;
+                double       minDepthSegment = std::min( depthValues[firstIndex], depthValues[secondIndex] );
+                double       maxDepthSegment = std::max( depthValues[firstIndex], depthValues[secondIndex] );
                 if ( cvf::Math::valueInRange( targetDepth, minDepthSegment, maxDepthSegment ) )
                 {
-                    interpolateSegment( resamplingDepthType,
-                                        resampledValues,
-                                        resampledDepths,
-                                        targetDepth,
-                                        segmentStartIdx,
-                                        originalDepths,
-                                        propertyValues,
-                                        eps );
+                    createAndAddInterpolatedSegmentValueAndDepths( resampledValues,
+                                                                   resampledDepths,
+                                                                   resamplingDepthType,
+                                                                   targetDepth,
+                                                                   firstIndex,
+                                                                   secondIndex,
+                                                                   originalDepths,
+                                                                   propertyValues,
+                                                                   eps );
                     segmentSearchStartIdx = segmentStartIdx;
                     foundPoint            = true;
                     break;
@@ -477,15 +480,33 @@ std::pair<std::vector<double>, std::map<RiaDefines::DepthTypeEnum, std::vector<d
             if ( isLeftOf( targetDepth, depthValues.front(), reverseOrder, eps ) )
             {
                 // Extrapolate from front two
-                const size_t firstIndex = 0;
-                interpolateSegment( resamplingDepthType, resampledValues, resampledDepths, targetDepth, firstIndex, originalDepths, propertyValues, eps );
+                const size_t firstIndex  = 0;
+                const size_t secondIndex = 1;
+                createAndAddInterpolatedSegmentValueAndDepths( resampledValues,
+                                                               resampledDepths,
+                                                               resamplingDepthType,
+                                                               targetDepth,
+                                                               firstIndex,
+                                                               secondIndex,
+                                                               originalDepths,
+                                                               propertyValues,
+                                                               eps );
                 foundPoint = true;
             }
             else if ( isRightOf( targetDepth, depthValues.back(), reverseOrder, eps ) )
             {
                 // Extrapolate from end two
-                const size_t N = depthValues.size() - 1;
-                interpolateSegment( resamplingDepthType, resampledValues, resampledDepths, targetDepth, N - 1, originalDepths, propertyValues, eps );
+                const size_t N   = depthValues.size() - 1;
+                const size_t N_1 = N - 1;
+                createAndAddInterpolatedSegmentValueAndDepths( resampledValues,
+                                                               resampledDepths,
+                                                               resamplingDepthType,
+                                                               targetDepth,
+                                                               N_1,
+                                                               N,
+                                                               originalDepths,
+                                                               propertyValues,
+                                                               eps );
                 foundPoint = true;
             }
         }

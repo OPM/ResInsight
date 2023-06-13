@@ -31,7 +31,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RigWellLogCurveData, interpolateSegment_first )
+TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_first )
 {
     // Input data
     const std::map<RiaDefines::DepthTypeEnum, std::vector<double>> originalDepths =
@@ -49,22 +49,28 @@ TEST( RigWellLogCurveData, interpolateSegment_first )
     // Target data (resampling with MEASURED_DEPTH)
     const double targetDepthValue = 10.0; // Halfway between index 0 and 1 for MEASURED_DEPTH in originalDepths
     const size_t firstIndex       = 0;
+    const size_t secondIndex      = firstIndex + 1;
 
     // Call the function under test
-    RigWellLogCurveData::interpolateSegment( resamplingDepthType,
-                                             resampledValues,
-                                             resampledDepths,
-                                             targetDepthValue,
-                                             firstIndex,
-                                             originalDepths,
-                                             propertyValues,
-                                             eps );
+    RigWellLogCurveData::createAndAddInterpolatedSegmentValueAndDepths( resampledValues,
+                                                                        resampledDepths,
+                                                                        resamplingDepthType,
+                                                                        targetDepthValue,
+                                                                        firstIndex,
+                                                                        secondIndex,
+                                                                        originalDepths,
+                                                                        propertyValues,
+                                                                        eps );
 
     // Check the results
     ASSERT_EQ( resampledValues.size(), size_t( 1 ) );
     ASSERT_DOUBLE_EQ( resampledValues[0], 50.0 );
 
-    ASSERT_EQ( resampledDepths.size(), size_t( 2 ) );
+    ASSERT_EQ( resampledDepths.size(), size_t( 3 ) );
+
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH].size(), size_t( 1 ) );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][0], 10.0 );
+
     ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), size_t( 1 ) );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][0], 15.0 );
 
@@ -75,7 +81,7 @@ TEST( RigWellLogCurveData, interpolateSegment_first )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RigWellLogCurveData, interpolateSegment_second )
+TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_second )
 {
     // Input data
     const std::map<RiaDefines::DepthTypeEnum, std::vector<double>> originalDepths =
@@ -95,33 +101,41 @@ TEST( RigWellLogCurveData, interpolateSegment_second )
     const double secondTargetDepthValue = 30.0; // Halfway between index 1 and 2 for MEASURED_DEPTH in originalDepths
     const size_t firstIndex             = 0;
     const size_t secondIndex            = 1;
+    const size_t thirdIndex             = 2;
 
-    // Call the function under test with first index and target value
-    RigWellLogCurveData::interpolateSegment( resamplingDepthType,
-                                             resampledValues,
-                                             resampledDepths,
-                                             firstTargetDepthValue,
-                                             firstIndex,
-                                             originalDepths,
-                                             propertyValues,
-                                             eps );
+    // Call the function under test with interpolating between first and second index
+    RigWellLogCurveData::createAndAddInterpolatedSegmentValueAndDepths( resampledValues,
+                                                                        resampledDepths,
+                                                                        resamplingDepthType,
+                                                                        firstTargetDepthValue,
+                                                                        firstIndex,
+                                                                        firstIndex + 1,
+                                                                        originalDepths,
+                                                                        propertyValues,
+                                                                        eps );
 
-    // Call the function under test with second index and target value
-    RigWellLogCurveData::interpolateSegment( resamplingDepthType,
-                                             resampledValues,
-                                             resampledDepths,
-                                             secondTargetDepthValue,
-                                             secondIndex,
-                                             originalDepths,
-                                             propertyValues,
-                                             eps );
+    // Call the function under test with interpolating between second and third index
+    RigWellLogCurveData::createAndAddInterpolatedSegmentValueAndDepths( resampledValues,
+                                                                        resampledDepths,
+                                                                        resamplingDepthType,
+                                                                        secondTargetDepthValue,
+                                                                        secondIndex,
+                                                                        thirdIndex,
+                                                                        originalDepths,
+                                                                        propertyValues,
+                                                                        eps );
 
     // Check the results
     ASSERT_EQ( resampledValues.size(), size_t( 2 ) );
     ASSERT_DOUBLE_EQ( resampledValues[0], 50.0 );
     ASSERT_DOUBLE_EQ( resampledValues[1], 125.0 );
 
-    ASSERT_EQ( resampledDepths.size(), size_t( 2 ) );
+    ASSERT_EQ( resampledDepths.size(), size_t( 3 ) );
+
+    ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH].size(), size_t( 2 ) );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][0], 10.0 );
+    ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::MEASURED_DEPTH][1], 30.0 );
+
     ASSERT_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH].size(), size_t( 2 ) );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][0], 15.0 );
     ASSERT_DOUBLE_EQ( resampledDepths[RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH][1], 45.0 );
