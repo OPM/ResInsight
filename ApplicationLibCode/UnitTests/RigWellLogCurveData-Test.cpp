@@ -97,8 +97,8 @@ TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_second 
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths;
 
     // Target data (resampling with MEASURED_DEPTH)
-    const double firstTargetDepthValue  = 10.0; // Halfway between index 0 and 1 for MEASURED_DEPTH in originalDepths
-    const double secondTargetDepthValue = 30.0; // Halfway between index 1 and 2 for MEASURED_DEPTH in originalDepths
+    const double firstTargetDepthValue  = 10.0; // Halfway between first and second index for MEASURED_DEPTH in originalDepths
+    const double secondTargetDepthValue = 30.0; // Halfway between second and third index for MEASURED_DEPTH in originalDepths
     const size_t firstIndex             = 0;
     const size_t secondIndex            = 1;
     const size_t thirdIndex             = 2;
@@ -109,7 +109,7 @@ TEST( RigWellLogCurveData, createAndAddInterpolatedSegmentValueAndDepths_second 
                                                                         resamplingDepthType,
                                                                         firstTargetDepthValue,
                                                                         firstIndex,
-                                                                        firstIndex + 1,
+                                                                        secondIndex,
                                                                         originalDepths,
                                                                         propertyValues,
                                                                         eps );
