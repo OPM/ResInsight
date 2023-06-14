@@ -23,6 +23,7 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RifCsvUserDataParser.h"
+#include "RifEclipseSummaryAddress.h"
 #include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
 
@@ -79,7 +80,21 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString& text, RifEclipseSum
                                                                   { "1000Sm3/d", { "SM3/DAY", 1000.0 } },
                                                                   { "MSm3", { "SM3", 1000000.0 } } };
 
-    if ( !m_parser->parse( parseOptions, unitMapping ) )
+    QString prefix = defaultCategory == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD ? "F" : "W";
+
+    std::map<QString, QString> nameMapping = { { "WaterCut", prefix + "WCT" },           { "GOR", prefix + "GOR" },
+                                               { "BottomHolePressure", prefix + "BHP" }, { "CumLiquidInjected", prefix + "LIT" },
+                                               { "CumWaterInjected", prefix + "WIT" },   { "CumGasInjected", prefix + "GIT" },
+                                               { "CumOilInjected", prefix + "OIT" },     { "CumLiquidProduced", prefix + "LPT" },
+                                               { "CumWaterProduced", prefix + "WPT" },   { "CumGasProduced", prefix + "GPT" },
+                                               { "CumOilProduced", prefix + "OPT" },     { "LiquidProduced", prefix + "LPR" },
+                                               { "WaterProduced", prefix + "WPR" },      { "GasProduced", prefix + "GPR" },
+                                               { "OilProduced", prefix + "OPR" },        { "LiquidInjected", prefix + "LIR" },
+                                               { "WaterInjected", prefix + "WIR" },      { "GasInjected", prefix + "GIR" },
+                                               { "OilInjected", prefix + "OIR" },        { "WaterGasRatio", prefix + "WGR" },
+                                               { "GasLiftRate", prefix + "GLIR" } };
+
+    if ( !m_parser->parse( parseOptions, nameMapping, unitMapping ) )
     {
         RiaLogging::error( QString( "Failed to parse file" ) );
         return false;

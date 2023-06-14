@@ -85,10 +85,12 @@ RifCsvUserDataParser::~RifCsvUserDataParser()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parse( const AsciiDataParseOptions& parseOptions, const std::map<QString, std::pair<QString, double>>& unitMapping )
+bool RifCsvUserDataParser::parse( const AsciiDataParseOptions&                         parseOptions,
+                                  const std::map<QString, QString>&                    nameMapping,
+                                  const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     if ( determineCsvLayout() == LineBased ) return parseLineBasedData();
-    return parseColumnBasedData( parseOptions, unitMapping );
+    return parseColumnBasedData( parseOptions, nameMapping, unitMapping );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,6 +307,7 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
 bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                                         dataStream,
                                             const AsciiDataParseOptions&                         parseOptions,
                                             std::vector<Column>*                                 columnInfoList,
+                                            const std::map<QString, QString>&                    nameMapping,
                                             const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool headerFound = false;
@@ -396,6 +399,11 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
                 colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
             }
 
+            if ( auto it = nameMapping.find( colName ); it != nameMapping.end() )
+            {
+                colName = it->second;
+            }
+
             if ( iCol < names.size() )
             {
                 QString name = RiaTextStringTools::trimAndRemoveDoubleSpaces( names[iCol] );
@@ -440,6 +448,7 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
 ///
 //--------------------------------------------------------------------------------------------------
 bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions&                         parseOptions,
+                                                 const std::map<QString, QString>&                    nameMapping,
                                                  const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool errors = false;
@@ -454,7 +463,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions&   
     QTextStream* dataStream = openDataStream();
 
     // Parse header
-    if ( !parseColumnInfo( dataStream, parseOptions, &columnInfoList, unitMapping ) )
+    if ( !parseColumnInfo( dataStream, parseOptions, &columnInfoList, nameMapping, unitMapping ) )
     {
         if ( m_errorText ) m_errorText->append( "CSV import: Failed to parse header columns" );
         return false;
