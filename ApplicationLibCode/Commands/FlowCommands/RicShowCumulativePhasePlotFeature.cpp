@@ -84,6 +84,8 @@ void RicShowCumulativePhasePlotFeature::onActionTriggered( bool isChecked )
         wdp->setData( eclipseResultCase, wellName, timeStep );
         wdp->setShowWindow( true );
         wdp->loadDataAndUpdate();
+
+        RiuPlotMainWindowTools::onObjectAppended( wdp );
     }
 }
 
