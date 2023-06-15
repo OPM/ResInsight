@@ -150,13 +150,7 @@ void RimWellDistributionPlot::updateLegend()
         return;
     }
 
-    // Hide the legend when in multiplot mode, as the legend is handeled by the multi plot grid layout
-    bool doShowLegend = false;
-    if ( isMdiWindow() )
-    {
-        doShowLegend = m_showPlotLegends;
-    }
-
+    bool doShowLegend = true;
     if ( doShowLegend )
     {
         QwtLegend* legend = new QwtLegend( m_plotWidget );
@@ -363,6 +357,7 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
     const QString timeStepName = m_case ? m_case->timeStepName( m_timeStepIndex ) : "N/A";
 
     const QString plotTitleStr = QString( "%1 Distribution: %2, %3" ).arg( phaseString ).arg( m_wellName ).arg( timeStepName );
+    m_plotWidget->setPlotTitleRenderingFlags( Qt::AlignHCenter | Qt::TextWordWrap );
     m_plotWidget->setPlotTitle( plotTitleStr );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "TOF [years]" );

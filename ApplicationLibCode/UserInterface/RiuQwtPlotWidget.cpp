@@ -78,6 +78,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : RiuPlotWidget( plotDefinition, parent )
+    , m_titleRenderingFlags( Qt::AlignHCenter | Qt::TextSingleLine )
 {
     auto* layout = new QVBoxLayout;
     layout->setContentsMargins( 0, 0, 0, 0 );
@@ -248,7 +249,16 @@ void RiuQwtPlotWidget::setPlotTitleFontSize( int titleFontSize )
     QFont font  = title.font();
     font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
     title.setFont( font );
+    title.setRenderFlags( title.renderFlags() | Qt::TextWordWrap );
     m_plot->setTitle( title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setPlotTitleRenderingFlags( int flags )
+{
+    m_titleRenderingFlags = flags;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -668,7 +678,7 @@ void RiuQwtPlotWidget::applyPlotTitleToQwt()
 {
     QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
     QwtText plotTitle        = m_plot->title();
-    plotTitle.setRenderFlags( Qt::AlignHCenter | Qt::TextSingleLine );
+    plotTitle.setRenderFlags( m_titleRenderingFlags );
     if ( plotTitleToApply != plotTitle.text() )
     {
         plotTitle.setText( plotTitleToApply );

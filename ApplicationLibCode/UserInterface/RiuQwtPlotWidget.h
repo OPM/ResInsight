@@ -101,6 +101,7 @@ public:
     void           setPlotTitleEnabled( bool enabled ) override;
     bool           plotTitleEnabled() const override;
     void           setPlotTitleFontSize( int titleFontSize ) override;
+    void           setPlotTitleRenderingFlags( int flags );
 
     void setLegendFontSize( int fontSize ) override;
     void setInternalLegendVisible( bool visible ) override;
@@ -234,4 +235,6 @@ private:
     std::map<RiuPlotAxis, QwtAxisId> m_axisMapping;
 
     QPointer<QwtPlot> m_plot;
+
+    int m_titleRenderingFlags;
 };
