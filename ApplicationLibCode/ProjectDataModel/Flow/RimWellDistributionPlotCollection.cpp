@@ -308,6 +308,11 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
     {
         applyPlotParametersToContainedPlots();
         shouldRecalculatePlotData = true;
+
+        if ( changedField == &m_showOil || changedField == &m_showGas || changedField == &m_showWater || changedField == &m_showWindow )
+        {
+            if ( m_viewer ) m_viewer->scheduleUpdate();
+        }
     }
 
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );

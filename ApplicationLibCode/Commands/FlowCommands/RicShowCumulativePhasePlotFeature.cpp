@@ -85,6 +85,8 @@ void RicShowCumulativePhasePlotFeature::onActionTriggered( bool isChecked )
         wdp->setShowWindow( true );
         wdp->loadDataAndUpdate();
 
+        wdp->updateConnectedEditors();
+
         RiuPlotMainWindowTools::onObjectAppended( wdp );
     }
 }

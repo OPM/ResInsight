@@ -309,14 +309,7 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
     // cvf::Trace::show("RimWellDistributionPlot::onLoadDataAndUpdate()");
     // cvf::DebugTimer tim("RimWellDistributionPlot::onLoadDataAndUpdate()");
 
-    if ( isMdiWindow() )
-    {
-        updateMdiWindowVisibility();
-    }
-    else
-    {
-        updateParentLayout();
-    }
+    updateParentLayout();
 
     if ( !m_plotWidget )
     {
