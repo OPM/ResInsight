@@ -148,6 +148,16 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
             field->setValue( value );
         }
     }
+
+    if ( fieldsToUpdate.size() > 1 )
+    {
+        auto [ownerOfChildArrayField, childArrayFieldHandle] = RicToggleItemsFeatureImpl::findOwnerAndChildArrayField( fieldsToUpdate.front() );
+        if ( ownerOfChildArrayField && childArrayFieldHandle )
+        {
+            std::vector<caf::PdmObjectHandle*> objs;
+            ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,4 +319,44 @@ std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFro
     }
 
     return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Based on code in CmdUiCommandSystemImpl::fieldChangedCommand()
+/// Could be merged and put into a tool class
+//--------------------------------------------------------------------------------------------------
+std::pair<caf::PdmObjectHandle*, caf::PdmChildArrayFieldHandle*>
+    RicToggleItemsFeatureImpl::findOwnerAndChildArrayField( caf::PdmFieldHandle* fieldHandle )
+{
+    if ( !fieldHandle ) return {};
+
+    caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
+    caf::PdmObjectHandle*          ownerOfChildArrayField = nullptr;
+
+    // Find the first childArrayField by traversing parent field and objects. Usually, the childArrayField is
+    // the parent, but in some cases when we change fields in a sub-object of the object we need to traverse
+    // more levels
+
+    ownerOfChildArrayField = fieldHandle->ownerObject();
+    while ( ownerOfChildArrayField )
+    {
+        if ( ownerOfChildArrayField->parentField() )
+        {
+            childArrayFieldHandle  = dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
+            ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
+
+            if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
+        }
+        else
+        {
+            ownerOfChildArrayField = nullptr;
+        }
+    }
+
+    if ( ownerOfChildArrayField && childArrayFieldHandle )
+    {
+        return { ownerOfChildArrayField, childArrayFieldHandle };
+    }
+
+    return {};
 }
