@@ -1368,6 +1368,10 @@ void RimWellLogTrack::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArr
 {
     if ( childArray == &m_curves )
     {
+        // If multiple curves are unchecked, we need to attach/reattach to make sure the unchecked curves are not visible
+        detachAllCurves();
+        reattachAllCurves();
+
         loadDataAndUpdate();
     }
 }
