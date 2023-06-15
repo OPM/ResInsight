@@ -156,14 +156,14 @@ RiuPlotMainWindow* RiuPlotMainWindow::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::onWellSelected( QString wellName )
+void RiuPlotMainWindow::onWellSelected( const QString& wellName, int timeStep )
 {
     RiuPlotMainWindow* plotWnd = instance();
     if ( !plotWnd ) return;
 
     if ( !plotWnd->selection3DLinkEnabled() ) return;
 
-    RimMainPlotCollection::current()->updateSelectedWell( wellName );
+    RimMainPlotCollection::current()->updateSelectedWell( wellName, timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -52,6 +52,8 @@ public:
     ~RimWellDistributionPlotCollection() override;
 
     void setData( RimEclipseResultCase* eclipseCase, QString wellName, int timeStepIndex );
+    void setWellName( const QString& wellName );
+    void setTimeStep( int timeStep );
 
     QWidget* viewWidget() override;
     QString  description() const override;

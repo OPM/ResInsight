@@ -68,6 +68,7 @@ public:
 
     void setDescription( const QString& description );
     void setFromSimulationWell( RimSimWellInView* simWell );
+    void setWellName( const QString& wellName );
 
     // RimPlot implementations
     RiuPlotWidget* plotWidget() override;

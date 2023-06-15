@@ -220,7 +220,7 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
 
         RiuMainWindow::instance()->setResultInfo( wellPathText );
 
-        RiuPlotMainWindow::onWellSelected( wellPathSourceInfo->wellPath()->name() );
+        RiuPlotMainWindow::onWellSelected( wellPathSourceInfo->wellPath()->name(), rimView->currentTimeStep() );
 
         if ( objectToSelect )
         {

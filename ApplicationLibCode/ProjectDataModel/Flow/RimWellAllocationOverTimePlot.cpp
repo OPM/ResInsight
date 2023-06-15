@@ -173,6 +173,15 @@ void RimWellAllocationOverTimePlot::setFromSimulationWell( RimSimWellInView* sim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellAllocationOverTimePlot::setWellName( const QString& wellName )
+{
+    m_wellName = wellName;
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RimWellAllocationOverTimePlot::plotWidget()
 {
     return m_plotWidget;
