@@ -185,7 +185,7 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault( &m_description, "TrackDescription", "Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "Curves", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curves, "Curves", "Curves" );
     m_curves.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_curves );
     reorderability->orderChanged.connect( this, &RimWellLogTrack::curveDataChanged );

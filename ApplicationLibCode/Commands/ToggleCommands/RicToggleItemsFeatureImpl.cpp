@@ -188,7 +188,7 @@ QString RicToggleItemsFeatureImpl::findCollectionName( SelectionToggleType state
             auto arrayField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( childObj->parentField() );
             if ( arrayField && arrayField->ownerObject() )
             {
-                return arrayField->ownerObject()->uiCapability()->uiName();
+                return arrayField->uiCapability()->uiName();
             }
         }
     }
