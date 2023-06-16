@@ -409,6 +409,10 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
             {
                 parts.append( QString( "%1" ).arg( formatDouble( std::fabs( coeff ) ) ) );
             }
+            else if ( i == 1 )
+            {
+                parts.append( QString( "%1x" ).arg( formatDouble( std::fabs( coeff ) ) ) );
+            }
             else
             {
                 parts.append( QString( " %1x<sup>%2</sup>" ).arg( formatDouble( std::fabs( coeff ) ) ).arg( i ) );
