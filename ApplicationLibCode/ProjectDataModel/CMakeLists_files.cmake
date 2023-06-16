@@ -132,6 +132,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureDepthData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -263,6 +264,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureDepthData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimResultSelectionUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotRectAnnotation.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

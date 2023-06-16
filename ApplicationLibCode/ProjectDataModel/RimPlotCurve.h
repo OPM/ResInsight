@@ -28,6 +28,7 @@
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtSymbol.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
@@ -39,6 +40,7 @@
 
 class RiuPlotCurve;
 class RiuPlotWidget;
+class RimPlotRectAnnotation;
 
 //==================================================================================================
 ///
@@ -139,6 +141,8 @@ public:
     bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
     void deletePlotCurve();
 
+    std::vector<RimPlotRectAnnotation*> rectAnnotations() const;
+
 protected:
     virtual QString createCurveAutoName() = 0;
 
@@ -208,7 +212,8 @@ protected:
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
 
-    caf::PdmPtrArrayField<RimPlotCurve*> m_additionalDataSources;
+    caf::PdmPtrArrayField<RimPlotCurve*>            m_additionalDataSources;
+    caf::PdmChildArrayField<RimPlotRectAnnotation*> m_rectAnnotations;
 
     QPointer<RiuPlotWidget> m_parentPlot;
     RiuPlotCurve*           m_plotCurve;

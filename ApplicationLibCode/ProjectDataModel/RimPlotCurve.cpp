@@ -26,6 +26,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimNameConfig.h"
+#include "RimPlotRectAnnotation.h"
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
@@ -134,6 +135,8 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault( &m_additionalDataSources, "AdditionalDataSources", "Additional Data Sources" );
     m_additionalDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_additionalDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_rectAnnotations, "RectAnnotation", "Plot Rect Annotations" );
 
     m_plotCurve  = nullptr;
     m_parentPlot = nullptr;
@@ -1135,6 +1138,14 @@ double RimPlotCurve::closestYValueForX( double xValue ) const
 std::vector<RimPlotCurve*> RimPlotCurve::additionalDataSources() const
 {
     return m_additionalDataSources.ptrReferencedObjectsByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotRectAnnotation*> RimPlotCurve::rectAnnotations() const
+{
+    return m_rectAnnotations.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

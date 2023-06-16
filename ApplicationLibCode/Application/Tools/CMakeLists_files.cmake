@@ -52,6 +52,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaNetworkTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaOpenMPTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumericalTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTextTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -101,6 +102,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaNetworkTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaOpenMPTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumericalTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTextTools.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

@@ -110,7 +110,6 @@ private:
     static QString generateRegressionText( const regression::LogarithmicRegression& reg );
     static QString generateRegressionText( const regression::ExponentialRegression& reg );
 
-    static QString formatDouble( double v );
     static QString getXAxisUnitText();
 
     static void appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps );
