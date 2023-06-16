@@ -149,6 +149,8 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
         }
     }
 
+    // If multiple fields are updated, we call onChildrenUpdated() on the owner of the first field
+    // Example: Trigger replot of curves when multiple curves are toggled
     if ( fieldsToUpdate.size() > 1 )
     {
         auto [ownerOfChildArrayField, childArrayFieldHandle] = RicToggleItemsFeatureImpl::findOwnerAndChildArrayField( fieldsToUpdate.front() );
