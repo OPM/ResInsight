@@ -164,59 +164,73 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
 
     if ( timeStepsInRange.empty() || valuesInRange.empty() ) return {};
 
-    std::vector<double> timeStepsD = convertToDouble( timeStepsInRange );
+    const std::vector<double> timeStepsD = convertToDouble( timeStepsInRange );
 
-    std::vector<time_t> outputTimeSteps = getOutputTimeSteps( timeStepsInRange, m_forecastBackward(), m_forecastForward(), m_forecastUnit() );
+    // Create time steps which includes forecasting backward and forward
+    const std::vector<time_t> outputTimeSteps =
+        getOutputTimeSteps( timeStepsInRange, m_forecastBackward(), m_forecastForward(), m_forecastUnit() );
+    const std::vector<double> outputTimeStepsD = convertToDouble( outputTimeSteps );
 
-    std::vector<double> outputTimeStepsD = convertToDouble( outputTimeSteps );
-
-    if ( timeStepsD.empty() || valuesInRange.empty() )
+    // Move the time scale from seconds since epoch to years from first data point.
+    // This gives better precision for the regression analysis.
+    const double offset                          = timeStepsD[0];
+    auto         convertToYearsFromFirstTimeStep = []( const std::vector<double>& timeSteps, double offset )
     {
-        return {};
-    }
+        const double secondsPerYear = 60 * 60 * 24 * 365;
+
+        std::vector<double> timeStepsH( timeSteps.size() );
+        for ( size_t i = 0; i < timeSteps.size(); i++ )
+        {
+            timeStepsH[i] = ( timeSteps[i] - offset ) / secondsPerYear;
+        }
+        return timeStepsH;
+    };
+
+    const std::vector<double> timeStepsDYears       = convertToYearsFromFirstTimeStep( timeStepsD, offset );
+    const std::vector<double> outputTimeStepsDYears = convertToYearsFromFirstTimeStep( outputTimeStepsD, offset );
 
     if ( m_regressionType == RegressionType::LINEAR )
     {
         regression::LinearRegression linearRegression;
-        linearRegression.fit( timeStepsD, valuesInRange );
-        std::vector<double> predictedValues = linearRegression.predict( outputTimeStepsD );
+        linearRegression.fit( timeStepsDYears, valuesInRange );
+        std::vector<double> predictedValues = linearRegression.predict( outputTimeStepsDYears );
         return { outputTimeSteps, predictedValues, generateRegressionText( linearRegression ) };
     }
     else if ( m_regressionType == RegressionType::POLYNOMIAL )
     {
         regression::PolynomialRegression polynomialRegression;
-        polynomialRegression.fit( timeStepsD, valuesInRange, m_polynomialDegree );
-        std::vector<double> predictedValues = polynomialRegression.predict( outputTimeStepsD );
+        polynomialRegression.fit( timeStepsDYears, valuesInRange, m_polynomialDegree );
+        std::vector<double> predictedValues = polynomialRegression.predict( outputTimeStepsDYears );
         return { outputTimeSteps, predictedValues, generateRegressionText( polynomialRegression ) };
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsDYears, valuesInRange );
         if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
 
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = powerFitRegression.predict( outputTimeStepsD );
-        return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( powerFitRegression ) };
+        std::vector<double> predictedValues = powerFitRegression.predict( outputTimeStepsDYears );
+        return { outputTimeSteps, predictedValues, generateRegressionText( powerFitRegression ) };
     }
     else if ( m_regressionType == RegressionType::EXPONENTIAL )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsDYears, valuesInRange );
         if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
 
         regression::ExponentialRegression exponentialRegression;
         exponentialRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = exponentialRegression.predict( outputTimeStepsD );
+        std::vector<double> predictedValues = exponentialRegression.predict( outputTimeStepsDYears );
         return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( exponentialRegression ) };
     }
     else if ( m_regressionType == RegressionType::LOGARITHMIC )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsDYears, valuesInRange );
         if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
 
         regression::LogarithmicRegression logarithmicRegression;
         logarithmicRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = logarithmicRegression.predict( outputTimeStepsD );
+        std::vector<double> predictedValues = logarithmicRegression.predict( outputTimeStepsDYears );
         return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( logarithmicRegression ) };
     }
 
@@ -362,7 +376,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 {
     QString sign = reg.intercept() < 0.0 ? "-" : "+";
     return QString( "y = %1x %2 %3" ).arg( formatDouble( reg.slope() ) ).arg( sign ).arg( formatDouble( std::fabs( reg.intercept() ) ) ) +
-           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,7 +413,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
         }
     }
 
-    return str + parts.join( " " ) + QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+    return str + parts.join( " " ) + QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -408,7 +422,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PowerFitRegression& reg )
 {
     return QString( "y = %1 + x<sup>%2</sup>" ).arg( formatDouble( reg.scale() ) ).arg( formatDouble( reg.exponent() ) ) +
-           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -417,7 +431,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::ExponentialRegression& reg )
 {
     return QString( "y = %1 * e<sup>%2x</sup>" ).arg( formatDouble( reg.a() ) ).arg( formatDouble( reg.b() ) ) +
-           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,7 +440,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LogarithmicRegression& reg )
 {
     return QString( "y = %1 + %2 * ln(x)" ).arg( formatDouble( reg.a() ) ).arg( formatDouble( reg.b() ) ) +
-           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -573,4 +587,12 @@ void RimSummaryRegressionAnalysisCurve::updateDefaultValues()
         m_minTimeStep = timeSteps.front();
         m_maxTimeStep = timeSteps.back();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::getXAxisUnitText()
+{
+    return QString( "<br>X Axis Unit: Year" );
 }
