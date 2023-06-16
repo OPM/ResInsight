@@ -164,59 +164,73 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
 
     if ( timeStepsInRange.empty() || valuesInRange.empty() ) return {};
 
-    std::vector<double> timeStepsD = convertToDouble( timeStepsInRange );
+    const std::vector<double> timeStepsD = convertToDouble( timeStepsInRange );
 
-    std::vector<time_t> outputTimeSteps = getOutputTimeSteps( timeStepsInRange, m_forecastBackward(), m_forecastForward(), m_forecastUnit() );
+    // Create time steps which includes forecasting backward and forward
+    const std::vector<time_t> outputTimeSteps =
+        getOutputTimeSteps( timeStepsInRange, m_forecastBackward(), m_forecastForward(), m_forecastUnit() );
+    const std::vector<double> outputTimeStepsD = convertToDouble( outputTimeSteps );
 
-    std::vector<double> outputTimeStepsD = convertToDouble( outputTimeSteps );
-
-    if ( timeStepsD.empty() || valuesInRange.empty() )
+    // Move the time scale from seconds since epoch to days from first data point.
+    // This gives better precision for the regression analysis.
+    const double offset                         = timeStepsD[0];
+    auto         convertToDaysFromFirstTimeStep = []( const std::vector<double>& timeSteps, double offset )
     {
-        return {};
-    }
+        const double secondsPerDay = 60 * 60 * 24;
+
+        std::vector<double> timeStepsH( timeSteps.size() );
+        for ( size_t i = 0; i < timeSteps.size(); i++ )
+        {
+            timeStepsH[i] = ( timeSteps[i] - offset ) / secondsPerDay;
+        }
+        return timeStepsH;
+    };
+
+    const std::vector<double> timeStepsDDays       = convertToDaysFromFirstTimeStep( timeStepsD, offset );
+    const std::vector<double> outputTimeStepsDDays = convertToDaysFromFirstTimeStep( outputTimeStepsD, offset );
 
     if ( m_regressionType == RegressionType::LINEAR )
     {
         regression::LinearRegression linearRegression;
-        linearRegression.fit( timeStepsD, valuesInRange );
-        std::vector<double> predictedValues = linearRegression.predict( outputTimeStepsD );
+        linearRegression.fit( timeStepsDDays, valuesInRange );
+        std::vector<double> predictedValues = linearRegression.predict( outputTimeStepsDDays );
         return { outputTimeSteps, predictedValues, generateRegressionText( linearRegression ) };
     }
     else if ( m_regressionType == RegressionType::POLYNOMIAL )
     {
         regression::PolynomialRegression polynomialRegression;
-        polynomialRegression.fit( timeStepsD, valuesInRange, m_polynomialDegree );
-        std::vector<double> predictedValues = polynomialRegression.predict( outputTimeStepsD );
+        polynomialRegression.fit( timeStepsDDays, valuesInRange, m_polynomialDegree );
+        std::vector<double> predictedValues = polynomialRegression.predict( outputTimeStepsDDays );
         return { outputTimeSteps, predictedValues, generateRegressionText( polynomialRegression ) };
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsDDays, valuesInRange );
         if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
 
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = powerFitRegression.predict( outputTimeStepsD );
-        return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( powerFitRegression ) };
+        std::vector<double> predictedValues = powerFitRegression.predict( outputTimeStepsDDays );
+        return { outputTimeSteps, predictedValues, generateRegressionText( powerFitRegression ) };
     }
     else if ( m_regressionType == RegressionType::EXPONENTIAL )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsDDays, valuesInRange );
         if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
 
         regression::ExponentialRegression exponentialRegression;
         exponentialRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = exponentialRegression.predict( outputTimeStepsD );
+        std::vector<double> predictedValues = exponentialRegression.predict( outputTimeStepsDDays );
         return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( exponentialRegression ) };
     }
     else if ( m_regressionType == RegressionType::LOGARITHMIC )
     {
-        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsD, valuesInRange );
+        auto [filteredTimeSteps, filteredValues] = getPositiveValues( timeStepsDDays, valuesInRange );
         if ( filteredTimeSteps.empty() || filteredValues.empty() ) return {};
 
         regression::LogarithmicRegression logarithmicRegression;
         logarithmicRegression.fit( filteredTimeSteps, filteredValues );
-        std::vector<double> predictedValues = logarithmicRegression.predict( outputTimeStepsD );
+        std::vector<double> predictedValues = logarithmicRegression.predict( outputTimeStepsDDays );
         return { convertToTimeT( outputTimeStepsD ), predictedValues, generateRegressionText( logarithmicRegression ) };
     }
 
