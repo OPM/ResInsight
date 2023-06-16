@@ -42,6 +42,7 @@
 class RifTextDataTableFormatter;
 class RimCase;
 class RimGridCrossPlotCurve;
+class RimGridCrossPlotRegressionCurve;
 class RimGridView;
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -110,6 +111,7 @@ public:
     QString groupTitle() const;
     QString groupParameter() const;
     void    detachAllCurves();
+    void    detachAllRegressionCurves();
     void    cellFilterViewUpdated();
 
     RimRegularLegendConfig* legendConfig() const;
@@ -138,6 +140,8 @@ public:
     void setCustomColor( const cvf::Color3f color );
     void destroyCurves();
 
+    void destroyRegressionCurves();
+
     size_t visibleCurveCount() const;
     size_t sampleCount() const;
 
@@ -149,6 +153,8 @@ protected:
     void    createCurves( const RigEclipseCrossPlotResult& result );
     void    fillCurveDataInExistingCurves( const RigEclipseCrossPlotResult& result );
     QString createGroupName( size_t curveIndex ) const;
+    void    createRegressionCurves( const RigEclipseCrossPlotResult& result );
+    void    fillCurveDataInExistingRegressionCurves( const RigEclipseCrossPlotResult& result );
 
     std::map<int, cvf::UByteArray> calculateCellVisibility( RimEclipseCase* eclipseCase ) const;
 
@@ -168,6 +174,9 @@ protected:
     bool hasMultipleTimeSteps() const;
     void filterInvalidCurveValues( RigEclipseCrossPlotResult* result );
 
+    cvf::Color3f createCurveColor( bool useCustomColor, int colorIndex ) const;
+    cvf::Color3f createCurveColor( const std::vector<double>& tickValues, int groupIndex ) const;
+
 private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
@@ -179,7 +188,8 @@ private:
 
     caf::PdmChildField<RimGridCrossPlotDataSetNameConfig*> m_nameConfig;
 
-    caf::PdmChildArrayField<RimGridCrossPlotCurve*> m_crossPlotCurves;
+    caf::PdmChildArrayField<RimGridCrossPlotCurve*>           m_crossPlotCurves;
+    caf::PdmChildArrayField<RimGridCrossPlotRegressionCurve*> m_crossPlotRegressionCurves;
 
     std::map<int, RigEclipseCrossPlotResult> m_groupedResults;
 

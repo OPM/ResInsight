@@ -26,6 +26,7 @@
 
 class QwtPlotIntervalCurve;
 class RiuQwtPlotWidget;
+class RiuQwtPlotRectAnnotation;
 
 //==================================================================================================
 //
@@ -98,6 +99,8 @@ protected:
 
     QwtPlotIntervalCurve* m_qwtCurveErrorBars;
     bool                  m_showErrorBars;
+
+    RiuQwtPlotRectAnnotation* m_qwtPlotRectAnnotation;
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 };

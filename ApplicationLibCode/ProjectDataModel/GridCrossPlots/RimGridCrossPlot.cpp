@@ -210,6 +210,7 @@ void RimGridCrossPlot::reattachAllCurves()
         for ( auto dataSet : m_crossPlotDataSets )
         {
             dataSet->detachAllCurves();
+            dataSet->detachAllRegressionCurves();
             if ( dataSet->isChecked() )
             {
                 dataSet->setParentPlotNoReplot( m_plotWidget );
@@ -336,6 +337,7 @@ void RimGridCrossPlot::detachAllCurves()
     for ( auto dataSet : m_crossPlotDataSets() )
     {
         dataSet->detachAllCurves();
+        dataSet->detachAllRegressionCurves();
     }
 }
 
@@ -1026,6 +1028,7 @@ void RimGridCrossPlot::cleanupBeforeClose()
     for ( auto dataSet : m_crossPlotDataSets() )
     {
         dataSet->detachAllCurves();
+        dataSet->detachAllRegressionCurves();
     }
 
     if ( m_plotWidget )

@@ -19,6 +19,7 @@
 #include "RimSummaryRegressionAnalysisCurve.h"
 
 #include "RiaQDateTimeTools.h"
+#include "RiaRegressionTextTools.h"
 #include "RiaTimeTTools.h"
 
 #include "RimSummaryPlot.h"
@@ -369,19 +370,9 @@ QString RimSummaryRegressionAnalysisCurve::curveExportDescription( const RifEcli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryRegressionAnalysisCurve::formatDouble( double v )
-{
-    return QString::number( v, 'g', 2 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LinearRegression& reg )
 {
-    QString sign = reg.intercept() < 0.0 ? "-" : "+";
-    return QString( "y = %1x %2 %3" ).arg( formatDouble( reg.slope() ) ).arg( sign ).arg( formatDouble( std::fabs( reg.intercept() ) ) ) +
-           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -389,40 +380,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PolynomialRegression& reg )
 {
-    QString str = "y = ";
-
-    bool                isFirst = true;
-    std::vector<double> coeffs  = reg.coeffisients();
-    QStringList         parts;
-    for ( size_t i = 0; i < coeffs.size(); i++ )
-    {
-        double coeff = coeffs[i];
-        // Skip zero coeffs
-        if ( coeff != 0.0 )
-        {
-            if ( coeff < 0.0 )
-                parts.append( "-" );
-            else if ( !isFirst )
-                parts.append( "+" );
-
-            if ( i == 0 )
-            {
-                parts.append( QString( "%1" ).arg( formatDouble( std::fabs( coeff ) ) ) );
-            }
-            else if ( i == 1 )
-            {
-                parts.append( QString( "%1x" ).arg( formatDouble( std::fabs( coeff ) ) ) );
-            }
-            else
-            {
-                parts.append( QString( " %1x<sup>%2</sup>" ).arg( formatDouble( std::fabs( coeff ) ) ).arg( i ) );
-            }
-
-            isFirst = false;
-        }
-    }
-
-    return str + parts.join( " " ) + QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -430,8 +388,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PowerFitRegression& reg )
 {
-    return QString( "y = %1 + x<sup>%2</sup>" ).arg( formatDouble( reg.scale() ) ).arg( formatDouble( reg.exponent() ) ) +
-           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -439,8 +396,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::ExponentialRegression& reg )
 {
-    return QString( "y = %1 * e<sup>%2x</sup>" ).arg( formatDouble( reg.a() ) ).arg( formatDouble( reg.b() ) ) +
-           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,8 +404,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LogarithmicRegression& reg )
 {
-    return QString( "y = %1 + %2 * ln(x)" ).arg( formatDouble( reg.a() ) ).arg( formatDouble( reg.b() ) ) +
-           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
 }
 
 //--------------------------------------------------------------------------------------------------
