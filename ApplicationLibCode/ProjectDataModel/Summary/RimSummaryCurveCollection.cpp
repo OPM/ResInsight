@@ -51,7 +51,7 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 {
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves" );
+    CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Curves" );
     m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
     caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimSummaryCurveCollection::onCurvesReordered );

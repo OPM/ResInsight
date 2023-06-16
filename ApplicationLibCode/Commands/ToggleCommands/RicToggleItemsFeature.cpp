@@ -50,8 +50,8 @@ void RicToggleItemsFeature::setupActionLook( QAction* actionToSetup )
 {
     if ( RicToggleItemsFeatureImpl::isToggleCommandsForSubItems() )
     {
-        QString objectName     = "Sub Items";
-        auto    collectionName = RicToggleItemsFeatureImpl::findCollectionName( RicToggleItemsFeatureImpl::SelectionToggleType::TOGGLE );
+        QString objectName = "Sub Items";
+        auto collectionName = RicToggleItemsFeatureImpl::findCollectionName( RicToggleItemsFeatureImpl::SelectionToggleType::TOGGLE_SUBITEMS );
         if ( !collectionName.isEmpty() ) objectName = collectionName;
 
         actionToSetup->setText( "Toggle " + objectName );

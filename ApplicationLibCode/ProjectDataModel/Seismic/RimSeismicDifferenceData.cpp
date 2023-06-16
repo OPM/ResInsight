@@ -462,7 +462,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     if ( !isInputDataOK() ) return nullptr;
 
     auto data1 = m_seismicData1->sliceData( worldX1, worldY1, worldX2, worldY2, zMin, zMax );
-    auto data2 = m_seismicData1->sliceData( worldX1, worldY1, worldX2, worldY2, zMin, zMax );
+    auto data2 = m_seismicData2->sliceData( worldX1, worldY1, worldX2, worldY2, zMin, zMax );
 
     if ( ( data1 == nullptr ) || ( data2 == nullptr ) ) return nullptr;
 

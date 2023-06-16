@@ -188,6 +188,26 @@ void RimWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::setWellName( const QString& wellName )
+{
+    m_wellName = wellName;
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::setTimeStep( int timeStep )
+{
+    if ( timeStep < 0 ) return;
+
+    m_timeStep = timeStep;
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::deleteViewWidget()
 {
     if ( m_wellAllocationPlotWidget )

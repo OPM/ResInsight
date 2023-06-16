@@ -91,7 +91,7 @@ public:
     void deleteAllCachedData();
     void ensureDefaultFlowPlotsAreCreated();
     void loadDataAndUpdateAllPlots();
-    void updateSelectedWell( QString wellName );
+    void updateSelectedWell( const QString& wellName, int timeStep );
 
 protected:
     void initAfterRead() override;

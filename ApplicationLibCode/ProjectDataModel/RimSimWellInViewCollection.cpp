@@ -203,7 +203,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "Toggle whether the well pipe visualization will try to detect when a part of the well \nis "
                        "really a branch, and thus is starting from wellhead",
                        "" );
-    CAF_PDM_InitField( &wellHeadPosition, "WellHeadPosition", WellHeadPositionEnum( WELLHEAD_POS_TOP_COLUMN ), "Well Head Position" );
+    CAF_PDM_InitField( &wellHeadPosition, "WellHeadPosition", WellHeadPositionEnum( WELLHEAD_POS_ACTIVE_CELLS_BB ), "Well Head Position" );
 
     CAF_PDM_InitFieldNoDefault( &wells, "Wells", "Wells" );
     wells.uiCapability()->setUiTreeHidden( true );

@@ -48,6 +48,9 @@
 #include "RimSummaryTableCollection.h"
 #include "RimVfpPlotCollection.h"
 #include "RimViewWindow.h"
+#include "RimWellAllocationOverTimePlot.h"
+#include "RimWellAllocationPlot.h"
+#include "RimWellDistributionPlotCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPltPlot.h"
@@ -399,7 +402,7 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::updateSelectedWell( QString wellName )
+void RimMainPlotCollection::updateSelectedWell( const QString& wellName, int timeStep )
 {
     for ( auto plot : summaryMultiPlotCollection()->multiPlots() )
     {
@@ -409,6 +412,23 @@ void RimMainPlotCollection::updateSelectedWell( QString wellName )
     for ( auto plot : wellLogPlotCollection()->wellLogPlots() )
     {
         plot->selectWell( wellName );
+    }
+
+    if ( auto plot = flowPlotCollection()->defaultWellAllocOverTimePlot() )
+    {
+        plot->setWellName( wellName );
+    }
+
+    if ( auto plot = flowPlotCollection()->defaultWellAllocPlot() )
+    {
+        plot->setWellName( wellName );
+        plot->setTimeStep( timeStep );
+    }
+
+    if ( auto plot = flowPlotCollection()->wellDistributionPlotCollection() )
+    {
+        plot->setWellName( wellName );
+        plot->setTimeStep( timeStep );
     }
 }
 

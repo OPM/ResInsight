@@ -154,7 +154,7 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set" );
     CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "Tracks" );
     m_plots.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );

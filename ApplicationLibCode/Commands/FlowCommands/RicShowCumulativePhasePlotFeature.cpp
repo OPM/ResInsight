@@ -26,6 +26,8 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellDistributionPlotCollection.h"
 
+#include "RiuPlotMainWindowTools.h"
+
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -77,9 +79,15 @@ void RicShowCumulativePhasePlotFeature::onActionTriggered( bool isChecked )
     RimWellDistributionPlotCollection* wdp = flowPlotColl->wellDistributionPlotCollection();
     if ( wdp && eclipseResultCase )
     {
+        RiuPlotMainWindowTools::showPlotMainWindow();
+
         wdp->setData( eclipseResultCase, wellName, timeStep );
         wdp->setShowWindow( true );
         wdp->loadDataAndUpdate();
+
+        wdp->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::onObjectAppended( wdp );
     }
 }
 
