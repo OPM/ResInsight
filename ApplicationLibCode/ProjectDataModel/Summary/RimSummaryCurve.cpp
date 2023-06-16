@@ -723,6 +723,10 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             replotParentPlot();
         }
     }
+    else
+    {
+        updateTimeAnnotations();
+    }
 
     if ( updateParentPlot ) updateAxisInPlot( axisY() );
 }

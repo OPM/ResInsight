@@ -420,7 +420,7 @@ void RimSummaryDeclineCurve::updateTimeAnnotations()
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     if ( m_timeRangeAnnotation ) plot->removeTimeAnnotation( m_timeRangeAnnotation );
 
-    if ( m_showTimeSelectionInPlot )
+    if ( m_showTimeSelectionInPlot && isChecked() )
     {
         m_timeRangeAnnotation = plot->addTimeRangeAnnotation( m_minTimeStep, m_maxTimeStep );
         m_timeRangeAnnotation->setColor( color() );
