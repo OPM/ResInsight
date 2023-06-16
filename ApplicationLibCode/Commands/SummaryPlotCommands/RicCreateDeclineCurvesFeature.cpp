@@ -120,6 +120,7 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
     }
 
     summaryPlot->updateAllRequiredEditors();
+    summaryPlot->zoomAll();
 
     return newCurve;
 }
