@@ -341,6 +341,11 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
         {
             myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
+
+            QFont font;
+            auto  pointSize = font.pointSize();
+            font.setPointSize( pointSize + 2 );
+            myAttr->font = font;
         }
     }
 }
