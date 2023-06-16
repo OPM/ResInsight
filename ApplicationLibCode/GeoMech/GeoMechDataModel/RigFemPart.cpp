@@ -125,6 +125,37 @@ const int* RigFemPart::connectivities( size_t elementIdx ) const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns state of success for fill element coordinates
+//--------------------------------------------------------------------------------------------------
+bool RigFemPart::fillElementCoordinates( size_t elementIdx, std::array<cvf::Vec3d, 8>& coordinates ) const
+{
+    const auto elemType         = elementType( elementIdx );
+    const int* elemConnectivity = connectivities( elementIdx );
+    const auto nodeCount        = RigFemTypes::elementNodeCount( elemType );
+
+    // Only handle element of hex for now - false success
+    if ( nodeCount != 8 ) return false;
+
+    // Retrieve the node indices
+    std::vector<int> nodeIndices;
+    for ( int i = 0; i < nodeCount; ++i )
+    {
+        const int nodeIdx = elemConnectivity[i];
+        nodeIndices.push_back( nodeIdx );
+    }
+
+    // Fill coordinates for each node
+    const auto& partNodes = nodes();
+    for ( int i = 0; i < nodeIndices.size(); ++i )
+    {
+        coordinates[i].set( partNodes.coordinates[nodeIndices[i]] );
+    }
+
+    // Return true success
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPart::elementNodeResultIdx( int elementIdx, int elmLocalNodeIdx ) const

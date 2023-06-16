@@ -27,6 +27,7 @@
 
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigHexIntersectionTools.h"
 #include "RigReservoirGridTools.h"
 
 #include "RimGeoMechCase.h"
@@ -52,6 +53,8 @@
 
 #include "cvfBoundingBox.h"
 
+#include <array>
+
 CAF_PDM_SOURCE_INIT( RimGeoMechFaultReactivationResult, "RimGeoMechFaultReactivationResult" );
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +67,10 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
 
     CAF_PDM_InitFieldNoDefault( &m_intersection, "Intersection", "Intersection" );
 
-    CAF_PDM_InitField( &m_distanceFromIntersection, "FaceDistanceFromIntersection", 0.0, "Face Distance From Intersection" );
+    CAF_PDM_InitField( &m_distanceFromIntersection,
+                       "FaceDistanceFromIntersection",
+                       m_defaultDistanceFromIntersection,
+                       "Face Distance From Intersection" );
     CAF_PDM_InitField( &m_widthOutsideIntersection, "FaceWidthOutsideIntersection", 0.0, "Face Width Outside Intersection" );
 
     CAF_PDM_InitFieldNoDefault( &m_createFaultReactivationResult, "CreateReactivationResult", "" );
@@ -156,7 +162,8 @@ void RimGeoMechFaultReactivationResult::fieldChangedByUi( const caf::PdmFieldHan
     }
     if ( changedField == &m_createFaultReactivationResult && m_intersection() )
     {
-        onLoadDataAndUpdate();
+        createWellGeometry();
+        createWellLogCurves();
     }
 }
 
@@ -172,7 +179,7 @@ void RimGeoMechFaultReactivationResult::defineEditorAttribute( const caf::PdmFie
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( attrib )
         {
-            attrib->m_buttonText = "Create";
+            attrib->m_buttonText = "Create Plot";
         }
     }
 }
@@ -332,19 +339,31 @@ void RimGeoMechFaultReactivationResult::createWellLogCurves()
 //--------------------------------------------------------------------------------------------------
 int RimGeoMechFaultReactivationResult::getPartIndexFromPoint( const RigFemPartCollection* const partCollection, const cvf::Vec3d& point ) const
 {
-    int idx = 0;
+    const int idx = 0;
     if ( !partCollection ) return idx;
 
+    // Find candidates for intersected global elements
     const cvf::BoundingBox intersectingBb( point, point );
-    std::vector<size_t>    intersectedGlobalElementIndices;
-    partCollection->findIntersectingGlobalElementIndices( intersectingBb, &intersectedGlobalElementIndices );
+    std::vector<size_t>    intersectedGlobalElementIndexCandidates;
+    partCollection->findIntersectingGlobalElementIndices( intersectingBb, &intersectedGlobalElementIndexCandidates );
 
-    if ( intersectedGlobalElementIndices.empty() ) return idx;
+    if ( intersectedGlobalElementIndexCandidates.empty() ) return idx;
 
-    // Utilize first intersected element to detect part for point
-    const auto [partId, elementIndex] = partCollection->partIdAndElementIndex( intersectedGlobalElementIndices.front() );
-    idx                               = partId;
+    // Iterate through global element candidates and check if point is in hexCorners
+    for ( const auto& globalElementIndex : intersectedGlobalElementIndexCandidates )
+    {
+        const auto [part, elementIndex] = partCollection->partAndElementIndex( globalElementIndex );
 
+        // Find nodes from element
+        std::array<cvf::Vec3d, 8> coordinates;
+        const bool                isSuccess = part->fillElementCoordinates( elementIndex, coordinates );
+        if ( !isSuccess ) continue;
+
+        const bool isPointInCell = RigHexIntersectionTools::isPointInCell( point, coordinates.data() );
+        if ( isPointInCell ) return part->elementPartId();
+    }
+
+    // Utilize first part to have an id
     return idx;
 }
 
