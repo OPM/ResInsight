@@ -55,11 +55,10 @@ bool vectorContains( const std::vector<T>& vector, T item )
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::ImportOptions mapReadOption( RiaPreferencesSummary::SummaryRestartFilesImportMode mode )
 {
-    return mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT
-               ? RicSummaryCaseRestartDialog::ImportOptions::NOT_IMPORT
-               : mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES
-                     ? RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES
-                     : RicSummaryCaseRestartDialog::ImportOptions::IMPORT_ALL;
+    return mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ? RicSummaryCaseRestartDialog::ImportOptions::NOT_IMPORT
+           : mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES
+               ? RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES
+               : RicSummaryCaseRestartDialog::ImportOptions::IMPORT_ALL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,10 +382,13 @@ QString RifSummaryCaseRestartSelector::getSummaryFileFromGridFile( const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryCaseFileImportInfo::RifSummaryCaseFileImportInfo( const QString& summaryFileName, const QString& gridFileName )
+RifSummaryCaseFileImportInfo::RifSummaryCaseFileImportInfo( const QString&       summaryFileName,
+                                                            const QString&       gridFileName,
+                                                            RiaDefines::FileType fileType )
     : m_summaryFileName( summaryFileName )
     , m_gridFileName( gridFileName )
     , m_failOnSummaryFileImportError( false )
+    , m_fileType( fileType )
 {
 }
 
@@ -425,9 +427,18 @@ void RifSummaryCaseFileImportInfo::setFailOnSummaryFileError( bool failOnSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryCaseFileResultInfo::RifSummaryCaseFileResultInfo( const QString& summaryFileName, bool includeRestartFiles )
+RiaDefines::FileType RifSummaryCaseFileImportInfo::fileType() const
+{
+    return m_fileType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifSummaryCaseFileResultInfo::RifSummaryCaseFileResultInfo( const QString& summaryFileName, bool includeRestartFiles, RiaDefines::FileType fileType )
     : m_summaryFileName( summaryFileName )
     , m_includeRestartFiles( includeRestartFiles )
+    , m_fileType( fileType )
 {
     CVF_ASSERT( !m_summaryFileName.isEmpty() );
 }
@@ -446,6 +457,14 @@ const QString& RifSummaryCaseFileResultInfo::summaryFileName() const
 bool RifSummaryCaseFileResultInfo::includeRestartFiles() const
 {
     return m_includeRestartFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::FileType RifSummaryCaseFileResultInfo::fileType() const
+{
+    return m_fileType;
 }
 
 //--------------------------------------------------------------------------------------------------

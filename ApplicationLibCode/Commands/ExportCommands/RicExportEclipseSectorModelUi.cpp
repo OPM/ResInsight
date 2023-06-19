@@ -25,6 +25,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseResultDefinition.h"
@@ -32,8 +33,8 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -250,10 +251,10 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
     }
     else if ( field == &selectedKeywords )
     {
-        auto* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
+        auto myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->m_heightHint = 280;
+            myAttr->heightHint = 280;
         }
     }
     else if ( field == &refinementCountI || field == &refinementCountJ || field == &refinementCountK )
@@ -411,7 +412,7 @@ QList<caf::PdmOptionItemInfo> RicExportEclipseSectorModelUi::calculateValueOptio
         QList<caf::PdmOptionItemInfo> allOptions =
             RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType::STATIC_NATIVE, resultData );
 
-        std::set<QString> mainKeywords = this->mainKeywords();
+        std::set<QString> mainKeywords = RicExportEclipseSectorModelUi::mainKeywords();
         for ( const caf::PdmOptionItemInfo& option : allOptions )
         {
             if ( mainKeywords.count( option.optionUiText() ) )

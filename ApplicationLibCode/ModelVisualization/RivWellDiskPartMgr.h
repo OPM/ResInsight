@@ -46,7 +46,6 @@ enum class WellProductionType : short;
 class Rim3dView;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
-class RigWellResultFrame;
 
 class RivWellDiskPartMgr : public cvf::Object
 {

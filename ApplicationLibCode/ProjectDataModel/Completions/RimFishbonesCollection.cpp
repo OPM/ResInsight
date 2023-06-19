@@ -64,8 +64,7 @@ void RimFishbonesCollection::fieldChangedByUi( const caf::PdmFieldHandle* change
         manuallyModifiedStartMD = true;
     }
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     if ( changedField == &m_isChecked )
     {
         proj->reloadCompletionTypeResultsInAllViews();
@@ -82,8 +81,7 @@ void RimFishbonesCollection::fieldChangedByUi( const caf::PdmFieldHandle* change
 void RimFishbonesCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        RimWellPath* wellPath;
-        firstAncestorOrThisOfType( wellPath );
+        auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -153,7 +151,7 @@ std::vector<RimFishbones*> RimFishbonesCollection::activeFishbonesSubs() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 {
-    return m_fishbones.children();
+    return m_fishbones.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,8 +159,7 @@ std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto          wellPath = firstAncestorOrThisOfType<RimWellPath>();
     cvf::Color3ub wellPathColor( wellPath->wellPathColor() );
     QColor        qWellPathColor = QColor( wellPathColor.r(), wellPathColor.g(), wellPathColor.b() );
 
@@ -226,7 +223,7 @@ double RimFishbonesCollection::endMD() const
     double endMD = m_startMD;
     if ( !m_fishbones.empty() )
     {
-        auto lastFishbone = m_fishbones.children().back();
+        auto lastFishbone = m_fishbones.childrenByType().back();
         CVF_ASSERT( lastFishbone );
         endMD = lastFishbone->endMD();
     }
@@ -238,8 +235,7 @@ double RimFishbonesCollection::endMD() const
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesCollection::mainBoreDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_mainBoreDiameter() );
@@ -256,8 +252,7 @@ double RimFishbonesCollection::mainBoreDiameter( RiaDefines::EclipseUnitSystem u
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::setUnitSystemSpecificDefaults()
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )

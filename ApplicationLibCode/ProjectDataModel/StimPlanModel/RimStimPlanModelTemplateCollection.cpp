@@ -127,8 +127,7 @@ int RimStimPlanModelTemplateCollection::nextFractureTemplateId()
 void RimStimPlanModelTemplateCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                          std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimProject* proj = nullptr;
-    firstAncestorOrThisOfType( proj );
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();

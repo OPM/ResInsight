@@ -241,8 +241,7 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
         }
     }
 
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot         = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     bool isNormalized = plot->isNormalizationEnabled();
     if ( isNormalized )
     {
@@ -370,8 +369,7 @@ QString RimGridTimeHistoryCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::updateZoomInParentPlot()
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
 
     plot->updateZoomInParentPlot();
 }
@@ -401,8 +399,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         values = yValues();
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType( plot );
+        auto plot                = firstAncestorOrThisOfType<RimSummaryPlot>();
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( yAxis() );
 
         if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
@@ -604,8 +601,7 @@ void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         updateQwtPlotAxis();
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfTypeAsserted( plot );
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
         plot->updateAxes();
     }

@@ -29,6 +29,7 @@
 #include "RimGeoMechModels.h"
 #include "RimMeasurement.h"
 #include "RimObservedDataCollection.h"
+#include "RimSeismicDataCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimWellPathCollection.h"
@@ -37,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RimOilField, "ResInsightOilField" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimOilField::RimOilField( void )
+RimOilField::RimOilField()
 {
     CAF_PDM_InitObject( "Oil Field" );
 
@@ -64,6 +65,9 @@ RimOilField::RimOilField( void )
     surfaceCollection = new RimSurfaceCollection();
     surfaceCollection->setAsTopmostFolder();
 
+    CAF_PDM_InitFieldNoDefault( &seismicCollection, "SeismicCollection", "Seismic Data" );
+    seismicCollection = new RimSeismicDataCollection();
+
     completionTemplateCollection = new RimCompletionTemplateCollection;
     analysisModels               = new RimEclipseCaseCollection();
     wellPathCollection           = new RimWellPathCollection();
@@ -80,7 +84,7 @@ RimOilField::RimOilField( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimOilField::~RimOilField( void )
+RimOilField::~RimOilField()
 {
 }
 

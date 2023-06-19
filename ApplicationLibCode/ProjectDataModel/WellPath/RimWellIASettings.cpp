@@ -168,8 +168,7 @@ QList<caf::PdmOptionItemInfo> RimWellIASettings::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 void RimWellIASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -212,8 +211,7 @@ void RimWellIASettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
         if ( myAttr )
         {
-            RimWellPath* wellPath = nullptr;
-            this->firstAncestorOrThisOfType( wellPath );
+            auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
             if ( !wellPath ) return;
 
             myAttr->m_minimum = wellPath->uniqueStartMD();
@@ -569,9 +567,7 @@ void RimWellIASettings::resetModelData()
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellIASettings::wellPath() const
 {
-    RimWellPath* wellpath = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( wellpath );
-    return wellpath;
+    return firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 }
 
 //--------------------------------------------------------------------------------------------------

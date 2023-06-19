@@ -24,13 +24,15 @@
 #include "RiaRegressionTestRunner.h"
 #include "RiaVersionInfo.h"
 
-#include "RiuDockWidgetTools.h"
-#include "RiuDragDrop.h"
-#include "RiuMdiArea.h"
-#include "RiuMdiSubWindow.h"
-
 #include "RimProject.h"
 #include "RimViewWindow.h"
+
+#include "RiuDockWidgetTools.h"
+#include "RiuDragDrop.h"
+#include "RiuGuiTheme.h"
+#include "RiuMainWindowTools.h"
+#include "RiuMdiArea.h"
+#include "RiuMdiSubWindow.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafPdmObject.h"
@@ -52,8 +54,6 @@
 #include <QUndoStack>
 #include <QUndoView>
 
-#define DOCKSTATE_VERSION 3
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +67,7 @@ RiuMainWindowBase::RiuMainWindowBase()
 {
     ads::CDockManager::setAutoHideConfigFlags( ads::CDockManager::DefaultAutoHideConfig );
     m_dockManager = new ads::CDockManager( this );
+    m_dockManager->setStyleSheet( "" );
 
     if ( RiaPreferences::current()->useUndoRedo() && RiaApplication::enableDevelopmentFeatures() )
     {
@@ -84,6 +85,13 @@ RiuMainWindowBase::RiuMainWindowBase()
     m_redoAction = new QAction( QIcon( ":/redo.png" ), tr( "Redo" ), this );
     m_redoAction->setShortcut( QKeySequence::Redo );
     connect( m_redoAction, SIGNAL( triggered() ), SLOT( slotRedo() ) );
+
+#ifdef Q_OS_WIN
+    if ( RiaPreferences::current()->guiTheme() == RiaDefines::ThemeEnum::DARK )
+    {
+        RiuMainWindowTools::setDarkTitleBarWindows( this );
+    }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,6 +191,8 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
             m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ), DOCKSTATE_VERSION );
         }
     }
+
+    m_lastDockState = m_dockManager->saveState( DOCKSTATE_VERSION );
 
     settings.beginGroup( registryFolderName() );
     m_dockManager->loadPerspectives( settings );

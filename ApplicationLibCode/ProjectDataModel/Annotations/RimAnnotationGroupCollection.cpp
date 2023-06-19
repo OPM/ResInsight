@@ -72,8 +72,7 @@ bool RimAnnotationGroupCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 bool RimAnnotationGroupCollection::isVisible() const
 {
-    RimAnnotationCollectionBase* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
 
     bool visible = true;
     if ( coll ) visible = coll->isActive();
@@ -102,7 +101,7 @@ void RimAnnotationGroupCollection::removeAnnotation( caf::PdmObject* annotation 
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 {
-    return m_annotations.children();
+    return m_annotations.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,8 +113,7 @@ void RimAnnotationGroupCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         updateUiIconFromToggleField();
 
-        RimAnnotationCollectionBase* coll;
-        firstAncestorOrThisOfType( coll );
+        auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
         if ( coll ) coll->scheduleRedrawOfRelevantViews();
     }
 }

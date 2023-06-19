@@ -27,6 +27,7 @@ class RigEclipseResultAddress
 public:
     RigEclipseResultAddress()
         : m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
+        , m_resultDataType( RiaDefines::ResultDataType::UNKNOWN )
         , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
         , m_differenceCaseId( NO_CASE_DIFF )
         , m_divideByCellFaceArea( false )
@@ -35,6 +36,7 @@ public:
 
     explicit RigEclipseResultAddress( const QString& resultName )
         : m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
+        , m_resultDataType( RiaDefines::ResultDataType::UNKNOWN )
         , m_resultName( resultName )
         , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
         , m_differenceCaseId( NO_CASE_DIFF )
@@ -48,12 +50,22 @@ public:
                                       int                       differenceCaseId      = NO_CASE_DIFF,
                                       bool                      divideByCellFaceArea  = false )
         : m_resultCatType( type )
+        , m_resultDataType( RiaDefines::ResultDataType::UNKNOWN )
         , m_resultName( resultName )
         , m_timeLapseBaseFrameIdx( timeLapseBaseTimeStep )
         , m_differenceCaseId( differenceCaseId )
+        , m_divideByCellFaceArea( divideByCellFaceArea )
+    {
+    }
+
+    explicit RigEclipseResultAddress( RiaDefines::ResultCatType type, RiaDefines::ResultDataType dataType, const QString& resultName )
+        : m_resultCatType( type )
+        , m_resultDataType( dataType )
+        , m_resultName( resultName )
+        , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
+        , m_differenceCaseId( NO_CASE_DIFF )
         , m_divideByCellFaceArea( false )
     {
-        enableDivideByCellFaceArea( divideByCellFaceArea );
     }
 
     bool isValid() const
@@ -67,6 +79,9 @@ public:
             return true;
         }
     }
+
+    void                       setDataType( RiaDefines::ResultDataType dataType ) { m_resultDataType = dataType; }
+    RiaDefines::ResultDataType dataType() const { return m_resultDataType; }
 
     // Delta Time Step
     bool                 isDeltaTimeStepActive() const { return m_timeLapseBaseFrameIdx > NO_TIME_LAPSE; }
@@ -131,11 +146,12 @@ public:
     void                      setResultCatType( RiaDefines::ResultCatType catType ) { m_resultCatType = catType; }
 
 private:
-    int                       m_timeLapseBaseFrameIdx;
-    int                       m_differenceCaseId;
-    bool                      m_divideByCellFaceArea;
-    RiaDefines::ResultCatType m_resultCatType;
-    QString                   m_resultName;
+    RiaDefines::ResultCatType  m_resultCatType;
+    RiaDefines::ResultDataType m_resultDataType;
+    QString                    m_resultName;
+    int                        m_timeLapseBaseFrameIdx;
+    int                        m_differenceCaseId;
+    bool                       m_divideByCellFaceArea;
 
     static const int ALL_TIME_LAPSES = -2;
     static const int NO_TIME_LAPSE   = -1;

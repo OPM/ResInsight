@@ -187,8 +187,7 @@ double RimWellPath::wellPathRadius( double characteristicCellSize ) const
 {
     double radius = characteristicCellSize * m_wellPathRadiusScaleFactor();
 
-    RimWellPathCollection* coll = nullptr;
-    this->firstAncestorOrThisOfType( coll );
+    RimWellPathCollection* coll = RimTools::wellPathCollection();
     if ( coll )
     {
         radius *= coll->wellPathRadiusScaleFactor();
@@ -466,8 +465,7 @@ double RimWellPath::uniqueEndMD() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     if ( changedField == &m_showWellPath )
     {
         proj->reloadCompletionTypeResultsInAllViews();
@@ -639,6 +637,14 @@ bool RimWellPath::showWellPathLabel() const
 bool RimWellPath::showWellPath() const
 {
     return m_showWellPath();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setShowWellPath( bool showWellPath )
+{
+    m_showWellPath = showWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -818,8 +824,7 @@ size_t RimWellPath::simulationWellBranchCount( const QString& simWellName )
 //--------------------------------------------------------------------------------------------------
 double RimWellPath::combinedScaleFactor() const
 {
-    RimWellPathCollection* wellPathColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( wellPathColl );
+    RimWellPathCollection* wellPathColl = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
     return this->m_wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
 }
@@ -833,8 +838,7 @@ void RimWellPath::setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
 
     m_completions->setUnitSystemSpecificDefaults();
 
-    std::vector<RimMswCompletionParameters*> mswParameters;
-    descendantsOfType( mswParameters );
+    std::vector<RimMswCompletionParameters*> mswParameters = descendantsOfType<RimMswCompletionParameters>();
     for ( auto mswParams : mswParameters )
     {
         mswParams->setUnitSystemSpecificDefaults();
@@ -879,9 +883,10 @@ double RimWellPath::datumElevation() const
 void RimWellPath::addWellLogFile( RimWellLogFile* logFileInfo )
 {
     // Prevent the same file from being loaded more than once
-    auto itr = std::find_if( m_wellLogFiles.begin(), m_wellLogFiles.end(), [&]( const RimWellLogFile* file ) {
-        return QString::compare( file->fileName(), logFileInfo->fileName(), Qt::CaseInsensitive ) == 0;
-    } );
+    auto itr = std::find_if( m_wellLogFiles.begin(),
+                             m_wellLogFiles.end(),
+                             [&]( const RimWellLogFile* file )
+                             { return QString::compare( file->fileName(), logFileInfo->fileName(), Qt::CaseInsensitive ) == 0; } );
 
     // Todo: Verify well name to ensure all well log files having the same well name
 
@@ -1103,8 +1108,7 @@ bool RimWellPath::isMultiLateralWellPath() const
 {
     auto top = topLevelWellPath();
 
-    std::vector<RimWellPath*> wells;
-    top->descendantsIncludingThisOfType( wells );
+    std::vector<RimWellPath*> wells = top->descendantsIncludingThisOfType<RimWellPath>();
 
     return wells.size() > 1;
 }
@@ -1146,8 +1150,7 @@ void RimWellPath::wellPathLateralsRecursively( std::vector<RimWellPath*>& wellPa
 {
     wellPathLaterals.push_back( const_cast<RimWellPath*>( this ) );
 
-    std::vector<caf::PdmObjectHandle*> referringObjects;
-    this->objectsWithReferringPtrFields( referringObjects );
+    std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
     for ( auto obj : referringObjects )
     {
         if ( auto tieIn = dynamic_cast<RimWellPathTieIn*>( obj ) )
@@ -1183,8 +1186,7 @@ std::vector<RimWellPath*> RimWellPath::wellPathLaterals() const
 {
     std::vector<RimWellPath*> laterals;
 
-    std::vector<caf::PdmObjectHandle*> referringObjects;
-    this->objectsWithReferringPtrFields( referringObjects );
+    std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
     for ( auto obj : referringObjects )
     {
         if ( auto tieIn = dynamic_cast<RimWellPathTieIn*>( obj ) )

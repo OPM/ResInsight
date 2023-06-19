@@ -45,7 +45,6 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiLabelEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolBarEditor.h"
 
 #include <QString>
@@ -77,7 +76,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitFieldNoDefault( &m_vectorName, "VectorName", "Vector" );
 
     CAF_PDM_InitFieldNoDefault( &m_cellBlock, "CellBlock", "Block" );
-    CAF_PDM_InitFieldNoDefault( &m_segment, "Segment", "Segment" );
+    CAF_PDM_InitFieldNoDefault( &m_wellSegment, "Segment", "Segment" );
     CAF_PDM_InitFieldNoDefault( &m_completion, "Completion", "Completion" );
     CAF_PDM_InitFieldNoDefault( &m_aquifer, "Aquifer", "Aquifer" );
 
@@ -272,7 +271,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
             {
                 category = RifEclipseSummaryAddress::SUMMARY_BLOCK;
             }
-            else if ( fieldNeedingOptions == &m_segment )
+            else if ( fieldNeedingOptions == &m_wellSegment )
             {
                 secondaryIdentifier = m_wellName().toStdString();
                 category            = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
@@ -335,15 +334,13 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField == &m_includeEnsembleCasesForCaseStepping )
     {
-        RimSummaryCurveCollection* curveCollection = nullptr;
-        this->firstAncestorOrThisOfType( curveCollection );
+        auto curveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
         if ( curveCollection )
         {
             curveCollection->updateConnectedEditors();
         }
 
-        RimEnsembleCurveSetCollection* ensembleCurveColl = nullptr;
-        this->firstAncestorOrThisOfType( ensembleCurveColl );
+        auto ensembleCurveColl = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
         if ( ensembleCurveColl )
         {
             ensembleCurveColl->updateConnectedEditors();
@@ -456,7 +453,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_BLOCK;
         }
-        else if ( changedField == &m_segment )
+        else if ( changedField == &m_wellSegment )
         {
             summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
         }
@@ -504,8 +501,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( triggerLoadDataAndUpdate )
     {
-        RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfType( summaryPlot );
+        auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
 
         RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_objectForSourceStepping.p() );
         if ( summaryMultiPlot )
@@ -526,8 +522,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             summaryPlot->curvesChanged.send();
         }
 
-        RimEnsembleCurveSetCollection* ensembleCurveColl = nullptr;
-        this->firstAncestorOrThisOfType( ensembleCurveColl );
+        auto ensembleCurveColl = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
         if ( ensembleCurveColl )
         {
             ensembleCurveColl->updateConnectedEditors();
@@ -538,8 +533,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             // Trigger update of curve collection (and summary toolbar in main window), as the visibility of combo
             // boxes might have been changed due to the updates in this function
-            RimSummaryCurveCollection* curveCollection = nullptr;
-            this->firstAncestorOrThisOfType( curveCollection );
+            auto curveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
             if ( curveCollection )
             {
                 curveCollection->updateConnectedEditors();
@@ -582,6 +576,9 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
             return &m_aquifer;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT:
+            return &m_wellSegment;
 
         default:
             break;
@@ -785,10 +782,10 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
 
             if ( analyzer.wellSegmentNumbers( m_wellName().toStdString() ).size() == 1 )
             {
-                QString txt = QString::number( *( analyzer.wellSegmentNumbers( m_wellName().toStdString() ).begin() ) );
-                m_segment   = txt;
+                QString txt   = QString::number( *( analyzer.wellSegmentNumbers( m_wellName().toStdString() ).begin() ) );
+                m_wellSegment = txt;
 
-                fieldsCommonForAllCurves.push_back( &m_segment );
+                fieldsCommonForAllCurves.push_back( &m_wellSegment );
             }
 
             if ( analyzer.blocks().size() == 1 )
@@ -898,9 +895,7 @@ std::vector<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesForSource
     {
         if ( sumCase->isObservedData() ) continue;
 
-        RimSummaryCaseCollection* sumCaseColl = nullptr;
-        sumCase->firstAncestorOrThisOfType( sumCaseColl );
-
+        auto sumCaseColl = sumCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
         if ( sumCaseColl && sumCaseColl->isEnsemble() )
         {
             if ( m_includeEnsembleCasesForCaseStepping() )
@@ -1160,6 +1155,10 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
             m_aquifer = other->m_aquifer();
             break;
 
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT:
+            m_wellSegment = other->m_wellSegment();
+            break;
+
         default:
             break;
     }
@@ -1287,8 +1286,7 @@ void RimSummaryPlotSourceStepping::updateVectorNameInCurves( std::vector<RimSumm
 
         if ( m_autoUpdateAppearance )
         {
-            RimSummaryPlot* summaryPlot = nullptr;
-            curve->firstAncestorOfType( summaryPlot );
+            auto summaryPlot = curve->firstAncestorOfType<RimSummaryPlot>();
             if ( summaryPlot )
             {
                 if ( curvesInPlot.count( summaryPlot ) )

@@ -86,8 +86,12 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogIndexDepthOffset.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigTexturedSection.h
     ${CMAKE_CURRENT_LIST_DIR}/RigPressureDepthData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigMswCenterLineCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellAllocationOverTime.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellResultBranch.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -171,8 +175,13 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogIndexDepthOffset.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigTexturedSection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPressureDepthData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMswCenterLineCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellAllocationOverTime.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellResultBranch.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigDeclineCurveCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

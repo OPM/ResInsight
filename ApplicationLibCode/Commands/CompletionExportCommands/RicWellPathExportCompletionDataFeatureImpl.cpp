@@ -40,6 +40,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 #include "RigPerforationTransmissibilityEquations.h"
 #include "RigResultAccessorFactory.h"
@@ -412,7 +413,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeStaticCompletionsForWellPath( RimWellPath*    wellPath,
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeStaticCompletionsForWellPath( RimWellPath* wellPath,
                                                                                                                 RimEclipseCase* eclipseCase )
 {
     std::vector<RigCompletionData> completionsPerEclipseCell;
@@ -448,7 +449,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( RimWellPath*    wellPath,
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( RimWellPath* wellPath,
                                                                                                                  RimEclipseCase* eclipseCase,
                                                                                                                  size_t timeStepIndex )
 {
@@ -761,8 +762,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclipseCase*                                          gridCase,
-                                                                       QFilePtr                                                 exportFile,
+void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclipseCase* gridCase,
+                                                                       QFilePtr        exportFile,
                                                                        const std::map<QString, std::vector<RigCompletionData>>& completions )
 {
     QTextStream stream( exportFile.get() );
@@ -1099,7 +1100,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 
     for ( auto& completion : completionData )
     {
-        if ( completion.wpimult() == 0.0 || completion.isDefaultValue( completion.wpimult() ) )
+        if ( completion.wpimult() == 0.0 || RigCompletionData::isDefaultValue( completion.wpimult() ) )
         {
             continue;
         }
@@ -1640,15 +1641,13 @@ std::pair<double, cvf::Vec2i>
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RicWellPathExportCompletionDataFeatureImpl::topLevelWellPath( const RigCompletionData& completion )
 {
-    RimWellPath* parentWellPath = nullptr;
     if ( completion.sourcePdmObject() )
     {
-        completion.sourcePdmObject()->firstAncestorOrThisOfType( parentWellPath );
-    }
-
-    if ( parentWellPath )
-    {
-        return parentWellPath->topLevelWellPath();
+        auto parentWellPath = completion.sourcePdmObject()->firstAncestorOrThisOfType<RimWellPath>();
+        if ( parentWellPath )
+        {
+            return parentWellPath->topLevelWellPath();
+        }
     }
 
     return nullptr;

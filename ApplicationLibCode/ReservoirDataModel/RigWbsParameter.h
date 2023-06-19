@@ -65,9 +65,9 @@ public:
     void                setOptionsExclusive( bool exclusive );
 
     std::vector<QString> allSourceUiLabels( const QString& delimiter = " ", double userDefinedValue = std::numeric_limits<double>::infinity() );
-    QString              sourceUiLabel( Source         currentSource,
-                                        const QString& delimiter        = " ",
-                                        double         userDefinedValue = std::numeric_limits<double>::infinity() );
+    QString sourceUiLabel( Source         currentSource,
+                           const QString& delimiter        = " ",
+                           double         userDefinedValue = std::numeric_limits<double>::infinity() );
 
     bool operator==( const RigWbsParameter& rhs ) const;
     bool operator<( const RigWbsParameter& rhs ) const;

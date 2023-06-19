@@ -151,13 +151,6 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen( RivCellSetEnum geometryType
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::clearGeometryCache( RivCellSetEnum geomType )
 {
-    RimEclipseCase* rimEclipseCase = nullptr;
-
-    if ( m_reservoirView )
-    {
-        m_reservoirView->firstAncestorOrThisOfType( rimEclipseCase );
-    }
-
     if ( geomType == PROPERTY_FILTERED )
     {
         for ( size_t i = 0; i < m_propFilteredGeometryFramesNeedsRegen.size(); ++i )
@@ -615,8 +608,8 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
         size_t         reservoirCellIndex = grid->reservoirCellIndex( cellIndex );
         bool           isCellActive       = activeCellInfo->isActive( reservoirCellIndex );
 
-        if ( !invalidCellsIsVisible && cell.isInvalid() || !inactiveCellsIsVisible && !isCellActive ||
-             !activeCellsIsVisible && isCellActive || ( *cellIsInWellStatuses )[cellIndex] )
+        if ( ( !invalidCellsIsVisible && cell.isInvalid() ) || ( !inactiveCellsIsVisible && !isCellActive ) ||
+             ( !activeCellsIsVisible && isCellActive ) || ( *cellIsInWellStatuses )[cellIndex] )
         {
             ( *cellVisibility )[cellIndex] = false;
         }

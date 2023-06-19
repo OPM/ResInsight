@@ -100,7 +100,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
 
     int faultsProgressPercentage = exportSettings.exportFaults() ? 10 : 0;
 
-    int               gridProgressPercentage = 100 - resultProgressPercentage - faultsProgressPercentage;
+    int gridProgressPercentage = 100 - resultProgressPercentage - faultsProgressPercentage;
     caf::ProgressInfo progress( gridProgressPercentage + resultProgressPercentage + faultsProgressPercentage, "Export Eclipse Sector Model" );
 
     cvf::Vec3st refinement( exportSettings.refinementCountI(), exportSettings.refinementCountJ(), exportSettings.refinementCountK() );
@@ -157,7 +157,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
                 QString fileName = dirPath.absoluteFilePath( keyword + ".GRDECL" );
                 bool    worked   = RifEclipseInputFileTools::exportKeywords( fileName,
                                                                         view->eclipseCase()->eclipseCaseData(),
-                                                                        { keyword },
+                                                                             { keyword },
                                                                         exportSettings.writeEchoKeywords(),
                                                                         min,
                                                                         max,

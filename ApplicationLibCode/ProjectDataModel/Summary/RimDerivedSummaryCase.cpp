@@ -535,14 +535,12 @@ void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
         m_dataCache.clear();
 
-        std::vector<caf::PdmObjectHandle*> referringObjects;
-        this->objectsWithReferringPtrFields( referringObjects );
+        std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
 
         std::set<RimSummaryPlot*> plotsToUpdate;
         for ( auto o : referringObjects )
         {
-            RimSummaryPlot* sumPlot = nullptr;
-            o->firstAncestorOrThisOfType( sumPlot );
+            RimSummaryPlot* sumPlot = o->firstAncestorOrThisOfType<RimSummaryPlot>();
 
             if ( sumPlot )
             {

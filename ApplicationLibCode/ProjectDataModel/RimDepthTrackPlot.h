@@ -69,7 +69,7 @@ public:
         AXIS_GRID_MAJOR_AND_MINOR = 0x03
     };
 
-    typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
+    using AxisGridEnum  = caf::AppEnum<AxisGridVisibility>;
     using DepthTypeEnum = RiaDefines::DepthTypeEnum;
 
     enum class DepthOrientation_OBSOLETE

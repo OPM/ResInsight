@@ -138,10 +138,8 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( caf::PdmObjec
     if ( dynamic_cast<RimSummaryMultiPlot*>( pdmObject ) ) return true;
 
     // Copy support based combined logic
-    RimWellAllocationPlot* wellAllocPlot = nullptr;
-    RimWellRftPlot*        rftPlot       = nullptr;
-    pdmObject->firstAncestorOrThisOfType( wellAllocPlot );
-    pdmObject->firstAncestorOrThisOfType( rftPlot );
+    RimWellAllocationPlot* wellAllocPlot = pdmObject->firstAncestorOrThisOfType<RimWellAllocationPlot>();
+    RimWellRftPlot*        rftPlot       = pdmObject->firstAncestorOrThisOfType<RimWellRftPlot>();
 
     if ( dynamic_cast<RimPlotCurve*>( pdmObject ) && !dynamic_cast<RimGridCrossPlotCurve*>( pdmObject ) )
     {

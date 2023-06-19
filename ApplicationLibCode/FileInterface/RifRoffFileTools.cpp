@@ -21,10 +21,17 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RicFaciesPropertiesImportTools.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+
+#include "RimColorLegendCollection.h"
+#include "RimEclipseCase.h"
+#include "RimProject.h"
 
 #include "cafProgressInfo.h"
 
@@ -41,6 +48,32 @@
 #endif
 
 using namespace std::chrono;
+
+//--------------------------------------------------------------------------------------------------
+/// NOTE: Moved from header file due to compile header when using RifRoffFileTools from
+/// ApplicationLibCode/Commands
+//--------------------------------------------------------------------------------------------------
+template <typename IN, typename OUT>
+static void convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<IN>& in, std::vector<OUT>& out )
+{
+    CAF_ASSERT( static_cast<size_t>( nx * ny * nz ) == in.size() );
+
+    out.resize( in.size(), -1 );
+
+    int outIdx = 0;
+    for ( int k = 0; k < nz; k++ )
+    {
+        for ( int j = 0; j < ny; j++ )
+        {
+            for ( int i = 0; i < nx; i++ )
+            {
+                int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
+                out[outIdx] = static_cast<OUT>( in[inIdx] );
+                outIdx++;
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -72,7 +105,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         return false;
     }
 
-    auto getInt = []( auto values, const std::string& name ) {
+    auto getInt = []( auto values, const std::string& name )
+    {
         auto v = std::find_if( values.begin(), values.end(), [&name]( const auto& arg ) { return arg.first == name; } );
         if ( v != values.end() )
             return std::get<int>( v->second );
@@ -80,7 +114,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
             throw std::runtime_error( "Missing parameter (integer): " + name );
     };
 
-    auto getFloat = []( auto values, const std::string& name ) {
+    auto getFloat = []( auto values, const std::string& name )
+    {
         auto v = std::find_if( values.begin(), values.end(), [&name]( const auto& arg ) { return arg.first == name; } );
         if ( v != values.end() )
             return std::get<float>( v->second );
@@ -119,10 +154,10 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
             RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
         }
 
-        std::vector<float> cornerLines = reader.getFloatArray( "cornerLines.data" );
-        std::vector<float> zValues     = reader.getFloatArray( "zvalues.data" );
+        std::vector<float> cornerLines = reader.getFloatArray( "cornerLines" + roff::Parser::postFixData() );
+        std::vector<float> zValues     = reader.getFloatArray( "zvalues" + roff::Parser::postFixData() );
         std::vector<char>  splitEnz    = reader.getByteArray( "zvalues.splitEnz" );
-        std::vector<char>  active      = reader.getByteArray( "active.data" );
+        std::vector<char>  active      = reader.getByteArray( "active" + roff::Parser::postFixData() );
 
         const auto parsingDone = high_resolution_clock::now();
 
@@ -471,6 +506,29 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
         return std::make_pair( false, keywordMapping );
     }
 
+    auto codeNamesAndValuesForKeyword = []( const std::string& keyword, roff::Reader& reader ) -> std::map<int, QString>
+    {
+        const std::string codeNamesKeyword  = keyword + roff::Parser::postFixCodeNames();
+        const std::string codeValuesKeyword = keyword + roff::Parser::postFixCodeValues();
+
+        if ( reader.getArrayLength( codeNamesKeyword ) > 0 &&
+             reader.getArrayLength( codeNamesKeyword ) == reader.getArrayLength( codeValuesKeyword ) )
+        {
+            const auto fileCodeNames  = reader.getStringArray( codeNamesKeyword );
+            const auto fileCodeValues = reader.getIntArray( codeValuesKeyword );
+
+            std::map<int, QString> codeNamesAndValues;
+            for ( size_t i = 0; i < fileCodeNames.size(); i++ )
+            {
+                codeNamesAndValues[fileCodeValues[i]] = QString::fromStdString( fileCodeNames[i] ).trimmed();
+            }
+
+            return codeNamesAndValues;
+        };
+
+        return {};
+    };
+
     try
     {
         roff::Reader reader( stream );
@@ -488,12 +546,15 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                                       .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
                                       .arg( keywordLength ) );
             }
+
+            QString keywordUpperCase = QString::fromStdString( keyword ).toUpper();
+
             if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
             {
                 QString newResultName = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                             ->makeResultNameUnique( QString::fromStdString( keyword ) );
                 // Special handling for active.data ==> ACTNUM
-                if ( newResultName == "active.data" )
+                if ( newResultName == QString( "active" ) + QString::fromStdString( roff::Parser::postFixData() ) )
                 {
                     newResultName = "ACTNUM";
                 }
@@ -505,7 +566,50 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                     return std::make_pair( false, keywordMapping );
                 }
 
+                const auto codeNames            = codeNamesAndValuesForKeyword( keyword, reader );
+                bool       anyValidCategoryName = false;
+                for ( const auto& codeName : codeNames )
+                {
+                    if ( !codeName.second.isEmpty() )
+                    {
+                        anyValidCategoryName = true;
+                    }
+                }
+
+                if ( anyValidCategoryName )
+                {
+                    RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
+
+                    int  caseId  = 0;
+                    auto rimCase = eclipseCaseData->ownerCase();
+                    if ( rimCase ) caseId = rimCase->caseId();
+
+                    // Delete existing color legend, as new legend will be populated by values from file
+                    colorLegendCollection->deleteColorLegend( caseId, newResultName );
+
+                    RimColorLegend* colorLegend = nullptr;
+                    if ( keywordUpperCase == RiaResultNames::facies() )
+                    {
+                        colorLegend = RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
+                    }
+                    else
+                    {
+                        colorLegend = colorLegendCollection->createColorLegend( newResultName, codeNames );
+                    }
+
+                    colorLegendCollection->setDefaultColorLegendForResult( caseId, newResultName, colorLegend );
+                    colorLegendCollection->updateAllRequiredEditors();
+                }
+
                 keywordMapping[QString::fromStdString( keyword )] = newResultName;
+            }
+            else if ( keywordUpperCase == RiaResultNames::facies() )
+            {
+                // We have the definition of facies name and value, but we do not have values for cells. Create color legend and get values
+                // from other sources, i.e. Eclipse result files
+
+                const auto codeNames = codeNamesAndValuesForKeyword( keyword, reader );
+                RicFaciesPropertiesImportTools::createColorLegendMatchDefaultRockColors( codeNames );
             }
         }
     }
@@ -521,6 +625,37 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifRoffFileTools::hasGridData( const QString& filename )
+{
+    // Check if arrayTypes contains grid info
+    // - Alt 1. Look for tag "cornerLines" and its data with keyword "cornerLines.data" - actual representation of grid data
+    // - Alt 2. Look for tag "filedata" and its filetype with keyword "filedata.filetype" - should be equal "grid" (not as robust, rather
+    // look for "cornerLines" which is grid representation)
+
+    std::ifstream stream( filename.toStdString(), std::ios::binary );
+    if ( !stream.good() )
+    {
+        RiaLogging::error( "Unable to open roff file" );
+        return false;
+    }
+
+    roff::Reader reader( stream );
+    reader.parse();
+
+    const std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
+
+    const std::string cornerLinesDataKeyword = "cornerLines" + roff::Parser::postFixData();
+    auto              cornerLinesDataItr     = std::find_if( arrayTypes.begin(),
+                                            arrayTypes.end(),
+                                            [&cornerLinesDataKeyword]( const auto& arrayType )
+                                            { return arrayType.first == cornerLinesDataKeyword; } );
+
+    return cornerLinesDataItr != arrayTypes.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double>
     RifRoffFileTools::readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, roff::Token::Kind kind, roff::Reader& reader )
 {
@@ -531,7 +666,7 @@ std::vector<double>
         std::vector<float> values = reader.getFloatArray( keyword );
         convertToReservoirIndexOrder<float, double>( nx, ny, nz, values, doubleVals );
     }
-    else if ( kind == roff::Token::Kind::BOOL )
+    else if ( kind == roff::Token::Kind::BOOL || kind == roff::Token::Kind::BYTE )
     {
         std::vector<char> values = reader.getByteArray( keyword );
         convertToReservoirIndexOrder<char, double>( nx, ny, nz, values, doubleVals );
@@ -581,7 +716,7 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
         }
     }
 
-    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, RifRoffFileTools::mapFromType( kind ), resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
     auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
@@ -589,4 +724,22 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
     newPropertyData->push_back( values );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ResultDataType RifRoffFileTools::mapFromType( roff::Token::Kind kind )
+{
+    switch ( kind )
+    {
+        case roff::Token::Kind::BOOL:
+            return RiaDefines::ResultDataType::INTEGER;
+        case roff::Token::Kind::BYTE:
+            return RiaDefines::ResultDataType::INTEGER;
+        case roff::Token::Kind::INT:
+            return RiaDefines::ResultDataType::INTEGER;
+    }
+
+    return RiaDefines::ResultDataType::FLOAT;
 }

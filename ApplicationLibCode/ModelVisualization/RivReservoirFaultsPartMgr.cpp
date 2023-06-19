@@ -19,6 +19,7 @@
 
 #include "RivReservoirFaultsPartMgr.h"
 
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 
@@ -53,9 +54,9 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr( const RigMainGrid* grid, R
         RimFaultInViewCollection* faultCollection = reservoirView->faultCollection();
         if ( faultCollection )
         {
-            for ( size_t i = 0; i < faultCollection->faults.size(); i++ )
+            for ( auto fault : faultCollection->faults() )
             {
-                m_faultParts.push_back( new RivFaultPartMgr( grid, faultCollection, faultCollection->faults[i] ) );
+                m_faultParts.push_back( new RivFaultPartMgr( grid, faultCollection, fault ) );
             }
         }
     }
@@ -85,9 +86,9 @@ void RivReservoirFaultsPartMgr::setCellVisibility( cvf::UByteArray* cellVisibili
 {
     CVF_ASSERT( cellVisibilities );
 
-    for ( size_t i = 0; i < m_faultParts.size(); i++ )
+    for ( auto& faultPart : m_faultParts )
     {
-        m_faultParts.at( i )->setCellVisibility( cellVisibilities );
+        faultPart->setCellVisibility( cellVisibilities );
     }
 }
 
@@ -102,14 +103,14 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
     if ( !faultCollection ) return;
 
     bool isShowingGrid = m_reservoirView->isMainGridVisible();
-    if ( !faultCollection->showFaultCollection() && !isShowingGrid ) return;
+    if ( !faultCollection->isActive() && !isShowingGrid ) return;
 
     // Check match between model fault count and fault parts
-    CVF_ASSERT( faultCollection->faults.size() == m_faultParts.size() );
+    CVF_ASSERT( faultCollection->faults().size() == m_faultParts.size() );
 
     // Parts that is overridden by the grid settings
     bool forceDisplayOfFault = false;
-    if ( !faultCollection->isShowingFaultsAndFaultsOutsideFilters() )
+    if ( faultCollection->shouldApplyCellFiltersToFaults() )
     {
         forceDisplayOfFault = isShowingGrid;
     }
@@ -121,14 +122,13 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 
     cvf::ModelBasicList parts;
 
-    for ( size_t i = 0; i < faultCollection->faults.size(); i++ )
+    int i = 0;
+    for ( const auto rimFault : faultCollection->faults() )
     {
-        const RimFaultInView* rimFault = faultCollection->faults[i];
-
-        cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
+        cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i++];
         CVF_ASSERT( rivFaultPart.notNull() );
 
-        if ( ( faultCollection->showFaultCollection() && rimFault->showFault() ) || forceDisplayOfFault )
+        if ( ( faultCollection->isActive() && rimFault->showFault() ) || forceDisplayOfFault )
         {
             if ( faultCollection->showFaultFaces() || forceDisplayOfFault )
             {
@@ -151,7 +151,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
         RimEclipseFaultColors* faultResultColors = m_reservoirView->faultResultSettings();
         RimEclipseCellColors*  cellResultColors  = m_reservoirView->cellResult();
 
-        if ( rimFault->showFault() && faultCollection->showFaultCollection() )
+        if ( rimFault->showFault() && faultCollection->isActive() )
         {
             if ( faultCollection->showNNCs() )
             {
@@ -189,7 +189,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                     }
                 }
 
-                if ( faultCollection->hideNncsWhenNoResultIsAvailable() )
+                if ( faultCollection->hideNNCsWhenNoResultIsAvailable() )
                 {
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();
                     if ( !( mainGrid && mainGrid->nncData()->hasScalarValues( eclipseResultAddress ) ) )
@@ -230,9 +230,9 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 //--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::applySingleColorEffect()
 {
-    for ( size_t i = 0; i < m_faultParts.size(); i++ )
+    for ( auto& faultPart : m_faultParts )
     {
-        m_faultParts[i]->applySingleColorEffect();
+        faultPart->applySingleColorEffect();
     }
 }
 
@@ -246,15 +246,15 @@ void RivReservoirFaultsPartMgr::updateColors( size_t timeStepIndex, RimEclipseCe
     RimFaultInViewCollection* faultCollection = m_reservoirView->faultCollection();
     CVF_ASSERT( faultCollection );
 
-    for ( size_t i = 0; i < faultCollection->faults.size(); i++ )
+    for ( auto& faultPart : m_faultParts )
     {
         if ( cellResultColors && ( cellResultColors->hasResult() || cellResultColors->isTernarySaturationSelected() ) )
         {
-            m_faultParts[i]->updateCellResultColor( timeStepIndex, cellResultColors );
+            faultPart->updateCellResultColor( timeStepIndex, cellResultColors );
         }
         else
         {
-            m_faultParts[i]->applySingleColorEffect();
+            faultPart->applySingleColorEffect();
         }
     }
 }
@@ -266,9 +266,9 @@ void RivReservoirFaultsPartMgr::updateCellEdgeResultColor( size_t               
                                                            RimEclipseCellColors* cellResultColors,
                                                            RimCellEdgeColors*    cellEdgeResultColors )
 {
-    for ( size_t i = 0; i < m_faultParts.size(); i++ )
+    for ( auto& faultPart : m_faultParts )
     {
-        m_faultParts[i]->updateCellEdgeResultColor( timeStepIndex, cellResultColors, cellEdgeResultColors );
+        faultPart->updateCellEdgeResultColor( timeStepIndex, cellResultColors, cellEdgeResultColors );
     }
 }
 
@@ -283,20 +283,19 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel( cvf::ModelBasicList* mo
     RimFaultInViewCollection* faultCollection = m_reservoirView->faultCollection();
     CVF_ASSERT( faultCollection );
 
-    if ( !faultCollection->showFaultCollection() ) return;
+    if ( !faultCollection->isActive() ) return;
 
     if ( !faultCollection->showFaultLabel() ) return;
 
     // Check match between model fault count and fault parts
-    CVF_ASSERT( faultCollection->faults.size() == m_faultParts.size() );
+    CVF_ASSERT( faultCollection->faults().size() == m_faultParts.size() );
 
     cvf::ModelBasicList parts;
 
-    for ( size_t i = 0; i < faultCollection->faults.size(); i++ )
+    int i = 0;
+    for ( const auto rimFault : faultCollection->faults() )
     {
-        const RimFaultInView* rimFault = faultCollection->faults[i];
-
-        cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
+        cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i++];
         CVF_ASSERT( rivFaultPart.notNull() );
 
         if ( rimFault->showFault() )
@@ -335,8 +334,8 @@ void RivReservoirFaultsPartMgr::clearWatertightGeometryFlag()
 //--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::setOpacityLevel( float opacity )
 {
-    for ( size_t i = 0; i < m_faultParts.size(); i++ )
+    for ( auto& faultPart : m_faultParts )
     {
-        m_faultParts[i]->setOpacityLevel( opacity );
+        faultPart->setOpacityLevel( opacity );
     }
 }

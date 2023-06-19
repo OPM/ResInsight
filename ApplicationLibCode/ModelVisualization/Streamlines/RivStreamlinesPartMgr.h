@@ -91,5 +91,4 @@ private:
     caf::PdmPointer<RimEclipseView> m_rimReservoirView;
     uint                            m_count;
     size_t                          m_currentT;
-    bool                            m_showAsVectors;
 };

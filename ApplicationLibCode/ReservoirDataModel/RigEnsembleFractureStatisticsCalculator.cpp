@@ -77,8 +77,8 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
 //--------------------------------------------------------------------------------------------------
 RigHistogramData
     RigEnsembleFractureStatisticsCalculator::createStatisticsData( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
-                                                                   PropertyType                                                propertyType,
-                                                                   int                                                         numBins )
+                                                                   PropertyType propertyType,
+                                                                   int          numBins )
 {
     std::vector<double> samples = calculateProperty( fractureDefinitions, propertyType );
 
@@ -113,7 +113,7 @@ RigHistogramData
 //--------------------------------------------------------------------------------------------------
 std::vector<double>
     RigEnsembleFractureStatisticsCalculator::calculateProperty( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
-                                                                PropertyType                                                propertyType )
+                                                                PropertyType propertyType )
 {
     std::vector<double> samples;
     if ( propertyType == PropertyType::HEIGHT )

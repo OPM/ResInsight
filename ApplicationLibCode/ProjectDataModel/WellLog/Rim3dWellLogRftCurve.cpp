@@ -212,8 +212,9 @@ void Rim3dWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 QString Rim3dWellLogRftCurve::wellName() const
 {
-    RimWellPath* wellPath = nullptr;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
-    return wellPath->name();
+    if ( wellPath ) return wellPath->name();
+
+    return {};
 }

@@ -88,8 +88,7 @@ void RimPerforationCollection::appendPerforation( RimPerforationInterval* perfor
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( activeView )
     {
-        RimEclipseCase* eclipseCase = nullptr;
-        activeView->firstAncestorOrThisOfType( eclipseCase );
+        auto eclipseCase = activeView->firstAncestorOrThisOfType<RimEclipseCase>();
         if ( eclipseCase )
         {
             auto dates = eclipseCase->timeStepDates();
@@ -117,8 +116,7 @@ void RimPerforationCollection::appendPerforation( RimPerforationInterval* perfor
     updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( perforation );
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -184,8 +182,7 @@ void RimPerforationCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     if ( changedField == &m_isChecked )
     {
         proj->reloadCompletionTypeResultsInAllViews();

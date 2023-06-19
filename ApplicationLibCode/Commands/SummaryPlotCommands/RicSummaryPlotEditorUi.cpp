@@ -162,9 +162,7 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot* targetPlot, 
 
     if ( m_targetPlot )
     {
-        RimSummaryMultiPlot* parentPlot = nullptr;
-        m_targetPlot->firstAncestorOfType( parentPlot );
-        m_plotContainer = parentPlot;
+        m_plotContainer = m_targetPlot->firstAncestorOfType<RimSummaryMultiPlot>();
 
         populateCurveCreator( *m_targetPlot );
         syncPreviewCurvesFromUiSelection();
@@ -509,9 +507,11 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
 
                 // Set single curve set color
                 auto   allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();
-                size_t colorIndex   = std::count_if( allCurveSets.begin(), allCurveSets.end(), []( RimEnsembleCurveSet* curveSet ) {
-                    return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR;
-                } );
+                size_t colorIndex =
+                    std::count_if( allCurveSets.begin(),
+                                   allCurveSets.end(),
+                                   []( RimEnsembleCurveSet* curveSet )
+                                   { return RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ); } );
                 curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex ) );
 
                 // Add curve to plot
@@ -830,8 +830,10 @@ void RicSummaryPlotEditorUi::applyAppearanceToAllPreviewCurves()
     int colorIndex = 0;
     for ( auto& curveSet : m_previewPlot->ensembleCurveSetCollection()->curveSets() )
     {
-        if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
-        curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ ) );
+        if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ) )
+        {
+            curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ ) );
+        }
     }
 }
 
@@ -851,8 +853,6 @@ void RicSummaryPlotEditorUi::updateAppearanceEditor()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::createNewPlot()
 {
-    RimProject* proj = RimProject::current();
-
     RimSummaryPlot* newSummaryPlot = nullptr;
 
     if ( !m_plotContainer )
@@ -976,9 +976,9 @@ void RicSummaryPlotEditorUi::setInitialCurveVisibility( const RimSummaryPlot* ta
 //--------------------------------------------------------------------------------------------------
 int ensembleCurveCount( const std::set<RiaSummaryCurveDefinition>& allCurveDefs )
 {
-    return std::count_if( allCurveDefs.begin(), allCurveDefs.end(), []( const RiaSummaryCurveDefinition& def ) {
-        return def.isEnsembleCurve();
-    } );
+    return std::count_if( allCurveDefs.begin(),
+                          allCurveDefs.end(),
+                          []( const RiaSummaryCurveDefinition& def ) { return def.isEnsembleCurve(); } );
 }
 
 //--------------------------------------------------------------------------------------------------

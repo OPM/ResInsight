@@ -212,6 +212,7 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
         sumPlot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         sumPlot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         sumPlot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
+        sumPlot->autoTitleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAutoTitleChanged );
 
         bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
         setAutoValueStatesForPlot( sumPlot, isMinMaxOverridden, m_autoAdjustAppearance() );
@@ -417,9 +418,12 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
     titlesGroup->setCollapsedByDefault();
+
+    // If a checkbox is first in the group, it is not responding to mouse clicks. Set title as first element.
+    // https://github.com/OPM/ResInsight/issues/10321
+    titlesGroup->add( &m_plotWindowTitle );
     titlesGroup->add( &m_autoPlotTitle );
     titlesGroup->add( &m_showPlotWindowTitle );
-    titlesGroup->add( &m_plotWindowTitle );
     titlesGroup->add( &m_titleFontSize );
 
     auto subPlotSettingsGroup = uiOrdering.addNewGroup( "Sub Plot Settings" );
@@ -500,10 +504,15 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         setAutoValueStates();
         analyzePlotsAndAdjustAppearanceSettings();
     }
-    else
+    else if ( changedField == &m_plotWindowTitle )
     {
-        RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+        // If the user has changed the plot title, disable the auto plot title
+        // Workaround for https://github.com/OPM/ResInsight/issues/9681
+
+        m_autoPlotTitle = false;
     }
+
+    RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -716,6 +725,7 @@ void RimSummaryMultiPlot::initAfterRead()
         plot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         plot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         plot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
+        plot->autoTitleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAutoTitleChanged );
     }
     updateStepDimensionFromDefault();
 }
@@ -807,7 +817,16 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
     if ( analyzer.wellNames().size() == 1 )
     {
-        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL;
+        auto wellName = *( analyzer.wellNames().begin() );
+
+        if ( analyzer.wellSegmentNumbers( wellName ).size() == 1 )
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT;
+        }
+        else
+        {
+            stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL;
+        }
     }
     else if ( analyzer.groupNames().size() == 1 )
     {
@@ -929,7 +948,8 @@ void RimSummaryMultiPlot::syncTimeAxisRanges( RimSummaryPlot* sourceSummaryPlot 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::computeAggregatedAxisRange()
 {
-    auto readValues = []( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr ) {
+    auto readValues = []( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr )
+    {
         std::vector<double> values;
         if ( summaryCase && summaryCase->summaryReader() )
         {
@@ -940,7 +960,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return values;
     };
 
-    auto findMinMaxForSummaryCase = [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues ) {
+    auto findMinMaxForSummaryCase = [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues )
+    {
         auto values = readValues( summaryCase, addr );
         if ( onlyPositiveValues )
         {
@@ -962,7 +983,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return std::make_pair( caseMinimum, caseMaximum );
     };
 
-    auto summaryCasesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation ) {
+    auto summaryCasesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation )
+    {
         std::vector<RimSummaryCase*> summaryCases;
 
         if ( axisRangeAggregation == AxisRangeAggregation::REALIZATIONS )
@@ -989,7 +1011,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return summaryCases;
     };
 
-    auto addressesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation ) {
+    auto addressesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation )
+    {
         std::vector<RifEclipseSummaryAddress> addresses;
 
         auto addr = curve->summaryAddressY();
@@ -1041,7 +1064,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
     auto findMinMaxForAddressesInSummaryCases = [findMinMaxForSummaryCase]( const std::vector<RifEclipseSummaryAddress>& addresses,
                                                                             const std::vector<RimSummaryCase*>&          summaryCases,
-                                                                            bool onlyPositiveValues ) {
+                                                                            bool onlyPositiveValues )
+    {
         double minimum = HUGE_VAL;
         double maximum = -HUGE_VAL;
         for ( auto summaryCase : summaryCases )
@@ -1081,7 +1105,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     }
                     else
                     {
-                        auto& [currentMin, currentMax]   = axisRanges[axis->plotAxisType()];
+                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
                         axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
@@ -1120,7 +1144,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     }
                     else
                     {
-                        auto& [currentMin, currentMax]   = axisRanges[axis->plotAxisType()];
+                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
                         axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
@@ -1153,7 +1177,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::updatePlotVisibility()
 {
-    auto hasValuesAboveLimit = []( RimSummaryPlot* plot, double limit ) {
+    auto hasValuesAboveLimit = []( RimSummaryPlot* plot, double limit )
+    {
         for ( auto curve : plot->summaryAndEnsembleCurves() )
         {
             auto address  = curve->valuesY();
@@ -1424,6 +1449,16 @@ void RimSummaryMultiPlot::onSubPlotAxisReloadRequired( const caf::SignalEmitter*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onSubPlotAutoTitleChanged( const caf::SignalEmitter* emitter, bool isEnabled )
+{
+    m_autoSubPlotTitle = isEnabled;
+
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::updateReadOnlyState()
 {
     m_axisRangeAggregation.uiCapability()->setUiReadOnly( m_linkSubPlotAxes() );
@@ -1436,7 +1471,7 @@ std::pair<double, double> RimSummaryMultiPlot::adjustedMinMax( const RimPlotAxis
 {
     if ( !axis->isLogarithmicScaleEnabled() )
     {
-        int                  maxMajorTickIntervalCount = axis->tickmarkCountFromEnum( axis->majorTickmarkCount() );
+        int                  maxMajorTickIntervalCount = RimPlotAxisProperties::tickmarkCountFromEnum( axis->majorTickmarkCount() );
         double               stepSize                  = 0.0;
         QwtLinearScaleEngine scaleEngine;
 

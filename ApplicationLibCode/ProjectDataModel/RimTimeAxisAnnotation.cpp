@@ -18,20 +18,14 @@
 
 #include "RimTimeAxisAnnotation.h"
 
+#include "RiaColorTools.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 
-#include "RigEclipseCaseData.h"
-#include "RigEquil.h"
+#include "RimProject.h"
 
 #include "RiuGuiTheme.h"
-#include "RiuQwtPlotCurve.h"
-
-#include "RimEclipseCase.h"
-#include "RimPlot.h"
-#include "RimTools.h"
-#include "RimViewWindow.h"
 
 #include <QDateTime>
 
@@ -48,6 +42,8 @@ RimTimeAxisAnnotation::RimTimeAxisAnnotation()
     CAF_PDM_InitObject( "Time Axis Annotation", ":/LeftAxis16x16.png" );
 
     m_value.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::fromQColorTo3f( defaultColor( AnnotationType::LINE ) ), "Color" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,17 +92,41 @@ void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor RimTimeAxisAnnotation::color() const
+QColor RimTimeAxisAnnotation::defaultColor( AnnotationType annotationType )
 {
-    if ( annotationType() == AnnotationType::LINE )
+    if ( annotationType == AnnotationType::LINE )
     {
         return RiuGuiTheme::getColorByVariableName( "secondaryColor" ); // QColor(255, 0, 0);
     }
-    else if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
+    else if ( annotationType == RimPlotAxisAnnotation::AnnotationType::RANGE )
     {
         return RiuGuiTheme::getColorByVariableName( "primaryColor" ); // QColor( 0, 0, 255 );
     }
     return RiuGuiTheme::getColorByVariableName( "textColor" ); // QColor(0, 0, 100);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTimeAxisAnnotation::setDefaultColor()
+{
+    m_color = RiaColorTools::fromQColorTo3f( defaultColor( annotationType() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTimeAxisAnnotation::setColor( const cvf::Color3f& color )
+{
+    m_color = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RimTimeAxisAnnotation::color() const
+{
+    return RiaColorTools::toQColor( m_color );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,4 +140,15 @@ void RimTimeAxisAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_rangeEnd );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTimeAxisAnnotation::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.03" ) )
+    {
+        setDefaultColor();
+    }
 }

@@ -46,7 +46,7 @@ public:
         RESOLVED_NOT_SAVED,
         RESOLVED
     };
-    typedef caf::AppEnum<ResolveState> ResolveStateEnum;
+    using ResolveStateEnum = caf::AppEnum<ResolveState>;
 
     // Fields:
     caf::PdmField<QString>       resultName;

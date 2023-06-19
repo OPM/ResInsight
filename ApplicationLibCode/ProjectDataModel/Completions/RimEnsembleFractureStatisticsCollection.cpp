@@ -46,7 +46,7 @@ void RimEnsembleFractureStatisticsCollection::addFractureGroupStatistics( RimEns
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatisticsCollection::loadAndUpdateData()
 {
-    for ( auto f : m_fractureGroupStatistics.children() )
+    for ( auto f : m_fractureGroupStatistics.childrenByType() )
     {
         f->loadAndUpdateData();
     }

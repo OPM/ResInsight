@@ -61,11 +61,11 @@ void RiaImageTools::distanceTransform2d( std::vector<std::vector<unsigned int>>&
         }
     }
 
-    auto f = []( int64_t x, int64_t i, const std::vector<std::vector<int64_t>>& g, int64_t y ) {
-        return ( x - i ) * ( x - i ) + g[i][y] * g[i][y];
-    };
+    auto f = []( int64_t x, int64_t i, const std::vector<std::vector<int64_t>>& g, int64_t y )
+    { return ( x - i ) * ( x - i ) + g[i][y] * g[i][y]; };
 
-    auto sep = []( int64_t i, int64_t u, const std::vector<std::vector<int64_t>>& g, int64_t y ) {
+    auto sep = []( int64_t i, int64_t u, const std::vector<std::vector<int64_t>>& g, int64_t y )
+    {
         if ( i == u ) return (int64_t)0;
 
         int64_t numerator = u * u - i * i + g[u][y] * g[u][y] - g[i][y] * g[i][y];

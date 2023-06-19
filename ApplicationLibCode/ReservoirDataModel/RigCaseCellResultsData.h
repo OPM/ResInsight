@@ -23,8 +23,6 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
-#include "RigEclipseResultAddress.h"
-
 #include "cvfCollection.h"
 
 #include <QDateTime>
@@ -42,6 +40,7 @@ class RigEclipseTimeStepInfo;
 class RigEclipseCaseData;
 class RigFormationNames;
 class RigAllanDiagramData;
+class RigEclipseResultAddress;
 
 class RimEclipseCase;
 
@@ -145,6 +144,10 @@ public:
 
     void setStatisticsDataCacheNumBins( const RigEclipseResultAddress& resultAddress, size_t numBins );
 
+    size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
+
+    RigEclipseResultAddress defaultResult() const;
+
 private:
     size_t findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr );
     size_t findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
@@ -153,15 +156,19 @@ private:
     // Add a friend class, as this way of loading data requires careful management of state
     // All other data access assumes all time steps are loaded at the same time
     friend class RimEclipseStatisticsCaseEvaluator;
+    friend class RigSoilResultCalculator;
+    friend class RigFaultDistanceResultCalculator;
+    friend class RigMobilePoreVolumeResultCalculator;
+    friend class RigIndexIjkResultCalculator;
+    friend class RigOilVolumeResultCalculator;
+    friend class RigCellVolumeResultCalculator;
     size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
 
     size_t findScalarResultIndexFromAddress( const RigEclipseResultAddress& resVarAddr ) const;
 
-    size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
-
-    const std::vector<RigEclipseResultInfo>& infoForEachResultIndex();
+    const std::vector<RigEclipseResultInfo>& infoForEachResultIndex() const;
     size_t                                   resultCount() const;
 
     bool mustBeCalculated( size_t scalarResultIndex ) const;
@@ -187,14 +194,13 @@ private:
     void computeMobilePV();
 
     void computeIndexResults();
+    void computeFaultDistance();
 
     bool isDataPresent( size_t scalarResultIndex ) const;
 
     void assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& values );
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
-
-    static void computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid, bool includeInactiveCells );
 
 private:
     cvf::ref<RifReaderInterface>  m_readerInterface;

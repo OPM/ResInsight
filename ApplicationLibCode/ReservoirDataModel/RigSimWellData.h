@@ -50,7 +50,7 @@ public:
     bool                           isOpen( size_t resultTimeStepIndex ) const;
     RiaDefines::WellProductionType wellProductionType( size_t resultTimeStepIndex ) const;
 
-    const RigWellResultFrame* staticWellCells() const;
+    const RigWellResultFrame* staticWellResultFrame() const;
 
     void computeMappingFromResultTimeIndicesToWellTimeIndices( const std::vector<QDateTime>& resultTimes );
 

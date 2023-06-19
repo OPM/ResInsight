@@ -45,19 +45,19 @@ namespace caf
 /// first object of given type searching upwards to root using firstAncestorOrThisOfType()
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-T firstAncestorOfTypeFromSelectedObject()
+[[nodiscard]] T* firstAncestorOfTypeFromSelectedObject()
 {
-    T objToFind = nullptr;
+    static_assert( !std::is_pointer<T>::value );
 
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( objToFind );
+        return objHandle->firstAncestorOrThisOfType<T>();
     }
 
-    return objToFind;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ T firstAncestorOfTypeFromSelectedObject()
 /// have been updated to use this function instead of SelectionManager::objectsByType
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-std::vector<T> selectedObjectsByType()
+[[nodiscard]] std::vector<T> selectedObjectsByType()
 {
     std::vector<T> objectByType;
     caf::SelectionManager::instance()->objectsByType( &objectByType );
@@ -80,7 +80,7 @@ std::vector<T> selectedObjectsByType()
 /// If objects of different type are selected, an empty list is returned.
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-std::vector<T> selectedObjectsByTypeStrict()
+[[nodiscard]] std::vector<T> selectedObjectsByTypeStrict()
 {
     std::vector<T> objectByType;
     caf::SelectionManager::instance()->objectsByTypeStrict( &objectByType );

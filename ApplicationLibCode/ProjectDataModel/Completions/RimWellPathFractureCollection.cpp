@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT( RimWellPathFractureCollection, "WellPathFractureCollection"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathFractureCollection::RimWellPathFractureCollection( void )
+RimWellPathFractureCollection::RimWellPathFractureCollection()
 {
     CAF_PDM_InitObject( "Fractures", ":/FractureLayout16x16.png" );
 
@@ -85,7 +85,7 @@ void RimWellPathFractureCollection::deleteFractures()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathFracture*> RimWellPathFractureCollection::allFractures() const
 {
-    return m_fractures.children();
+    return m_fractures.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

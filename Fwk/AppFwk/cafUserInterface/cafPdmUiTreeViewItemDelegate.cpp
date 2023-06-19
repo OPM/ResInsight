@@ -62,10 +62,9 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeViewItemDelegate::PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, QAbstractItemModel* model )
+PdmUiTreeViewItemDelegate::PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent )
     : QStyledItemDelegate( parent->treeView() )
     , m_treeView( parent )
-    , m_model( model )
 {
 }
 
@@ -102,35 +101,12 @@ QRect PdmUiTreeViewItemDelegate::tagRect( const QRect& itemRect, QModelIndex ind
     auto it = m_tags.find( index );
     if ( it == m_tags.end() ) return QRect();
 
-    QSize fullSize = itemRect.size();
-
-    QPoint offset( 0, 0 );
-
-    for ( size_t i = 0; i < it->second.size(); ++i )
+    if ( tagIndex < it->second.size() )
     {
-        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[i].get();
-        if ( tag->icon.valid() )
-        {
-            auto  icon     = tag->icon.icon();
-            QSize iconSize = icon->actualSize( fullSize );
-            QRect iconRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
-            {
-                QPoint bottomRight = itemRect.bottomRight() - offset;
-                QPoint topLeft     = bottomRight - QPoint( iconSize.width(), iconSize.height() );
-                iconRect           = QRect( topLeft, bottomRight );
-            }
-            else
-            {
-                QPoint topLeft     = itemRect.topLeft() + offset;
-                QPoint bottomRight = topLeft + QPoint( iconSize.width(), iconSize.height() );
-                iconRect           = QRect( topLeft, bottomRight );
-            }
-            offset += QPoint( iconSize.width() + 2, 0 );
-
-            if ( i == tagIndex ) return iconRect;
-        }
+        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[tagIndex].get();
+        return tag->rect;
     }
+
     return QRect();
 }
 
@@ -163,7 +139,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             auto  icon     = tag->icon.icon();
             QSize iconSize = icon->actualSize( fullSize );
             QRect iconRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
+            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
             {
                 QPoint bottomRight( rect.bottomRight().x() - offset.x(), center.y() + iconSize.height() / 2 );
                 QPoint topLeft( bottomRight.x() - iconSize.width(), bottomRight.y() - iconSize.height() );
@@ -177,6 +153,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             }
             offset += QPoint( iconSize.width() + 2, 0 );
             icon->paint( painter, iconRect );
+            tag->rect = iconRect;
         }
         else
         {
@@ -203,7 +180,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             int   textDiff = ( fullSize.height() - textSize.height() );
 
             QRect textRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
+            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
             {
                 QPoint bottomRight     = rect.bottomRight() - QPoint( outsideLeftRightMargins, 0 ) - offset;
                 QPoint textBottomRight = bottomRight - QPoint( insideleftRightMargins, textDiff / 2 );
@@ -234,6 +211,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
 
             painter->setPen( fgColor );
             painter->drawText( textRect, Qt::AlignCenter, text );
+            tag->rect = tagRect;
         }
     }
     // Restore painter
@@ -284,14 +262,14 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
                     PdmObjectHandle* pdmObject = uiObjectHandle->objectHandle();
                     if ( pdmObject )
                     {
-                        PdmFieldReorderCapability* reorderability =
-                            PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject );
+                        size_t indexInParent = 0;
 
-                        if ( reorderability )
+                        if ( PdmFieldReorderCapability* reorderability =
+                                 PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject ) )
                         {
-                            size_t indexInParent = reorderability->indexOf( pdmObject );
-                            tag->clicked.send( indexInParent );
+                            indexInParent = reorderability->indexOf( pdmObject );
                         }
+                        tag->clicked.send( indexInParent );
                     }
                 }
 

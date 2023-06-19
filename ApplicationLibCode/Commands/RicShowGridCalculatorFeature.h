@@ -21,6 +21,7 @@
 #include "cafCmdFeature.h"
 
 class RicGridCalculatorDialog;
+class RimEclipseResultAddress;
 
 //==================================================================================================
 ///
@@ -30,10 +31,12 @@ class RicShowGridCalculatorFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
+    static void addCalculationAndShowDialog( const RimEclipseResultAddress& address );
+
+private:
     static RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
     static void                     hideGridCalculatorDialog();
 
-protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

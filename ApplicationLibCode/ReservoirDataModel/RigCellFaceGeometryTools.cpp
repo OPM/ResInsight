@@ -252,7 +252,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         size_t k;
         mainGrid->ijkFromCellIndexUnguarded( sourceReservoirCellIndex, &i, &j, &k );
 
-        mainGrid->neighborIJKAtCellFace( i, j, k, sourceCellFace, &ni, &nj, &nk );
+        RigMainGrid::neighborIJKAtCellFace( i, j, k, sourceCellFace, &ni, &nj, &nk );
 
         if ( mainGrid->isCellValid( ni, nj, nk ) )
         {

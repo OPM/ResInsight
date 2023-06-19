@@ -21,9 +21,11 @@
 
 #include "RiaFeatureCommandContext.h"
 #include "RiaGuiApplication.h"
+
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiObjectHandle.h"
@@ -146,6 +148,66 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
             field->setValue( value );
         }
     }
+
+    // If multiple fields are updated, we call onChildrenUpdated() on the owner of the first field
+    // Example: Trigger replot of curves when multiple curves are toggled
+    if ( fieldsToUpdate.size() > 1 )
+    {
+        auto [ownerOfChildArrayField, childArrayFieldHandle] = RicToggleItemsFeatureImpl::findOwnerAndChildArrayField( fieldsToUpdate.front() );
+        if ( ownerOfChildArrayField && childArrayFieldHandle )
+        {
+            std::vector<caf::PdmObjectHandle*> objs;
+            ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicToggleItemsFeatureImpl::findCollectionName( SelectionToggleType state )
+{
+    std::vector<caf::PdmUiItem*> selectedItems;
+    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    if ( state != TOGGLE && selectedItems.size() == 1 )
+    {
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
+        if ( !treeItem ) return {};
+
+        for ( int cIdx = 0; cIdx < treeItem->childCount(); ++cIdx )
+        {
+            caf::PdmUiTreeOrdering* child = treeItem->child( cIdx );
+            if ( !child ) continue;
+            if ( !child->isRepresentingObject() ) continue;
+
+            caf::PdmObjectHandle*   childObj            = child->object();
+            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
+            if ( !uiObjectHandleChild ) continue;
+
+            // https://github.com/OPM/ResInsight/issues/8382
+            // Toggling state is only supported for objects in an array.
+            // For example, this will ensure that faults are toggled without altering the fault result object.
+            auto arrayField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( childObj->parentField() );
+            if ( arrayField && arrayField->ownerObject() )
+            {
+                return arrayField->uiCapability()->uiName();
+            }
+        }
+    }
+    else
+    {
+        for ( auto& selectedItem : selectedItems )
+        {
+            auto* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItem );
+            if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
+            {
+                QString objectName = uiObjectHandle->uiName();
+                return objectName;
+            }
+        }
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,7 +276,6 @@ std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFro
         // We need to get the children through the tree view, because that is where the actually shown children is
 
         caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
-
         if ( !treeItem ) return {};
 
         for ( int cIdx = 0; cIdx < treeItem->childCount(); ++cIdx )
@@ -225,10 +286,17 @@ std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFro
 
             caf::PdmObjectHandle*   childObj            = child->object();
             caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
+            if ( !uiObjectHandleChild ) continue;
 
-            if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() )
+            // https://github.com/OPM/ResInsight/issues/8382
+            // Toggling state is only supported for objects in an array.
+            // For example, this will ensure that faults are toggled without altering the fault result object.
+            auto arrayField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( childObj->parentField() );
+            if ( !arrayField ) continue;
+
+            if ( uiObjectHandleChild->objectToggleField() )
             {
-                auto* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
+                auto field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
                 if ( !field ) continue;
 
                 if ( state == SelectionToggleType::TOGGLE_ON && field->value() ) continue;
@@ -253,4 +321,44 @@ std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFro
     }
 
     return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Based on code in CmdUiCommandSystemImpl::fieldChangedCommand()
+/// Could be merged and put into a tool class
+//--------------------------------------------------------------------------------------------------
+std::pair<caf::PdmObjectHandle*, caf::PdmChildArrayFieldHandle*>
+    RicToggleItemsFeatureImpl::findOwnerAndChildArrayField( caf::PdmFieldHandle* fieldHandle )
+{
+    if ( !fieldHandle ) return {};
+
+    caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
+    caf::PdmObjectHandle*          ownerOfChildArrayField = nullptr;
+
+    // Find the first childArrayField by traversing parent field and objects. Usually, the childArrayField is
+    // the parent, but in some cases when we change fields in a sub-object of the object we need to traverse
+    // more levels
+
+    ownerOfChildArrayField = fieldHandle->ownerObject();
+    while ( ownerOfChildArrayField )
+    {
+        if ( ownerOfChildArrayField->parentField() )
+        {
+            childArrayFieldHandle  = dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
+            ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
+
+            if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
+        }
+        else
+        {
+            ownerOfChildArrayField = nullptr;
+        }
+    }
+
+    if ( ownerOfChildArrayField && childArrayFieldHandle )
+    {
+        return { ownerOfChildArrayField, childArrayFieldHandle };
+    }
+
+    return {};
 }

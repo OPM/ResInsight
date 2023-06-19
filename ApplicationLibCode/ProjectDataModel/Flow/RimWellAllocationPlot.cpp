@@ -28,7 +28,7 @@
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
@@ -168,10 +168,8 @@ void RimWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
 {
     m_showWindow = true;
 
-    RimEclipseView* eclView;
-    simWell->firstAncestorOrThisOfType( eclView );
-    RimEclipseResultCase* eclCase;
-    simWell->firstAncestorOrThisOfType( eclCase );
+    auto eclView = simWell->firstAncestorOrThisOfType<RimEclipseView>();
+    auto eclCase = simWell->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     m_case     = eclCase;
     m_wellName = simWell->simWellData()->m_wellName;
@@ -184,6 +182,26 @@ void RimWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
 
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::setWellName( const QString& wellName )
+{
+    m_wellName = wellName;
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::setTimeStep( int timeStep )
+{
+    if ( timeStep < 0 ) return;
+
+    m_timeStep = timeStep;
     onLoadDataAndUpdate();
 }
 
@@ -210,9 +228,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     // Delete existing tracks
     {
-        std::vector<RimWellLogTrack*> tracks;
-        accumulatedWellFlowPlot()->descendantsIncludingThisOfType( tracks );
-
+        std::vector<RimWellLogTrack*> tracks = accumulatedWellFlowPlot()->descendantsIncludingThisOfType<RimWellLogTrack>();
         for ( RimWellLogTrack* t : tracks )
         {
             for ( auto c : t->curves() )
@@ -261,12 +277,13 @@ void RimWellAllocationPlot::updateFromWell()
     double smallContributionThreshold = 0.0;
     if ( m_groupSmallContributions() ) smallContributionThreshold = m_smallContributionsThreshold;
 
-    if ( tracerFractionCellValues.size() )
+    if ( !tracerFractionCellValues.empty() && !pipeBranchesCLCoords.empty() )
     {
         bool isProducer = ( simWellData->wellProductionType( m_timeStep ) == RiaDefines::WellProductionType::PRODUCER ||
                             simWellData->wellProductionType( m_timeStep ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
-                                               m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+                                               m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                               nullptr );
         wfCalculator.reset( new RigAccWellFlowCalculator( pipeBranchesCLCoords,
                                                           pipeBranchesCellIds,
                                                           tracerFractionCellValues,
@@ -276,7 +293,7 @@ void RimWellAllocationPlot::updateFromWell()
     }
     else
     {
-        if ( pipeBranchesCLCoords.size() > 0 )
+        if ( !pipeBranchesCLCoords.empty() )
         {
             wfCalculator.reset( new RigAccWellFlowCalculator( pipeBranchesCLCoords, pipeBranchesCellIds, smallContributionThreshold ) );
         }
@@ -302,13 +319,11 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addPlot( plotTrack );
 
-        const std::vector<double>& depthValues = depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER
-                                                     ? wfCalculator->connectionNumbersFromTop( brIdx )
-                                                     : depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH
-                                                           ? wfCalculator->pseudoLengthFromTop( brIdx )
-                                                           : depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH
-                                                                 ? wfCalculator->trueVerticalDepth( brIdx )
-                                                                 : std::vector<double>();
+        const std::vector<double>& depthValues =
+            depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER     ? wfCalculator->connectionNumbersFromTop( brIdx )
+            : depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH       ? wfCalculator->pseudoLengthFromTop( brIdx )
+            : depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth( brIdx )
+                                                                          : std::vector<double>();
 
         if ( !depthValues.empty() )
         {
@@ -502,7 +517,7 @@ QString RimWellAllocationPlot::wellStatusTextForTimeStep( const QString& wellNam
             {
                 const RigWellResultFrame* wellResultFrame = simWellData->wellResultFrame( timeStep );
 
-                RiaDefines::WellProductionType prodType = wellResultFrame->m_productionType;
+                RiaDefines::WellProductionType prodType = wellResultFrame->productionType();
 
                 switch ( prodType )
                 {

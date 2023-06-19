@@ -71,6 +71,7 @@ Rim3dWellLogExtractionCurve::Rim3dWellLogExtractionCurve()
     m_case = nullptr;
 
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", -1, "Time Step" );
+    CAF_PDM_InitField( &m_geomPartId, "GeomPartId", 0, "Part Id" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
@@ -182,8 +183,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
     CAF_ASSERT( values != nullptr );
     CAF_ASSERT( measuredDepthValues != nullptr );
 
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
@@ -208,7 +208,8 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case() );
         if ( geomCase )
         {
-            cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, geomCase );
+            cvf::ref<RigGeoMechWellLogExtractor> geomExtractor =
+                RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, geomCase, m_geomPartId );
 
             if ( geomExtractor.notNull() )
             {
@@ -297,8 +298,7 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
 
     if ( m_nameConfig->addWellName() )
     {
-        RimWellPath* wellPath;
-        this->firstAncestorOrThisOfTypeAsserted( wellPath );
+        auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
         if ( !wellPath->name().isEmpty() )
         {
             generatedAutoTags += wellPath->name();
@@ -364,8 +364,7 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 double Rim3dWellLogExtractionCurve::rkbDiff() const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
 
     if ( wellPath && wellPath->wellPathGeometry() )
     {
@@ -439,7 +438,7 @@ void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* c
         this->resetMinMaxValues();
         this->updateConnectedEditors();
     }
-    else if ( changedField == &m_timeStep )
+    else if ( ( changedField == &m_timeStep ) || ( changedField == &m_geomPartId ) )
     {
         this->resetMinMaxValues();
         this->updateConnectedEditors();
@@ -491,6 +490,7 @@ void Rim3dWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::P
     }
     else if ( geomCase )
     {
+        curveDataGroup->add( &m_geomPartId );
         m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
     }
 

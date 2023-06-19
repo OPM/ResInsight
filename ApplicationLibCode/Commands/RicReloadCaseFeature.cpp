@@ -64,8 +64,7 @@ void RicReloadCaseFeature::onActionTriggered( bool isChecked )
 
     for ( RimEclipseCase* selectedCase : selectedEclipseCases )
     {
-        std::vector<RimTimeStepFilter*> timeStepFilter;
-        selectedCase->descendantsIncludingThisOfType( timeStepFilter );
+        std::vector<RimTimeStepFilter*> timeStepFilter = selectedCase->descendantsIncludingThisOfType<RimTimeStepFilter>();
         if ( timeStepFilter.size() == 1 )
         {
             timeStepFilter[0]->clearFilteredTimeSteps();

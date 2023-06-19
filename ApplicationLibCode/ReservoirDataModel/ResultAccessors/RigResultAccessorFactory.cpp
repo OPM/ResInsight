@@ -26,6 +26,7 @@
 #include "RigCombMultResultAccessor.h"
 #include "RigCombTransResultAccessor.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"

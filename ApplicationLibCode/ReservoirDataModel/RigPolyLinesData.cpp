@@ -28,6 +28,7 @@ RigPolyLinesData::RigPolyLinesData()
     , m_lockToZPlane( false )
     , m_lockedZValue( 0.0 )
     , m_closePolyline( true )
+    , m_skipBoundingBoxCheck( false )
 {
     m_sphereColor.set( 200, 200, 200 );
     m_lineColor.set( 200, 200, 200 );
@@ -179,4 +180,20 @@ void RigPolyLinesData::setZPlaneLock( bool lockToZ, double lockZValue )
 {
     m_lockToZPlane = lockToZ;
     m_lockedZValue = lockZValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigPolyLinesData::setSkipBoundingBoxCheck( bool skipCheck )
+{
+    m_skipBoundingBoxCheck = skipCheck;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigPolyLinesData::skipBoundingBoxCheck() const
+{
+    return m_skipBoundingBoxCheck;
 }

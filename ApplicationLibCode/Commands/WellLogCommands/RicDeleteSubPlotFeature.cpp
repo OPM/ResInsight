@@ -72,10 +72,8 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
     {
         if ( !plot ) continue;
 
-        RimMultiPlot*   multiPlot   = nullptr;
-        RimWellLogPlot* wellLogPlot = nullptr;
-        plot->firstAncestorOrThisOfType( multiPlot );
-        plot->firstAncestorOrThisOfType( wellLogPlot );
+        RimMultiPlot*   multiPlot   = plot->firstAncestorOrThisOfType<RimMultiPlot>();
+        RimWellLogPlot* wellLogPlot = plot->firstAncestorOrThisOfType<RimWellLogPlot>();
         if ( multiPlot )
         {
             alteredPlotWindows.insert( multiPlot );

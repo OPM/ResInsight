@@ -23,6 +23,7 @@
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathValve.h"
@@ -57,8 +58,7 @@ void RicNewValveAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellPathValve*> existingValves = perfInterval->valves();
     valve->setName( QString( "Valve #%1" ).arg( existingValves.size() + 1 ) );
 
-    RimProject* project;
-    perfInterval->firstAncestorOrThisOfTypeAsserted( project );
+    RimProject* project = RimProject::current();
 
     std::vector<RimValveTemplate*> allValveTemplates = project->allValveTemplates();
     if ( !allValveTemplates.empty() )
@@ -68,8 +68,7 @@ void RicNewValveAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
     perfInterval->addValve( valve );
     valve->setMeasuredDepthAndCount( measuredDepth, perfInterval->endMD() - measuredDepth, 1 );
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
     wellPathCollection->scheduleRedrawAffectedViews();

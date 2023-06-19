@@ -57,7 +57,7 @@ private:
     static double
         xsect( int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh );
     static double
-               ysect( int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh );
+        ysect( int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh );
     static int gridIndex1d( int i, int j, int nx );
 
 private:

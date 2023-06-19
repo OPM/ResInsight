@@ -22,12 +22,14 @@
 #include "RigAllanDiagramData.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "Rim2dIntersectionView.h"
@@ -286,8 +288,7 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
 
     if ( m_eclipseView )
     {
-        std::vector<RimMultipleEclipseResults*> additionalResultSettings;
-        m_eclipseView->descendantsOfType( additionalResultSettings );
+        std::vector<RimMultipleEclipseResults*> additionalResultSettings = m_eclipseView->descendantsOfType<RimMultipleEclipseResults>();
         if ( !additionalResultSettings.empty() )
         {
             showCenter = additionalResultSettings[0]->showCenterCoordinates();
@@ -1119,8 +1120,7 @@ std::map<QString, QString> RiuResultTextBuilder::cellResultTextAndValueText( Rim
                     }
                     else
                     {
-                        RimIntersectionResultDefinition* interResDef = nullptr;
-                        eclResDef->firstAncestorOrThisOfType( interResDef );
+                        auto interResDef = eclResDef->firstAncestorOrThisOfType<RimIntersectionResultDefinition>();
                         if ( interResDef )
                         {
                             legendConfig = interResDef->regularLegendConfig();
@@ -1168,13 +1168,13 @@ QString RiuResultTextBuilder::wellResultText()
                 continue;
             }
 
-            const RigWellResultPoint* wellResultCell = wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
-            if ( wellResultCell )
+            const RigWellResultPoint wellResultCell = wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
+            if ( wellResultCell.isValid() )
             {
-                const int branchId        = wellResultCell->branchId();
-                const int segmentId       = wellResultCell->segmentId();
-                const int outletBranchId  = wellResultCell->outletBranchId();
-                const int outletSegmentId = wellResultCell->outletSegmentId();
+                const int branchId        = wellResultCell.branchId();
+                const int segmentId       = wellResultCell.segmentId();
+                const int outletBranchId  = wellResultCell.outletBranchId();
+                const int outletSegmentId = wellResultCell.outletSegmentId();
 
                 text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment "
                                  "Id: %3\n Outlet Branch Id: %4\n Outlet Segment Id: %5\n" )

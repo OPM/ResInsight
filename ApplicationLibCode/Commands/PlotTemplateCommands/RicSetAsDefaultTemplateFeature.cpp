@@ -63,7 +63,7 @@ void RicSetAsDefaultTemplateFeature::onActionTriggered( bool isChecked )
 void RicSetAsDefaultTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Default Template" );
-    // actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
+    // actionToSetup->setIcon( QIcon( ":/plot-template-standard.svg" ) );
 
     RimPlotTemplateFileItem* file = selectedTemplate();
     if ( file != nullptr )

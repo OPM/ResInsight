@@ -116,8 +116,7 @@ int RimColorLegendItem::categoryValue() const
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendItem::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimColorLegend* colorLegend = nullptr;
-    this->firstAncestorOrThisOfType( colorLegend );
+    RimColorLegend* colorLegend = firstAncestorOrThisOfType<RimColorLegend>();
     if ( colorLegend )
     {
         colorLegend->onColorLegendItemHasChanged();

@@ -128,8 +128,7 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 RimIntersectionResultsDefinitionCollection* RimIntersection::findSeparateResultsCollection()
 {
-    RimGridView* view;
-    this->firstAncestorOrThisOfTypeAsserted( view );
+    auto view = firstAncestorOrThisOfTypeAsserted<RimGridView>();
     return view->separateIntersectionResultsCollection();
 }
 
@@ -187,8 +186,7 @@ void RimIntersection::updateDefaultSeparateDataSource()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterface()
 {
-    RimGeoMechView* geoView;
-    this->firstAncestorOrThisOfType( geoView );
+    auto geoView = firstAncestorOrThisOfType<RimGeoMechView>();
 
     RimIntersectionResultDefinition* resDef = activeSeparateResultDefinition();
     if ( resDef && resDef->activeCase() )
@@ -214,8 +212,7 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
         }
     }
 
-    RimEclipseView* eclipseView;
-    this->firstAncestorOrThisOfType( eclipseView );
+    auto eclipseView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( eclipseView && eclipseView->mainGrid() )
     {
         RigMainGrid* grid = eclipseView->mainGrid();

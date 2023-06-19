@@ -179,6 +179,41 @@ public:
     }
 };
 
+template <typename T, typename U>
+class PdmUiFieldSpecialization<std::pair<T, U>>
+{
+public:
+    /// Convert the field value into a QVariant
+    static QVariant convert( const std::pair<T, U>& value )
+    {
+        return PdmValueFieldSpecialization<std::pair<T, U>>::convert( value );
+    }
+
+    /// Set the field value from a QVariant
+    static void setFromVariant( const QVariant& variantValue, std::pair<T, U>& value )
+    {
+        PdmValueFieldSpecialization<std::pair<T, U>>::setFromVariant( variantValue, value );
+    }
+
+    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        return variantValue == variantValue2;
+    }
+
+    /// Methods to get a list of options for a field, specialized for AppEnum
+    static QList<PdmOptionItemInfo> valueOptions( const std::pair<T, U>& )
+    {
+        QList<PdmOptionItemInfo> optionList;
+
+        return optionList;
+    }
+
+    /// Methods to retrieve the possible PdmObject pointed to by a field
+    static void childObjects( const PdmDataValueField<caf::AppEnum<T>>& field, std::vector<PdmObjectHandle*>* objects )
+    {
+    }
+};
+
 //==================================================================================================
 /// Partial specialization for FilePath
 //==================================================================================================

@@ -55,8 +55,7 @@ bool RicImportEnsembleFractureStatisticsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app            = RiaGuiApplication::instance();
-    QString            pathCacheName  = "INPUT_FILES";
+    QString pathCacheName             = "INPUT_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import StimPlan Fractures", pathCacheName );
 
     if ( groupByEnsemble == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
@@ -131,12 +130,15 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
-    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                                                        dialogTitle,
-                                                                                                        defaultDir,
-                                                                                                        m_pathFilter,
-                                                                                                        m_fileNameFilter,
-                                                                                                        QStringList( ".xml" ) );
+    RicRecursiveFileSearchDialogResult result =
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                dialogTitle,
+                                                                defaultDir,
+                                                                m_pathFilter,
+                                                                m_fileNameFilter,
+                                                                {
+                                                                    RicRecursiveFileSearchDialog::FileType::STIMPLAN_FRACTURE,
+                                                                } );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;

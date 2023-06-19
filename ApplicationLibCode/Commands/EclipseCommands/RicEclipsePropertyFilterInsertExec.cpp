@@ -56,8 +56,8 @@ QString RicEclipsePropertyFilterInsertExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterInsertExec::redo()
 {
-    RimEclipsePropertyFilterCollection* propertyFilterCollection = nullptr;
-    m_propertyFilter->firstAncestorOrThisOfTypeAsserted( propertyFilterCollection );
+    RimEclipsePropertyFilterCollection* propertyFilterCollection =
+        m_propertyFilter->firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
 
     size_t index = propertyFilterCollection->propertyFiltersField().indexOf( m_propertyFilter );
     CVF_ASSERT( index < propertyFilterCollection->propertyFilters().size() );

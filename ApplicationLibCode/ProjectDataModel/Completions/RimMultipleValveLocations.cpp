@@ -152,8 +152,7 @@ void RimMultipleValveLocations::computeRangesAndLocations()
     {
         std::vector<double> validMeasuredDepths;
         {
-            RimWellPath* wellPath = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted( wellPath );
+            auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
             double firstWellPathMD = wellPath->startMD();
             double lastWellPathMD  = wellPath->endMD();
@@ -228,8 +227,7 @@ void RimMultipleValveLocations::applyOffset( double offset )
 void RimMultipleValveLocations::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        RimWellPath* wellPath;
-        firstAncestorOrThisOfType( wellPath );
+        auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -329,8 +327,7 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         double minimumDistanceMeter = minimumSpacingMeters();
 
-        RimWellPath* wellPath = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( wellPath );
+        auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             double minimumDistanceFeet = RiaEclipseUnitTools::meterToFeet( minimumDistanceMeter );
@@ -349,9 +346,8 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
         computeRangesAndLocations();
     }
 
-    RimWellPathComponentInterface* parentCompletion = nullptr;
-    this->firstAncestorOrThisOfType( parentCompletion );
-    caf::PdmObject* pdmParent = dynamic_cast<caf::PdmObject*>( parentCompletion );
+    auto            parentCompletion = firstAncestorOrThisOfType<RimWellPathComponentInterface>();
+    caf::PdmObject* pdmParent        = dynamic_cast<caf::PdmObject*>( parentCompletion );
 
     if ( recomputeLocations || changedField == &m_locationOfValves )
     {
@@ -405,9 +401,7 @@ double RimMultipleValveLocations::minimumSpacingMeters() const
 //--------------------------------------------------------------------------------------------------
 double RimMultipleValveLocations::perforationStartMD() const
 {
-    const RimPerforationInterval* perfInterval = nullptr;
-    this->firstAncestorOrThisOfType( perfInterval );
-
+    const RimPerforationInterval* perfInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
     if ( perfInterval )
     {
         return perfInterval->startMD();
@@ -420,16 +414,13 @@ double RimMultipleValveLocations::perforationStartMD() const
 //--------------------------------------------------------------------------------------------------
 double RimMultipleValveLocations::perforationEndMD() const
 {
-    const RimPerforationInterval* perfInterval = nullptr;
-    this->firstAncestorOrThisOfType( perfInterval );
-
+    const RimPerforationInterval* perfInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
     if ( perfInterval )
     {
         return perfInterval->endMD();
     }
 
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     return wellPath->endMD();
 }

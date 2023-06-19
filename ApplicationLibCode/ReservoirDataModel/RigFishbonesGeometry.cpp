@@ -18,12 +18,12 @@
 
 #include "RigFishbonesGeometry.h"
 
-#include "RimFishbones.h"
-
 #include "RigWellPath.h"
+
+#include "RimFishbones.h"
 #include "RimWellPath.h"
+
 #include "cvfAssert.h"
-#include "cvfMatrix4.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -69,8 +69,7 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation( size_t      subI
                                                                 cvf::Vec3d* startDirection,
                                                                 cvf::Mat4d* buildAngleMatrix ) const
 {
-    RimWellPath* wellPath = nullptr;
-    m_fishbonesSub->firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = m_fishbonesSub->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return;

@@ -19,8 +19,11 @@
 
 #include "RigFlowDiagVisibleCellsStatCalc.h"
 
+#include "RiaResultNames.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigStatisticsMath.h"
 #include "RigWeightedMeanCalc.h"
 
@@ -104,8 +107,7 @@ size_t RigFlowDiagVisibleCellsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& result )
 {
-    RimEclipseResultCase* eclCase = nullptr;
-    m_resultsData->flowDiagSolution()->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = m_resultsData->flowDiagSolution()->firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( !eclCase ) return;
 
     RigCaseCellResultsData* caseCellResultsData = eclCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );

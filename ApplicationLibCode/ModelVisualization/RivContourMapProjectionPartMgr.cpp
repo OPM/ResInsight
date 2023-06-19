@@ -552,7 +552,7 @@ cvf::ref<cvf::DrawableGeo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel( const cvf::Vec3d&                               lineCenter,
+bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel( const cvf::Vec3d& lineCenter,
                                                                            const RimContourMapProjection::ContourPolygons* previousLevel ) const
 {
     const int64_t jump = 50;

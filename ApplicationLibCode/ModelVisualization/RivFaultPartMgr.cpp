@@ -23,6 +23,7 @@
 #include "RiaPreferences.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigResultAccessor.h"
@@ -590,8 +591,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine( const cvf::Part* part )
         cvf::Color3f defWellLabelColor = app->preferences()->defaultWellLabelColor();
         {
             {
-                RimFaultInViewCollection* parentObject;
-                m_rimFault->firstAncestorOrThisOfType( parentObject );
+                auto parentObject = m_rimFault->firstAncestorOrThisOfType<RimFaultInViewCollection>();
                 if ( parentObject )
                 {
                     defWellLabelColor = parentObject->faultLabelColor();
@@ -859,7 +859,7 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
 
         cvf::ref<cvf::Effect> nncEffect;
 
-        if ( m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces )
+        if ( m_rimFaultCollection->showFaultFaces() || m_rimFaultCollection->showOppositeFaultFaces() )
         {
             // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::ScalarMapperEffectGenerator nncEffgen( mapper, caf::PO_NEG_LARGE );
@@ -901,7 +901,7 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
         CVF_ASSERT( nncColor.isValid() );
         cvf::ref<cvf::Effect> nncEffect;
 
-        if ( m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces )
+        if ( m_rimFaultCollection->showFaultFaces() || m_rimFaultCollection->showOppositeFaultFaces() )
         {
             // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::SurfaceEffectGenerator nncEffgen( nncColor, caf::PO_NEG_LARGE );

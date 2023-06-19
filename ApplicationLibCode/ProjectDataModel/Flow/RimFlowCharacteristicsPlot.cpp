@@ -42,7 +42,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafUtils.h"
 
@@ -97,7 +96,6 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "CellFilterView", "View" );
     CAF_PDM_InitField( &m_tracerFilter, "TracerFilter", QString(), "Tracer Filter" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTracerNames, "SelectedTracerNames", " " );
-    m_selectedTracerNames.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_showRegion, "ShowRegion", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_showRegion );
 
@@ -145,9 +143,8 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution( RimFlowDiagSolution* flowS
     }
     else
     {
-        RimEclipseResultCase* eclCase;
-        flowSolution->firstAncestorOrThisOfType( eclCase );
-        m_case = eclCase;
+        auto eclCase = flowSolution->firstAncestorOrThisOfType<RimEclipseResultCase>();
+        m_case       = eclCase;
         if ( !eclCase->reservoirViews.empty() )
         {
             m_cellFilterView = eclCase->reservoirViews()[0];
@@ -540,9 +537,10 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
                 if ( view != nullptr )
                 {
-                    view->faultCollection()->showFaultCollection = false;
+                    view->faultCollection()->setActive( false );
                     view->cellResult()->setResultType( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
-                    view->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_BY_SELECTION );
+                    view->cellResult()->setFlowDiagTracerSelectionType(
+                        RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_BY_SELECTION );
                     view->cellResult()->setSelectedTracers( m_selectedTracerNames );
 
                     if ( m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION )
@@ -669,7 +667,6 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
             if ( m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE )
             {
                 cvf::UByteArray visibleCells;
-                m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
                 if ( m_cellFilterView )
                 {

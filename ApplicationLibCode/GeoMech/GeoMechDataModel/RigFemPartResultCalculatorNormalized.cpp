@@ -149,8 +149,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int p
                     else
                     {
                         // Over/under/sideburden. Use hydrostatic pressure from cell centroid.
-                        cvf::Vec3d cellCentroid              = femPartGrid->cellCentroid( elmIdx );
-                        double     cellCentroidTvdRKB        = std::abs( cellCentroid.z() ) + m_resultCollection->normalizationAirGap();
+                        cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
+                        double     cellCentroidTvdRKB = std::abs( cellCentroid.z() ) + m_resultCollection->normalizationAirGap();
                         double cellCenterHydroStaticPressure = RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( cellCentroidTvdRKB );
 
                         for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )

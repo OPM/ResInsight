@@ -88,9 +88,12 @@ void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* d
         return;
     }
 
-    auto linesInDomain = getPolylinesPointsInDomain( polylineDef->lockToZPlane(), polylineDef->lockedZValue() );
+    auto linesInDomain = getPolylinesPointsInDomain( polylineDef.p() );
 
-    if ( !isPolylinesInBoundingBox( linesInDomain, boundingBox ) ) return;
+    if ( !polylineDef->skipBoundingBoxCheck() )
+    {
+        if ( !isPolylinesInBoundingBox( linesInDomain, boundingBox ) ) return;
+    }
 
     auto linesInDisplay = transformPolylinesPointsToDisplay( linesInDomain, displayXf );
 
@@ -185,10 +188,12 @@ void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RivPolylinePartMgr::getPolylinesPointsInDomain( bool snapToPlaneZ, double planeZ )
+std::vector<std::vector<cvf::Vec3d>> RivPolylinePartMgr::getPolylinesPointsInDomain( RigPolyLinesData* lineDef )
 {
-    auto polylines = m_polylineInterface->polyLinesData()->polyLines();
-    if ( !snapToPlaneZ ) return polylines;
+    auto polylines = lineDef->polyLines();
+    if ( !lineDef->lockToZPlane() ) return polylines;
+
+    const double planeZ = lineDef->lockedZValue();
 
     std::vector<std::vector<cvf::Vec3d>> polylinesInDisplay;
     for ( const auto& pts : polylines )

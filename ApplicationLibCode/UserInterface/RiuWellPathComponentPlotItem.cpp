@@ -135,8 +135,8 @@ void RiuWellPathComponentPlotItem::calculateColumnOffsets( const RimWellPathComp
 {
     std::set<double> uniqueCasingDiameters;
 
-    std::vector<RimWellPathAttributeCollection*> attributeCollection;
-    m_wellPath->descendantsIncludingThisOfType( attributeCollection );
+    std::vector<RimWellPathAttributeCollection*> attributeCollection =
+        m_wellPath->descendantsIncludingThisOfType<RimWellPathAttributeCollection>();
     for ( const RimWellPathAttribute* otherAttribute : attributeCollection.front()->attributes() )
     {
         if ( otherAttribute->componentType() == RiaDefines::WellPathComponentType::CASING )
@@ -152,10 +152,10 @@ void RiuWellPathComponentPlotItem::calculateColumnOffsets( const RimWellPathComp
         const RimWellPathAttribute* myAttribute = dynamic_cast<const RimWellPathAttribute*>( component );
         if ( myAttribute && myAttribute->componentType() == RiaDefines::WellPathComponentType::CASING )
         {
-            int nNarrowerCasings =
-                std::count_if( uniqueCasingDiameters.begin(), uniqueCasingDiameters.end(), [myAttribute]( double otherCasingDiameter ) {
-                    return otherCasingDiameter < myAttribute->diameterInInches();
-                } );
+            int nNarrowerCasings = std::count_if( uniqueCasingDiameters.begin(),
+                                                  uniqueCasingDiameters.end(),
+                                                  [myAttribute]( double otherCasingDiameter )
+                                                  { return otherCasingDiameter < myAttribute->diameterInInches(); } );
 
             m_columnOffset = nNarrowerCasings * 0.25;
         }

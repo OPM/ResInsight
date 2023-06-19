@@ -103,8 +103,7 @@ PdmFieldHandle* PdmReferenceHelper::findField( PdmObjectHandle* object, const QS
 {
     if ( object == nullptr ) return nullptr;
 
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     for ( size_t i = 0; i < fields.size(); i++ )
     {
@@ -140,10 +139,9 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObject
                 return QStringList();
             }
 
-            std::vector<PdmObjectHandle*> childObjects;
-            parentField->children( &childObjects );
+            std::vector<PdmObjectHandle*> childObjects = parentField->children();
 
-            if ( childObjects.size() > 0 )
+            if ( !childObjects.empty() )
             {
                 int index = -1;
 
@@ -219,10 +217,8 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( PdmObjectHan
             return nullptr;
         }
 
-        std::vector<PdmObjectHandle*> childObjects;
-        fieldHandle->children( &childObjects );
-
-        if ( childObjects.size() == 0 )
+        std::vector<PdmObjectHandle*> childObjects = fieldHandle->children();
+        if ( childObjects.empty() )
         {
             return nullptr;
         }

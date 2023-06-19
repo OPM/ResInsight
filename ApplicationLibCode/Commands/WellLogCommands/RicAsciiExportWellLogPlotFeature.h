@@ -33,7 +33,7 @@ class RicAsciiExportWellLogPlotFeature : public caf::CmdFeature
 
 public:
     static QString
-                makeValidExportFileName( const RimWellLogPlot* wellLogPlot, const QString& folder, const QString& prefix, bool capitalizeFileName );
+        makeValidExportFileName( const RimWellLogPlot* wellLogPlot, const QString& folder, const QString& prefix, bool capitalizeFileName );
     static bool exportAsciiForWellLogPlot( const QString& fileName, const RimWellLogPlot* wellLogPlot );
 
 protected:

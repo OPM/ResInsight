@@ -208,7 +208,7 @@ void QMinimizePanel::enableFrame( bool showFrame )
 {
     if ( showFrame )
     {
-        this->setFrameStyle( QFrame::StyledPanel | QFrame::Plain );
+        this->setFrameStyle( static_cast<int>( QFrame::StyledPanel ) | static_cast<int>( QFrame::Plain ) );
         m_titleFrame->show();
         m_titleLabel->show();
         m_collapseButton->show();
@@ -384,7 +384,7 @@ void QMinimizePanel::toggleExpanded()
 //--------------------------------------------------------------------------------------------------
 void QMinimizePanel::initialize( const QString& title )
 {
-    this->setFrameStyle( QFrame::StyledPanel | QFrame::Plain );
+    this->setFrameStyle( static_cast<int>( QFrame::StyledPanel ) | static_cast<int>( QFrame::Plain ) );
     QVBoxLayout* fullLayout = new QVBoxLayout( this );
 
     fullLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -403,7 +403,7 @@ void QMinimizePanel::initialize( const QString& title )
         {
             m_titleLabel               = new QLabel( title );
             QPalette titleLabelPalette = m_titleLabel->palette();
-            titleLabelPalette.setBrush( QPalette::Foreground, titleLabelPalette.windowText() );
+            titleLabelPalette.setBrush( QPalette::WindowText, titleLabelPalette.windowText() );
             m_titleLabel->setPalette( titleLabelPalette );
             titleLayout->addWidget( m_titleLabel, 1, Qt::AlignLeft );
         }

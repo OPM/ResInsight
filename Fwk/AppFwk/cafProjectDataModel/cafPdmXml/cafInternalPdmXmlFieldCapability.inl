@@ -290,8 +290,11 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
         std::cout << "Line " << xmlStream.lineNumber()
                   << ": Warning: Unknown object type with class name: " << className.toLatin1().data()
                   << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
-        std::cout << "                     Expected class name: " << xmlObject->classKeyword().toLatin1().data()
-                  << std::endl;
+        if ( xmlObject )
+        {
+            std::cout << "                     Expected class name: " << xmlObject->classKeyword().toLatin1().data();
+        }
+        std::cout << std::endl;
 
         xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
         xmlStream.skipCurrentElement(); // Skip to the endelement of this field

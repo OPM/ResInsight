@@ -9,6 +9,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPartCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPart.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechFaultReactivationResult.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -22,6 +23,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPartCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPart.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechFaultReactivationResult.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

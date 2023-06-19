@@ -100,7 +100,7 @@ public:
 
     RimCaseCollection*                  parentCaseCollection();
     RimEclipseContourMapViewCollection* contourMapCollection();
-    RimEclipseInputPropertyCollection*  inputPropertyCollection();
+    RimEclipseInputPropertyCollection*  inputPropertyCollection() const;
 
     QStringList            timeStepStrings() const override;
     QString                timeStepName( int frameIdx ) const override;

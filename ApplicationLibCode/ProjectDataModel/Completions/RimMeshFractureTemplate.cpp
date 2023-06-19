@@ -230,9 +230,7 @@ WellFractureIntersectionData RimMeshFractureTemplate::wellFractureIntersectionDa
     const RigFractureGrid* fractureGrid = fractureInstance->fractureGrid();
     if ( orientationType() == ALONG_WELL_PATH )
     {
-        RimWellPath* rimWellPath = nullptr;
-        fractureInstance->firstAncestorOrThisOfType( rimWellPath );
-
+        auto rimWellPath = fractureInstance->firstAncestorOrThisOfType<RimWellPath>();
         if ( rimWellPath && rimWellPath->wellPathGeometry() )
         {
             double totalLength              = 0.0;

@@ -18,6 +18,7 @@
 
 #include "RimColorLegendCollection.h"
 
+#include "RiaColorTables.h"
 #include "RiaFractureDefines.h"
 
 #include "RimColorLegend.h"
@@ -63,7 +64,7 @@ void RimColorLegendCollection::appendCustomColorLegend( RimColorLegend* colorLeg
 //--------------------------------------------------------------------------------------------------
 bool RimColorLegendCollection::isStandardColorLegend( RimColorLegend* legend )
 {
-    for ( auto standardLegend : m_standardColorLegends )
+    for ( const auto& standardLegend : m_standardColorLegends )
     {
         if ( legend == standardLegend ) return true;
     }
@@ -76,7 +77,57 @@ bool RimColorLegendCollection::isStandardColorLegend( RimColorLegend* legend )
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::deleteCustomColorLegends()
 {
+    m_defaultColorLegendNameForResult.clear();
     m_customColorLegends.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& colorLegendName, const std::map<int, QString>& valuesAndNames )
+{
+    auto colors = RiaColorTables::categoryPaletteColors().color3ubArray();
+
+    auto colorLegend = new RimColorLegend();
+    colorLegend->setColorLegendName( colorLegendName );
+    int colorIndex = 0;
+    for ( const auto& [value, name] : valuesAndNames )
+    {
+        auto         item  = new RimColorLegendItem();
+        auto         color = colors[colorIndex++ % colors.size()];
+        cvf::Color3f color3f( color );
+
+        item->setValues( name, value, color3f );
+
+        colorLegend->appendColorLegendItem( item );
+    }
+
+    appendCustomColorLegend( colorLegend );
+
+    return colorLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::deleteColorLegend( int caseId, const QString& resultName )
+{
+    m_defaultColorLegendNameForResult.erase( createLookupKey( caseId, resultName ) );
+
+    auto legend = findDefaultLegendForResult( caseId, resultName );
+    if ( !legend ) return;
+
+    m_customColorLegends.removeChild( legend );
+    delete legend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::setDefaultColorLegendForResult( int caseId, const QString& resultName, RimColorLegend* colorLegend )
+{
+    auto key                               = createLookupKey( caseId, resultName );
+    m_defaultColorLegendNameForResult[key] = colorLegend;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +135,7 @@ void RimColorLegendCollection::deleteCustomColorLegends()
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::createStandardColorLegends()
 {
-    typedef caf::AppEnum<RimRegularLegendConfig::ColorRangesType> ColorRangeEnum;
+    using ColorRangeEnum = caf::AppEnum<RimRegularLegendConfig::ColorRangesType>;
 
     for ( size_t typeIdx = 0; typeIdx < ColorRangeEnum::size(); typeIdx++ )
     {
@@ -107,16 +158,18 @@ void RimColorLegendCollection::createStandardColorLegends()
                 }
             }
 
-            RimColorLegend* colorLegend = new RimColorLegend;
+            auto* colorLegend = new RimColorLegend;
             colorLegend->setColorLegendName( legendName );
 
             for ( size_t i = 0; i < colorArray.size(); i++ )
             {
                 cvf::Color3f color3f( colorArray[i] );
-                QColor       colorQ( colorArray[i].r(), colorArray[i].g(), colorArray[i].b() );
 
-                RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
-                colorLegendItem->setValues( colorQ.name(), static_cast<int>( i ), color3f );
+                auto* colorLegendItem = new RimColorLegendItem;
+
+                // Set empty text for color legend items
+                // The text defined is used in RimEclipseResultDefinitionTools::updateCellResultLegend()
+                colorLegendItem->setValues( "", static_cast<int>( i ), color3f );
 
                 colorLegend->appendColorLegendItem( colorLegendItem );
                 colorLegend->setReadOnly( true );
@@ -138,13 +191,13 @@ std::vector<RimColorLegend*> RimColorLegendCollection::allColorLegends() const
 {
     std::vector<RimColorLegend*> allLegends;
 
-    auto standardLegends = m_standardColorLegends.children();
+    auto standardLegends = m_standardColorLegends.childrenByType();
     for ( auto l : standardLegends )
     {
         allLegends.push_back( l );
     }
 
-    auto customLegends = m_customColorLegends.children();
+    auto customLegends = m_customColorLegends.childrenByType();
     for ( auto l : customLegends )
     {
         allLegends.push_back( l );
@@ -173,9 +226,25 @@ RimColorLegend* RimColorLegendCollection::findByName( const QString& name ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::findDefaultLegendForResult( int caseId, const QString& resultName ) const
+{
+    auto key = createLookupKey( caseId, resultName );
+
+    auto it = m_defaultColorLegendNameForResult.find( key );
+    if ( it != m_defaultColorLegendNameForResult.end() )
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimColorLegendItem* RimColorLegendCollection::createColorLegendItem( const QString& name, int r, int g, int b ) const
 {
-    RimColorLegendItem* item = new RimColorLegendItem;
+    auto* item = new RimColorLegendItem;
     item->setValues( name, 0, cvf::Color3f::fromByteColor( r, g, b ) );
     return item;
 }
@@ -185,7 +254,7 @@ RimColorLegendItem* RimColorLegendCollection::createColorLegendItem( const QStri
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RimColorLegendCollection::createRockTypeColorLegend() const
 {
-    RimColorLegend* colorLegend = new RimColorLegend;
+    auto* colorLegend = new RimColorLegend;
     colorLegend->setColorLegendName( RiaDefines::rockTypeColorLegendName() );
 
     // Rock types colors taken from "Equinor GeoStandard - May 2020" document.
@@ -249,9 +318,17 @@ RimColorLegend* RimColorLegendCollection::createRockTypeColorLegend() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimColorLegendCollection::createLookupKey( int caseId, const QString& resultName )
+{
+    return QString( "%1 (case %2)" ).arg( resultName ).arg( caseId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::initAfterRead()
 {
-    for ( auto legend : m_customColorLegends )
+    for ( const auto& legend : m_customColorLegends )
     {
         legend->addReorderCapability();
     }

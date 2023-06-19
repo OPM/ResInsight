@@ -78,6 +78,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : RiuPlotWidget( plotDefinition, parent )
+    , m_titleRenderingFlags( Qt::AlignHCenter | Qt::TextSingleLine )
 {
     auto* layout = new QVBoxLayout;
     layout->setContentsMargins( 0, 0, 0, 0 );
@@ -94,15 +95,18 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
 
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 
-    connect( this, SIGNAL( plotSelected( bool ) ), plotDefinition, SLOT( onPlotSelected( bool ) ) );
-    connect( this, SIGNAL( axisSelected( RiuPlotAxis, bool ) ), plotDefinition, SLOT( onAxisSelected( RiuPlotAxis, bool ) ) );
-    connect( this,
-             SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
-             plotDefinition,
-             SLOT( onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ) );
-    connect( this, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), plotDefinition, SLOT( onKeyPressEvent( QKeyEvent* ) ) );
-    connect( this, SIGNAL( onWheelEvent( QWheelEvent* ) ), plotDefinition, SLOT( onWheelEvent( QWheelEvent* ) ) );
-    connect( this, SIGNAL( destroyed() ), plotDefinition, SLOT( onViewerDestroyed() ) );
+    if ( plotDefinition )
+    {
+        connect( this, SIGNAL( plotSelected( bool ) ), plotDefinition, SLOT( onPlotSelected( bool ) ) );
+        connect( this, SIGNAL( axisSelected( RiuPlotAxis, bool ) ), plotDefinition, SLOT( onAxisSelected( RiuPlotAxis, bool ) ) );
+        connect( this,
+                 SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
+                 plotDefinition,
+                 SLOT( onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ) );
+        connect( this, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), plotDefinition, SLOT( onKeyPressEvent( QKeyEvent* ) ) );
+        connect( this, SIGNAL( onWheelEvent( QWheelEvent* ) ), plotDefinition, SLOT( onWheelEvent( QWheelEvent* ) ) );
+        connect( this, SIGNAL( destroyed() ), plotDefinition, SLOT( onViewerDestroyed() ) );
+    }
 
     ensureAxisIsCreated( RiuPlotAxis::defaultLeft() );
     ensureAxisIsCreated( RiuPlotAxis::defaultBottom() );
@@ -245,7 +249,16 @@ void RiuQwtPlotWidget::setPlotTitleFontSize( int titleFontSize )
     QFont font  = title.font();
     font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
     title.setFont( font );
+    title.setRenderFlags( title.renderFlags() | Qt::TextWordWrap );
     m_plot->setTitle( title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setPlotTitleRenderingFlags( int flags )
+{
+    m_titleRenderingFlags = flags;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -665,7 +678,7 @@ void RiuQwtPlotWidget::applyPlotTitleToQwt()
 {
     QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
     QwtText plotTitle        = m_plot->title();
-    plotTitle.setRenderFlags( Qt::AlignHCenter | Qt::TextSingleLine );
+    plotTitle.setRenderFlags( m_titleRenderingFlags );
     if ( plotTitleToApply != plotTitle.text() )
     {
         plotTitle.setText( plotTitleToApply );
@@ -996,6 +1009,12 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
+        auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
+        auto  pdmObject    = m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve );
+
+        // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight manipulation
+        if ( !pdmObject ) continue;
+
         auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
         if ( plotCurve )
         {
@@ -1017,6 +1036,13 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             double zValue = plotCurve->z();
             if ( closestItems.count( plotCurve ) > 0 )
             {
+                auto saturation = 1.0;
+                auto value      = 1.0;
+                auto hue        = curveColor.hueF();
+
+                auto highlightColor = QColor::fromHsvF( hue, saturation, value );
+
+                existingPen.setColor( highlightColor );
                 existingPen.setWidth( penWidth + highlightItemWidthAdjustment() );
                 plotCurve->setPen( existingPen );
                 plotCurve->setZ( zValue + 100.0 );
@@ -1024,9 +1050,10 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             }
             else
             {
-                QColor blendedColor           = RiaColorTools::blendQColors( bgColor, curveColor, 3, 1 );
-                QColor blendedSymbolColor     = RiaColorTools::blendQColors( bgColor, symbolColor, 3, 1 );
-                QColor blendedSymbolLineColor = RiaColorTools::blendQColors( bgColor, symbolLineColor, 3, 1 );
+                int    backgroundWeight       = 2;
+                QColor blendedColor           = RiaColorTools::blendQColors( bgColor, curveColor, backgroundWeight, 1 );
+                QColor blendedSymbolColor     = RiaColorTools::blendQColors( bgColor, symbolColor, backgroundWeight, 1 );
+                QColor blendedSymbolLineColor = RiaColorTools::blendQColors( bgColor, symbolLineColor, backgroundWeight, 1 );
 
                 plotCurve->setPen( blendedColor, existingPen.width(), existingPen.style() );
                 if ( symbol )
@@ -1139,8 +1166,8 @@ void RiuQwtPlotWidget::resetPlotAxisHighlighting()
                                                      QwtAxis::Position::XBottom };
 
     // Use text color from theme
-    QColor  textColor = RiuGuiTheme::getColorByVariableName( "text-color" );
-    QString style     = QString( "color: rgb(%1, %2, %3);" ).arg( textColor.red() ).arg( textColor.green() ).arg( textColor.blue() );
+    QColor  textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
+    QString style     = QString( "color: %1;" ).arg( textColor.name() );
 
     for ( auto pos : axisPositions )
     {
@@ -1199,7 +1226,11 @@ void RiuQwtPlotWidget::highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY )
             if ( axisId != axisIdX && axisId != axisIdY )
             {
                 auto axisWidget = m_plot->axisWidget( axisId );
-                axisWidget->setStyleSheet( "color: #D9D9D9" );
+
+                auto color     = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
+                auto colorText = color.name();
+
+                axisWidget->setStyleSheet( QString( "color: %1;" ).arg( colorText ) );
             }
         }
     }
@@ -1450,7 +1481,8 @@ void RiuQwtPlotWidget::onMouseMoveEvent( QMouseEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
 {
-    auto countAxis = [this]( RiaDefines::PlotAxis axis ) {
+    auto countAxis = [this]( RiaDefines::PlotAxis axis )
+    {
         int count = 0;
         for ( auto [plotAxis, qwtMapping] : m_axisMapping )
         {
@@ -1459,12 +1491,14 @@ void RiuQwtPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
         return count;
     };
 
-    auto isLastItem = [this]( RiuPlotAxis plotAxis, int count ) {
+    auto isLastItem = [this]( RiuPlotAxis plotAxis, int count )
+    {
         auto qwtAxis = toQwtPlotAxis( plotAxis );
         return qwtAxis.id == ( count - 1 );
     };
 
-    auto removeAxis = [this, countAxis, isLastItem]( RiuPlotAxis plotAxis ) {
+    auto removeAxis = [this, countAxis, isLastItem]( RiuPlotAxis plotAxis )
+    {
         auto qwtAxisPos = RiuQwtPlotTools::toQwtPlotAxisEnum( plotAxis.axis() );
 
         int count = countAxis( plotAxis.axis() );

@@ -56,6 +56,9 @@
 
 #include <algorithm>
 
+namespace caf
+{
+
 //==================================================================================================
 /// Helper class used to control height of size hint
 //==================================================================================================
@@ -134,8 +137,6 @@ protected:
     }
 };
 
-namespace caf
-{
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -147,6 +148,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTreeSelectionEditor );
 PdmUiTreeSelectionEditor::PdmUiTreeSelectionEditor()
     : m_model( nullptr )
     , m_proxyModel( nullptr )
+    , m_useSingleSelectionMode( false )
 {
 }
 
@@ -195,31 +197,17 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_treeView->expandAll();
     }
 
-    if ( PdmUiTreeSelectionQModel::isSingleValueField( fieldValue ) )
+    m_useSingleSelectionMode = PdmUiTreeSelectionQModel::isSingleValueField( fieldValue );
+
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        m_toggleAllCheckBox->hide();
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
-    else if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
+
+    if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
     {
-        caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-        if ( uiObject )
-        {
-            uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-        }
-
-        if ( m_attributes.singleSelectionMode )
-        {
-            m_treeView->setSelectionMode( QAbstractItemView::SingleSelection );
-            m_treeView->setContextMenuPolicy( Qt::NoContextMenu );
-
-            m_model->enableSingleSelectionMode( m_attributes.singleSelectionMode );
-        }
-        else
-        {
-            m_treeView->setSelectionMode( QAbstractItemView::ExtendedSelection );
-        }
-
-        connect( m_treeView, SIGNAL( clicked( QModelIndex ) ), this, SLOT( slotClicked( QModelIndex ) ), Qt::UniqueConnection );
+        m_useSingleSelectionMode = m_attributes.singleSelectionMode;
 
         if ( !m_attributes.showTextFilter )
         {
@@ -232,14 +220,14 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         }
         else
         {
-            if ( options.size() == 0 )
+            if ( options.empty() )
             {
                 m_toggleAllCheckBox->setChecked( false );
             }
             else
             {
                 QModelIndexList indices = allVisibleSourceModelIndices();
-                if ( indices.size() > 0 )
+                if ( !indices.empty() )
                 {
                     size_t editableItems        = 0u;
                     size_t checkedEditableItems = 0u;
@@ -259,6 +247,25 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
                 }
             }
         }
+    }
+
+    if ( m_useSingleSelectionMode )
+    {
+        m_treeView->setSelectionMode( QAbstractItemView::SingleSelection );
+        m_treeView->setContextMenuPolicy( Qt::NoContextMenu );
+
+        m_model->enableSingleSelectionMode( m_attributes.singleSelectionMode );
+
+        m_toggleAllCheckBox->hide();
+    }
+    else
+    {
+        m_treeView->setSelectionMode( QAbstractItemView::ExtendedSelection );
+    }
+
+    if ( m_attributes.heightHint > 0 )
+    {
+        m_treeView->setHeightHint( m_attributes.heightHint );
     }
 
     // If the tree doesn't have grand children we treat this as a straight list
@@ -284,6 +291,16 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
                 }
             }
         }
+    }
+
+    // Set placeholder text based on content
+    if ( hasOnlyIntegers( m_model ) )
+    {
+        m_textFilterLineEdit->setPlaceholderText( "Integer filter e.g. 1, 5-7, 9-18:3" );
+    }
+    else
+    {
+        m_textFilterLineEdit->setPlaceholderText( "Type to filter items" );
     }
 
     // It is required to use a timer here, as the layout of the widgets are handled by events
@@ -314,8 +331,6 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
         connect( m_toggleAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( slotToggleAll() ) );
 
         m_textFilterLineEdit = new QLineEdit();
-        m_textFilterLineEdit->setPlaceholderText( "Click to add filter" );
-
         headerLayout->addWidget( m_textFilterLineEdit );
 
         connect( m_textFilterLineEdit, SIGNAL( textChanged( QString ) ), this, SLOT( slotTextFilterChanged() ) );
@@ -329,6 +344,7 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
 
     m_treeView->setContextMenuPolicy( Qt::CustomContextMenu );
     connect( m_treeView, SIGNAL( customContextMenuRequested( QPoint ) ), SLOT( customMenuRequested( QPoint ) ) );
+    connect( m_treeView, SIGNAL( clicked( QModelIndex ) ), this, SLOT( slotClicked( QModelIndex ) ), Qt::UniqueConnection );
 
     layout->addWidget( treeViewHeightHint );
 
@@ -388,7 +404,7 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
         }
     }
 
-    if ( onlyHeadersInSelection && selectedIndexes.size() > 0 )
+    if ( onlyHeadersInSelection && !selectedIndexes.empty() )
     {
         {
             QAction* act = new QAction( "Sub Items On", this );
@@ -404,24 +420,41 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
             menu.addAction( act );
         }
     }
-    else if ( selectedIndexes.size() > 0 )
+    else if ( !selectedIndexes.empty() )
     {
         {
-            QAction* act = new QAction( "Set Selected On", this );
+            QAction* act = new QAction( "Set Selected Checked", this );
             connect( act, SIGNAL( triggered() ), SLOT( slotSetSelectedOn() ) );
 
             menu.addAction( act );
         }
 
         {
-            QAction* act = new QAction( "Set Selected Off", this );
+            QAction* act = new QAction( "Set Selected Unchecked", this );
             connect( act, SIGNAL( triggered() ), SLOT( slotSetSelectedOff() ) );
+
+            menu.addAction( act );
+        }
+
+        menu.addSeparator();
+
+        if ( selectedIndexes.size() == 1 )
+        {
+            QAction* act = new QAction( "Invert Checked State Of All", this );
+            connect( act, SIGNAL( triggered() ), SLOT( slotInvertCheckedStateOfAll() ) );
+
+            menu.addAction( act );
+        }
+        else
+        {
+            QAction* act = new QAction( "Invert Checked States of Selected", this );
+            connect( act, SIGNAL( triggered() ), SLOT( slotInvertCheckedStateForSelection() ) );
 
             menu.addAction( act );
         }
     }
 
-    if ( menu.actions().size() > 0 )
+    if ( !menu.actions().empty() )
     {
         // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
         QPoint globalPos = m_treeView->viewport()->mapToGlobal( pos );
@@ -502,11 +535,122 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
     if ( m_toggleAllCheckBox->isChecked() )
     {
         checkAllItems();
+        return;
     }
-    else
+
+    unCheckAllItems();
+
+    // Apply integer filtering if the model contains only integers
+    if ( hasOnlyIntegers( m_model ) )
     {
-        unCheckAllItems();
+        setCheckedStateForIntegerItemsMatchingFilter();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotInvertCheckedStateForSelection()
+{
+    QItemSelection selectionInProxyModel  = m_treeView->selectionModel()->selection();
+    QItemSelection selectionInSourceModel = m_proxyModel->mapSelectionToSource( selectionInProxyModel );
+
+    m_model->invertCheckedStateForItems( selectionInSourceModel.indexes() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotInvertCheckedStateOfAll()
+{
+    QModelIndexList indices = allVisibleSourceModelIndices();
+
+    m_model->invertCheckedStateForItems( indices );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Parse the filter text based on the following rules:
+/// 1. A comma separated list of integers
+/// 2. A range of integers separated by a dash
+/// 3. An optional step value for a range
+///
+/// Example: 1, 3, 5-10, 4-10:2
+///
+/// Mark matching items as checked
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::setCheckedStateForIntegerItemsMatchingFilter()
+{
+#if ( QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 ) )
+    auto SkipEmptyParts = QString::SkipEmptyParts;
+#else
+    auto SkipEmptyParts = Qt::SkipEmptyParts;
+#endif
+
+    std::set<int> filterValues;
+
+    QString     searchString = m_textFilterLineEdit->text();
+    QStringList parts        = searchString.split( ",", SkipEmptyParts );
+    for ( auto& part : parts )
+    {
+        QStringList subparts = part.split( ":", SkipEmptyParts );
+        QStringList minmax   = subparts.front().split( "-", SkipEmptyParts );
+
+        int step = 1;
+        if ( subparts.size() > 1 )
+        {
+            step = subparts.back().toInt();
+            if ( step < 1 ) step = 1;
+        }
+
+        switch ( minmax.size() )
+        {
+            case 1:
+            {
+                auto firstValueText = minmax.front();
+                filterValues.insert( firstValueText.toInt() );
+                break;
+            }
+            case 2:
+            {
+                auto firstValue  = minmax.front().toInt();
+                auto secondValue = minmax.back().toInt();
+
+                for ( int val = firstValue; val <= secondValue; val += step )
+                {
+                    filterValues.insert( val );
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    QModelIndexList indices = allVisibleSourceModelIndices();
+
+    QModelIndexList indicesToSetChecked;
+    QModelIndexList indicesToSetUnChecked;
+
+    for ( const auto& mi : indices )
+    {
+        auto data = mi.data();
+        if ( data.canConvert<int>() )
+        {
+            auto value = data.toInt();
+            if ( filterValues.find( value ) != filterValues.end() )
+            {
+                indicesToSetChecked.push_back( mi );
+            }
+            else
+            {
+                indicesToSetUnChecked.push_back( mi );
+            }
+        }
+    }
+
+    m_model->setCheckedStateForItems( indicesToSetChecked, true );
+    m_model->setCheckedStateForItems( indicesToSetUnChecked, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -514,6 +658,13 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 {
+    if ( hasOnlyIntegers( m_model ) )
+    {
+        setCheckedStateForIntegerItemsMatchingFilter();
+
+        return;
+    }
+
     QString searchString = m_textFilterLineEdit->text();
     searchString += "*";
 
@@ -607,7 +758,7 @@ void PdmUiTreeSelectionEditor::slotScrollToFirstCheckedItem()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
 {
-    if ( m_attributes.singleSelectionMode )
+    if ( m_useSingleSelectionMode )
     {
         m_proxyModel->setData( current, true, Qt::CheckStateRole );
     }
@@ -676,6 +827,39 @@ void PdmUiTreeSelectionEditor::recursiveAppendVisibleSourceModelIndices( const Q
             recursiveAppendVisibleSourceModelIndices( mi, sourceModelIndices );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeSelectionEditor::hasOnlyIntegers( const QAbstractItemModel* model )
+{
+    if ( !model ) return false;
+
+    // Lambda function to check if a string is an integer
+    auto isInteger = []( const QString& s ) -> bool
+    {
+        bool ok;
+        s.toInt( &ok );
+        return ok;
+    };
+
+    for ( int row = 0; row < model->rowCount(); ++row )
+    {
+        for ( int column = 0; column < model->columnCount(); ++column )
+        {
+            const QModelIndex index = model->index( row, column );
+            if ( index.isValid() )
+            {
+                QVariant data = index.data();
+                if ( !data.canConvert<QString>() || !isInteger( data.toString() ) )
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
 }
 
 } // end namespace caf

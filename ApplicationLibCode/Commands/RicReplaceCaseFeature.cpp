@@ -82,8 +82,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
         selectedCase->setGridFileName( fileName );
         selectedCase->reloadEclipseGridFile();
 
-        std::vector<RimTimeStepFilter*> timeStepFilter;
-        selectedCase->descendantsIncludingThisOfType( timeStepFilter );
+        std::vector<RimTimeStepFilter*> timeStepFilter = selectedCase->descendantsIncludingThisOfType<RimTimeStepFilter>();
         if ( timeStepFilter.size() == 1 )
         {
             timeStepFilter[0]->clearFilteredTimeSteps();

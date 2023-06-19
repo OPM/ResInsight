@@ -85,8 +85,7 @@ RimRegularLegendConfig* RimVirtualPerforationResults::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 void RimVirtualPerforationResults::loadData()
 {
-    RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase )
     {
         eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
@@ -105,8 +104,7 @@ void RimVirtualPerforationResults::fieldChangedByUi( const caf::PdmFieldHandle* 
         loadData();
     }
 
-    RimEclipseView* eclView = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( eclView );
+    RimEclipseView* eclView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
     eclView->scheduleCreateDisplayModelAndRedraw();
 }

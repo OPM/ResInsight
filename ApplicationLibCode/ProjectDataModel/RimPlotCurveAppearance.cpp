@@ -21,6 +21,7 @@
 #include "RiaColorTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiCommandSystemProxy.h"
 
 #include "cvfAssert.h"
 
@@ -169,6 +170,15 @@ void RimPlotCurveAppearance::setColor( const cvf::Color3f& color )
 cvf::Color3f RimPlotCurveAppearance::color() const
 {
     return m_curveColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::setColorWithFieldChanged( const QColor& color )
+{
+    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( m_curveColor.uiCapability(), color );
+    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( m_fillColor.uiCapability(), color );
 }
 
 //--------------------------------------------------------------------------------------------------

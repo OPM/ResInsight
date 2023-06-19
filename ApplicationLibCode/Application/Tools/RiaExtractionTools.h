@@ -37,7 +37,7 @@ class QString;
 namespace RiaExtractionTools
 {
 RigEclipseWellLogExtractor* findOrCreateWellLogExtractor( RimWellPath* wellPath, RimEclipseCase* eclipseCase );
-RigGeoMechWellLogExtractor* findOrCreateWellLogExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase );
+RigGeoMechWellLogExtractor* findOrCreateWellLogExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase, int partId = 0 );
 
 RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const RimSimWellInView* simWell, const RigWellPath* wellPathGeom );
 

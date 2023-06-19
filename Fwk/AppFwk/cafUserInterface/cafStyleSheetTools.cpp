@@ -54,9 +54,9 @@ QString StyleSheetTools::createFrameStyleSheet( const QString& classType,
                                  "background-color: %4;"
                                  "border: 1px solid %5;"
                                  "}";
-    QString textColString    = colorStringWithAlpha( textColor );
-    QString bgColString      = colorStringWithAlpha( backgroundColor );
-    QString bgFrameColString = colorStringWithAlpha( backgroundFrameColor );
+    QString textColString      = colorStringWithAlpha( textColor );
+    QString bgColString        = colorStringWithAlpha( backgroundColor );
+    QString bgFrameColString   = colorStringWithAlpha( backgroundFrameColor );
 
     QString fullStyleSheet =
         styleSheetTemplate.arg( classType ).arg( objectName ).arg( textColString ).arg( bgColString ).arg( bgFrameColString );

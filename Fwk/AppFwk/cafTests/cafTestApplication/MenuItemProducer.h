@@ -52,10 +52,10 @@ class MenuItemProducer : public QObject
 public:
     MenuItemProducer();
 
-    void attachTextEdit(QTextEdit* textEdit);
+    void attachTextEdit( QTextEdit* textEdit );
 
 public slots:
-    void slotMenuItems(QPoint point);
+    void slotMenuItems( QPoint point );
 
 private slots:
     void slotShowText();

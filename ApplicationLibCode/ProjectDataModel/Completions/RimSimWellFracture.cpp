@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( RimSimWellFracture, "SimWellFracture" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSimWellFracture::RimSimWellFracture( void )
+RimSimWellFracture::RimSimWellFracture()
 {
     CAF_PDM_InitObject( "SimWellFracture", ":/FractureSymbol16x16.png" );
 
@@ -186,8 +186,7 @@ void RimSimWellFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
             updateAzimuthBasedOnWellAzimuthAngle();
         }
 
-        RimProject* proj;
-        this->firstAncestorOrThisOfType( proj );
+        RimProject* proj = RimProject::current();
         if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
     }
 }
@@ -215,8 +214,7 @@ void RimSimWellFracture::updateFracturePositionFromLocation()
 
         this->setAnchorPosition( interpolated );
 
-        RimProject* proj;
-        this->firstAncestorOrThisOfType( proj );
+        RimProject* proj = RimProject::current();
         if ( proj ) proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
@@ -314,9 +312,7 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions( const c
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimSimWellFracture::ownerCaseMainGrid() const
 {
-    RimEclipseView* ownerEclView;
-    this->firstAncestorOrThisOfType( ownerEclView );
-
+    auto ownerEclView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( ownerEclView )
         return ownerEclView->mainGrid();
     else
@@ -341,10 +337,7 @@ void RimSimWellFracture::computeSimWellBranchCenterLines()
 {
     m_branchCenterLines.clear();
 
-    RimSimWellInView* rimWell = nullptr;
-    this->firstAncestorOrThisOfType( rimWell );
-    CVF_ASSERT( rimWell );
-
+    auto       rimWell         = firstAncestorOrThisOfTypeAsserted<RimSimWellInView>();
     const auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( rimWell );
     for ( const auto& [coords, wellCells] : simWellBranches )
     {

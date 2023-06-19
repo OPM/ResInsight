@@ -29,6 +29,7 @@ class RigWellLogFile;
 class RimCase;
 class RimEclipseCase;
 class RimWellPath;
+class RimWellLogFile;
 
 //==================================================================================================
 /// Object to hold Depth value and its original index in a LAS file vector categorized by K-layer.
@@ -64,6 +65,7 @@ cvf::ref<RigResultAccessor> createIndexKResultAccessor( RimEclipseCase* selected
 
 void createDestinationWellsLasFiles( RimCase*                        selectedCase,
                                      RimWellPath*                    sourceWell,
+                                     RimWellLogFile*                 soureWellLogFile,
                                      const std::vector<RimWellPath*> destinationWells,
                                      const std::vector<QString>&     selectedResultProperties,
                                      const QString&                  exportFolder,

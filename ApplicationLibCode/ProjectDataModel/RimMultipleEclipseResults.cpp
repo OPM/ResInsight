@@ -18,6 +18,9 @@
 
 #include "RimMultipleEclipseResults.h"
 
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
+
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 
@@ -41,7 +44,6 @@ RimMultipleEclipseResults::RimMultipleEclipseResults()
 
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Properties" );
     m_selectedKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------

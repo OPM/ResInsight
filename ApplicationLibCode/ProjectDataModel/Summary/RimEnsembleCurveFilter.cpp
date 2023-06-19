@@ -34,8 +34,8 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <algorithm>
 
@@ -77,7 +77,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterMode", "Filter Mode" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleParameterName, "EnsembleParameter", "Ensemble Parameter" );
-    m_ensembleParameterName.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_ensembleParameterName.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
@@ -99,7 +99,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveFilter::onObjectionFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function" );
-    m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_minValue, "MinValue", m_lowerLimit, "Min" );
     m_minValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -126,8 +126,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter( const QString& ensembleParameter
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveFilter::isActive() const
 {
-    RimEnsembleCurveFilterCollection* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimEnsembleCurveFilterCollection>();
 
     return ( !coll || coll->isActive() ) && m_active;
 }
@@ -376,7 +375,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().children() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
         {
             candidateAddresses.push_back( address->address() );
         }
@@ -600,9 +599,7 @@ caf::PdmFieldHandle* RimEnsembleCurveFilter::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleCurveFilter::parentCurveSet() const
 {
-    RimEnsembleCurveSet* curveSet;
-    firstAncestorOrThisOfType( curveSet );
-    return curveSet;
+    return firstAncestorOrThisOfType<RimEnsembleCurveSet>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -629,9 +626,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValuesFromParent()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterCollection() const
 {
-    RimEnsembleCurveFilterCollection* coll;
-    firstAncestorOrThisOfType( coll );
-    return coll;
+    return firstAncestorOrThisOfType<RimEnsembleCurveFilterCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

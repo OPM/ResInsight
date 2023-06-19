@@ -50,17 +50,17 @@ class DrawableGeo;
 class RivExtrudedCurveIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorInterface
 {
 public:
-    RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection*          intersection,
-                                                   std::vector<std::vector<cvf::Vec3d>>&  polylines,
-                                                   const cvf::Vec3d&                      extrusionDirection,
-                                                   const RivIntersectionHexGridInterface* grid,
-                                                   bool                                   isFlattened,
-                                                   const cvf::Vec3d&                      flattenedPolylineStartPoint );
+    RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection*         intersection,
+                                                   std::vector<std::vector<cvf::Vec3d>>& polylines,
+                                                   const cvf::Vec3d&                     extrusionDirection,
+                                                   RivIntersectionHexGridInterface*      grid,
+                                                   bool                                  isFlattened,
+                                                   const cvf::Vec3d&                     flattenedPolylineStartPoint );
 
     ~RivExtrudedCurveIntersectionGeometryGenerator() override;
 
     // Generate geometry
-    cvf::ref<cvf::DrawableGeo> generateSurface();
+    cvf::ref<cvf::DrawableGeo> generateSurface( cvf::UByteArray* visibleCells );
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
     cvf::ref<cvf::DrawableGeo> createFaultMeshDrawable();
 
@@ -87,7 +87,7 @@ public:
     void ensureGeometryIsCalculated();
 
 private:
-    void calculateArrays();
+    void calculateArrays( cvf::UByteArray* visibleCells );
     void calculateLineSegementTransforms();
     void calculateTransformedPolyline();
     void calculateSurfaceIntersectionPoints();
@@ -102,7 +102,7 @@ private:
 
 private:
     RimExtrudedCurveIntersection*              m_intersection;
-    cvf::cref<RivIntersectionHexGridInterface> m_hexGrid;
+    cvf::ref<RivIntersectionHexGridInterface>  m_hexGrid;
     const std::vector<std::vector<cvf::Vec3d>> m_polylines;
     cvf::Vec3d                                 m_extrusionDirection;
     bool                                       m_isFlattened;

@@ -369,6 +369,15 @@ void RicShowPlotDataFeature::getSelection( std::vector<RimPlotWindow*>& selectio
 
     if ( selection.empty() )
     {
-        caf::SelectionManager::instance()->objectsByType( &selection );
+        auto selectedObjects = caf::selectedObjectsByType<caf::PdmObject*>();
+        for ( auto obj : selectedObjects )
+        {
+            if ( !obj ) continue;
+
+            if ( auto plotWindow = obj->firstAncestorOrThisOfType<RimPlotWindow>() )
+            {
+                selection.push_back( plotWindow );
+            }
+        }
     }
 }

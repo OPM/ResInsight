@@ -26,6 +26,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimProject.h"
+#include "RimSeismicSection.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathFracture.h"
@@ -81,29 +82,31 @@ void RimModeledWellPath::updateWellPathVisualization()
 {
     createWellPathGeometry();
 
-    std::vector<RimPlotCurve*> refferingCurves;
-    this->objectsWithReferringPtrFieldsOfType( refferingCurves );
-
-    for ( auto curve : refferingCurves )
+    std::vector<RimPlotCurve*> referringCurves = objectsWithReferringPtrFieldsOfType<RimPlotCurve>();
+    for ( auto curve : referringCurves )
     {
         curve->loadDataAndUpdate( false );
     }
 
-    for ( auto fracture : this->fractureCollection()->activeFractures() )
+    for ( auto fracture : fractureCollection()->activeFractures() )
     {
         fracture->loadDataAndUpdate();
     }
 
-    std::vector<RimExtrudedCurveIntersection*> refferingIntersections;
-    this->objectsWithReferringPtrFieldsOfType( refferingIntersections );
+    std::vector<RimExtrudedCurveIntersection*> referringIntersections = objectsWithReferringPtrFieldsOfType<RimExtrudedCurveIntersection>();
 
-    for ( auto intersection : refferingIntersections )
+    for ( auto intersection : referringIntersections )
     {
         intersection->rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    std::vector<RimSeismicSection*> referringSeismic = objectsWithReferringPtrFieldsOfType<RimSeismicSection>();
+    for ( auto seisSec : referringSeismic )
+    {
+        seisSec->updateVisualization();
+    }
+
+    RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
@@ -200,16 +203,6 @@ void RimModeledWellPath::onGeometryDefinitionChanged( const caf::SignalEmitter* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    // TODO remove if nothing happens here
-
-    RimWellPath::fieldChangedByUi( changedField, oldValue, newValue );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimModeledWellPath::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -224,8 +217,7 @@ void RimModeledWellPath::updateGeometry( bool fullUpdate )
 {
     updateWellPathVisualization();
 
-    std::vector<RimWellPathTieIn*> tieInObjects;
-    objectsWithReferringPtrFieldsOfType( tieInObjects );
+    std::vector<RimWellPathTieIn*> tieInObjects = objectsWithReferringPtrFieldsOfType<RimWellPathTieIn>();
     for ( auto tieIn : tieInObjects )
     {
         if ( tieIn->parentWell() == this )

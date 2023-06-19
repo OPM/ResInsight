@@ -74,8 +74,8 @@ public:
     };
     using TickmarkIntervalEnum = caf::AppEnum<TickmarkInterval>;
 
-    typedef caf::AppEnum<RiaDefines::DateFormatComponents> DateFormatEnum;
-    typedef caf::AppEnum<RiaDefines::TimeFormatComponents> TimeFormatEnum;
+    using DateFormatEnum = caf::AppEnum<RiaDefines::DateFormatComponents>;
+    using TimeFormatEnum = caf::AppEnum<RiaDefines::TimeFormatComponents>;
 
     caf::Signal<> requestLoadDataAndUpdate;
 
@@ -101,7 +101,9 @@ public:
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
-    void                                removeAllAnnotations() override;
+    void                                removeAnnotation( RimTimeAxisAnnotation* annotation );
+
+    void removeAllAnnotations() override;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;

@@ -24,6 +24,7 @@
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "RimEclipseResultCase.h"
@@ -68,7 +69,7 @@ QString RimFlowDiagSolution::addCrossFlowEnding( const QString& wellName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::RimFlowDiagSolution( void )
+RimFlowDiagSolution::RimFlowDiagSolution()
 {
     CAF_PDM_InitObject( "Flow Diagnostics Solution" );
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "All Wells" ), "Description" );
@@ -77,7 +78,7 @@ RimFlowDiagSolution::RimFlowDiagSolution( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::~RimFlowDiagSolution( void )
+RimFlowDiagSolution::~RimFlowDiagSolution()
 {
 }
 
@@ -98,9 +99,7 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
     {
         size_t timeStepCount;
         {
-            RimEclipseResultCase* eclCase;
-            this->firstAncestorOrThisOfType( eclCase );
-
+            auto eclCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
             if ( !eclCase || !eclCase->eclipseCaseData() )
             {
                 return nullptr;
@@ -118,10 +117,17 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults() const
+{
+    return m_flowDiagResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RimFlowDiagSolution::tracerNames() const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     std::vector<QString> tracerNameSet;
 
@@ -160,8 +166,7 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allProducerTracerAc
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCellIndices( size_t timeStepIndex, bool useInjectors ) const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     std::map<std::string, std::vector<int>> tracersWithCells;
 
@@ -178,8 +183,8 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
             if ( !simWellData[wIdx]->hasWellResult( timeStepIndex ) ) continue;
             const RigWellResultFrame* wellResFrame = simWellData[wIdx]->wellResultFrame( timeStepIndex );
 
-            bool isInjectorWell = ( wellResFrame->m_productionType != RiaDefines::WellProductionType::PRODUCER &&
-                                    wellResFrame->m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
+            bool isInjectorWell = ( wellResFrame->productionType() != RiaDefines::WellProductionType::PRODUCER &&
+                                    wellResFrame->productionType() != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
 
             std::string wellName   = simWellData[wIdx]->m_wellName.toStdString();
             std::string wellNameXf = addCrossFlowEnding( simWellData[wIdx]->m_wellName ).toStdString();
@@ -187,9 +192,9 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
             std::vector<int>& tracerCells          = tracersWithCells[wellName];
             std::vector<int>& tracerCellsCrossFlow = tracersWithCells[wellNameXf];
 
-            for ( const RigWellResultBranch& wBr : wellResFrame->m_wellResultBranches )
+            for ( const RigWellResultBranch& wBr : wellResFrame->wellResultBranches() )
             {
-                for ( const RigWellResultPoint& wrp : wBr.m_branchResultPoints )
+                for ( const RigWellResultPoint& wrp : wBr.branchResultPoints() )
                 {
                     if ( wrp.isValid() && wrp.isOpen() &&
                          ( ( useInjectors && wrp.flowRate() < 0.0 ) || ( !useInjectors && wrp.flowRate() > 0.0 ) ) )
@@ -224,8 +229,7 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
 //--------------------------------------------------------------------------------------------------
 RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall( const QString& tracerName ) const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfTypeAsserted( eclCase );
+    auto eclCase = firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
 
     TracerStatusType tracerStatus = TracerStatusType::UNDEFINED;
     if ( eclCase && eclCase->eclipseCaseData() )
@@ -241,14 +245,14 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall( 
             tracerStatus = TracerStatusType::CLOSED;
             for ( const RigWellResultFrame& wellResFrame : simWellData[wIdx]->m_wellCellsTimeSteps )
             {
-                if ( RiaDefines::isInjector( wellResFrame.m_productionType ) )
+                if ( RiaDefines::isInjector( wellResFrame.productionType() ) )
                 {
                     if ( tracerStatus == TracerStatusType::PRODUCER )
                         tracerStatus = TracerStatusType::VARYING;
                     else
                         tracerStatus = TracerStatusType::INJECTOR;
                 }
-                else if ( wellResFrame.m_productionType == RiaDefines::WellProductionType::PRODUCER )
+                else if ( wellResFrame.productionType() == RiaDefines::WellProductionType::PRODUCER )
                 {
                     if ( tracerStatus == TracerStatusType::INJECTOR )
                         tracerStatus = TracerStatusType::VARYING;
@@ -278,9 +282,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall( 
 //--------------------------------------------------------------------------------------------------
 RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeStep( const QString& tracerName, size_t timeStepIndex ) const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfTypeAsserted( eclCase );
-
+    auto eclCase = firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
     if ( eclCase && eclCase->eclipseCaseData() )
     {
         const cvf::Collection<RigSimWellData>& simWellData = eclCase->eclipseCaseData()->wellResults();
@@ -294,14 +296,14 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
 
             const RigWellResultFrame* wellResFrame = simWellData[wIdx]->wellResultFrame( timeStepIndex );
 
-            if ( RiaDefines::isInjector( wellResFrame->m_productionType ) )
+            if ( RiaDefines::isInjector( wellResFrame->productionType() ) )
             {
                 if ( hasCrossFlowEnding( tracerName ) ) return TracerStatusType::PRODUCER;
 
                 return TracerStatusType::INJECTOR;
             }
-            else if ( wellResFrame->m_productionType == RiaDefines::WellProductionType::PRODUCER ||
-                      wellResFrame->m_productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+            else if ( wellResFrame->productionType() == RiaDefines::WellProductionType::PRODUCER ||
+                      wellResFrame->productionType() == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
             {
                 if ( hasCrossFlowEnding( tracerName ) ) return TracerStatusType::INJECTOR;
 
@@ -328,9 +330,7 @@ cvf::Color3f RimFlowDiagSolution::tracerColor( const QString& tracerName ) const
     if ( wellName == RIG_RESERVOIR_TRACER_NAME ) return cvf::Color3f::LIGHT_GRAY;
     if ( wellName == RIG_TINY_TRACER_GROUP_NAME ) return cvf::Color3f::DARK_GRAY;
 
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfType( eclCase );
-
+    auto eclCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( eclCase )
     {
         return eclCase->defaultWellColor( wellName );

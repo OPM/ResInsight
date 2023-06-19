@@ -73,7 +73,7 @@ RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculationCo
     }
 
     QString expression  = calcCopy->expression();
-    QString currVarName = calcCopy->findLeftHandSide( expression );
+    QString currVarName = RimUserDefinedCalculation::findLeftHandSide( expression );
 
     QString newVarName = currVarName;
     while ( calcNames.count( newVarName ) > 0 )
@@ -113,7 +113,7 @@ void RimUserDefinedCalculationCollection::deleteCalculation( RimUserDefinedCalcu
 //--------------------------------------------------------------------------------------------------
 std::vector<RimUserDefinedCalculation*> RimUserDefinedCalculationCollection::calculations() const
 {
-    return m_calculations.children();
+    return m_calculations.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

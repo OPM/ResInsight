@@ -70,6 +70,12 @@ std::vector<QString> RiaEclipseFileNameTools::findSummaryFileCandidates()
     auto smryCandidate  = relatedFilePath( EclipseFileType::ECLIPSE_SMSPEC );
     auto esmryCandidate = relatedFilePath( EclipseFileType::ECLIPSE_ESMRY );
 
+    if ( !smryCandidate.isEmpty() && !esmryCandidate.isEmpty() )
+    {
+        // If both files exist, we prefer the SMSPEC file
+        esmryCandidate = "";
+    }
+
     return { smryCandidate, esmryCandidate };
 }
 

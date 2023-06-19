@@ -71,9 +71,7 @@ void RimPlotCellFilterCollection::setCase( RimCase* gridCase )
     RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( gridCase );
     if ( eclipseResultCase )
     {
-        std::vector<RimEclipseResultDefinition*> resultDefinitions;
-
-        this->descendantsIncludingThisOfType( resultDefinitions );
+        auto resultDefinitions = descendantsIncludingThisOfType<RimEclipseResultDefinition>();
         for ( auto r : resultDefinitions )
         {
             r->setEclipseCase( eclipseResultCase );

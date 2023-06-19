@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RimWellPathFracture, "WellPathFracture" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathFracture::RimWellPathFracture( void )
+RimWellPathFracture::RimWellPathFracture()
 {
     CAF_PDM_InitObject( "Fracture", ":/FractureSymbol16x16.png" );
 
@@ -115,8 +115,7 @@ void RimWellPathFracture::updateAzimuthBasedOnWellAzimuthAngle()
 //--------------------------------------------------------------------------------------------------
 double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 {
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( !wellPath ) return cvf::UNDEFINED_DOUBLE;
 
     double wellPathAzimuth = 0.0;
@@ -137,8 +136,7 @@ double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathFracture::computeFractureDirectionNormal() const
 {
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( !wellPath ) return cvf::Vec3d::UNDEFINED;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
@@ -184,8 +182,7 @@ std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords()
 {
     std::vector<cvf::Vec3d> wellPathCoords;
 
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath && wellPath->wellPathGeometry() )
     {
         double startMd = m_measuredDepth - perforationLength() / 2.0;
@@ -206,11 +203,8 @@ bool RimWellPathFracture::compareByWellPathNameAndMD( const RimWellPathFracture*
 {
     CVF_TIGHT_ASSERT( lhs && rhs );
 
-    RimWellPath* lhsWellPath = nullptr;
-    lhs->firstAncestorOrThisOfType( lhsWellPath );
-
-    RimWellPath* rhsWellPath = nullptr;
-    rhs->firstAncestorOrThisOfType( rhsWellPath );
+    RimWellPath* lhsWellPath = lhs->firstAncestorOrThisOfType<RimWellPath>();
+    RimWellPath* rhsWellPath = rhs->firstAncestorOrThisOfType<RimWellPath>();
 
     if ( lhsWellPath && rhsWellPath )
     {
@@ -228,8 +222,7 @@ bool RimWellPathFracture::compareByWellPathNameAndMD( const RimWellPathFracture*
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathFracture::isEnabled() const
 {
-    RimWellPathFractureCollection* fractureCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( fractureCollection );
+    auto fractureCollection = firstAncestorOrThisOfTypeAsserted<RimWellPathFractureCollection>();
 
     return fractureCollection->isChecked() && isChecked();
 }
@@ -244,8 +237,7 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( this );
     if ( !objHandle ) return;
 
-    RimWellPath* wellPath = nullptr;
-    objHandle->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = objHandle->firstAncestorOrThisOfType<RimWellPath>();
     if ( !wellPath ) return;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
@@ -325,8 +317,7 @@ void RimWellPathFracture::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 
         if ( myAttr )
         {
-            RimWellPath* wellPath = nullptr;
-            this->firstAncestorOrThisOfType( wellPath );
+            auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
             if ( !wellPath ) return;
 
             myAttr->m_minimum = wellPath->uniqueStartMD();

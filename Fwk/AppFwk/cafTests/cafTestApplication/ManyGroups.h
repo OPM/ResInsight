@@ -22,9 +22,9 @@ public:
     caf::PdmField<bool>  m_toggleField;
     caf::PdmFieldHandle* objectToggleField() override;
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void setDoubleMember(const double& d)
+    void setDoubleMember( const double& d )
     {
         m_doubleMember = d;
         std::cout << "setDoubleMember" << std::endl;
@@ -38,7 +38,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     double m_doubleMember;
@@ -47,9 +47,9 @@ protected:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 };

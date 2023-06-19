@@ -106,6 +106,8 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
 
     CAF_PDM_InitField( &m_wbsSmoothingThreshold, "WBSSmoothingThreshold", -1.0, "Smoothing Threshold" );
 
+    CAF_PDM_InitField( &m_maximumCurvePointInterval, "MaximumCurvePointInterval", std::make_pair( true, 10.0 ), "Maximum Curve Point Interval" );
+
     CAF_PDM_InitFieldNoDefault( &m_rftTimeStep, "RftTimeStep", "RFT Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_rftWellName, "RftWellName", "RFT Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchIndex, "SegmentBranchIndex", "RFT Branch" );
@@ -494,15 +496,11 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks()
 {
-    RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
+    auto parentPlot = firstAncestorOrThisOfType<RimWellLogPlot>();
     if ( parentPlot )
     {
-        std::vector<RimWellLogCurve*> curves;
-        parentPlot->descendantsIncludingThisOfType( curves );
-
-        std::vector<RimWellLogTrack*> tracks;
-        parentPlot->descendantsIncludingThisOfType( tracks );
+        std::vector<RimWellLogCurve*> curves = parentPlot->descendantsIncludingThisOfType<RimWellLogCurve>();
+        std::vector<RimWellLogTrack*> tracks = parentPlot->descendantsIncludingThisOfType<RimWellLogTrack>();
 
         this->analyseCurvesAndTracks( curves, tracks );
     }
@@ -531,8 +529,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 {
                     RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
                     fileCurve->setWellLogFile( logFile );
-                    RimWellLogPlot* parentPlot = nullptr;
-                    fileCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+                    auto parentPlot = fileCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                     plots.insert( parentPlot );
                 }
             }
@@ -590,19 +587,23 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 if ( !wbsSmoothingToApply().isPartiallyTrue() )
                 {
                     wbsCurve->setSmoothCurve( wbsSmoothingToApply().isTrue() );
-                    updatedSomething = true;
                 }
 
                 if ( wbsSmoothingThreshold() != 1.0 )
                 {
                     wbsCurve->setSmoothingThreshold( wbsSmoothingThreshold() );
-                    updatedSomething = true;
                 }
+
+                wbsCurve->enableMaximumCurvePointInterval( m_maximumCurvePointInterval().first );
+                wbsCurve->setMaximumCurvePointInterval( m_maximumCurvePointInterval().second );
+
+                // Always do an update for wbs plots
+                updatedSomething = true;
             }
+
             if ( updatedSomething )
             {
-                RimWellLogPlot* parentPlot = nullptr;
-                extractionCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+                auto parentPlot = extractionCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                 plots.insert( parentPlot );
             }
         }
@@ -623,8 +624,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
             if ( m_rftSegmentBranchType() != RiaDefines::RftBranchType::RFT_UNKNOWN )
                 rftCurve->setSegmentBranchType( m_rftSegmentBranchType() );
 
-            RimWellLogPlot* parentPlot = nullptr;
-            rftCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+            auto parentPlot = rftCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
             plots.insert( parentPlot );
         }
         else if ( topologyCurve )
@@ -682,8 +682,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
         }
         if ( updatedSomething )
         {
-            RimWellLogPlot* parentPlot = nullptr;
-            track->firstAncestorOrThisOfTypeAsserted( parentPlot );
+            auto parentPlot = track->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
             plots.insert( parentPlot );
             track->updateConnectedEditors();
         }
@@ -700,15 +699,11 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyDataSourceChanges()
 {
-    RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
+    auto parentPlot = firstAncestorOrThisOfType<RimWellLogPlot>();
     if ( parentPlot )
     {
-        std::vector<RimWellLogCurve*> curves;
-        parentPlot->descendantsIncludingThisOfType( curves );
-
-        std::vector<RimWellLogTrack*> tracks;
-        parentPlot->descendantsIncludingThisOfType( tracks );
+        auto curves = parentPlot->descendantsIncludingThisOfType<RimWellLogCurve>();
+        auto tracks = parentPlot->descendantsIncludingThisOfType<RimWellLogTrack>();
 
         this->applyDataSourceChanges( curves, tracks );
 
@@ -829,11 +824,16 @@ QString RimWellLogCurveCommonDataSource::smoothingUiOrderinglabel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<bool, double> RimWellLogCurveCommonDataSource::maximumCurvePointInterval() const
+{
+    return m_maximumCurvePointInterval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
-
     if ( changedField == &m_branchDetection && m_branchDetection().isPartiallyTrue() )
     {
         // The Tristate is cycled from false -> partially true -> true
@@ -1058,6 +1058,7 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
     {
         group->add( &m_wbsSmoothing );
         group->add( &m_wbsSmoothingThreshold );
+        group->add( &m_maximumCurvePointInterval );
     }
 
     if ( !m_uniqueRftTimeSteps.empty() ) group->add( &m_rftTimeStep );
@@ -1110,7 +1111,7 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
         }
     }
     auto* uiDisplayStringAttr = dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
-    if ( uiDisplayStringAttr && wbsSmoothingThreshold() == -1.0 )
+    if ( uiDisplayStringAttr && ( wbsSmoothingThreshold() == -1.0 ) && ( field == &m_wbsSmoothingThreshold ) )
     {
         QString displayString = "Mixed";
 

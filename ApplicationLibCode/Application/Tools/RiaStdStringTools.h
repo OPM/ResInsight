@@ -80,9 +80,8 @@ void RiaStdStringTools::splitByDelimiter( const std::string& str, Container& con
 template <typename InputIt>
 std::string join( InputIt begin, InputIt end, const std::string& separator = ", " )
 {
-    auto compose_key = [&separator]( std::string& key, const std::string& key_part ) -> std::string {
-        return key.empty() ? key_part : key + separator + key_part;
-    };
+    auto compose_key = [&separator]( std::string& key, const std::string& key_part ) -> std::string
+    { return key.empty() ? key_part : key + separator + key_part; };
 
     return std::accumulate( begin, end, std::string(), compose_key );
 }

@@ -25,7 +25,7 @@ TEST( RifCaseRealizationParametersReaderTest, LocatorTestSuccess )
 //--------------------------------------------------------------------------------------------------
 TEST( RifCaseRealizationParametersReaderTest, LocatorTestFailure )
 {
-    QString file     = RifCaseRealizationParametersFileLocator::locate( CASE_REAL_TEST_DATA_DIRECTORY_01 + "4/3/2/1" );
+    QString file     = RifCaseRealizationParametersFileLocator::locate( CASE_REAL_TEST_DATA_DIRECTORY_01 + "6/5/4/3/2/1" );
     QString expected = "";
     EXPECT_EQ( expected.toStdString(), file.toStdString() );
 }

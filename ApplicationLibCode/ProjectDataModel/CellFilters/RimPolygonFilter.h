@@ -112,8 +112,8 @@ private:
     void updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& points, const RigGridBase* grid, int K );
     int  findEclipseKLayer( const std::vector<cvf::Vec3d>& points, RigEclipseCaseData* data );
 
-    void updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid );
-    void updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid );
+    void updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId );
+    void updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId );
 
     bool cellInsidePolygon2D( cvf::Vec3d center, std::array<cvf::Vec3d, 8>& corners, std::vector<cvf::Vec3d> polygon );
 
@@ -125,16 +125,16 @@ private:
     caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
     caf::PdmPtrField<RimCase*>                         m_srcCase;
     caf::PdmField<bool>                                m_enableFiltering;
-    caf::PdmField<bool>                                m_enableKFilter;
     caf::PdmField<bool>                                m_showLines;
     caf::PdmField<bool>                                m_showSpheres;
-    caf::PdmField<QString>                             m_kFilterStr;
     caf::PdmField<int>                                 m_lineThickness;
     caf::PdmField<double>                              m_sphereRadiusFactor;
     caf::PdmField<cvf::Color3f>                        m_lineColor;
     caf::PdmField<cvf::Color3f>                        m_sphereColor;
     caf::PdmField<double>                              m_polygonPlaneDepth;
     caf::PdmField<bool>                                m_lockPolygonToPlane;
+    caf::PdmField<bool>                                m_enableKFilter;
+    caf::PdmField<QString>                             m_kFilterStr;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 

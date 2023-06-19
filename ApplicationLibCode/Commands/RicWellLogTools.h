@@ -38,6 +38,7 @@ class RimWellPath;
 class RimWellMeasurementCurve;
 class RimSummaryCase;
 class RimWellLogCurve;
+class RimWellLogCalculatedCurve;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,6 +73,7 @@ public:
                                                           bool             showPlotWindow = true );
     static RimWellMeasurementCurve*
         addWellMeasurementCurve( RimWellLogTrack* plotTrack, RimWellPath* wellPath, const QString& measurementName, bool showPlotWindow = true );
+    static RimWellLogCalculatedCurve* addWellLogCalculatedCurve( RimWellLogTrack* plotTrack, bool showPlotWindow = true );
 
     static RimWellLogCurve*    addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
     static RimWellLogRftCurve* addSummaryRftSegmentCurve( RimWellLogTrack*          plotTrack,

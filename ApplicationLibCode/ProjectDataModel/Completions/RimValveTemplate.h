@@ -55,7 +55,7 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
-    typedef caf::AppEnum<RiaDefines::WellPathComponentType> CompletionTypeEnum;
+    using CompletionTypeEnum = caf::AppEnum<RiaDefines::WellPathComponentType>;
 
     caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_valveTemplateUnit;
 

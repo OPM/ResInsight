@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechCellColors, "GeoMechResultSlot" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCellColors::RimGeoMechCellColors( void )
+RimGeoMechCellColors::RimGeoMechCellColors()
     : legendConfigChanged( this )
 {
     CAF_PDM_InitFieldNoDefault( &legendConfig, "LegendDefinition", "Color Legend" );
@@ -41,7 +41,7 @@ RimGeoMechCellColors::RimGeoMechCellColors( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCellColors::~RimGeoMechCellColors( void )
+RimGeoMechCellColors::~RimGeoMechCellColors()
 {
     delete legendConfig;
 }
@@ -51,10 +51,7 @@ RimGeoMechCellColors::~RimGeoMechCellColors( void )
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCellColors::updateIconState()
 {
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
-    CVF_ASSERT( rimView );
-
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
     if ( rimView )
     {
         RimViewController* viewController = rimView->viewController();

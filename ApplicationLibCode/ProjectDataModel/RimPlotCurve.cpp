@@ -32,13 +32,16 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuGuiTheme.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotCurveSymbol.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
 
 #include "cafAssert.h"
+#include "cafPdmUiColorEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QPen>
@@ -322,17 +325,13 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
     }
     else if ( fieldNeedingOptions == &m_additionalDataSources )
     {
-        std::vector<RimPlotWindow*> parentPlots;
-
         // Find all plot windows above this object upwards in the object hierarchy. Use the top most plot window as the
         // root to find all plot curves.
-        this->allAncestorsOfType( parentPlots );
+        auto parentPlots = this->allAncestorsOfType<RimPlotWindow>();
 
         if ( !parentPlots.empty() )
         {
-            std::vector<RimPlotCurve*> plotCurves;
-            parentPlots.back()->descendantsOfType( plotCurves );
-
+            auto plotCurves = parentPlots.back()->descendantsOfType<RimPlotCurve>();
             for ( auto p : plotCurves )
             {
                 caf::PdmOptionItemInfo optionInfo( p->curveName(), p );
@@ -476,8 +475,7 @@ void RimPlotCurve::updateFieldUiState()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updatePlotTitle()
 {
-    RimNameConfigHolderInterface* nameConfigHolder = nullptr;
-    this->firstAncestorOrThisOfType( nameConfigHolder );
+    auto nameConfigHolder = firstAncestorOrThisOfType<RimNameConfigHolderInterface>();
     if ( nameConfigHolder )
     {
         nameConfigHolder->updateAutoName();
@@ -553,12 +551,10 @@ bool RimPlotCurve::canCurveBeAttached() const
     bool isVisibleInPossibleParent = true;
 
     {
-        RimSummaryCurveCollection* summaryCurveCollection = nullptr;
-        this->firstAncestorOrThisOfType( summaryCurveCollection );
+        auto summaryCurveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
         if ( summaryCurveCollection ) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
 
-        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-        firstAncestorOrThisOfType( ensembleCurveSet );
+        auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
         if ( ensembleCurveSet ) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
     }
 
@@ -581,8 +577,7 @@ void RimPlotCurve::checkAndApplyDefaultFillColor()
 //--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::isCrossPlotCurve() const
 {
-    RimSummaryCrossPlot* crossPlot = nullptr;
-    this->firstAncestorOrThisOfType( crossPlot );
+    auto crossPlot = firstAncestorOrThisOfType<RimSummaryCrossPlot>();
     if ( crossPlot ) return true;
 
     return false;
@@ -900,8 +895,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
     if ( !m_plotCurve ) return;
 
-    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( ensembleCurveSet );
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
     if ( ensembleCurveSet )
     {
         return;
@@ -909,8 +903,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 
     bool showLegendInPlot = m_showLegend();
 
-    RimSummaryPlot* summaryPlot = nullptr;
-    this->firstAncestorOrThisOfType( summaryPlot );
+    auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( summaryPlot )
     {
         bool anyCalculated = false;
@@ -1000,8 +993,7 @@ void RimPlotCurve::updateCurveAppearance()
         int legendFontSize =
             caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Small );
 
-        RimPlotWindow* plotWindow = nullptr;
-        this->firstAncestorOrThisOfType( plotWindow );
+        auto plotWindow = firstAncestorOrThisOfType<RimPlotWindow>();
         if ( plotWindow )
         {
             legendFontSize = plotWindow->legendFontSize();
@@ -1145,7 +1137,7 @@ double RimPlotCurve::closestYValueForX( double xValue ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotCurve*> RimPlotCurve::additionalDataSources() const
 {
-    return m_additionalDataSources.ptrReferencedObjects();
+    return m_additionalDataSources.ptrReferencedObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1253,4 +1245,46 @@ QString RimPlotCurve::curveName() const
 QString RimPlotCurve::curveExportDescription( const RifEclipseSummaryAddress& address ) const
 {
     return m_curveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        treeItemAttribute->tags.clear();
+        auto tag = caf::PdmUiTreeViewItemAttribute::Tag::create();
+
+        // Blend with background for a nice look
+        auto   backgroundColor  = RiuGuiTheme::getColorByVariableName( "backgroundColor1" );
+        auto   color            = RiaColorTools::toQColor( m_curveAppearance->color() );
+        auto   sourceWeight     = 100;
+        double transparency     = 0.3;
+        int    backgroundWeight = std::max( 1, static_cast<int>( sourceWeight * 10 * transparency ) );
+        auto   blendedColor     = RiaColorTools::blendQColors( backgroundColor, color, backgroundWeight, sourceWeight );
+
+        tag->bgColor = blendedColor;
+        tag->fgColor = RiaColorTools::toQColor( m_curveAppearance->color() );
+        tag->text    = "---";
+
+        tag->clicked.connect( this, &RimPlotCurve::onColorTagClicked );
+
+        treeItemAttribute->tags.push_back( std::move( tag ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::onColorTagClicked( const SignalEmitter* emitter, size_t index )
+{
+    QColor sourceColor = RiaColorTools::toQColor( m_curveAppearance->color() );
+    QColor newColor    = caf::PdmUiColorEditor::getColor( sourceColor );
+
+    if ( newColor.isValid() && newColor != sourceColor )
+    {
+        m_curveAppearance->setColorWithFieldChanged( newColor );
+    }
 }

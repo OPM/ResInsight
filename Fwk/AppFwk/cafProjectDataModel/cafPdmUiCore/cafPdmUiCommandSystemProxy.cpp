@@ -198,12 +198,10 @@ std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( PdmFi
                 // different type
                 const auto editorFieldOwnerClass = editorField->ownerClass();
 
-                std::vector<PdmFieldHandle*> childFields;
-                objectHandle->fields( childFields );
+                std::vector<PdmFieldHandle*> childFields = objectHandle->fields();
                 for ( auto field : childFields )
                 {
-                    std::vector<PdmObjectHandle*> childObjects;
-                    field->children( &childObjects );
+                    std::vector<PdmObjectHandle*> childObjects = field->children();
                     for ( auto childObj : childObjects )
                     {
                         auto childFieldHandle = childObj->findField( fieldKeyword );

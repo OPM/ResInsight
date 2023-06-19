@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
 include(CheckCSourceCompiles)
+include(FetchContent)
+
 project(ResInsight)
 
 set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
@@ -8,6 +10,9 @@ set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
+endif()
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 OLD)
 endif()
 
 if(UNIX)
@@ -31,11 +36,14 @@ set(BUILD_SHARED_LIBS
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" OFF)
+mark_as_advanced(RESINSIGHT_BUNDLE_TESTMODELS)
 
-option(VCPKG_AUTO_INSTALL
+option(RESINSIGHT_VCPKG_AUTO_INSTALL
        "Automatically download build pre-requisites with VCPKG" OFF
 )
-if(VCPKG_AUTO_INSTALL)
+mark_as_advanced(RESINSIGHT_VCPKG_AUTO_INSTALL)
+
+if(RESINSIGHT_VCPKG_AUTO_INSTALL)
   include(AutoVcpkg)
   set(AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
 endif()
@@ -43,20 +51,6 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-# ##############################################################################
-# OPTIONAL: Configuration of ccache for MSVC
-# ##############################################################################
-find_program(ccache_exe ccache)
-if(ccache_exe)
-  file(COPY_FILE ${ccache_exe} ${CMAKE_BINARY_DIR}/cl.exe ONLY_IF_DIFFERENT)
-
-  set(CMAKE_VS_GLOBALS
-      "CLToolExe=cl.exe" "CLToolPath=${CMAKE_BINARY_DIR}"
-      "TrackFileAccess=false" "UseMultiToolTask=true"
-      "DebugInformationFormat=OldStyle"
-  )
-endif()
 
 # ##############################################################################
 # Setup the main platform defines
@@ -138,6 +132,25 @@ set(RESINSIGHT_ODB_API_DIR
       PATH
       "Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models"
 )
+
+if(MSVC)
+  option(RESINSIGHT_DONWLOAD_ODB_FROM_SERVER
+         "Download ODB library from inhouse build server" OFF
+  )
+  mark_as_advanced(FORCE RESINSIGHT_DONWLOAD_ODB_FROM_SERVER)
+
+  if(RESINSIGHT_DONWLOAD_ODB_FROM_SERVER)
+    FetchContent_Declare(
+      odb-library-from-server
+      URL http://10.10.0.26:8080/job/resinsight-dependencies/ws/odb-api-2020.zip
+    )
+
+    FetchContent_Populate(odb-library-from-server)
+
+    set(RESINSIGHT_ODB_API_DIR ${odb-library-from-server_SOURCE_DIR})
+  endif()
+endif()
+
 if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
   add_definitions(-DUSE_ODB_API)
   set(RESINSIGHT_USE_ODB_API 1)
@@ -311,8 +324,10 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   # Update submodules as needed
-  option(GIT_SUBMODULE "Check submodules during build" ON)
-  if(GIT_SUBMODULE)
+  option(RESINSIGHT_UPDATE_SUBMODULES "Check submodules during build" ON)
+  mark_as_advanced(RESINSIGHT_UPDATE_SUBMODULES)
+
+  if(RESINSIGHT_UPDATE_SUBMODULES)
     set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty")
     message(STATUS "Initializing GIT submodules")
     execute_process(
@@ -330,16 +345,54 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 endif()
 
 # ##############################################################################
-# HDF5
+# OpenVDS seismic file access
 # ##############################################################################
+
 if(MSVC)
-  set(RESINSIGHT_HDF5_DIR
-      ""
-      CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows"
+  FetchContent_Declare(
+    openvds
+    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-win.zip
+  )
+else()
+  FetchContent_Declare(
+    openvds
+    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-manylinux_2014.tar.gz
   )
 endif()
 
+FetchContent_Populate(openvds)
+
+set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
+message(STATUS "Using OpenVDS api from : ${RESINSIGHT_OPENVDS_API_DIR}")
+
 if(MSVC)
+  list(APPEND EXTERNAL_LINK_LIBRARIES
+       ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/openvds.lib
+  )
+else()
+  list(APPEND EXTERNAL_LINK_LIBRARIES
+       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
+  )
+endif()
+
+# ##############################################################################
+# HDF5
+# ##############################################################################
+
+if(MSVC)
+  # this option is disabled in the daily build defined in
+  # ResInsightWithCache.yml, as the text input to ninja becomes too long
+  option(RESINSIGHT_ENABLE_HDF5 "Use external HDF5 library" ON)
+
+  if(RESINSIGHT_ENABLE_HDF5)
+    FetchContent_Declare(
+      hdf-external-lib
+      URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/HDF_Group.zip
+    )
+    FetchContent_Populate(hdf-external-lib)
+    set(RESINSIGHT_HDF5_DIR ${hdf-external-lib_SOURCE_DIR}/HDF5/1.8.18)
+  endif()
+
   if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
     list(APPEND EXTERNAL_LINK_LIBRARIES ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
          ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
@@ -376,7 +429,7 @@ endif() # MSVC
 # Opm
 # ##############################################################################
 
-if(VCPKG_AUTO_INSTALL)
+if(RESINSIGHT_VCPKG_AUTO_INSTALL)
   vcpkg_install(boost-filesystem)
   vcpkg_install(boost-spirit)
   include(${CMAKE_TOOLCHAIN_FILE})
@@ -384,16 +437,30 @@ endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
-add_subdirectory(ThirdParty/custom-opm-common)
-add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
 
-list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app
-     custom-opm-common
-)
+# Option used to build opm-common from source or use precompiled binaries
+option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
+mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
 
-set_property(
-  TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
-)
+if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
+  FetchContent_Declare(
+    ri-dependencies
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/custom-opm-common.zip
+  )
+  FetchContent_Populate(ri-dependencies)
+  list(APPEND EXTERNAL_LINK_LIBRARIES
+       ${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib
+  )
+  message(STATUS "opm-common: Enabled use of precompiled library")
+else()
+  add_subdirectory(ThirdParty/custom-opm-common)
+  add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
+  list(APPEND OPM_LIBRARIES custom-opm-common)
+  set_property(TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
+endif()
+
+list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
+set_property(TARGET ${OPM_LIBRARIES} PROPERTY FOLDER "Thirdparty/OPM")
 
 # ##############################################################################
 # NRLib
@@ -402,6 +469,19 @@ set_property(
 add_subdirectory(ThirdParty/NRLib)
 
 list(APPEND THIRD_PARTY_LIBRARIES NRLib)
+
+# ##############################################################################
+# openzgy
+# ##############################################################################
+
+add_definitions(-DOPENZGY_STATIC)
+add_subdirectory(ThirdParty/openzgy)
+
+list(APPEND THIRD_PARTY_LIBRARIES openzgy)
+set_property(TARGET zfp PROPERTY FOLDER "Thirdparty")
+if(TARGET openzgy-tests)
+  set_property(TARGET openzgy-tests PROPERTY FOLDER "Thirdparty")
+endif()
 
 # ##############################################################################
 # Qt
@@ -438,7 +518,10 @@ endif()
 add_subdirectory(ThirdParty/qwt)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(qwt PRIVATE -Wno-deprecated-copy)
+  target_compile_options(
+    qwt PRIVATE -Wno-deprecated-copy -Wno-deprecated-enum-float-conversion
+                -Wno-deprecated-enum-enum-conversion
+  )
 elseif(MSVC)
   target_compile_options(qwt PRIVATE /wd4996 /wd4005)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -450,19 +533,19 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 # Qt Advanced Docking System
 # ##############################################################################
-set(ADS_VERSION "3.8.2")
+set(ADS_VERSION "4.0.3")
 
 add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated-copy)
+  target_compile_options(qt5advanceddocking PRIVATE -Wno-deprecated-copy)
 elseif(MSVC)
-  target_compile_options(qtadvanceddocking PRIVATE /wd4996 /wd4005)
+  target_compile_options(qt5advanceddocking PRIVATE /wd4996 /wd4005)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated)
+  target_compile_options(qt5advanceddocking PRIVATE -Wno-deprecated)
 endif()
 
-list(APPEND THIRD_PARTY_LIBRARIES qtadvanceddocking)
+list(APPEND THIRD_PARTY_LIBRARIES qt5advanceddocking)
 
 # ##############################################################################
 # Nightcharts
@@ -510,6 +593,18 @@ list(APPEND THIRD_PARTY_LIBRARIES roffcpp)
 set_property(TARGET roffcpp-tests gtest gtest_main PROPERTY FOLDER "Thirdparty")
 
 # ##############################################################################
+# regression-analysis
+# ##############################################################################
+
+set(REGRESSION_FETCH_EIGEN false)
+add_subdirectory(ThirdParty/regression-analysis)
+list(APPEND THIRD_PARTY_LIBRARIES regression-analysis)
+set_property(
+  TARGET regression-analysis-tests gtest gtest_main PROPERTY FOLDER
+                                                             "Thirdparty"
+)
+
+# ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
@@ -525,7 +620,7 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
   # message("Cmake Unity build is enabled on : custom-opm-common")
   # set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
   message("Cmake Unity build is enabled on : qtadvanceddocking")
-  set_property(TARGET qtadvanceddocking PROPERTY UNITY_BUILD true)
+  set_property(TARGET qt5advanceddocking PROPERTY UNITY_BUILD true)
 endif()
 
 # ##############################################################################
@@ -610,10 +705,7 @@ add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
 option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
-set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
-
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
-set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
@@ -641,6 +733,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   )
   target_compile_options(
     cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+                               -Wno-deprecated-enum-enum-conversion
   )
   target_compile_options(
     cafVizExtensions PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
@@ -665,6 +758,7 @@ list(
   CommonCode
   cafVizExtensions
   cafPdmScripting
+  cafCommandFeatures
 )
 
 set_property(TARGET ${APP_FWK_LIBRARIES} PROPERTY FOLDER "AppFwk")
@@ -675,30 +769,31 @@ mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPFWK_TESTS)
 if(RESINSIGHT_INCLUDE_APPFWK_TESTS)
   # Unit Tests
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
-  set_property(
-    TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER "AppFwkTests"
-  )
-
   add_subdirectory(
     Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests
   )
-  set_property(TARGET cafPdmCore_UnitTests PROPERTY FOLDER "AppFwkTests")
-
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
-  set_property(TARGET cafPdmXml_UnitTests PROPERTY FOLDER "AppFwkTests")
-
   add_subdirectory(Fwk/AppFwk/cafPdmScripting/cafPdmScripting_UnitTests)
-  set_property(TARGET cafPdmScripting_UnitTests PROPERTY FOLDER "AppFwkTests")
-
   add_subdirectory(Fwk/AppFwk/cafUserInterface/cafUserInterface_UnitTests)
-  set_property(TARGET cafUserInterface_UnitTests PROPERTY FOLDER "AppFwkTests")
 
   # Executables
   add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)
-  set_property(TARGET cafTestApplication PROPERTY FOLDER "AppFwkTests")
-
   add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
-  set_property(TARGET cafTestCvfApplication PROPERTY FOLDER "AppFwkTests")
+
+  list(
+    APPEND
+    APP_FWK_TEST_PROJECTS
+    cafProjectDataModel_UnitTests
+    cafPdmCore_UnitTests
+    cafPdmXml_UnitTests
+    cafPdmScripting_UnitTests
+    cafUserInterface_UnitTests
+    cafTestApplication
+    cafTestCvfApplication
+  )
+
+  set_property(TARGET ${APP_FWK_TEST_PROJECTS} PROPERTY FOLDER "AppFwkTests")
+
 endif()
 
 # ##############################################################################
@@ -768,10 +863,36 @@ if(RESINSIGHT_BUNDLE_TESTMODELS)
   )
 endif()
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(OPENVDS_SHARED_LIB_FILES
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-968eeb36.so.3.2.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.3
+  )
+  install(FILES ${OPENVDS_SHARED_LIB_FILES}
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+  )
+
+  install(PROGRAMS ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+  )
+endif()
+
 # ##############################################################################
 # Application
 # ##############################################################################
 add_subdirectory(ApplicationLibCode)
+add_subdirectory(ApplicationLibCode/Commands)
+add_subdirectory(ApplicationLibCode/ResultStatisticsCache)
+add_subdirectory(ApplicationLibCode/GeoMech/GeoMechDataModel)
+if(RESINSIGHT_USE_ODB_API)
+  add_subdirectory(ApplicationLibCode/GeoMech/OdbReader)
+endif()
+
 if(RESINSIGHT_ENABLE_GRPC)
   add_subdirectory(GrpcInterface)
 endif()
@@ -802,8 +923,8 @@ if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
   )
 
   set(TARGETS_FOR_STATIC_ANALYSIS
-      ${APP_FWK_LIBRARIES} ApplicationLibCode Commands ResultStatisticsCache
-      RigGeoMechDataModel
+      ${APP_FWK_LIBRARIES} ${APP_FWK_TEST_PROJECTS} ApplicationLibCode Commands
+      ResultStatisticsCache RigGeoMechDataModel
   )
 
   foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})

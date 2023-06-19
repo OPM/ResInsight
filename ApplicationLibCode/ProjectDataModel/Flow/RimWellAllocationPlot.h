@@ -68,6 +68,8 @@ public:
 
     int  id() const final;
     void setFromSimulationWell( RimSimWellInView* simWell );
+    void setWellName( const QString& wellName );
+    void setTimeStep( int timeStep );
 
     void    setDescription( const QString& description );
     QString description() const;

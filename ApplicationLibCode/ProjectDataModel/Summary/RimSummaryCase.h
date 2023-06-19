@@ -65,7 +65,6 @@ public:
     void setCaseId( int caseId );
     int  caseId() const;
 
-    void updateOptionSensitivity();
     void refreshMetaData();
 
     virtual void                       createSummaryReaderInterface() = 0;
@@ -94,6 +93,8 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+
     void updateTreeItemName();
 
     virtual QString caseName() const = 0;

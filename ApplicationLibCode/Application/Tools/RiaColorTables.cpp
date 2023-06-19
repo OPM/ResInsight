@@ -534,6 +534,24 @@ const caf::ColorTable& RiaColorTables::correlationPaletteColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::heatMapPaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub::DARK_BLUE,
+                                              cvf::Color3ub( 0, 0, 240 ), // Medium Blue
+                                              cvf::Color3ub( 0, 102, 204 ), // Transition Medium Blue to Cyan
+                                              cvf::Color3ub::CYAN,
+                                              cvf::Color3ub( 75, 255, 47 ), // Green/Yellow more green
+                                              cvf::Color3ub::DARK_ORANGE,
+                                              cvf::Color3ub::YELLOW };
+
+    static caf::ColorTable colorTable = caf::ColorTable( colors );
+
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTables::undefinedCellColor()
 {
     return cvf::Color3::GRAY;

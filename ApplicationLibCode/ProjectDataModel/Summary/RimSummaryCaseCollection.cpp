@@ -96,9 +96,9 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<RigEnsemblePar
 
     // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation
     // index
-    std::stable_sort( parameterVector.begin(), parameterVector.end(), [&bins]( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs ) {
-        return lhs.variationBin > rhs.variationBin;
-    } );
+    std::stable_sort( parameterVector.begin(),
+                      parameterVector.end(),
+                      []( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs ) { return lhs.variationBin > rhs.variationBin; } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,8 +190,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
     m_analyzer.reset();
 
     // Update derived ensemble cases (if any)
-    std::vector<RimDerivedEnsembleCaseCollection*> referringObjects;
-    objectsWithReferringPtrFieldsOfType( referringObjects );
+    std::vector<RimDerivedEnsembleCaseCollection*> referringObjects = objectsWithReferringPtrFieldsOfType<RimDerivedEnsembleCaseCollection>();
     for ( auto derivedEnsemble : referringObjects )
     {
         if ( !derivedEnsemble ) continue;
@@ -216,7 +215,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 {
-    return m_cases.children();
+    return m_cases.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,9 +471,8 @@ std::vector<std::pair<RigEnsembleParameter, double>>
     auto parameters = parameterCorrelationsAllTimeSteps( address );
     std::sort( parameters.begin(),
                parameters.end(),
-               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs ) {
-                   return std::abs( lhs.second ) > std::abs( rhs.second );
-               } );
+               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs )
+               { return std::abs( lhs.second ) > std::abs( rhs.second ); } );
     return parameters;
 }
 
@@ -487,9 +485,8 @@ std::vector<std::pair<RigEnsembleParameter, double>>
     auto parameters = parameterCorrelations( address, selectedTimeStep );
     std::sort( parameters.begin(),
                parameters.end(),
-               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs ) {
-                   return std::abs( lhs.second ) > std::abs( rhs.second );
-               } );
+               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs )
+               { return std::abs( lhs.second ) > std::abs( rhs.second ); } );
     return parameters;
 }
 
@@ -938,8 +935,7 @@ void RimSummaryCaseCollection::onLoadDataAndUpdate()
 void RimSummaryCaseCollection::updateReferringCurveSets()
 {
     // Update curve set referring to this group
-    std::vector<caf::PdmObject*> referringObjects;
-    objectsWithReferringPtrFieldsOfType( referringObjects );
+    std::vector<caf::PdmObject*> referringObjects = objectsWithReferringPtrFieldsOfType<PdmObject>();
 
     for ( auto object : referringObjects )
     {
@@ -1077,6 +1073,7 @@ void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
     if ( changedField == &m_name )
     {
+        m_autoName = false;
         caseNameChanged.send();
     }
 }
@@ -1096,7 +1093,6 @@ void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     uiOrdering.add( &m_autoName );
     uiOrdering.add( &m_name );
-    m_name.uiCapability()->setUiReadOnly( m_autoName() );
     if ( m_isEnsemble() )
     {
         uiOrdering.add( &m_ensembleId );
@@ -1126,14 +1122,6 @@ void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 
         uiTreeOrdering.skipRemainingChildren( true );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::setNameAsReadOnly()
-{
-    m_name.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------

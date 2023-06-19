@@ -19,9 +19,11 @@
 #include "RiaMemoryCleanup.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultInfo.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigGeoMechCaseData.h"
+
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
@@ -29,8 +31,6 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimProject.h"
 
-#include "RigEclipseResultInfo.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -46,17 +46,15 @@ CAF_PDM_SOURCE_INIT( RiaMemoryCleanup, "RiaMemoryCleanup" );
 //--------------------------------------------------------------------------------------------------
 RiaMemoryCleanup::RiaMemoryCleanup()
 {
-    // clang-format off
-    CAF_PDM_InitFieldNoDefault(&m_case, "DataCase", "Case");
+    CAF_PDM_InitFieldNoDefault( &m_case, "DataCase", "Case" );
     m_case = nullptr;
 
-    CAF_PDM_InitFieldNoDefault(&m_resultsToDelete, "ResultsToDelete", "Results In Memory");
-    m_resultsToDelete.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-    m_resultsToDelete.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_resultsToDelete, "ResultsToDelete", "Results In Memory" );
+    m_resultsToDelete.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_resultsToDelete.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_performDelete, "ClearSelectedData", "");
-    caf::PdmUiPushButtonEditor::configureEditorForField(&m_performDelete);
-    // clang-format on
+    CAF_PDM_InitFieldNoDefault( &m_performDelete, "ClearSelectedData", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_performDelete );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,8 +151,7 @@ std::set<RigFemResultAddress> RiaMemoryCleanup::findGeoMechCaseResultsInUse() co
     auto geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
     if ( geoMechCase )
     {
-        std::vector<RimFemResultObserver*> geoMechResults;
-        geoMechCase->descendantsIncludingThisOfType( geoMechResults );
+        std::vector<RimFemResultObserver*> geoMechResults = geoMechCase->descendantsIncludingThisOfType<RimFemResultObserver>();
         for ( RimFemResultObserver* resultDef : geoMechResults )
         {
             auto pdmObj = dynamic_cast<caf::PdmObject*>( resultDef );
@@ -181,8 +178,7 @@ std::set<RigEclipseResultAddress> RiaMemoryCleanup::findEclipseResultsInUse() co
     RimEclipseCase*                   eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
     {
-        std::vector<RimEclipseResultDefinition*> eclipseResultDefs;
-        eclipseCase->descendantsIncludingThisOfType( eclipseResultDefs );
+        auto eclipseResultDefs = eclipseCase->descendantsIncludingThisOfType<RimEclipseResultDefinition>();
         for ( RimEclipseResultDefinition* resultDef : eclipseResultDefs )
         {
             RigEclipseResultAddress resultAddr( resultDef->resultType(), resultDef->resultVariable() );

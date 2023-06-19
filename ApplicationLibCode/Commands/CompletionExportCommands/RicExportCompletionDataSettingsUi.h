@@ -40,7 +40,7 @@ public:
         SPLIT_ON_WELL,
         SPLIT_ON_WELL_AND_COMPLETION_TYPE,
     };
-    typedef caf::AppEnum<ExportSplit> ExportSplitType;
+    using ExportSplitType = caf::AppEnum<ExportSplit>;
 
     // Exported in .proto file. Do not change without changing .proto
     enum class CompdatExport
@@ -48,7 +48,7 @@ public:
         TRANSMISSIBILITIES,
         WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
     };
-    typedef caf::AppEnum<CompdatExport> CompdatExportType;
+    using CompdatExportType = caf::AppEnum<CompdatExport>;
 
     // Exported in .proto file. Do not change without changing .proto
     enum class CombinationMode
@@ -56,9 +56,9 @@ public:
         INDIVIDUALLY,
         COMBINED,
     };
-    typedef caf::AppEnum<CombinationMode> CombinationModeType;
+    using CombinationModeType = caf::AppEnum<CombinationMode>;
 
-    typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionWBHPSource> TransScalingWBHPSource;
+    using TransScalingWBHPSource = caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionWBHPSource>;
 
     RicExportCompletionDataSettingsUi();
 

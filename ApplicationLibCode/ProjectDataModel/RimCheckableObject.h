@@ -30,8 +30,8 @@ class RimCheckableObject : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCheckableObject( void );
-    ~RimCheckableObject( void ) override;
+    RimCheckableObject();
+    ~RimCheckableObject() override;
 
     bool isChecked() const;
     void setCheckState( bool checkState );

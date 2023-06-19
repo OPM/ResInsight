@@ -122,8 +122,7 @@ void RimWellMeasurementInViewCollection::fieldChangedByUi( const caf::PdmFieldHa
                                                            const QVariant&            oldValue,
                                                            const QVariant&            newValue )
 {
-    RimGridView* rimGridView = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( rimGridView );
+    auto rimGridView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
     rimGridView->scheduleCreateDisplayModelAndRedraw();
 }
 

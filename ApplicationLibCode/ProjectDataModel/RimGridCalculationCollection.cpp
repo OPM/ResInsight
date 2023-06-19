@@ -55,7 +55,8 @@ std::vector<RimGridCalculation*> RimGridCalculationCollection::sortedGridCalcula
     }
 
     // Check if source calculation is depending on other. Will check one level dependency.
-    auto isSourceDependingOnOther = []( const RimGridCalculation* source, const RimGridCalculation* other ) -> bool {
+    auto isSourceDependingOnOther = []( const RimGridCalculation* source, const RimGridCalculation* other ) -> bool
+    {
         auto outputCase = source->outputEclipseCase();
         auto outputAdr  = source->outputAddress();
 

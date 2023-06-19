@@ -35,7 +35,6 @@ class DrawableGeo;
 class Part;
 } // namespace cvf
 
-class RigWellResultFrame;
 class RimEclipseView;
 class RimSimWellInView;
 class RivPipeGeometryGenerator;
@@ -51,12 +50,12 @@ public:
     void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex );
 
 private:
-    cvf::ref<cvf::Part>        createArrowPart( const cvf::Vec3f&   startPoint,
-                                                const cvf::Vec3f&   endPoint,
-                                                float               width,
-                                                bool                isProducer,
-                                                const cvf::Color4f& arrowColor,
-                                                bool                enableLighting );
+    cvf::ref<cvf::Part> createArrowPart( const cvf::Vec3f&   startPoint,
+                                         const cvf::Vec3f&   endPoint,
+                                         float               width,
+                                         bool                isProducer,
+                                         const cvf::Color4f& arrowColor,
+                                         bool                enableLighting );
     cvf::ref<cvf::DrawableGeo> createArrowGeometry( const cvf::Vec3f& startPoint, const cvf::Vec3f& endPoint, double width, bool useArrowEnd );
 
 private:

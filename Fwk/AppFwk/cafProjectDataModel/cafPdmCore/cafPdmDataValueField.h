@@ -72,7 +72,11 @@ public:
     };
 
     typedef DataType FieldDataType;
-    PdmDataValueField() {}
+    PdmDataValueField()
+        : m_fieldValue( DataType() )
+        , m_defaultFieldValue( DataType() )
+    {
+    }
     PdmDataValueField( const PdmDataValueField& other ) { m_fieldValue = other.m_fieldValue; }
     explicit PdmDataValueField( const DataType& fieldValue ) { m_fieldValue = fieldValue; }
     ~PdmDataValueField() override {}

@@ -424,7 +424,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
             for ( const auto& ofi : originFileInfos )
             {
                 QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( ofi.fileName );
-                if ( handleGridFile ) dialogResult.gridFiles.push_back( gridFile );
+                dialogResult.gridFiles.push_back( gridFile );
             }
         }
     }
@@ -436,9 +436,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selectedSummaryImportOption() const
 {
-    return m_summaryReadAllBtn->isChecked()
-               ? ImportOptions::IMPORT_ALL
-               : m_summarySeparateCasesBtn->isChecked() ? ImportOptions::SEPARATE_CASES : ImportOptions::NOT_IMPORT;
+    return m_summaryReadAllBtn->isChecked()         ? ImportOptions::IMPORT_ALL
+           : m_summarySeparateCasesBtn->isChecked() ? ImportOptions::SEPARATE_CASES
+                                                    : ImportOptions::NOT_IMPORT;
 }
 
 //--------------------------------------------------------------------------------------------------

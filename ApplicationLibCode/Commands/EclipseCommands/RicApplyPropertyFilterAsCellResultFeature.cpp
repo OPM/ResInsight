@@ -76,8 +76,7 @@ void RicApplyPropertyFilterAsCellResultFeature::onActionTriggered( bool isChecke
             RimEclipsePropertyFilter* propertyFilter = objects[0];
             if ( !propertyFilter ) return;
 
-            RimEclipseView* rimEclipseView = nullptr;
-            propertyFilter->firstAncestorOrThisOfType( rimEclipseView );
+            RimEclipseView* rimEclipseView = propertyFilter->firstAncestorOrThisOfType<RimEclipseView>();
             if ( !rimEclipseView ) return;
 
             rimEclipseView->cellResult()->simpleCopy( propertyFilter->resultDefinition() );
@@ -98,8 +97,7 @@ void RicApplyPropertyFilterAsCellResultFeature::onActionTriggered( bool isChecke
             RimGeoMechPropertyFilter* propertyFilter = objects[0];
             if ( !propertyFilter ) return;
 
-            RimGeoMechView* geoMechView = nullptr;
-            propertyFilter->firstAncestorOrThisOfType( geoMechView );
+            RimGeoMechView* geoMechView = propertyFilter->firstAncestorOrThisOfType<RimGeoMechView>();
             if ( !geoMechView ) return;
 
             geoMechView->cellResultResultDefinition()->setResultAddress( propertyFilter->resultDefinition()->resultAddress() );

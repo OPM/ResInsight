@@ -35,6 +35,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
@@ -1037,13 +1038,13 @@ QString RifEclipseInputFileTools::faultFaceText( cvf::StructGridInterface::FaceT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( QFile&                                          file,
-                                                                               qint64                                          startPos,
+bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( QFile& file,
+                                                                               qint64 startPos,
                                                                                const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
-                                                                               cvf::Collection<RigFault>*                      faults,
-                                                                               std::vector<QString>* filenamesWithFaults,
-                                                                               bool*                 isEditKeywordDetected,
-                                                                               const QString&        faultIncludeFileAbsolutePathPrefix )
+                                                                               cvf::Collection<RigFault>* faults,
+                                                                               std::vector<QString>*      filenamesWithFaults,
+                                                                               bool*                      isEditKeywordDetected,
+                                                                               const QString& faultIncludeFileAbsolutePathPrefix )
 {
     QString line;
 
@@ -1399,6 +1400,23 @@ cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText( c
     }
 
     return cvf::StructGridInterface::NO_FACE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::hasGridData( const QString& fileName )
+{
+    // Look for keyword "COORD" in file
+    // NOTE: If readKeywordAndValues is slow for large .GRDECL files, consider function in RifEclipseTextFileReader
+    // reading line for line and returns true on first hit of keyword. This prevents reading entire file on large cases
+
+    const auto keywordAndValues = RifEclipseTextFileReader::readKeywordAndValues( fileName.toStdString() );
+    auto       coordKeywordItr  = std::find_if( keywordAndValues.begin(),
+                                         keywordAndValues.end(),
+                                         []( const auto& keywordAndValue ) { return keywordAndValue.keyword == "COORD"; } );
+
+    return coordKeywordItr != keywordAndValues.end();
 }
 
 //--------------------------------------------------------------------------------------------------

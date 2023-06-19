@@ -31,6 +31,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolyline3dEditor.h
     ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolylineTarget3dEditor.h
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendPointsToPolygonFilterFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateWellPathFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -66,6 +67,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolyline3dEditor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolylineTarget3dEditor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendPointsToPolygonFilterFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateWellPathFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

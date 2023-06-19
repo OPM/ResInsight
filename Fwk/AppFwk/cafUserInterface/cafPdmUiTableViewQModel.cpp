@@ -485,8 +485,7 @@ PdmFieldHandle* PdmUiTableViewQModel::getField( const QModelIndex& index ) const
         PdmObjectHandle* pdmObject = childArrayField->at( index.row() );
         if ( pdmObject )
         {
-            std::vector<PdmFieldHandle*> fields;
-            pdmObject->fields( fields );
+            std::vector<PdmFieldHandle*> fields = pdmObject->fields();
 
             int fieldIndex = m_modelColumnIndexToFieldIndex[index.column()];
             if ( fieldIndex < static_cast<int>( fields.size() ) )
@@ -767,8 +766,7 @@ int PdmUiTableViewQModel::getFieldIndex( PdmFieldHandle* field ) const
         PdmObjectHandle* pdmObject = childArrayField->at( 0 );
         if ( pdmObject )
         {
-            std::vector<PdmFieldHandle*> fields;
-            pdmObject->fields( fields );
+            std::vector<PdmFieldHandle*> fields = pdmObject->fields();
 
             for ( size_t i = 0; i < fields.size(); i++ )
             {

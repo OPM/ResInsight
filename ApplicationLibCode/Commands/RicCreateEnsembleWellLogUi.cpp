@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RiaDefines.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 
 #include "RigEclipseResultAddress.h"
@@ -33,7 +34,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -65,7 +65,6 @@ RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
     CAF_PDM_InitFieldNoDefault( &m_wellFilePath, "WellFilePath", "Well File Path" );
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties" );
-    m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     m_tabNames << "Well"
                << "Properties";
@@ -188,14 +187,15 @@ std::vector<std::pair<QString, RiaDefines::ResultCatType>>
                                             const RigEclipseCaseData*                     caseData )
 {
     auto findResultCategory =
-        []( const QString& keyword, const std::vector<RiaDefines::ResultCatType>& categories, const RigEclipseCaseData* caseData ) {
-            // Find the result category for a given keyword
-            auto resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-            for ( auto category : categories )
-                if ( resultData->hasResultEntry( RigEclipseResultAddress( category, keyword ) ) ) return category;
+        []( const QString& keyword, const std::vector<RiaDefines::ResultCatType>& categories, const RigEclipseCaseData* caseData )
+    {
+        // Find the result category for a given keyword
+        auto resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        for ( auto category : categories )
+            if ( resultData->hasResultEntry( RigEclipseResultAddress( category, keyword ) ) ) return category;
 
-            return RiaDefines::ResultCatType::UNDEFINED;
-        };
+        return RiaDefines::ResultCatType::UNDEFINED;
+    };
 
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> props;
     for ( auto keyword : resultNames )

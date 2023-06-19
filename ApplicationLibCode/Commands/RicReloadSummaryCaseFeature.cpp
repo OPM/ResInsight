@@ -66,8 +66,6 @@ bool RicReloadSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
-    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
-
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
     for ( RimSummaryCase* summaryCase : caseSelection )
     {

@@ -18,6 +18,8 @@
 
 #include "RimGridCaseSurface.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
 #include "RigSurface.h"
@@ -48,6 +50,7 @@ RimGridCaseSurface::RimGridCaseSurface()
     m_oneBasedSliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_watertight, "Watertight", false, "Watertight Surface (fill gaps)" );
+    CAF_PDM_InitScriptableField( &m_includeInactiveCells, "IncludeInactiveCells", false, "Include Inactive Cells" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,13 +141,13 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_case || changedField == &m_oneBasedSliceIndex || changedField == &m_watertight )
+    if ( changedField == &m_case || changedField == &m_oneBasedSliceIndex || changedField == &m_watertight ||
+         changedField == &m_includeInactiveCells )
     {
         clearCachedNativeData();
         updateSurfaceData();
 
-        RimSurfaceCollection* surfColl;
-        this->firstAncestorOrThisOfTypeAsserted( surfColl );
+        auto surfColl = firstAncestorOrThisOfTypeAsserted<RimSurfaceCollection>();
         surfColl->updateViews( { this } );
     }
 }
@@ -241,7 +244,7 @@ void RimGridCaseSurface::extractStructuredSurfaceFromGridData()
                         grid->cellCornerVertices( cellIndex, cornerVerts );
 
                         cvf::ubyte faceConn[4];
-                        grid->cellFaceVertexIndices( faceType, faceConn );
+                        RigMainGrid::cellFaceVertexIndices( faceType, faceConn );
 
                         structGridVertexIndices.emplace_back( static_cast<cvf::uint>( column + 1 ), static_cast<cvf::uint>( row + 1 ) );
 
@@ -285,6 +288,8 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
     {
         const RigMainGrid* grid = eclCase->mainGrid();
 
+        auto activeCells = eclCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->activeCellInfo();
+
         size_t minI = 0;
         size_t minJ = 0;
         size_t maxI = grid->cellCountI();
@@ -307,12 +312,18 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                 const auto& cell             = grid->cell( currentCellIndex );
                 if ( cell.isInvalid() ) continue;
 
+                if ( !m_includeInactiveCells() && activeCells )
+                {
+                    auto reservoirCellIndex = grid->reservoirCellIndex( currentCellIndex );
+                    if ( !activeCells->isActive( reservoirCellIndex ) ) continue;
+                }
+
                 cvf::Vec3d currentCornerVerts[8];
 
                 {
                     cvf::ubyte currentFaceConn[4];
                     grid->cellCornerVertices( currentCellIndex, currentCornerVerts );
-                    grid->cellFaceVertexIndices( extractionFace, currentFaceConn );
+                    RigMainGrid::cellFaceVertexIndices( extractionFace, currentFaceConn );
 
                     auto currentCellStartIndex = static_cast<unsigned>( vertices.size() );
 
@@ -378,13 +389,13 @@ void RimGridCaseSurface::addGeometryForFaultFaces( const RigMainGrid*           
 
             auto startIndex = static_cast<unsigned>( vertices.size() );
             {
-                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, faultFace );
+                auto edgeVertexIndices = RigMainGrid::edgeVertexIndices( extractionFace, faultFace );
                 vertices.push_back( currentCornerVerts[edgeVertexIndices.first] );
                 vertices.push_back( currentCornerVerts[edgeVertexIndices.second] );
             }
             {
                 auto oppositeFaultFace = cvf::StructGridInterface::oppositeFace( faultFace );
-                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, oppositeFaultFace );
+                auto edgeVertexIndices = RigMainGrid::edgeVertexIndices( extractionFace, oppositeFaultFace );
                 vertices.push_back( nextCellCornerVerts[edgeVertexIndices.first] );
                 vertices.push_back( nextCellCornerVerts[edgeVertexIndices.second] );
             }
@@ -411,13 +422,15 @@ bool RimGridCaseSurface::findValidCellIndex( const RigMainGrid*                 
                                              const size_t                             layer,
                                              size_t&                                  cellFaceIndex )
 {
-    auto getCellFromRowColumnLayer = [grid, faceType]( size_t row, size_t column, size_t layer ) -> size_t {
+    auto getCellFromRowColumnLayer = [grid, faceType]( size_t row, size_t column, size_t layer ) -> size_t
+    {
         if ( faceType == cvf::StructGridInterface::NEG_I ) return grid->cellIndexFromIJK( layer, column, row );
         if ( faceType == cvf::StructGridInterface::NEG_J ) return grid->cellIndexFromIJK( column, layer, row );
         return grid->cellIndexFromIJK( column, row, layer );
     };
 
-    auto isCellValid = [grid, faceType]( size_t row, size_t column, size_t layer ) -> bool {
+    auto isCellValid = [grid, faceType]( size_t row, size_t column, size_t layer ) -> bool
+    {
         if ( faceType == cvf::StructGridInterface::NEG_I )
         {
             return column < grid->cellCountJ() && row < grid->cellCountK() &&

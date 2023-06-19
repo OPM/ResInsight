@@ -35,6 +35,7 @@ void AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>::setUp()
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::REGION, "REGION", RiaDefines::summaryRegion() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
     setDefault( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR );
 }
 } // namespace caf

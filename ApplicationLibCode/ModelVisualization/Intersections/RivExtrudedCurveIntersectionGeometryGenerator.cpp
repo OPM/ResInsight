@@ -51,9 +51,7 @@
 
 cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimExtrudedCurveIntersection* intersection )
 {
-    Rim3dView* rimView = nullptr;
-    intersection->firstAncestorOrThisOfType( rimView );
-    CVF_ASSERT( rimView );
+    auto rimView = intersection->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
     return transForm;
@@ -66,8 +64,8 @@ cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimExtrudedCur
 RivExtrudedCurveIntersectionGeometryGenerator::RivExtrudedCurveIntersectionGeometryGenerator( RimExtrudedCurveIntersection* crossSection,
                                                                                               std::vector<std::vector<cvf::Vec3d>>& polylines,
                                                                                               const cvf::Vec3d& extrusionDirection,
-                                                                                              const RivIntersectionHexGridInterface* grid,
-                                                                                              bool              isFlattened,
+                                                                                              RivIntersectionHexGridInterface* grid,
+                                                                                              bool                             isFlattened,
                                                                                               const cvf::Vec3d& flattenedPolylineStartPoint )
     : m_intersection( crossSection )
     , m_polylines( polylines )
@@ -114,8 +112,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateLineSegementTransfo
 
         cvf::Vec3d displayOffset( 0, 0, 0 );
         {
-            RimGridView* gridView = nullptr;
-            m_intersection->firstAncestorOrThisOfType( gridView );
+            auto gridView = m_intersection->firstAncestorOrThisOfType<RimGridView>();
             if ( gridView && gridView->ownerCase() )
             {
                 displayOffset = gridView->ownerCase()->displayModelOffset();
@@ -268,7 +265,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
+void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visibleCells )
 {
     if ( m_triangleVxes->size() ) return;
 
@@ -280,6 +277,8 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
     MeshLinesAccumulator meshAcc( m_hexGrid.p() );
 
     cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
+
+    m_hexGrid->setKIntervalFilter( m_intersection->kLayerFilterEnabled(), m_intersection->kFilterText().toStdString() );
 
     calculateLineSegementTransforms();
     calculateTransformedPolyline();
@@ -387,6 +386,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 
             for ( auto globalCellIdx : columnCellCandidates )
             {
+                if ( ( visibleCells != nullptr ) && ( ( *visibleCells )[globalCellIdx] == 0 ) ) continue;
                 if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
                 hexPlaneCutTriangleVxes.clear();
@@ -619,9 +619,9 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 /// Generate surface drawable geo from the specified region
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::generateSurface()
+cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::generateSurface( cvf::UByteArray* visibleCells )
 {
-    calculateArrays();
+    calculateArrays( visibleCells );
 
     CVF_ASSERT( m_triangleVxes.notNull() );
 
@@ -782,7 +782,7 @@ const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::faultMeshV
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionGeometryGenerator::ensureGeometryIsCalculated()
 {
-    calculateArrays();
+    calculateArrays( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

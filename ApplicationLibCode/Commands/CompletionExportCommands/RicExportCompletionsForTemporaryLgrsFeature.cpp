@@ -83,7 +83,7 @@ std::vector<RimWellPath*> RicExportCompletionsForTemporaryLgrsFeature::wellPaths
 {
     std::vector<RimWellPath*> wellPaths;
 
-    auto selectedEclipseCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseCase*>();
+    auto selectedEclipseCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseCase>();
     if ( selectedEclipseCase )
     {
         auto mainGrid = selectedEclipseCase->mainGrid();

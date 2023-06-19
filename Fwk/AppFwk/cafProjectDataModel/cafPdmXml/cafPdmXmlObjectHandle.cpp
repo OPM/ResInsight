@@ -84,8 +84,7 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                         // readFieldData assumes that the xmlStream points to first token of field content.
                         // After reading, the xmlStream is supposed to point to the first token after the field
                         // content. (typically an "endElement")
-                        QXmlStreamReader::TokenType tt;
-                        tt = xmlStream.readNext();
+                        xmlStream.readNext();
                         xmlFieldHandle->readFieldData( xmlStream, objectFactory );
                     }
                     else
@@ -135,8 +134,7 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::writeFields( QXmlStreamWriter& xmlStream ) const
 {
-    std::vector<PdmFieldHandle*> fields;
-    m_owner->fields( fields );
+    std::vector<PdmFieldHandle*> fields = m_owner->fields();
     for ( const auto& fieldHandle : fields )
     {
         const PdmXmlFieldHandle* field = fieldHandle->xmlCapability();
@@ -179,9 +177,8 @@ void PdmXmlObjectHandle::readObjectFromXmlString( const QString& xmlString, PdmO
 
     QXmlStreamReader inputStream( xmlString );
 
-    QXmlStreamReader::TokenType tt;
-    tt                   = inputStream.readNext(); // Start of document
-    tt                   = inputStream.readNext();
+    inputStream.readNext(); // Start of document
+    inputStream.readNext();
     QString classKeyword = inputStream.name().toString();
     CAF_ASSERT( classKeyword == this->classKeyword() );
 
@@ -197,9 +194,8 @@ PdmObjectHandle* PdmXmlObjectHandle::readUnknownObjectFromXmlString( const QStri
 {
     QXmlStreamReader inputStream( xmlString );
 
-    QXmlStreamReader::TokenType tt;
-    tt                            = inputStream.readNext(); // Start of document
-    tt                            = inputStream.readNext();
+    inputStream.readNext(); // Start of document
+    inputStream.readNext();
     QString          classKeyword = inputStream.name().toString();
     PdmObjectHandle* newObject    = objectFactory->create( classKeyword );
 
@@ -243,9 +239,8 @@ caf::PdmObjectHandle* PdmXmlObjectHandle::copyAndCastByXmlSerialization( const Q
 
     QXmlStreamReader inputStream( xmlString );
 
-    QXmlStreamReader::TokenType tt;
-    tt                   = inputStream.readNext(); // Start of document
-    tt                   = inputStream.readNext();
+    inputStream.readNext(); // Start of document
+    inputStream.readNext();
     QString classKeyword = inputStream.name().toString();
     CAF_ASSERT( classKeyword == sourceClassKeyword );
 
@@ -346,14 +341,17 @@ void PdmXmlObjectHandle::initAfterReadRecursively( PdmObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     std::vector<PdmObjectHandle*> children;
     size_t                        fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
+        if ( fields[fIdx] )
+        {
+            std::vector<PdmObjectHandle*> fieldChildren = fields[fIdx]->children();
+            children.insert( children.end(), fieldChildren.begin(), fieldChildren.end() );
+        }
     }
 
     size_t cIdx;
@@ -377,8 +375,7 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
 {
     if ( object == nullptr ) return;
 
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     std::vector<PdmObjectHandle*> children;
     size_t                        fIdx;
@@ -387,13 +384,15 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
         PdmFieldHandle* field = fields[fIdx];
         if ( field )
         {
-            field->children( &children );
+            std::vector<PdmObjectHandle*> fieldChildren = field->children();
 
             bool resolvedOk = field->xmlCapability()->resolveReferences();
             if ( fieldWithFailingResolve && !resolvedOk )
             {
                 fieldWithFailingResolve->push_back( field );
             }
+
+            children.insert( children.end(), fieldChildren.begin(), fieldChildren.end() );
         }
     }
 
@@ -429,14 +428,17 @@ void PdmXmlObjectHandle::setupBeforeSaveRecursively( PdmObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     std::vector<PdmObjectHandle*> children;
     size_t                        fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
+        if ( fields[fIdx] )
+        {
+            std::vector<PdmObjectHandle*> fieldChildren = fields[fIdx]->children();
+            children.insert( children.end(), fieldChildren.begin(), fieldChildren.end() );
+        }
     }
 
     size_t cIdx;

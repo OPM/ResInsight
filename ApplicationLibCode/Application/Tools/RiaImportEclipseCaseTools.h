@@ -20,11 +20,14 @@
 
 #include <map>
 #include <memory>
+#include <utility>
+#include <vector>
 
 class QString;
 class QStringList;
 
 class RimIdenticalGridCaseGroup;
+class RimRoffCase;
 class RifReaderSettings;
 
 //==================================================================================================
@@ -33,7 +36,8 @@ class RifReaderSettings;
 class RiaImportEclipseCaseTools
 {
 public:
-    typedef std::map<QString, int> FileCaseIdMap;
+    using CaseFileNameAndId = std::pair<QString, int>;
+    using FileCaseIdMap     = std::map<QString, int>;
 
     static bool openEclipseCasesFromFile( const QStringList&                 fileNames,
                                           bool                               createView,
@@ -43,14 +47,17 @@ public:
 
     static bool openEclipseCaseShowTimeStepFilter( const QString& fileName );
 
-    static int  openEclipseInputCaseFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static CaseFileNameAndId openEclipseInputCaseAndPropertiesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static std::vector<int>  openEclipseInputCasesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+
     static bool openMockModel( const QString& name );
 
     static bool addEclipseCases( const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr );
 
     static int openEclipseCaseFromFile( const QString& fileName, bool createView, std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
 
-    static int openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static std::vector<int> openRoffCasesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static RimRoffCase*     openRoffCaseFromFileName( const QString& fileName, bool createDefaultView );
 
 private:
     static int openEclipseCaseShowTimeStepFilterImpl( const QString&                     fileName,

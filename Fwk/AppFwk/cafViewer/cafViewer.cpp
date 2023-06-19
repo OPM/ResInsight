@@ -121,17 +121,18 @@ caf::Viewer::Viewer( const QGLFormat& format, QWidget* parent )
     , m_defaultPerspectiveNearPlaneDistance( 0.05 )
     , m_maxClipPlaneDistance( cvf::UNDEFINED_DOUBLE )
     , m_cameraFieldOfViewYDeg( 40.0 )
+    , m_showPerfInfoHud( false )
     , m_paintCounter( 0 )
     , m_releaseOGLResourcesEachFrame( false )
     , m_isOverlayPaintingEnabled( true )
-    , m_offscreenViewportWidth( 0 )
-    , m_offscreenViewportHeight( 0 )
-    , m_parallelProjectionLightDirection( 0, 0, -1 )
-    , // Light directly from behind
-    m_comparisonViewOffset( 0, 0, 0 )
-    , m_comparisonWindowNormalizedRect( 0.5f, 0.0f, 0.5f, 1.0f )
+    , m_animationControl( nullptr )
     , m_isComparisonFollowingAnimation( true )
     , m_isComparisonViewActiveFlag( false )
+    , m_comparisonViewOffset( 0, 0, 0 )
+    , m_comparisonWindowNormalizedRect( 0.5f, 0.0f, 0.5f, 1.0f )
+    , m_parallelProjectionLightDirection( 0, 0, -1 )
+    , m_offscreenViewportWidth( 0 )
+    , m_offscreenViewportHeight( 0 )
 {
     m_layoutWidget = new QWidget( parent );
 
@@ -1588,8 +1589,7 @@ void caf::Viewer::enableParallelProjection( bool enableOrtho )
             Vec3d eye, vrp, up;
             m_mainCamera->toLookAt( &eye, &vrp, &up );
 
-            Vec3d eyeToFocus = pointOfInterest - eye;
-            Vec3d camDir     = vrp - eye;
+            Vec3d camDir = vrp - eye;
             camDir.normalize();
 
             double distToFocusPlane = 0.5 * ( m_mainCamera->farPlane() - m_mainCamera->nearPlane() );

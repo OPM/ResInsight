@@ -56,6 +56,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultAddress.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
@@ -112,6 +113,9 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
+#include "RimSeismicData.h"
+#include "RimSeismicDataCollection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -134,6 +138,8 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTable.h"
+#include "RimSummaryTableCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
@@ -377,6 +383,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicNewWellPathLateralFeature";
             menuBuilder << "RicLinkWellPathFeature";
+            menuBuilder << "RicDuplicateWellPathFeature";
 
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathIntersectionFeature";
@@ -397,7 +404,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicShowWellAllocationPlotFeature";
             menuBuilder << "RicNewWellBoreStabilityPlotFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
-            menuBuilder << "RicNewWellLogCurveExtractionFeature";
+            menuBuilder << "RicNewWellLogExtractionCurveFeature";
             menuBuilder.subMenuEnd();
 
             menuBuilder.subMenuStart( "3D Well Log Curves", QIcon( ":/WellLogCurve16x16.png" ) );
@@ -487,7 +494,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder.subMenuStart( "Move LAS file to well path" );
 
-            RimWellPath* parentWellPath     = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
+            RimWellPath* parentWellPath     = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
             QString      parentWellPathName = parentWellPath ? parentWellPath->name() : "";
 
             for ( RimWellPath* wellPath : allWellPaths() )
@@ -609,6 +616,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
         }
+        else if ( dynamic_cast<RimSummaryTableCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewSummaryTableFeature";
+        }
+        else if ( dynamic_cast<RimSummaryTable*>( firstUiItem ) )
+        {
+            menuBuilder << "RicDuplicateSummaryTableFeature";
+        }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) && !dynamic_cast<RimWellPltPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteWellLogPlotFeature";
@@ -622,10 +637,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteWellLogTrackFeature";
             menuBuilder << "RicPasteWellLogCurveFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicNewWellLogCurveExtractionFeature";
+            menuBuilder << "RicNewWellLogExtractionCurveFeature";
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
             menuBuilder << "RicNewWellMeasurementCurveFeature";
+            menuBuilder << "RicNewWellLogCalculatedCurveFeature";
             menuBuilder << "RicNewEnsembleWellLogCurveSetFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicDeleteSubPlotFeature";
@@ -705,6 +721,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicDuplicateSummaryCurveFeature";
+            menuBuilder << "RicCreateDeclineCurvesFeature";
+            menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "RicDuplicateSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
@@ -756,6 +774,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryCaseMainCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicImportSummaryCaseFeature";
+            menuBuilder << "RicImportRevealSummaryCaseFeature";
+            menuBuilder << "RicImportStimPlanSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
             menuBuilder << "RicImportSummaryGroupFeature";
             menuBuilder << "RicImportEnsembleFeature";
@@ -831,6 +851,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
             menuBuilder.addSeparator();
+            menuBuilder << "RicSeismicSectionFromIntersectionFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewIntersectionViewFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
@@ -851,7 +873,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSimWellInView*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewWellLogCurveExtractionFeature";
+            menuBuilder << "RicNewWellLogExtractionCurveFeature";
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewSimWellIntersectionFeature";
 
@@ -1020,6 +1042,19 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewRangeFilterSliceKFeature";
             menuBuilder.subMenuEnd();
         }
+        else if ( dynamic_cast<RimSeismicSectionCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewInlineSeismicSectionFeature";
+            menuBuilder << "RicNewXlineSeismicSectionFeature";
+            menuBuilder << "RicNewZSliceSeismicSectionFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicNewPolylineSeismicSectionFeature";
+            menuBuilder << "RicNewWellpathSeismicSectionFeature";
+        }
+        else if ( dynamic_cast<RimSeismicDataCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicImportSeismicFeature";
+        }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) || dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
@@ -1087,6 +1122,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicOpenInTextEditorFeature";
             menuBuilder << "RicReloadPressureDepthDataFeature";
+        }
+        else if ( dynamic_cast<RimEclipseResultAddress*>( firstUiItem ) )
+        {
+            menuBuilder << "RicAddGridCalculationFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
@@ -1204,6 +1243,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                 menuBuilder << "RicAsciiExportSummaryPlotFeature";
             }
         }
+        else if ( dynamic_cast<RimSeismicData*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewSeismicDifferenceFeature";
+        }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicAsciiExportWellLogPlotFeature";
@@ -1212,6 +1255,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimWellLogCurve*>( firstUiItem ) || dynamic_cast<RimWellLogTrack*>( firstUiItem ) )
         {
+            menuBuilder << "RicNewWellLogCalculatedCurveFeature";
             menuBuilder << "RicExportToLasFileFeature";
             menuBuilder << "RicChangeDataSourceFeature";
         }
@@ -1242,6 +1286,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryMultiPlotFromDataVectorFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryAddressesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryAddressesFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewSummaryTableFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )

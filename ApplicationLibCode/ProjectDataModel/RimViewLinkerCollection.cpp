@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimViewLinkerCollection, "RimViewLinkerCollection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewLinkerCollection::RimViewLinkerCollection( void )
+RimViewLinkerCollection::RimViewLinkerCollection()
 {
     CAF_PDM_InitObject( "Linked Views", ":/LinkView.svg" );
 
@@ -43,7 +43,7 @@ RimViewLinkerCollection::RimViewLinkerCollection( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewLinkerCollection::~RimViewLinkerCollection( void )
+RimViewLinkerCollection::~RimViewLinkerCollection()
 {
     if ( viewLinker() ) delete viewLinker();
 }
@@ -100,8 +100,7 @@ void RimViewLinkerCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* chi
 {
     uiCapability()->updateConnectedEditors();
 
-    RimProject* project = nullptr;
-    firstAncestorOrThisOfType( project );
+    RimProject* project = RimProject::current();
     if ( project )
     {
         // Update visibility of top level Linked Views item in the project tree

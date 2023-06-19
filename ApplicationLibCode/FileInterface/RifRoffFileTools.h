@@ -28,6 +28,7 @@
 #include <map>
 #include <vector>
 
+#include "RiaDefines.h"
 #include "Token.hpp"
 
 class RigEclipseCaseData;
@@ -52,6 +53,8 @@ public:
     static bool openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, QString* errorMessages );
 
     static std::pair<bool, std::map<QString, QString>> createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
+
+    static bool hasGridData( const QString& filename );
 
 private:
     static void interpretSplitenzData( int                       nz,
@@ -82,25 +85,5 @@ private:
                                               roff::Token::Kind   token,
                                               roff::Reader&       reader );
 
-    template <typename IN, typename OUT>
-    static void convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<IN>& in, std::vector<OUT>& out )
-    {
-        CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
-
-        out.resize( in.size(), -1 );
-
-        int outIdx = 0;
-        for ( int k = 0; k < nz; k++ )
-        {
-            for ( int j = 0; j < ny; j++ )
-            {
-                for ( int i = 0; i < nx; i++ )
-                {
-                    int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
-                    out[outIdx] = static_cast<OUT>( in[inIdx] );
-                    outIdx++;
-                }
-            }
-        }
-    }
+    static RiaDefines::ResultDataType mapFromType( roff::Token::Kind kind );
 };

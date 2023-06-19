@@ -24,6 +24,9 @@
 #include <QString>
 #include <QStringList>
 
+#include <utility>
+#include <vector>
+
 class RimProcessMonitor;
 
 class RimProcess : public caf::PdmObject
@@ -39,13 +42,15 @@ public:
     void addParameter( QString paramStr );
     void setParameters( QStringList parameterList );
 
+    void addEnvironmentVariable( QString name, QString value );
+
     QString commandLine() const;
 
     QString     command() const;
     QStringList parameters() const;
     int         ID() const;
 
-    bool execute();
+    bool execute( bool enableStdOut = true, bool enableStdErr = true );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -58,6 +63,8 @@ private:
     QStringList            m_arguments;
     caf::PdmField<QString> m_description;
     caf::PdmField<int>     m_id;
+
+    std::vector<std::pair<QString, QString>> m_environmentVariables;
 
     static int         m_nextProcessId;
     RimProcessMonitor* m_monitor;

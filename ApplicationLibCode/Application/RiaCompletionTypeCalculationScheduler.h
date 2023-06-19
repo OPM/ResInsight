@@ -48,7 +48,7 @@ private:
     ~RiaCompletionTypeCalculationScheduler() override;
 
     RiaCompletionTypeCalculationScheduler( const RiaCompletionTypeCalculationScheduler& o ) = delete;
-    void operator=( const RiaCompletionTypeCalculationScheduler& o ) = delete;
+    void operator=( const RiaCompletionTypeCalculationScheduler& o )                        = delete;
 
 private:
     std::vector<caf::PdmPointer<RimEclipseCase>> m_eclipseCasesToRecalculate;

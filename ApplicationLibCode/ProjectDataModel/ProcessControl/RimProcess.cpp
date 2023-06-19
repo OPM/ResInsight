@@ -24,6 +24,7 @@
 #include "cafPdmFieldCapability.h"
 
 #include <QProcess>
+#include <QProcessEnvironment>
 
 // Disable deprecation warning for QProcess::start()
 #ifdef _MSC_VER
@@ -133,7 +134,7 @@ int RimProcess::ID() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProcess::execute()
+bool RimProcess::execute( bool enableStdOut, bool enableStdErr )
 {
     QProcess* proc = new QProcess();
     QString   cmd  = commandLine();
@@ -141,11 +142,19 @@ bool RimProcess::execute()
     RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id ).arg( cmd ) );
 
     QObject::connect( proc, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor, SLOT( finished( int, QProcess::ExitStatus ) ) );
-    QObject::connect( proc, SIGNAL( readyReadStandardOutput() ), m_monitor, SLOT( readyReadStandardOutput() ) );
-    QObject::connect( proc, SIGNAL( readyReadStandardError() ), m_monitor, SLOT( readyReadStandardError() ) );
+    if ( enableStdOut ) QObject::connect( proc, SIGNAL( readyReadStandardOutput() ), m_monitor, SLOT( readyReadStandardOutput() ) );
+    if ( enableStdErr ) QObject::connect( proc, SIGNAL( readyReadStandardError() ), m_monitor, SLOT( readyReadStandardError() ) );
     QObject::connect( proc, SIGNAL( started() ), m_monitor, SLOT( started() ) );
 
     bool retval = false;
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    for ( auto& [key, val] : m_environmentVariables )
+    {
+        env.insert( key, val );
+    }
+    proc->setProcessEnvironment( env );
+
     proc->start( cmd );
     if ( proc->waitForStarted( -1 ) )
     {
@@ -217,4 +226,12 @@ QString RimProcess::handleSpaces( QString arg ) const
         return QString( "\"" + arg + "\"" );
     }
     return arg;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProcess::addEnvironmentVariable( QString name, QString value )
+{
+    m_environmentVariables.push_back( std::make_pair( name, value ) );
 }

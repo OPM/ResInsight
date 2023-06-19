@@ -45,6 +45,7 @@ public:
     enum class ColorMode
     {
         SINGLE_COLOR,
+        SINGLE_COLOR_WITH_ALPHA,
         BY_ENSEMBLE_PARAM,
         BY_OBJECTIVE_FUNCTION,
         BY_CUSTOM_OBJECTIVE_FUNCTION
@@ -85,9 +86,8 @@ public:
                                    RimSummaryCase*                             summaryCase,
                                    caf::PdmPointer<RimCustomObjectiveFunction> customObjectiveFunction );
 
+    static bool hasSameColorForAllRealizationCurves( ColorMode colorMode );
+
 private:
     static const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> m_ensembleColorRanges;
-
-    static std::map<RimEnsembleCurveSetCollection*, int> m_nextColorIndexes;
-    static std::map<RimEnsembleCurveSetCollection*, std::map<RimEnsembleCurveSet*, RimRegularLegendConfig::ColorRangesType>> m_colorCache;
 };

@@ -62,7 +62,7 @@ private:
 class RigFault : public cvf::Object
 {
 public:
-    typedef std::tuple<size_t, size_t, size_t, cvf::StructGridInterface::FaceType> CellAndFace;
+    using CellAndFace = std::tuple<size_t, size_t, size_t, cvf::StructGridInterface::FaceType>;
 
     struct FaultFace
     {

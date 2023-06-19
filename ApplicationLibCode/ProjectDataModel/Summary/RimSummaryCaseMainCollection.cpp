@@ -33,6 +33,7 @@
 #endif
 
 #include "RimCaseDisplayNameTools.h"
+#include "RimCsvSummaryCase.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
@@ -242,9 +243,7 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        RimSummaryCaseCollection* currentSummaryCaseCollection = nullptr;
-        summaryCase->firstAncestorOrThisOfType( currentSummaryCaseCollection );
-
+        auto currentSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
         if ( currentSummaryCaseCollection )
         {
             currentSummaryCaseCollection->removeCase( summaryCase );
@@ -560,11 +559,26 @@ std::vector<RimSummaryCase*>
 
                 if ( !smspecFileName.isEmpty() )
                 {
-                    auto newSumCase = new RimFileSummaryCase();
+                    RimSummaryCase* newSumCase = nullptr;
 
-                    newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
+                    if ( fileInfo.fileType() == RiaDefines::FileType::SMSPEC )
+                    {
+                        auto sumCase = new RimFileSummaryCase();
+                        sumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
+                        newSumCase = sumCase;
+                    }
+                    else
+                    {
+                        auto sumCase = new RimCsvSummaryCase();
+                        if ( fileInfo.fileType() == RiaDefines::FileType::STIMPLAN_SUMMARY )
+                            sumCase->setFileType( RimCsvSummaryCase::FileType::STIMPLAN );
+                        else
+                            sumCase->setFileType( RimCsvSummaryCase::FileType::REVEAL );
+
+                        newSumCase = sumCase;
+                    }
+
                     newSumCase->setSummaryHeaderFileName( smspecFileName );
-                    newSumCase->updateOptionSensitivity();
                     project->assignCaseIdToSummaryCase( newSumCase );
 
                     sumCases.push_back( newSumCase );

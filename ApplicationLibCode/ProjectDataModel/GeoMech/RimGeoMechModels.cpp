@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechModels, "ResInsightGeoMechModels" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechModels::RimGeoMechModels( void )
+RimGeoMechModels::RimGeoMechModels()
 {
     CAF_PDM_InitObject( "Geomechanical Models", ":/GeoMechCases48x48.png" );
 
@@ -43,7 +43,7 @@ RimGeoMechModels::RimGeoMechModels( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechModels::~RimGeoMechModels( void )
+RimGeoMechModels::~RimGeoMechModels()
 {
 }
 
@@ -52,7 +52,7 @@ RimGeoMechModels::~RimGeoMechModels( void )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechCase*> RimGeoMechModels::cases() const
 {
-    return m_cases.children();
+    return m_cases.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

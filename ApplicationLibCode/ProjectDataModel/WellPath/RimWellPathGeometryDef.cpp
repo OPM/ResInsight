@@ -107,6 +107,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitScriptableField( &m_showSpheres, "ShowSpheres", true, "Spheres" );
     CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::CEETRON ), "Sphere Color" );
     CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
+    CAF_PDM_InitField( &m_wellTargetHandleScalingFactor, "WellTargetHandleScalingFactor", 2.0, "Well Target Scaling Factor" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,7 +236,7 @@ void RimWellPathGeometryDef::setFixedMeasuredDepths( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createTargets( const std::vector<cvf::Vec3d>& points )
+std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createAndInsertTargets( const std::vector<cvf::Vec3d>& points )
 {
     CAF_ASSERT( points.size() >= 2u );
 
@@ -346,6 +347,14 @@ double RimWellPathGeometryDef::sphereRadiusFactor() const
 bool RimWellPathGeometryDef::showAbsoluteCoordinates() const
 {
     return m_showAbsolutePosForWellTargets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathGeometryDef::wellTargetScalingFactor() const
+{
+    return m_wellTargetHandleScalingFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,6 +577,7 @@ void RimWellPathGeometryDef::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     group->add( &m_showSpheres );
     group->add( &m_sphereColor );
     group->add( &m_sphereRadiusFactor );
+    group->add( &m_wellTargetHandleScalingFactor );
 
     uiOrdering.add( &m_showAbsolutePosForWellTargets );
     uiOrdering.add( &m_wellTargets );

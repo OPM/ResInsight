@@ -27,6 +27,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 
 #include "RigFlowDiagInterfaceTools.h"
 #include "opm/flowdiagnostics/DerivedQuantities.hpp"

@@ -61,8 +61,7 @@ Rim3dWellLogFileCurve::~Rim3dWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogFileCurve::setDefaultFileCurveDataInfo()
 {
-    RimWellPath* wellPath = nullptr;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
 
     if ( wellPath && !wellPath->wellLogFiles().empty() )
     {
@@ -124,9 +123,7 @@ QString Rim3dWellLogFileCurve::createAutoName() const
     QString     unit;
     bool        channelNameAvailable = false;
 
-    RimWellPath* wellPath;
-    this->firstAncestorOrThisOfType( wellPath );
-
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         name.push_back( wellPath->name() );
@@ -222,8 +219,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions( cons
 
     if ( fieldNeedingOptions == &m_wellLogFile )
     {
-        RimWellPath* wellPath = nullptr;
-        firstAncestorOrThisOfType( wellPath );
+        auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
 
         if ( wellPath && !wellPath->wellLogFiles().empty() )
         {

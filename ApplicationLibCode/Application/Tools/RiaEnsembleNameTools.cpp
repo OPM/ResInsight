@@ -19,6 +19,7 @@
 #include "RiaEnsembleNameTools.h"
 
 #include "RiaFilePathTools.h"
+#include "RiaSummaryDefines.h"
 #include "RiaTextStringTools.h"
 
 #include "RimCaseDisplayNameTools.h"
@@ -136,6 +137,105 @@ std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByCustomEnsemble( const QStringList& fileNames, RiaDefines::FileType fileType )
+{
+    std::vector<QStringList> componentsForAllFilePaths;
+    for ( const auto& filePath : fileNames )
+    {
+        QStringList components = RiaFilePathTools::splitPathIntoComponents( filePath );
+        componentsForAllFilePaths.push_back( components );
+    }
+
+    auto mapping = findUniqueCustomEnsembleNames( fileType, fileNames, componentsForAllFilePaths );
+
+    std::set<QString> iterations;
+    for ( const auto& [name, iterFileNamePair] : mapping )
+    {
+        iterations.insert( iterFileNamePair.first );
+    }
+
+    std::map<QString, QStringList> groupedByIteration;
+
+    for ( const QString& groupIteration : iterations )
+    {
+        QStringList fileNamesFromIteration;
+
+        for ( const auto& [name, iterFileNamePair] : mapping )
+        {
+            QString iteration = iterFileNamePair.first;
+            QString fileName  = iterFileNamePair.second;
+
+            if ( groupIteration == iteration )
+            {
+                fileNamesFromIteration << fileName;
+            }
+        }
+        groupedByIteration[groupIteration] = fileNamesFromIteration;
+    }
+
+    return groupedByIteration;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, std::pair<QString, QString>>
+    RiaEnsembleNameTools::findUniqueCustomEnsembleNames( RiaDefines::FileType            fileType,
+                                                         const QStringList&              fileNames,
+                                                         const std::vector<QStringList>& fileNameComponents )
+{
+    CAF_ASSERT( fileNames.size() == static_cast<int>( fileNameComponents.size() ) );
+
+    std::map<QString, std::pair<QString, QString>> mapping;
+
+    int i = 0;
+    for ( const auto& fileComponents : fileNameComponents )
+    {
+        int numComponents = fileComponents.size();
+
+        if ( fileType == RiaDefines::FileType::STIMPLAN_SUMMARY )
+        {
+            if ( numComponents >= 8 && fileComponents[numComponents - 6] == "stimplan" )
+            {
+                // Expected path: realization/iteration/stimplan/output/well/job/fracture/data.csv
+                // Example: realization-1/iteration-1/stimplan/output/H-B33/job-01/mainfrac/data.csv
+                QString fileName    = fileNames[i];
+                QString fracture    = fileComponents[numComponents - 2];
+                QString job         = fileComponents[numComponents - 3];
+                QString well        = fileComponents[numComponents - 4];
+                QString iteration   = fileComponents[numComponents - 7];
+                QString realization = fileComponents[numComponents - 8];
+
+                QString key         = QString( "%1, %2, %3, %4, %5" ).arg( iteration, realization, well, fracture, job );
+                QString displayName = QString( "%1, %2, %3, %4" ).arg( iteration, well, fracture, job );
+                mapping[key]        = std::make_pair( displayName, fileName );
+            }
+        }
+        else if ( fileType == RiaDefines::FileType::REVEAL_SUMMARY )
+        {
+            if ( numComponents >= 6 && fileComponents[numComponents - 4] == "reveal" )
+            {
+                // Expected path: realization/iteration/reveal/output/well/data.csv
+                // Example: realization-1/iteration-1/reveal/output/H-B33/data.csv
+
+                QString fileName    = fileNames[i];
+                QString well        = fileComponents[numComponents - 2];
+                QString iteration   = fileComponents[numComponents - 5];
+                QString realization = fileComponents[numComponents - 6];
+                QString key         = QString( "%1, %2, %3" ).arg( iteration, realization, well );
+                QString displayName = QString( "%1, %2" ).arg( iteration, well );
+                mapping[key]        = std::make_pair( displayName, fileName );
+            }
+        }
+        i++;
+    }
+
+    return mapping;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaEnsembleNameTools::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase )
 {
     CAF_ASSERT( summaryCase && summaryCase->ensemble() );
@@ -165,8 +265,7 @@ QString RiaEnsembleNameTools::uniqueShortNameForSummaryCase( RimSummaryCase* sum
 {
     std::set<QString> allAutoShortNames;
 
-    std::vector<RimSummaryCase*> allCases;
-    RimProject::current()->descendantsOfType( allCases );
+    std::vector<RimSummaryCase*> allCases = RimProject::current()->descendantsOfType<RimSummaryCase>();
 
     for ( auto sumCase : allCases )
     {
@@ -283,8 +382,10 @@ QString RiaEnsembleNameTools::findCommonBaseName( const QStringList& fileNames )
 //--------------------------------------------------------------------------------------------------
 QString RiaEnsembleNameTools::uniqueShortName( const QString& sourceFileName, const QStringList& allFileNames, const QString& ensembleCaseName )
 {
-    std::map<QString, QStringList> keyFileComponentsForAllFiles = RiaFilePathTools::keyPathComponentsForEachFilePath( allFileNames );
+    // Handle ensemble with only one realizations separately.
+    if ( allFileNames.size() == 1 ) return ensembleCaseName;
 
+    std::map<QString, QStringList> keyFileComponentsForAllFiles = RiaFilePathTools::keyPathComponentsForEachFilePath( allFileNames );
     return uniqueShortNameFromComponents( sourceFileName, keyFileComponentsForAllFiles, ensembleCaseName );
 }
 

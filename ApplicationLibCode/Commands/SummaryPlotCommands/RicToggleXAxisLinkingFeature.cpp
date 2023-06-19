@@ -31,7 +31,7 @@ CAF_CMD_SOURCE_INIT( RicToggleXAxisLinkingFeature, "RicToggleXAxisLinkingFeature
 //--------------------------------------------------------------------------------------------------
 bool RicToggleXAxisLinkingFeature::isCommandEnabled()
 {
-    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();
+    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
     return ( summaryMultiPlot != nullptr );
 }
 
@@ -40,7 +40,7 @@ bool RicToggleXAxisLinkingFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicToggleXAxisLinkingFeature::onActionTriggered( bool isChecked )
 {
-    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();
+    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
     if ( !summaryMultiPlot ) return;
 
     bool linkedState = summaryMultiPlot->isTimeAxisLinked();
@@ -54,7 +54,7 @@ void RicToggleXAxisLinkingFeature::onActionTriggered( bool isChecked )
 void RicToggleXAxisLinkingFeature::setupActionLook( QAction* actionToSetup )
 {
     QString text             = "Link";
-    auto*   summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();
+    auto*   summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
     if ( summaryMultiPlot )
     {
         if ( summaryMultiPlot->isTimeAxisLinked() )

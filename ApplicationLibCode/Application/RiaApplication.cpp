@@ -39,7 +39,6 @@
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
-#include "CommandRouter/RimCommandRouter.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -47,6 +46,7 @@
 #include "RimAnnotationTextAppearance.h"
 #include "RimCellFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
@@ -123,6 +123,11 @@
 #ifdef USE_UNIT_TESTS
 #include "gtest/gtest.h"
 #endif // USE_UNIT_TESTS
+
+// Required to ignore warning of usused variable when defining caf::PdmMarkdownGenerator
+#if defined( __clang__ )
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
 
 RiaApplication* RiaApplication::s_riaApplication = nullptr;
 
@@ -244,7 +249,8 @@ void RiaApplication::createMockModelCustomized()
 void RiaApplication::createInputMockModel()
 {
     bool createView = true;
-    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ), createView );
+    RiaImportEclipseCaseTools::openEclipseInputCaseAndPropertiesFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ),
+                                                                               createView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -562,8 +568,8 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         oilField->fractureDefinitionCollection()->createAndAssignTemplateCopyForNonMatchingUnit();
 
         {
-            std::vector<RimWellPathFracture*> wellPathFractures;
-            oilField->wellPathCollection->descendantsIncludingThisOfType( wellPathFractures );
+            std::vector<RimWellPathFracture*> wellPathFractures =
+                oilField->wellPathCollection->descendantsIncludingThisOfType<RimWellPathFracture>();
 
             for ( auto fracture : wellPathFractures )
             {
@@ -621,8 +627,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
                     if ( m_project->isProjectFileVersionEqualOrOlderThan( "2018.1.0.103" ) )
                     {
-                        std::vector<RimStimPlanColors*> stimPlanColors;
-                        riv->descendantsIncludingThisOfType( stimPlanColors );
+                        std::vector<RimStimPlanColors*> stimPlanColors = riv->descendantsIncludingThisOfType<RimStimPlanColors>();
                         if ( stimPlanColors.size() == 1 )
                         {
                             stimPlanColors[0]->updateConductivityResultName();

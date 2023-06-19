@@ -30,9 +30,9 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimMudWeightWindowParameters, "RimMudWeightWindowParameters" );
 
@@ -98,7 +98,7 @@ void caf::AppEnum<RimMudWeightWindowParameters::NonReservoirPorePressureType>::s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
+RimMudWeightWindowParameters::RimMudWeightWindowParameters()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Mud Weight Window Parameters",
                                                     "",
@@ -114,35 +114,35 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
     m_wellDeviationFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_wellDeviationAddress, "WellDeviationAddress", QString( "" ), "Value" );
-    m_wellDeviationAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_wellDeviationAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_wellAzimuthType, "WellAzimuthSourceType", defaultSourceType, "Well Azimuth" );
     CAF_PDM_InitField( &m_wellAzimuthFixed, "WellAzimuthFixed", 0.0, "Fixed Well Azimuth" );
     m_wellAzimuthFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_wellAzimuthAddress, "WellAzimuthAddress", QString( "" ), "Value" );
-    m_wellAzimuthAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_wellAzimuthAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_UCSType, "UCSSourceType", defaultSourceType, "UCS [Bar]" );
     CAF_PDM_InitField( &m_UCSFixed, "UCSFixed", 100.0, "Fixed UCS [Bar]" );
     m_UCSFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_UCSAddress, "UCSAddress", QString( "" ), "Value" );
-    m_UCSAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_UCSAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_poissonsRatioType, "PoissonsRatioSourceType", defaultSourceType, "Poisson's Ratio" );
     CAF_PDM_InitField( &m_poissonsRatioFixed, "PoissonsRatioFixed", 0.35, "Fixed Possion's Ratio" );
     m_poissonsRatioFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_poissonsRatioAddress, "PoissonsRatioAddress", QString( "" ), "Value" );
-    m_poissonsRatioAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_poissonsRatioAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_K0_FGType, "K0_FGSourceType", defaultSourceType, "K0 FG" );
     CAF_PDM_InitField( &m_K0_FGFixed, "K0_FGFixed", 0.75, "Fixed K0_FG" );
     m_K0_FGFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_K0_FGAddress, "K0_FGAddress", QString( "" ), "Value" );
-    m_K0_FGAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_K0_FGAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     caf::AppEnum<SourceType> defaultOBG0SourceType = RimMudWeightWindowParameters::SourceType::GRID;
     CAF_PDM_InitField( &m_obg0Type, "obg0SourceType", defaultOBG0SourceType, "Initial Overburden Gradient" );
@@ -150,7 +150,7 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
     m_obg0Fixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_obg0Address, "obg0Address", QString( "" ), "Value" );
-    m_obg0Address.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_obg0Address.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     m_parameterFields[RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION] =
         std::make_tuple( &m_wellDeviationType, &m_wellDeviationFixed, &m_wellDeviationAddress );
@@ -190,7 +190,7 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
                        "" );
     CAF_PDM_InitField( &m_userDefinedPPNonReservoir, "UserPPNonReservoir", 1.0, "  Multiplier of hydrostatic PP" );
     CAF_PDM_InitField( &m_porePressureNonReservoirAddress, "PPNonReservoirAddress", QString( "" ), "Value" );
-    m_porePressureNonReservoirAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_porePressureNonReservoirAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_referenceLayer, "ReferenceLayer", -1, "Reference Layer" );
 }
@@ -328,8 +328,7 @@ double RimMudWeightWindowParameters::airGap() const
 //--------------------------------------------------------------------------------------------------
 void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
+    auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( !geoMechCase )
     {
         return;
@@ -462,8 +461,7 @@ void RimMudWeightWindowParameters::defineUiOrdering( QString uiConfigName, caf::
     defineGroup( uiOrdering, "UCS", &m_UCSType, &m_UCSFixed, &m_UCSAddress );
     defineGroup( uiOrdering, "Poisson's Ratio", &m_poissonsRatioType, &m_poissonsRatioFixed, &m_poissonsRatioAddress );
 
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
+    auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( !geoMechCase )
     {
         return;
@@ -539,9 +537,7 @@ QList<caf::PdmOptionItemInfo> RimMudWeightWindowParameters::calculateValueOption
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
-
+    auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( geoMechCase != nullptr )
     {
         if ( fieldNeedingOptions == &m_obg0Type )
@@ -606,8 +602,7 @@ QList<caf::PdmOptionItemInfo> RimMudWeightWindowParameters::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 void RimMudWeightWindowParameters::updateFemPartResults() const
 {
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
+    auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( !geoMechCase )
     {
         return;

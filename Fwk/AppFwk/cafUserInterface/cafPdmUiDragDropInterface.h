@@ -60,7 +60,7 @@ protected:
     virtual Qt::DropActions supportedDropActions() const            = 0;
     virtual Qt::ItemFlags   flags( const QModelIndex& index ) const = 0;
     virtual bool
-                        dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent ) = 0;
+        dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent ) = 0;
     virtual QMimeData*  mimeData( const QModelIndexList& indexes ) const = 0;
     virtual QStringList mimeTypes() const                                = 0;
 

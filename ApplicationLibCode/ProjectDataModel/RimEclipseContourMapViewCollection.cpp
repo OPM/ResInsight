@@ -28,7 +28,7 @@ RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views()
 {
-    return m_contourMapViews.children();
+    return m_contourMapViews.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +45,6 @@ void RimEclipseContourMapViewCollection::push_back( RimEclipseContourMapView* co
 void RimEclipseContourMapViewCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                          std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase ) eclipseCase->updateConnectedEditors();
 }

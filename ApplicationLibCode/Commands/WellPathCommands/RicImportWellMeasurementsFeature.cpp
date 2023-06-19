@@ -68,8 +68,7 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if ( activeView )
     {
-        std::vector<RimWellMeasurementInViewCollection*> measurementsInView;
-        activeView->descendantsOfType( measurementsInView );
+        auto measurementsInView = activeView->descendantsOfType<RimWellMeasurementInViewCollection>();
         if ( !measurementsInView.empty() ) measurementsInView.front()->setCheckState( true );
     }
 }

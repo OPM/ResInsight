@@ -77,7 +77,7 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
 void RicCreatePlotFromTemplateByShortcutFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Plot from Last Used Template" );
-    actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/plot-template-standard.svg" ) );
 
     QKeySequence keySeq( Qt::CTRL, Qt::Key_T );
 

@@ -28,7 +28,7 @@ public:
     ~MainWindow();
 
     static MainWindow* instance();
-    void               setPdmRoot(caf::PdmObjectHandle* pdmRoot);
+    void               setPdmRoot( caf::PdmObjectHandle* pdmRoot );
 
 private:
     void createActions();

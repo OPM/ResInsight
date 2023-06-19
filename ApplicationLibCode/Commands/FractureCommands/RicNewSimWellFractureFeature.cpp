@@ -57,8 +57,7 @@ void RicNewSimWellFractureFeature::onActionTriggered( bool isChecked )
     auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
     if ( !objHandle ) return;
 
-    RimSimWellInView* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType( eclipseWell );
+    auto eclipseWell = objHandle->firstAncestorOrThisOfType<RimSimWellInView>();
 
     RimSimWellFracture* fracture = new RimSimWellFracture();
     if ( eclipseWell->simwellFractureCollection()->simwellFractures.empty() )
@@ -72,16 +71,14 @@ void RicNewSimWellFractureFeature::onActionTriggered( bool isChecked )
 
     eclipseWell->simwellFractureCollection()->simwellFractures.push_back( fracture );
 
-    RimOilField* oilfield = nullptr;
-    objHandle->firstAncestorOrThisOfType( oilfield );
+    auto oilfield = objHandle->firstAncestorOrThisOfType<RimOilField>();
     if ( !oilfield ) return;
 
     fracture->setName( RicFractureNameGenerator::nameForNewFracture() );
 
     auto unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     {
-        RimEclipseResultCase* eclipseCase = nullptr;
-        objHandle->firstAncestorOrThisOfType( eclipseCase );
+        auto eclipseCase = objHandle->firstAncestorOrThisOfType<RimEclipseResultCase>();
         if ( eclipseCase )
         {
             unitSet = eclipseCase->eclipseCaseData()->unitsType();
@@ -96,8 +93,7 @@ void RicNewSimWellFractureFeature::onActionTriggered( bool isChecked )
 
     eclipseWell->updateConnectedEditors();
 
-    RimEclipseCase* eclipseCase = nullptr;
-    objHandle->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = objHandle->firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase )
     {
         proj->reloadCompletionTypeResultsForEclipseCase( eclipseCase );
@@ -126,9 +122,7 @@ bool RicNewSimWellFractureFeature::isCommandEnabled()
     auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
     if ( !objHandle ) return false;
 
-    RimSimWellInView* simWell = nullptr;
-    objHandle->firstAncestorOrThisOfType( simWell );
-
+    auto simWell = objHandle->firstAncestorOrThisOfType<RimSimWellInView>();
     if ( simWell )
     {
         return true;

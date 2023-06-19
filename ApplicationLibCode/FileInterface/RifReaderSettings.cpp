@@ -39,7 +39,7 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitField( &includeInactiveCellsInFaultGeometry, "includeInactiveCellsInFaultGeometry", false, "Include Inactive Cells" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &includeInactiveCellsInFaultGeometry );
 
-    CAF_PDM_InitField( &importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data" );
+    CAF_PDM_InitField( &importAdvancedMswData, "importAdvancedMswData", true, "Import Advanced MSW Data" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &importAdvancedMswData );
 
     CAF_PDM_InitField( &useResultIndexFile,

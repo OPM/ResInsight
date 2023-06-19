@@ -115,9 +115,7 @@ void RimEclipseFaultColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 {
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
     m_customFaultResultColors->uiOrdering( uiConfigName, *group1 );
-
-    RimEclipseView* eclipseView = nullptr;
-    this->firstAncestorOfType( eclipseView );
+    auto eclipseView = firstAncestorOfType<RimEclipseView>();
     if ( eclipseView )
     {
         eclipseView->faultCollection()->uiOrderingFaults( uiConfigName, uiOrdering );

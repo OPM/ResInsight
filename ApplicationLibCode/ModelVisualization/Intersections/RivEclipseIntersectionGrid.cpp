@@ -61,11 +61,18 @@ void RivEclipseIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& 
 //--------------------------------------------------------------------------------------------------
 bool RivEclipseIntersectionGrid::useCell( size_t cellIndex ) const
 {
-    const RigCell& cell = m_mainGrid->globalCellArray()[cellIndex];
-    if ( m_showInactiveCells )
-        return !( cell.isInvalid() || ( cell.subGrid() != nullptr ) );
-    else
-        return m_activeCellInfo->isActive( cellIndex ) && ( cell.subGrid() == nullptr );
+    size_t i, j, k;
+    m_mainGrid->ijkFromCellIndexUnguarded( cellIndex, &i, &j, &k );
+
+    if ( m_intervalTool.isNumberIncluded( k ) )
+    {
+        const RigCell& cell = m_mainGrid->globalCellArray()[cellIndex];
+        if ( m_showInactiveCells )
+            return !( cell.isInvalid() || ( cell.subGrid() != nullptr ) );
+        else
+            return m_activeCellInfo->isActive( cellIndex ) && ( cell.subGrid() == nullptr );
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,4 +103,12 @@ const RigFault* RivEclipseIntersectionGrid::findFaultFromCellIndexAndCellFace( s
                                                                                cvf::StructGridInterface::FaceType face ) const
 {
     return m_mainGrid->findFaultFromCellIndexAndCellFace( reservoirCellIndex, face );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivEclipseIntersectionGrid::setKIntervalFilter( bool enabled, std::string kIntervalStr )
+{
+    m_intervalTool.setInterval( enabled, kIntervalStr );
 }

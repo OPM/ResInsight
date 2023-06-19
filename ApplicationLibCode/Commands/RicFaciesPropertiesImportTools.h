@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <map>
+
 class RimColorLegend;
 class RimStimPlanModelTemplate;
 
@@ -37,6 +39,8 @@ public:
     static void importFaciesPropertiesFromFile( const QString&            filePath,
                                                 RimStimPlanModelTemplate* stimPlanModelTemplate,
                                                 bool                      createColorLegend = false );
+
+    static RimColorLegend* createColorLegendMatchDefaultRockColors( const std::map<int, QString>& codeNames );
 
 private:
     static int  computeEditDistance( const QString& a, const QString& b );

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigFlowDiagResultAddress.h"
+
 #include <QString>
 #include <map>
 #include <vector>
@@ -32,4 +34,9 @@ namespace RimWellAllocationTools
 {
 std::map<QString, const std::vector<double>*>
     findOrCreateRelevantTracerCellFractions( const RigSimWellData* simWellData, RimFlowDiagSolution* flowDiagSolution, int timeStepIndex );
-}
+
+std::map<QString, const std::vector<double>*> findOrCreateRelevantTracerCellFractions( const RigSimWellData* simWellData,
+                                                                                       RimFlowDiagSolution*  flowDiagSolution,
+                                                                                       RigFlowDiagResultAddress::PhaseSelection phaseSelection,
+                                                                                       int timeStepIndex );
+} // namespace RimWellAllocationTools

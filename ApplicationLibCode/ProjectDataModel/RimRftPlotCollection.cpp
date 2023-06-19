@@ -112,8 +112,8 @@ RigEclipseWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor( gsl::no
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
-                                                                         gsl::not_null<RimGeoMechCase*> geomCase )
+RigGeoMechWellLogExtractor*
+    RimRftPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*> wellPath, gsl::not_null<RimGeoMechCase*> geomCase, int partId )
 {
     if ( !( wellPath && geomCase && wellPath->wellPathGeometry() && geomCase->geoMechData() ) )
     {
@@ -124,17 +124,23 @@ RigGeoMechWellLogExtractor* RimRftPlotCollection::findOrCreateExtractor( gsl::no
     RigWellPath*        wellPathGeometry = wellPath->wellPathGeometry();
     for ( size_t exIdx = 0; exIdx < m_geomExtractors.size(); ++exIdx )
     {
-        if ( m_geomExtractors[exIdx]->caseData() == caseData && m_geomExtractors[exIdx]->wellPathGeometry() == wellPathGeometry )
+        if ( ( m_geomExtractors[exIdx]->caseData() == caseData ) && ( m_geomExtractors[exIdx]->wellPathGeometry() == wellPathGeometry ) &&
+             ( m_geomExtractors[exIdx]->partId() == partId ) )
         {
             return m_geomExtractors[exIdx].p();
         }
     }
 
     std::string                          errorIdName = ( wellPath->name() + " " + geomCase->caseUserDescription() ).toStdString();
-    cvf::ref<RigGeoMechWellLogExtractor> extractor   = new RigGeoMechWellLogExtractor( caseData, wellPathGeometry, errorIdName );
-    m_geomExtractors.push_back( extractor.p() );
+    cvf::ref<RigGeoMechWellLogExtractor> extractor   = new RigGeoMechWellLogExtractor( caseData, partId, wellPathGeometry, errorIdName );
 
-    return extractor.p();
+    if ( extractor->valid() )
+    {
+        m_geomExtractors.push_back( extractor.p() );
+        return extractor.p();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

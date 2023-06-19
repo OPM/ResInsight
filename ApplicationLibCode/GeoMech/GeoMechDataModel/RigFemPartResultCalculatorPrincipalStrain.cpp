@@ -76,7 +76,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( 
 
     caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 7, progressText );
 
-    auto loadFrameLambda = [&]( const std::string& component ) {
+    auto loadFrameLambda = [&]( const std::string& component )
+    {
         auto task = stepCountProgress.task( QString::fromStdString( "Loading " + component ), m_resultCollection->timeStepCount() );
         return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component ) );
     };

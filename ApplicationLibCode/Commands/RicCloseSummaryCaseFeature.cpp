@@ -75,15 +75,13 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
             plotsToUpdate.insert( multiPlot );
         }
 
-        std::vector<caf::PdmObjectHandle*> referringObjects;
-        summaryCase->objectsWithReferringPtrFields( referringObjects );
+        std::vector<caf::PdmObjectHandle*> referringObjects = summaryCase->objectsWithReferringPtrFields();
 
         for ( auto object : referringObjects )
         {
             if ( !object ) continue;
 
-            RimWellLogPlot* wellLogPlot = nullptr;
-            object->firstAncestorOrThisOfType( wellLogPlot );
+            RimWellLogPlot* wellLogPlot = object->firstAncestorOrThisOfType<RimWellLogPlot>();
             if ( wellLogPlot ) wellLogPlotsToDelete.insert( wellLogPlot );
         }
     }

@@ -31,6 +31,7 @@
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
+#include "RimProject.h"
 #include "RimSimWellInView.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -42,6 +43,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "IntersectionCollection", "CrossSectionCollection" );
@@ -59,8 +61,8 @@ RimIntersectionCollection::RimIntersectionCollection()
     CAF_PDM_InitFieldNoDefault( &m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes" );
     m_intersectionBoxes.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &isActive, "Active", true, "Active" );
-    isActive.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_depthUpperThreshold, "UpperDepthThreshold", "Upper Threshold" );
     m_depthUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -69,9 +71,14 @@ RimIntersectionCollection::RimIntersectionCollection()
     m_depthLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_depthThresholdOverridden, "DepthFilterOverride", false, "Override Intersection Depth Filters" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_depthThresholdOverridden );
 
     CAF_PDM_InitFieldNoDefault( &m_depthFilterType, "CollectionDepthFilterType", "Depth Filter Type" );
+
+    CAF_PDM_InitField( &m_kFilterOverridden, "OverrideKFilter", false, "Override Intersection K Range Filters" );
+
+    CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-30:2", "" );
+
+    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters for Intersections" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +95,15 @@ RimIntersectionCollection::~RimIntersectionCollection()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 {
-    return &isActive;
+    return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionCollection::isActive() const
+{
+    return m_isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,8 +111,7 @@ caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
-    RimGridView* gridView = nullptr;
-    this->firstAncestorOfType( gridView );
+    auto gridView = firstAncestorOfType<RimGridView>();
     if ( gridView )
     {
         auto uiTree = gridView->separateIntersectionResultsCollection()->uiTreeOrdering();
@@ -207,9 +221,36 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelB
     {
         if ( cs->isActive() )
         {
+            cs->intersectionPartMgr()->appendPolylinePartsToModel( view, model, scaleTransform );
+        }
+    }
+
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
+    {
+        if ( cs->isActive() && cs->show3dManipulator() )
+        {
+            cs->appendManipulatorPartsToModel( model );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* model,
+                                                           cvf::Transform*      scaleTransform,
+                                                           size_t               timeStepIndex,
+                                                           cvf::UByteArray*     visibleCells )
+{
+    if ( !isActive() ) return;
+
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
+    {
+        if ( cs->isActive() )
+        {
+            cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
             cs->intersectionPartMgr()->appendIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
-            cs->intersectionPartMgr()->appendPolylinePartsToModel( view, model, scaleTransform );
         }
     }
 
@@ -217,32 +258,26 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelB
     {
         if ( cs->isActive() )
         {
+            cs->intersectionBoxPartMgr()->generatePartGeometry( visibleCells );
             cs->intersectionBoxPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
-
-            if ( cs->show3dManipulator() )
-            {
-                cs->appendManipulatorPartsToModel( model );
-            }
         }
     }
-
-    model->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::rebuildGeometry()
+void RimIntersectionCollection::clearGeometry()
 {
     for ( RimExtrudedCurveIntersection* intersection : m_intersections )
     {
-        intersection->rebuildGeometry();
+        intersection->clearGeometry();
     }
 
     for ( RimBoxIntersection* intersectionBox : m_intersectionBoxes )
     {
-        intersectionBox->rebuildGeometry();
+        intersectionBox->clearGeometry();
     }
 }
 
@@ -251,7 +286,7 @@ void RimIntersectionCollection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersections() const
 {
-    return m_intersections.children();
+    return m_intersections.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,7 +294,7 @@ std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersecti
 //--------------------------------------------------------------------------------------------------
 std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() const
 {
-    return m_intersectionBoxes.children();
+    return m_intersectionBoxes.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,8 +341,7 @@ void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveInte
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::syncronize2dIntersectionViews()
 {
-    RimCase* ownerCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( ownerCase );
+    auto ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
     ownerCase->intersectionViewCollection()->syncFromExistingIntersections( true );
 }
 
@@ -353,12 +387,12 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 {
     bool rebuildView = false;
 
-    if ( changedField == &isActive )
+    if ( changedField == &m_isActive )
     {
         updateUiIconFromToggleField();
         rebuildView = true;
     }
-    if ( changedField == &m_depthThresholdOverridden )
+    else if ( changedField == &m_depthThresholdOverridden )
     {
         for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
@@ -371,14 +405,27 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
         }
         rebuildView = true;
     }
-
-    if ( ( changedField == &m_depthUpperThreshold ) || ( changedField == &m_depthLowerThreshold ) || ( changedField == &m_depthFilterType ) )
+    else if ( ( changedField == &m_depthUpperThreshold ) || ( changedField == &m_depthLowerThreshold ) ||
+              ( changedField == &m_depthFilterType ) )
     {
         for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
             cs->setDepthOverrideParameters( m_depthUpperThreshold, m_depthLowerThreshold, m_depthFilterType() );
             cs->rebuildGeometryAndScheduleCreateDisplayModel();
         }
+        rebuildView = true;
+    }
+    else if ( changedField == &m_kFilterOverridden || changedField == &m_kFilterStr )
+    {
+        for ( RimExtrudedCurveIntersection* cs : m_intersections )
+        {
+            cs->setKFilterOverride( m_kFilterOverridden, m_kFilterStr );
+            cs->rebuildGeometryAndScheduleCreateDisplayModel();
+        }
+        rebuildView = true;
+    }
+    else if ( changedField == &m_applyCellFilters )
+    {
         rebuildView = true;
     }
 
@@ -441,40 +488,51 @@ void RimIntersectionCollection::updateIntersectionBoxGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    caf::PdmUiGroup* genGroup = uiOrdering.addNewGroup( "General" );
+    genGroup->add( &m_applyCellFilters );
+
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Depth Filter - Curve Intersections" );
+    filterGroup->setCollapsedByDefault();
+
+    m_depthFilterType.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
+    m_depthUpperThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
+    m_depthLowerThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
+
+    filterGroup->add( &m_depthThresholdOverridden );
+    filterGroup->add( &m_depthFilterType );
+
+    switch ( m_depthFilterType() )
+    {
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+            m_depthUpperThreshold.uiCapability()->setUiName( "Depth" );
+            filterGroup->add( &m_depthUpperThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+            m_depthUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
+            filterGroup->add( &m_depthUpperThreshold );
+            m_depthLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
+            filterGroup->add( &m_depthLowerThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+            m_depthLowerThreshold.uiCapability()->setUiName( "Depth" );
+            filterGroup->add( &m_depthLowerThreshold );
+            break;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+        default:
+            break;
+    }
     if ( eclipseView() )
     {
-        caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Depth Filter - Curve Intersections" );
+        caf::PdmUiGroup* kfilterGroup = uiOrdering.addNewGroup( "K Filter - Curve Intersections" );
+        kfilterGroup->setCollapsedByDefault();
 
-        m_depthFilterType.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
-        m_depthUpperThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
-        m_depthLowerThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
+        m_kFilterStr.uiCapability()->setUiReadOnly( !m_kFilterOverridden() );
 
-        filterGroup->add( &m_depthThresholdOverridden );
-        filterGroup->add( &m_depthFilterType );
-
-        switch ( m_depthFilterType() )
-        {
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
-                m_depthUpperThreshold.uiCapability()->setUiName( "Depth" );
-                filterGroup->add( &m_depthUpperThreshold );
-                break;
-
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-                m_depthUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
-                filterGroup->add( &m_depthUpperThreshold );
-                m_depthLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
-                filterGroup->add( &m_depthLowerThreshold );
-                break;
-
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
-                m_depthLowerThreshold.uiCapability()->setUiName( "Depth" );
-                filterGroup->add( &m_depthLowerThreshold );
-                break;
-
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
-            default:
-                break;
-        }
+        kfilterGroup->add( &m_kFilterOverridden );
+        kfilterGroup->add( &m_kFilterStr );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -506,11 +564,20 @@ void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.03.0" ) )
+    {
+        m_applyCellFilters = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEclipseView* RimIntersectionCollection::eclipseView() const
 {
-    RimEclipseView* eclipseView = nullptr;
-    firstAncestorOrThisOfType( eclipseView );
-    return eclipseView;
+    return firstAncestorOrThisOfType<RimEclipseView>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -518,10 +585,17 @@ RimEclipseView* RimIntersectionCollection::eclipseView() const
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::rebuild3dView() const
 {
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
     if ( rimView )
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionCollection::shouldApplyCellFiltersToIntersections() const
+{
+    return m_applyCellFilters();
 }

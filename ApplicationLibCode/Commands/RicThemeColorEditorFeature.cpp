@@ -65,9 +65,9 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
 
     QComboBox*                          themeSelector = new QComboBox();
     caf::AppEnum<RiaDefines::ThemeEnum> themes;
-    for ( size_t index = 0; index < themes.size(); index++ )
+    for ( size_t index = 0; index < caf::AppEnum<RiaDefines::ThemeEnum>::size(); index++ )
     {
-        themeSelector->addItem( themes.uiTextFromIndex( index ), QVariant::fromValue( index ) );
+        themeSelector->addItem( caf::AppEnum<RiaDefines::ThemeEnum>::uiTextFromIndex( index ), QVariant::fromValue( index ) );
         if ( static_cast<RiaDefines::ThemeEnum>( index ) == theme )
         {
             themeSelector->setCurrentIndex( static_cast<int>( index ) );
@@ -90,7 +90,8 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
     completer->setWrapAround( false );
     editor->setCompleter( completer );
 
-    auto generateColorFields = [themeSelector, widget, editor]() -> void {
+    auto generateColorFields = [themeSelector, widget, editor]() -> void
+    {
         QLayoutItem* item;
         if ( widget->layout() )
         {
@@ -114,17 +115,20 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
                                     column );
             QPushButton* colorBox = new QPushButton( "" );
             colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( variableValueMap.value( variableName ) ) );
-            connect( colorBox, &QPushButton::clicked, [variableValueMap, variableName, theme, editor, widget, colorBox]() -> void {
-                QColor color = QColorDialog::getColor( colorBox->palette().color( QPalette::Button ), widget );
-                if ( color.isValid() )
-                {
-                    colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( color.name() ) );
-                    colorBox->style()->unpolish( colorBox );
-                    colorBox->style()->polish( colorBox );
-                    RiuGuiTheme::changeVariableValue( theme, variableName, color.name() );
-                    editor->setPlainText( RiuGuiTheme::applyVariableValueMapToStyleSheet( theme ) );
-                }
-            } );
+            connect( colorBox,
+                     &QPushButton::clicked,
+                     [variableValueMap, variableName, theme, editor, widget, colorBox]() -> void
+                     {
+                         QColor color = QColorDialog::getColor( colorBox->palette().color( QPalette::Button ), widget );
+                         if ( color.isValid() )
+                         {
+                             colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( color.name() ) );
+                             colorBox->style()->unpolish( colorBox );
+                             colorBox->style()->polish( colorBox );
+                             RiuGuiTheme::changeVariableValue( theme, variableName, color.name() );
+                             editor->setPlainText( RiuGuiTheme::applyVariableValueMapToStyleSheet( theme ) );
+                         }
+                     } );
             innerLayout->addWidget( colorBox, row++, column + 1 );
             if ( row == 10 )
             {
@@ -137,12 +141,15 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
 
     // A more elegant way, but not supported in old Qt version.
     // connect( themeSelector, qOverload<int>( &QComboBox::currentIndexChanged ), [=]() {
-    connect( themeSelector, static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ), [=]() {
-        generateColorFields();
-        RiaDefines::ThemeEnum theme = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
-        RiuGuiTheme::updateGuiTheme( static_cast<RiaDefines::ThemeEnum>( theme ) );
-        editor->setPlainText( RiuGuiTheme::loadStyleSheet( theme ) );
-    } );
+    connect( themeSelector,
+             static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ),
+             [=]()
+             {
+                 generateColorFields();
+                 RiaDefines::ThemeEnum theme = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
+                 RiuGuiTheme::updateGuiTheme( static_cast<RiaDefines::ThemeEnum>( theme ) );
+                 editor->setPlainText( RiuGuiTheme::loadStyleSheet( theme ) );
+             } );
 
     generateColorFields();
 
@@ -156,11 +163,14 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
 
     QPushButton* button = new QPushButton( "Apply style sheet changes" );
     layout->addWidget( button, 6, 1 );
-    connect( button, &QPushButton::clicked, [themeSelector, editor, generateColorFields]() {
-        RiaDefines::ThemeEnum theme = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
-        RiuGuiTheme::writeStyleSheetToFile( theme, editor->toPlainText() );
-        generateColorFields();
-    } );
+    connect( button,
+             &QPushButton::clicked,
+             [themeSelector, editor, generateColorFields]()
+             {
+                 RiaDefines::ThemeEnum theme = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
+                 RiuGuiTheme::writeStyleSheetToFile( theme, editor->toPlainText() );
+                 generateColorFields();
+             } );
 
     dialog->setLayout( layout );
 

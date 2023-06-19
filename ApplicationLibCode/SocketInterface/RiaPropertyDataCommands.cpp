@@ -144,7 +144,7 @@ public:
             const RigActiveCellInfo* activeInfo          = rimCase->eclipseCaseData()->activeCellInfo( porosityModelEnum );
             size_t                   timestepResultCount = activeInfo->reservoirActiveCellCount();
 
-            quint64 timestepByteCount = ( quint64 )( timestepResultCount * sizeof( double ) );
+            quint64 timestepByteCount = (quint64)( timestepResultCount * sizeof( double ) );
             socketStream << timestepByteCount;
 
             // Then write the data.
@@ -1238,7 +1238,7 @@ public:
         socketStream << timestepCount;
 
         // then the byte-size of the size of one column
-        quint64 timestepByteCount = ( quint64 )( selectedCells.size() * sizeof( double ) );
+        quint64 timestepByteCount = (quint64)( selectedCells.size() * sizeof( double ) );
         socketStream << timestepByteCount;
 
         size_t              valueCount = RiaSocketDataTransfer::maximumValueCountInBlock();

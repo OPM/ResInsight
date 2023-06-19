@@ -68,10 +68,9 @@ bool RicPasteEnsembleCurveSetFeature::isCommandEnabled()
     caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
-    RimSummaryPlot*                plot = nullptr;
-    RimEnsembleCurveSetCollection* coll = nullptr;
-    destinationObject->firstAncestorOrThisOfType( plot );
-    destinationObject->firstAncestorOrThisOfType( coll );
+    RimSummaryPlot* plot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
+
+    RimEnsembleCurveSetCollection* coll = destinationObject->firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
     if ( !coll && !plot )
     {
         return false;
@@ -93,8 +92,8 @@ void RicPasteEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
     std::vector<caf::PdmPointer<RimEnsembleCurveSet>> sourceObjects = RicPasteEnsembleCurveSetFeature::ensembleCurveSetsOnClipboard();
     if ( sourceObjects.empty() ) return;
 
-    RimSummaryPlot*                plot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
-    RimEnsembleCurveSetCollection* coll = caf::firstAncestorOfTypeFromSelectedObject<RimEnsembleCurveSetCollection*>();
+    RimSummaryPlot*                plot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
+    RimEnsembleCurveSetCollection* coll = caf::firstAncestorOfTypeFromSelectedObject<RimEnsembleCurveSetCollection>();
     if ( !coll && plot )
     {
         coll = plot->ensembleCurveSetCollection();

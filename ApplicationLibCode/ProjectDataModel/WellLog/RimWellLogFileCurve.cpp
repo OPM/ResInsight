@@ -80,9 +80,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isChecked() )
     {
-        RimWellLogPlot* wellLogPlot;
-        firstAncestorOrThisOfType( wellLogPlot );
-        CVF_ASSERT( wellLogPlot );
+        auto wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
 
         if ( m_wellPath && m_wellLogFile )
         {
@@ -150,9 +148,8 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
                 }
 
-                bool             useLogarithmicScale = false;
-                RimWellLogTrack* track               = nullptr;
-                firstAncestorOfType( track );
+                bool useLogarithmicScale = false;
+                auto track               = firstAncestorOfType<RimWellLogTrack>();
                 if ( track )
                 {
                     useLogarithmicScale = track->isLogarithmicScale();
@@ -165,7 +162,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 {
                     QString depthTitle = wellLogPlot->depthAxisTitle();
                     errMsg             = QString( "Display of %1 for LAS curves is not possible without %2 "
-                                      "values in the LAS-file or a well path to derive them from." )
+                                                  "values in the LAS-file or a well path to derive them from." )
                                  .arg( depthTitle )
                                  .arg( depthTitle );
                 }
@@ -221,14 +218,16 @@ std::pair<std::vector<double>, std::vector<double>>
 {
     CAF_ASSERT( values.size() == kIndexValues.size() );
 
-    auto findFirstIndex = []( int kLayer, const std::vector<double>& vals ) {
+    auto findFirstIndex = []( int kLayer, const std::vector<double>& vals )
+    {
         for ( size_t i = 0; i < vals.size(); i++ )
             if ( kLayer == static_cast<int>( vals[i] ) ) return i;
 
         return vals.size();
     };
 
-    auto findLastIndex = []( int kLayer, const std::vector<double>& vals ) {
+    auto findLastIndex = []( int kLayer, const std::vector<double>& vals )
+    {
         for ( int i = static_cast<int>( vals.size() ) - 1; i >= 0; i-- )
             if ( kLayer == static_cast<int>( vals[i] ) ) return static_cast<size_t>( i );
 
@@ -433,8 +432,7 @@ void RimWellLogFileCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogFileCurve::isRftPlotChild() const
 {
-    RimWellRftPlot* rftPlot;
-    firstAncestorOrThisOfType( rftPlot );
+    RimWellRftPlot* rftPlot = firstAncestorOrThisOfType<RimWellRftPlot>();
     return rftPlot != nullptr;
 }
 
@@ -464,10 +462,8 @@ QString RimWellLogFileCurve::createCurveAutoName()
         {
             if ( channelNameAvailable )
             {
-                RimWellLogPlot* wellLogPlot;
-                firstAncestorOrThisOfType( wellLogPlot );
-                CVF_ASSERT( wellLogPlot );
-                QString unitName = wellLogFile->wellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
+                auto    wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
+                QString unitName    = wellLogFile->wellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
 
                 if ( !unitName.isEmpty() )
                 {

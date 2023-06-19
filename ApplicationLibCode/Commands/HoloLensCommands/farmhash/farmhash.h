@@ -74,8 +74,8 @@ inline uint128_t Uint128( uint64_t lo, uint64_t hi )
     return lo + ( ( (uint128_t)hi ) << 64 );
 }
 #else
-typedef std::pair<uint64_t, uint64_t> uint128_t;
-inline uint64_t                       Uint128Low64( const uint128_t x )
+using uint128_t = std::pair<uint64_t, uint64_t>;
+inline uint64_t Uint128Low64( const uint128_t x )
 {
     return x.first;
 }

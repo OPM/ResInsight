@@ -46,6 +46,8 @@ RimAsciiDataCurve::RimAsciiDataCurve()
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
     CAF_PDM_InitFieldNoDefault( &m_timeSteps, "TimeSteps", "Time Steps" );
     CAF_PDM_InitFieldNoDefault( &m_values, "Values", "Values" );
+    m_values.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_title, "Title", "Title" );
 
     setSymbolSkipDistance( 10.0f );
@@ -114,8 +116,7 @@ QString RimAsciiDataCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateZoomInParentPlot()
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
 
     plot->updateZoomInParentPlot();
 }
@@ -132,8 +133,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
         std::vector<time_t> dateTimes = this->timeSteps();
         std::vector<double> values    = this->yValues();
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType( plot );
+        auto plot                = firstAncestorOrThisOfType<RimSummaryPlot>();
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->yAxis() );
 
         if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
@@ -244,8 +244,7 @@ void RimAsciiDataCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 {
     RimPlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     if ( changedField == &m_plotAxis )
     {

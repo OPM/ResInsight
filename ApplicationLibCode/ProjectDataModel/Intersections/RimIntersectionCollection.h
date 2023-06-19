@@ -23,6 +23,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfArray.h"
+
 #include "RimIntersectionEnums.h"
 
 class Rim3dView;
@@ -53,8 +55,6 @@ public:
     RimIntersectionCollection();
     ~RimIntersectionCollection() override;
 
-    caf::PdmField<bool> isActive;
-
     void appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange = true );
     void appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection );
 
@@ -70,12 +70,18 @@ public:
     void scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     void recomputeSimWellBranchData();
 
+    bool shouldApplyCellFiltersToIntersections() const;
+
     // Visualization interface
 
     void applySingleColorEffect();
     void updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex );
     void appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
-    void rebuildGeometry();
+    void appendDynamicPartsToModel( cvf::ModelBasicList* model,
+                                    cvf::Transform*      scaleTransform,
+                                    size_t               timeStepIndex,
+                                    cvf::UByteArray*     visibleCells = nullptr );
+    void clearGeometry();
 
     std::vector<RimExtrudedCurveIntersection*> intersections() const;
     std::vector<RimBoxIntersection*>           intersectionBoxes() const;
@@ -84,6 +90,8 @@ public:
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
+    bool isActive() const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -91,10 +99,13 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void initAfterRead() override;
 
 private:
     RimEclipseView* eclipseView() const;
     void            rebuild3dView() const;
+
+    caf::PdmField<bool> m_isActive;
 
     caf::PdmChildArrayField<RimExtrudedCurveIntersection*> m_intersections;
     caf::PdmChildArrayField<RimBoxIntersection*>           m_intersectionBoxes;
@@ -103,4 +114,9 @@ private:
     caf::PdmField<double>                                  m_depthUpperThreshold;
     caf::PdmField<double>                                  m_depthLowerThreshold;
     caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_depthFilterType;
+
+    caf::PdmField<bool> m_applyCellFilters;
+
+    caf::PdmField<bool>    m_kFilterOverridden;
+    caf::PdmField<QString> m_kFilterStr;
 };

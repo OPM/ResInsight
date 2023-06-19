@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimStimPlanModelCollection, "StimPlanModelCollection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModelCollection::RimStimPlanModelCollection( void )
+RimStimPlanModelCollection::RimStimPlanModelCollection()
 {
     CAF_PDM_InitScriptableObject( "StimPlan Models" );
 
@@ -77,7 +77,7 @@ void RimStimPlanModelCollection::deleteStimPlanModels()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimStimPlanModel*> RimStimPlanModelCollection::allStimPlanModels() const
 {
-    return m_stimPlanModels.children();
+    return m_stimPlanModels.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,8 +114,7 @@ void RimStimPlanModelCollection::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     if ( changedField == &m_isChecked )
     {
         proj->reloadCompletionTypeResultsInAllViews();

@@ -23,6 +23,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigWellLogExtractionTools.h"
@@ -177,12 +178,12 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 void RigEclipseWellLogExtractor::curveData( const RigResultAccessor* resultAccessor, std::vector<double>* values )
 {
     CVF_TIGHT_ASSERT( values );
-    values->resize( m_intersections.size() );
+    values->resize( intersections().size() );
 
-    for ( size_t cpIdx = 0; cpIdx < m_intersections.size(); ++cpIdx )
+    for ( size_t cpIdx = 0; cpIdx < intersections().size(); ++cpIdx )
     {
-        size_t                             cellIdx  = m_intersectedCellsGlobIdx[cpIdx];
-        cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
+        size_t                             cellIdx  = intersectedCellsGlobIdx()[cpIdx];
+        cvf::StructGridInterface::FaceType cellFace = intersectedCellFaces()[cpIdx];
         ( *values )[cpIdx]                          = resultAccessor->cellFaceScalarGlobIdx( cellIdx, cellFace );
     }
 }

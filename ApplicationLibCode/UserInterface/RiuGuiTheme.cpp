@@ -55,7 +55,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
     { { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::curve\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]\\s*\\{("
                  "?<properties>([\\n\\r]*\\s*((line-color|symbol-color):"
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-        []( QRegularExpressionMatch& match ) {
+        []( QRegularExpressionMatch& match )
+        {
             QRegExp plotNameRegExp( match.captured( "plotName" ) );
             QRegExp itemNameRegExp( match.captured( "itemName" ) );
 
@@ -114,7 +115,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
       { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::grid\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]\\s*\\{("
                  "?<properties>([\\n\\r]*\\s*((color):"
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-        []( QRegularExpressionMatch& match ) {
+        []( QRegularExpressionMatch& match )
+        {
             QRegExp            plotNameRegExp( match.captured( "plotName" ) );
             QRegExp            itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
@@ -151,7 +153,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
       { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::legend\\s*\\{("
                  "?<properties>([\\n\\r]*\\s*((text-color):"
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-        []( QRegularExpressionMatch& match ) {
+        []( QRegularExpressionMatch& match )
+        {
             QRegExp            plotNameRegExp( match.captured( "plotName" ) );
             QRegExp            itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
@@ -184,7 +187,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*\\{("
                  "?<properties>([\\n\\r]*\\s*((color|text-color):"
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-        []( QRegularExpressionMatch& match ) {
+        []( QRegularExpressionMatch& match )
+        {
             QRegExp            plotNameRegExp( match.captured( "plotName" ) );
             QRegExp            itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
@@ -237,7 +241,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*\\{("
                  "?<properties>([\\n\\r]*\\s*((color|text-color):"
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-        []( QRegularExpressionMatch& match ) {
+        []( QRegularExpressionMatch& match )
+        {
             QRegExp            plotNameRegExp( match.captured( "plotName" ) );
             QRegExp            itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
@@ -292,7 +297,8 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                  "\\s*\\{("
                  "?<properties>([\\n\\r]*\\s*((text-color):"
                  "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-        []( QRegularExpressionMatch& match ) {
+        []( QRegularExpressionMatch& match )
+        {
             QRegExp            plotNameRegExp( match.captured( "plotName" ) );
             QRegExp            itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression textColorRegExp( "text-color:\\s*([#a-zA-Z0-9]+)" );
@@ -457,8 +463,8 @@ QString RiuGuiTheme::applyVariableValueMapToStyleSheet( RiaDefines::ThemeEnum th
         {
             styleSheet = styleSheetFile.readAll();
             QRegularExpression              variableRegExp( "(?<prefix>[ \\t]*(?<name>\\$[a-zA-z0-9_]+)[ \\t]*:[ "
-                                               "\\t]*)(?<value>[a-zA-Z-_0-9#]+)(?<suffix>;[ \\t]*(\\/\\/[ "
-                                               "\\t]*(?<descriptor>(.*)))?)" );
+                                                            "\\t]*)(?<value>[a-zA-Z-_0-9#]+)(?<suffix>;[ \\t]*(\\/\\/[ "
+                                                            "\\t]*(?<descriptor>(.*)))?)" );
             QRegularExpressionMatchIterator matchIterator = variableRegExp.globalMatch( styleSheet );
             while ( matchIterator.hasNext() )
             {

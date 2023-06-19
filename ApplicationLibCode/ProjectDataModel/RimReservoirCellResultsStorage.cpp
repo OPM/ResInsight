@@ -160,7 +160,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
                     if ( data && data->size() )
                     {
-                        stream << ( quint64 )( data->size() );
+                        stream << (quint64)( data->size() );
                         for ( size_t cIdx = 0; cIdx < data->size(); ++cIdx )
                         {
                             stream << ( *data )[cIdx];

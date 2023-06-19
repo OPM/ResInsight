@@ -51,9 +51,7 @@ void RicNewSimWellIntersectionFeature::onActionTriggered( bool isChecked )
 
     for ( auto simWell : simWells )
     {
-        RimEclipseView* eclView = nullptr;
-        simWell->firstAncestorOrThisOfType( eclView );
-        CVF_ASSERT( eclView );
+        RimEclipseView* eclView = simWell->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
         auto* cmd = new RicNewSimWellIntersectionCmd( eclView->intersectionCollection(), simWell );
         caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );

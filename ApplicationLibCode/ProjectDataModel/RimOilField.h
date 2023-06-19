@@ -37,6 +37,7 @@ class RimSummaryCaseMainCollection;
 class RimWellPathCollection;
 class RimAnnotationCollection;
 class RimMeasurement;
+class RimSeismicDataCollection;
 class RimSurfaceCollection;
 class RimEnsembleWellLogsCollection;
 
@@ -49,8 +50,8 @@ class RimOilField : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimOilField( void );
-    ~RimOilField( void ) override;
+    RimOilField();
+    ~RimOilField() override;
 
     RimFractureTemplateCollection*       fractureDefinitionCollection();
     const RimFractureTemplateCollection* fractureDefinitionCollection() const;
@@ -68,6 +69,7 @@ public:
     caf::PdmChildField<RimAnnotationCollection*>         annotationCollection;
     caf::PdmChildField<RimMeasurement*>                  measurement;
     caf::PdmChildField<RimSurfaceCollection*>            surfaceCollection;
+    caf::PdmChildField<RimSeismicDataCollection*>        seismicCollection;
     caf::PdmChildField<RimEnsembleWellLogsCollection*>   ensembleWellLogsCollection;
 
 protected:

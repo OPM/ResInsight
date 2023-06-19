@@ -179,10 +179,10 @@ protected:
                                                                  const RigSlice2D& distanceGrid,
                                                                  double            targetArea );
 
-    static void generateStatisticsGrids( const std::vector<std::vector<double>>&                                               samples,
-                                         size_t                                                                                numSamplesX,
-                                         size_t                                                                                numSamplesY,
-                                         size_t                                                                                numGrids,
+    static void generateStatisticsGrids( const std::vector<std::vector<double>>& samples,
+                                         size_t                                  numSamplesX,
+                                         size_t                                  numSamplesY,
+                                         size_t                                  numGrids,
                                          std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
                                          const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>& statisticsTypes,
                                          const RigHistogramData&                                                         areaHistogram,

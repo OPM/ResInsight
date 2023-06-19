@@ -29,7 +29,6 @@
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -62,7 +61,7 @@ RimCustomObjectiveFunctionWeight::RimCustomObjectiveFunctionWeight()
     m_weightValue.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function" );
-    m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     setDeletable( true );
 }
@@ -152,7 +151,7 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().children() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
         {
             candidateAddresses.push_back( address->address() );
         }
@@ -240,9 +239,7 @@ caf::PdmFieldHandle* RimCustomObjectiveFunctionWeight::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimCustomObjectiveFunctionWeight::parentCurveSet() const
 {
-    RimEnsembleCurveSet* curveSet;
-    firstAncestorOrThisOfType( curveSet );
-    return curveSet;
+    return firstAncestorOrThisOfType<RimEnsembleCurveSet>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,9 +247,7 @@ RimEnsembleCurveSet* RimCustomObjectiveFunctionWeight::parentCurveSet() const
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunction* RimCustomObjectiveFunctionWeight::parentObjectiveFunction() const
 {
-    RimCustomObjectiveFunction* func;
-    firstAncestorOrThisOfType( func );
-    return func;
+    return firstAncestorOrThisOfType<RimCustomObjectiveFunction>();
 }
 
 //--------------------------------------------------------------------------------------------------

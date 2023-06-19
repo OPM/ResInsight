@@ -54,8 +54,7 @@ caf::PdmObjectHandle* RimcStimPlanModelCollection_appendStimPlanModel::execute()
     RimStimPlanModelCollection* stimPlanModelCollection = self<RimStimPlanModelCollection>();
     if ( m_wellPath )
     {
-        RimWellPathCollection* wellPathCollection = nullptr;
-        stimPlanModelCollection->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+        auto wellPathCollection = stimPlanModelCollection->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
         stimPlanModel = RicNewStimPlanModelFeature::addStimPlanModel( m_wellPath, wellPathCollection );
     }

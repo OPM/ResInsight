@@ -90,8 +90,8 @@ class RimProject : public caf::PdmDocument
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimProject( void );
-    ~RimProject( void ) override;
+    RimProject();
+    ~RimProject() override;
     static RimProject* current();
 
     caf::PdmChildArrayField<RimOilField*>                oilFields;
@@ -196,7 +196,7 @@ public:
     std::vector<caf::FilePath*> allFilePaths() const;
 
 protected:
-    // Overridden methods
+    void beforeInitAfterRead() override;
     void initAfterRead() override;
     void setupBeforeSave() override;
 
@@ -247,8 +247,7 @@ void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::v
 {
     if ( !object ) return;
 
-    std::vector<caf::PdmFieldHandle*> allFieldsInObject;
-    object->fields( allFieldsInObject );
+    std::vector<caf::PdmFieldHandle*> allFieldsInObject = object->fields();
 
     std::vector<caf::PdmObjectHandle*> children;
 
@@ -269,7 +268,8 @@ void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::v
             }
         }
 
-        field->children( &children );
+        auto other = field->children();
+        children.insert( children.end(), other.begin(), other.end() );
     }
 
     for ( const auto& child : children )

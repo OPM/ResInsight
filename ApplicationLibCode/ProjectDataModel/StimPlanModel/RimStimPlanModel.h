@@ -84,8 +84,8 @@ public:
         GRADIENT
     };
 
-    RimStimPlanModel( void );
-    ~RimStimPlanModel( void ) override;
+    RimStimPlanModel();
+    ~RimStimPlanModel() override;
 
     void setMD( double md );
 
@@ -105,6 +105,7 @@ public:
 
     double defaultPorosity() const;
     double defaultPermeability() const;
+    double defaultFaciesValue() const;
 
     double verticalStress() const;
     double verticalStressGradient() const;

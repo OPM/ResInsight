@@ -45,7 +45,7 @@ class Rim3dWellLogCurve;
 class Riv3dWellLogCurveGeometryGenerator : public cvf::Object
 {
 public:
-    typedef std::pair<cvf::Vec3d, double> PointValuePair;
+    using PointValuePair = std::pair<cvf::Vec3d, double>;
     Riv3dWellLogCurveGeometryGenerator( RimWellPath* wellPath );
 
     void createCurveDrawables( gsl::not_null<const caf::DisplayCoordTransform*> displayCoordTransform,

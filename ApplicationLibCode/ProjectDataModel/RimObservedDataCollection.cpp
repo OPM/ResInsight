@@ -94,7 +94,7 @@ void RimObservedDataCollection::removeObservedFmuRftData( RimObservedFmuRftData*
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSummaryData() const
 {
-    return m_observedDataArray.children();
+    return m_observedDataArray.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSumma
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRftData() const
 {
-    return m_observedFmuRftArray.children();
+    return m_observedFmuRftArray.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRft
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPressureDepthData*> RimObservedDataCollection::allPressureDepthData() const
 {
-    return m_observedPressureDepthArray.children();
+    return m_observedPressureDepthArray.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +168,6 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummar
     observedData->setSummaryHeaderFileName( fileName );
     observedData->createSummaryReaderInterface();
     observedData->updateMetaData();
-    observedData->updateOptionSensitivity();
 
     if ( errorText && !observedData->errorMessagesFromReader().isEmpty() )
     {
@@ -224,7 +223,6 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummar
     userData->setSummaryHeaderFileName( fileName );
     userData->createSummaryReaderInterface();
     userData->updateMetaData();
-    userData->updateOptionSensitivity();
 
     if ( errorText && !userData->errorMessagesFromReader().isEmpty() )
     {

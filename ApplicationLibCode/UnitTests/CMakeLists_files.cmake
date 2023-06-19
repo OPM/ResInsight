@@ -86,6 +86,13 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaVariableMapper-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifPressureDepthTextFileReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSummaryReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigDeclineCurveCalculator-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderFmuRft-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryRegressionAnalysisCurve-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

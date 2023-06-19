@@ -39,6 +39,7 @@ template <>
 void AppEnum<RimEnsembleCurveSetColorManager::ColorMode>::setUp()
 {
     addItem( RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR, "SINGLE_COLOR", "Single Color" );
+    addItem( RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR_WITH_ALPHA, "SINGLE_COLOR_WITH_ALPHA", "Single Color with Transparency" );
     addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_ENSEMBLE_PARAM, "BY_ENSEMBLE_PARAM", "By Ensemble Parameter" );
     addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_OBJECTIVE_FUNCTION, "BY_OBJECTIVE_FUNCTION", "By Objective Function" );
     addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION,
@@ -175,7 +176,7 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
         QString tValue = summaryCase->hasCaseRealizationParameters()
                              ? summaryCase->caseRealizationParameters()->parameterValue( ensembleParam.name ).textValue()
                              : "";
-        double nValue = legendConfig->categoryValueFromCategoryName( tValue );
+        double  nValue = legendConfig->categoryValueFromCategoryName( tValue );
         if ( nValue != std::numeric_limits<double>::infinity() )
         {
             int iValue = static_cast<int>( nValue );
@@ -227,7 +228,10 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
     return RiaColorTables::undefinedCellColor();
 }
 
-std::map<RimEnsembleCurveSetCollection*, int> RimEnsembleCurveSetColorManager::m_nextColorIndexes;
-
-std::map<RimEnsembleCurveSetCollection*, std::map<RimEnsembleCurveSet*, RimRegularLegendConfig::ColorRangesType>>
-    RimEnsembleCurveSetColorManager::m_colorCache;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( ColorMode colorMode )
+{
+    return ( colorMode == ColorMode::SINGLE_COLOR || colorMode == ColorMode::SINGLE_COLOR_WITH_ALPHA );
+}

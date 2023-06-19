@@ -59,12 +59,12 @@ void RicAppendIntersectionBoxFeature::onActionTriggered( bool isChecked )
         coll->appendIntersectionBoxAndUpdate( intersectionBox );
 
         intersectionBox->setToDefaultSizeBox();
+        intersectionBox->updateConnectedEditors();
 
         coll->updateConnectedEditors();
         Riu3DMainWindowTools::selectAsCurrentItem( intersectionBox );
 
-        RimGridView* rimView = nullptr;
-        coll->firstAncestorOrThisOfTypeAsserted( rimView );
+        RimGridView* rimView = coll->firstAncestorOrThisOfTypeAsserted<RimGridView>();
         rimView->showGridCells( false );
     }
 }
@@ -83,14 +83,12 @@ void RicAppendIntersectionBoxFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection* RicAppendIntersectionBoxFeature::intersectionCollection()
 {
-    RimIntersectionCollection* intersectionBoxColl = nullptr;
-
     std::vector<caf::PdmObjectHandle*> selectedObjects;
     caf::SelectionManager::instance()->objectsByType( &selectedObjects );
     if ( selectedObjects.size() == 1 )
     {
-        selectedObjects[0]->firstAncestorOrThisOfType( intersectionBoxColl );
+        return selectedObjects[0]->firstAncestorOrThisOfType<RimIntersectionCollection>();
     }
 
-    return intersectionBoxColl;
+    return nullptr;
 }

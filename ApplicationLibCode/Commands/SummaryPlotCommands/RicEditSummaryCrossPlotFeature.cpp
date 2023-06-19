@@ -109,13 +109,11 @@ void RicEditSummaryCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicEditSummaryCrossPlotFeature::selectedSummaryPlot() const
 {
-    RimSummaryPlot* sumPlot = nullptr;
-
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
-        selObj->firstAncestorOrThisOfType( sumPlot );
+        return selObj->firstAncestorOrThisOfType<RimSummaryPlot>();
     }
 
-    return sumPlot;
+    return nullptr;
 }

@@ -72,6 +72,7 @@ private:
 private:
     caf::PdmPtrField<RimCase*> m_case;
     caf::PdmField<int>         m_timeStep;
+    caf::PdmField<int>         m_geomPartId;
 
     caf::PdmChildField<RimEclipseResultDefinition*>          m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*>          m_geomResultDefinition;

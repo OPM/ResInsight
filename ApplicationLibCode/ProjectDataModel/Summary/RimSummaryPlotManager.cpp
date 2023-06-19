@@ -397,15 +397,14 @@ void RimSummaryPlotManager::createNewPlot()
 
     plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );
 
-    auto plots = plotBuilder.createPlots();
+    auto summaryPlots = plotBuilder.createPlots();
     if ( m_createMultiPlot )
     {
-        auto summaryPlots = plotBuilder.createPlots();
         RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
     }
     else
     {
-        for ( auto plot : plots )
+        for ( auto plot : summaryPlots )
         {
             RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
             plot->loadDataAndUpdate();
@@ -448,7 +447,7 @@ void RimSummaryPlotManager::updateUiFromSelection()
     auto destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimSummaryPlot* summaryPlot = nullptr;
-    if ( destinationObject ) destinationObject->firstAncestorOrThisOfType( summaryPlot );
+    if ( destinationObject ) summaryPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
 
     if ( summaryPlot && ( m_summaryPlot() != summaryPlot ) )
     {

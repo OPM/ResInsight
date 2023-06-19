@@ -243,7 +243,7 @@ QStringList RiaSummaryStringTools::dataSourceNames( const std::vector<RimSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiaSummaryStringTools::computeFilteredAddresses( const QStringList&                        textFilters,
+std::set<RifEclipseSummaryAddress> RiaSummaryStringTools::computeFilteredAddresses( const QStringList& textFilters,
                                                                                     const std::set<RifEclipseSummaryAddress>& sourceAddresses,
                                                                                     bool includeDiffCurves )
 {

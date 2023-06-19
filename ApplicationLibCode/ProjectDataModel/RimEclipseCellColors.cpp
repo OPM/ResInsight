@@ -142,7 +142,11 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
             if ( !found )
             {
-                auto newLegend = createLegendForResult( resultVarNameOfNewLegend, this->m_useDiscreteLogLevels, this->hasCategoryResult() );
+                int caseId = 0;
+                if ( eclipseCase() ) caseId = eclipseCase()->caseId();
+
+                auto newLegend =
+                    createLegendForResult( caseId, resultVarNameOfNewLegend, this->m_useDiscreteLogLevels, this->hasCategoryResult() );
 
                 newLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
 
@@ -165,12 +169,13 @@ void RimEclipseCellColors::onLegendConfigChanged( const caf::SignalEmitter* emit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
+RimRegularLegendConfig*
+    RimEclipseCellColors::createLegendForResult( int caseId, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
 {
     auto* newLegend               = new RimRegularLegendConfig;
     newLegend->resultVariableName = resultName;
 
-    newLegend->setDefaultConfigForResultName( resultName, useDiscreteLogLevels, isCategoryResult );
+    newLegend->setDefaultConfigForResultName( caseId, resultName, useDiscreteLogLevels, isCategoryResult );
 
     return newLegend;
 }

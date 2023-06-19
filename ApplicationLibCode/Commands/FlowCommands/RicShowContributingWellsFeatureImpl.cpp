@@ -83,8 +83,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     CVF_ASSERT( selectedWell );
     if ( !selectedWell ) return;
 
-    RimEclipseResultCase* eclipseResultCase = nullptr;
-    selectedWell->firstAncestorOrThisOfTypeAsserted( eclipseResultCase );
+    RimEclipseResultCase* eclipseResultCase = selectedWell->firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
 
     // Use the active flow diag solutions, or the first one as default
     RimFlowDiagSolution* flowDiagSolution = viewToModify->cellResult()->flowDiagSolution();
@@ -110,10 +109,10 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     switch ( tracerStatus )
     {
         case RimFlowDiagSolution::TracerStatusType::PRODUCER:
-            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_INJECTORS );
+            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_INJECTORS );
             break;
         case RimFlowDiagSolution::TracerStatusType::INJECTOR:
-            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_PRODUCERS );
+            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_PRODUCERS );
             break;
 
         default:
@@ -159,7 +158,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
 
     Riu3DMainWindowTools::setExpanded( propertyFilterCollection );
 
-    viewToModify->faultCollection()->showFaultCollection = false;
+    viewToModify->faultCollection()->setActive( false );
     viewToModify->faultCollection()->updateConnectedEditors();
 
     viewToModify->updateDisplayModelForCurrentTimeStepAndRedraw();

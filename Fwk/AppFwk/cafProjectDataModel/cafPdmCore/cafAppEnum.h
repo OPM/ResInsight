@@ -329,7 +329,8 @@ private:
 
     private:
         EnumMapper()
-            : m_defaultValueIsSet( false )
+            : m_defaultValue( T() )
+            , m_defaultValueIsSet( false )
         {
         }
 

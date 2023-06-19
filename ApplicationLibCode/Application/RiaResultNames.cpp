@@ -20,6 +20,8 @@
 
 #include "RiaResultNames.h"
 
+#include "RigEclipseResultAddress.h"
+
 #include "cafAppEnum.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -359,6 +361,30 @@ QString RiaResultNames::indexJResultName()
 QString RiaResultNames::indexKResultName()
 {
     return "INDEX_K";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseResultAddress RiaResultNames::staticIntegerAddress( const QString& resultName )
+{
+    return RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::ResultDataType::INTEGER, resultName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaResultNames::faultDistanceName()
+{
+    return "FAULTDIST";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaResultNames::facies()
+{
+    return "FACIES";
 }
 
 //--------------------------------------------------------------------------------------------------

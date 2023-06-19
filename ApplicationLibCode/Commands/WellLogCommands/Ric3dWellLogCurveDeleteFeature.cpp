@@ -57,8 +57,7 @@ void Ric3dWellLogCurveDeleteFeature::onActionTriggered( bool isChecked )
 
     Rim3dWellLogCurve* firstCurve = objects[0];
 
-    Rim3dWellLogCurveCollection* curveCollection = nullptr;
-    firstCurve->firstAncestorOrThisOfType( curveCollection );
+    Rim3dWellLogCurveCollection* curveCollection = firstCurve->firstAncestorOrThisOfType<Rim3dWellLogCurveCollection>();
     if ( !curveCollection ) return;
 
     for ( Rim3dWellLogCurve* curve : objects )

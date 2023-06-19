@@ -84,7 +84,7 @@ class RimGridCrossPlotDataSet : public RimCheckableNamedObject, public RimNameCo
     CAF_PDM_HEADER_INIT;
 
 public:
-    typedef caf::AppEnum<RigGridCrossPlotCurveGrouping> CurveGroupingEnum;
+    using CurveGroupingEnum = caf::AppEnum<RigGridCrossPlotCurveGrouping>;
 
     enum NameComponents
     {

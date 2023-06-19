@@ -37,6 +37,7 @@ class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
+class RimGeoMechFaultReactivationResult;
 class RimGeoMechPartCollection;
 class RimGeoMechPropertyFilterCollection;
 class RimGeoMechResultDefinition;
@@ -63,8 +64,8 @@ class RimGeoMechView : public RimGridView
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGeoMechView( void );
-    ~RimGeoMechView( void ) override;
+    RimGeoMechView();
+    ~RimGeoMechView() override;
 
     RiaDefines::View3dContent viewContent() const override;
 
@@ -127,6 +128,8 @@ protected:
 
     RimPropertyFilterCollection* nativePropertyFilterCollection();
 
+    void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 ) override;
+
 private:
     QString createAutoName() const override;
 
@@ -150,6 +153,7 @@ private:
 
     caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
+    caf::PdmChildField<RimGeoMechFaultReactivationResult*>  m_faultReactivationResult;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
     caf::PdmChildField<RimGeoMechPartCollection*>           m_partsCollection;
     caf::PdmPointer<RimGeoMechCase>                         m_geomechCase;

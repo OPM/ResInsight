@@ -916,8 +916,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfoIn2dViews() const
 {
-    RimCase* rimCase;
-    firstAncestorOrThisOfType( rimCase );
+    RimCase* rimCase = firstAncestorOrThisOfType<RimCase>();
     if ( rimCase )
     {
         for ( Rim2dIntersectionView* view : rimCase->intersectionViewCollection()->views() )

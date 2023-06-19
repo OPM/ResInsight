@@ -16,7 +16,7 @@ TEST( RifRoffReader, ReadValidFile )
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     std::map<int, QString> codeNames;
-    RifRoffReader::readCodeNames( filePath, codeNames );
+    RifRoffReader::readCodeNames( filePath, "composite", codeNames );
 
     ASSERT_EQ( 6u, codeNames.size() );
     for ( int i = 0; i < 6; i++ )
@@ -35,7 +35,7 @@ std::string readIncorrectFile( const QString filename )
     std::map<int, QString> codeNames;
     try
     {
-        RifRoffReader::readCodeNames( filePath, codeNames );
+        RifRoffReader::readCodeNames( filePath, "composite", codeNames );
         return "";
     }
     catch ( RifRoffReaderException& ex )
@@ -44,25 +44,11 @@ std::string readIncorrectFile( const QString filename )
     }
 }
 
-TEST( RifRoffReader, ReadWrongFileType )
-{
-    // Read a surface file: no expected to work
-    QString filename( "RifSurfaceImporter/test.ptl" );
-    ASSERT_EQ( readIncorrectFile( filename ), std::string( "Unexpected file type: roff-asc header missing." ) );
-}
-
 TEST( RifRoffReader, ReadNonExistingFileType )
 {
     // Read a non-existing file
     QString filename( "RifRoffReader/this_file_does_not_exist.roff" );
     ASSERT_EQ( readIncorrectFile( filename ), std::string( "Unable to open roff file." ) );
-}
-
-TEST( RifRoffReader, ReadFileWithIncorrectInteger )
-{
-    // Read a file with incorrect integer for code values
-    QString filename( "RifRoffReader/code_values_integer_wrong.roff" );
-    ASSERT_EQ( readIncorrectFile( filename ), std::string( "Unexpected value: not an integer." ) );
 }
 
 TEST( RifRoffReader, ReadFileCodeNamesMissing )

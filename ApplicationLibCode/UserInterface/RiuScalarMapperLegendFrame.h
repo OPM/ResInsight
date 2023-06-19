@@ -46,6 +46,8 @@ public:
 
     void setTickPrecision( int precision );
     void setTickFormat( NumberFormat format );
+    void updateTickValues();
+    void setScalarMapper( cvf::ScalarMapper* scalarMapper );
 
 private:
     void    layoutInfo( LayoutInfo* layout ) const override;

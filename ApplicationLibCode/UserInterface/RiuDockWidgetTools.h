@@ -54,6 +54,7 @@ public:
     static QString mainWindowDepthPlotName();
     static QString mainWindowRelPermPlotName();
     static QString mainWindowPvtPlotName();
+    static QString mainWindowSeismicHistogramName();
     static QString mainWindowMessagesName();
     static QString mainWindowMohrsCirclePlotName();
     static QString mainWindowUndoStackName();

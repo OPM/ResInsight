@@ -162,7 +162,8 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
     auto qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
     if ( qtChartsPlotWidget )
     {
-        auto mapToRiaNumberFormatType = []( RimPlotAxisProperties::NumberFormatType formatType ) {
+        auto mapToRiaNumberFormatType = []( RimPlotAxisProperties::NumberFormatType formatType )
+        {
             if ( formatType == RimPlotAxisProperties::NumberFormatType::NUMBER_FORMAT_DECIMAL )
                 return RiaNumberFormat::NumberFormatType::FIXED;
 
@@ -207,7 +208,8 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 {
     std::map<std::string, std::set<std::string>> unitToQuantityNameMap;
 
-    auto addToUnitToQuantityMap = [&]( const std::string& unitText, const RifEclipseSummaryAddress& sumAddress ) {
+    auto addToUnitToQuantityMap = [&]( const std::string& unitText, const RifEclipseSummaryAddress& sumAddress )
+    {
         size_t cutPos = sumAddress.vectorName().find( ':' );
         if ( cutPos == std::string::npos ) cutPos = -1;
 
@@ -308,7 +310,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         {
             assembledYAxisText += QString::fromStdString( quantIt );
 
-            insertLineShift ? ( assembledYAxisText += "\n" ) : ( assembledYAxisText += " " );
+            insertLineShift ? ( assembledYAxisText += "<br>" ) : ( assembledYAxisText += " " );
         }
 
         if ( m_axisProperties->showUnitText() )
@@ -345,7 +347,8 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
 {
     std::set<std::string> vectorNames;
 
-    auto addVectorNames = [&]( const RifEclipseSummaryAddress& sumAddress ) {
+    auto addVectorNames = [&]( const RifEclipseSummaryAddress& sumAddress )
+    {
         size_t cutPos = sumAddress.vectorName().find( ':' );
         if ( cutPos == std::string::npos ) cutPos = -1;
 

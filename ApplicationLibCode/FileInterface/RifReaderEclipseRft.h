@@ -62,8 +62,10 @@ private:
     int  indexFromAddress( const RifEclipseRftAddress& rftAddress ) const;
 
 private:
+    // NOLINTBEGIN(modernize-use-using)
     // Taken from ecl_rft_file.h and ecl_rft_node.h
     typedef struct ecl_rft_file_struct ecl_rft_file_type;
+    // NOLINTEND(modernize-use-using)
 
     QString                             m_fileName;
     ecl_rft_file_type*                  m_ecl_rft_file;

@@ -25,7 +25,7 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseContourMapView.h"
@@ -49,9 +49,9 @@
 #include "RivReservoirViewPartMgr.h"
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <set>
 
@@ -203,7 +203,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "Toggle whether the well pipe visualization will try to detect when a part of the well \nis "
                        "really a branch, and thus is starting from wellhead",
                        "" );
-    CAF_PDM_InitField( &wellHeadPosition, "WellHeadPosition", WellHeadPositionEnum( WELLHEAD_POS_TOP_COLUMN ), "Well Head Position" );
+    CAF_PDM_InitField( &wellHeadPosition, "WellHeadPosition", WellHeadPositionEnum( WELLHEAD_POS_ACTIVE_CELLS_BB ), "Well Head Position" );
 
     CAF_PDM_InitFieldNoDefault( &wells, "Wells", "Wells" );
     wells.uiCapability()->setUiTreeHidden( true );
@@ -217,7 +217,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_wellDiskSummaryCase, "WellDiskSummaryCase", "Summary Case" );
 
     CAF_PDM_InitField( &m_wellDiskQuantity, "WellDiskQuantity", QString( "WOPT" ), "Disk Quantity" );
-    m_wellDiskQuantity.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_wellDiskQuantity.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_wellDiskQuantity.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyType, "WellDiskPropertyType", "Property Type" );
@@ -308,9 +308,9 @@ bool RimSimWellInViewCollection::hasVisibleWellCells()
             for ( size_t tIdx = 0; !hasCells && tIdx < well->simWellData()->m_wellCellsTimeSteps.size(); ++tIdx )
             {
                 const RigWellResultFrame& wellResultFrame = well->simWellData()->m_wellCellsTimeSteps[tIdx];
-                for ( size_t wsIdx = 0; !hasCells && wsIdx < wellResultFrame.m_wellResultBranches.size(); ++wsIdx )
+                for ( size_t wsIdx = 0; !hasCells && wsIdx < wellResultFrame.wellResultBranches().size(); ++wsIdx )
                 {
-                    if ( wellResultFrame.m_wellResultBranches[wsIdx].m_branchResultPoints.size() > 0 ) hasCells = true;
+                    if ( !wellResultFrame.branchResultPointsFromBranchIndex( wsIdx ).empty() ) hasCells = true;
                 }
             }
         }
@@ -579,8 +579,7 @@ void RimSimWellInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::assignDefaultWellColors()
 {
-    RimEclipseCase* ownerCase;
-    firstAncestorOrThisOfTypeAsserted( ownerCase );
+    auto ownerCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
 
     for ( size_t wIdx = 0; wIdx < wells.size(); ++wIdx )
     {
@@ -601,9 +600,7 @@ void RimSimWellInViewCollection::updateWellAllocationPlots()
 {
     RimProject* proj = RimProject::current();
 
-    std::vector<RimWellAllocationPlot*> wellAllocationPlots;
-    proj->descendantsIncludingThisOfType( wellAllocationPlots );
-
+    std::vector<RimWellAllocationPlot*> wellAllocationPlots = proj->descendantsIncludingThisOfType<RimWellAllocationPlot>();
     for ( auto wap : wellAllocationPlots )
     {
         wap->loadDataAndUpdate();
@@ -724,8 +721,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
         wellDiskColor.uiCapability()->setUiReadOnly( isReadOnly );
     }
 
-    RimEclipseResultCase* ownerCase = nullptr;
-    firstAncestorOrThisOfType( ownerCase );
+    auto ownerCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( ownerCase )
     {
         m_showWellCommunicationLines.uiCapability()->setUiHidden( !ownerCase->flowDiagSolverInterface() );

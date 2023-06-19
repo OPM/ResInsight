@@ -54,6 +54,7 @@ class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
 class RiuMdiArea;
+class RiuSeismicHistogramPanel;
 
 class RicGridCalculatorDialog;
 
@@ -128,6 +129,7 @@ public:
     RiuRelativePermeabilityPlotPanel* relativePermeabilityPlotPanel();
     RiuPvtPlotPanel*                  pvtPlotPanel();
     RiuMohrsCirclePlot*               mohrsCirclePlot();
+    RiuSeismicHistogramPanel*         seismicHistogramPanel();
     RiuMessagePanel*                  messagePanel();
 
     void showProcessMonitorDockPanel();
@@ -165,6 +167,7 @@ private:
     QAction* m_viewFromWest;
     QAction* m_viewFromAbove;
     QAction* m_viewFromBelow;
+    QAction* m_viewFullScreen;
 
     // Mock actions
     QAction* m_mockModelAction;
@@ -189,6 +192,7 @@ private:
     RiuDepthQwtPlot*                         m_depthQwtPlot;
     RiuMohrsCirclePlot*                      m_mohrsCirclePlot;
     RiuRelativePermeabilityPlotPanel*        m_relPermPlotPanel;
+    RiuSeismicHistogramPanel*                m_seismicHistogramPanel;
     RiuPvtPlotPanel*                         m_pvtPlotPanel;
     std::unique_ptr<RicGridCalculatorDialog> m_gridCalculatorDialog;
 
@@ -213,6 +217,7 @@ private slots:
 
     // View slots
     void slotRefreshViewActions();
+    void slotViewFullScreen( bool );
     void slotViewFromNorth();
     void slotViewFromSouth();
     void slotViewFromEast();

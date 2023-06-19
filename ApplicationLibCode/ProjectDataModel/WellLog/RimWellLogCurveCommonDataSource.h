@@ -103,6 +103,8 @@ public:
 
     static QString smoothingUiOrderinglabel();
 
+    std::pair<bool, double> maximumCurvePointInterval() const;
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -125,8 +127,10 @@ private:
     caf::PdmField<int>                m_branchIndex;
     caf::PdmField<caf::Tristate>      m_branchDetection;
     caf::PdmField<int>                m_timeStep;
-    caf::PdmField<caf::Tristate>      m_wbsSmoothing;
-    caf::PdmField<double>             m_wbsSmoothingThreshold;
+
+    caf::PdmField<caf::Tristate>           m_wbsSmoothing;
+    caf::PdmField<double>                  m_wbsSmoothingThreshold;
+    caf::PdmField<std::pair<bool, double>> m_maximumCurvePointInterval;
 
     caf::PdmField<QDateTime>                               m_rftTimeStep;
     caf::PdmField<QString>                                 m_rftWellName;

@@ -278,8 +278,7 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>
         *valuesOut = convertBarToNormalizedByPP( tvdRKBs, valuesIn );
         return true;
     }
-    else if ( ( stringsMatch( unitsIn, pascalUnitString() ) ||
-                stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) ) )
+    else if ( stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, 1.0 / pascalPerBar() );
         return true;

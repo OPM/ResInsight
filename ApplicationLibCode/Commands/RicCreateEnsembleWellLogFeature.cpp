@@ -71,13 +71,14 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
     QString pathFilter( "*" );
     QString fileNameFilter( "*" );
 
-    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                                                        "Choose Eclipse Cases",
-                                                                                                        defaultDir,
-                                                                                                        pathFilter,
-                                                                                                        fileNameFilter,
-                                                                                                        { ".GRDECL", ".EGRID" } );
-
+    RicRecursiveFileSearchDialogResult result =
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                "Choose Eclipse Cases",
+                                                                defaultDir,
+                                                                pathFilter,
+                                                                fileNameFilter,
+                                                                { RicRecursiveFileSearchDialog::FileType::GRDECL,
+                                                                  RicRecursiveFileSearchDialog::FileType::EGRID } );
     if ( !result.ok || result.files.isEmpty() )
     {
         return;

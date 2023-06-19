@@ -171,8 +171,7 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectGetterRequest*
     m_fieldOwner      = RiaGrpcPdmObjectService::findCafObjectFromRipsObject( request->object() );
     QString fieldName = QString::fromStdString( request->method() );
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    m_fieldOwner->fields( fields );
+    std::vector<caf::PdmFieldHandle*> fields = m_fieldOwner->fields();
     for ( auto field : fields )
     {
         auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
@@ -225,8 +224,7 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectSetterChunk* c
     QString fieldName  = QString::fromStdString( methodRequest.method() );
     int     valueCount = setRequest.data_count();
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    m_fieldOwner->fields( fields );
+    std::vector<caf::PdmFieldHandle*> fields = m_fieldOwner->fields();
     for ( auto field : fields )
     {
         auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
@@ -408,15 +406,13 @@ grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects( grpc::ServerContext*  
     if ( matchingObject )
     {
         QString                           fieldName = QString::fromStdString( request->child_field() );
-        std::vector<caf::PdmFieldHandle*> fields;
-        matchingObject->fields( fields );
+        std::vector<caf::PdmFieldHandle*> fields    = matchingObject->fields();
         for ( auto field : fields )
         {
             auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
             if ( scriptability && scriptability->scriptFieldName() == fieldName )
             {
-                std::vector<caf::PdmObjectHandle*> childObjects;
-                field->children( &childObjects );
+                std::vector<caf::PdmObjectHandle*> childObjects = field->children();
                 for ( auto pdmChild : childObjects )
                 {
                     rips::PdmObject* ripsChild = reply->add_objects();

@@ -26,6 +26,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
 
@@ -40,6 +41,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
 #include "cvfAssert.h"
@@ -73,6 +75,18 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitField( &m_upperBound, "UpperBound", 0.0, "Max" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_integerLowerBound, "IntegerLowerBound", "Min" );
+    m_integerLowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_integerLowerBound.registerGetMethod( this, &RimEclipsePropertyFilter::lowerBound );
+    m_integerLowerBound.registerSetMethod( this, &RimEclipsePropertyFilter::setLowerBound );
+    m_integerLowerBound.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_integerUpperBound, "IntegerUpperBound", "Max" );
+    m_integerUpperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_integerUpperBound.registerGetMethod( this, &RimEclipsePropertyFilter::upperBound );
+    m_integerUpperBound.registerSetMethod( this, &RimEclipsePropertyFilter::setUpperBound );
+    m_integerUpperBound.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_useCategorySelection, "CategorySelection", false, "Category Selection" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -141,8 +155,19 @@ void RimEclipsePropertyFilter::setIsDuplicatedFromLinkedView( bool isDuplicated 
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( &m_lowerBound == changedField || &m_integerLowerBound == changedField )
+    {
+        if ( m_lowerBound > m_upperBound ) m_upperBound = m_lowerBound;
+    }
+
+    if ( &m_upperBound == changedField || &m_integerUpperBound == changedField )
+    {
+        if ( m_upperBound < m_lowerBound ) m_lowerBound = m_upperBound;
+    }
+
     if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
-         &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField )
+         &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField || &m_integerUpperBound == changedField ||
+         &m_integerLowerBound == changedField )
     {
         m_isDuplicatedFromLinkedView = false;
 
@@ -161,10 +186,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 {
-    RimEclipsePropertyFilterCollection* propFilterColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( propFilterColl );
-
-    return propFilterColl;
+    return firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,8 +235,16 @@ void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmU
     }
     else
     {
-        group2.add( &m_lowerBound );
-        group2.add( &m_upperBound );
+        if ( m_resultDefinition->hasCategoryResult() )
+        {
+            group2.add( &m_integerLowerBound );
+            group2.add( &m_integerUpperBound );
+        }
+        else
+        {
+            group2.add( &m_lowerBound );
+            group2.add( &m_upperBound );
+        }
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -240,8 +270,7 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
 {
     bool readOnlyState = isPropertyFilterControlled();
 
-    std::vector<caf::PdmFieldHandle*> objFields;
-    this->fields( objFields );
+    std::vector<caf::PdmFieldHandle*> objFields = fields();
 
     // Include fields declared in Rimm_resultDefinition
     objFields.push_back( &( m_resultDefinition->m_resultTypeUiField ) );
@@ -276,8 +305,7 @@ void RimEclipsePropertyFilter::updateRangeLabel()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 {
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfTypeAsserted( rimView );
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     bool isPropertyFilterControlled = false;
 
@@ -334,14 +362,20 @@ void RimEclipsePropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle*
 
     if ( field == &m_lowerBound || field == &m_upperBound )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
+        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
-            return;
+            doubleAttributes->m_minimum = m_minimumResultValue;
+            doubleAttributes->m_maximum = m_maximumResultValue;
         }
+    }
 
-        myAttr->m_minimum = m_minimumResultValue;
-        myAttr->m_maximum = m_maximumResultValue;
+    if ( field == &m_integerLowerBound || field == &m_integerUpperBound )
+    {
+        if ( auto integerAttributes = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
+        {
+            integerAttributes->m_minimum = m_minimumResultValue;
+            integerAttributes->m_maximum = m_maximumResultValue;
+        }
     }
 }
 
@@ -352,8 +386,7 @@ void RimEclipsePropertyFilter::defineObjectEditorAttribute( QString uiConfigName
 {
     if ( !m_isDuplicatedFromLinkedView ) return;
 
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfTypeAsserted( rimView );
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     RimViewController* vc = rimView->viewController();
     if ( vc && vc->isPropertyFilterDuplicationActive() )
@@ -373,6 +406,38 @@ void RimEclipsePropertyFilter::defineObjectEditorAttribute( QString uiConfigName
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimEclipsePropertyFilter::upperBound() const
+{
+    return m_upperBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::setUpperBound( const int& upperBound )
+{
+    m_upperBound = upperBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEclipsePropertyFilter::lowerBound() const
+{
+    return m_lowerBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::setLowerBound( const int& lowerBound )
+{
+    m_lowerBound = lowerBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::computeResultValueRange()
 {
     CVF_ASSERT( parentContainer() );
@@ -384,8 +449,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     if ( m_resultDefinition->isFlowDiagOrInjectionFlooding() )
     {
-        Rim3dView* view;
-        this->firstAncestorOrThisOfType( view );
+        auto view = firstAncestorOrThisOfType<Rim3dView>();
 
         int timeStep = 0;
         if ( view ) timeStep = view->currentTimeStep();
@@ -489,8 +553,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
 
     clearCategories();
 
-    Rim3dView* view = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( view );
+    auto view = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     int                      timeStep = view->currentTimeStep();
     RigFlowDiagResultAddress resAddr  = m_resultDefinition->flowDiagResAddress();

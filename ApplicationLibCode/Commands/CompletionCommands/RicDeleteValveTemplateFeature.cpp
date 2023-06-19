@@ -49,10 +49,8 @@ void RicDeleteValveTemplateFeature::onActionTriggered( bool isChecked )
 
     if ( valveTemplate )
     {
-        RimProject* project = nullptr;
-        valveTemplate->firstAncestorOrThisOfTypeAsserted( project );
-        std::vector<RimWellPathValve*> valves;
-        project->descendantsIncludingThisOfType( valves );
+        RimProject*                    project = RimProject::current();
+        std::vector<RimWellPathValve*> valves  = project->descendantsIncludingThisOfType<RimWellPathValve>();
         for ( RimWellPathValve* valve : valves )
         {
             if ( valve->valveTemplate() == valveTemplate )
@@ -62,8 +60,7 @@ void RicDeleteValveTemplateFeature::onActionTriggered( bool isChecked )
             }
         }
 
-        RimValveTemplateCollection* collection = nullptr;
-        valveTemplate->firstAncestorOrThisOfTypeAsserted( collection );
+        RimValveTemplateCollection* collection = valveTemplate->firstAncestorOrThisOfTypeAsserted<RimValveTemplateCollection>();
         collection->removeAndDeleteValveTemplate( valveTemplate );
         collection->updateAllRequiredEditors();
 

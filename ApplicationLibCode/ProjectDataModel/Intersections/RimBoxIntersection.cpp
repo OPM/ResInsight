@@ -267,7 +267,7 @@ void RimBoxIntersection::appendManipulatorPartsToModel( cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBoxIntersection::rebuildGeometry()
+void RimBoxIntersection::clearGeometry()
 {
     m_intersectionBoxPartMgr = nullptr;
 }
@@ -336,8 +336,7 @@ void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
             {
                 m_boxManipulator = new RicBoxManipulatorEventHandler( viewer() );
 
-                Rim3dView* rimView = nullptr;
-                this->firstAncestorOrThisOfType( rimView );
+                auto rimView = firstAncestorOrThisOfType<Rim3dView>();
                 for ( Rim3dView* mainView : rimView->viewsUsingThisAsComparisonView() )
                 {
                     m_boxManipulator->registerInAdditionalViewer( mainView->viewer() );
@@ -367,9 +366,7 @@ void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         if ( m_boxManipulator )
         {
-            Rim3dView* rimView = nullptr;
-            this->firstAncestorOrThisOfType( rimView );
-
+            auto rimView = firstAncestorOrThisOfType<Rim3dView>();
             if ( rimView )
             {
                 cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
@@ -393,8 +390,7 @@ void RimBoxIntersection::updateBoxManipulatorGeometry()
 {
     if ( m_boxManipulator.isNull() ) return;
 
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
     if ( !rimView ) return;
 
     cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
@@ -522,8 +518,7 @@ void RimBoxIntersection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimBoxIntersection::slotScheduleRedraw()
 {
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
     if ( rimView )
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
@@ -535,9 +530,7 @@ void RimBoxIntersection::slotScheduleRedraw()
 //--------------------------------------------------------------------------------------------------
 void RimBoxIntersection::slotUpdateGeometry( const cvf::Vec3d& origin, const cvf::Vec3d& size )
 {
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
-
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
     if ( rimView )
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
@@ -663,23 +656,8 @@ void RimBoxIntersection::switchSingelPlaneState()
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimBoxIntersection::currentCellBoundingBox()
 {
-    RimCase* rimCase = nullptr;
-    this->firstAncestorOrThisOfType( rimCase );
+    auto rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
-    CVF_ASSERT( rimCase );
-    /*
-    RimEclipseView* eclView = nullptr;
-    this->firstAncestorOrThisOfType(eclView);
-
-    bool useAllCells = true;
-    if (eclView)
-    {
-        useAllCells = eclView->showInactiveCells();
-    }
-
-    if(false)//useAllCells) // For now, only use the active CellsBBox.
-        return rimCase->allCellsBoundingBox();
-    else */
     return rimCase->activeCellsBoundingBox();
 }
 
@@ -688,11 +666,8 @@ cvf::BoundingBox RimBoxIntersection::currentCellBoundingBox()
 //--------------------------------------------------------------------------------------------------
 RiuViewer* RimBoxIntersection::viewer()
 {
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
+    if ( rimView ) return rimView->viewer();
 
-    RiuViewer* riuViewer = nullptr;
-    if ( rimView ) riuViewer = rimView->viewer();
-
-    return riuViewer;
+    return nullptr;
 }

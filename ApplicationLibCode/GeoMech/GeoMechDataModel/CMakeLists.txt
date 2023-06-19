@@ -104,6 +104,8 @@ add_library(
   RigFemPartResultCalculatorKIndices.cpp
   RimGeoMechGeometrySelectionItem.h
   RimGeoMechGeometrySelectionItem.cpp
+  RigFemPartResultCalculatorNodalDisplacement.h
+  RigFemPartResultCalculatorNodalDisplacement.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -60,8 +60,11 @@ public:                                         \
 /// CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT  implements editorTypeName() and registers the field editor in the field
 /// editor factory Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT( EditorClassName )           \
-    QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
+#define CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT( EditorClassName ) \
+    QString EditorClassName::uiEditorTypeName()                    \
+    {                                                              \
+        return #EditorClassName;                                   \
+    }                                                              \
     CAF_FACTORY_REGISTER( caf::PdmUi3dObjectEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName() )
 
 //==================================================================================================

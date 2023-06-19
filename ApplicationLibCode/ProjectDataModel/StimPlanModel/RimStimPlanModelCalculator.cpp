@@ -355,11 +355,11 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
     int timeStep = m_stimPlanModel->timeStep();
 
     std::vector<RiaDefines::CurveProperty>                   inputProperties = { RiaDefines::CurveProperty::BIOT_COEFFICIENT,
-                                                               RiaDefines::CurveProperty::K0,
-                                                               RiaDefines::CurveProperty::PRESSURE,
-                                                               RiaDefines::CurveProperty::INITIAL_PRESSURE,
-                                                               RiaDefines::CurveProperty::POISSONS_RATIO,
-                                                               RiaDefines::CurveProperty::PRESSURE_GRADIENT };
+                                                                                 RiaDefines::CurveProperty::K0,
+                                                                                 RiaDefines::CurveProperty::PRESSURE,
+                                                                                 RiaDefines::CurveProperty::INITIAL_PRESSURE,
+                                                                                 RiaDefines::CurveProperty::POISSONS_RATIO,
+                                                                                 RiaDefines::CurveProperty::PRESSURE_GRADIENT };
     std::map<RiaDefines::CurveProperty, std::vector<double>> inputData;
     for ( auto inputProperty : inputProperties )
     {
@@ -417,7 +417,7 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
         double pressureDiff = timeStepPressure - initialPressure;
 
         // Vertical stress diff assumed to be zero
-        double Sv_diff               = 0.0;
+        double Sv_diff = 0.0;
         double deltaHorizontalStress = poissonsRatio / ( 1.0 - poissonsRatio ) * ( Sv_diff - biot * pressureDiff ) + ( biot * pressureDiff );
         if ( std::isnan( deltaHorizontalStress ) || std::isinf( deltaHorizontalStress ) )
         {
@@ -714,7 +714,9 @@ std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator:
 
     for ( auto value : values )
     {
-        faciesNames.push_back( RimStimPlanModelElasticPropertyCalculator::findFaciesName( *colorLegend, value ) );
+        auto [isFound, faciesName] =
+            RimStimPlanModelElasticPropertyCalculator::findFaciesName( *colorLegend, value, stimPlanModelTemplate->defaultFacies() );
+        faciesNames.push_back( faciesName );
     }
 
     return std::make_pair( values, faciesNames );

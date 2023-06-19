@@ -62,8 +62,7 @@ void RimWellMeasurementCollection::updateAllCurves()
 {
     RimMainPlotCollection* plotCollection = RimMainPlotCollection::current();
 
-    std::vector<RimWellMeasurementCurve*> measurementCurves;
-    plotCollection->descendantsIncludingThisOfType( measurementCurves );
+    std::vector<RimWellMeasurementCurve*> measurementCurves = plotCollection->descendantsIncludingThisOfType<RimWellMeasurementCurve>();
 
     for ( auto curve : measurementCurves )
     {
@@ -80,15 +79,13 @@ void RimWellMeasurementCollection::deleteAllEmptyCurves()
 {
     RimMainPlotCollection* plotCollection = RimMainPlotCollection::current();
 
-    std::vector<RimWellMeasurementCurve*> measurementCurves;
-    plotCollection->descendantsIncludingThisOfType( measurementCurves );
+    std::vector<RimWellMeasurementCurve*> measurementCurves = plotCollection->descendantsIncludingThisOfType<RimWellMeasurementCurve>();
 
     for ( auto curve : measurementCurves )
     {
         if ( curve->curveData()->propertyValues().empty() )
         {
-            RimWellLogTrack* track = nullptr;
-            curve->firstAncestorOrThisOfTypeAsserted( track );
+            auto track = curve->firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
             track->removeCurve( curve );
             delete curve;

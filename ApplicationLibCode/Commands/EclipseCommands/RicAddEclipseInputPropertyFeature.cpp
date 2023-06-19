@@ -114,7 +114,7 @@ RimEclipseCase* RicAddEclipseInputPropertyFeature::getEclipseCase() const
     RimEclipseCellColors* cellColors = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCellColors>();
     if ( cellColors )
     {
-        cellColors->firstAncestorOrThisOfType( eclipseCase );
+        eclipseCase = cellColors->firstAncestorOrThisOfType<RimEclipseCase>();
         if ( eclipseCase )
         {
             return eclipseCase;
@@ -124,7 +124,7 @@ RimEclipseCase* RicAddEclipseInputPropertyFeature::getEclipseCase() const
     RimEclipseView* eclipseView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
     if ( eclipseView )
     {
-        eclipseView->firstAncestorOrThisOfType( eclipseCase );
+        eclipseCase = eclipseView->firstAncestorOrThisOfType<RimEclipseCase>();
         if ( eclipseCase )
         {
             return eclipseCase;

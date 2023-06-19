@@ -54,6 +54,7 @@
 #include "RiuDockWidgetTools.h"
 #include "RiuMdiArea.h"
 #include "RiuMdiSubWindow.h"
+#include "RiuMenuBarBuildTools.h"
 #include "RiuMessagePanel.h"
 #include "RiuMohrsCirclePlot.h"
 #include "RiuProcessMonitor.h"
@@ -63,6 +64,7 @@
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
+#include "RiuSeismicHistogramPanel.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
@@ -128,6 +130,7 @@ RiuMainWindow::RiuMainWindow()
     , m_pvtPlotPanel( nullptr )
     , m_mohrsCirclePlot( nullptr )
     , m_holoLensToolBar( nullptr )
+    , m_seismicHistogramPanel( nullptr )
 {
     setAttribute( Qt::WA_DeleteOnClose );
 
@@ -262,6 +265,7 @@ void RiuMainWindow::cleanupGuiCaseClose()
     if ( m_relPermPlotPanel ) m_relPermPlotPanel->clearPlot();
     if ( m_pvtPlotPanel ) m_pvtPlotPanel->clearPlot();
     if ( m_mohrsCirclePlot ) m_mohrsCirclePlot->clearPlot();
+    if ( m_seismicHistogramPanel ) m_seismicHistogramPanel->clearPlot();
 
     if ( m_pdmUiPropertyView )
     {
@@ -347,6 +351,11 @@ void RiuMainWindow::createActions()
     connect( m_executePaintEventPerformanceTest, SIGNAL( triggered() ), SLOT( slotExecutePaintEventPerformanceTest() ) );
 
     // View actions
+    m_viewFullScreen = new QAction( QIcon( ":/Fullscreen.png" ), "Full Screen", this );
+    m_viewFullScreen->setToolTip( "Full Screen (Ctrl+Alt+F)" );
+    m_viewFullScreen->setCheckable( true );
+    caf::CmdFeature::applyShortcutWithHintToAction( m_viewFullScreen, QKeySequence( tr( "Ctrl+Alt+F" ) ) );
+
     m_viewFromNorth = new QAction( QIcon( ":/SouthView.svg" ), "Look South", this );
     m_viewFromNorth->setToolTip( "Look South (Ctrl+Alt+S)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromNorth, QKeySequence( tr( "Ctrl+Alt+S" ) ) );
@@ -377,6 +386,7 @@ void RiuMainWindow::createActions()
     connect( m_viewFromWest, SIGNAL( triggered() ), SLOT( slotViewFromWest() ) );
     connect( m_viewFromAbove, SIGNAL( triggered() ), SLOT( slotViewFromAbove() ) );
     connect( m_viewFromBelow, SIGNAL( triggered() ), SLOT( slotViewFromBelow() ) );
+    connect( m_viewFullScreen, SIGNAL( toggled( bool ) ), SLOT( slotViewFullScreen( bool ) ) );
 
     // Debug actions
     m_newPropertyView = new QAction( "New Project and Property View", this );
@@ -431,59 +441,13 @@ void RiuMainWindow::createMenus()
     CVF_ASSERT( cmdFeatureMgr );
 
     // File menu
-    QMenu* fileMenu = new RiuToolTipMenu( menuBar() );
-    fileMenu->setTitle( "&File" );
-
-    menuBar()->addMenu( fileMenu );
-
-    fileMenu->addAction( cmdFeatureMgr->action( "RicOpenProjectFeature" ) );
-    fileMenu->addAction( cmdFeatureMgr->action( "RicOpenLastUsedFileFeature" ) );
+    QMenu* fileMenu = RiuMenuBarBuildTools::createDefaultFileMenu( menuBar() );
     fileMenu->addSeparator();
 
-    QMenu* importMenu = fileMenu->addMenu( "&Import" );
+    // Import menu actions
+    RiuMenuBarBuildTools::addImportMenuWithActions( this, fileMenu );
 
-    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Eclipse Cases" );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCasesFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseTimeStepFilterFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFromFilesFeature" ) );
-
-    QMenu* importRoffMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Roff Grid Models" );
-    importRoffMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );
-
-    importMenu->addSeparator();
-    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
-
-#ifdef USE_ODB_API
-    importMenu->addSeparator();
-    QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase24x24.png" ), "Geo Mechanical Cases" );
-    importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
-    importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseTimeStepFilterFeature" ) );
-    importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportElementPropertyFeature" ) );
-#endif
-
-    importMenu->addSeparator();
-    QMenu* importWellMenu = importMenu->addMenu( QIcon( ":/Well.svg" ), "Well Data" );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportFileFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportSsihubFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellLogsImportFileFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathFormationsImportFileFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicImportWellMeasurementsFeature" ) );
-
-    importMenu->addSeparator();
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportPressureDepthDataFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportSurfacesFeature" ) );
-
-    RiuTools::enableAllActionsOnShow( this, importMenu );
-
+    // Export menu actions
     QMenu* exportMenu = fileMenu->addMenu( "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
     exportMenu->addAction( m_snapshotAllViewsToFile );
@@ -494,9 +458,9 @@ void RiuMainWindow::createMenus()
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportCompletionsForVisibleWellPathsFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportVisibleWellPathsFeature" ) );
 
+    // Save menu actions
     fileMenu->addSeparator();
-    fileMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectFeature" ) );
-    fileMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectAsFeature" ) );
+    RiuMenuBarBuildTools::addSaveProjectActions( fileMenu );
 
     std::vector<QAction*> recentFileActions = RiaGuiApplication::instance()->recentFileActions();
     for ( auto act : recentFileActions )
@@ -507,33 +471,26 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
     QMenu* testMenu = fileMenu->addMenu( "&Testing" );
 
+    // Close and Exit actions
     fileMenu->addSeparator();
-    fileMenu->addAction( cmdFeatureMgr->action( "RicCloseProjectFeature" ) );
-    fileMenu->addSeparator();
-    fileMenu->addAction( cmdFeatureMgr->action( "RicExitApplicationFeature" ) );
+    RiuMenuBarBuildTools::addCloseAndExitActions( fileMenu );
 
     connect( fileMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshFileActions() ) );
 
     // Edit menu
-    QMenu* editMenu = menuBar()->addMenu( "&Edit" );
-    editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToClipboardFeature" ) );
-    editMenu->addSeparator();
-    editMenu->addAction( cmdFeatureMgr->action( "RicShowMemoryCleanupDialogFeature" ) );
-    editMenu->addSeparator();
-    editMenu->addAction( cmdFeatureMgr->action( "RicEditPreferencesFeature" ) );
-
+    QMenu* editMenu = RiuMenuBarBuildTools::createDefaultEditMenu( menuBar() );
     if ( RiaPreferences::current()->useUndoRedo() )
     {
         editMenu->addSeparator();
         editMenu->addAction( m_undoAction );
         editMenu->addAction( m_redoAction );
     }
-
     connect( editMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshUndoRedoActions() ) );
 
     // View menu
-    QMenu* viewMenu = menuBar()->addMenu( "&View" );
-    viewMenu->addAction( cmdFeatureMgr->action( "RicViewZoomAllFeature" ) );
+    QMenu* viewMenu = RiuMenuBarBuildTools::createDefaultViewMenu( menuBar() );
+    viewMenu->addSeparator();
+    viewMenu->addAction( m_viewFullScreen );
     viewMenu->addSeparator();
     viewMenu->addAction( m_viewFromSouth );
     viewMenu->addAction( m_viewFromNorth );
@@ -544,6 +501,7 @@ void RiuMainWindow::createMenus()
 
     connect( viewMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshViewActions() ) );
 
+    // Test menu
     testMenu->addAction( m_mockModelAction );
     testMenu->addAction( m_mockResultsModelAction );
     testMenu->addAction( m_mockLargeResultsModelAction );
@@ -561,12 +519,10 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( cmdFeatureMgr->action( "RicExecuteLastUsedScriptFeature" ) );
 
     testMenu->addSeparator();
-
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensExportToFolderFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensCreateDummyFiledBackedSessionFeature" ) );
 
     testMenu->addSeparator();
-
     testMenu->addAction( cmdFeatureMgr->action( "RicThemeColorEditorFeature" ) );
 
     // Windows menu
@@ -574,16 +530,7 @@ void RiuMainWindow::createMenus()
     connect( m_windowMenu, SIGNAL( aboutToShow() ), SLOT( slotBuildWindowActions() ) );
 
     // Help menu
-    QMenu* helpMenu = menuBar()->addMenu( "&Help" );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpAboutFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpCommandLineFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
-    helpMenu->addSeparator();
-    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchHelpFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchIssuesHelpFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicCreateNewIssueHelpFeature" ) );
-
+    QMenu* helpMenu = RiuMenuBarBuildTools::createDefaultHelpMenu( menuBar() );
     connect( helpMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshHelpActions() ) );
 }
 
@@ -656,6 +603,7 @@ void RiuMainWindow::createToolBars()
         toolbar->setObjectName( toolbar->windowTitle() );
         toolbar->addAction( cmdFeatureMgr->action( "RicTogglePerspectiveViewFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicViewZoomAllFeature" ) );
+        toolbar->addAction( m_viewFullScreen );
         toolbar->addAction( m_viewFromNorth );
         toolbar->addAction( m_viewFromSouth );
         toolbar->addAction( m_viewFromEast );
@@ -868,6 +816,15 @@ void RiuMainWindow::createDockPanels()
 
         m_pvtPlotPanel = new RiuPvtPlotPanel( dockWidget );
         dockWidget->setWidget( m_pvtPlotPanel );
+        dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
+    }
+
+    {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Seismic Histogram", RiuDockWidgetTools::mainWindowSeismicHistogramName(), dockManager() );
+
+        m_seismicHistogramPanel = new RiuSeismicHistogramPanel( dockWidget );
+        dockWidget->setWidget( m_seismicHistogramPanel );
         dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
     }
 
@@ -1133,8 +1090,7 @@ RimViewWindow* RiuMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWin
 {
     if ( subWindow )
     {
-        std::vector<RimViewWindow*> allViewWindows;
-        RimProject::current()->descendantsIncludingThisOfType( allViewWindows );
+        std::vector<RimViewWindow*> allViewWindows = RimProject::current()->descendantsIncludingThisOfType<RimViewWindow>();
 
         for ( RimViewWindow* viewWindow : allViewWindows )
         {
@@ -1193,6 +1149,14 @@ RiuPvtPlotPanel* RiuMainWindow::pvtPlotPanel()
 RiuMohrsCirclePlot* RiuMainWindow::mohrsCirclePlot()
 {
     return m_mohrsCirclePlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuSeismicHistogramPanel* RiuMainWindow::seismicHistogramPanel()
+{
+    return m_seismicHistogramPanel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1268,6 +1232,22 @@ void RiuMainWindow::slotViewFromNorth()
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
         RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, -1, 0 ), cvf::Vec3d( 0, 0, 1 ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotViewFullScreen( bool showFullScreen )
+{
+    if ( showFullScreen )
+    {
+        m_lastDockState = dockManager()->saveState( DOCKSTATE_VERSION );
+        dockManager()->restoreState( RiuDockWidgetTools::hideAllDocking3DState(), DOCKSTATE_VERSION );
+    }
+    else
+    {
+        dockManager()->restoreState( m_lastDockState, DOCKSTATE_VERSION );
     }
 }
 
@@ -1373,9 +1353,7 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
 
     if ( !is3dViewCurrentlySelected )
     {
-        std::vector<RimEclipseCellColors*> objects;
-
-        activatedView->descendantsIncludingThisOfType( objects );
+        std::vector<RimEclipseCellColors*> objects = activatedView->descendantsIncludingThisOfType<RimEclipseCellColors>();
         if ( !objects.empty() )
         {
             auto candidate = tv->findModelIndex( objects.front() );
@@ -1486,6 +1464,8 @@ void RiuMainWindow::selectedObjectsChanged()
 
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
 
+    m_seismicHistogramPanel->showHistogram( firstSelectedObject );
+
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
         // Find the reservoir view or the Plot that the selected item is within
@@ -1502,7 +1482,7 @@ void RiuMainWindow::selectedObjectsChanged()
         Rim3dView* selectedReservoirView = dynamic_cast<Rim3dView*>( firstSelectedObject );
         if ( !selectedReservoirView )
         {
-            firstSelectedObject->firstAncestorOrThisOfType( selectedReservoirView );
+            selectedReservoirView = firstSelectedObject->firstAncestorOrThisOfType<Rim3dView>();
         }
 
         bool isActiveViewChanged = false;
@@ -1627,13 +1607,13 @@ void RiuMainWindow::slotToggleFaultLabelsAction( bool showLabels )
         Rim2dIntersectionView* isectView = dynamic_cast<Rim2dIntersectionView*>( activeView );
         if ( isectView )
         {
-            isectView->intersection()->firstAncestorOrThisOfType( activeRiv );
+            activeRiv = isectView->intersection()->firstAncestorOrThisOfType<RimEclipseView>();
         }
     }
 
     if ( !activeRiv ) return;
 
-    activeRiv->faultCollection()->showFaultLabel.setValueWithFieldChanged( showLabels );
+    activeRiv->faultCollection()->setShowFaultLabelWithFieldChanged( showLabels );
 
     refreshDrawStyleActions();
 }
@@ -1700,7 +1680,7 @@ void RiuMainWindow::refreshDrawStyleActions()
         Rim2dIntersectionView* intView = dynamic_cast<Rim2dIntersectionView*>( view );
         if ( intView && intView->intersection() )
         {
-            intView->intersection()->firstAncestorOrThisOfType( eclView );
+            eclView = intView->intersection()->firstAncestorOrThisOfType<RimEclipseView>();
         }
     }
 
@@ -1857,6 +1837,10 @@ void RiuMainWindow::applyFontSizesToDockedPlots()
     if ( m_pvtPlotPanel )
     {
         m_pvtPlotPanel->applyFontSizes( true );
+    }
+    if ( m_seismicHistogramPanel )
+    {
+        m_seismicHistogramPanel->applyFontSizes( true );
     }
 }
 

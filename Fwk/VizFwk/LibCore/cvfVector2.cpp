@@ -45,6 +45,5 @@ template<> Vector2<double> const Vector2<double>::UNDEFINED(UNDEFINED_DOUBLE, UN
 template<> Vector2<float>  const Vector2<float>::UNDEFINED(UNDEFINED_FLOAT, UNDEFINED_FLOAT);
 template<> Vector2<int>    const Vector2<int>::UNDEFINED(UNDEFINED_INT, UNDEFINED_INT);
 
-
 } // namespace cvf
 

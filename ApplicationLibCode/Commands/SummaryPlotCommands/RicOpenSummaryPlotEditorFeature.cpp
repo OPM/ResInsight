@@ -68,7 +68,7 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !selObj ) return false;
 
-    selObj->firstAncestorOrThisOfType( customObjFuncCollection );
+    customObjFuncCollection = selObj->firstAncestorOrThisOfType<RimCustomObjectiveFunctionCollection>();
 
     auto ensembleFilter     = dynamic_cast<RimEnsembleCurveFilter*>( selObj );
     auto ensembleFilterColl = dynamic_cast<RimEnsembleCurveFilterCollection*>( selObj );
@@ -148,7 +148,7 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
     RimSummaryMultiPlot* multiPlot = nullptr;
     if ( auto uiItem = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
-        uiItem->firstAncestorOrThisOfType( multiPlot );
+        multiPlot = uiItem->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
     }
 
     if ( multiPlot )

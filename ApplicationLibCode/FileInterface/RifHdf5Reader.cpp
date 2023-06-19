@@ -22,8 +22,10 @@
 
 #include "RiaQDateTimeTools.h"
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4251 )
+#endif
 #include "H5Cpp.h"
-#include "H5Exception.h"
 
 #include "cvfAssert.h"
 #include "cvfMath.h"

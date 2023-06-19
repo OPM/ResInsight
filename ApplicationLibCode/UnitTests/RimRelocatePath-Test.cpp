@@ -20,8 +20,7 @@ void fieldsByType( caf::PdmObjectHandle* object, std::vector<T*>& typedFields )
 {
     if ( !object ) return;
 
-    std::vector<caf::PdmFieldHandle*> allFieldsInObject;
-    object->fields( allFieldsInObject );
+    std::vector<caf::PdmFieldHandle*> allFieldsInObject = object->fields();
 
     std::vector<caf::PdmObjectHandle*> children;
 
@@ -39,7 +38,8 @@ void fieldsByType( caf::PdmObjectHandle* object, std::vector<T*>& typedFields )
             }
         }
 
-        field->children( &children );
+        auto other = field->children();
+        children.insert( children.end(), other.begin(), other.end() );
     }
 
     for ( const auto& child : children )

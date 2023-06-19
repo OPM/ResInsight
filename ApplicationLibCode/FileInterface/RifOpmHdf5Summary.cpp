@@ -168,9 +168,9 @@ void RifOpmHdf5Summary::buildMetaData()
 
         {
             auto [addresses, smspecIndices, addressToKeywordMap] = RifOpmCommonSummaryTools::buildAddressesSmspecAndKeywordMap( m_eSmry.get() );
-            m_allResultAddresses                                 = addresses;
-            m_adrToSmspecIndices                                 = smspecIndices;
-            m_summaryAddressToKeywordMap                         = addressToKeywordMap;
+            m_allResultAddresses         = addresses;
+            m_adrToSmspecIndices         = smspecIndices;
+            m_summaryAddressToKeywordMap = addressToKeywordMap;
         }
     }
 }

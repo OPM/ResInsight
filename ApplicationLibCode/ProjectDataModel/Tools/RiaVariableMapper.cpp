@@ -70,7 +70,8 @@ RiaVariableMapper::RiaVariableMapper( const QString& variableNameValueTable )
 //--------------------------------------------------------------------------------------------------
 QString RiaVariableMapper::addPathAndGetId( const QString& path )
 {
-    auto computePathId = [this]( const auto& trimmedPath ) -> QString {
+    auto computePathId = [this]( const auto& trimmedPath ) -> QString
+    {
         QString pathId;
         auto    pathToIdIt = m_valueToVariableMap.find( trimmedPath );
         if ( pathToIdIt != m_valueToVariableMap.end() )
@@ -117,15 +118,18 @@ QString RiaVariableMapper::variableTableAsText() const
     const QString pathText = variableToken() + pathIdBaseString();
 
     // Put path variables at the end of the list
-    std::sort( sortedVariables.begin(), sortedVariables.end(), [pathText]( const auto& lhs, const auto& rhs ) {
-        bool isLhsPath = lhs.first.startsWith( pathText );
-        bool isRhsPath = rhs.first.startsWith( pathText );
+    std::sort( sortedVariables.begin(),
+               sortedVariables.end(),
+               [pathText]( const auto& lhs, const auto& rhs )
+               {
+                   bool isLhsPath = lhs.first.startsWith( pathText );
+                   bool isRhsPath = rhs.first.startsWith( pathText );
 
-        if ( isLhsPath && !isRhsPath ) return false;
-        if ( !isLhsPath && isRhsPath ) return true;
+                   if ( isLhsPath && !isRhsPath ) return false;
+                   if ( !isLhsPath && isRhsPath ) return true;
 
-        return lhs.first < rhs.first;
-    } );
+                   return lhs.first < rhs.first;
+               } );
 
     QString textTable;
     textTable += "\n";

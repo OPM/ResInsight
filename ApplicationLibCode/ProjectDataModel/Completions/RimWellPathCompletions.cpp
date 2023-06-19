@@ -136,9 +136,7 @@ RimStimPlanModelCollection* RimWellPathCompletions::stimPlanModelCollection() co
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathValve*> RimWellPathCompletions::valves() const
 {
-    std::vector<RimWellPathValve*> allValves;
-    this->descendantsIncludingThisOfType( allValves );
-    return allValves;
+    return descendantsIncludingThisOfType<RimWellPathValve>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,10 +285,9 @@ void RimWellPathCompletions::initAfterRead()
 {
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.10.1.2" ) )
     {
-        std::vector<RimWellPath*> wellPathHierarchy;
-        this->allAncestorsOrThisOfType( wellPathHierarchy );
-        RimWellPath* topLevelWellPath = wellPathHierarchy.back();
-        auto         settings         = topLevelWellPath->completionSettings();
+        std::vector<RimWellPath*> wellPathHierarchy = allAncestorsOrThisOfType<RimWellPath>();
+        RimWellPath*              topLevelWellPath  = wellPathHierarchy.back();
+        auto                      settings          = topLevelWellPath->completionSettings();
 
         applyToSettings( settings );
     };

@@ -468,10 +468,9 @@ std::map<int, std::vector<std::pair<QString, QString>>> RicExportCompletionDataS
 {
     std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings;
 
-    const RimProject* project = nullptr;
+    const RimProject* project = RimProject::current();
     if ( caseToApply )
     {
-        caseToApply->firstAncestorOrThisOfTypeAsserted( project );
         for ( const RimWellPath* wellPath : project->allWellPaths() )
         {
             int    initialWellProductionTimeStep = -1;

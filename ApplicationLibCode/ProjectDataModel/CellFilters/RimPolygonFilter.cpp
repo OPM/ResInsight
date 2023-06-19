@@ -153,7 +153,7 @@ RimPolygonFilter::RimPolygonFilter()
     CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter" );
 
     CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter" );
-    CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4,10-20,31", "" );
+    CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4-6,10-20:2", "" );
 
     CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth" );
     CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane" );
@@ -257,7 +257,7 @@ QString RimPolygonFilter::fullName() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 {
-    return m_targets.children();
+    return m_targets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,8 +412,7 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     bool readOnlyState = isFilterControlled();
 
-    std::vector<caf::PdmFieldHandle*> objFields;
-    this->fields( objFields );
+    std::vector<caf::PdmFieldHandle*> objFields = this->fields();
     for ( auto& objField : objFields )
     {
         objField->uiCapability()->setUiReadOnly( readOnlyState );
@@ -650,7 +649,7 @@ void RimPolygonFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& poi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid )
+void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
     // we should look in depth using Z coordinate
     // loop over all cells
@@ -663,6 +662,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
                 if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
 
                 size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
+                if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
                 cvf::Vec3d vertices[8];
                 grid->cellCornerVertices( cellIdx, vertices );
@@ -675,7 +675,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
                 // check if the polygon includes the cell
                 if ( cellInsidePolygon2D( center, corners, points ) )
                 {
-                    m_cells[0].push_back( cellIdx );
+                    m_cells[partId].push_back( cellIdx );
                 }
             }
         }
@@ -689,7 +689,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
 // 2. find all cells in this K layer that matches the selection criteria
 // 3. extend those cells to all K layers
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid )
+void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
     // we need to find the K layer we hit with the first point
     size_t nk;
@@ -706,7 +706,9 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
             for ( size_t k = 0; k < grid->cellCountK(); k++ )
             {
                 // get cell bounding box
-                size_t           cellIdx = grid->cellIndexFromIJK( i, j, k );
+                size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
+                if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
                 cvf::BoundingBox bb;
                 cvf::Vec3d       vertices[8];
                 grid->cellCornerVertices( cellIdx, vertices );
@@ -743,6 +745,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
         {
             size_t cellIdx = grid->cellIndexFromIJK( i, j, nk );
+            if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
             // get corner coordinates
             std::array<cvf::Vec3d, 8> hexCorners;
@@ -769,7 +772,9 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
 
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
-            m_cells[0].push_back( newIdx );
+            if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
+            m_cells[partId].push_back( newIdx );
         }
     }
 }
@@ -788,11 +793,11 @@ void RimPolygonFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& poi
 
             if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
             {
-                updateCellsDepthGeoMech( points, grid );
+                updateCellsDepthGeoMech( points, grid, i );
             }
             else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
             {
-                updateCellsKIndexGeoMech( points, grid );
+                updateCellsKIndexGeoMech( points, grid, i );
             }
         }
     }
@@ -807,7 +812,7 @@ void RimPolygonFilter::updateCells()
     initializeCellList();
 
     // get optional k-cell filter
-    m_intervalTool.setInterval( m_enableKFilter, m_kFilterStr );
+    m_intervalTool.setInterval( m_enableKFilter, m_kFilterStr().toStdString() );
 
     // get polyline as vector
     std::vector<cvf::Vec3d> points;
@@ -897,7 +902,8 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
         }
     }
 
-    auto findKLayerBelowPoint = []( const cvf::Vec3d& point, RigMainGrid* mainGrid ) {
+    auto findKLayerBelowPoint = []( const cvf::Vec3d& point, RigMainGrid* mainGrid )
+    {
         // Create a bounding box (ie a ray) from the point down to minimum of grid
         cvf::Vec3d lowestPoint( point.x(), point.y(), mainGrid->boundingBox().min().z() );
 

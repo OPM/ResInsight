@@ -93,9 +93,8 @@ void RimGridCrossPlotCurve::determineLegendIcon()
 {
     if ( !m_plotCurve ) return;
 
-    RimGridCrossPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
-    int fontSize = plot->legendFontSize();
+    auto plot     = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
+    int  fontSize = plot->legendFontSize();
     m_plotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
 }
 
@@ -124,8 +123,7 @@ void RimGridCrossPlotCurve::determineSymbol()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::updateZoomInParentPlot()
 {
-    RimGridCrossPlot* plot;
-    this->firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
     plot->calculateZoomRangeAndUpdateQwt();
 }
 
@@ -159,4 +157,13 @@ void RimGridCrossPlotCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     nameGroup->add( &m_curveName );
     nameGroup->add( &m_showLegend );
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    // Implement an empty method to avoid the base class implementation in RimPlotCurve
+    // The color tag is not used for Grid Cross Plot Curves
 }

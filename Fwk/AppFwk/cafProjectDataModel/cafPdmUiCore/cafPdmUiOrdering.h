@@ -76,7 +76,7 @@ public:
         : m_skipRemainingFields( false ){};
     virtual ~PdmUiOrdering();
 
-    PdmUiOrdering( const PdmUiOrdering& ) = delete;
+    PdmUiOrdering( const PdmUiOrdering& )            = delete;
     PdmUiOrdering& operator=( const PdmUiOrdering& ) = delete;
 
     void add( const PdmFieldHandle* field, LayoutOptions layout = LayoutOptions() );

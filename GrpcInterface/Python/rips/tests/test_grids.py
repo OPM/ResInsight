@@ -1,11 +1,20 @@
 import sys
 import os
+from typing import Any, Dict, List, TypedDict
 import math
+
+from generated.generated_classes import Case
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
 
 import dataroot
+
+
+class NameAndPath(TypedDict):
+    # Typed dict container for name of property and path of property file
+    name: str
+    path: str
 
 
 def check_corner(actual, expected):
@@ -60,7 +69,7 @@ def test_10k(rips_instance, initialize_test):
     check_corner(cell_corners[cell_index].c7, expected_corners[7])
 
 
-def check_reek_grid_box(case):
+def check_reek_grid_box(case: Case):
     assert len(case.grids()) == 1
     grid = case.grid(index=0)
 
@@ -95,3 +104,46 @@ def test_load_grdecl_grid(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/reek/reek_box_grid_w_props.grdecl"
     case = rips_instance.project.load_case(path=casePath)
     check_reek_grid_box(case)
+
+
+def verify_load_grid_and_separate_properties(
+    case: Case, property_name_and_paths: NameAndPath
+):
+    # Load case without properties
+    available_properties = case.available_properties("INPUT_PROPERTY")
+    for [name, _path] in property_name_and_paths.items():
+        assert name not in available_properties
+
+    grid = case.grid(index=0)
+    dimensions = grid.dimensions()
+    total_size = dimensions.i * dimensions.j * dimensions.k
+
+    # Import properties to case
+    case.import_properties(file_names=list(property_name_and_paths.values()))
+    available_properties = case.available_properties("INPUT_PROPERTY")
+    for [name, _path] in property_name_and_paths.items():
+        assert name in available_properties
+        property_values = case.active_cell_property("INPUT_PROPERTY", name, 0)
+        assert len(property_values) == total_size
+
+
+def test_load_grdecl_grid_with_separate_properties(rips_instance, initialize_test):
+    grid_file_path: str = dataroot.PATH + "/reek/reek_box_grid_w_out_props.grdecl"
+    property_name_and_paths: NameAndPath = {
+        "EQLNUM": dataroot.PATH + "/reek/reek_box_EQLNUM_property.grdecl",
+        "PORO": dataroot.PATH + "/reek/reek_box_PORO_property.grdecl",
+    }
+    case = rips_instance.project.load_case(path=grid_file_path)
+
+    verify_load_grid_and_separate_properties(case, property_name_and_paths)
+
+
+def test_load_roff_grid_with_separate_properties(rips_instance, initialize_test):
+    grid_file_path: str = dataroot.PATH + "/reek/reek_box_grid_w_out_props.roffasc"
+    property_name_and_paths: NameAndPath = {
+        "EQLNUM": dataroot.PATH + "/reek/reek_box_EQLNUM_property.roffasc",
+        "PORO": dataroot.PATH + "/reek/reek_box_PORO_property.roffasc",
+    }
+    case = rips_instance.project.load_case(path=grid_file_path)
+
+    verify_load_grid_and_separate_properties(case, property_name_and_paths)

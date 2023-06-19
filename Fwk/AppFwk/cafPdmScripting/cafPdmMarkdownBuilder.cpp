@@ -68,7 +68,8 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
     // Sort to make sure super classes get created before sub classes
     std::sort( dataModelObjects.begin(),
                dataModelObjects.end(),
-               []( std::shared_ptr<const PdmObject> lhs, std::shared_ptr<const PdmObject> rhs ) {
+               []( std::shared_ptr<const PdmObject> lhs, std::shared_ptr<const PdmObject> rhs )
+               {
                    auto lhsStack = lhs->classInheritanceStack();
                    auto rhsStack = rhs->classInheritanceStack();
 
@@ -108,8 +109,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
 
             if ( classKeyword == object->classKeyword() )
             {
-                std::vector<PdmFieldHandle*> fields;
-                object->fields( fields );
+                std::vector<PdmFieldHandle*> fields = object->fields();
                 for ( auto field : fields )
                 {
                     auto scriptability = field->template capability<PdmAbstractFieldScriptingCapability>();
@@ -361,8 +361,7 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
         QString snakeCommandName = PdmPythonGenerator::camelToSnakeCase( object->classKeyword() );
 
         std::vector<AttributeItem>   attributes;
-        std::vector<PdmFieldHandle*> fields;
-        object->fields( fields );
+        std::vector<PdmFieldHandle*> fields = object->fields();
         for ( auto field : fields )
         {
             QString snake_field_name = PdmPythonGenerator::camelToSnakeCase( field->keyword() );

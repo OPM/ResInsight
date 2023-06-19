@@ -32,7 +32,6 @@
 #include "RiuViewer.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimElementVectorResult, "RimElementVectorResult" );
@@ -242,8 +241,7 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
     min = 0.0;
     max = 0.0;
 
-    Rim3dView* view = nullptr;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
 
     int currentTimeStep = view->currentTimeStep();
 
@@ -470,8 +468,7 @@ void RimElementVectorResult::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly( vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL );
     }
 
-    RimEclipseView* view;
-    firstAncestorOrThisOfType( view );
+    RimEclipseView* view = firstAncestorOrThisOfType<RimEclipseView>();
     view->loadDataAndUpdate();
 }
 

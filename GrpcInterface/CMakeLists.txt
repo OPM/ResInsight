@@ -3,7 +3,7 @@ project(GrpcInterface)
 message(STATUS "GRPC enabled")
 add_definitions(-DENABLE_GRPC)
 
-if(VCPKG_AUTO_INSTALL)
+if(RESINSIGHT_VCPKG_AUTO_INSTALL)
   vcpkg_install(grpc)
 endif()
 
