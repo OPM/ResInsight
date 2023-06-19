@@ -46,13 +46,12 @@ void RicNewCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked )
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !selObj ) return;
 
-    std::vector<RimCustomObjectiveFunctionCollection*> coll;
-    selObj->descendantsIncludingThisOfType( coll );
+    std::vector<RimCustomObjectiveFunctionCollection*> coll = selObj->descendantsIncludingThisOfType<RimCustomObjectiveFunctionCollection>();
 
     if ( coll.size() == 1 )
     {
-        RimCustomObjectiveFunction*       newFunc   = coll[0]->addObjectiveFunction();
-        RimCustomObjectiveFunctionWeight* newWeight = RimObjectiveFunctionTools::addWeight( newFunc );
+        RimCustomObjectiveFunction* newFunc = coll[0]->addObjectiveFunction();
+        RimObjectiveFunctionTools::addWeight( newFunc );
         coll[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( newFunc );
         RiuPlotMainWindowTools::setExpanded( coll.front() );

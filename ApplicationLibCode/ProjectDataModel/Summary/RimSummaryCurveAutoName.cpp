@@ -42,23 +42,20 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurveAutoName, "SummaryCurveAutoName" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 {
-    // clang-format off
-    CAF_PDM_InitObject("RimSummaryCurveAutoName");
+    CAF_PDM_InitObject( "RimSummaryCurveAutoName" );
 
-	CAF_PDM_InitField(   &m_longVectorName, "LongVectorName",       true,  "Long Vector Name");
-    CAF_PDM_InitField(       &m_vectorName, "VectorName",           false,   "Vector Name");
-    CAF_PDM_InitField(             &m_unit, "Unit",                 false,  "Unit");
-    CAF_PDM_InitField(     &m_regionNumber, "RegionNumber",         true,   "Region Number");
-    CAF_PDM_InitField(        &m_groupName, "WellGroupName",        true,   "Group Name");
-    CAF_PDM_InitField(         &m_wellName, "WellName",             true,   "Well Name");
-    CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",    true,   "Well Segment Number");
-    CAF_PDM_InitField(          &m_lgrName, "LgrName",              true,   "Lgr Name");
-    CAF_PDM_InitField(       &m_completion, "Completion",           true,   "I, J, K");
-    CAF_PDM_InitField(    &m_aquiferNumber, "Aquifer",              true,   "Aquifer Number");
-    
-    CAF_PDM_InitField(&m_caseName,          "CaseName",             true,   "Case/Ensemble Name");
+    CAF_PDM_InitField( &m_longVectorName, "LongVectorName", true, "Long Vector Name" );
+    CAF_PDM_InitField( &m_vectorName, "VectorName", false, "Vector Name" );
+    CAF_PDM_InitField( &m_unit, "Unit", false, "Unit" );
+    CAF_PDM_InitField( &m_regionNumber, "RegionNumber", true, "Region Number" );
+    CAF_PDM_InitField( &m_groupName, "WellGroupName", true, "Group Name" );
+    CAF_PDM_InitField( &m_wellName, "WellName", true, "Well Name" );
+    CAF_PDM_InitField( &m_wellSegmentNumber, "WellSegmentNumber", true, "Well Segment Number" );
+    CAF_PDM_InitField( &m_lgrName, "LgrName", true, "Lgr Name" );
+    CAF_PDM_InitField( &m_completion, "Completion", true, "I, J, K" );
+    CAF_PDM_InitField( &m_aquiferNumber, "Aquifer", true, "Aquifer Number" );
 
-    // clang-format on
+    CAF_PDM_InitField( &m_caseName, "CaseName", true, "Case/Ensemble Name" );
 
     if ( RimProject::current() && RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.1.0" ) )
     {
@@ -75,8 +72,7 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
                                              const RimSummaryNameHelper*     currentNameHelper,
                                              const RimSummaryNameHelper*     plotNameHelper ) const
 {
-    RimSummaryCurve* summaryCurve = nullptr;
-    this->firstAncestorOrThisOfType( summaryCurve );
+    auto summaryCurve = firstAncestorOrThisOfType<RimSummaryCurve>();
 
     std::string unitNameY;
     if ( summaryCurve )
@@ -91,8 +87,7 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
     }
 
     {
-        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-        this->firstAncestorOrThisOfType( ensembleCurveSet );
+        auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
         if ( ensembleCurveSet && ensembleCurveSet->summaryCaseCollection() )
         {
             caseNameY = ensembleCurveSet->summaryCaseCollection()->name().toStdString();
@@ -111,8 +106,7 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
                                              const RimSummaryNameHelper*     currentNameHelper,
                                              const RimSummaryNameHelper*     plotNameHelper ) const
 {
-    RimSummaryCurve* summaryCurve = nullptr;
-    this->firstAncestorOrThisOfType( summaryCurve );
+    auto summaryCurve = firstAncestorOrThisOfType<RimSummaryCurve>();
 
     std::string unitNameX;
     if ( summaryCurve )
@@ -127,8 +121,7 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
     }
 
     {
-        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-        this->firstAncestorOrThisOfType( ensembleCurveSet );
+        auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
         if ( ensembleCurveSet && ensembleCurveSet->summaryCaseCollection() )
         {
             caseNameX = ensembleCurveSet->summaryCaseCollection()->name().toStdString();
@@ -211,6 +204,10 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
                 text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
 
                 if ( m_vectorName ) text += " (" + summaryAddress.vectorName() + ")";
+
+                // Handle cases where longNameFromVectorName fails to produce a long name.
+                // This can happen for non-standard vector names.
+                if ( text.empty() && !summaryAddress.vectorName().empty() ) text = summaryAddress.vectorName();
             }
             else
             {

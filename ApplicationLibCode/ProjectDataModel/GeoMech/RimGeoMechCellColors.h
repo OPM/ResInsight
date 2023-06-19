@@ -39,8 +39,8 @@ public:
     caf::Signal<RimLegendConfigChangeType> legendConfigChanged;
 
 public:
-    RimGeoMechCellColors( void );
-    ~RimGeoMechCellColors( void ) override;
+    RimGeoMechCellColors();
+    ~RimGeoMechCellColors() override;
 
     caf::PdmChildField<RimRegularLegendConfig*> legendConfig;
 

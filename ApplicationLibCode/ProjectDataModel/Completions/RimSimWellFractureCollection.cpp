@@ -26,7 +26,7 @@ CAF_PDM_SOURCE_INIT( RimSimWellFractureCollection, "SimWellFractureCollection" )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSimWellFractureCollection::RimSimWellFractureCollection( void )
+RimSimWellFractureCollection::RimSimWellFractureCollection()
 {
     CAF_PDM_InitObject( "Fractures", ":/FractureLayout16x16.png" );
 

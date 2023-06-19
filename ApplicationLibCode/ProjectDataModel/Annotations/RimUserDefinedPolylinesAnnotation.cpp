@@ -95,7 +95,7 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimUserDefinedPolylinesAnnotation::activeTargets() const
 {
-    return m_targets.children();
+    return m_targets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,8 +191,7 @@ void RimUserDefinedPolylinesAnnotation::updateEditorsAndVisualization()
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::updateVisualization()
 {
-    RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( annColl );
+    auto annColl = firstAncestorOrThisOfTypeAsserted<RimAnnotationCollection>();
     if ( annColl ) annColl->scheduleRedrawOfRelevantViews();
 }
 

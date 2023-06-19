@@ -104,14 +104,14 @@ public:
     static RifEclipseSummaryAddress miscAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress regionAddress( const std::string& vectorName, int regionNumber, int calculationId = -1 );
     static RifEclipseSummaryAddress
-                                    regionToRegionAddress( const std::string& vectorName, int regionNumber, int region2Number, int calculationId = -1 );
+        regionToRegionAddress( const std::string& vectorName, int regionNumber, int region2Number, int calculationId = -1 );
     static RifEclipseSummaryAddress groupAddress( const std::string& vectorName, const std::string& groupName, int calculationId = -1 );
     static RifEclipseSummaryAddress wellAddress( const std::string& vectorName, const std::string& wellName, int calculationId = -1 );
 
     static RifEclipseSummaryAddress
         wellCompletionAddress( const std::string& vectorName, const std::string& wellName, int i, int j, int k, int calculationId = -1 );
     static RifEclipseSummaryAddress
-                                    wellLgrAddress( const std::string& vectorName, const std::string& lgrName, const std::string& wellName, int calculationId = -1 );
+        wellLgrAddress( const std::string& vectorName, const std::string& lgrName, const std::string& wellName, int calculationId = -1 );
     static RifEclipseSummaryAddress wellCompletionLgrAddress( const std::string& vectorName,
                                                               const std::string& lgrName,
                                                               const std::string& wellName,
@@ -120,10 +120,10 @@ public:
                                                               int                k,
                                                               int                calculationId = -1 );
     static RifEclipseSummaryAddress
-                                    wellSegmentAddress( const std::string& vectorName, const std::string& wellName, int segmentNumber, int calculationId = -1 );
+        wellSegmentAddress( const std::string& vectorName, const std::string& wellName, int segmentNumber, int calculationId = -1 );
     static RifEclipseSummaryAddress blockAddress( const std::string& vectorName, int i, int j, int k, int calculationId = -1 );
     static RifEclipseSummaryAddress
-                                    blockLgrAddress( const std::string& vectorName, const std::string& lgrName, int i, int j, int k, int calculationId = -1 );
+        blockLgrAddress( const std::string& vectorName, const std::string& lgrName, int i, int j, int k, int calculationId = -1 );
     static RifEclipseSummaryAddress importedAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& vectorName, const std::string& datavectorName );
 

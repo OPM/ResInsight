@@ -32,6 +32,7 @@ class RimGridCollection;
 class RimCellFilterCollection;
 class RimWellMeasurementInViewCollection;
 class RimSurfaceInViewCollection;
+class RimSeismicSectionCollection;
 
 class RimGridView : public Rim3dView
 {
@@ -39,6 +40,8 @@ class RimGridView : public Rim3dView
 
 public:
     RimGridView();
+
+    caf::Signal<> cellVisibilityChanged;
 
     void showGridCells( bool enableGridCells );
 
@@ -52,6 +55,7 @@ public:
     RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
     RimAnnotationInViewCollection*              annotationCollection() const;
     RimWellMeasurementInViewCollection*         measurementCollection() const;
+    RimSeismicSectionCollection*                seismicSectionCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
 
@@ -80,8 +84,14 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
+    void appendIntersectionsForCurrentTimeStep();
+    void appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive );
+
+    virtual void calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep = 0 ) = 0;
+
 protected:
     cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
+    cvf::ref<cvf::ModelBasicList> m_intersectionVizModel;
 
     // Fields
     caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
@@ -96,6 +106,7 @@ protected:
     caf::PdmChildField<RimSurfaceInViewCollection*>         m_surfaceCollection;
     caf::PdmChildField<RimCellFilterCollection*>            m_cellFilterCollection;
     caf::PdmChildField<RimCellFilterCollection*>            m_overrideCellFilterCollection;
+    caf::PdmChildField<RimSeismicSectionCollection*>        m_seismicSectionCollection;
 
 private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;

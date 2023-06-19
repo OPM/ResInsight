@@ -45,7 +45,7 @@ public:
         PL_EQUIL_WATER_OIL_CONTACT,
         PL_EQUIL_GAS_OIL_CONTACT
     };
-    typedef caf::AppEnum<PlotAxisAnnotationType> ExportKeywordEnum;
+    using ExportKeywordEnum = caf::AppEnum<PlotAxisAnnotationType>;
 
     RimEquilibriumAxisAnnotation();
 

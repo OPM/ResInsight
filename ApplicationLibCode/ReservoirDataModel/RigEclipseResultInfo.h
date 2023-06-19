@@ -65,7 +65,8 @@ public:
 
     bool operator<( const RigEclipseResultInfo& rhs ) const;
 
-    const RigEclipseResultAddress& eclipseResultAddress() const { return m_resultAddress; }
+    const RigEclipseResultAddress&             eclipseResultAddress() const;
+    const std::vector<RigEclipseTimeStepInfo>& timeStepInfos() const;
 
 private:
     friend class RigCaseCellResultsData;
@@ -75,8 +76,7 @@ private:
     void   setMustBeCalculated( bool mustCalculate );
     size_t gridScalarResultIndex() const;
 
-    const std::vector<RigEclipseTimeStepInfo>& timeStepInfos() const;
-    void                                       setTimeStepInfos( const std::vector<RigEclipseTimeStepInfo>& timeSteps );
+    void setTimeStepInfos( const std::vector<RigEclipseTimeStepInfo>& timeSteps );
 
     RigEclipseResultAddress             m_resultAddress;
     size_t                              m_gridScalarResultIndex;

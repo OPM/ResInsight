@@ -345,6 +345,8 @@ void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
         if ( variable && variable->eclipseCase() )
         {
             m_destinationCase = variable->eclipseCase();
+
+            updateConnectedEditors();
         }
     }
 }

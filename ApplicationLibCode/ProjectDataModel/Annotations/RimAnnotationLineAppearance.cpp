@@ -137,8 +137,7 @@ void RimAnnotationLineAppearance::defineUiOrdering( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationLineAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfType( annColl );
+    auto annColl = firstAncestorOrThisOfType<RimAnnotationCollection>();
     if ( annColl ) annColl->scheduleRedrawOfRelevantViews();
 
     objectChanged.send();

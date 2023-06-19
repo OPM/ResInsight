@@ -113,7 +113,7 @@ std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QString&                                     wellName,
+std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QString& wellName,
                                                                         const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
     std::set<QDateTime> allTimeSteps;

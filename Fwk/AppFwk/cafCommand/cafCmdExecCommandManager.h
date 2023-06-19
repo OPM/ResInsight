@@ -56,7 +56,7 @@ class CmdExecCommandManager
 public:
     static CmdExecCommandManager* instance();
 
-    CmdExecCommandManager( const CmdExecCommandManager& ) = delete;
+    CmdExecCommandManager( const CmdExecCommandManager& )            = delete;
     CmdExecCommandManager& operator=( const CmdExecCommandManager& ) = delete;
 
     // When the undoFeature is enabled, execute commands are inserted in the undo stack

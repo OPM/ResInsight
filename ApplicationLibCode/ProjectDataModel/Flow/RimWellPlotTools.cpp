@@ -25,6 +25,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
@@ -377,7 +378,6 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell( const QSt
             if ( eclCase->eclipseCaseData()->findSimWellData( simWellName ) )
             {
                 cases.push_back( resultCase );
-                break;
             }
         }
     }
@@ -626,9 +626,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         }
         else if ( rftSummaryCase != nullptr )
         {
-            RimSummaryCaseCollection* parentEnsemble = nullptr;
-
-            rftSummaryCase->firstAncestorOrThisOfType( parentEnsemble );
+            RimSummaryCaseCollection* parentEnsemble = rftSummaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftSummaryCase, parentEnsemble ), wellName, timeStep );
         }
         else if ( rftEnsemble != nullptr )
@@ -703,17 +701,20 @@ QString RimWellPlotTools::simWellName( const QString& wellPathNameOrSimWellName 
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::tryMatchChannelName( const std::set<QString>& channelNames, const QString& channelNameToMatch )
 {
-    auto itr = std::find_if( channelNames.begin(), channelNames.end(), [&]( const QString& channelName ) {
-        if ( channelName.startsWith( '^' ) )
-        {
-            std::regex pattern( channelName.toStdString() );
-            return std::regex_match( channelNameToMatch.toStdString(), pattern );
-        }
-        else
-        {
-            return (bool)channelName.contains( channelNameToMatch, Qt::CaseInsensitive );
-        }
-    } );
+    auto itr = std::find_if( channelNames.begin(),
+                             channelNames.end(),
+                             [&]( const QString& channelName )
+                             {
+                                 if ( channelName.startsWith( '^' ) )
+                                 {
+                                     std::regex pattern( channelName.toStdString() );
+                                     return std::regex_match( channelNameToMatch.toStdString(), pattern );
+                                 }
+                                 else
+                                 {
+                                     return (bool)channelName.contains( channelNameToMatch, Qt::CaseInsensitive );
+                                 }
+                             } );
     return itr != channelNames.end();
 }
 
@@ -1323,7 +1324,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
 void RimWellPlotTools::calculateValueOptionsForTimeSteps( const QString&                             wellPathNameOrSimWellName,
                                                           const std::vector<RifDataSourceForRftPlt>& selSources,
                                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
-                                                          QList<caf::PdmOptionItemInfo>&                               options )
+                                                          QList<caf::PdmOptionItemInfo>& options )
 {
     auto timestepsToShowWithSources = calculateRelevantTimeStepsFromCases( wellPathNameOrSimWellName, selSources, interestingRFTResults );
 

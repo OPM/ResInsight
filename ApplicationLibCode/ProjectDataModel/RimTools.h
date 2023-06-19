@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "cvfBoundingBox.h"
+
 #include <QList>
 #include <QString>
 
@@ -58,7 +60,11 @@ public:
     static void eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly = false );
+    static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options );
+
     static RimWellPathCollection* wellPathCollection();
+    static RimWellPath*           firstWellPath();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 

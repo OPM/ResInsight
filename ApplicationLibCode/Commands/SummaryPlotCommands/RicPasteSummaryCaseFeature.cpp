@@ -44,11 +44,8 @@ bool RicPasteSummaryCaseFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
-    RimSummaryCaseCollection* summaryCaseCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryCaseCollection );
-
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryCaseMainCollection );
+    RimSummaryCaseCollection*     summaryCaseCollection     = destinationObject->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = destinationObject->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
 
     if ( !( summaryCaseCollection || summaryCaseMainCollection ) )
     {
@@ -82,8 +79,7 @@ void RicPasteSummaryCaseFeature::onActionTriggered( bool isChecked )
 
     std::vector<caf::PdmPointer<RimSummaryCase>> sourceObjects = RicPasteSummaryCaseFeature::summaryCases();
 
-    RimSummaryCaseCollection* summaryCaseCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryCaseCollection );
+    RimSummaryCaseCollection* summaryCaseCollection = destinationObject->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
 
     if ( summaryCaseCollection )
     {
@@ -98,8 +94,7 @@ void RicPasteSummaryCaseFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryCaseMainCollection );
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = destinationObject->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
 
     if ( summaryCaseMainCollection )
     {
@@ -143,9 +138,7 @@ std::vector<caf::PdmPointer<RimSummaryCase>> RicPasteSummaryCaseFeature::summary
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryCaseFeature::removeFromSourceCollection( RimSummaryCase* summaryCase )
 {
-    RimSummaryCaseCollection* sourceSummaryCaseCollection = nullptr;
-    summaryCase->firstAncestorOrThisOfType( sourceSummaryCaseCollection );
-
+    RimSummaryCaseCollection* sourceSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
     if ( sourceSummaryCaseCollection )
     {
         sourceSummaryCaseCollection->removeCase( summaryCase );
@@ -153,9 +146,7 @@ void RicPasteSummaryCaseFeature::removeFromSourceCollection( RimSummaryCase* sum
         return;
     }
 
-    RimSummaryCaseMainCollection* sourceSummaryCaseMainCollection = nullptr;
-    summaryCase->firstAncestorOrThisOfType( sourceSummaryCaseMainCollection );
-
+    RimSummaryCaseMainCollection* sourceSummaryCaseMainCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
     if ( sourceSummaryCaseMainCollection )
     {
         sourceSummaryCaseMainCollection->removeCase( summaryCase );

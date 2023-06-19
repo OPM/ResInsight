@@ -486,10 +486,8 @@ void RimWellPathTarget::setTargetPointFromDisplayCoord( const cvf::Vec3d& coordI
 //--------------------------------------------------------------------------------------------------
 double RimWellPathTarget::measuredDepth() const
 {
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOfType( wellPath );
-
-    auto geoDef = geometryDefinition();
+    auto wellPath = firstAncestorOfType<RimWellPath>();
+    auto geoDef   = geometryDefinition();
 
     if ( geoDef && wellPath && wellPath->wellPathGeometry() )
     {
@@ -508,10 +506,7 @@ double RimWellPathTarget::measuredDepth() const
 //--------------------------------------------------------------------------------------------------
 RimWellPathGeometryDef* RimWellPathTarget::geometryDefinition() const
 {
-    RimWellPathGeometryDef* geoDef = nullptr;
-    this->firstAncestorOfType( geoDef );
-
-    return geoDef;
+    return firstAncestorOfType<RimWellPathGeometryDef>();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -174,12 +174,12 @@ TEST( RiaInterpolationToolsTest, InterpolateMissingValuesSmallDiffs )
 {
     double              inf = std::numeric_limits<double>::infinity();
     std::vector<double> x   = { 898.02149910694368,
-                              898.68522777852661,
-                              898.68522777852661,
-                              971.44605537010159,
-                              971.44605537010887,
-                              1074.7396805237731,
-                              1074.7396805237802 };
+                                898.68522777852661,
+                                898.68522777852661,
+                                971.44605537010159,
+                                971.44605537010887,
+                                1074.7396805237731,
+                                1074.7396805237802 };
     std::vector<double> y   = { inf, inf, inf, inf, inf, 590.65394902812329, 590.75823974609375 };
 
     RiaInterpolationTools::interpolateMissingValues( x, y );

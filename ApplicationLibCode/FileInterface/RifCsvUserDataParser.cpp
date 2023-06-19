@@ -18,6 +18,7 @@
 
 #include "RifCsvUserDataParser.h"
 
+#include "RifEclipseSummaryAddress.h"
 #include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
 #include "RifFileParseTools.h"
@@ -84,10 +85,10 @@ RifCsvUserDataParser::~RifCsvUserDataParser()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parse( const AsciiDataParseOptions& parseOptions )
+bool RifCsvUserDataParser::parse( const AsciiDataParseOptions& parseOptions, const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     if ( determineCsvLayout() == LineBased ) return parseLineBasedData();
-    return parseColumnBasedData( parseOptions );
+    return parseColumnBasedData( parseOptions, unitMapping );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,7 +277,9 @@ QStringList RifCsvUserDataParser::timeColumnPreviewData( int lineCount, const As
 RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
 {
     QTextStream* dataStream = openDataStream();
-    QString      firstLine;
+    if ( !dataStream ) return LineBased;
+
+    QString firstLine;
 
     QStringList headers;
     while ( !dataStream->atEnd() )
@@ -299,7 +302,10 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const AsciiDataParseOptions& parseOptions, std::vector<Column>* columnInfoList )
+bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                                         dataStream,
+                                            const AsciiDataParseOptions&                         parseOptions,
+                                            std::vector<Column>*                                 columnInfoList,
+                                            const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool headerFound = false;
 
@@ -309,7 +315,19 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const Ascii
     while ( !headerFound )
     {
         QString line = dataStream->readLine();
-        if ( line.trimmed().isEmpty() ) continue;
+        if ( line.trimmed().isEmpty() )
+        {
+            if ( !headerFound && dataStream->atEnd() )
+            {
+                // Handle empty stream
+                return false;
+            }
+            else
+            {
+                // Empty lines are skipped.
+                continue;
+            }
+        }
 
         QStringList columnHeaders = RifFileParseTools::splitLineAndTrim( line, parseOptions.cellSeparator );
 
@@ -317,8 +335,9 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const Ascii
         QStringList unitTexts;
         QStringList names;
 
-        auto startOfLineWithDataValues = dataStream->pos();
-        bool hasDataValues             = false;
+        auto    startOfLineWithDataValues = dataStream->pos();
+        bool    hasDataValues             = false;
+        QString nameFromData;
         while ( !hasDataValues )
         {
             QString candidateLine = dataStream->readLine();
@@ -327,7 +346,14 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const Ascii
             for ( const auto& text : candidateColumnHeaders )
             {
                 if ( RiaStdStringTools::isNumber( text.toStdString(), parseOptions.locale.decimalPoint().toLatin1() ) )
+                {
                     hasDataValues = true;
+                }
+                else if ( nameFromData.isEmpty() )
+                {
+                    // Keep the first non-number data field as a possible name.
+                    nameFromData = text;
+                }
             }
 
             if ( !hasDataValues && candidateColumnHeaders.size() == columnHeaders.size() )
@@ -353,6 +379,23 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const Ascii
         {
             QString colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( columnHeaders[iCol] );
 
+            QString unit;
+
+            // Check if unit is part of the column name in parentheses, e.g. "VECTOR (unit)".
+            QRegExp exp( "\\((.*)\\)" );
+            if ( exp.indexIn( colName ) >= 0 )
+            {
+                // "VECTOR (unit)" ==> "(unit)"
+                QString fullCapture = exp.cap( 0 );
+                // "VECTOR (unit)" ==> "unit"
+                QString unitCapture = exp.cap( 1 );
+
+                unit = unitCapture;
+
+                // Remove unit from name
+                colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
+            }
+
             if ( iCol < names.size() )
             {
                 QString name = RiaTextStringTools::trimAndRemoveDoubleSpaces( names[iCol] );
@@ -363,12 +406,27 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const Ascii
                 }
             }
 
-            QString unit;
             if ( iCol < unitTexts.size() ) unit = unitTexts[iCol];
 
             RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
-            Column                   col  = Column::createColumnInfoFromCsvData( addr, unit.toStdString() );
 
+            // Create address of a give category if provided
+            if ( parseOptions.defaultCategory == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL )
+                addr = RifEclipseSummaryAddress::wellAddress( colName.toStdString(), nameFromData.toStdString() );
+            else if ( parseOptions.defaultCategory == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD )
+                addr = RifEclipseSummaryAddress::fieldAddress( colName.toStdString() );
+
+            double scaleFactor = 1.0;
+            if ( !unit.isEmpty() )
+            {
+                if ( auto it = unitMapping.find( unit ); it != unitMapping.end() )
+                {
+                    std::tie( unit, scaleFactor ) = it->second;
+                }
+            }
+
+            Column col      = Column::createColumnInfoFromCsvData( addr, unit.toStdString() );
+            col.scaleFactor = scaleFactor;
             columnInfoList->push_back( col );
         }
 
@@ -381,7 +439,8 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const Ascii
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& parseOptions )
+bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions&                         parseOptions,
+                                                 const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool errors = false;
     enum
@@ -395,7 +454,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
     QTextStream* dataStream = openDataStream();
 
     // Parse header
-    if ( !parseColumnInfo( dataStream, parseOptions, &columnInfoList ) )
+    if ( !parseColumnInfo( dataStream, parseOptions, &columnInfoList, unitMapping ) )
     {
         if ( m_errorText ) m_errorText->append( "CSV import: Failed to parse header columns" );
         return false;
@@ -476,7 +535,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
                             // Add nullptr value
                             value = HUGE_VAL;
                         }
-                        col.values.push_back( value );
+                        col.values.push_back( value * col.scaleFactor );
                     }
                     else if ( col.dataType == Column::TEXT )
                     {
@@ -484,20 +543,22 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
                     }
                     else if ( col.dataType == Column::DATETIME )
                     {
-                        QDateTime dt;
-                        dt = tryParseDateTime( colData.toStdString(), parseOptions.dateTimeFormat );
+                        QDateTime dt = tryParseDateTime( colData.toStdString(), parseOptions.dateTimeFormat );
 
-                        if ( !dt.isValid() && !parseOptions.useCustomDateTimeFormat )
+                        // Try to match date format only
+                        if ( !dt.isValid() && parseOptions.dateFormat != parseOptions.dateTimeFormat )
                         {
-                            // Try to match date format only
-                            if ( parseOptions.dateFormat != parseOptions.dateTimeFormat )
-                            {
-                                dt = tryParseDateTime( colData.toStdString(), parseOptions.dateFormat );
-                            }
-                            if ( !dt.isValid() && !parseOptions.fallbackDateTimeFormat.isEmpty() )
-                            {
-                                dt = tryParseDateTime( colData.toStdString(), parseOptions.fallbackDateTimeFormat );
-                            }
+                            dt = tryParseDateTime( colData.toStdString(), parseOptions.dateFormat );
+                        }
+                        if ( !dt.isValid() && !parseOptions.fallbackDateTimeFormat.isEmpty() )
+                        {
+                            dt = tryParseDateTime( colData.toStdString(), parseOptions.fallbackDateTimeFormat );
+                        }
+
+                        if ( !dt.isValid() && parseOptions.startDateTime.isValid() )
+                        {
+                            double minutes = colData.toDouble();
+                            dt             = parseOptions.startDateTime.addSecs( minutes * 60 );
                         }
 
                         if ( !dt.isValid() )
@@ -532,7 +593,12 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
 //--------------------------------------------------------------------------------------------------
 bool RifCsvUserDataParser::parseLineBasedData()
 {
-    QTextStream*                                                               dataStream = openDataStream();
+    QTextStream* dataStream = openDataStream();
+    if ( !dataStream )
+    {
+        return false;
+    }
+
     std::map<RifEclipseSummaryAddress, std::vector<std::pair<time_t, double>>> addressesAndData;
     std::vector<int>                                                           colIndexes;
 

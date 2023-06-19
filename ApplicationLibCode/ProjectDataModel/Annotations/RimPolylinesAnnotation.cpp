@@ -73,8 +73,7 @@ bool RimPolylinesAnnotation::isActive()
 //--------------------------------------------------------------------------------------------------
 bool RimPolylinesAnnotation::isVisible()
 {
-    RimAnnotationCollectionBase* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
 
     return coll && coll->isActive() && m_isActive;
 }

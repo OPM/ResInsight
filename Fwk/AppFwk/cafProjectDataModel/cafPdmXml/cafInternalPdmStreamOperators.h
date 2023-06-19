@@ -62,3 +62,48 @@ QTextStream& operator>>( QTextStream& str, std::vector<T>& sobj )
     }
     return str;
 }
+
+//==================================================================================================
+/// QTextStream Stream operator overloading for std::pair<T, U>
+//==================================================================================================
+
+template <typename T, typename U>
+QTextStream& operator<<( QTextStream& str, const std::pair<T, U>& sobj )
+{
+    str << sobj.first;
+    str << " ";
+    str << sobj.second;
+
+    return str;
+}
+
+template <typename T, typename U>
+QTextStream& operator>>( QTextStream& str, std::pair<T, U>& sobj )
+{
+    T first;
+
+    str >> first;
+
+    QString restOfString;
+    while ( str.status() == QTextStream::Ok )
+    {
+        // Using the >> operator will parse a string word by word. Multiple spaces between words will be replaced by a
+        // single space.
+
+        QString tmp;
+        str >> tmp;
+
+        if ( !tmp.isEmpty() )
+        {
+            if ( !restOfString.isEmpty() ) restOfString += " ";
+            restOfString += tmp;
+        }
+    }
+
+    QVariant v      = restOfString;
+    U        second = v.value<U>();
+
+    sobj = std::make_pair( first, second );
+
+    return str;
+}

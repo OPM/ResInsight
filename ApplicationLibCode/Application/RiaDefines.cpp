@@ -42,6 +42,17 @@ void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
 }
 
 template <>
+void caf::AppEnum<RiaDefines::ResultDataType>::setUp()
+{
+    addItem( RiaDefines::ResultDataType::UNKNOWN, "UNKNOWN", "Unknown" );
+    addItem( RiaDefines::ResultDataType::FLOAT, "FLOAT", "Float" );
+    addItem( RiaDefines::ResultDataType::DOUBLE, "DOUBLE", "Double" );
+    addItem( RiaDefines::ResultDataType::INTEGER, "INTEGER", "Integer" );
+
+    setDefault( RiaDefines::ResultDataType::FLOAT );
+}
+
+template <>
 void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 {
     addItem( RiaDefines::DepthUnitType::UNIT_METER, "UNIT_METER", "Meter" );
@@ -123,7 +134,6 @@ void caf::AppEnum<RiaDefines::ThemeEnum>::setUp()
 {
     addItem( RiaDefines::ThemeEnum::DEFAULT, "DEFAULT", "Default theme" );
     addItem( RiaDefines::ThemeEnum::DARK, "DARK", "Dark theme" );
-    addItem( RiaDefines::ThemeEnum::LIGHT, "LIGHT", "Light theme" );
     setDefault( RiaDefines::ThemeEnum::DEFAULT );
 }
 
@@ -158,15 +168,6 @@ void caf::AppEnum<RiaDefines::RowCount>::setUp()
 }
 
 } // namespace caf
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaDefines::isNativeCategoryResult( const QString& resultName )
-{
-    return resultName.endsWith( "NUM" ) || resultName == RiaResultNames::indexIResultName() ||
-           resultName == RiaResultNames::indexJResultName() || resultName == RiaResultNames::indexKResultName();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -275,8 +275,7 @@ RimMswCompletionParameters* RimWellPathCompletionSettings::mswCompletionParamete
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     if ( wellPath->isTopLevelWellPath() )
     {

@@ -51,6 +51,7 @@ set(MOC_HEADER_FILES
     cafPdmDoubleStringValidator.h
     cafPdmUiPickableLineEditor.h
     cafPdmUiLabelEditor.h
+    cafPdmUiCheckBoxAndTextEditor.h
 )
 
 find_package(
@@ -105,6 +106,8 @@ set(PROJECT_FILES
     cafPdmUiFieldEditorHelper.h
     cafPdmUiFieldEditorHelper.cpp
     cafPdmUiLabelEditor.cpp
+    cafPdmUiCheckBoxAndTextEditor.h
+    cafPdmUiCheckBoxAndTextEditor.cpp
     # object editors
     cafPdmUiDefaultObjectEditor.cpp
     cafPdmUiDefaultObjectEditor.h

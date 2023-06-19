@@ -54,19 +54,23 @@ public:
     static int allTimeStepsValue();
 
     void handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) override;
-
-    void setEclipseResultAddress( const RimEclipseResultAddress& address );
+    void setEclipseResultAddress( const RimEclipseResultAddress& resultAddress );
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    RigCaseCellResultsData*       currentGridCellResults() const;
-    QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
+
+    RigCaseCellResultsData* currentGridCellResults() const;
+    QStringList             getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
+
+    void setEclipseResultAddress( RimEclipseCase* eclipseCase, caf::AppEnum<RiaDefines::ResultCatType> resultType, const QString& resultName );
 
 private:
     caf::PdmPtrField<RimEclipseCase*>                      m_eclipseCase;
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_resultType;
     caf::PdmField<QString>                                 m_resultVariable;
     caf::PdmField<int>                                     m_timeStep;
+    caf::PdmField<bool>                                    m_button;
 };

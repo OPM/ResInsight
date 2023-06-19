@@ -108,8 +108,7 @@ QString RimEclipseContourMapView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( ownerCase );
+    RimCase* ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     if ( nameConfig()->addCaseName() )
     {
@@ -292,9 +291,9 @@ void RimEclipseContourMapView::updateGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::setFaultVisParameters()
 {
-    faultCollection()->setShowFaultsOutsideFilter( false );
-    faultCollection()->showOppositeFaultFaces    = true;
-    faultCollection()->faultResult               = RimFaultInViewCollection::FAULT_NO_FACE_CULLING;
+    faultCollection()->setShouldApplyCellFiltersToFaults( true );
+    faultCollection()->setShowOppositeFaultFaces( true );
+    faultCollection()->setFaultResult( RimFaultInViewCollection::FAULT_NO_FACE_CULLING );
     faultResultSettings()->showCustomFaultResult = true;
     faultResultSettings()->customFaultResult()->setResultVariable( "None" );
 }
@@ -321,7 +320,7 @@ void RimEclipseContourMapView::appendContourMapProjectionToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapProjection";
-            this->removeModelByName( frameScene, name );
+            RimEclipseContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
             contourMapProjectionModelBasicList->setName( name );
@@ -346,7 +345,7 @@ void RimEclipseContourMapView::appendContourLinesToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapLines";
-            this->removeModelByName( frameScene, name );
+            RimEclipseContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapLabelModelBasicList = new cvf::ModelBasicList;
             contourMapLabelModelBasicList->setName( name );
@@ -371,7 +370,7 @@ void RimEclipseContourMapView::appendPickPointVisToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapPickPoint";
-            this->removeModelByName( frameScene, name );
+            RimEclipseContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
             contourMapProjectionModelBasicList->setName( name );
@@ -508,7 +507,7 @@ std::set<RivCellSetEnum> RimEclipseContourMapView::allVisibleFaultGeometryTypes(
 {
     std::set<RivCellSetEnum> faultGeoTypes;
     // Normal eclipse views always shows faults for active and visible eclipse cells.
-    if ( faultCollection()->showFaultCollection() )
+    if ( faultCollection()->isActive() )
     {
         faultGeoTypes = RimEclipseView::allVisibleFaultGeometryTypes();
     }

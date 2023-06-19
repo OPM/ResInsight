@@ -114,12 +114,15 @@ LasDepthValueAndIndexPerKLayer
 //--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase*                        selectedCase,
                                                                          RimWellPath*                    sourceWell,
+                                                                         RimWellLogFile*                 soureWellLogFile,
                                                                          const std::vector<RimWellPath*> destinationWells,
                                                                          const std::vector<QString>&     selectedResultProperties,
                                                                          const QString&                  exportFolder,
                                                                          double                          rkbDiff )
 {
-    auto*      sourceWellLogData  = sourceWell->wellLogFiles()[0]->wellLogFileData();
+    if ( !selectedCase || !sourceWell || !soureWellLogFile || destinationWells.empty() ) return;
+
+    auto*      sourceWellLogData  = soureWellLogFile->wellLogFileData();
     const auto defaultPropertyMap = createDefaultPropertyMap( selectedResultProperties, sourceWellLogData );
 
     // NOTE: map createIndexKDepthDataMapFromCase is created using well extractor, while sourceWellLogData depth
@@ -265,9 +268,9 @@ std::string RicCreateDepthAdjustedLasFilesImpl::createDepthUnitText( RiaDefines:
 //--------------------------------------------------------------------------------------------------
 std::string RicCreateDepthAdjustedLasFilesImpl::createDepthUnitComment( RiaDefines::DepthUnitType depthUnitType )
 {
-    return depthUnitType == RiaDefines::DepthUnitType::UNIT_METER
-               ? "in meters"
-               : depthUnitType == RiaDefines::DepthUnitType::UNIT_FEET ? "in feet" : "in Connection number";
+    return depthUnitType == RiaDefines::DepthUnitType::UNIT_METER  ? "in meters"
+           : depthUnitType == RiaDefines::DepthUnitType::UNIT_FEET ? "in feet"
+                                                                   : "in Connection number";
 }
 
 //--------------------------------------------------------------------------------------------------

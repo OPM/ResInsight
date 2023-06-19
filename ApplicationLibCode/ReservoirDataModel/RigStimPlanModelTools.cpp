@@ -121,7 +121,7 @@ std::tuple<const RigFault*, double, cvf::Vec3d, double> RigStimPlanModelTools::f
     for ( const WellPathCellIntersectionInfo& intersection : intersections )
     {
         // Find the closest cell face which is a fault
-        double          distance = position.pointDistance( intersection.startPoint );
+        double distance = position.pointDistance( intersection.startPoint );
         const RigFault* fault = mainGrid->findFaultFromCellIndexAndCellFace( intersection.globCellIndex, intersection.intersectedCellFaceIn );
         if ( fault && distance < shortestDistance )
         {

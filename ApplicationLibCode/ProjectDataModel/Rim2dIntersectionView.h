@@ -45,8 +45,8 @@ class Rim2dIntersectionView : public Rim3dView
     CAF_PDM_HEADER_INIT;
 
 public:
-    Rim2dIntersectionView( void );
-    ~Rim2dIntersectionView( void ) override;
+    Rim2dIntersectionView();
+    ~Rim2dIntersectionView() override;
 
     RiaDefines::View3dContent viewContent() const override;
 

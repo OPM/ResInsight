@@ -42,7 +42,7 @@ CAF_CMD_SOURCE_INIT( RicNewRftPlotFeature, "RicNewRftPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewRftPlotFeature::isCommandEnabled()
 {
-    RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection*>();
+    RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection>();
     if ( simWell ) return true;
 
     if ( selectedWellName().isEmpty() )
@@ -102,10 +102,10 @@ void RicNewRftPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 QString RicNewRftPlotFeature::selectedWellName()
 {
-    RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
+    RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView>();
     if ( simWell ) return simWell->name();
 
-    RimWellPath* rimWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
+    RimWellPath* rimWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
     if ( rimWellPath ) return rimWellPath->name();
 
     return QString();

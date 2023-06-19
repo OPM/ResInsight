@@ -164,7 +164,8 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     m_fractureDefinitionData = fractureDefinitionData;
     if ( m_fractureDefinitionData )
     {
-        auto addInjectivityFactor = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
+        auto addInjectivityFactor = []( std::shared_ptr<RigThermalFractureDefinition> def )
+        {
             int     leakoffPressureDropIndex  = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
             int     filtratePressureDropIndex = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
             QString injectivityValueTag       = RiaDefines::injectivityFactorResultName();
@@ -185,7 +186,8 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
             }
         };
 
-        auto addFilterCakeMobility = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
+        auto addFilterCakeMobility = []( std::shared_ptr<RigThermalFractureDefinition> def )
+        {
             int     leakoffPressureDropIndex   = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
             int     filtratePressureDropIndex  = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
             int     leakoffMobilityIndex       = def->getPropertyIndex( RiaDefines::leakoffMobilityResultName() );
@@ -771,8 +773,7 @@ RimThermalFractureTemplate::FilterCakePressureDrop RimThermalFractureTemplate::f
 //--------------------------------------------------------------------------------------------------
 bool RimThermalFractureTemplate::placeFractureUsingTemplateData( RimFracture* fracture )
 {
-    RimWellPath* wellPath = nullptr;
-    fracture->firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = fracture->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return false;
@@ -786,7 +787,7 @@ bool RimThermalFractureTemplate::placeFractureUsingTemplateData( RimFracture* fr
     double md = wellPathGeometry->closestMeasuredDepth( centerPosition );
 
     RiaLogging::info(
-        QString( "Placing thermal fracture. Posotion: [%1 %2 %3]" ).arg( centerPosition.x() ).arg( centerPosition.y() ).arg( centerPosition.z() ) );
+        QString( "Placing thermal fracture. Position: [%1 %2 %3]" ).arg( centerPosition.x() ).arg( centerPosition.y() ).arg( centerPosition.z() ) );
     RiaLogging::info( QString( "Computed MD: %1" ).arg( md ) );
 
     RimWellPathFracture* wellPathFracture = dynamic_cast<RimWellPathFracture*>( fracture );

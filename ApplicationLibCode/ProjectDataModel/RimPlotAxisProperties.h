@@ -126,6 +126,8 @@ public:
     void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count );
     void                enableAutoValueForMajorTickmarkCount( bool enable );
 
+    void enableAutoValueForAllFields( bool enable );
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;

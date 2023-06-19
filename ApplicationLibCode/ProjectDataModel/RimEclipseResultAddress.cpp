@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseResultAddress, "EclipseResultAddress" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultAddress::RimEclipseResultAddress()
 {
-    CAF_PDM_InitObject( "EclipseResultAddress", ":/DataVector.png", "", "" );
+    CAF_PDM_InitObject( "EclipseResultAddress", ":/DataVector.svg", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultName, "ResultName", "Result Name" );
     m_resultName.uiCapability()->setUiReadOnly( true );

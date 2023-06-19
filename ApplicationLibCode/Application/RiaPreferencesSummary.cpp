@@ -432,7 +432,7 @@ void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* fi
         auto attrib = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
         if ( attrib )
         {
-            attrib->m_heightHint = 30;
+            attrib->heightHint = 30;
         }
     }
 }

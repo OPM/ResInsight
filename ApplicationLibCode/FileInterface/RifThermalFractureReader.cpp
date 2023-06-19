@@ -49,7 +49,8 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString> RifThermalFrac
 
     QString separator = ",";
 
-    auto appendPropertyValues = [definition]( int nodeIndex, int valueOffset, const QStringList& values, double conductivityFactor ) {
+    auto appendPropertyValues = [definition]( int nodeIndex, int valueOffset, const QStringList& values, double conductivityFactor )
+    {
         CAF_ASSERT( valueOffset <= values.size() );
         for ( int i = valueOffset; i < values.size(); i++ )
         {

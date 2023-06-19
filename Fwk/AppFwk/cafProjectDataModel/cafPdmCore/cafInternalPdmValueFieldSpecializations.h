@@ -135,6 +135,47 @@ public:
 };
 
 //==================================================================================================
+/// Partial specialization for std::pair
+//==================================================================================================
+template <typename T, typename U>
+class PdmValueFieldSpecialization<std::pair<T, U>>
+{
+public:
+    static QVariant convert( const std::pair<T, U>& value )
+    {
+        QList<QVariant> returnList;
+
+        returnList.push_back( PdmValueFieldSpecialization<T>::convert( value.first ) );
+        returnList.push_back( PdmValueFieldSpecialization<U>::convert( value.second ) );
+
+        return returnList;
+    }
+
+    static void setFromVariant( const QVariant& variantValue, std::pair<T, U>& value )
+    {
+        if ( variantValue.canConvert<QList<QVariant>>() )
+        {
+            QList<QVariant> lst = variantValue.toList();
+            if ( lst.size() == 2 )
+            {
+                T first;
+                PdmValueFieldSpecialization<T>::setFromVariant( lst[0], first );
+
+                U second;
+                PdmValueFieldSpecialization<U>::setFromVariant( lst[1], second );
+
+                value = std::make_pair( first, second );
+            }
+        }
+    }
+
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        return variantValue == variantValue2;
+    }
+};
+
+//==================================================================================================
 /// Partial specialization for caf::FilePath
 //==================================================================================================
 template <>

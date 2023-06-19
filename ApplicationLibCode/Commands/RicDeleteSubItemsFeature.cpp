@@ -223,8 +223,7 @@ void RicDeleteSubItemsFeature::deleteSubItems( bool onlyDeleteUnchecked )
 
                 collection->updateConnectedEditors();
 
-                RimProject* proj = nullptr;
-                collection->firstAncestorOrThisOfType( proj );
+                RimProject* proj = RimProject::current();
                 if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
             }
         }

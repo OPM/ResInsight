@@ -45,7 +45,7 @@ private:
     ~RicExportToSharingServerScheduler() override;
 
     RicExportToSharingServerScheduler( const RicExportToSharingServerScheduler& o ) = delete;
-    void operator=( const RicExportToSharingServerScheduler& o ) = delete;
+    void operator=( const RicExportToSharingServerScheduler& o )                    = delete;
 
     void startTimer( int msecs );
     void triggerUpdateSession();

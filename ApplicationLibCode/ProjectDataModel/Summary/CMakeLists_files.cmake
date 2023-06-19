@@ -46,6 +46,12 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveInfoTextProvider.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressModifier.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRftCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCsvSummaryCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTable.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryDeclineCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryRegressionAnalysisCurve.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -96,6 +102,12 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveInfoTextProvider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressModifier.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRftCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCsvSummaryCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryDeclineCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryRegressionAnalysisCurve.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

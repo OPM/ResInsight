@@ -33,6 +33,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     SsiHubImportCommands/CMakeLists_files.cmake
     StreamlineCommands/CMakeLists_files.cmake
     SurfaceCommands/CMakeLists_files.cmake
+    SeismicCommands/CMakeLists_files.cmake
     ToggleCommands/CMakeLists_files.cmake
     ViewLink/CMakeLists_files.cmake
     WellLogCommands/CMakeLists_files.cmake
@@ -59,34 +60,20 @@ add_library(
 )
 
 target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-         ${CMAKE_SOURCE_DIR}/ThirdParty
-         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
-         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common
-         ${CMAKE_SOURCE_DIR}/ThirdParty/qtadvanceddocking/src
+  ${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+                          ${CMAKE_CURRENT_SOURCE_DIR}/EclipseCommands
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
     Commands
     PRIVATE -Wall
-            -Wno-unused-parameter
             -Wno-reorder
-            -Wno-parentheses
             -Wno-switch
+            -Wno-undefined-var-template
             -Wno-delete-abstract-non-virtual-dtor
-            -Wno-undefined-var-template
-            -Wno-invalid-source-encoding
-            -Wno-enum-compare
             -Wno-call-to-pure-virtual-from-ctor-dtor
-            -Wno-unused-variable
-            -Wno-unused-private-field
-            -Wno-unused-lambda-capture
             -Wno-delete-non-abstract-non-virtual-dtor
-            -Wno-braced-scalar-init
-            -Wno-tautological-constant-out-of-range-compare
-            -Wno-undefined-var-template
             -Wno-ambiguous-reversed-operator
   )
 endif()
@@ -109,7 +96,7 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4573")
+  set(BUILD_FLAGS_FOR_MSVC "/W3 /wd4190 /wd4100 /wd4127")
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only
@@ -124,20 +111,7 @@ if(MSVC)
 
 endif()
 
-set(LINK_LIBRARIES
-    LibCore
-    cafCommand
-    cafPdmCvf
-    cafPdmScripting
-    cafTensor
-    cafViewer
-    cafVizExtensions
-    ecl
-    nightcharts
-    qwt
-    ${QT_LIBRARIES}
-    Eigen3::Eigen
-)
+set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
 

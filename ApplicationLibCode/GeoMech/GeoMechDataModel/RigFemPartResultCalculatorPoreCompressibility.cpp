@@ -63,7 +63,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
 {
     caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 7, "Calculating Pore Compressibility" );
 
-    auto loadFrameLambda = [&]( RigFemResultAddress addr, const QString& errMsg = "" ) -> RigFemScalarResultFrames* {
+    auto loadFrameLambda = [&]( RigFemResultAddress addr, const QString& errMsg = "" ) -> RigFemScalarResultFrames*
+    {
         auto task   = stepCountProgress.task( QString( "Loading %1: %2" )
                                                 .arg( QString::fromStdString( addr.fieldName ) )
                                                 .arg( QString::fromStdString( addr.componentName ) ),

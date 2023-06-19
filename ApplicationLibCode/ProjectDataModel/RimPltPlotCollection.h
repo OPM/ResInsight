@@ -58,7 +58,8 @@ public:
                                                               gsl::not_null<const RigEclipseCaseData*> eclCaseData );
 
     RigEclipseWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*> wellPath, gsl::not_null<RimEclipseCase*> eclCase );
-    RigGeoMechWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*> wellPath, gsl::not_null<RimGeoMechCase*> eclCase );
+    RigGeoMechWellLogExtractor*
+        findOrCreateExtractor( gsl::not_null<RimWellPath*> wellPath, gsl::not_null<RimGeoMechCase*> geomCase, int partId );
 
     void removeExtractors( const RigWellPath* wellPath );
     void removeExtractors( const RigEclipseCaseData* caseData );

@@ -62,8 +62,7 @@ bool RicImportEnsembleSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app               = RiaApplication::instance();
-    QString         pathCacheName     = "ENSEMBLE_SURFACE_FILES";
+    QString pathCacheName             = "ENSEMBLE_SURFACE_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
 
     importEnsembleSurfaceFromFiles( fileNames, groupByEnsemble );
@@ -189,13 +188,13 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
-    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                                                        dialogTitle,
-                                                                                                        defaultDir,
-                                                                                                        m_pathFilter,
-                                                                                                        m_fileNameFilter,
-                                                                                                        QStringList() << ".TS"
-                                                                                                                      << ".ts" );
+    RicRecursiveFileSearchDialogResult result =
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                dialogTitle,
+                                                                defaultDir,
+                                                                m_pathFilter,
+                                                                m_fileNameFilter,
+                                                                { RicRecursiveFileSearchDialog::FileType::SURFACE } );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;

@@ -231,8 +231,7 @@ void RimElasticProperties::loadDataAndUpdate()
 {
     if ( !m_filePath().path().isEmpty() )
     {
-        RimStimPlanModelTemplate* stimPlanModelTemplate;
-        firstAncestorOrThisOfType( stimPlanModelTemplate );
+        auto stimPlanModelTemplate = firstAncestorOrThisOfType<RimStimPlanModelTemplate>();
         RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_filePath().path(), stimPlanModelTemplate );
     }
 }

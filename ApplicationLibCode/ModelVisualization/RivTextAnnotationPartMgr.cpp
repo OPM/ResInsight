@@ -229,8 +229,7 @@ bool RivTextAnnotationPartMgr::validateAnnotation( const RimTextAnnotation* anno
 //--------------------------------------------------------------------------------------------------
 RimAnnotationInViewCollection* RivTextAnnotationPartMgr::annotationCollection() const
 {
-    std::vector<RimAnnotationInViewCollection*> colls;
-    m_rimView->descendantsIncludingThisOfType( colls );
+    auto colls = m_rimView->descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
     return !colls.empty() ? colls.front() : nullptr;
 }
 

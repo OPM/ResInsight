@@ -219,8 +219,7 @@ void RimPolylinesFromFileAnnotation::fieldChangedByUi( const caf::PdmFieldHandle
         appearance()->setSphereFieldsHidden( !m_showSpheres() );
     }
 
-    RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( annColl );
+    auto annColl = firstAncestorOrThisOfTypeAsserted<RimAnnotationCollection>();
 
     annColl->scheduleRedrawOfRelevantViews();
 }

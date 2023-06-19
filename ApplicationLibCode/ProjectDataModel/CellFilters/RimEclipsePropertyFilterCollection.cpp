@@ -20,6 +20,8 @@
 
 #include "RimEclipsePropertyFilterCollection.h"
 
+#include "RiaResultNames.h"
+
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
@@ -55,10 +57,7 @@ RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 {
-    RimEclipseView* eclipseView = nullptr;
-    firstAncestorOrThisOfType( eclipseView );
-
-    return eclipseView;
+    return firstAncestorOrThisOfType<RimEclipseView>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +76,7 @@ void RimEclipsePropertyFilterCollection::setIsDuplicatedFromLinkedView()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipsePropertyFilter*> RimEclipsePropertyFilterCollection::propertyFilters() const
 {
-    return m_propertyFilters.children();
+    return m_propertyFilters.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,8 +166,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
-    RimEclipseView* view = nullptr;
-    this->firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<RimEclipseView>();
     if ( view )
     {
         RimViewController* viewController = view->viewController();

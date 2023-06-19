@@ -85,7 +85,7 @@ void RimPlotTemplateFolderItem::updateIconState() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotTemplateFileItem*> RimPlotTemplateFolderItem::fileItems() const
 {
-    return m_fileNames.children();
+    return m_fileNames.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ std::vector<RimPlotTemplateFileItem*> RimPlotTemplateFolderItem::fileItems() con
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotTemplateFolderItem*> RimPlotTemplateFolderItem::subFolders() const
 {
-    return m_subFolders.children();
+    return m_subFolders.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,8 +243,8 @@ void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QL
         }
     }
 
-    caf::IconProvider templateIcon( ":/SummaryTemplate16x16.png" );
-    caf::IconProvider ensTemplateIcon( ":/SummaryEnsembleTemplate16x16.png" );
+    caf::IconProvider templateIcon( ":/plot-template-standard.svg" );
+    caf::IconProvider ensTemplateIcon( ":/plot-template-ensemble.svg" );
 
     auto files = templateFolderItem->fileItems();
     for ( auto file : files )

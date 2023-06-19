@@ -307,7 +307,8 @@ void RiuQtChartsPlotWidget::setInternalLegendVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
 {
-    auto mapLegendPosition = []( RiuPlotWidget::Legend pos ) {
+    auto mapLegendPosition = []( RiuPlotWidget::Legend pos )
+    {
         if ( pos == RiuPlotWidget::Legend::BOTTOM )
             return Qt::AlignBottom;
         else if ( pos == RiuPlotWidget::Legend::TOP )
@@ -860,7 +861,8 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*    plotCurve,
                               auto                                       series,
                               auto                                       xAxis,
                               auto                                       yAxis,
-                              RiuQtChartsPlotCurve*                      qtChartsPlotCurve ) {
+                              RiuQtChartsPlotCurve*                      qtChartsPlotCurve )
+    {
         if ( !series->chart() )
         {
             curveSeriesMap[plotCurve] = series;

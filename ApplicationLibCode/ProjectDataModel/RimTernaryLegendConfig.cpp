@@ -143,9 +143,7 @@ void RimTernaryLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     updateLabelText();
     updateLegend();
 
-    RimGridView* view = nullptr;
-    this->firstAncestorOrThisOfType( view );
-
+    auto view = firstAncestorOrThisOfType<RimGridView>();
     if ( view )
     {
         RimViewLinker* viewLinker = view->assosiatedViewLinker();

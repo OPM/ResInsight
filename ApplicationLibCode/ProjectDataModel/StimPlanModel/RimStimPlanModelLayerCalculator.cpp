@@ -22,6 +22,7 @@
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"

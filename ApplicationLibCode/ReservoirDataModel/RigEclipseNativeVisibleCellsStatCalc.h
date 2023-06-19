@@ -26,6 +26,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
 
 #include "cvfArray.h"
 

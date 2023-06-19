@@ -44,7 +44,7 @@ public:
     bool getPacketsAsCombinedBuffer( const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr ) const;
 
 private:
-    typedef std::map<int, std::unique_ptr<VdeArrayDataPacket>> IdToPacketMap_T;
+    using IdToPacketMap_T = std::map<int, std::unique_ptr<VdeArrayDataPacket>>;
 
     IdToPacketMap_T m_idToPacketMap;
 };

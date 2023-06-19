@@ -23,11 +23,13 @@
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
 #include "RiaSimWellBranchTools.h"
-
 #include "RiaWellLogUnitTools.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseWellLogExtractor.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 #include "RigGeoMechWellLogExtractor.h"
@@ -50,6 +52,7 @@
 #include "RimTools.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
@@ -65,6 +68,7 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
@@ -129,6 +133,8 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step" );
+    CAF_PDM_InitField( &m_geomPartId, "GeomPartId", 0, "Part" );
+    m_geomPartId.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     // Add some space before name to indicate these belong to the Auto Name field
     CAF_PDM_InitField( &m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name" );
@@ -155,7 +161,7 @@ RimWellLogExtractionCurve::~RimWellLogExtractionCurve()
 void RimWellLogExtractionCurve::setWellPath( RimWellPath* wellPath )
 {
     m_wellPath = wellPath;
-    if ( m_wellPath == m_refWellPath ) m_refWellPath = nullptr;
+    if ( m_wellPath() == m_refWellPath() ) m_refWellPath = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,31 +309,18 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
     }
     else if ( changedField == &m_wellPath )
     {
-        if ( m_wellPath == m_refWellPath ) m_refWellPath = nullptr;
+        if ( m_wellPath() == m_refWellPath() ) m_refWellPath = nullptr;
         this->loadDataAndUpdate( true );
     }
-    else if ( changedField == &m_refWellPath )
+    else if ( ( changedField == &m_refWellPath ) || ( changedField == &m_timeStep ) || ( changedField == &m_trajectoryType ) ||
+              ( changedField == &m_geomPartId ) )
     {
         this->loadDataAndUpdate( true );
     }
-    else if ( changedField == &m_simWellName )
-    {
-        clearGeneratedSimWellPaths();
-
-        this->loadDataAndUpdate( true );
-    }
-    else if ( changedField == &m_trajectoryType )
-    {
-        this->loadDataAndUpdate( true );
-    }
-    else if ( changedField == &m_branchDetection || changedField == &m_branchIndex )
+    else if ( ( changedField == &m_branchDetection ) || ( changedField == &m_branchIndex ) || ( changedField == &m_simWellName ) )
     {
         clearGeneratedSimWellPaths();
 
-        this->loadDataAndUpdate( true );
-    }
-    else if ( changedField == &m_timeStep )
-    {
         this->loadDataAndUpdate( true );
     }
 
@@ -354,8 +347,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             bool isUsingPseudoLength = false;
             performDataExtraction( &isUsingPseudoLength );
 
-            RimDepthTrackPlot* wellLogPlot;
-            firstAncestorOrThisOfType( wellLogPlot );
+            RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
             if ( !wellLogPlot ) return;
 
             RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
@@ -366,9 +358,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
 
             bool useLogarithmicScale = false;
-
-            RimWellLogTrack* track = nullptr;
-            firstAncestorOfType( track );
+            auto track               = firstAncestorOfType<RimWellLogTrack>();
             if ( track )
             {
                 useLogarithmicScale = track->isLogarithmicScale();
@@ -390,9 +380,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             if ( isUsingPseudoLength )
             {
-                RimWellLogTrack* wellLogTrack;
-                firstAncestorOrThisOfType( wellLogTrack );
-                CVF_ASSERT( wellLogTrack );
+                RimWellLogTrack* wellLogTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
                 RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
                 if ( viewer )
@@ -421,13 +409,37 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::performDataExtraction( bool* isUsingPseudoLength )
 {
-    extractData( isUsingPseudoLength );
+    if ( dynamic_cast<RimGeoMechCase*>( m_case.value() ) && ( m_geomResultDefinition->resultPositionType() == RIG_WELLPATH_DERIVED ) &&
+         ( m_geomResultDefinition->resultFieldName() == "UCS" ) )
+    {
+        RimWellBoreStabilityPlot* wbsPlot = firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
+        if ( wbsPlot )
+        {
+            auto maxCurvePointInterval = wbsPlot->commonDataSource()->maximumCurvePointInterval();
+            if ( maxCurvePointInterval.first )
+            {
+                double maxIntervalLength = maxCurvePointInterval.second;
+
+                // Special handling for a UCS parameter curve as this curve also depends on UCS that can be defined in a LAS file with
+                // high resolution. The maximum curve interval was designed to only be used by RimWellLogWbsCurve. To be able to use
+                // this functionality for a wellpath UCS curve, we get the maximumCurvePointInterval directly. It is not possible to
+                // control this setting locally on the curve object, the value is always taken directly from the WBS plot settings.
+                extractData( isUsingPseudoLength, {}, maxIntervalLength );
+
+                return;
+            }
+        }
+    }
+
+    extractData( isUsingPseudoLength, {}, {} );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength, bool performDataSmoothing /*= false*/, double smoothingThreshold /*= -1.0 */ )
+void RimWellLogExtractionCurve::extractData( bool*                        isUsingPseudoLength,
+                                             const std::optional<double>& smoothingThreshold,
+                                             const std::optional<double>& maxDistanceBetweenCurvePoints )
 {
     CAF_ASSERT( isUsingPseudoLength );
 
@@ -447,15 +459,15 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength, bool per
     }
     else if ( geomCase && geomCase->geoMechData() )
     {
-        curveData = extractGeomData( geomCase, isUsingPseudoLength, performDataSmoothing, smoothingThreshold );
+        curveData = extractGeomData( geomCase, isUsingPseudoLength, smoothingThreshold, maxDistanceBetweenCurvePoints );
     }
 
     if ( !curveData.values.empty() && !curveData.measuredDepthValues.empty() )
     {
         bool useLogarithmicScale = false;
 
-        RimWellLogTrack* track = nullptr;
-        firstAncestorOfType( track );
+        bool performDataSmoothing = smoothingThreshold.has_value();
+        auto track                = firstAncestorOfType<RimWellLogTrack>();
         if ( track )
         {
             useLogarithmicScale = track->isLogarithmicScale();
@@ -483,6 +495,10 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength, bool per
                                                  useLogarithmicScale,
                                                  curveData.xUnits );
         }
+    }
+    else
+    {
+        clearCurveData();
     }
 }
 
@@ -592,17 +608,45 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData RimWellLogExtractionCurve:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve::WellLogExtractionCurveData RimWellLogExtractionCurve::extractGeomData( RimGeoMechCase* geomCase,
-                                                                                                  bool*           isUsingPseudoLength,
-                                                                                                  bool            performDataSmoothing,
-                                                                                                  double          smoothingThreshold )
+RimWellLogExtractionCurve::WellLogExtractionCurveData
+    RimWellLogExtractionCurve::extractGeomData( RimGeoMechCase*              geoMechCase,
+                                                bool*                        isUsingPseudoLength,
+                                                const std::optional<double>& smoothingThreshold,
+                                                const std::optional<double>& maxDistanceBetweenCurvePoints )
 {
-    WellLogExtractionCurveData           curveData;
-    RimWellLogPlotCollection*            wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    cvf::ref<RigGeoMechWellLogExtractor> wellExtractor     = wellLogCollection->findOrCreateExtractor( m_wellPath, geomCase );
-    cvf::ref<RigGeoMechWellLogExtractor> refWellExtractor  = wellLogCollection->findOrCreateExtractor( m_refWellPath, geomCase );
+    WellLogExtractionCurveData curveData;
+    RimWellLogPlotCollection*  wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
 
-    auto [timeStepIdx, frameIdx] = geomCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( m_timeStep );
+    cvf::ref<RigGeoMechWellLogExtractor> wellExtractor;
+    if ( maxDistanceBetweenCurvePoints.has_value() && maxDistanceBetweenCurvePoints.value() > 0.0 )
+    {
+        RigGeoMechCaseData* caseData         = geoMechCase->geoMechData();
+        auto                wellPathGeometry = m_wellPath->wellPathGeometry();
+        if ( caseData && wellPathGeometry )
+        {
+            std::string errorIdName = ( m_wellPath->name() + " " + geoMechCase->caseUserDescription() ).toStdString();
+            wellExtractor           = new RigGeoMechWellLogExtractor( caseData, m_geomPartId, wellPathGeometry, errorIdName );
+
+            if ( wellExtractor->valid() )
+            {
+                // make sure the resampling of the well path is done before the extraction of the curve data
+                wellExtractor->resampleIntersections( maxDistanceBetweenCurvePoints.value() );
+            }
+            else
+            {
+                return curveData;
+            }
+        }
+    }
+    else
+    {
+        wellExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geoMechCase, m_geomPartId );
+    }
+
+    cvf::ref<RigGeoMechWellLogExtractor> refWellExtractor =
+        wellLogCollection->findOrCreateExtractor( m_refWellPath, geoMechCase, m_geomPartId );
+
+    auto [timeStepIdx, frameIdx] = geoMechCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( m_timeStep );
 
     if ( wellExtractor.notNull() )
     {
@@ -616,8 +660,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData RimWellLogExtractionCurve:
         }
 
         findAndLoadWbsParametersFromLasFiles( m_wellPath(), wellExtractor.p() );
-        RimWellBoreStabilityPlot* wbsPlot;
-        this->firstAncestorOrThisOfType( wbsPlot );
+        RimWellBoreStabilityPlot* wbsPlot = firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
         if ( wbsPlot )
         {
             wbsPlot->applyWbsParametersToExtractor( wellExtractor.p() );
@@ -659,26 +702,26 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData RimWellLogExtractionCurve:
                                                 refWellPropertyValues,
                                                 refWellIndexKValues );
         }
-        if ( performDataSmoothing )
+        if ( smoothingThreshold.has_value() )
         {
             refWellExtractor->performCurveDataSmoothing( timeStepIdx,
                                                          frameIdx,
                                                          &curveData.measuredDepthValues,
                                                          &curveData.tvDepthValues,
                                                          &curveData.values,
-                                                         smoothingThreshold );
+                                                         smoothingThreshold.value() );
         }
         return curveData;
     }
 
-    if ( wellExtractor.notNull() && performDataSmoothing )
+    if ( wellExtractor.notNull() && smoothingThreshold.has_value() )
     {
         wellExtractor->performCurveDataSmoothing( timeStepIdx,
                                                   frameIdx,
                                                   &curveData.measuredDepthValues,
                                                   &curveData.tvDepthValues,
                                                   &curveData.values,
-                                                  smoothingThreshold );
+                                                  smoothingThreshold.value() );
     }
     return curveData;
 }
@@ -728,7 +771,8 @@ void RimWellLogExtractionCurve::mapPropertyValuesFromReferenceWell( std::vector<
     }
 
     // Only allow asymptotically increasing k-layers - break at first decreasing k-layer value
-    auto createKLayerAndIndexMap = []( const std::vector<double>& indexKValues, int minLayerK, int maxLayerK ) {
+    auto createKLayerAndIndexMap = []( const std::vector<double>& indexKValues, int minLayerK, int maxLayerK )
+    {
         int                                prevKLayer          = -1;
         std::map<int, std::vector<size_t>> kLayerAndIndexesMap = {};
         for ( size_t i = 0; i < indexKValues.size(); ++i )
@@ -831,7 +875,7 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
             RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress, &lasUnits );
         if ( !lasFileValues.empty() )
         {
-            QString extractorUnits = geomExtractor->parameterInputUnits( parameter );
+            QString extractorUnits = RigGeoMechWellLogExtractor::parameterInputUnits( parameter );
 
             if ( RiaWellLogUnitTools<double>::convertValues( &lasFileValues, lasUnits, extractorUnits, wellPath->wellPathGeometry() ) )
             {
@@ -957,6 +1001,18 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions( 
     {
         RimTools::timeStepsForCase( m_case, &options );
     }
+    else if ( fieldNeedingOptions == &m_geomPartId && m_case )
+    {
+        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
+        if ( !geomCase || !geomCase->geoMechData() || !geomCase->geoMechData()->femParts() ) return options;
+
+        const auto femParts = geomCase->geoMechData()->femParts();
+        for ( int i = 0; i < femParts->partCount(); ++i )
+        {
+            const auto name = femParts->part( i )->name();
+            options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( name ), i ) );
+        }
+    }
     else if ( fieldNeedingOptions == &m_simWellName )
     {
         std::set<QString> sortedWellNames = this->sortedSimWellNames();
@@ -1012,6 +1068,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     }
     else if ( geomCase )
     {
+        curveDataGroup->add( &m_geomPartId );
         curveDataGroup->add( &m_wellPath );
         curveDataGroup->add( &m_refWellPath );
         RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
@@ -1079,8 +1136,7 @@ void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
     QString resVar = m_eclipseResultDefinition->resultVariable();
     if ( RiaResultNames::isLogarithmicResult( resVar ) )
     {
-        RimWellLogTrack* track = nullptr;
-        this->firstAncestorOrThisOfType( track );
+        RimWellLogTrack* track = firstAncestorOrThisOfType<RimWellLogTrack>();
         if ( track && track->curveCount() == 1 ) track->setLogarithmicScale( true );
     }
 }
@@ -1111,6 +1167,12 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
     if ( m_addCaseNameToCurveName && m_case() )
     {
         generatedCurveName.push_back( m_case->caseUserDescription() );
+
+        // Add part to curve name for geo mech cases with more than 1 part
+        if ( geomCase && geomCase->geoMechData() && geomCase->geoMechData()->femParts() && geomCase->geoMechData()->femParts()->partCount() > 1 )
+        {
+            generatedCurveName.push_back( QString( "Part %1" ).arg( m_geomPartId ) );
+        }
     }
 
     if ( m_addPropertyToCurveName && !wellLogChannelUiName().isEmpty() )
@@ -1342,6 +1404,22 @@ void RimWellLogExtractionCurve::setEclipseResultCategory( RiaDefines::ResultCatT
 void RimWellLogExtractionCurve::setGeoMechResultAddress( const RigFemResultAddress& resAddr )
 {
     m_geomResultDefinition->setResultAddress( resAddr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setGeoMechPart( int partId )
+{
+    m_geomPartId = partId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogExtractionCurve::geoMechPart() const
+{
+    return m_geomPartId;
 }
 
 //--------------------------------------------------------------------------------------------------

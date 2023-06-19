@@ -357,9 +357,9 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
                                                                                                           size_t             ej,
                                                                                                           size_t             ek,
                                                                                                           const RigFemPart* dependentFemPart,
-                                                                                                          size_t*           fi,
-                                                                                                          size_t*           fj,
-                                                                                                          size_t*           fk )
+                                                                                                          size_t* fi,
+                                                                                                          size_t* fj,
+                                                                                                          size_t* fk )
 {
     // Find tolerance
 
@@ -383,7 +383,7 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
         elmBBox.add( geoMechConvertedEclCell[i] );
 
     std::vector<size_t> closeElements;
-    dependentFemPart->findIntersectingCells( elmBBox, &closeElements );
+    dependentFemPart->findIntersectingElementIndices( elmBBox, &closeElements );
 
     cvf::Vec3d elmCorners[8];
     int        elmIdxToBestMatch        = -1;
@@ -438,9 +438,9 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
 ///
 //--------------------------------------------------------------------------------------------------
 RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell( const RigFemPart* dependentFemPart,
-                                                                                                          size_t            fi,
-                                                                                                          size_t            fj,
-                                                                                                          size_t            fk,
+                                                                                                          size_t             fi,
+                                                                                                          size_t             fj,
+                                                                                                          size_t             fk,
                                                                                                           const RigMainGrid* masterEclGrid,
                                                                                                           size_t*            ei,
                                                                                                           size_t*            ej,

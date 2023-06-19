@@ -36,6 +36,7 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -50,19 +51,13 @@ CAF_CMD_SOURCE_INIT( RicCreateDuplicateTemplateInOtherUnitSystemFeature, "RicCon
 //--------------------------------------------------------------------------------------------------
 void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered( bool isChecked )
 {
-    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
-    if ( !objHandle ) return;
-
-    RimFractureTemplate* fractureTemplate = nullptr;
-    objHandle->firstAncestorOrThisOfType( fractureTemplate );
+    RimFractureTemplate* fractureTemplate = caf::firstAncestorOfTypeFromSelectedObject<RimFractureTemplate>();
     if ( !fractureTemplate ) return;
-
-    RimFractureTemplateCollection* fractureTemplateCollection = nullptr;
-    fractureTemplate->firstAncestorOrThisOfType( fractureTemplateCollection );
 
     auto copyOfTemplate = dynamic_cast<RimFractureTemplate*>(
         fractureTemplate->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
+    RimFractureTemplateCollection* fractureTemplateCollection = caf::firstAncestorOfTypeFromSelectedObject<RimFractureTemplateCollection>();
     fractureTemplateCollection->addFractureTemplate( copyOfTemplate );
 
     auto currentUnit = copyOfTemplate->fractureTemplateUnit();
@@ -90,11 +85,7 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered( bool
 //--------------------------------------------------------------------------------------------------
 void RicCreateDuplicateTemplateInOtherUnitSystemFeature::setupActionLook( QAction* actionToSetup )
 {
-    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
-    if ( !objHandle ) return;
-
-    RimFractureTemplate* fractureTemplate = nullptr;
-    objHandle->firstAncestorOrThisOfType( fractureTemplate );
+    RimFractureTemplate* fractureTemplate = caf::firstAncestorOfTypeFromSelectedObject<RimFractureTemplate>();
     if ( !fractureTemplate ) return;
 
     QString destinationUnit;

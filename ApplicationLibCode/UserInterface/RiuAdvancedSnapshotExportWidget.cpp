@@ -147,8 +147,7 @@ void RiuAdvancedSnapshotExportWidget::addSnapshotItemFromActiveView()
         multiSnapshot->timeStepStart = activeView->currentTimeStep();
         multiSnapshot->timeStepEnd   = activeView->currentTimeStep();
 
-        RimCase* sourceCase = nullptr;
-        activeView->firstAncestorOrThisOfType( sourceCase );
+        auto sourceCase = activeView->firstAncestorOrThisOfType<RimCase>();
         if ( sourceCase )
         {
             multiSnapshot->additionalCases().push_back( sourceCase );

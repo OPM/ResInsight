@@ -41,6 +41,7 @@
 #include "RigFemPartResultCalculatorKIndices.h"
 #include "RigFemPartResultCalculatorMudWeightWindow.h"
 #include "RigFemPartResultCalculatorNE.h"
+#include "RigFemPartResultCalculatorNodalDisplacement.h"
 #include "RigFemPartResultCalculatorNodalGradients.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
 #include "RigFemPartResultCalculatorNormalST.h"
@@ -197,6 +198,7 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSlipIndicator( *this ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorKIndices( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNodalDisplacement( *this ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,16 +454,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
             currentFrames->enableAsSingleStepResult();
             currentFrames->frameData( 0, 0 ).swap( values );
         }
-
-        frames = m_femPartResults[partIndex]->findScalarResult( resVarAddr );
-        if ( frames )
-        {
-            return frames;
-        }
-        else
-        {
-            return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-        }
+        return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
     }
 
     // We need to read the data as bulk fields, and populate the correct scalar caches
@@ -567,6 +560,7 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         if ( resPos == RIG_NODAL )
         {
             fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
+            if ( fieldCompNames.contains( "U" ) ) fieldCompNames["U"].push_back( "U_LENGTH" );
             fieldCompNames["POR-Bar"];
             fieldCompNames[FIELD_NAME_COMPACTION];
         }
@@ -650,14 +644,14 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
 
-            if ( fieldCompNames.count( "LE" ) > 0 )
+            if ( fieldCompNames.contains( "LE" ) )
             {
                 fieldCompNames["LE"].push_back( "LE1" );
                 fieldCompNames["LE"].push_back( "LE2" );
                 fieldCompNames["LE"].push_back( "LE3" );
             }
 
-            if ( fieldCompNames.count( "PE" ) > 0 )
+            if ( fieldCompNames.contains( "PE" ) )
             {
                 fieldCompNames["PE"].push_back( "PE1" );
                 fieldCompNames["PE"].push_back( "PE2" );
@@ -756,14 +750,14 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
 
-            if ( fieldCompNames.count( "LE" ) > 0 )
+            if ( fieldCompNames.contains( "LE" ) )
             {
                 fieldCompNames["LE"].push_back( "LE1" );
                 fieldCompNames["LE"].push_back( "LE2" );
                 fieldCompNames["LE"].push_back( "LE3" );
             }
 
-            if ( fieldCompNames.count( "PE" ) > 0 )
+            if ( fieldCompNames.contains( "PE" ) )
             {
                 fieldCompNames["PE"].push_back( "PE1" );
                 fieldCompNames["PE"].push_back( "PE2" );
@@ -1812,7 +1806,7 @@ void RigFemPartResultsCollection::setMudWeightWindowParameters( double          
                                                                 RimMudWeightWindowParameters::LowerLimitType lowerLimit,
                                                                 int                                          referenceLayer,
                                                                 RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
-                                                                double                                                        shMultiplier,
+                                                                double shMultiplier,
                                                                 RimMudWeightWindowParameters::NonReservoirPorePressureType nonReservoirPorePressureType,
                                                                 double         hydrostaticMultiplierPPNonRes,
                                                                 const QString& nonReservoirPorePressureAddress )

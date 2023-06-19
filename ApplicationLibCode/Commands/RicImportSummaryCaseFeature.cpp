@@ -18,18 +18,6 @@
 
 #include "RicImportSummaryCaseFeature.h"
 
-#include "RiaFilePathTools.h"
-#include "RiaPreferences.h"
-
-#include "RimMainPlotCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
-
-#include "RiuMainWindow.h"
-#include "RiuPlotMainWindow.h"
-
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicImportSummaryCaseFeature, "RicImportSummaryCaseFeature" );

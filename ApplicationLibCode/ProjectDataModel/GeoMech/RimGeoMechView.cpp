@@ -37,6 +37,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechFaultReactivationResult.h"
 #include "RimGeoMechPart.h"
 #include "RimGeoMechPartCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -45,6 +46,8 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicSection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTensorResults.h"
 #include "RimTernaryLegendConfig.h"
@@ -82,7 +85,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView::RimGeoMechView( void )
+RimGeoMechView::RimGeoMechView()
     : m_currentInternalTimeStep( 0 )
     , m_currentDataFrameIndex( -1 )
 {
@@ -95,6 +98,9 @@ RimGeoMechView::RimGeoMechView( void )
     CAF_PDM_InitFieldNoDefault( &m_tensorResults, "TensorResults", "Tensor Results" );
     m_tensorResults = new RimTensorResults();
     m_tensorResults.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_faultReactivationResult, "FaultReactivationResult", "Fault Reactivation Result" );
+    m_faultReactivationResult = new RimGeoMechFaultReactivationResult();
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters" );
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
@@ -123,13 +129,14 @@ RimGeoMechView::RimGeoMechView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView::~RimGeoMechView( void )
+RimGeoMechView::~RimGeoMechView()
 {
     m_geomechCase = nullptr;
 
     delete m_tensorResults;
     delete cellResult;
     delete m_propertyFilterCollection;
+    delete m_faultReactivationResult;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,8 +234,7 @@ QString RimGeoMechView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( ownerCase );
+    RimCase* ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     if ( nameConfig()->addCaseName() )
     {
@@ -312,12 +318,16 @@ void RimGeoMechView::onCreateDisplayModel()
 
     nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
 
-    // Cross sections
+    // Intersections
 
-    m_intersectionVizModel->removeAllParts();
-    m_intersectionCollection->rebuildGeometry();
-    m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+    appendIntersectionsToModel( cellFilterCollection()->hasActiveFilters(), propertyFilterCollection()->hasActiveDynamicFilters() );
+
+    // Seismic sections
+
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    m_seismicVizModel->removeAllParts();
+    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), femBBox );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
 
     // Surfaces
 
@@ -414,7 +424,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                 {
                     // Grid model
                     cvf::String name = "GridModel";
-                    this->removeModelByName( frameScene, name );
+                    RimGeoMechView::removeModelByName( frameScene, name );
 
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );
@@ -427,7 +437,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                 // Well Paths
                 {
                     cvf::String name = "WellPathMod";
-                    this->removeModelByName( frameScene, name );
+                    RimGeoMechView::removeModelByName( frameScene, name );
 
                     cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                     wellPathModelBasicList->setName( name );
@@ -441,7 +451,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                 {
                     // Tensors
                     cvf::String name = "Tensor";
-                    this->removeModelByName( frameScene, name );
+                    RimGeoMechView::removeModelByName( frameScene, name );
 
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );
@@ -467,12 +477,13 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
         // Intersections
+        if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && propertyFilterCollection()->hasActiveDynamicFilters() )
         {
-            m_intersectionVizModel->removeAllParts();
-            m_intersectionCollection->rebuildGeometry();
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
-            m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+            m_intersectionCollection->clearGeometry();
+            appendIntersectionsForCurrentTimeStep();
         }
+
+        m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
 
         if ( m_surfaceCollection )
         {
@@ -591,6 +602,11 @@ void RimGeoMechView::onUpdateLegends()
         {
             m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
         }
+
+        if ( m_seismicSectionCollection->isChecked() )
+        {
+            m_seismicSectionCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+        }
     }
 }
 
@@ -702,6 +718,11 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
         {
             absLegendConfigs.push_back( legendConfig );
         }
+    }
+
+    for ( auto section : seismicSectionCollection()->seismicSections() )
+    {
+        absLegendConfigs.push_back( section->legendConfig() );
     }
 
     absLegendConfigs.erase( std::remove( absLegendConfigs.begin(), absLegendConfigs.end(), nullptr ), absLegendConfigs.end() );
@@ -1032,11 +1053,13 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_tensorResults() );
     uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
+    uiTreeOrdering.add( m_faultReactivationResult() );
 
     addRequiredUiTreeObjects( uiTreeOrdering );
 
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+    if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -1107,4 +1130,13 @@ void RimGeoMechView::resetVizLogic()
     {
         m_vizLogic->resetPartMgrs();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int viewerTimeStep )
+{
+    CAF_ASSERT( m_vizLogic.notNull() );
+    m_vizLogic->calculateCellVisibility( visibility, geomTypes, viewerTimeStep );
 }

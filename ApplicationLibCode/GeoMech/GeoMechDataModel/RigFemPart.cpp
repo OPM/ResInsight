@@ -477,16 +477,16 @@ cvf::BoundingBox RigFemPart::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::findIntersectingCells( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
+void RigFemPart::findIntersectingElementIndices( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
 {
     ensureIntersectionSearchTreeIsBuilt();
-    findIntersectingCellsWithExistingSearchTree( inputBB, elementIndices );
+    findIntersectingElementsWithExistingSearchTree( inputBB, elementIndices );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::findIntersectingCellsWithExistingSearchTree( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
+void RigFemPart::findIntersectingElementsWithExistingSearchTree( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
 {
     CVF_ASSERT( m_elementSearchTree.notNull() );
     m_elementSearchTree->findIntersections( inputBB, elementIndices );

@@ -58,6 +58,7 @@ public:
 
 public:
     RigGeoMechWellLogExtractor( gsl::not_null<RigGeoMechCaseData*> aCase,
+                                int                                partId,
                                 gsl::not_null<const RigWellPath*>  wellpath,
                                 const std::string&                 wellCaseErrorMsgName );
 
@@ -87,6 +88,9 @@ public:
 
     double waterDepth() const;
     double estimateWaterDepth() const;
+
+    int  partId() const;
+    bool valid() const;
 
 private:
     enum WellPathTangentCalculation
@@ -178,4 +182,6 @@ private:
     std::map<RigWbsParameter, double>                                 m_userDefinedValues;
 
     double m_waterDepth;
+    int    m_partId;
+    bool   m_valid;
 };

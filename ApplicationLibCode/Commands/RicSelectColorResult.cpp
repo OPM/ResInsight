@@ -39,9 +39,7 @@ CAF_CMD_SOURCE_INIT( RicSelectColorResult, "RicSelectColorResult" );
 //--------------------------------------------------------------------------------------------------
 RimGridView* gridViewFrom2dIntersectionView( const Rim2dIntersectionView* int2dView )
 {
-    RimGridView* gridView = nullptr;
-    int2dView->intersection()->firstAncestorOrThisOfType( gridView );
-    return gridView;
+    return int2dView->intersection()->firstAncestorOrThisOfType<RimGridView>();
 }
 
 //--------------------------------------------------------------------------------------------------

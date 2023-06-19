@@ -23,6 +23,7 @@
 class RimEclipseCase;
 class RimGeoMechCase;
 class RimWellPath;
+class RimWellLogFile;
 
 //==================================================================================================
 ///
@@ -42,12 +43,14 @@ protected:
 private:
     void createDepthAdjustedWellLogFileFromEclipseCase( RimEclipseCase*                 eclipseCase,
                                                         RimWellPath*                    sourceWell,
+                                                        RimWellLogFile*                 soureWellLogFile,
                                                         const std::vector<RimWellPath*> destinationWells,
                                                         const std::vector<QString>&     selectedResultProperties,
                                                         const QString&                  exportFolder );
 
     void createDepthAdjustedWellLogFileFromGeoMechCase( RimGeoMechCase*                 geoMechCase,
                                                         RimWellPath*                    sourceWell,
+                                                        RimWellLogFile*                 soureWellLogFile,
                                                         const std::vector<RimWellPath*> destinationWells,
                                                         const std::vector<QString>&     selectedResultProperties,
                                                         const QString&                  exportFolder );

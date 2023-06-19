@@ -381,8 +381,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
     QDateTime currentTimeStamp;
     if ( m_rimView )
     {
-        RimCase* rimCase = nullptr;
-        m_rimView->firstAncestorOrThisOfType( rimCase );
+        auto rimCase = m_rimView->firstAncestorOrThisOfType<RimCase>();
 
         if ( rimCase )
         {
@@ -400,8 +399,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
     double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
     double perforationRadius = wellPathRadius * 1.1;
 
-    std::vector<RimPerforationInterval*> perforations;
-    m_rimWellPath->descendantsIncludingThisOfType( perforations );
+    std::vector<RimPerforationInterval*> perforations = m_rimWellPath->descendantsIncludingThisOfType<RimPerforationInterval>();
     for ( RimPerforationInterval* perforation : perforations )
     {
         using namespace std;
@@ -479,13 +477,13 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
         {
             measuredDepthsRelativeToStartMD = { 0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0 };
             radii                           = { wellPathRadius,
-                      wellPathRadius * 1.8,
-                      wellPathRadius * 2.0,
-                      wellPathRadius * 2.0,
-                      wellPathRadius * 1.8,
-                      wellPathRadius * 1.7,
-                      wellPathRadius * 1.7,
-                      wellPathRadius };
+                                                wellPathRadius * 1.8,
+                                                wellPathRadius * 2.0,
+                                                wellPathRadius * 2.0,
+                                                wellPathRadius * 1.8,
+                                                wellPathRadius * 1.7,
+                                                wellPathRadius * 1.7,
+                                                wellPathRadius };
 
             double                  startMD = valve->startMD();
             std::vector<cvf::Vec3d> displayCoords;
@@ -578,8 +576,7 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel( cvf::ModelBasic
 
     if ( !eclView->isVirtualConnectionFactorGeometryVisible() ) return;
 
-    RimEclipseCase* eclipseCase = nullptr;
-    eclView->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = eclView->firstAncestorOrThisOfType<RimEclipseCase>();
     if ( !eclipseCase ) return;
 
     const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
@@ -976,10 +973,7 @@ RimWellPathCollection* RivWellPathPartMgr::wellPathCollection() const
 {
     if ( !m_rimWellPath ) return nullptr;
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    m_rimWellPath->firstAncestorOrThisOfType( wellPathCollection );
-
-    return wellPathCollection;
+    return m_rimWellPath->firstAncestorOrThisOfType<RimWellPathCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

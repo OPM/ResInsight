@@ -77,7 +77,7 @@ protected:
 
 protected:
     std::vector<bool>            m_visibleCategoryLabels; // Skip labels ending up on top of previous visible label
-    OverlayColorLegendLayoutInfo m_Layout;
+    OverlayColorLegendLayoutInfo m_layout;
     cvf::ref<cvf::TextDrawer>    m_textDrawer;
     cvf::cref<CategoryMapper>    m_categoryMapper;
 };

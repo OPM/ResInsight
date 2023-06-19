@@ -65,9 +65,8 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
     caf::SelectionManager::instance()->objectsByType( &selectedTargets, caf::SelectionManager::FIRST_LEVEL );
     if ( !selectedTargets.empty() )
     {
-        auto                               firstTarget = selectedTargets.front();
-        RimUserDefinedPolylinesAnnotation* polylineDef = nullptr;
-        firstTarget->firstAncestorOrThisOfTypeAsserted( polylineDef );
+        auto firstTarget = selectedTargets.front();
+        RimUserDefinedPolylinesAnnotation* polylineDef = firstTarget->firstAncestorOrThisOfTypeAsserted<RimUserDefinedPolylinesAnnotation>();
 
         auto afterBeforePair = polylineDef->findActiveTargetsAroundInsertionPoint( firstTarget );
 

@@ -29,7 +29,7 @@
 class RiaColorTables
 {
 public:
-    typedef std::map<RiaDefines::WellPathComponentType, cvf::Color3::ColorIdent> WellPathComponentColors;
+    using WellPathComponentColors = std::map<RiaDefines::WellPathComponentType, cvf::Color3::ColorIdent>;
 
     static const caf::ColorTable& normalPaletteColors();
     static const caf::ColorTable& normalPaletteOppositeOrderingColors();
@@ -62,6 +62,7 @@ public:
     static const caf::ColorTable& wellPathsPaletteColors();
     static const caf::ColorTable& waterAndRockPaletteColors();
     static const caf::ColorTable& correlationPaletteColors();
+    static const caf::ColorTable& heatMapPaletteColors();
 
     static cvf::Color3f undefinedCellColor();
 

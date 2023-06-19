@@ -198,7 +198,7 @@ void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* plot 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots() const
 {
-    return m_correlationPlots.children();
+    return m_correlationPlots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,7 +214,7 @@ size_t RimCorrelationPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCorrelationReportPlot*> RimCorrelationPlotCollection::reports() const
 {
-    return m_correlationReports.children();
+    return m_correlationReports.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,8 +232,7 @@ void RimCorrelationPlotCollection::deleteAllPlots()
 void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot,
                                                                            const std::vector<QString>& quantityNames /*= {} */ )
 {
-    std::vector<RimSummaryCaseCollection*> ensembles;
-    RimProject::current()->descendantsIncludingThisOfType( ensembles );
+    std::vector<RimSummaryCaseCollection*> ensembles = RimProject::current()->descendantsIncludingThisOfType<RimSummaryCaseCollection>();
     if ( !ensembles.empty() )
     {
         std::set<RifEclipseSummaryAddress>     allAddresses = ensembles.front()->ensembleSummaryAddresses();
@@ -276,7 +275,8 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAbstr
             {
                 curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
                 auto correlationSortedEnsembleParameters = ensemble->correlationSortedEnsembleParameters( address, timeStep );
-                highestCorrelationParameters.push_back( correlationSortedEnsembleParameters.front().first.name );
+                if ( !correlationSortedEnsembleParameters.empty() )
+                    highestCorrelationParameters.push_back( correlationSortedEnsembleParameters.front().first.name );
             }
         }
         plot->setCurveDefinitions( curveDefs );
@@ -297,8 +297,7 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToReport( Rim
                                                                              const std::vector<QString>& matrixQuantityNames,
                                                                              const QString&              tornadoAndCrossPlotQuantityName )
 {
-    std::vector<RimSummaryCaseCollection*> ensembles;
-    RimProject::current()->descendantsIncludingThisOfType( ensembles );
+    std::vector<RimSummaryCaseCollection*> ensembles = RimProject::current()->descendantsIncludingThisOfType<RimSummaryCaseCollection>();
     if ( !ensembles.empty() )
     {
         std::set<RifEclipseSummaryAddress>     allAddresses = ensembles.front()->ensembleSummaryAddresses();

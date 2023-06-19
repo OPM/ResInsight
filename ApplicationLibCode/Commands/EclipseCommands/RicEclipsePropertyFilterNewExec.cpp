@@ -57,8 +57,7 @@ void RicEclipsePropertyFilterNewExec::redo()
 {
     RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( m_propertyFilterCollection );
 
-    RimGridView* view = nullptr;
-    m_propertyFilterCollection->firstAncestorOrThisOfTypeAsserted( view );
+    RimGridView* view = m_propertyFilterCollection->firstAncestorOrThisOfTypeAsserted<RimGridView>();
 
     // Enable display of grid cells, to be able to show generated property filter
     view->showGridCells( true );

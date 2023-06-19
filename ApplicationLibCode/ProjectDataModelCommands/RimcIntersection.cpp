@@ -221,8 +221,7 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
         }
 
         {
-            RimEclipseView* eclView = nullptr;
-            intersection->firstAncestorOfType( eclView );
+            auto eclView = intersection->firstAncestorOfType<RimEclipseView>();
             if ( eclView && eclView->eclipseCase() )
             {
                 auto offset = eclView->eclipseCase()->displayModelOffset();
@@ -305,8 +304,7 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
     auto geoGenerator = RimcExtrudedCurveIntersection_geometry::createGeometryGenerator( intersection, m_geometryType() );
     if ( geoGenerator && geoGenerator->isAnyGeometryPresent() )
     {
-        RimEclipseView* eclView = nullptr;
-        intersection->firstAncestorOfType( eclView );
+        auto eclView = intersection->firstAncestorOfType<RimEclipseView>();
         if ( !eclView )
         {
             RiaLogging::error( "No Eclipse view found. Extraction of intersection result is only supported for "

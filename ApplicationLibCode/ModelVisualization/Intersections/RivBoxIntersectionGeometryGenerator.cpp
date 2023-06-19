@@ -70,9 +70,9 @@ bool RivBoxIntersectionGeometryGenerator::isAnyGeometryPresent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivBoxIntersectionGeometryGenerator::generateSurface()
+cvf::ref<cvf::DrawableGeo> RivBoxIntersectionGeometryGenerator::generateSurface( cvf::UByteArray* visibleCells )
 {
-    calculateArrays();
+    calculateArrays( visibleCells );
 
     CVF_ASSERT( m_triangleVxes.notNull() );
 
@@ -244,7 +244,7 @@ RimBoxIntersection* RivBoxIntersectionGeometryGenerator::intersectionBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivBoxIntersectionGeometryGenerator::calculateArrays()
+void RivBoxIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visibleCells )
 {
     if ( m_triangleVxes->size() ) return;
 
@@ -253,8 +253,7 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays()
 
     cvf::Vec3d displayOffset( 0, 0, 0 );
     {
-        RimGridView* gridView = nullptr;
-        m_intersectionBoxDefinition->firstAncestorOrThisOfType( gridView );
+        auto gridView = m_intersectionBoxDefinition->firstAncestorOrThisOfType<RimGridView>();
         if ( gridView && gridView->ownerCase() )
         {
             displayOffset = gridView->ownerCase()->displayModelOffset();
@@ -311,6 +310,7 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays()
         {
             size_t globalCellIdx = columnCellCandidates[cccIdx];
 
+            if ( ( visibleCells != nullptr ) && ( ( *visibleCells )[globalCellIdx] == 0 ) ) continue;
             if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
             hexPlaneCutTriangleVxes.clear();

@@ -110,10 +110,9 @@ bool RimWellLogCurve::depthValueRangeInData( double* minimumValue, double* maxim
         return false;
     }
 
-    RimDepthTrackPlot* wellLogPlot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( wellLogPlot );
-    auto depthType   = wellLogPlot->depthType();
-    auto displayUnit = wellLogPlot->depthUnit();
+    RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+    auto               depthType   = wellLogPlot->depthType();
+    auto               displayUnit = wellLogPlot->depthUnit();
 
     return m_curveData->calculateDepthRange( depthType, displayUnit, minimumValue, maximumValue );
 }
@@ -238,8 +237,7 @@ void RimWellLogCurve::updateCurveAppearance()
 
     auto orientation = RiaDefines::Orientation::VERTICAL;
 
-    RimDepthTrackPlot* wellLogPlot = nullptr;
-    firstAncestorOrThisOfType( wellLogPlot );
+    auto wellLogPlot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
     if ( wellLogPlot )
     {
         orientation = wellLogPlot->depthOrientation();
@@ -336,15 +334,12 @@ void RimWellLogCurve::updateZoomInParentPlot()
 {
     const double eps = 1.0e-8;
 
-    RimWellLogTrack* wellLogTrack;
-    firstAncestorOrThisOfType( wellLogTrack );
-
+    auto wellLogTrack = firstAncestorOrThisOfType<RimWellLogTrack>();
     if ( wellLogTrack )
     {
         wellLogTrack->setAutoScalePropertyValuesIfNecessary();
 
-        RimDepthTrackPlot* wellLogPlot;
-        wellLogTrack->firstAncestorOrThisOfType( wellLogPlot );
+        auto wellLogPlot = wellLogTrack->firstAncestorOrThisOfType<RimDepthTrackPlot>();
 
         if ( wellLogPlot )
         {
@@ -377,8 +372,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::updateLegendsInPlot()
 {
-    RimWellLogTrack* wellLogTrack;
-    firstAncestorOrThisOfType( wellLogTrack );
+    auto wellLogTrack = firstAncestorOrThisOfType<RimWellLogTrack>();
     if ( wellLogTrack )
     {
         wellLogTrack->updateLegend();
@@ -438,8 +432,7 @@ bool RimWellLogCurve::isVerticalCurve() const
 {
     auto orientation = RiaDefines::Orientation::VERTICAL;
 
-    RimDepthTrackPlot* depthTrackPlot = nullptr;
-    firstAncestorOrThisOfType( depthTrackPlot );
+    auto depthTrackPlot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
     if ( depthTrackPlot ) orientation = depthTrackPlot->depthOrientation();
 
     return orientation == RiaDefines::Orientation::VERTICAL;
@@ -450,8 +443,7 @@ bool RimWellLogCurve::isVerticalCurve() const
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimWellLogCurve::depthAxis() const
 {
-    RimDepthTrackPlot* depthTrackPlot;
-    this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+    auto depthTrackPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
     return depthTrackPlot->depthAxis();
 }
@@ -461,8 +453,7 @@ RiuPlotAxis RimWellLogCurve::depthAxis() const
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimWellLogCurve::valueAxis() const
 {
-    RimDepthTrackPlot* depthTrackPlot;
-    this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+    auto depthTrackPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
     return depthTrackPlot->valueAxis();
 }

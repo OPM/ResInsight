@@ -60,9 +60,10 @@ caf::TrackBallBasedNavigation::TrackBallBasedNavigation()
     , m_isZooming( false )
     , m_lastPosX( 0 )
     , m_lastPosY( 0 )
+    , m_consumeEvents( false )
+    , m_isRotationEnabled( false )
     , m_lastWheelZoomPosX( -1 )
     , m_lastWheelZoomPosY( -1 )
-    , m_consumeEvents( false )
 {
 }
 

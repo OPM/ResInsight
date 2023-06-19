@@ -31,7 +31,6 @@
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -73,7 +72,6 @@ RimCellEdgeColors::RimCellEdgeColors()
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", ":/Legend.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties" );
-    m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showTextValuesIfItemIsUnchecked,
                        "ShowTextValuesIfItemIsUnchecked",
@@ -82,8 +80,6 @@ RimCellEdgeColors::RimCellEdgeColors()
                        "",
                        "Allow display of result values in Result Info window if the Cell Edge object is unchecked in "
                        "Property Editor." );
-
-    m_resultVariable.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     m_legendConfig = new RimRegularLegendConfig();
 

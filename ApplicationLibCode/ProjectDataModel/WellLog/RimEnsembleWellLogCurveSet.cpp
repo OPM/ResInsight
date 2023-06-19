@@ -158,8 +158,7 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogCurveSet::~RimEnsembleWellLogCurveSet()
 {
-    RimWellLogTrack* plotTrack = nullptr;
-    firstAncestorOrThisOfType( plotTrack );
+    auto plotTrack = firstAncestorOrThisOfType<RimWellLogTrack>();
     if ( plotTrack && plotTrack->viewer() )
     {
         if ( m_legendOverlayFrame )
@@ -210,8 +209,7 @@ void RimEnsembleWellLogCurveSet::loadDataAndUpdate( bool updateParentPlot )
 
     if ( updateParentPlot )
     {
-        RimWellLogTrack* parentPlot;
-        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
         parentPlot->viewer()->scheduleReplot();
     }
 }
@@ -252,8 +250,7 @@ void RimEnsembleWellLogCurveSet::reattachPlotCurves()
 
     m_qwtPlotCurveForLegendText->detach();
 
-    RimWellLogTrack* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimWellLogTrack>();
     if ( plot )
     {
         m_qwtPlotCurveForLegendText->attach( plot->viewer()->qwtPlot() );
@@ -265,7 +262,7 @@ void RimEnsembleWellLogCurveSet::reattachPlotCurves()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogCurve*> RimEnsembleWellLogCurveSet::curves() const
 {
-    return m_curves.ptrReferencedObjects();
+    return m_curves.ptrReferencedObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,9 +270,7 @@ std::vector<RimWellLogCurve*> RimEnsembleWellLogCurveSet::curves() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::deleteEnsembleCurves()
 {
-    RimWellLogTrack* plotTrack = nullptr;
-    firstAncestorOrThisOfType( plotTrack );
-    CVF_ASSERT( plotTrack );
+    auto plotTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
     std::vector<size_t> curvesIndexesToDelete;
     for ( size_t c = 0; c < m_curves.size(); c++ )
@@ -302,9 +297,7 @@ void RimEnsembleWellLogCurveSet::deleteEnsembleCurves()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::deleteStatisticsCurves()
 {
-    RimWellLogTrack* plotTrack = nullptr;
-    firstAncestorOrThisOfType( plotTrack );
-    CVF_ASSERT( plotTrack );
+    auto plotTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
     std::vector<size_t> curvesIndexesToDelete;
     for ( size_t c = 0; c < m_curves.size(); c++ )
@@ -392,10 +385,6 @@ void RimEnsembleWellLogCurveSet::updateEditors()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimWellLogPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
-    CVF_ASSERT( plot );
-
     bool updateTextInPlot = false;
 
     if ( changedField == &m_showCurves )
@@ -404,9 +393,8 @@ void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         updateConnectedEditors();
 
-        RimWellLogPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
-        summaryPlot->updateConnectedEditors();
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
+        plot->updateConnectedEditors();
 
         updateTextInPlot = true;
     }
@@ -624,8 +612,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleWellLogCurveSet::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateFilterLegend()
 {
-    RimWellLogTrack* plotTrack;
-    firstAncestorOrThisOfType( plotTrack );
+    auto plotTrack = firstAncestorOrThisOfType<RimWellLogTrack>();
 
     if ( plotTrack && plotTrack->viewer() )
     {
@@ -721,8 +708,7 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
         }
     }
 
-    RimWellLogTrack* plotTrack;
-    firstAncestorOrThisOfType( plotTrack );
+    auto plotTrack = firstAncestorOrThisOfType<RimWellLogTrack>();
     if ( plotTrack && plotTrack->viewer() )
     {
         if ( m_colorMode != ColorMode::SINGLE_COLOR && m_ensembleCurveSet != nullptr &&
@@ -752,13 +738,8 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWellLogFile*>& sumCases )
 {
-    RimWellLogTrack* plotTrack = nullptr;
-    firstAncestorOrThisOfType( plotTrack );
-    CVF_ASSERT( plotTrack );
-
-    RimWellLogPlot* wellLogPlot = nullptr;
-    firstAncestorOrThisOfType( wellLogPlot );
-    CVF_ASSERT( wellLogPlot );
+    auto plotTrack   = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
+    auto wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
 
     deleteEnsembleCurves();
     m_qwtPlotCurveForLegendText->detach();
@@ -847,8 +828,7 @@ void RimEnsembleWellLogCurveSet::setLogScaleFromSelectedResult( const QString re
 {
     if ( RiaResultNames::isLogarithmicResult( resVar ) )
     {
-        RimWellLogTrack* track = nullptr;
-        this->firstAncestorOrThisOfType( track );
+        auto track = firstAncestorOrThisOfType<RimWellLogTrack>();
         if ( track ) track->setLogarithmicScale( true );
     }
 }
@@ -897,10 +877,6 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
 
     if ( !updateStatistics( sumCases ) ) return;
 
-    RimWellLogPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
-    CVF_ASSERT( plot );
-
     std::vector<RimEnsembleWellLogStatistics::StatisticsType> statisticsTypes;
     if ( m_statistics->isActive() )
     {
@@ -914,16 +890,15 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
             statisticsTypes.push_back( RimEnsembleWellLogStatistics::StatisticsType::MEAN );
     }
 
-    auto statisticsCurveSymbolFromStatistics = []( RimEnsembleWellLogStatistics::StatisticsType statisticsType ) {
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P90 ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+    auto statisticsCurveSymbolFromStatistics = []( RimEnsembleWellLogStatistics::StatisticsType statisticsType )
+    {
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P90 ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
         if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 ) return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
         return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
     };
 
-    RimWellLogTrack* plotTrack = nullptr;
-    firstAncestorOrThisOfType( plotTrack );
-    CVF_ASSERT( plotTrack );
+    auto plotTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
     for ( auto statisticsType : statisticsTypes )
     {
@@ -1001,9 +976,7 @@ void RimEnsembleWellLogCurveSet::setFilterByEnsembleCurveSet( RimEnsembleCurveSe
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateAllTextInPlot()
 {
-    RimWellLogTrack* plotTrack = nullptr;
-    firstAncestorOrThisOfType( plotTrack );
-    CVF_ASSERT( plotTrack );
+    auto plotTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
     plotTrack->viewer()->setPlotTitle( name() );
 
     updateEnsembleLegendItem();

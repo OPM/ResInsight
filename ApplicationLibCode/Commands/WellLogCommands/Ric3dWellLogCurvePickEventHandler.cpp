@@ -52,8 +52,7 @@ bool Ric3dWellLogCurvePickEventHandler::handle3dPickEvent( const Ric3dPickEvent&
         Rim3dWellLogCurveCollection* curveCollection = dynamic_cast<Rim3dWellLogCurveCollection*>( sourceInfo->object() );
         if ( curveCollection )
         {
-            RimWellPath* wellPath;
-            curveCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
+            auto               wellPath     = curveCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
             QString            wellPathName = wellPath->name();
             cvf::Vec3d         closestPoint;
             double             measuredDepthAtPoint;

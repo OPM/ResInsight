@@ -444,8 +444,6 @@ void RicMswTableFormatterTools::generateCompsegHeader( RifTextDataTableFormatter
 //--------------------------------------------------------------------------------------------------
 void RicMswTableFormatterTools::generateWsegvalvTable( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo )
 {
-    bool foundValve = false;
-
     std::map<size_t, std::vector<WsegvalveData>> wsegvalveData;
 
     generateWsegvalvTableRecursively( exportInfo.mainBoreBranch(),
@@ -729,8 +727,6 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
     std::vector<std::pair<double, double>> segments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
     CVF_ASSERT( branch->wellPath() );
-    auto wellPathGeometry = branch->wellPath()->wellPathGeometry();
-    CVF_ASSERT( wellPathGeometry );
 
     double prevOutMD  = branch->startMD();
     double prevOutTVD = branch->startTVD();
@@ -850,9 +846,6 @@ void RicMswTableFormatterTools::writeValveWelsegsSegment( const RicMswSegment*  
     }
 
     std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
-
-    auto wellPathGeometry = valve->wellPath()->wellPathGeometry();
-    CVF_ASSERT( wellPathGeometry );
 
     const auto linerDiameter   = valve->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
     const auto roughnessFactor = valve->wellPath()->mswCompletionParameters()->roughnessFactor( exportInfo.unitSystem() );

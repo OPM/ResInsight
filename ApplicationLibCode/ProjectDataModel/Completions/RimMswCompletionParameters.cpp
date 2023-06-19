@@ -136,8 +136,7 @@ double RimMswCompletionParameters::manualReferenceMD() const
 //--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     double diameter = m_linerDiameter();
     if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
@@ -176,8 +175,7 @@ double RimMswCompletionParameters::defaultLinerDiameter( RiaDefines::EclipseUnit
 //--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     double rFactor = m_roughnessFactor();
     if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
@@ -307,8 +305,7 @@ void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -366,8 +363,7 @@ void RimMswCompletionParameters::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::setUnitSystemSpecificDefaults()
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( wellPath )
     {
         m_linerDiameter   = defaultLinerDiameter( wellPath->unitSystem() );

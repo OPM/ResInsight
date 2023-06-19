@@ -27,6 +27,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseInputProperty.h"
@@ -176,7 +177,10 @@ bool RifEclipseInputPropertyLoader::appendNewInputPropertyResult( RigEclipseCase
         return false;
     }
 
-    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
+    bool endsWithNum = eclipseKeyword.ends_with( "NUM" );
+    auto dataType    = endsWithNum ? RiaDefines::ResultDataType::INTEGER : RiaDefines::ResultDataType::FLOAT;
+
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, dataType, resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
     auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );

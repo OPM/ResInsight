@@ -247,7 +247,8 @@ void RifCaseRealizationRunspecificationReader::parse()
 //--------------------------------------------------------------------------------------------------
 QString RifCaseRealizationParametersFileLocator::locate( const QString& modelPath )
 {
-    int MAX_LEVELS_UP = 3;
+    // Chosen to find parameters file for StimPlan ensembles.
+    int MAX_LEVELS_UP = 5;
     int dirLevel      = 0;
 
     QDir qdir( modelPath );

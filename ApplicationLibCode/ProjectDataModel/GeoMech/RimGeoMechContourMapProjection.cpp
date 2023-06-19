@@ -441,7 +441,7 @@ RimGridView* RimGeoMechContourMapProjection::baseView() const
 std::vector<size_t> RimGeoMechContourMapProjection::findIntersectingCells( const cvf::BoundingBox& bbox ) const
 {
     std::vector<size_t> allCellIndices;
-    m_femPart->findIntersectingCellsWithExistingSearchTree( bbox, &allCellIndices );
+    m_femPart->findIntersectingElementsWithExistingSearchTree( bbox, &allCellIndices );
     return allCellIndices;
 }
 
@@ -568,9 +568,7 @@ std::vector<double> RimGeoMechContourMapProjection::gridCellValues( RigFemResult
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RimGeoMechContourMapProjection::geoMechCase() const
 {
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
-    return geoMechCase;
+    return firstAncestorOrThisOfType<RimGeoMechCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -578,9 +576,7 @@ RimGeoMechCase* RimGeoMechContourMapProjection::geoMechCase() const
 //--------------------------------------------------------------------------------------------------
 RimGeoMechContourMapView* RimGeoMechContourMapProjection::view() const
 {
-    RimGeoMechContourMapView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted( view );
-    return view;
+    return firstAncestorOrThisOfTypeAsserted<RimGeoMechContourMapView>();
 }
 
 //--------------------------------------------------------------------------------------------------

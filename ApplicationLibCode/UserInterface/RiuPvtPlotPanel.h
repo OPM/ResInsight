@@ -135,7 +135,7 @@ public:
     void               applyFontSizes( bool replot );
 
 private:
-    void           plotUiSelectedCurves();
+    void plotUiSelectedCurves();
     static QString unitLabelFromCurveIdent( RiaDefines::EclipseUnitSystem unitSystem, RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent );
 
 private slots:

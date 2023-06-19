@@ -79,8 +79,7 @@ RimTextAnnotation* RimTextAnnotationInView::sourceAnnotation() const
 //--------------------------------------------------------------------------------------------------
 bool RimTextAnnotationInView::isVisible() const
 {
-    RimAnnotationGroupCollection* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimAnnotationGroupCollection>();
 
     bool visible = true;
     if ( coll ) visible = coll->isVisible();
@@ -90,8 +89,7 @@ bool RimTextAnnotationInView::isVisible() const
 
         if ( visible )
         {
-            RimAnnotationGroupCollection* globalColl;
-            m_sourceAnnotation->firstAncestorOrThisOfType( globalColl );
+            auto globalColl = m_sourceAnnotation->firstAncestorOrThisOfType<RimAnnotationGroupCollection>();
             if ( globalColl ) visible = globalColl->isVisible();
         }
     }
@@ -106,8 +104,7 @@ void RimTextAnnotationInView::fieldChangedByUi( const caf::PdmFieldHandle* chang
 {
     if ( changedField == &m_isActive )
     {
-        RimAnnotationCollectionBase* coll;
-        firstAncestorOrThisOfType( coll );
+        auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
 
         if ( coll ) coll->scheduleRedrawOfRelevantViews();
     }

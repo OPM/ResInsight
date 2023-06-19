@@ -55,6 +55,12 @@ if(Qt5Core_FOUND)
   endif(Qt5Charts_FOUND)
 endif(Qt5Core_FOUND)
 
+if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+  set(Python3_EXECUTABLE ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+  find_package(Python3)
+  message(STATUS "Using Python Version: ${Python3_VERSION}")
+endif()
+
 # NB: The generated file is written to Cmake binary folder to avoid source tree
 # pollution This folder is added to include_directories
 configure_file(
@@ -71,65 +77,10 @@ if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES)
 endif()
 
-include_directories(
-  # required for compilation of gtest, should be refactored
-  ${ResInsight_SOURCE_DIR}/ThirdParty
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/Application
-  ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
-  ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/WellPathTools
-  ${CMAKE_CURRENT_SOURCE_DIR}/Commands
-  ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
-  ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Streamlines
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
-  ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/AnalysisPlots
-  ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/AnalysisPlots
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CorrelationPlots
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Faults
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GeoMech
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Parameters
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/StimPlanModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Intersections
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Streamlines
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CellFilters
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/ProcessControl
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellLog
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellMeasurement
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellPath
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
-  ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
-  ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
-  ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultAccessors
-  ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
-  ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
-  ${CMAKE_BINARY_DIR}/Generated
-  ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 # ##############################################################################
 # Eigen
 # ##############################################################################
-if(VCPKG_AUTO_INSTALL)
+if(RESINSIGHT_VCPKG_AUTO_INSTALL)
   vcpkg_install(eigen3)
 endif()
 
@@ -166,6 +117,7 @@ list(
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
   ReservoirDataModel/ResultAccessors/CMakeLists_files.cmake
+  ReservoirDataModel/ResultCalculators/CMakeLists_files.cmake
   FileInterface/CMakeLists_files.cmake
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
@@ -183,6 +135,7 @@ list(
   ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
   ProjectDataModel/StimPlanModel/CMakeLists_files.cmake
   ProjectDataModel/Streamlines/CMakeLists_files.cmake
+  ProjectDataModel/Seismic/CMakeLists_files.cmake
   ProjectDataModel/Surfaces/CMakeLists_files.cmake
   ProjectDataModel/Intersections/CMakeLists_files.cmake
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
@@ -197,6 +150,7 @@ list(
   ModelVisualization/CMakeLists_files.cmake
   ModelVisualization/GridBox/CMakeLists_files.cmake
   ModelVisualization/Intersections/CMakeLists_files.cmake
+  ModelVisualization/Seismic/CMakeLists_files.cmake
   ModelVisualization/Streamlines/CMakeLists_files.cmake
   ModelVisualization/Surfaces/CMakeLists_files.cmake
   ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
@@ -232,22 +186,32 @@ list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
 # Sub-directory projects
 # ##############################################################################
 
-add_subdirectory(ResultStatisticsCache)
-add_subdirectory(Commands)
-
-set(RI_LIBRARIES ResultStatisticsCache Commands)
-
 #
 # Odb api
 #
 if(RESINSIGHT_USE_ODB_API)
-  add_subdirectory(GeoMech/OdbReader)
   add_definitions(-DUSE_ODB_API)
-  list(APPEND RI_LIBRARIES RifOdbReader)
 endif()
 
-add_subdirectory(GeoMech/GeoMechDataModel)
-list(APPEND RI_LIBRARIES RigGeoMechDataModel)
+#
+# OpenVDS
+#
+list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
+
+#
+# Configure include directories if opm-common.lib is downloaded and linked
+# without building from source
+#
+if(NOT BUILD_FROM_SOURCE)
+  list(APPEND RI_PUBLIC_INCLUDES
+       ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/opm-common
+  )
+  list(
+    APPEND
+    RI_PRIVATE_INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/generated-opm-common/include
+  )
+endif()
 
 #
 # HDF5
@@ -273,13 +237,12 @@ if(RESINSIGHT_FOUND_HDF5)
 
   if(MSVC)
     add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+    list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_HDF5_DIR}/include)
 
-    include_directories(${RESINSIGHT_HDF5_DIR}/include)
   else()
     add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
     add_definitions(${HDF5_DEFINITIONS})
-
-    include_directories(${HDF5_INCLUDE_DIRS})
+    list(APPEND RI_PRIVATE_INCLUDES ${HDF5_INCLUDE_DIRS})
   endif() # MSVC
 
   source_group("FileInterface\\HDF5" FILES ${HDF5_FILES})
@@ -336,8 +299,7 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(
-    ApplicationLibCode PRIVATE -Wall -Wno-unused-parameter -Wno-reorder
-                               -Wno-parentheses -Wno-switch
+    ApplicationLibCode PRIVATE -Wall -Wno-reorder -Wno-parentheses -Wno-switch
   )
 endif()
 
@@ -346,22 +308,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
     ApplicationLibCode
     PRIVATE -Wall
-            -Wno-unused-parameter
             -Wno-reorder
-            -Wno-parentheses
             -Wno-switch
+            -Wno-undefined-var-template
             -Wno-delete-abstract-non-virtual-dtor
-            -Wno-undefined-var-template
-            -Wno-invalid-source-encoding
-            -Wno-enum-compare
             -Wno-call-to-pure-virtual-from-ctor-dtor
-            -Wno-unused-variable
-            -Wno-unused-private-field
-            -Wno-unused-lambda-capture
             -Wno-delete-non-abstract-non-virtual-dtor
-            -Wno-braced-scalar-init
-            -Wno-tautological-constant-out-of-range-compare
-            -Wno-undefined-var-template
             -Wno-ambiguous-reversed-operator
   )
 endif()
@@ -384,7 +336,7 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4251")
+  set(BUILD_FLAGS_FOR_MSVC "/W3 /wd4190 /wd4100 /wd4127")
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only
@@ -427,23 +379,64 @@ target_link_libraries(
 
 target_include_directories(
   ${PROJECT_NAME}
-  PRIVATE ${CMAKE_BINARY_DIR}/Generated
-  PUBLIC
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/FileInterface
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Intersections
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel/ResultAccessors
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
-    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Commands
+          ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
+          ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
+          ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands/CommandRouter
+          ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/AnalysisPlots
+          ${RI_PRIVATE_INCLUDES}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+         ${CMAKE_CURRENT_SOURCE_DIR}/Adm
+         ${CMAKE_CURRENT_SOURCE_DIR}/Application
+         ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
+         ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/WellPathTools
+         ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
+         ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
+         ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
+         ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech
+         ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
+         ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
+         ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
+         ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Seismic
+         ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Streamlines
+         ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/AnalysisPlots
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CorrelationPlots
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Faults
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GeoMech
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Parameters
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/StimPlanModel
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Intersections
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Streamlines
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Seismic
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CellFilters
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/ProcessControl
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellLog
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellMeasurement
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellPath
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
+         ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands/CommandRouter
+         ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
+         ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
+         ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultAccessors
+         ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultCalculators
+         ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
+         ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
+         ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
+         ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
+         ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
+         ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
+         ${ResInsight_SOURCE_DIR}/ThirdParty
+         ${CMAKE_BINARY_DIR}/Generated
+         ${RI_PUBLIC_INCLUDES}
 )
 
 # ##############################################################################

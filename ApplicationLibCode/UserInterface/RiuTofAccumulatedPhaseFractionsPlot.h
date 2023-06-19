@@ -46,7 +46,7 @@ public:
     ~RiuTofAccumulatedPhaseFractionsPlot() override;
 
     RiuTofAccumulatedPhaseFractionsPlot( const RiuTofAccumulatedPhaseFractionsPlot& ) = delete;
-    void operator=( const RiuTofAccumulatedPhaseFractionsPlot& o ) = delete;
+    void operator=( const RiuTofAccumulatedPhaseFractionsPlot& o )                    = delete;
 
     RimTofAccumulatedPhaseFractionsPlot* ownerPlotDefinition();
     RimViewWindow*                       ownerViewWindow() const override;

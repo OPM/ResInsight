@@ -103,6 +103,7 @@ void RimRegularLegendConfig::ColorRangeEnum::setUp()
     addItem( RimRegularLegendConfig::ColorRangesType::GREEN_RED, "GREEN_RED", "Green to Red" );
     addItem( RimRegularLegendConfig::ColorRangesType::BLUE_MAGENTA, "BLUE_MAGENTA", "Blue to Magenta" );
     addItem( RimRegularLegendConfig::ColorRangesType::CORRELATION, "CORRELATION", "Correlation colors" );
+    addItem( RimRegularLegendConfig::ColorRangesType::HEAT_MAP, "HEAT_MAP", "Heat map colors" );
     addItem( RimRegularLegendConfig::ColorRangesType::UNDEFINED, "UNDEFINED", "Undefined" );
     setDefault( RimRegularLegendConfig::ColorRangesType::UNDEFINED );
 }
@@ -290,9 +291,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
 
     updateLegend();
 
-    RimGridView* view = nullptr;
-    this->firstAncestorOrThisOfType( view );
-
+    auto view = firstAncestorOrThisOfType<RimGridView>();
     if ( view )
     {
         RimViewLinker* viewLinker = view->assosiatedViewLinker();
@@ -307,23 +306,20 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
 
     // Update stim plan templates if relevant
-    RimStimPlanColors* stimPlanColors;
-    firstAncestorOrThisOfType( stimPlanColors );
+    auto stimPlanColors = firstAncestorOrThisOfType<RimStimPlanColors>();
     if ( stimPlanColors )
     {
         stimPlanColors->updateStimPlanTemplates();
     }
 
     // Update ensemble curve set if relevant
-    RimEnsembleCurveSet* ensembleCurveSet;
-    firstAncestorOrThisOfType( ensembleCurveSet );
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
     if ( ensembleCurveSet )
     {
         ensembleCurveSet->onLegendDefinitionChanged();
     }
 
-    RimGridCrossPlotDataSet* crossPlotCurveSet;
-    firstAncestorOrThisOfType( crossPlotCurveSet );
+    auto crossPlotCurveSet = firstAncestorOrThisOfType<RimGridCrossPlotDataSet>();
     if ( crossPlotCurveSet )
     {
         if ( changedField != &m_showLegend )
@@ -334,8 +330,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         crossPlotCurveSet->loadDataAndUpdate( true );
     }
 
-    RimWellRftPlot* rftPlot;
-    firstAncestorOrThisOfType( rftPlot );
+    auto rftPlot = firstAncestorOrThisOfType<RimWellRftPlot>();
     if ( rftPlot )
     {
         rftPlot->onLegendDefinitionChanged();
@@ -582,6 +577,17 @@ void RimRegularLegendConfig::updateLegend()
 void RimRegularLegendConfig::setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat )
 {
     m_tickNumberFormat = numberFormat;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setUserDefinedRange( double minVal, double maxVal )
+{
+    m_userDefinedMinValue = minVal;
+    m_userDefinedMaxValue = maxVal;
+    updateLegend();
+    sendChangedSignal( &m_userDefinedMaxValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1112,6 +1118,9 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType( ColorRangesT
         case RimRegularLegendConfig::ColorRangesType::CORRELATION:
             return RiaColorTables::correlationPaletteColors().color3ubArray();
             break;
+        case RimRegularLegendConfig::ColorRangesType::HEAT_MAP:
+            return RiaColorTables::heatMapPaletteColors().color3ubArray();
+            break;
         default:
             if ( ColorManager::isEnsembleColorRange( colorType ) ) return ColorManager::EnsembleColorRanges().at( colorType );
             break;
@@ -1152,7 +1161,7 @@ QString RimRegularLegendConfig::valueToText( double value ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setDefaultConfigForResultName( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
+void RimRegularLegendConfig::setDefaultConfigForResultName( int caseId, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
 {
     bool useLog = RiaResultNames::isLogarithmicResult( resultName );
 
@@ -1200,7 +1209,13 @@ void RimRegularLegendConfig::setDefaultConfigForResultName( const QString& resul
     setTickNumberFormat( numberFormat );
     updateTickCountAndUserDefinedRange();
 
-    if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
+    RimProject* project       = RimProject::current();
+    auto        defaultLegend = project->colorLegendCollection()->findDefaultLegendForResult( caseId, resultName );
+    if ( defaultLegend )
+    {
+        setColorLegend( defaultLegend );
+    }
+    else if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
     {
         RimColorLegend* colorLegend = RimRegularLegendConfig::mapToColorLegend( colorRangeType );
 
@@ -1227,6 +1242,26 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     else if ( uiConfigName == "ColorsOnly" )
     {
         uiOrdering.add( &m_colorLegend );
+        uiOrdering.skipRemainingFields( true );
+    }
+    else if ( uiConfigName == "FlagAndColorsOnly" )
+    {
+        uiOrdering.add( &m_showLegend );
+        uiOrdering.add( &m_colorLegend );
+        uiOrdering.skipRemainingFields( true );
+    }
+    else if ( uiConfigName == "UserDefinedMinMaxOnly" )
+    {
+        uiOrdering.add( &m_userDefinedMaxValue );
+        uiOrdering.add( &m_userDefinedMinValue );
+        uiOrdering.skipRemainingFields( true );
+    }
+    else if ( uiConfigName == "RangeModeAndUserDefinedMinMaxOnly" )
+    {
+        // TODO: DELETE!!!
+        uiOrdering.add( &m_rangeMode );
+        uiOrdering.add( &m_userDefinedMaxValue );
+        uiOrdering.add( &m_userDefinedMinValue );
         uiOrdering.skipRemainingFields( true );
     }
     else
@@ -1256,32 +1291,35 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::defineUiOrderingColorOnly( caf::PdmUiOrdering* colorGroup )
+{
+    colorGroup->add( &m_colorLegend, { true, 2, 1 } );
+    colorGroup->add( &m_selectColorLegendButton, { false, 1, 0 } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     bool hasStimPlanParent         = false;
     bool hasEnsembleCurveSetParent = false;
     bool hasRftPlotParent          = false;
 
-    RimStimPlanColors* stimPlanColors = nullptr;
-    this->firstAncestorOrThisOfType( stimPlanColors );
+    auto stimPlanColors = firstAncestorOrThisOfType<RimStimPlanColors>();
     if ( stimPlanColors ) hasStimPlanParent = true;
 
-    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( ensembleCurveSet );
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
     if ( ensembleCurveSet ) hasEnsembleCurveSetParent = true;
 
-    RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( crossPlotCurveSet );
+    auto crossPlotCurveSet = firstAncestorOrThisOfType<RimGridCrossPlotDataSet>();
 
-    RimWellRftEnsembleCurveSet* rftCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( rftCurveSet );
+    auto rftCurveSet = firstAncestorOrThisOfType<RimWellRftEnsembleCurveSet>();
     if ( rftCurveSet ) hasRftPlotParent = true;
 
     bool isAllanDiagram = false;
     {
-        RimEclipseCellColors* eclCellColors = nullptr;
-        this->firstAncestorOrThisOfType( eclCellColors );
-
+        auto eclCellColors = firstAncestorOrThisOfType<RimEclipseCellColors>();
         if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
         {
             isAllanDiagram = true;

@@ -48,7 +48,7 @@
 #include "RimWellPath.h"
 
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cafPdmUiListEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QDoubleValidator>
 
@@ -74,7 +74,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechResultDefinition, "GeoMechResultDefinition" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
+RimGeoMechResultDefinition::RimGeoMechResultDefinition()
 {
     CAF_PDM_InitObject( "Color Result", ":/CellResult.png" );
 
@@ -99,7 +99,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     CAF_PDM_InitField( &m_resultVariableUiField, "ResultVariableUI", QString( "" ), "Value" );
     m_resultVariableUiField.xmlCapability()->disableIO();
 
-    m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitField( &m_normalizeByHydrostaticPressure, "NormalizeByHSP", false, "Normalize by Hydrostatic Pressure" );
@@ -124,7 +124,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition::~RimGeoMechResultDefinition( void )
+RimGeoMechResultDefinition::~RimGeoMechResultDefinition()
 {
 }
 
@@ -351,13 +351,10 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     }
 
     // Get the possible property filter owner
-    RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>( this->parentField()->ownerObject() );
-    RimGridView*              view       = nullptr;
-    this->firstAncestorOrThisOfType( view );
-    RimPlotCurve* curve = nullptr;
-    this->firstAncestorOrThisOfType( curve );
-    Rim3dWellLogCurve* rim3dWellLogCurve = nullptr;
-    this->firstAncestorOrThisOfType( rim3dWellLogCurve );
+    auto propFilter        = dynamic_cast<RimGeoMechPropertyFilter*>( this->parentField()->ownerObject() );
+    auto view              = firstAncestorOrThisOfType<RimGridView>();
+    auto curve             = firstAncestorOrThisOfType<RimPlotCurve>();
+    auto rim3dWellLogCurve = firstAncestorOrThisOfType<Rim3dWellLogCurve>();
 
     if ( &m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField ||
          &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||

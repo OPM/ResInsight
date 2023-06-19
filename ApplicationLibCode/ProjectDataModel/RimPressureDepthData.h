@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RifReaderFmuRft.h"
-
 #include "RimNamedObject.h"
 
 #include "RifReaderPressureDepthData.h"

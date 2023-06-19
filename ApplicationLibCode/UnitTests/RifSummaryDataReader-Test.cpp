@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-//#include "RiaTestDataDirectory.h"
+// #include "RiaTestDataDirectory.h"
 
 #include "RifOpmCommonSummary.h"
 #include "RifReaderEclipseSummary.h"

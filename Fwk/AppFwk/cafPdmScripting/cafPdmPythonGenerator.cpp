@@ -81,13 +81,16 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     }
 
     // Sort to make sure super classes get created before sub classes
-    std::sort( dummyObjects.begin(), dummyObjects.end(), []( std::shared_ptr<PdmObject> lhs, std::shared_ptr<PdmObject> rhs ) {
-        if ( lhs->inheritsClassWithKeyword( rhs->classKeyword() ) )
-        {
-            return false;
-        }
-        return lhs->classKeyword() < rhs->classKeyword();
-    } );
+    std::sort( dummyObjects.begin(),
+               dummyObjects.end(),
+               []( std::shared_ptr<PdmObject> lhs, std::shared_ptr<PdmObject> rhs )
+               {
+                   if ( lhs->inheritsClassWithKeyword( rhs->classKeyword() ) )
+                   {
+                       return false;
+                   }
+                   return lhs->classKeyword() < rhs->classKeyword();
+               } );
 
     std::map<QString, std::map<QString, std::pair<QString, QString>>> classAttributesGenerated;
     std::map<QString, std::map<QString, QString>>                     classMethodsGenerated;
@@ -110,8 +113,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
 
             if ( classKeyword == object->classKeyword() )
             {
-                std::vector<PdmFieldHandle*> fields;
-                object->fields( fields );
+                std::vector<PdmFieldHandle*> fields = object->fields();
                 for ( auto field : fields )
                 {
                     auto scriptability = field->template capability<PdmAbstractFieldScriptingCapability>();
@@ -254,8 +256,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
             {
                 std::shared_ptr<PdmObjectMethod> method =
                     PdmObjectMethodFactory::instance()->createMethod( object.get(), methodName );
-                std::vector<PdmFieldHandle*> arguments;
-                method->fields( arguments );
+                std::vector<PdmFieldHandle*> arguments = method->fields();
 
                 QString methodComment = method->uiCapability()->uiWhatsThis();
 

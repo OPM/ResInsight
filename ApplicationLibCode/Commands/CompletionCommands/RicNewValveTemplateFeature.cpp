@@ -42,8 +42,7 @@ void RicNewValveTemplateFeature::selectValveTemplateAndUpdate( RimValveTemplate*
 {
     valveTemplate->loadDataAndUpdate();
 
-    RimValveTemplateCollection* templateCollection = nullptr;
-    valveTemplate->firstAncestorOrThisOfType( templateCollection );
+    RimValveTemplateCollection* templateCollection = valveTemplate->firstAncestorOrThisOfType<RimValveTemplateCollection>();
     if ( templateCollection )
     {
         templateCollection->updateConnectedEditors();

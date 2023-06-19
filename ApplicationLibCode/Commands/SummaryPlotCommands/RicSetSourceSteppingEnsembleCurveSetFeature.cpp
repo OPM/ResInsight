@@ -43,8 +43,7 @@ bool RicSetSourceSteppingEnsembleCurveSetFeature::isCommandEnabled()
     {
         auto c = ensembleCurveSets[0];
 
-        RimEnsembleCurveSetCollection* coll = nullptr;
-        c->firstAncestorOrThisOfType( coll );
+        auto coll = c->firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
         if ( coll )
         {
             if ( coll->curveSetForSourceStepping() != c )
@@ -69,15 +68,13 @@ void RicSetSourceSteppingEnsembleCurveSetFeature::onActionTriggered( bool isChec
     {
         auto c = objects[0];
 
-        RimSummaryPlot* summaryPlot = nullptr;
-        c->firstAncestorOrThisOfType( summaryPlot );
+        auto summaryPlot = c->firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( summaryPlot )
         {
             RicClearSourceSteppingEnsembleCurveSetFeature::clearAllSourceSteppingInSummaryPlot( summaryPlot );
         }
 
-        RimEnsembleCurveSetCollection* coll = nullptr;
-        c->firstAncestorOrThisOfType( coll );
+        auto coll = c->firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
         if ( coll )
         {
             coll->setCurveSetForSourceStepping( c );

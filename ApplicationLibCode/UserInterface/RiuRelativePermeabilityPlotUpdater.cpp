@@ -23,6 +23,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
@@ -34,7 +35,7 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 
-//#include "cvfTrace.h"
+// #include "cvfTrace.h"
 
 #include <cmath>
 

@@ -21,7 +21,6 @@
 #include "RigCompletionData.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
-#include "RicWellPathFractureReportItem.h"
 
 #include "cvfVector2.h"
 #include "cvfVector3.h"
@@ -52,7 +51,7 @@ class SubSegmentIntersectionInfo;
 //==================================================================================================
 ///
 //==================================================================================================
-typedef std::shared_ptr<QFile> QFilePtr;
+using QFilePtr = std::shared_ptr<QFile>;
 
 class TransmissibilityData
 {
@@ -102,14 +101,14 @@ public:
         calculateCellMainDirection( RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell );
 
     static TransmissibilityData
-        calculateTransmissibilityData( RimEclipseCase*                  eclipseCase,
-                                       const RimWellPath*               wellPath,
-                                       const cvf::Vec3d&                internalCellLengths,
-                                       double                           skinFactor,
-                                       double                           wellRadius,
-                                       size_t                           globalCellIndex,
-                                       bool                             useLateralNTG,
-                                       size_t                           volumeScaleConstant       = 1,
+        calculateTransmissibilityData( RimEclipseCase*    eclipseCase,
+                                       const RimWellPath* wellPath,
+                                       const cvf::Vec3d&  internalCellLengths,
+                                       double             skinFactor,
+                                       double             wellRadius,
+                                       size_t             globalCellIndex,
+                                       bool               useLateralNTG,
+                                       size_t             volumeScaleConstant = 1,
                                        RigCompletionData::CellDirection directionForVolumeScaling = RigCompletionData::CellDirection::DIR_I );
 
     static double calculateDFactor( RimEclipseCase*                         eclipseCase,

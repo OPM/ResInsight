@@ -73,10 +73,8 @@ public:
     typename std::vector<PdmPointer<DataType>>::const_iterator begin() const { return m_pointers.begin(); };
     typename std::vector<PdmPointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
 
-    std::vector<DataType*> ptrReferencedObjects() const;
-
-    // Child objects
-    void ptrReferencedObjects( std::vector<PdmObjectHandle*>* ) override;
+    std::vector<DataType*>        ptrReferencedObjectsByType() const;
+    std::vector<PdmObjectHandle*> ptrReferencedObjects() const override;
 
 private: // To be disabled
     PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrArrayField );

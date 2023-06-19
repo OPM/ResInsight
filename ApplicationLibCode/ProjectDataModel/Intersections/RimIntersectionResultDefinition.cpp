@@ -18,6 +18,9 @@
 
 #include "RimIntersectionResultDefinition.h"
 
+#include "RiaResultNames.h"
+#include "RigCaseCellResultsData.h"
+
 #include "Rim2dIntersectionView.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -101,8 +104,7 @@ void RimIntersectionResultDefinition::assignCaseIfMissing() const
 {
     if ( !m_case )
     {
-        RimCase* ownerCase = nullptr;
-        this->firstAncestorOrThisOfType( ownerCase );
+        auto ownerCase = firstAncestorOrThisOfType<RimCase>();
         const_cast<RimIntersectionResultDefinition*>( this )->setActiveCase( ownerCase );
     }
 }
@@ -328,14 +330,12 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
 
     this->updateConnectedEditors();
 
-    RimIntersectionResultsDefinitionCollection* interResDefColl = nullptr;
-    this->firstAncestorOrThisOfType( interResDefColl );
-    bool isInAction = isActive() && interResDefColl && interResDefColl->isActive();
+    auto interResDefColl = firstAncestorOrThisOfType<RimIntersectionResultsDefinitionCollection>();
+    bool isInAction      = isActive() && interResDefColl && interResDefColl->isActive();
 
     if ( changedField == &m_isActive || ( changedField == &m_timeStep && isInAction ) )
     {
-        std::vector<PdmObject*> referringObjects;
-        this->objectsWithReferringPtrFieldsOfType( referringObjects );
+        std::vector<PdmObject*> referringObjects = objectsWithReferringPtrFieldsOfType<PdmObject>();
         for ( auto* obj : referringObjects )
         {
             obj->updateConnectedEditors();
@@ -346,8 +346,7 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
 
     if ( reDraw )
     {
-        RimGridView* gridView = nullptr;
-        this->firstAncestorOrThisOfType( gridView );
+        auto gridView = firstAncestorOrThisOfType<RimGridView>();
         if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
 
         update2dIntersectionViews();
@@ -364,9 +363,7 @@ void RimIntersectionResultDefinition::update2dIntersectionViews()
     // Update 2D Intersection views
     updateCaseInResultDefinitions();
 
-    std::vector<RimExtrudedCurveIntersection*> intersections;
-    this->objectsWithReferringPtrFieldsOfType( intersections );
-
+    auto intersections = objectsWithReferringPtrFieldsOfType<RimExtrudedCurveIntersection>();
     for ( auto intersection : intersections )
     {
         if ( intersection && intersection->correspondingIntersectionView() )
@@ -387,7 +384,10 @@ void RimIntersectionResultDefinition::setDefaultEclipseLegendConfig()
     auto eclResultDef = this->eclipseResultDefinition();
     eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(), this->ternaryLegendConfig(), this->timeStep() );
 
-    m_legendConfig->setDefaultConfigForResultName( m_eclipseResultDefinition->resultVariable(), useDiscreteLogLevels, isCategoryResult );
+    m_legendConfig->setDefaultConfigForResultName( m_case->caseId(),
+                                                   m_eclipseResultDefinition->resultVariable(),
+                                                   useDiscreteLogLevels,
+                                                   isCategoryResult );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -428,7 +428,7 @@ void RimIntersectionResultDefinition::defineUiOrdering( QString uiConfigName, ca
         m_geomResultDefinition->uiOrdering( uiConfigName, uiOrdering );
     }
 
-    if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() || m_eclipseResultDefinition->isTernarySaturationSelected() ) ||
+    if ( ( ( eclipseCase && ( m_eclipseResultDefinition->hasDynamicResult() || m_eclipseResultDefinition->isTernarySaturationSelected() ) ) ) ||
          geomCase )
     {
         uiOrdering.add( &m_timeStep );
@@ -488,8 +488,7 @@ void RimIntersectionResultDefinition::updateCaseInResultDefinitions()
 //--------------------------------------------------------------------------------------------------
 bool RimIntersectionResultDefinition::isInAction() const
 {
-    RimIntersectionResultsDefinitionCollection* interResDefColl = nullptr;
-    this->firstAncestorOrThisOfType( interResDefColl );
+    auto interResDefColl = firstAncestorOrThisOfType<RimIntersectionResultsDefinitionCollection>();
 
     return isActive() && interResDefColl && interResDefColl->isActive();
 }

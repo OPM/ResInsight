@@ -94,8 +94,7 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipseProper
 //--------------------------------------------------------------------------------------------------
 bool RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( caf::PdmObjectHandle* object )
 {
-    Rim3dView* rimView = nullptr;
-    object->firstAncestorOrThisOfType( rimView );
+    auto rimView = object->firstAncestorOrThisOfType<Rim3dView>();
     if ( rimView )
     {
         RimViewController* vc = rimView->viewController();
@@ -115,11 +114,7 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults( RimEclipsePropertyFilter*
 {
     CVF_ASSERT( propertyFilter );
 
-    RimEclipsePropertyFilterCollection* propertyFilterCollection = nullptr;
-    propertyFilter->firstAncestorOrThisOfTypeAsserted( propertyFilterCollection );
-
-    RimEclipseView* reservoirView = nullptr;
-    propertyFilter->firstAncestorOrThisOfTypeAsserted( reservoirView );
+    auto reservoirView = propertyFilter->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
     propertyFilter->resultDefinition()->setEclipseCase( reservoirView->eclipseCase() );
 

@@ -39,6 +39,7 @@
 #include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -46,8 +47,11 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTimeEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QGridLayout>
+
+#include <utility>
 
 namespace caf
 {
@@ -55,19 +59,30 @@ namespace caf
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiCheckBoxEditor, bool );
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, QString );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDate );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDateTime );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTimeEditor, QTime );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, int );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, double );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, float );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, quint64 );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<QString> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<int> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<unsigned int> );
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<float> );
+
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDate );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiDateEditor, QDateTime );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTimeEditor, QTime );
+
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<QString> );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<int> );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<unsigned int> );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<float> );
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiFilePathEditor, FilePath );
+
+// As the macro CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR() is not working correctly for std::pair<bool, double> the
+// registration of this type in the factory has to be written directly
+static bool myPdmUiCheckBoxAndTextEditor73 =
+    caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<PdmUiCheckBoxAndTextEditor>(
+        QString( typeid( caf::PdmField<std::pair<bool, double>> ).name() ) );
+static bool my2PdmUiCheckBoxAndTextEditor73 =
+    caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<PdmUiCheckBoxAndTextEditor>(
+        QString( typeid( caf::PdmProxyValueField<std::pair<bool, double>> ).name() ) );
 
 //--------------------------------------------------------------------------------------------------
 ///

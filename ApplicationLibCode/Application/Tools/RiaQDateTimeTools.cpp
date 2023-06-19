@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QLocale>
 #include <QString>
+#include <QTime>
 
 #include "cafPdmUiItem.h"
 
@@ -32,6 +33,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_MINUTE   = DateTimeSpan( 0, 0, 0, 0, 1 );
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_HOUR     = DateTimeSpan( 0, 0, 0, 1 );
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DAY      = DateTimeSpan( 0, 0, 1 );
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_WEEK     = DateTimeSpan( 0, 0, 7 );
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_MONTH    = DateTimeSpan( 0, 1, 0 );
@@ -46,6 +49,22 @@ const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE   = DateTimeSpan( 10, 0, 0
 Qt::TimeSpec RiaQDateTimeTools::currentTimeSpec()
 {
     return Qt::UTC;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+quint64 RiaQDateTimeTools::secondsInMinute()
+{
+    return 60;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+quint64 RiaQDateTimeTools::secondsInHour()
+{
+    return 60 * 60;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,7 +161,12 @@ QDateTime RiaQDateTimeTools::addYears( const QDateTime& dt, double years )
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addSpan( const QDateTime& dt, DateTimeSpan span )
 {
-    return createUtcDateTime( dt ).addYears( span.years() ).addMonths( span.months() ).addDays( span.days() );
+    return createUtcDateTime( dt )
+        .addYears( span.years() )
+        .addMonths( span.months() )
+        .addDays( span.days() )
+        .addSecs( span.hours() * RiaQDateTimeTools::secondsInHour() )
+        .addSecs( span.minutes() * RiaQDateTimeTools::secondsInMinute() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +174,12 @@ QDateTime RiaQDateTimeTools::addSpan( const QDateTime& dt, DateTimeSpan span )
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::subtractSpan( const QDateTime& dt, DateTimeSpan span )
 {
-    return createUtcDateTime( dt ).addYears( -span.years() ).addMonths( -span.months() ).addDays( -span.days() );
+    return createUtcDateTime( dt )
+        .addYears( -span.years() )
+        .addMonths( -span.months() )
+        .addDays( -span.days() )
+        .addSecs( -span.hours() * RiaQDateTimeTools::secondsInHour() )
+        .addSecs( -span.minutes() * RiaQDateTimeTools::secondsInMinute() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,6 +279,10 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaDefines::DateTimePeriod perio
 {
     switch ( period )
     {
+        case RiaDefines::DateTimePeriod::MINUTE:
+            return TIMESPAN_MINUTE;
+        case RiaDefines::DateTimePeriod::HOUR:
+            return TIMESPAN_HOUR;
         case RiaDefines::DateTimePeriod::DAY:
             return TIMESPAN_DAY;
         case RiaDefines::DateTimePeriod::WEEK:
@@ -274,13 +307,19 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaDefines::DateTimePeriod perio
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, RiaDefines::DateTimePeriod period )
 {
-    int y   = dt.date().year();
-    int m   = dt.date().month();
-    int d   = dt.date().day();
-    int dow = dt.date().dayOfWeek();
+    int y      = dt.date().year();
+    int m      = dt.date().month();
+    int d      = dt.date().day();
+    int dow    = dt.date().dayOfWeek();
+    int h      = dt.time().hour();
+    int minute = dt.time().minute();
 
     switch ( period )
     {
+        case RiaDefines::DateTimePeriod::MINUTE:
+            return createUtcDateTime( QDate( y, m, d ), QTime( h, minute, 0 ) );
+        case RiaDefines::DateTimePeriod::HOUR:
+            return createUtcDateTime( QDate( y, m, d ), QTime( h, 0, 0 ) );
         case RiaDefines::DateTimePeriod::DAY:
             return createUtcDateTime( QDate( y, m, d ) );
         case RiaDefines::DateTimePeriod::WEEK:
@@ -498,4 +537,91 @@ QList<caf::PdmOptionItemInfo> RiaQDateTimeTools::createOptionItems( const std::v
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RiaQDateTimeTools::createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates )
+{
+    std::set<QDateTime> outputDates;
+    if ( inputDates.empty() || numDates <= 0 )
+    {
+        return {};
+    }
+    if ( static_cast<size_t>( numDates ) > inputDates.size() )
+    {
+        outputDates = std::set( inputDates.begin(), inputDates.end() );
+        return outputDates;
+    }
+    if ( numDates == 1 )
+    {
+        outputDates = { inputDates.front() };
+        return outputDates;
+    }
+
+    // Find the minimum and maximum dates in the input vector
+    QDateTime minDate = *std::min_element( inputDates.begin(), inputDates.end() );
+    QDateTime maxDate = *std::max_element( inputDates.begin(), inputDates.end() );
+
+    // Calculate the time step between each selected date
+    qint64 timeStep = ( maxDate.toMSecsSinceEpoch() - minDate.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
+
+    // Find the index of the input date that is closest to each new date
+    for ( int i = 0; i < numDates; ++i )
+    {
+        qint64 targetTime      = minDate.toMSecsSinceEpoch() + i * timeStep;
+        int    closestIndex    = 0;
+        qint64 closestTimeDiff = std::numeric_limits<qint64>::max();
+        for ( size_t j = 0; j < inputDates.size(); ++j )
+        {
+            qint64 timeDiff = std::abs( inputDates[j].toMSecsSinceEpoch() - targetTime );
+            if ( timeDiff < closestTimeDiff )
+            {
+                closestIndex    = static_cast<int>( j );
+                closestTimeDiff = timeDiff;
+            }
+        }
+
+        // Add the closest date to the output vector
+        outputDates.insert( inputDates[closestIndex] );
+    }
+
+    return outputDates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RiaQDateTimeTools::getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps,
+                                                                           const QDateTime&              fromTimeStep,
+                                                                           const QDateTime&              toTimeStep )
+{
+    std::vector<QDateTime> selectedTimeSteps;
+    auto isTimeStepInSelectedRange = [&]( const QDateTime& timeStep ) -> bool { return fromTimeStep <= timeStep && timeStep <= toTimeStep; };
+    std::copy_if( timeSteps.begin(), timeSteps.end(), std::back_inserter( selectedTimeSteps ), isTimeStepInSelectedRange );
+
+    return selectedTimeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime>
+    RiaQDateTimeTools::createEvenlyDistributedDatesInInterval( const QDateTime& fromTimeStamp, const QDateTime& toTimeStamp, int numDates )
+{
+    if ( numDates < 2 ) return {};
+
+    // Calculate the time step between the two time stamps
+    qint64 timeStep = ( toTimeStamp.toMSecsSinceEpoch() - fromTimeStamp.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
+
+    // Create a set of evenly spaced datetimes.
+    std::set<QDateTime> outputDates;
+    for ( int i = 0; i < numDates; ++i )
+    {
+        qint64 targetTime = i * timeStep;
+        outputDates.insert( RiaQDateTimeTools::addMSecs( fromTimeStamp, targetTime ) );
+    }
+
+    return outputDates;
 }

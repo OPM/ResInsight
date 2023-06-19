@@ -64,12 +64,14 @@ QDateTime RiaDateStringParser::parseDateString( const std::string& dateString, O
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::parseDateStringWithSeparators( const std::string& dateString, int& year, int& month, int& day, OrderPreference preference )
 {
-    auto tryParseAllYearFirst = []( const std::string& dateString, int& year, int& month, int& day ) {
+    auto tryParseAllYearFirst = []( const std::string& dateString, int& year, int& month, int& day )
+    {
         return tryParseYearFirst( dateString, year, month, day ) || tryParseDayFirst( dateString, year, month, day ) ||
                tryParseMonthFirst( dateString, year, month, day );
     };
 
-    auto tryParseAllDayFirst = []( const std::string& dateString, int& year, int& month, int& day ) {
+    auto tryParseAllDayFirst = []( const std::string& dateString, int& year, int& month, int& day )
+    {
         return tryParseDayFirst( dateString, year, month, day ) || tryParseYearFirst( dateString, year, month, day ) ||
                tryParseMonthFirst( dateString, year, month, day );
     };
@@ -83,12 +85,14 @@ bool RiaDateStringParser::parseDateStringWithSeparators( const std::string& date
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::parseDateStringWithoutSeparators( const std::string& dateString, int& year, int& month, int& day, OrderPreference preference )
 {
-    auto tryParseAllYearFirstNoSeparators = []( const std::string& dateString, int& year, int& month, int& day ) {
+    auto tryParseAllYearFirstNoSeparators = []( const std::string& dateString, int& year, int& month, int& day )
+    {
         return tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
                tryParseDayFirstNoSeparators( dateString, year, month, day ) || tryParseMonthFirstNoSeparators( dateString, year, month, day );
     };
 
-    auto tryParseAllDayFirstNoSeparators = []( const std::string& dateString, int& year, int& month, int& day ) {
+    auto tryParseAllDayFirstNoSeparators = []( const std::string& dateString, int& year, int& month, int& day )
+    {
         return tryParseDayFirstNoSeparators( dateString, year, month, day ) || tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
                tryParseMonthFirstNoSeparators( dateString, year, month, day );
     };

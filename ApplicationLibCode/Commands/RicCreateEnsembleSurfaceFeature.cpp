@@ -21,12 +21,12 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "CommandRouter/RimcExtractSurfaces.h"
 #include "RicCreateEnsembleSurfaceUi.h"
 #include "RicImportEnsembleSurfaceFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 #include "RimDialogData.h"
 #include "RimProject.h"
+#include "RimcExtractSurfaces.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuPropertyViewTabWidget.h"
@@ -55,12 +55,13 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
     QString pathFilter( "*" );
     QString fileNameFilter( "*" );
 
-    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                                                        "Choose Eclipse Cases",
-                                                                                                        defaultDir,
-                                                                                                        pathFilter,
-                                                                                                        fileNameFilter,
-                                                                                                        QStringList( ".EGRID" ) );
+    RicRecursiveFileSearchDialogResult result =
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                "Choose Eclipse Cases",
+                                                                defaultDir,
+                                                                pathFilter,
+                                                                fileNameFilter,
+                                                                { RicRecursiveFileSearchDialog::FileType::EGRID } );
 
     if ( !result.ok || result.files.isEmpty() )
     {

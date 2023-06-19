@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+
 //
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
@@ -27,6 +27,9 @@
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSeismicData.h"
+#include "RimSeismicDataCollection.h"
+#include "RimSeismicDifferenceData.h"
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -159,7 +162,7 @@ QString RimTools::relocateFile( const QString&        originalFileName,
         }
     }
 
-    if ( !pathEndsDiffer && firstDiffIdx < fileNamePathElements.size() || firstDiffIdx < oldProjPathElements.size() )
+    if ( ( !pathEndsDiffer && firstDiffIdx < fileNamePathElements.size() ) || firstDiffIdx < oldProjPathElements.size() )
     {
         pathEndsDiffer = true;
     }
@@ -374,6 +377,55 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options )
+{
+    if ( !options ) return;
+
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        const auto& coll = proj->activeOilField()->seismicCollection().p();
+
+        for ( auto* c : coll->seismicData() )
+        {
+            options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( c->userDescription() ), c, false, c->uiIconProvider() ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly )
+{
+    if ( !options ) return;
+
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        const auto& coll = proj->activeOilField()->seismicCollection().p();
+
+        for ( auto* c : coll->seismicData() )
+        {
+            if ( c->boundingBox()->intersects( worldBBox ) )
+                options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( c->userDescription() ), c, false, c->uiIconProvider() ) );
+        }
+
+        if ( !basicDataOnly )
+        {
+            for ( auto* c : coll->differenceData() )
+            {
+                if ( c->boundingBox()->intersects( worldBBox ) )
+                    options->push_back(
+                        caf::PdmOptionItemInfo( QString::fromStdString( c->userDescription() ), c, false, c->uiIconProvider() ) );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimTools::colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
     if ( !options ) return;
@@ -398,6 +450,19 @@ RimWellPathCollection* RimTools::wellPathCollection()
     {
         return proj->activeOilField()->wellPathCollection();
     }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimTools::firstWellPath()
+{
+    auto wellpathcoll = wellPathCollection();
+    auto wellpaths    = wellpathcoll->allWellPaths();
+
+    if ( wellpaths.size() > 0 ) return wellpaths[0];
 
     return nullptr;
 }

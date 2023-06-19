@@ -653,9 +653,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( m_autoCheckStateBasedOnCurveData() || isChecked() )
     {
-        RimDepthTrackPlot* wellLogPlot;
-        firstAncestorOrThisOfType( wellLogPlot );
-        CVF_ASSERT( wellLogPlot );
+        auto wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
         auto* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
         bool  showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
@@ -667,7 +665,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         std::vector<double>  errors              = errorValues();
         std::vector<QString> perPointLabels;
 
-        auto anyValidValuesPresent = []( const std::vector<double>& values ) -> bool {
+        auto anyValidValuesPresent = []( const std::vector<double>& values ) -> bool
+        {
             for ( const auto& v : values )
             {
                 if ( RiaStatisticsTools::isValidNumber<double>( v ) ) return true;
@@ -779,9 +778,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
-                RimWellLogTrack* wellLogTrack;
-                firstAncestorOrThisOfType( wellLogTrack );
-                CVF_ASSERT( wellLogTrack );
+                auto wellLogTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
                 RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
                 if ( viewer )
@@ -1066,8 +1063,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
     RifReaderRftInterface* reader = rftReader();
     if ( !reader ) return nullptr;
 
-    RimMainPlotCollection* mainPlotCollection;
-    this->firstAncestorOrThisOfTypeAsserted( mainPlotCollection );
+    auto mainPlotCollection = firstAncestorOrThisOfTypeAsserted<RimMainPlotCollection>();
 
     RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
     if ( !wellLogCollection ) return nullptr;

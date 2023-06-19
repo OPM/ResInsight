@@ -293,7 +293,7 @@ void RigHistogramCalculator::addValue( double value )
 
     size_t index = 0;
 
-    if ( m_maxIndex > 0 ) index = ( size_t )( m_maxIndex * ( value - m_min ) / m_range );
+    if ( m_maxIndex > 0 ) index = (size_t)( m_maxIndex * ( value - m_min ) / m_range );
 
     if ( index < m_histogram->size() ) // Just clip to the max min range (-index will overflow to positive )
     {

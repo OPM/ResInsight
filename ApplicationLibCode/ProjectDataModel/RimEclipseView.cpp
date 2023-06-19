@@ -38,6 +38,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "Rim2dIntersectionView.h"
@@ -71,6 +72,8 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSeismicSection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -436,6 +439,9 @@ void RimEclipseView::onCreateDisplayModel()
 
     if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() ) ) return;
 
+    const bool cellFiltersActive     = cellFilterCollection()->hasActiveFilters();
+    const bool propertyFiltersActive = eclipsePropertyFilterCollection()->hasActiveFilters();
+
     // Define a vector containing time step indices to produce geometry for.
     // First entry in this vector is used to define the geometry only result mode with no results.
     std::vector<size_t> timeStepIndices;
@@ -455,9 +461,9 @@ void RimEclipseView::onCreateDisplayModel()
             timeStepIndices.push_back( i );
         }
     }
-    else if ( this->cellResult()->hasStaticResult() || this->cellEdgeResult()->hasResult() ||
-              this->eclipsePropertyFilterCollection()->hasActiveFilters() || this->intersectionCollection()->hasAnyActiveSeparateResults() ||
-              ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
+    else if ( cellResult()->hasStaticResult() || cellEdgeResult()->hasResult() || propertyFiltersActive ||
+              intersectionCollection()->hasAnyActiveSeparateResults() ||
+              ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
     {
         // The one and only static result entry
         timeStepIndices.push_back( 0 );
@@ -477,7 +483,7 @@ void RimEclipseView::onCreateDisplayModel()
     wellCollection()->scheduleIsWellPipesVisibleRecalculation();
 
     // Create vector of grid indices to render
-    std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
+    std::vector<size_t> gridIndices = indicesToVisibleGrids();
 
     ///
     // Get or create the parts for "static" type geometry. The same geometry is used
@@ -485,36 +491,35 @@ void RimEclipseView::onCreateDisplayModel()
     // For property filtered geometry : just set all the models as empty scenes
     // updateCurrentTimeStep requests the actual parts
 
-    if ( !this->eclipsePropertyFilterCollection()->hasActiveFilters() ||
-         ( this->viewController() && this->viewController()->isVisibleCellsOveridden() ) )
+    if ( !propertyFiltersActive || ( viewController() && viewController()->isVisibleCellsOveridden() ) )
     {
         std::vector<RivCellSetEnum> geometryTypesToAdd;
 
-        if ( this->viewController() && this->viewController()->isVisibleCellsOveridden() )
+        if ( viewController() && viewController()->isVisibleCellsOveridden() )
         {
             geometryTypesToAdd.push_back( OVERRIDDEN_CELL_VISIBILITY );
         }
-        else if ( this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
+        else if ( cellFiltersActive && wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( RANGE_FILTERED );
             geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
             geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER );
             geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER );
-            if ( this->showInactiveCells() )
+            if ( showInactiveCells() )
             {
                 geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
             }
         }
-        else if ( !this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
+        else if ( !cellFiltersActive && wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS );
             geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS );
         }
-        else if ( this->cellFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells() )
+        else if ( cellFiltersActive && !wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( RANGE_FILTERED );
             geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
-            if ( this->showInactiveCells() )
+            if ( showInactiveCells() )
             {
                 geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
             }
@@ -524,7 +529,7 @@ void RimEclipseView::onCreateDisplayModel()
             geometryTypesToAdd.push_back( ALL_WELL_CELLS ); // Should be all well cells
             geometryTypesToAdd.push_back( ACTIVE );
 
-            if ( this->showInactiveCells() )
+            if ( showInactiveCells() )
             {
                 geometryTypesToAdd.push_back( INACTIVE );
             }
@@ -552,7 +557,7 @@ void RimEclipseView::onCreateDisplayModel()
             }
         }
         // Set static colors
-        this->onUpdateStaticCellColors();
+        onUpdateStaticCellColors();
     }
     else
     {
@@ -562,14 +567,14 @@ void RimEclipseView::onCreateDisplayModel()
 
     m_reservoirGridPartManager->clearWatertightGeometryFlags();
 
-    if ( faultCollection()->showFaultCollection() || !this->eclipsePropertyFilterCollection()->hasActiveFilters() )
+    if ( faultCollection()->isActive() || !propertyFiltersActive )
     {
         setVisibleGridPartsWatertight();
 
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
         RivCellSetEnum           faultLabelType =
             m_reservoirGridPartManager->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
-                                                                    faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
+                                                                    !faultCollection()->shouldApplyCellFiltersToFaults() );
 
         for ( size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx )
         {
@@ -584,15 +589,16 @@ void RimEclipseView::onCreateDisplayModel()
         }
     }
 
-    // Cross sections
+    // Intersections
+    appendIntersectionsToModel( cellFiltersActive, propertyFiltersActive );
 
-    m_intersectionVizModel->removeAllParts();
-    m_intersectionCollection->rebuildGeometry();
-    m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+    // Seismic sections
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    m_seismicVizModel->removeAllParts();
+    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
 
     // Surfaces
-
     m_surfaceVizModel->removeAllParts();
     if ( surfaceInViewCollection() )
     {
@@ -601,7 +607,6 @@ void RimEclipseView::onCreateDisplayModel()
     }
 
     // Well path model
-
     m_wellPathPipeVizModel->removeAllParts();
 
     // NB! StimPlan legend colors must be updated before well path geometry is added to the model
@@ -649,8 +654,7 @@ void RimEclipseView::onCreateDisplayModel()
         updateFaultColors();
     }
 
-    std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots;
-    this->objectsWithReferringPtrFieldsOfType( characteristicsPlots );
+    std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots = objectsWithReferringPtrFieldsOfType<RimFlowCharacteristicsPlot>();
     for ( auto plot : characteristicsPlots )
     {
         if ( plot != nullptr )
@@ -659,8 +663,7 @@ void RimEclipseView::onCreateDisplayModel()
         }
     }
 
-    std::vector<RimGridCrossPlotDataSet*> curveSets;
-    this->objectsWithReferringPtrFieldsOfType( curveSets );
+    std::vector<RimGridCrossPlotDataSet*> curveSets = objectsWithReferringPtrFieldsOfType<RimGridCrossPlotDataSet>();
     for ( auto curveSet : curveSets )
     {
         if ( curveSet != nullptr )
@@ -670,8 +673,7 @@ void RimEclipseView::onCreateDisplayModel()
     }
 
 #ifdef USE_QTCHARTS
-    std::vector<RimGridStatisticsPlot*> gridStatisticsPlots;
-    this->objectsWithReferringPtrFieldsOfType( gridStatisticsPlots );
+    std::vector<RimGridStatisticsPlot*> gridStatisticsPlots = objectsWithReferringPtrFieldsOfType<RimGridStatisticsPlot>();
     for ( auto gridStatisticsPlot : gridStatisticsPlots )
     {
         if ( gridStatisticsPlot != nullptr )
@@ -704,14 +706,18 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 {
     clearReservoirCellVisibilities();
 
-    // m_surfaceCollection->clearGeometry();
-
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
     m_streamlineCollection()->updateFromCurrentTimeStep( currentTimeStep() );
 
     updateVisibleGeometries();
 
     onUpdateLegends(); // To make sure the scalar mappers are set up correctly
+
+    if ( intersectionCollection()->shouldApplyCellFiltersToIntersections() && eclipsePropertyFilterCollection()->hasActiveFilters() )
+    {
+        m_intersectionCollection->clearGeometry();
+        appendIntersectionsForCurrentTimeStep();
+    }
 
     updateVisibleCellColors();
 
@@ -780,7 +786,7 @@ void RimEclipseView::updateVisibleGeometries()
 
         RivCellSetEnum faultLabelType =
             m_reservoirGridPartManager->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
-                                                                    faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
+                                                                    !faultCollection()->shouldApplyCellFiltersToFaults() );
         if ( faultLabelType == PROPERTY_FILTERED )
         {
             m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel( frameParts.p(), faultLabelType, m_currentTimeStep );
@@ -803,7 +809,7 @@ void RimEclipseView::updateVisibleGeometries()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices );
 
-                if ( !faultCollection()->isShowingFaultsAndFaultsOutsideFilters() )
+                if ( faultCollection()->shouldApplyCellFiltersToFaults() )
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel( frameParts.p(), RANGE_FILTERED_INACTIVE );
                 }
@@ -812,7 +818,7 @@ void RimEclipseView::updateVisibleGeometries()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameParts.p(), INACTIVE, gridIndices );
 
-                if ( !faultCollection()->isShowingFaultsAndFaultsOutsideFilters() )
+                if ( faultCollection()->shouldApplyCellFiltersToFaults() )
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel( frameParts.p(), INACTIVE );
                 }
@@ -824,7 +830,7 @@ void RimEclipseView::updateVisibleGeometries()
             cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
             if ( frameScene )
             {
-                this->removeModelByName( frameScene, frameParts->name() );
+                RimEclipseView::removeModelByName( frameScene, frameParts->name() );
                 frameScene->addModel( frameParts.p() );
                 frameParts->updateBoundingBoxesRecursive();
             }
@@ -911,7 +917,7 @@ void RimEclipseView::appendWellsAndFracturesToModel()
             // Simulation Wells
             {
                 cvf::String name = "SimWellPipeMod";
-                this->removeModelByName( frameScene, name );
+                RimEclipseView::removeModelByName( frameScene, name );
 
                 cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
                 simWellModelBasicList->setName( name );
@@ -928,7 +934,7 @@ void RimEclipseView::appendWellsAndFracturesToModel()
             // Well Paths
             {
                 cvf::String name = "WellPathMod";
-                this->removeModelByName( frameScene, name );
+                RimEclipseView::removeModelByName( frameScene, name );
 
                 cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                 wellPathModelBasicList->setName( name );
@@ -941,19 +947,17 @@ void RimEclipseView::appendWellsAndFracturesToModel()
             // Sim Well Fractures
             {
                 cvf::String name = "SimWellFracturesModel";
-                this->removeModelByName( frameScene, name );
+                RimEclipseView::removeModelByName( frameScene, name );
 
                 cvf::ref<cvf::ModelBasicList> simWellFracturesModelBasicList = new cvf::ModelBasicList;
                 simWellFracturesModelBasicList->setName( name );
 
                 cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-                std::vector<RimFracture*> fractures;
-                this->descendantsIncludingThisOfType( fractures );
+                std::vector<RimFracture*> fractures = this->descendantsIncludingThisOfType<RimFracture>();
                 for ( RimFracture* f : fractures )
                 {
-                    RimSimWellInView* simWell = nullptr;
-                    f->firstAncestorOrThisOfType( simWell );
+                    RimSimWellInView* simWell = f->firstAncestorOrThisOfType<RimSimWellInView>();
                     if ( simWell )
                     {
                         bool isAnyGeometryPresent = simWell->isWellPipeVisible( m_currentTimeStep ) ||
@@ -986,7 +990,7 @@ void RimEclipseView::appendElementVectorResultToModel()
         {
             // Element Vector Results
             cvf::String name = "ElementVectorModelMod";
-            this->removeModelByName( frameScene, name );
+            RimEclipseView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
             frameParts->setName( name );
@@ -1016,7 +1020,7 @@ void RimEclipseView::appendStreamlinesToModel()
         if ( frameScene )
         {
             cvf::String name = "StreamlinesModel";
-            this->removeModelByName( frameScene, name );
+            RimEclipseView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
             frameParts->setName( name );
@@ -1076,8 +1080,7 @@ void RimEclipseView::onLoadDataAndUpdate()
     {
         // Update simulation well fractures after well cell results are imported
 
-        std::vector<RimSimWellFracture*> simFractures;
-        this->descendantsIncludingThisOfType( simFractures );
+        std::vector<RimSimWellFracture*> simFractures = descendantsIncludingThisOfType<RimSimWellFracture>();
         for ( auto fracture : simFractures )
         {
             fracture->loadDataAndUpdate();
@@ -1212,8 +1215,7 @@ QString RimEclipseView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( ownerCase );
+    RimCase* ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     if ( nameConfig()->addCaseName() )
     {
@@ -1418,10 +1420,7 @@ void RimEclipseView::onUpdateLegends()
     {
         bool hasAnyVisibleFractures = false;
         {
-            std::vector<RimFracture*> fractures;
-
-            RimProject::current()->activeOilField()->descendantsIncludingThisOfType( fractures );
-
+            std::vector<RimFracture*> fractures = RimProject::current()->activeOilField()->descendantsIncludingThisOfType<RimFracture>();
             for ( const auto& f : fractures )
             {
                 if ( f->isEnabled() ) hasAnyVisibleFractures = true;
@@ -1466,6 +1465,11 @@ void RimEclipseView::onUpdateLegends()
     if ( m_surfaceCollection && m_surfaceCollection->isChecked() )
     {
         m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+    }
+
+    if ( m_seismicSectionCollection->isChecked() )
+    {
+        m_seismicSectionCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
 
     if ( m_streamlineCollection )
@@ -1675,24 +1679,21 @@ void RimEclipseView::calculateVisibleWellCellsIncFence( cvf::UByteArray* visible
             if ( !simWellData ) continue;
 
             const std::vector<RigWellResultFrame>& wellResFrames = simWellData->m_wellCellsTimeSteps;
-            for ( size_t wfIdx = 0; wfIdx < wellResFrames.size(); ++wfIdx )
+            for ( const auto& frame : wellResFrames )
             {
                 // Add all the cells from the branches
-
-                const std::vector<RigWellResultBranch>& wellResSegments = wellResFrames[wfIdx].m_wellResultBranches;
-                for ( size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx )
+                for ( const auto& segment : frame.wellResultBranches() )
                 {
-                    const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
-                    for ( size_t cIdx = 0; cIdx < wsResCells.size(); ++cIdx )
+                    for ( const auto& cell : segment.branchResultPoints() )
                     {
-                        if ( wsResCells[cIdx].gridIndex() == grid->gridIndex() )
+                        if ( cell.gridIndex() == grid->gridIndex() )
                         {
-                            if ( !wsResCells[cIdx].isCell() )
+                            if ( !cell.isCell() )
                             {
                                 continue;
                             }
 
-                            size_t gridCellIndex             = wsResCells[cIdx].cellIndex();
+                            size_t gridCellIndex             = cell.cellIndex();
                             ( *visibleCells )[gridCellIndex] = true;
 
                             // Calculate well fence cells
@@ -1898,9 +1899,11 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     {
         bool showFractureColors = false;
 
-        std::vector<RimFracture*> fractures;
-        m_wellCollection->descendantsIncludingThisOfType( fractures );
-        wellPathCollection()->descendantsIncludingThisOfType( fractures );
+        std::vector<RimFracture*> fractures = m_wellCollection->descendantsIncludingThisOfType<RimFracture>();
+
+        auto otherFractures = wellPathCollection()->descendantsIncludingThisOfType<RimFracture>();
+        fractures.insert( fractures.end(), otherFractures.begin(), otherFractures.end() );
+
         if ( !fractures.empty() )
         {
             showFractureColors = true;
@@ -1917,6 +1920,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( intersectionCollection() );
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+    if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -1929,7 +1933,7 @@ std::set<RivCellSetEnum> RimEclipseView::allVisibleFaultGeometryTypes() const
     std::set<RivCellSetEnum> faultGeoTypes;
     faultGeoTypes.insert( m_visibleGridParts.begin(), m_visibleGridParts.end() );
 
-    if ( faultCollection()->isShowingFaultsAndFaultsOutsideFilters() )
+    if ( !faultCollection()->shouldApplyCellFiltersToFaults() )
     {
         faultGeoTypes.insert( ACTIVE );
         faultGeoTypes.insert( ALL_WELL_CELLS );
@@ -2206,6 +2210,37 @@ void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseView::calculateCellVisibility( cvf::UByteArray* visibility, std::vector<RivCellSetEnum> geomTypes, int timeStep )
+{
+    size_t cellCount = this->mainGrid()->globalCellArray().size();
+
+    visibility->resize( cellCount );
+    visibility->setAll( false );
+
+    std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
+
+    const auto gridCount = this->eclipseCase()->eclipseCaseData()->gridCount();
+
+    for ( size_t gridIdx = 0; gridIdx < gridCount; gridIdx++ )
+    {
+        RigGridBase* grid          = this->eclipseCase()->eclipseCaseData()->grid( gridIdx );
+        int          gridCellCount = static_cast<int>( grid->cellCount() );
+
+        for ( auto vizType : geomTypes )
+        {
+            const cvf::UByteArray* gridVisibility = m_reservoirGridPartManager->cellVisibility( vizType, gridIdx, timeStep );
+
+            for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
+            {
+                ( *visibility )[grid->reservoirCellIndex( lcIdx )] |= ( *gridVisibility )[lcIdx];
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
 {
     std::vector<RimLegendConfig*> absLegends;
@@ -2241,6 +2276,11 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
         {
             absLegends.push_back( legendConfig );
         }
+    }
+
+    for ( auto section : seismicSectionCollection()->seismicSections() )
+    {
+        absLegends.push_back( section->legendConfig() );
     }
 
     absLegends.erase( std::remove( absLegends.begin(), absLegends.end(), nullptr ), absLegends.end() );

@@ -49,8 +49,7 @@ bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& e
         {
             RimExtrudedCurveIntersection* intersection = selection[0];
 
-            RimGridView* gridView = nullptr;
-            intersection->firstAncestorOrThisOfTypeAsserted( gridView );
+            RimGridView* gridView = intersection->firstAncestorOrThisOfTypeAsserted<RimGridView>();
 
             if ( RiaApplication::instance()->activeMainOrComparisonGridView() != gridView )
             {

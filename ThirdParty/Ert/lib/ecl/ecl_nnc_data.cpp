@@ -174,8 +174,6 @@ static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_typ
    int current_grid1 = -1;
    int current_grid2 = -1;
    ecl_kw_type * current_kw = NULL;
-   int correct_kw_count = 0;
-   int kw_count = 0;
    int nnc_size = ecl_nnc_geometry_size( nnc_geo );
 
    for (int nnc_index = 0; nnc_index < nnc_size; nnc_index++) {
@@ -187,17 +185,12 @@ static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_typ
          current_grid1 = grid1;
          current_grid2 = grid2;
          current_kw = ecl_nnc_data_get_kw( grid, init_file, grid1 , grid2 , kw_type);
-         kw_count = 0;
-         if (current_kw) {
-            correct_kw_count = ecl_kw_get_size( current_kw );
-         }
-         else {
+         if (!current_kw) {
             return false;
          }
       }
       if (current_kw) {
         data->values[nnc_index] = ecl_kw_iget_as_double(current_kw, pair->input_index);
-        kw_count++;
       }
 
    }

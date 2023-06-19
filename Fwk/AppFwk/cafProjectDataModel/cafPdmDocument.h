@@ -61,6 +61,9 @@ public:
     void writeFile( QIODevice* device );
 
     static void updateUiIconStateRecursively( PdmObjectHandle* root );
+
+protected:
+    virtual void beforeInitAfterRead();
 };
 
 } // End of namespace caf

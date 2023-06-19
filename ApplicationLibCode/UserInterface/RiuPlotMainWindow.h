@@ -60,7 +60,7 @@ public:
     ~RiuPlotMainWindow() override;
 
     static RiuPlotMainWindow* instance();
-    static void               onWellSelected( QString wellName );
+    static void               onWellSelected( const QString& wellName, int timeStep );
 
     QString mainWindowName() override;
 

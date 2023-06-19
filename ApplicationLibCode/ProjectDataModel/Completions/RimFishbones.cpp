@@ -118,6 +118,7 @@ RimFishbones::RimFishbones()
                        "Orientation" );
 
     CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]" );
+    m_installationRotationAngles.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_installationRotationAngles.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]" );
 
@@ -216,8 +217,7 @@ double RimFishbones::buildAngle() const
 //--------------------------------------------------------------------------------------------------
 double RimFishbones::tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
@@ -284,8 +284,7 @@ double RimFishbones::skinFactor() const
 //--------------------------------------------------------------------------------------------------
 double RimFishbones::openHoleRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_lateralOpenHoleRoghnessFactor() );
@@ -302,8 +301,7 @@ double RimFishbones::openHoleRoughnessFactor( RiaDefines::EclipseUnitSystem unit
 //--------------------------------------------------------------------------------------------------
 double RimFishbones::icdOrificeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     return RimWellPathValve::convertOrificeDiameter( m_icdOrificeDiameter(), wellPath->unitSystem(), unitSystem );
 }
 
@@ -358,12 +356,10 @@ void RimFishbones::geometryUpdated()
     computeRotationAngles();
     computeSubLateralIndices();
 
-    RimFishbonesCollection* collection;
-    this->firstAncestorOrThisOfTypeAsserted( collection );
+    auto collection = firstAncestorOrThisOfTypeAsserted<RimFishbonesCollection>();
     collection->recalculateStartMD();
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -413,8 +409,7 @@ void RimFishbones::recomputeLateralLocations()
 //--------------------------------------------------------------------------------------------------
 void RimFishbones::setUnitSystemSpecificDefaults()
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -556,8 +551,7 @@ void RimFishbones::computeRangesAndLocations()
 void RimFishbones::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        RimWellPath* wellPath;
-        firstAncestorOrThisOfType( wellPath );
+        auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -671,8 +665,7 @@ cvf::BoundingBox RimFishbones::boundingBoxInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 bool RimFishbones::isEnabled() const
 {
-    RimFishbonesCollection* collection;
-    this->firstAncestorOrThisOfTypeAsserted( collection );
+    auto collection = firstAncestorOrThisOfTypeAsserted<RimFishbonesCollection>();
 
     return collection->isChecked() && isActive();
 }

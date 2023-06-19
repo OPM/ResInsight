@@ -46,7 +46,6 @@ void RicfCommandFileExecutor::ExportTypeEnum::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RicfCommandFileExecutor::RicfCommandFileExecutor()
-    : m_exportDataSourceAsComment( true )
 {
 }
 

@@ -552,8 +552,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText( c
 
         QString wellName;
 
-        RimWellPath* wellPath = nullptr;
-        fracture->firstAncestorOrThisOfType( wellPath );
+        auto wellPath = fracture->firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             wellName = wellPath->completionSettings()->wellNameForExport();
@@ -628,7 +627,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         RifTextDataTableColumn( "" ), // Fracture
         RifTextDataTableColumn( "" ), // Template
         floatNumberColumn( "" ), // Tr
-        floatNumberColumn( "" ), //#con
+        floatNumberColumn( "" ), // #con
         floatNumberColumn( "" ), // Fcd
         RifTextDataTableColumn( "", RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // Area
         RifTextDataTableColumn( meanText, RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // KfWf

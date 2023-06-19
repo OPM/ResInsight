@@ -32,6 +32,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimIntersectionCollection.h"
+#include "RimProject.h"
 
 #include "RiuMainWindow.h"
 
@@ -62,40 +63,46 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 {
     CAF_PDM_InitObject( "Faults", ":/draw_style_faults_24x24.png" );
 
-    CAF_PDM_InitField( &showFaultCollection, "Active", true, "Active" );
-    showFaultCollection.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_showFaultCollection, "Active", true, "Active" );
+    m_showFaultCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &showFaultFaces, "ShowFaultFaces", true, "Show Defined faces" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showFaultFaces );
+    CAF_PDM_InitField( &m_showFaultFaces, "ShowFaultFaces", true, "Show Defined faces" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showFaultFaces );
 
-    CAF_PDM_InitField( &showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showOppositeFaultFaces );
+    CAF_PDM_InitField( &m_showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showOppositeFaultFaces );
 
-    CAF_PDM_InitField( &m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showFaultsOutsideFilters );
+    CAF_PDM_InitField( &m_applyCellFilters, "ApplyCellFilters", true, "Use Cell Filters for Faults" );
 
     CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Show Only Faces with Juxtaposition" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyShowWithNeighbor );
 
-    CAF_PDM_InitField( &faultResult,
+    CAF_PDM_InitField( &m_faultResult,
                        "FaultFaceCulling",
                        caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>( RimFaultInViewCollection::FAULT_BACK_FACE_CULLING ),
                        "Dynamic Face Selection" );
 
-    CAF_PDM_InitField( &showFaultLabel, "ShowFaultLabel", false, "Show Labels" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showFaultLabel );
+    CAF_PDM_InitField( &m_showFaultLabel, "ShowFaultLabel", false, "Show Labels" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showFaultLabel );
 
     cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
-    CAF_PDM_InitField( &faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color" );
+    CAF_PDM_InitField( &m_faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color" );
 
-    CAF_PDM_InitField( &showNNCs, "ShowNNCs", true, "Show NNCs" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showNNCs );
+    CAF_PDM_InitField( &m_showNNCs, "ShowNNCs", true, "Show NNCs" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showNNCs );
 
-    CAF_PDM_InitField( &hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC Geometry if No NNC Result is Available" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &hideNncsWhenNoResultIsAvailable );
+    CAF_PDM_InitField( &m_hideNNCsWhenNoResultIsAvailable,
+                       "HideNncsWhenNoResultIsAvailable",
+                       true,
+                       "Hide NNC Geometry if No NNC Result is Available" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_hideNNCsWhenNoResultIsAvailable );
 
-    CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults" );
-    faults.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_faults, "Faults", "Faults" );
+    m_faults.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitField( &m_showFaultsOutsideFilters_obsolete, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
+    m_showFaultsOutsideFilters_obsolete.xmlCapability()->setIOWritable( false );
+    m_showFaultsOutsideFilters_obsolete.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +110,79 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection::~RimFaultInViewCollection()
 {
-    faults.deleteChildren();
+    m_faults.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::isActive() const
+{
+    return m_showFaultCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::setActive( bool bActive )
+{
+    m_showFaultCollection = bActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimFaultInViewCollection::faultLabelColor() const
+{
+    return m_faultLabelColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode> RimFaultInViewCollection::faultResult() const
+{
+    return m_faultResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::showFaultFaces() const
+{
+    return m_showFaultFaces();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::showFaultLabel() const
+{
+    return m_showFaultLabel();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::showOppositeFaultFaces() const
+{
+    return m_showOppositeFaultFaces();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::showNNCs() const
+{
+    return m_showOppositeFaultFaces();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::hideNNCsWhenNoResultIsAvailable() const
+{
+    return m_hideNNCsWhenNoResultIsAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +192,7 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
 {
     this->updateUiIconFromToggleField();
 
-    if ( &faultLabelColor == changedField )
+    if ( &m_faultLabelColor == changedField )
     {
         parentView()->scheduleReservoirGridGeometryRegen();
         parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
@@ -124,16 +203,16 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
         parentView()->scheduleReservoirGridGeometryRegen();
     }
 
-    if ( &showFaultFaces == changedField || &showOppositeFaultFaces == changedField || &showFaultCollection == changedField ||
-         &showFaultLabel == changedField || &m_showFaultsOutsideFilters == changedField || &faultLabelColor == changedField ||
-         &m_onlyShowWithNeighbor == changedField || &faultResult == changedField || &showNNCs == changedField ||
-         &hideNncsWhenNoResultIsAvailable == changedField )
+    if ( &m_showFaultFaces == changedField || &m_showOppositeFaultFaces == changedField || &m_showFaultCollection == changedField ||
+         &m_showFaultLabel == changedField || &m_applyCellFilters == changedField || &m_faultLabelColor == changedField ||
+         &m_onlyShowWithNeighbor == changedField || &m_faultResult == changedField || &m_showNNCs == changedField ||
+         &m_hideNNCsWhenNoResultIsAvailable == changedField )
     {
         parentView()->scheduleCreateDisplayModelAndRedraw();
         parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
-    if ( &showFaultLabel == changedField )
+    if ( &m_showFaultLabel == changedField )
     {
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
@@ -144,7 +223,7 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFaultInViewCollection::objectToggleField()
 {
-    return &showFaultCollection;
+    return &m_showFaultCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,12 +231,9 @@ caf::PdmFieldHandle* RimFaultInViewCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 RimFaultInView* RimFaultInViewCollection::findFaultByName( QString name )
 {
-    for ( size_t i = 0; i < this->faults().size(); ++i )
+    for ( auto& fault : m_faults )
     {
-        if ( this->faults()[i]->name() == name )
-        {
-            return this->faults()[i];
-        }
+        if ( fault->name() == name ) return fault;
     }
     return nullptr;
 }
@@ -250,8 +326,8 @@ void RimFaultInViewCollection::syncronizeFaults()
         newFaults.push_back( rimFault );
     }
 
-    this->faults().clearWithoutDelete();
-    this->faults().insert( 0, newFaults );
+    m_faults().clearWithoutDelete();
+    m_faults().insert( 0, newFaults );
 
     QString toolTip = QString( "Fault count (%1)" ).arg( newFaults.size() );
     setUiToolTip( toolTip );
@@ -272,21 +348,21 @@ void RimFaultInViewCollection::uiOrderingFaults( QString uiConfigName, caf::PdmU
 {
     bool isGridVizMode = isGridVisualizationMode();
 
-    faultResult.uiCapability()->setUiReadOnly( isGridVizMode );
-    showFaultFaces.uiCapability()->setUiReadOnly( isGridVizMode );
-    showOppositeFaultFaces.uiCapability()->setUiReadOnly( isGridVizMode );
+    m_faultResult.uiCapability()->setUiReadOnly( isGridVizMode );
+    m_showFaultFaces.uiCapability()->setUiReadOnly( isGridVizMode );
+    m_showOppositeFaultFaces.uiCapability()->setUiReadOnly( isGridVizMode );
 
     caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup( "Fault Face Visibility" );
     ffviz->setCollapsedByDefault();
-    ffviz->add( &showFaultFaces );
-    ffviz->add( &showOppositeFaultFaces );
-    ffviz->add( &faultResult );
+    ffviz->add( &m_showFaultFaces );
+    ffviz->add( &m_showOppositeFaultFaces );
+    ffviz->add( &m_faultResult );
     ffviz->add( &m_onlyShowWithNeighbor );
 
     caf::PdmUiGroup* nncViz = uiOrdering.addNewGroup( "NNC Visibility" );
     nncViz->setCollapsedByDefault();
-    nncViz->add( &showNNCs );
-    nncViz->add( &hideNncsWhenNoResultIsAvailable );
+    nncViz->add( &m_showNNCs );
+    nncViz->add( &m_hideNNCsWhenNoResultIsAvailable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,12 +370,12 @@ void RimFaultInViewCollection::uiOrderingFaults( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* labs = uiOrdering.addNewGroup( "Fault Labels" );
-    labs->add( &showFaultLabel );
-    labs->add( &faultLabelColor );
+    caf::PdmUiGroup* general = uiOrdering.addNewGroup( "General" );
+    general->add( &m_applyCellFilters );
 
-    caf::PdmUiGroup* adv = uiOrdering.addNewGroup( "Fault Options" );
-    adv->add( &m_showFaultsOutsideFilters );
+    caf::PdmUiGroup* labs = uiOrdering.addNewGroup( "Fault Labels" );
+    labs->add( &m_showFaultLabel );
+    labs->add( &m_faultLabelColor );
 
     uiOrderingFaults( uiConfigName, uiOrdering );
 }
@@ -309,15 +385,14 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    RimEclipseView* eclipseView = nullptr;
-    this->firstAncestorOfType( eclipseView );
+    auto eclipseView = firstAncestorOfType<RimEclipseView>();
     if ( eclipseView )
     {
         auto uiTree = eclipseView->faultResultSettings()->uiTreeOrdering();
         uiTreeOrdering.appendChild( uiTree );
     }
 
-    for ( const auto& fault : faults )
+    for ( const auto& fault : m_faults )
     {
         uiTreeOrdering.add( fault );
     }
@@ -330,28 +405,28 @@ void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimFaultInViewCollection::parentView() const
 {
-    RimEclipseView* view = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( view );
-
-    return view;
+    return firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultInViewCollection::isShowingFaultsAndFaultsOutsideFilters() const
+void RimFaultInViewCollection::initAfterRead()
 {
-    if ( !showFaultCollection ) return false;
-
-    return m_showFaultsOutsideFilters;
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.03.0" ) )
+    {
+        m_applyCellFilters = !m_showFaultsOutsideFilters_obsolete();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::setShowFaultsOutsideFilter( bool show )
+bool RimFaultInViewCollection::shouldApplyCellFiltersToFaults() const
 {
-    m_showFaultsOutsideFilters = show;
+    if ( !m_showFaultCollection() ) return false;
+
+    return m_applyCellFilters;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,4 +435,44 @@ void RimFaultInViewCollection::setShowFaultsOutsideFilter( bool show )
 bool RimFaultInViewCollection::onlyShowFacesWithDefinedNeighbor() const
 {
     return m_onlyShowWithNeighbor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFaultInView*> RimFaultInViewCollection::faults() const
+{
+    return m_faults.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::setFaultResult( caf::AppEnum<FaultFaceCullingMode> resultType )
+{
+    m_faultResult = resultType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::setShouldApplyCellFiltersToFaults( bool bEnabled )
+{
+    m_applyCellFilters = bEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::setShowOppositeFaultFaces( bool bEnabled )
+{
+    m_showOppositeFaultFaces = bEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::setShowFaultLabelWithFieldChanged( bool bEnabled )
+{
+    m_showFaultLabel.setValueWithFieldChanged( bEnabled );
 }

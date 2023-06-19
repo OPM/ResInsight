@@ -81,7 +81,6 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    setNameAsReadOnly();
     setName( "Delta Ensemble" );
 
     setAsEnsemble( true );
@@ -406,9 +405,10 @@ void RimDerivedEnsembleCaseCollection::deleteCasesNoInUse()
 {
     std::vector<RimDerivedSummaryCase*> inactiveCases;
     auto                                allCases = allDerivedCases( false );
-    std::copy_if( allCases.begin(), allCases.end(), std::back_inserter( inactiveCases ), []( RimDerivedSummaryCase* derCase ) {
-        return !derCase->isInUse();
-    } );
+    std::copy_if( allCases.begin(),
+                  allCases.end(),
+                  std::back_inserter( inactiveCases ),
+                  []( RimDerivedSummaryCase* derCase ) { return !derCase->isInUse(); } );
 
     for ( auto derCase : inactiveCases )
     {
@@ -574,9 +574,8 @@ RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByRealizationNumber( c
 std::vector<RimDerivedEnsembleCaseCollection*> RimDerivedEnsembleCaseCollection::findReferringEnsembles() const
 {
     std::vector<RimDerivedEnsembleCaseCollection*> referringEnsembles;
-    RimSummaryCaseMainCollection*                  mainColl;
 
-    firstAncestorOrThisOfType( mainColl );
+    auto mainColl = firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
     if ( mainColl )
     {
         for ( auto group : mainColl->summaryCaseCollections() )

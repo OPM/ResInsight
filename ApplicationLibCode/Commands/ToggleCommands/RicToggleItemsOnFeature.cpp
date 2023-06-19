@@ -49,7 +49,13 @@ void RicToggleItemsOnFeature::onActionTriggered( bool isChecked )
 void RicToggleItemsOnFeature::setupActionLook( QAction* actionToSetup )
 {
     if ( RicToggleItemsFeatureImpl::isToggleCommandsForSubItems() )
-        actionToSetup->setText( "Sub Items On" );
+    {
+        QString objectName   = "Sub Items";
+        auto childObjectName = RicToggleItemsFeatureImpl::findCollectionName( RicToggleItemsFeatureImpl::SelectionToggleType::TOGGLE_ON );
+        if ( !childObjectName.isEmpty() ) objectName = childObjectName;
+
+        actionToSetup->setText( objectName + " On" );
+    }
     else
         actionToSetup->setText( "On" );
 

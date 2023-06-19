@@ -40,7 +40,7 @@ public:
     RimEnsembleCurveSetCollection();
     ~RimEnsembleCurveSetCollection() override;
 
-    bool isCurveSetsVisible();
+    bool isCurveSetsVisible() const;
 
     void loadDataAndUpdate( bool updateParentPlot );
     void setParentPlotAndReplot( RiuPlotWidget* plot );
@@ -75,6 +75,8 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    void onCurveSetsReordered( const SignalEmitter* emitter );
 
 private:
     caf::PdmField<bool>                           m_showCurves;

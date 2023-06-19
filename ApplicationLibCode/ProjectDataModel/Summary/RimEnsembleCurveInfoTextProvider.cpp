@@ -28,12 +28,23 @@
 //--------------------------------------------------------------------------------------------------
 QString RimEnsembleCurveInfoTextProvider::curveInfoText( RiuPlotCurve* riuCurve ) const
 {
-    // RiuPlotCurve*    riuCurve = dynamic_cast<RiuPlotCurve*>( curve );
-    RimSummaryCurve* sumCurve = nullptr;
     if ( riuCurve )
     {
-        sumCurve = dynamic_cast<RimSummaryCurve*>( riuCurve->ownerRimCurve() );
+        RimSummaryCurve* sumCurve = dynamic_cast<RimSummaryCurve*>( riuCurve->ownerRimCurve() );
+
+        if ( sumCurve && sumCurve->summaryCaseY() )
+        {
+            auto caseNameAndAdrText = sumCurve->summaryCaseY()->displayCaseName();
+
+            auto itemText = sumCurve->summaryAddressY().itemUiText();
+            if ( !itemText.empty() )
+            {
+                caseNameAndAdrText += ", " + QString::fromStdString( itemText );
+            }
+
+            return caseNameAndAdrText;
+        }
     }
 
-    return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->displayCaseName() : "";
+    return {};
 }

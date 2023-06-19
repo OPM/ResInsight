@@ -134,14 +134,13 @@ std::vector<Rim3dWellLogCurve*> Rim3dWellLogCurveCollection::vectorOf3dWellLogCu
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::redrawAffectedViewsAndEditors()
 {
-    RimProject* proj = nullptr;
-    this->firstAncestorOrThisOfType( proj );
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
-    RimWellPath* path = nullptr;
-    this->firstAncestorOrThisOfType( path );
+
+    auto path = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( path )
     {
         path->updateConnectedEditors();
@@ -183,8 +182,7 @@ Rim3dWellLogCurve* Rim3dWellLogCurveCollection::checkForCurveIntersection( const
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 

@@ -14,8 +14,6 @@ find_package(
 )
 set(QT_LIBRARIES Qt5::Core Qt5::Xml)
 
-include_directories(..)
-
 set(PROJECT_FILES
     cafInternalPdmFieldIoHelper.cpp
     cafInternalPdmFieldIoHelper.h

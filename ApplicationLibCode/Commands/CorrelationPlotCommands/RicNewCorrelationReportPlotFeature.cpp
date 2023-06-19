@@ -27,6 +27,7 @@
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -37,19 +38,8 @@ CAF_CMD_SOURCE_INIT( RicNewCorrelationReportPlotFeature, "RicNewCorrelationRepor
 //--------------------------------------------------------------------------------------------------
 bool RicNewCorrelationReportPlotFeature::isCommandEnabled()
 {
-    RimCorrelationPlotCollection* correlationPlotColl = nullptr;
-    RimSummaryPlot*               summaryPlot         = nullptr;
-
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        selObj->firstAncestorOrThisOfType( correlationPlotColl );
-        selObj->firstAncestorOrThisOfType( summaryPlot );
-    }
-
-    if ( correlationPlotColl ) return true;
-
-    if ( summaryPlot ) return true;
+    if ( caf::firstAncestorOfTypeFromSelectedObject<RimCorrelationPlotCollection>() ) return true;
+    if ( caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>() ) return true;
 
     return false;
 }
@@ -59,13 +49,7 @@ bool RicNewCorrelationReportPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimCorrelationPlotCollection* correlationPlotColl = nullptr;
-
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        selObj->firstAncestorOrThisOfType( correlationPlotColl );
-    }
+    RimCorrelationPlotCollection* correlationPlotColl = caf::firstAncestorOfTypeFromSelectedObject<RimCorrelationPlotCollection>();
 
     RimCorrelationReportPlot* newPlot = nullptr;
     if ( !correlationPlotColl )
@@ -73,8 +57,7 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
         QVariant userData = this->userData();
         if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
         {
-            std::vector<RimCorrelationPlotCollection*> correlationPlotCollections;
-            RimProject::current()->descendantsOfType( correlationPlotCollections );
+            auto correlationPlotCollections = RimProject::current()->descendantsOfType<RimCorrelationPlotCollection>();
             CAF_ASSERT( !correlationPlotCollections.empty() );
             correlationPlotColl = correlationPlotCollections.front();
 

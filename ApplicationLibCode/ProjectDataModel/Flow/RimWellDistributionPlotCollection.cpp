@@ -113,6 +113,30 @@ void RimWellDistributionPlotCollection::setData( RimEclipseResultCase* eclipseCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::setWellName( const QString& wellName )
+{
+    m_wellName = wellName;
+    applyPlotParametersToContainedPlots();
+    loadDataAndUpdate();
+    if ( m_viewer ) m_viewer->scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::setTimeStep( int timeStep )
+{
+    if ( timeStep < 0 ) return;
+
+    m_timeStepIndex = timeStep;
+    applyPlotParametersToContainedPlots();
+    loadDataAndUpdate();
+    if ( m_viewer ) m_viewer->scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimWellDistributionPlotCollection::viewWidget()
 {
     return m_viewer;
@@ -308,6 +332,11 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
     {
         applyPlotParametersToContainedPlots();
         shouldRecalculatePlotData = true;
+
+        if ( changedField == &m_showOil || changedField == &m_showGas || changedField == &m_showWater || changedField == &m_showWindow )
+        {
+            if ( m_viewer ) m_viewer->scheduleUpdate();
+        }
     }
 
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
@@ -370,7 +399,7 @@ void RimWellDistributionPlotCollection::updatePlots()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::cleanupBeforeClose()
 {
-    auto plotVector = m_plots.children();
+    auto plotVector = m_plots.childrenByType();
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->detachAllCurves();

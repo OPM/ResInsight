@@ -154,8 +154,7 @@ void RimEnsembleSurface::loadDataAndUpdate()
         }
     }
 
-    RimSurfaceCollection* surfColl;
-    this->firstAncestorOrThisOfTypeAsserted( surfColl );
+    auto surfColl = firstAncestorOrThisOfTypeAsserted<RimSurfaceCollection>();
 
     std::vector<RimSurface*> surfacesToUpdate;
     surfColl->updateViews( surfaces(), false );

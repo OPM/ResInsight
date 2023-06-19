@@ -40,6 +40,7 @@
 #include <QAction>
 #include <QMessageBox>
 
+#include "RimTools.h"
 #include <cmath>
 
 CAF_CMD_SOURCE_INIT( RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature" );
@@ -52,8 +53,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
     CVF_ASSERT( fishbonesCollection );
 
-    RimWellPath* wellPath;
-    fishbonesCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
+    RimWellPath* wellPath = fishbonesCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
     RimFishbones* obj = new RimFishbones;
@@ -70,8 +70,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
 
     RicNewFishbonesSubsFeature::adjustWellPathScaling( fishbonesCollection );
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    fishbonesCollection->firstAncestorOrThisOfType( wellPathCollection );
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
     {
         wellPathCollection->uiCapability()->updateConnectedEditors();
@@ -79,8 +78,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
 
     RiuMainWindow::instance()->selectAsCurrentItem( obj );
 
-    RimProject* proj;
-    fishbonesCollection->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -100,7 +98,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( objToFind );
+        objToFind = objHandle->firstAncestorOrThisOfType<RimFishbonesCollection>();
     }
 
     if ( objToFind == nullptr )
@@ -149,8 +147,7 @@ bool RicNewFishbonesSubsFeature::isCommandEnabled()
 void RicNewFishbonesSubsFeature::adjustWellPathScaling( RimFishbonesCollection* fishboneCollection )
 {
     CVF_ASSERT( fishboneCollection );
-    RimWellPathCollection* wellPathColl = nullptr;
-    fishboneCollection->firstAncestorOrThisOfTypeAsserted( wellPathColl );
+    RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
 
     if ( wellPathColl->wellPathRadiusScaleFactor > 0.05 )
     {

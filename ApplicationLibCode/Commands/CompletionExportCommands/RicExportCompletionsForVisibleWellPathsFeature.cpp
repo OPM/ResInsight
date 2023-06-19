@@ -45,9 +45,7 @@ bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
     caf::SelectionManager::instance()->objectsByType( &selectedObjects );
     for ( caf::PdmObject* object : selectedObjects )
     {
-        RimWellPathCollection* wellPathCollection;
-
-        object->firstAncestorOrThisOfType( wellPathCollection );
+        RimWellPathCollection* wellPathCollection = object->firstAncestorOrThisOfType<RimWellPathCollection>();
         if ( wellPathCollection )
         {
             foundWellPathCollection = true;
@@ -116,8 +114,7 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
 
             if ( !selectedWellPaths.empty() )
             {
-                RimWellPathCollection* parent = nullptr;
-                selectedWellPaths[0]->firstAncestorOrThisOfType( parent );
+                RimWellPathCollection* parent = selectedWellPaths[0]->firstAncestorOrThisOfType<RimWellPathCollection>();
                 if ( parent )
                 {
                     wellPathCollections.push_back( parent );

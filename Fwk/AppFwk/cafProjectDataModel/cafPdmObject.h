@@ -79,10 +79,10 @@ class PdmObjectCapability;
 
 #define CAF_PDM_InitObject( uiName, ... )                                                              \
     {                                                                                                  \
-        std::vector<QString> arguments = { __VA_ARGS__ };                                              \
-        QString              iconResourceName;                                                         \
-        QString              toolTip;                                                                  \
-        QString              whatsThis;                                                                \
+        const std::vector<QString> arguments = { __VA_ARGS__ };                                        \
+        QString                    iconResourceName;                                                   \
+        QString                    toolTip;                                                            \
+        QString                    whatsThis;                                                          \
         if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                   \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                            \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                          \
@@ -104,10 +104,10 @@ class PdmObjectCapability;
 
 #define CAF_PDM_InitField( field, keyword, default, uiName, ... )                                                                       \
     {                                                                                                                                   \
-        std::vector<QString> arguments = { __VA_ARGS__ };                                                                               \
-        QString              iconResourceName;                                                                                          \
-        QString              toolTip;                                                                                                   \
-        QString              whatsThis;                                                                                                 \
+        const std::vector<QString> arguments = { __VA_ARGS__ };                                                                         \
+        QString                    iconResourceName;                                                                                    \
+        QString                    toolTip;                                                                                             \
+        QString                    whatsThis;                                                                                           \
         if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                                                    \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                                                             \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                                           \
@@ -115,13 +115,13 @@ class PdmObjectCapability;
                                                                                                                                         \
         static bool chekingThePresenceOfHeaderAndSourceInitMacros =                                                                     \
             Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-        Q_UNUSED( chekingThePresenceOfHeaderAndSourceInitMacros );                                                                      \
+        Q_UNUSED( chekingThePresenceOfHeaderAndSourceInitMacros )                                                                       \
         this->isInheritedFromPdmUiObject();                                                                                             \
         this->isInheritedFromPdmXmlSerializable();                                                                                      \
                                                                                                                                         \
-        AddXmlCapabilityToField( field );                                                                                               \
-        AddUiCapabilityToField( field );                                                                                                \
-        RegisterClassWithField( classKeyword(), field );                                                                                \
+        addXmlCapabilityToField( field );                                                                                               \
+        addUiCapabilityToField( field );                                                                                                \
+        registerClassWithField( classKeyword(), field );                                                                                \
                                                                                                                                         \
         static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                         \
         addFieldUi( field, keyword, default, &objDescr );                                                                               \
@@ -133,24 +133,24 @@ class PdmObjectCapability;
 
 #define CAF_PDM_InitFieldNoDefault( field, keyword, uiName, ... )                                                                       \
     {                                                                                                                                   \
-        std::vector<QString> arguments = { __VA_ARGS__ };                                                                               \
-        QString              iconResourceName;                                                                                          \
-        QString              toolTip;                                                                                                   \
-        QString              whatsThis;                                                                                                 \
+        const std::vector<QString> arguments = { __VA_ARGS__ };                                                                         \
+        QString                    iconResourceName;                                                                                    \
+        QString                    toolTip;                                                                                             \
+        QString                    whatsThis;                                                                                           \
         if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                                                    \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                                                             \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                                           \
         CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                           \
                                                                                                                                         \
-        static bool chekingThePresenceOfHeaderAndSourceInitMacros =                                                                     \
+        static bool checkingThePresenceOfHeaderAndSourceInitMacros =                                                                    \
             Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-        Q_UNUSED( chekingThePresenceOfHeaderAndSourceInitMacros );                                                                      \
+        Q_UNUSED( checkingThePresenceOfHeaderAndSourceInitMacros )                                                                      \
         this->isInheritedFromPdmUiObject();                                                                                             \
         this->isInheritedFromPdmXmlSerializable();                                                                                      \
                                                                                                                                         \
-        AddXmlCapabilityToField( field );                                                                                               \
-        AddUiCapabilityToField( field );                                                                                                \
-        RegisterClassWithField( classKeyword(), field );                                                                                \
+        addXmlCapabilityToField( field );                                                                                               \
+        addUiCapabilityToField( field );                                                                                                \
+        registerClassWithField( classKeyword(), field );                                                                                \
                                                                                                                                         \
         static caf::PdmUiItemInfo objDescr( uiName, QString( iconResourceName ), toolTip, whatsThis, keyword );                         \
         addFieldUiNoDefault( field, keyword, &objDescr );                                                                               \

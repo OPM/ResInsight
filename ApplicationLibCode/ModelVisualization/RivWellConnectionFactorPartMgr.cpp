@@ -68,13 +68,11 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::Mod
 {
     m_geometryGenerator = nullptr;
 
-    RimEclipseView* eclView = nullptr;
-    m_virtualPerforationResult->firstAncestorOrThisOfTypeAsserted( eclView );
+    RimEclipseView* eclView = m_virtualPerforationResult->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
     auto coordTransform = eclView->displayCoordTransform();
 
-    RimEclipseCase* eclipseCase = nullptr;
-    m_virtualPerforationResult->firstAncestorOrThisOfTypeAsserted( eclipseCase );
+    RimEclipseCase* eclipseCase = m_virtualPerforationResult->firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
 
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 

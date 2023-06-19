@@ -46,6 +46,8 @@ template <>
 void caf::AppEnum<RiaDefines::DateTimePeriod>::setUp()
 {
     addItem( RiaDefines::DateTimePeriod::NONE, "NONE", "None" );
+    addItem( RiaDefines::DateTimePeriod::MINUTE, "MINUTE", "Minute" );
+    addItem( RiaDefines::DateTimePeriod::HOUR, "HOUR", "Hour" );
     addItem( RiaDefines::DateTimePeriod::DAY, "DAY", "Day" );
     addItem( RiaDefines::DateTimePeriod::WEEK, "WEEK", "Week" );
     addItem( RiaDefines::DateTimePeriod::MONTH, "MONTH", "Month" );

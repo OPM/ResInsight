@@ -31,6 +31,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceInView.h"
 #include "RimSurfaceInViewCollection.h"
@@ -45,6 +46,7 @@
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
+#include "RiuViewer.h"
 
 #include "RivSingleCellPartGenerator.h"
 
@@ -63,6 +65,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGridView, "GenericGridView" ); // Do not us
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridView::RimGridView()
+    : cellVisibilityChanged( this )
 {
     CAF_PDM_InitFieldNoDefault( &m_overrideCellFilterCollection, "CellFiltersControlled", "Cell Filters (controlled)" );
     m_overrideCellFilterCollection.uiCapability()->setUiTreeHidden( true );
@@ -100,12 +103,19 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field" );
     m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
+    m_seismicSectionCollection.uiCapability()->setUiTreeHidden( true );
+    m_seismicSectionCollection = new RimSeismicSectionCollection();
+
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
     m_cellFilterCollection.uiCapability()->setUiTreeHidden( true );
 
     m_surfaceVizModel = new cvf::ModelBasicList;
     m_surfaceVizModel->setName( "SurfaceModel" );
+
+    m_intersectionVizModel = new cvf::ModelBasicList;
+    m_intersectionVizModel->setName( "CrossSectionModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,6 +143,7 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
     {
         m_currentReservoirCellVisibility = new cvf::UByteArray;
         this->calculateCurrentTotalCellVisibility( m_currentReservoirCellVisibility.p(), m_currentTimeStep() );
+        this->cellVisibilityChanged.send();
     }
 
     return m_currentReservoirCellVisibility;
@@ -152,6 +163,14 @@ RimIntersectionCollection* RimGridView::intersectionCollection() const
 RimSurfaceInViewCollection* RimGridView::surfaceInViewCollection() const
 {
     return m_surfaceCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicSectionCollection* RimGridView::seismicSectionCollection() const
+{
+    return m_seismicSectionCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,8 +325,7 @@ void RimGridView::initAfterRead()
 {
     Rim3dView::initAfterRead();
 
-    RimProject* proj = nullptr;
-    firstAncestorOrThisOfType( proj );
+    RimProject* proj = RimProject::current();
     if ( proj && proj->isProjectFileVersionEqualOrOlderThan( "2018.1.1" ) )
     {
         // For version prior to 2018.1.1 : Grid visualization mode was derived from surfaceMode and meshMode
@@ -478,4 +496,64 @@ void RimGridView::updateSurfacesInViewTreeItems()
     }
 
     this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::appendIntersectionsForCurrentTimeStep()
+{
+    if ( nativeOrOverrideViewer() )
+    {
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+        if ( frameScene )
+        {
+            cvf::String name = "IntersectionDynamicModel";
+            Rim3dView::removeModelByName( frameScene, name );
+
+            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+            frameParts->setName( name );
+
+            cvf::UByteArray visibility;
+
+            calculateCellVisibility( &visibility, { PROPERTY_FILTERED, PROPERTY_FILTERED_WELL_CELLS }, m_currentTimeStep );
+
+            m_intersectionCollection->appendDynamicPartsToModel( frameParts.p(), scaleTransform(), m_currentTimeStep, &visibility );
+
+            frameParts->updateBoundingBoxesRecursive();
+
+            frameScene->addModel( frameParts.p() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool propertyFiltersActive )
+{
+    m_intersectionVizModel->removeAllParts();
+    if ( m_intersectionCollection->isActive() )
+    {
+        m_intersectionCollection->clearGeometry();
+
+        if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
+        {
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+
+            if ( !propertyFiltersActive )
+            {
+                cvf::UByteArray visibleCells;
+                calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
+                m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep(), &visibleCells );
+            }
+        }
+        else
+        {
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+            m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep() );
+        }
+        m_intersectionVizModel->updateBoundingBoxesRecursive();
+        nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+    }
 }

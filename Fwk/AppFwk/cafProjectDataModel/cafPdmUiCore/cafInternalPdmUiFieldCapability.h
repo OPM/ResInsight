@@ -78,7 +78,7 @@ public:
 };
 
 template <typename FieldType>
-void AddUiCapabilityToField( FieldType* field )
+void addUiCapabilityToField( FieldType* field )
 {
     if ( field->template capability<PdmFieldUiCap<FieldType>>() == NULL )
     {

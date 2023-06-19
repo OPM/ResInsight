@@ -167,7 +167,7 @@ std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps( const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps( const QString&                                               wellName,
+std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps( const QString& wellName,
                                                                     const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     if ( relevantChannels.count( RifEclipseRftAddress::RftWellLogChannelType::TVD ) ||

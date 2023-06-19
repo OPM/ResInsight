@@ -34,8 +34,8 @@ class RimViewLinkerCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewLinkerCollection( void );
-    ~RimViewLinkerCollection( void ) override;
+    RimViewLinkerCollection();
+    ~RimViewLinkerCollection() override;
 
     caf::PdmField<bool>                isActive;
     caf::PdmChildField<RimViewLinker*> viewLinker;

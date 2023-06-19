@@ -32,7 +32,7 @@ CAF_CMD_SOURCE_INIT( RicToggleYAxisLinkingFeature, "RicToggleYAxisLinkingFeature
 //--------------------------------------------------------------------------------------------------
 bool RicToggleYAxisLinkingFeature::isCommandEnabled()
 {
-    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();
+    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
     return ( summaryMultiPlot != nullptr );
 }
 
@@ -41,7 +41,7 @@ bool RicToggleYAxisLinkingFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicToggleYAxisLinkingFeature::onActionTriggered( bool isChecked )
 {
-    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();
+    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
     if ( !summaryMultiPlot ) return;
 
     bool linkedState = summaryMultiPlot->isSubPlotAxesLinked();
@@ -62,7 +62,7 @@ void RicToggleYAxisLinkingFeature::onActionTriggered( bool isChecked )
 void RicToggleYAxisLinkingFeature::setupActionLook( QAction* actionToSetup )
 {
     QString text             = "Link";
-    auto*   summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();
+    auto*   summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
     if ( summaryMultiPlot )
     {
         if ( summaryMultiPlot->isSubPlotAxesLinked() )

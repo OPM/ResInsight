@@ -24,6 +24,7 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSummaryTools.h"
+#include "RigEclipseResultAddress.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
@@ -373,7 +374,7 @@ std::vector<RigCompletionData>
 
         if ( fractureDataReportItems )
         {
-            RicWellPathFractureReportItem reportItem( wellNameForExport, fracture->name(), fracTemplate->name(), fracture->fractureMD() );
+            RicWellPathFractureReportItem reportItem( wellNameForExport, fracture->name(), fracTemplate->name() );
             reportItem.setUnitSystem( fracTemplate->fractureTemplateUnit() );
 
             if ( performPressureDepletionScaling )
@@ -680,8 +681,6 @@ std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFra
     cvf::Vec3d startPos       = wellPathCoords.front();
     cvf::Vec3d endPos         = wellPathCoords.back();
 
-    cvf::Vec3d wellPathTangent = endPos - startPos;
-
     cvf::Plane fracturePlane;
     auto       fractureTransform = fracture->transformMatrix();
     fracturePlane.setFromPointAndNormal( fractureTransform.translation(), static_cast<cvf::Vec3d>( fractureTransform.col( 2 ) ) );
@@ -704,7 +703,8 @@ std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFra
     RiaLogging::info( QString( "Angle: %1 degrees." ).arg( cvf::Math::toDegrees( angle ) ) );
     auto rotMat = cvf::GeometryTools::rotationMatrixBetweenVectors( directionToStartPos, directionToStartPosInFracturePlane );
 
-    auto rotatePoint = []( const cvf::Vec3d& point, const cvf::Vec3d& offset, auto rotMat ) {
+    auto rotatePoint = []( const cvf::Vec3d& point, const cvf::Vec3d& offset, auto rotMat )
+    {
         cvf::Vec3d p = point - offset;
         p.transformPoint( rotMat );
         p += offset;

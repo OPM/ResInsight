@@ -22,6 +22,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "RimCase.h"
@@ -58,7 +59,7 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellStatus( grpc::Server
     bool    wellStatus = false;
     if ( currentWellResult->hasWellResult( tsIdx ) )
     {
-        switch ( currentWellResult->wellResultFrame( tsIdx )->m_productionType )
+        switch ( currentWellResult->wellResultFrame( tsIdx )->productionType() )
         {
             case RiaDefines::WellProductionType::PRODUCER:
                 wellType = "Producer";
@@ -74,7 +75,7 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellStatus( grpc::Server
                 break;
         }
 
-        wellStatus = currentWellResult->wellResultFrame( tsIdx )->m_isOpen;
+        wellStatus = currentWellResult->wellResultFrame( tsIdx )->isOpen();
     }
 
     reply->set_well_type( wellType.toStdString() );
@@ -111,10 +112,9 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
         std::vector<RigGridBase*> grids;
         eclipseCase->eclipseCaseData()->allGrids( &grids );
 
-        for ( size_t bIdx = 0; bIdx < wellResFrame->m_wellResultBranches.size(); ++bIdx )
+        for ( size_t bIdx = 0; bIdx < wellResFrame->wellResultBranches().size(); ++bIdx )
         {
-            const std::vector<RigWellResultPoint>& branchResPoints =
-                wellResFrame->m_wellResultBranches[bIdx].m_branchResultPoints;
+            const std::vector<RigWellResultPoint> branchResPoints = wellResFrame->branchResultPointsFromBranchIndex( bIdx );
             for ( size_t rpIdx = 0; rpIdx < branchResPoints.size(); ++rpIdx )
             {
                 const RigWellResultPoint& resPoint = branchResPoints[rpIdx];

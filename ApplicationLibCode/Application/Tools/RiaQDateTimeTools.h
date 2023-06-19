@@ -24,6 +24,7 @@
 
 #include <QString>
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -88,12 +89,20 @@ public:
         dateFormatString( const QString&                   fullDateFormat,
                           RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
     static QString
-        timeFormatString( const QString&                   fullTimeFormat,
+        timeFormatString( const QString& fullTimeFormat,
                           RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
 
     static QList<caf::PdmOptionItemInfo> createOptionItems( const std::vector<time_t>& timeSteps );
 
+    static std::set<QDateTime> createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates );
+    static std::set<QDateTime>
+        createEvenlyDistributedDatesInInterval( const QDateTime& fromTimeStep, const QDateTime& toTimeStep, int numDates );
+    static std::vector<QDateTime>
+        getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps, const QDateTime& fromTimeStep, const QDateTime& toTimeStep );
+
 private:
+    static const DateTimeSpan TIMESPAN_MINUTE;
+    static const DateTimeSpan TIMESPAN_HOUR;
     static const DateTimeSpan TIMESPAN_DAY;
     static const DateTimeSpan TIMESPAN_WEEK;
     static const DateTimeSpan TIMESPAN_MONTH;
@@ -104,6 +113,8 @@ private:
 
     static quint64 secondsInDay();
     static quint64 secondsInYear();
+    static quint64 secondsInHour();
+    static quint64 secondsInMinute();
 };
 
 //==================================================================================================
@@ -116,23 +127,31 @@ public:
         : m_years( 0 )
         , m_months( 0 )
         , m_days( 0 )
+        , m_hours( 0 )
+        , m_minutes( 0 )
     {
     }
-    DateTimeSpan( int years, int months, int days )
+    DateTimeSpan( int years, int months, int days, int hours = 0, int minutes = 0 )
         : m_years( years )
         , m_months( months )
         , m_days( days )
+        , m_hours( hours )
+        , m_minutes( minutes )
     {
     }
 
     int years() const { return m_years; }
     int months() const { return m_months; }
     int days() const { return m_days; }
+    int hours() const { return m_hours; }
+    int minutes() const { return m_minutes; }
 
-    bool isEmpty() { return m_years == 0 && m_months == 0 && m_days; }
+    bool isEmpty() { return m_years == 0 && m_months == 0 && m_days == 0 && m_hours == 0 && m_minutes == 0; }
 
 private:
     int m_years;
     int m_months;
     int m_days;
+    int m_hours;
+    int m_minutes;
 };

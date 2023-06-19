@@ -87,8 +87,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables( gsl::not_null<con
     if ( resultValues.empty() ) return;
     CVF_ASSERT( resultValues.size() == resultMds.size() );
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    m_wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+    auto wellPathCollection = m_wellPath->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
     cvf::Vec3d clipLocation = wellPathGeometry->wellPathPoints().front();
     if ( wellPathCollection->wellPathClip )
@@ -266,8 +265,8 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve( const cvf::Vec
             double     distance                        = ( projectionOfGlobalIntersection - globalIntersection ).length();
             if ( distance < closestDistance )
             {
-                *closestPoint         = cvf::Vec3d( projectionOfGlobalIntersection );
-                closestDistance       = distance;
+                *closestPoint   = cvf::Vec3d( projectionOfGlobalIntersection );
+                closestDistance = distance;
                 *measuredDepthAtPoint = m_curveMeasuredDepths[i - 1] * ( 1.0 - clampedDistance ) + m_curveMeasuredDepths[i] * clampedDistance;
                 *valueAtClosestPoint = m_curveValues[i - 1] * ( 1.0 - clampedDistance ) + m_curveValues[i] * clampedDistance;
             }

@@ -30,7 +30,7 @@
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -79,10 +79,9 @@ RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RivSimWellPipesPartMgr::viewWithSettings()
 {
-    Rim3dView* view = nullptr;
-    if ( m_simWellInView ) m_simWellInView->firstAncestorOrThisOfType( view );
+    if ( m_simWellInView ) return m_simWellInView->firstAncestorOrThisOfType<Rim3dView>();
 
-    return view;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,7 +166,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     m_wellBranches.clear();
     m_flattenedBranchWellHeadOffsets.clear();
 
-    auto createSimWells = []( RimSimWellInView* simWellInView ) -> std::vector<SimulationWellCellBranch> {
+    auto createSimWells = []( RimSimWellInView* simWellInView ) -> std::vector<SimulationWellCellBranch>
+    {
         std::vector<SimulationWellCellBranch> simWellBranches;
         const RigSimWellData*                 simWellData = simWellInView->simWellData();
         if ( simWellData && simWellData->isMultiSegmentWell() )
@@ -291,8 +291,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
         pbd.m_connectionFactorsPart             = nullptr;
         pbd.m_valveParts.clear();
 
-        RimEclipseView* eclipseView = nullptr;
-        m_simWellInView->firstAncestorOrThisOfType( eclipseView );
+        auto eclipseView = m_simWellInView->firstAncestorOrThisOfType<RimEclipseView>();
 
         appendVirtualConnectionFactorGeo( eclipseView, frameIndex, brIdx, displayXf, pipeRadius, pbd );
         appendValvesGeo( eclipseView, frameIndex, brIdx, displayXf, pipeRadius, pbd );
@@ -334,15 +333,15 @@ void RivSimWellPipesPartMgr::appendVirtualConnectionFactorGeo( const RimEclipseV
 
                     for ( const auto& intersectionInfo : wellPathCellIntersections )
                     {
-                        size_t                    globalCellIndex = intersectionInfo.globCellIndex;
-                        const RigWellResultPoint* wResCell        = wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
+                        size_t                   globalCellIndex = intersectionInfo.globCellIndex;
+                        const RigWellResultPoint wResCell        = wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
 
-                        if ( !wResCell || !wResCell->isValid() )
+                        if ( !wResCell.isValid() )
                         {
                             continue;
                         }
 
-                        if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->isOpen() )
+                        if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell.isOpen() )
                         {
                             continue;
                         }
@@ -362,7 +361,7 @@ void RivSimWellPipesPartMgr::appendVirtualConnectionFactorGeo( const RimEclipseV
 
                         cvf::Vec3d anchor = displayXf->transformToDisplayCoord( domainCoord );
                         {
-                            CompletionVizData data( anchor, direction, wResCell->connectionFactor(), globalCellIndex );
+                            CompletionVizData data( anchor, direction, wResCell.connectionFactor(), globalCellIndex );
 
                             completionVizDataItems.push_back( data );
                         }
@@ -449,7 +448,8 @@ void RivSimWellPipesPartMgr::appendValvesGeo( const RimEclipseView*             
 
             RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &pbd.m_valveParts, displayCoords, radii, valveColor );
 
-            auto computeRotationAxisAndAngle = []( const cvf::Vec3f& direction ) {
+            auto computeRotationAxisAndAngle = []( const cvf::Vec3f& direction )
+            {
                 // Compute upwards normal based on direction
                 // Compute the rotation axis and angle between up vector and Z_AXIS
 
@@ -579,7 +579,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
         RimSimWellInViewCollection* wellColl = nullptr;
         if ( m_simWellInView )
         {
-            m_simWellInView->firstAncestorOrThisOfType( wellColl );
+            wellColl = m_simWellInView->firstAncestorOrThisOfType<RimSimWellInViewCollection>();
         }
 
         if ( wellColl && wellColl->showConnectionStatusColors() )
@@ -588,20 +588,20 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
             for ( size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx )
             {
                 // we need a faster lookup, I guess
-                const RigWellResultPoint* wResCell = nullptr;
+                RigWellResultPoint wResCell;
 
                 if ( cellIds[wcIdx].isCell() )
                 {
                     wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].gridIndex(), cellIds[wcIdx].cellIndex() );
                 }
 
-                if ( wResCell )
+                if ( wResCell.isValid() )
                 {
                     double cellState = defaultState;
 
-                    if ( wResCell->isOpen() )
+                    if ( wResCell.isOpen() )
                     {
-                        switch ( wResFrame->m_productionType )
+                        switch ( wResFrame->productionType() )
                         {
                             case RiaDefines::WellProductionType::PRODUCER:
                                 cellState = producerState;
@@ -645,7 +645,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
             wellBranch.m_surfaceDrawable->setTextureCoordArray( surfTexCoords.p() );
             wellBranch.m_largeSurfaceDrawable->setTextureCoordArray( surfTexCoords.p() );
 
-            if ( wResFrame->m_isOpen )
+            if ( wResFrame->isOpen() )
             {
                 // Use slightly larger geometry for open wells to avoid z-fighting when two wells are located at the
                 // same position

@@ -31,6 +31,8 @@
 
 #include "RiuPlotCurve.h"
 
+#include "cafPdmFieldReorderCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -43,6 +45,7 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
     CAF_PDM_InitFieldNoDefault( &m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
     m_curveSets.uiCapability()->setUiTreeHidden( true );
     m_curveSets.uiCapability()->setUiTreeChildrenHidden( false );
+    caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curveSets, this, &RimEnsembleCurveSetCollection::onCurveSetsReordered );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
@@ -66,7 +69,7 @@ RimEnsembleCurveSetCollection::~RimEnsembleCurveSetCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleCurveSetCollection::isCurveSetsVisible()
+bool RimEnsembleCurveSetCollection::isCurveSetsVisible() const
 {
     return m_showCurves();
 }
@@ -83,8 +86,7 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate( bool updateParentPlot )
 
     if ( updateParentPlot )
     {
-        RimSummaryPlot* parentPlot;
-        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         parentPlot->updateAll();
     }
 }
@@ -206,7 +208,7 @@ void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsemb
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSets() const
 {
-    return m_curveSets.children();
+    return m_curveSets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,7 +339,13 @@ caf::PdmFieldHandle* RimEnsembleCurveSetCollection::objectToggleField()
 void RimEnsembleCurveSetCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimSummaryPlot* plot = nullptr;
-    this->firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot ) plot->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::onCurveSetsReordered( const SignalEmitter* emitter )
+{
 }

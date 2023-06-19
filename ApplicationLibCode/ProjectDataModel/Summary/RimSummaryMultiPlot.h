@@ -146,6 +146,7 @@ private:
     void onSubPlotZoomed( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
     void onSubPlotAxisReloadRequired( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
+    void onSubPlotAutoTitleChanged( const caf::SignalEmitter* emitter, bool isEnabled );
 
     void updateTimeAxisRangesFromFirstPlot();
 

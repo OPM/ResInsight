@@ -18,7 +18,8 @@
 
 #include "RivIntersectionResultsColoringTools.h"
 
-#include "RiuGeoMechXfTensorResultAccessor.h"
+#include "RiaOffshoreSphericalCoords.h"
+#include "RiaResultNames.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -42,7 +43,7 @@
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryTextureCoordsCreator.h"
 
-#include "RiaOffshoreSphericalCoords.h"
+#include "RiuGeoMechXfTensorResultAccessor.h"
 
 #include "cvfGeometryTools.h"
 #include "cvfStructGridGeometryGenerator.h"
@@ -61,9 +62,7 @@ void RivIntersectionResultsColoringTools::calculateIntersectionResultColors( int
 {
     if ( !intersectionGeomGenIF || !intersectionGeomGenIF->isAnyGeometryPresent() ) return;
 
-    RimGridView* gridView = nullptr;
-    rimIntersectionHandle->firstAncestorOrThisOfType( gridView );
-
+    auto gridView = rimIntersectionHandle->firstAncestorOrThisOfType<RimGridView>();
     if ( !gridView ) return;
 
     bool isLightingDisabled = gridView->isLightingDisabled();
@@ -99,9 +98,7 @@ void RivIntersectionResultsColoringTools::calculateIntersectionResultColors( int
 
     if ( !eclipseResDef && !geomResultDef )
     {
-        RimEclipseView* eclipseView = nullptr;
-        rimIntersectionHandle->firstAncestorOrThisOfType( eclipseView );
-
+        auto eclipseView = rimIntersectionHandle->firstAncestorOrThisOfType<RimEclipseView>();
         if ( eclipseView )
         {
             eclipseResDef = eclipseView->cellResult();
@@ -109,9 +106,7 @@ void RivIntersectionResultsColoringTools::calculateIntersectionResultColors( int
             if ( !ternaryColorMapper ) ternaryColorMapper = eclipseView->cellResult()->ternaryLegendConfig()->scalarMapper();
         }
 
-        RimGeoMechView* geoView;
-        rimIntersectionHandle->firstAncestorOrThisOfType( geoView );
-
+        auto geoView = rimIntersectionHandle->firstAncestorOrThisOfType<RimGeoMechView>();
         if ( geoView )
         {
             geomResultDef = geoView->cellResult();
@@ -419,7 +414,7 @@ void RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoo
 void RivIntersectionResultsColoringTools::calculateGeoMechTensorXfTextureCoords( cvf::Vec2fArray*       textureCoords,
                                                                                  const cvf::Vec3fArray* triangelVertices,
                                                                                  const std::vector<RivIntersectionVertexWeights>& vertexWeights,
-                                                                                 RigGeoMechCaseData*                              caseData,
+                                                                                 RigGeoMechCaseData*        caseData,
                                                                                  const RigFemResultAddress& resVarAddress,
                                                                                  int                        partIdx,
                                                                                  int                        timeStepIdx,
@@ -486,9 +481,9 @@ void RivIntersectionResultsColoringTools::calculatePlaneAngleTextureCoords( cvf:
                                                                                                                                // as plane
                                                                                                                                // normal
 
-        float      angle    = cvf::Math::toDegrees( operation( sphCoord ) );
-        cvf::Vec2f texCoord = ( angle != std::numeric_limits<float>::infinity() ) ? mapper->mapToTextureCoord( angle )
-                                                                                  : cvf::Vec2f( 0.0f, 1.0f );
+        float      angle               = cvf::Math::toDegrees( operation( sphCoord ) );
+        cvf::Vec2f texCoord            = ( angle != std::numeric_limits<float>::infinity() ) ? mapper->mapToTextureCoord( angle )
+                                                                                             : cvf::Vec2f( 0.0f, 1.0f );
         rawPtr[triangleVxStartIdx + 0] = texCoord;
         rawPtr[triangleVxStartIdx + 1] = texCoord;
         rawPtr[triangleVxStartIdx + 2] = texCoord;

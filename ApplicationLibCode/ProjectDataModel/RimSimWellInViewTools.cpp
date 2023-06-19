@@ -25,7 +25,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RigSimWellData.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
@@ -48,8 +48,7 @@ RimSummaryCase* RimSimWellInViewTools::summaryCaseForWell( RimSimWellInView* wel
     RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if ( !sumCaseColl ) return nullptr;
 
-    RimEclipseResultCase* eclCase = nullptr;
-    well->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = well->firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( eclCase )
     {
         return sumCaseColl->findSummaryCaseFromEclipseResultCase( eclCase );
@@ -87,8 +86,7 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
     RigSimWellData* wRes = well->simWellData();
     if ( wRes )
     {
-        Rim3dView* rimView = nullptr;
-        well->firstAncestorOrThisOfTypeAsserted( rimView );
+        auto rimView = well->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
         int currentTimeStep = rimView->currentTimeStep();
 
@@ -96,7 +94,33 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
         {
             const RigWellResultFrame* wrf = wRes->wellResultFrame( currentTimeStep );
 
-            if ( RiaDefines::isInjector( wrf->m_productionType ) )
+            if ( RiaDefines::isInjector( wrf->productionType() ) )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSimWellInViewTools::isProducer( RimSimWellInView* well )
+{
+    RigSimWellData* wRes = well->simWellData();
+    if ( wRes )
+    {
+        auto rimView = well->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
+
+        int currentTimeStep = rimView->currentTimeStep();
+
+        if ( wRes->hasWellResult( currentTimeStep ) )
+        {
+            const RigWellResultFrame* wrf = wRes->wellResultFrame( currentTimeStep );
+
+            if ( RiaDefines::WellProductionType::PRODUCER == wrf->productionType() )
             {
                 return true;
             }

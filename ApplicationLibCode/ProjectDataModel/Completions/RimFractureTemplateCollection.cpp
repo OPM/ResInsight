@@ -215,9 +215,7 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
         {
             RimFractureTemplate* templateWithMatchingUnit = nullptr;
 
-            std::vector<RimFracture*> referringObjects;
-            fractureTemplate->objectsWithReferringPtrFieldsOfType( referringObjects );
-
+            std::vector<RimFracture*> referringObjects = fractureTemplate->objectsWithReferringPtrFieldsOfType<RimFracture>();
             for ( auto fracture : referringObjects )
             {
                 if ( fracture && fracture->fractureUnit() != fractureTemplate->fractureTemplateUnit() )
@@ -313,8 +311,7 @@ int RimFractureTemplateCollection::nextFractureTemplateId()
 void RimFractureTemplateCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimProject* proj = nullptr;
-    firstAncestorOrThisOfType( proj );
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();

@@ -35,8 +35,8 @@ class QTextStream;
 //==================================================================================================
 ///
 //==================================================================================================
-typedef std::shared_ptr<QFile>       QFilePtr;
-typedef std::shared_ptr<QTextStream> QTextStreamPtr;
+using QFilePtr       = std::shared_ptr<QFile>;
+using QTextStreamPtr = std::shared_ptr<QTextStream>;
 
 //==================================================================================================
 ///

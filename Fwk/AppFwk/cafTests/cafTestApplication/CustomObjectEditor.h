@@ -66,26 +66,26 @@ public:
     CustomObjectEditor();
     ~CustomObjectEditor() override;
 
-    void defineGridLayout(int rowCount, int columnCount);
+    void defineGridLayout( int rowCount, int columnCount );
 
     // See QGridLayout::addWidget
-    void addWidget(QWidget* widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment = Qt::Alignment());
-    void removeWidget(QWidget* widget);
+    void addWidget( QWidget* widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment = Qt::Alignment() );
+    void removeWidget( QWidget* widget );
 
-    void addBlankCell(int row, int column);
+    void addBlankCell( int row, int column );
 
 private:
-    QWidget* createWidget(QWidget* parent) override;
-    void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
-                                                             const QString&       uiConfigName) override;
+    QWidget* createWidget( QWidget* parent ) override;
+    void     recursivelyConfigureAndUpdateTopLevelUiOrdering( const PdmUiOrdering& topLevelUiOrdering,
+                                                              const QString&       uiConfigName ) override;
 
-    bool                isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
-    bool                isCellIdAvailable(int cellId) const;
+    bool                isAreaAvailable( int row, int column, int rowSpan, int columnSpan ) const;
+    bool                isCellIdAvailable( int cellId ) const;
     void                resetCellId();
     int                 getNextAvailableCellId();
-    int                 cellId(int row, int column) const;
-    std::pair<int, int> rowAndColumn(int cellId) const;
-    std::vector<int>    cellIds(int row, int column, int rowSpan, int columnSpan) const;
+    int                 cellId( int row, int column ) const;
+    std::pair<int, int> rowAndColumn( int cellId ) const;
+    std::vector<int>    cellIds( int row, int column, int rowSpan, int columnSpan ) const;
 
 private:
     QPointer<QGridLayout> m_layout;

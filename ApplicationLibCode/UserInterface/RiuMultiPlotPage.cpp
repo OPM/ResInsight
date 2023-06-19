@@ -31,6 +31,7 @@
 #include "RimPlotWindow.h"
 
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuGuiTheme.h"
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotObjectPicker.h"
@@ -168,9 +169,8 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
     // Remove legend overlays already attached to the plot widget
-    auto matcher = []( RiuDraggableOverlayFrame* p ) {
-        return dynamic_cast<RiuQwtLegendOverlayContentFrame*>( p->contentFrame() ) != nullptr;
-    };
+    auto matcher = []( RiuDraggableOverlayFrame* p )
+    { return dynamic_cast<RiuQwtLegendOverlayContentFrame*>( p->contentFrame() ) != nullptr; };
     plotWidget->clearOverlayFrames( matcher );
 
     RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
@@ -1096,7 +1096,8 @@ std::pair<int, int> RiuMultiPlotPage::findAvailableRowAndColumn( int startRow, i
 void RiuMultiPlotPage::applyLook()
 {
     QPalette newPalette( palette() );
-    newPalette.setColor( QPalette::Window, Qt::white );
+    auto     backgroundColor = RiuGuiTheme::getColorByVariableName( "mainBackgroundColor" );
+    newPalette.setColor( QPalette::Window, backgroundColor );
     setPalette( newPalette );
 
     setAutoFillBackground( true );
@@ -1158,7 +1159,8 @@ void RiuMultiPlotPage::alignAxes()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::function<bool( int, int, int )> matchPosition )
 {
-    auto rowAndColumnFromIdx = [this]( int idx ) {
+    auto rowAndColumnFromIdx = [this]( int idx )
+    {
         auto hit = m_visibleIndexToPositionMapping.find( idx );
         CAF_ASSERT( hit != m_visibleIndexToPositionMapping.end() );
         return hit->second;

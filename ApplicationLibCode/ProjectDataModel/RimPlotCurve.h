@@ -185,6 +185,10 @@ protected:
 
     virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
 
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    void onColorTagClicked( const SignalEmitter* emitter, size_t index );
+
 private:
     bool isCurveNameTemplateSupported() const;
 

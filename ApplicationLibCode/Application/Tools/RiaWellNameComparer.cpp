@@ -79,11 +79,14 @@ QString RiaWellNameComparer::tryMatchNameInList( QString searchName, const std::
     }
 
     // Try matching ignoring spaces, dashes and underscores
-    matchedName = tryMatchName( searchName, nameList, []( const QString& str ) {
-        QString s = str;
-        s         = removeWellNamePrefix( s );
-        return s.remove( ' ' ).remove( '-' ).remove( '_' );
-    } );
+    matchedName = tryMatchName( searchName,
+                                nameList,
+                                []( const QString& str )
+                                {
+                                    QString s = str;
+                                    s         = removeWellNamePrefix( s );
+                                    return s.remove( ' ' ).remove( '-' ).remove( '_' );
+                                } );
 
     if ( !matchedName.isEmpty() )
     {

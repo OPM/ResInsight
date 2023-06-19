@@ -38,7 +38,7 @@ public:
 
 protected:
     static QImage
-                  createTriangleImage( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle, const QSize& size, const QPen& pen, const QColor& color );
+        createTriangleImage( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle, const QSize& size, const QPen& pen, const QColor& color );
     static QImage createRectImage( const QSize& size, const QPen& pen, const QColor& color );
     static QImage createStar1Image( const QSize& size, const QPen& pen, const QColor& color );
     static QImage createStar2Image( const QSize& size, const QPen& pen, const QColor& color );

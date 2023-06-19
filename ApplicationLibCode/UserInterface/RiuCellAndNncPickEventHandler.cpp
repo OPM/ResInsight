@@ -266,7 +266,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
         if ( intersectionView )
         {
-            intersectionView->intersection()->firstAncestorOrThisOfType( associatedGridView );
+            associatedGridView = intersectionView->intersection()->firstAncestorOrThisOfType<RimGridView>();
         }
 
         // Use the clicked views default settings if we have not found any special stuff
@@ -384,7 +384,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             if ( intersectionHit )
                 selItem = new RiuGeoMechSelectionItem( associatedGridView,
                                                        geomResDef,
-                                                       timestepIndex,
+                                                       static_cast<int>( timestepIndex ),
                                                        dataFrameIndex,
                                                        gridIndex,
                                                        gridLocalCellIndex,
@@ -395,7 +395,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             else
                 selItem = new RiuGeoMechSelectionItem( associatedGridView,
                                                        geomResDef,
-                                                       timestepIndex,
+                                                       static_cast<int>( timestepIndex ),
                                                        dataFrameIndex,
                                                        gridIndex,
                                                        gridLocalCellIndex,

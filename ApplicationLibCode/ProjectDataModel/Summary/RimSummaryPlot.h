@@ -60,6 +60,7 @@ class RimSummaryNameHelper;
 class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
 class RimSummaryPlotSourceStepping;
+class RimTimeAxisAnnotation;
 class RiaSummaryCurveDefinition;
 
 class QwtInterval;
@@ -83,6 +84,7 @@ public:
     caf::Signal<>                plotZoomedByUser;
     caf::Signal<>                titleChanged;
     caf::Signal<RimSummaryPlot*> axisChangedReloadRequired;
+    caf::Signal<bool>            autoTitleChanged;
 
 public:
     RimSummaryPlot( bool isCrossPlot = false );
@@ -122,9 +124,10 @@ public:
     void reattachAllCurves() override;
     void updateCaseNameHasChanged();
 
-    void addTimeAnnotation( time_t time );
-    void addTimeRangeAnnotation( time_t startTime, time_t endTime );
-    void removeAllTimeAnnotations();
+    RimTimeAxisAnnotation* addTimeAnnotation( time_t time );
+    RimTimeAxisAnnotation* addTimeRangeAnnotation( time_t startTime, time_t endTime );
+    void                   removeTimeAnnotation( RimTimeAxisAnnotation* annotation );
+    void                   removeAllTimeAnnotations();
 
     void updateAxes() override;
 
@@ -303,10 +306,12 @@ private:
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
     bool updateStackedCurveDataForRelevantAxes();
 
-    std::pair<int, std::vector<RimSummaryCurve*>>     handleSummaryCaseDrop( RimSummaryCase* summaryCase );
-    std::pair<int, std::vector<RimEnsembleCurveSet*>> handleEnsembleDrop( RimSummaryCaseCollection* ensemble );
-    std::pair<int, std::vector<RimSummaryCurve*>>     handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
-    std::pair<int, std::vector<RimSummaryCurve*>>     handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
+    struct CurveInfo;
+
+    CurveInfo handleSummaryCaseDrop( RimSummaryCase* summaryCase );
+    CurveInfo handleEnsembleDrop( RimSummaryCaseCollection* ensemble );
+    CurveInfo handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
+    CurveInfo handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
 

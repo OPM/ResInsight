@@ -87,8 +87,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
         return;
     }
 
-    RimWellPathGeometryDef* geomDef;
-    target->firstAncestorOrThisOfTypeAsserted( geomDef );
+    auto geomDef = target->firstAncestorOrThisOfTypeAsserted<RimWellPathGeometryDef>();
 
     for ( auto field : target->fieldsFor3dManipulator() )
     {
@@ -112,16 +111,14 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
 
     cvf::ref<caf::DisplayCoordTransform> dispXf     = view->displayCoordTransform();
-    double                               handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
+    double                               handleSize = view->ownerCase()->characteristicCellSize() * geomDef->wellTargetScalingFactor();
 
     m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->anchorPointXyz() ) );
     m_manipulator->setTangent( target->tangent() );
     m_manipulator->setHandleSize( handleSize );
 
     {
-        RimWellPath* wellPath = nullptr;
-        target->firstAncestorOrThisOfType( wellPath );
-
+        auto wellPath = target->firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath && !wellPath->isTopLevelWellPath() && geomDef->firstActiveTarget() == target )
         {
             if ( auto parentWellPath = wellPath->wellPathTieIn()->parentWell() )
@@ -168,12 +165,10 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
         return;
     }
 
-    RimWellPathGeometryDef* geomDef;
-    manipulatedTarget->firstAncestorOrThisOfTypeAsserted( geomDef );
+    auto geomDef = manipulatedTarget->firstAncestorOrThisOfTypeAsserted<RimWellPathGeometryDef>();
     if ( !geomDef ) return;
 
-    RimModeledWellPath* modeledWellPath = nullptr;
-    geomDef->firstAncestorOfType( modeledWellPath );
+    auto modeledWellPath = geomDef->firstAncestorOfType<RimModeledWellPath>();
 
     cvf::Vec3d domainCoordXYZ; // domain coordinate of the new location
     cvf::Vec3d deltaManipulatorMovement; // delta change relative current location of target

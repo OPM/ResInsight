@@ -30,6 +30,7 @@
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSummaryCase.h"
+#include "RimWellLogCalculatedCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
@@ -147,10 +148,8 @@ void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack,
     {
         RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve( plotTrack );
 
-        RimWellPath*    wellPath;
-        RimWellLogFile* wellLogFile;
-        wellLogFileChannels[cIdx]->firstAncestorOrThisOfType( wellPath );
-        wellLogFileChannels[cIdx]->firstAncestorOrThisOfType( wellLogFile );
+        RimWellPath*    wellPath    = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellPath>();
+        RimWellLogFile* wellLogFile = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellLogFile>();
 
         if ( wellPath )
         {
@@ -224,8 +223,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );
 
-    RimDepthTrackPlot* plot = nullptr;
-    plotTrack->firstAncestorOrThisOfTypeAsserted( plot );
+    RimDepthTrackPlot*               plot             = plotTrack->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
     RimWellLogCurveCommonDataSource* commonDataSource = plot->commonDataSource();
 
     if ( !caseToApply )
@@ -569,6 +567,32 @@ RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTra
     RimWellMeasurementCurve* curve = new RimWellMeasurementCurve;
     curve->setWellPath( wellPath );
     curve->setMeasurementKind( measurementKind );
+
+    plotTrack->addCurve( curve );
+    plotTrack->updateConnectedEditors();
+
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
+
+    if ( showPlotWindow )
+    {
+        // Make sure the summary plot window is visible
+        RiuPlotMainWindowTools::showPlotMainWindow();
+    }
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogCalculatedCurve* RicWellLogTools::addWellLogCalculatedCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
+{
+    CVF_ASSERT( plotTrack );
+
+    RimWellLogCalculatedCurve* curve      = new RimWellLogCalculatedCurve();
+    const cvf::Color3f         curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
+    curve->setColor( curveColor );
 
     plotTrack->addCurve( curve );
     plotTrack->updateConnectedEditors();

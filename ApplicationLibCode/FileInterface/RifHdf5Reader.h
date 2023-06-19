@@ -22,6 +22,9 @@
 
 #include <QString>
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4251 )
+#endif
 #include "H5Cpp.h"
 
 class RifHdf5ReaderTools

@@ -221,8 +221,7 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( scheduleRedraw )
     {
-        RimGridView* ownerView;
-        this->firstAncestorOrThisOfTypeAsserted( ownerView );
+        auto ownerView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
 }
@@ -243,8 +242,7 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResultsCollection()
 {
-    RimGridView* view;
-    this->firstAncestorOrThisOfTypeAsserted( view );
+    auto view = firstAncestorOrThisOfTypeAsserted<RimGridView>();
     return view->separateSurfaceResultsCollection();
 }
 

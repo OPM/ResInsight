@@ -107,8 +107,7 @@ std::vector<RimEnsembleCurveSet*> RicNewSummaryEnsembleCurveSetFeature::addDefau
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles )
 {
-    RiaGuiApplication* app  = RiaGuiApplication::instance();
-    RimProject*        proj = app->project();
+    RiaGuiApplication* app = RiaGuiApplication::instance();
 
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 

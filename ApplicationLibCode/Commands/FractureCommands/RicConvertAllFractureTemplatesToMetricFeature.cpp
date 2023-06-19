@@ -37,6 +37,7 @@
 
 #include "cvfAssert.h"
 
+#include "cafSelectionManagerTools.h"
 #include <QAction>
 #include <QFileInfo>
 #include <QString>
@@ -48,16 +49,10 @@ CAF_CMD_SOURCE_INIT( RicConvertAllFractureTemplatesToMetricFeature, "RicConvertA
 //--------------------------------------------------------------------------------------------------
 void RicConvertAllFractureTemplatesToMetricFeature::onActionTriggered( bool isChecked )
 {
-    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
-    if ( !objHandle ) return;
-
-    RimFractureTemplateCollection* fracTempColl = nullptr;
-    objHandle->firstAncestorOrThisOfType( fracTempColl );
+    RimFractureTemplateCollection* fracTempColl = caf::firstAncestorOfTypeFromSelectedObject<RimFractureTemplateCollection>();
     if ( !fracTempColl ) return;
 
-    std::vector<RimEllipseFractureTemplate*> ellipseFracTemplates;
-    fracTempColl->descendantsIncludingThisOfType( ellipseFracTemplates );
-
+    std::vector<RimEllipseFractureTemplate*> ellipseFracTemplates = fracTempColl->descendantsIncludingThisOfType<RimEllipseFractureTemplate>();
     for ( auto ellipseFracTemplate : ellipseFracTemplates )
     {
         if ( ellipseFracTemplate->fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )

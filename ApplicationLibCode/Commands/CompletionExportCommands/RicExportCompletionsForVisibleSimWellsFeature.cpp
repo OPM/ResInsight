@@ -85,8 +85,7 @@ std::vector<RimSimWellInView*> RicExportCompletionsForVisibleSimWellsFeature::vi
 
             if ( !selectedSimWells.empty() )
             {
-                RimSimWellInViewCollection* parent = nullptr;
-                selectedSimWells[0]->firstAncestorOrThisOfType( parent );
+                RimSimWellInViewCollection* parent = selectedSimWells[0]->firstAncestorOrThisOfType<RimSimWellInViewCollection>();
                 if ( parent )
                 {
                     simWellCollection.push_back( parent );

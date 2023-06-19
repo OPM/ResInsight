@@ -375,12 +375,11 @@ void openDebugWindow()
 #pragma warning( disable : 4996 )
     AllocConsole();
 
-    FILE*   consoleFilePointer;
-    errno_t err;
+    FILE* consoleFilePointer;
 
-    err = freopen_s( &consoleFilePointer, "conin$", "r", stdin );
-    err = freopen_s( &consoleFilePointer, "conout$", "w", stdout );
-    err = freopen_s( &consoleFilePointer, "conout$", "w", stderr );
+    freopen_s( &consoleFilePointer, "conin$", "r", stdin );
+    freopen_s( &consoleFilePointer, "conout$", "w", stdout );
+    freopen_s( &consoleFilePointer, "conout$", "w", stderr );
 
 #pragma warning( pop )
 #endif

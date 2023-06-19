@@ -6,7 +6,7 @@ on:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
     # build cache is
-    - cron: "0 1 * * * "
+    - cron: '0 1 * * *'
 env:
   BUILD_TYPE: Release
   BUILDCACHE_VERSION: 0.27.6
@@ -33,6 +33,7 @@ jobs:
               vcpkg-triplet: x64-windows,
               build-python-module: true,
               execute-unit-tests: true,
+              unity-build: true,
             }
           - {
               name: "Ubuntu Latest gcc",
@@ -43,6 +44,7 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
+              unity-build: false,
             }
           - {
               name: "Ubuntu Latest clang",
@@ -53,6 +55,7 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
+              unity-build: false,
             }
     steps:
       - name: Checkout
@@ -134,7 +137,7 @@ jobs:
 
       - name: Set apt mirror
         # see https://github.com/actions/runner-images/issues/7048
-        if: "contains( matrix.config.os, 'ubuntu')"
+        if: ${{contains( matrix.config.os, 'ubuntu') }}
         run: |
           # make sure there is a `\t` between URL and `priority:*` attributes
           printf 'http://azure.archive.ubuntu.com/ubuntu	priority:1\n' | sudo tee /etc/apt/mirrors.txt
@@ -142,7 +145,7 @@ jobs:
           sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
 
       - name: Install Linux dependencies
-        if: "contains( matrix.config.os, 'ubuntu')"
+        if: ${{contains( matrix.config.os, 'ubuntu') }}
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
@@ -152,14 +155,9 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           version: 5.12.12
-          modules: qtscript
           dir: "${{ github.workspace }}/Qt/"
           cache: true
 
-      - name: Set vcpkg's response file path used as part of cache's key.
-        uses: lukka/set-shell-env@master
-        with:
-          VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
       - name: Restore from cache and install vcpkg
         uses: lukka/run-vcpkg@v7
         id: runvcpkg
@@ -167,18 +165,17 @@ jobs:
           vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
           vcpkgDirectory:
             "${{ github.workspace }}/ThirdParty/vcpkg"
-            # Ensure the cache key changes any time the content of the response file changes.
-          appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}-cache-key-v2
+          appendedCacheKey: ${{ matrix.config.os }}-${{ matrix.config.cxx }}-cache-key-v2
 
       - name: Cache dynamic version of OpenSSL (Linux)
-        if: "contains( matrix.config.os, 'ubuntu_disabled')"
+        if: ${{contains( matrix.config.os, 'ubuntu_disabled') }}
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
           key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v05
 
       - name: Install dynamic version of OpenSSL (Linux)
-        if: "contains( matrix.config.os, 'ubuntu')"
+        if: ${{contains( matrix.config.os, 'ubuntu') }}
         run: |
           $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
 
@@ -197,9 +194,12 @@ jobs:
               -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
+              -D RESINSIGHT_ENABLE_UNITY_BUILD=${{ matrix.config.unity-build }}
               -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
+              -D RESINSIGHT_ENABLE_HDF5=false
+              -D RESINSIGHT_BUILD_LIBS_FROM_SOURCE=false
               -D CMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
               -G Ninja
             RESULT_VARIABLE result
@@ -222,13 +222,13 @@ jobs:
       - name: Stats for buildcache
         run: ${{ github.workspace }}/buildcache/bin/buildcache -s
       - name: Run Unit Tests
-        if: "matrix.config.execute-unit-tests == true"
+        if: matrix.config.execute-unit-tests == 'true'
         shell: bash
         run: |
           cmakebuild/ApplicationExeCode/ResInsight --unittest
 
       - name: Run pytest
-        if: "matrix.config.build-python-module == true"
+        if: matrix.config.build-python-module == 'true'
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |

@@ -183,23 +183,26 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     // Sort addresses to have calculated results last per category
     std::vector<RifEclipseSummaryAddress> sortedAddresses( addresses.size() );
     std::copy( addresses.begin(), addresses.end(), sortedAddresses.begin() );
-    std::sort( sortedAddresses.begin(), sortedAddresses.end(), []( const RifEclipseSummaryAddress& a, const RifEclipseSummaryAddress& b ) -> bool {
-        if ( a.category() != b.category() ) return a.category() < b.category();
-        if ( a.wellName() != b.wellName() ) return a.wellName() < b.wellName();
-        if ( a.regionNumber() != b.regionNumber() ) return a.regionNumber() < b.regionNumber();
-        if ( a.regionNumber2() != b.regionNumber2() ) return a.regionNumber2() < b.regionNumber2();
-        if ( a.groupName() != b.groupName() ) return a.groupName() < b.groupName();
-        if ( a.lgrName() != b.lgrName() ) return a.lgrName() < b.lgrName();
-        if ( a.cellK() != b.cellK() ) return a.cellK() < b.cellK();
-        if ( a.cellJ() != b.cellJ() ) return a.cellJ() < b.cellJ();
-        if ( a.cellI() != b.cellI() ) return a.cellI() < b.cellI();
-        if ( a.wellSegmentNumber() != b.wellSegmentNumber() ) return a.wellSegmentNumber() < b.wellSegmentNumber();
-        if ( a.aquiferNumber() != b.aquiferNumber() ) return a.aquiferNumber() < b.aquiferNumber();
+    std::sort( sortedAddresses.begin(),
+               sortedAddresses.end(),
+               []( const RifEclipseSummaryAddress& a, const RifEclipseSummaryAddress& b ) -> bool
+               {
+                   if ( a.category() != b.category() ) return a.category() < b.category();
+                   if ( a.wellName() != b.wellName() ) return a.wellName() < b.wellName();
+                   if ( a.regionNumber() != b.regionNumber() ) return a.regionNumber() < b.regionNumber();
+                   if ( a.regionNumber2() != b.regionNumber2() ) return a.regionNumber2() < b.regionNumber2();
+                   if ( a.groupName() != b.groupName() ) return a.groupName() < b.groupName();
+                   if ( a.lgrName() != b.lgrName() ) return a.lgrName() < b.lgrName();
+                   if ( a.cellK() != b.cellK() ) return a.cellK() < b.cellK();
+                   if ( a.cellJ() != b.cellJ() ) return a.cellJ() < b.cellJ();
+                   if ( a.cellI() != b.cellI() ) return a.cellI() < b.cellI();
+                   if ( a.wellSegmentNumber() != b.wellSegmentNumber() ) return a.wellSegmentNumber() < b.wellSegmentNumber();
+                   if ( a.aquiferNumber() != b.aquiferNumber() ) return a.aquiferNumber() < b.aquiferNumber();
 
-        // Calculated results are sorted last.
-        if ( a.isCalculated() != b.isCalculated() ) return a.isCalculated() < b.isCalculated();
-        return a.vectorName() < b.vectorName();
-    } );
+                   // Calculated results are sorted last.
+                   if ( a.isCalculated() != b.isCalculated() ) return a.isCalculated() < b.isCalculated();
+                   return a.vectorName() < b.vectorName();
+               } );
 
     for ( const auto& address : sortedAddresses )
     {
@@ -353,7 +356,7 @@ bool RimSummaryAddressCollection::canBeDragged() const
     bool ok = m_subfolders.empty();
 
     ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::GROUP ||
-                 m_contentType == CollectionContentType::REGION );
+                 m_contentType == CollectionContentType::REGION || m_contentType == CollectionContentType::WELL_SEGMENT );
 
     return ok || isFolder();
 }
@@ -442,7 +445,7 @@ int RimSummaryAddressCollection::ensembleId() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryAddressCollection*> RimSummaryAddressCollection::subFolders() const
 {
-    return m_subfolders.children();
+    return m_subfolders.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

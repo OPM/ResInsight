@@ -64,8 +64,11 @@ public:                                     \
 /// CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor
 /// factory Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName )               \
-    QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
+#define CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName ) \
+    QString EditorClassName::uiEditorTypeName()                \
+    {                                                          \
+        return #EditorClassName;                               \
+    }                                                          \
     CAF_FACTORY_REGISTER( caf::PdmUiFieldEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName() )
 
 /// CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type

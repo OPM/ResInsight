@@ -45,7 +45,7 @@ public:
         LGRS
     };
 
-    typedef caf::AppEnum<ExportType> ExportTypeEnum;
+    using ExportTypeEnum = caf::AppEnum<ExportType>;
 
 public:
     RicfCommandFileExecutor();
@@ -66,5 +66,4 @@ private:
 
     std::map<ExportType, QString> m_exportPaths;
     QString                       m_lastProjectPath;
-    bool                          m_exportDataSourceAsComment;
 };

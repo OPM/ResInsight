@@ -21,7 +21,6 @@
 #include "RiaOffshoreSphericalCoords.h"
 
 #include "cvfGeometryTools.h"
-#include "cvfMatrix4.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

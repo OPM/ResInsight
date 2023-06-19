@@ -316,8 +316,7 @@ QList<caf::PdmOptionItemInfo> RimAbstractCorrelationPlot::calculateValueOptions(
 
         if ( ensemble )
         {
-            std::vector<RimEnsembleCurveSet*> referringObjects;
-            ensemble->objectsWithReferringPtrFieldsOfType( referringObjects );
+            std::vector<RimEnsembleCurveSet*> referringObjects = ensemble->objectsWithReferringPtrFieldsOfType<RimEnsembleCurveSet>();
 
             for ( auto object : referringObjects )
             {

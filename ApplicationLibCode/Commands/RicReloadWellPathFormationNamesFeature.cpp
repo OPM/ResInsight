@@ -55,8 +55,7 @@ void RicReloadWellPathFormationNamesFeature::onActionTriggered( bool isChecked )
 
     if ( wellPaths.size() > 0 )
     {
-        RimWellPathCollection* wellPathCollection;
-        wellPaths[0]->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+        RimWellPathCollection* wellPathCollection = wellPaths[0]->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
         wellPathCollection->reloadAllWellPathFormations();
     }
     else if ( wellPathCollections.size() > 0 )

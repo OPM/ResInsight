@@ -97,10 +97,12 @@ public:
 
         CORRELATION,
 
+        HEAT_MAP,
+
         UNDEFINED
     };
 
-    typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;
+    using ColorRangeEnum = caf::AppEnum<ColorRangesType>;
 
     enum class MappingType
     {
@@ -110,14 +112,14 @@ public:
         LOG10_DISCRETE,
         CATEGORY_INTEGER
     };
-    typedef caf::AppEnum<MappingType> MappingEnum;
+    using MappingEnum = caf::AppEnum<MappingType>;
 
     enum class CategoryColorModeType
     {
         INTERPOLATE,
         EXCLUSIVELY_COLORS
     };
-    typedef caf::AppEnum<CategoryColorModeType> CategoryColorModeEnum;
+    using CategoryColorModeEnum = caf::AppEnum<CategoryColorModeType>;
 
     void onRecreateLegend() override;
 
@@ -128,6 +130,7 @@ public:
     void            setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat );
     void            resetUserDefinedValues();
     void            setCenterLegendAroundZero( bool enable );
+    void            setUserDefinedRange( double minVal, double maxVal );
 
     void disableAllTimeStepsRange( bool doDisable );
 
@@ -167,7 +170,11 @@ public:
 
     QString valueToText( double value ) const;
 
-    void setDefaultConfigForResultName( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
+    void setDefaultConfigForResultName( int caseId, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
+
+    void defineUiOrderingColorOnly( caf::PdmUiOrdering* colorGroup );
+
+    void updateTickCountAndUserDefinedRange();
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -184,7 +191,6 @@ private:
 
     void updateCategoryItems();
     void configureCategoryMapper();
-    void updateTickCountAndUserDefinedRange();
 
     friend class RimViewLinker;
 

@@ -24,7 +24,7 @@ class PdmUiItem;
 } // namespace caf
 
 class RiuMainWindowBase;
-
+class QWidget;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -35,4 +35,5 @@ public:
 
     static void setWindowSizeOnWidgetsInMdiWindows( RiuMainWindowBase* mainWindow, int width, int height );
     static void setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWindow, int width, int height );
+    static void setDarkTitleBarWindows( QWidget* widget );
 };

@@ -56,26 +56,12 @@ bool RicPasteSummaryCrossPlotCurveFeature::isCommandEnabled()
     for ( caf::PdmPointer<RimSummaryCurve> curve : summaryCurvesOnClipboard() )
     {
         // Check that owner plot is correct type
-        RimSummaryCrossPlot* ownerPlot = nullptr;
-        curve->firstAncestorOrThisOfType( ownerPlot );
+        RimSummaryCrossPlot* ownerPlot = curve->firstAncestorOrThisOfType<RimSummaryCrossPlot>();
 
         if ( !ownerPlot ) return false;
     }
     return true;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RicPasteSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
-//{
-//    std::vector<caf::PdmPointer<RimSummaryCurve> > sourceObjects = RicPasteSummaryCurveFeature::summaryCurves();
-//
-//    for (size_t i = 0; i < sourceObjects.size(); i++)
-//    {
-//        copyCurveAndAddToPlot(sourceObjects[i]);
-//    }
-//}
 
 //--------------------------------------------------------------------------------------------------
 ///

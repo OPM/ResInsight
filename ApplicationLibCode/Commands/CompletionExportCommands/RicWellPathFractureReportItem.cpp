@@ -27,12 +27,10 @@
 //--------------------------------------------------------------------------------------------------
 RicWellPathFractureReportItem::RicWellPathFractureReportItem( const QString& wellPathNameForExport,
                                                               const QString& fractureName,
-                                                              const QString& fractureTemplateName,
-                                                              double         measuredDepth )
+                                                              const QString& fractureTemplateName )
     : m_wellPathNameForExport( wellPathNameForExport )
     , m_wellPathFracture( fractureName )
     , m_wellPathFractureTemplate( fractureTemplateName )
-    , m_mesuredDepth( measuredDepth )
     , m_transmissibility( 0.0 )
     , m_connectionCount( 0 )
     , m_area( 0.0 )
@@ -300,17 +298,4 @@ double RicWellPathFractureReportItem::pressureDepletionMinPressureDrop() const
 double RicWellPathFractureReportItem::pressureDepletionMaxPressureDrop() const
 {
     return m_pressureDepletionMaxPressureDrop;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicWellPathFractureReportItem::operator<( const RicWellPathFractureReportItem& other ) const
-{
-    if ( this->wellPathNameForExport() != other.wellPathNameForExport() )
-    {
-        return this->wellPathNameForExport() < other.wellPathNameForExport();
-    }
-
-    return this->m_mesuredDepth < other.m_mesuredDepth;
 }

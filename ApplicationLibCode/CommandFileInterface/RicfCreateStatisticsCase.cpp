@@ -59,8 +59,7 @@ caf::PdmScriptResponse RicfCreateStatisticsCase::execute()
 {
     RimProject* project = RimProject::current();
 
-    std::vector<RimIdenticalGridCaseGroup*> gridCaseGroups;
-    project->descendantsIncludingThisOfType( gridCaseGroups );
+    std::vector<RimIdenticalGridCaseGroup*> gridCaseGroups = project->descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
     for ( auto gridCaseGroup : gridCaseGroups )
     {
         if ( gridCaseGroup->groupId() == m_caseGroupId() )

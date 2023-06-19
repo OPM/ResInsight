@@ -40,3 +40,17 @@ QStringList splitSkipEmptyParts( const QString& text, const QRegExp& regExp );
 QString replaceTemplateTextWithValues( const QString& templateText, const std::map<QString, QString>& valueMap );
 
 } // namespace RiaTextStringTools
+
+//--------------------------------------------------------------------------------------------------
+//
+// Add operator<=> for QString to global scope
+//
+// Example of error message when this operator is not defined:
+//
+// 'auto RicWellPathFractureReportItem::operator <=>(const RicWellPathFractureReportItem &) const'
+//    : function was implicitly deleted because 'RicWellPathFractureReportItem' data member
+//      'RicWellPathFractureReportItem::m_wellPathNameForExport' of type 'QString' has no valid
+//      'operator<=>'
+//
+//--------------------------------------------------------------------------------------------------
+std::strong_ordering operator<=>( const QString& lhs, const QString& rhs );

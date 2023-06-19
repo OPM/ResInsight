@@ -23,6 +23,7 @@
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigElasticProperties.h"
 #include "RigResultAccessor.h"
@@ -220,9 +221,20 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     for ( size_t i = 0; i < tvDepthValues.size(); i++ )
     {
         // Avoid using the field name in the match for now
-        QString fieldName  = "";
-        QString faciesName = findFaciesName( *colorLegend, faciesValues[i] );
-        int     idx        = static_cast<int>( formationValues[i] );
+        QString fieldName = "";
+        auto [foundFaciesName, faciesName] =
+            findFaciesName( *colorLegend, faciesValues[i], stimPlanModel->stimPlanModelTemplate()->defaultFacies() );
+        if ( !foundFaciesName )
+        {
+            RiaLogging::error( QString( "Missing facies name for facies value: %1 (%2). Color legend: '%3'" )
+                                   .arg( static_cast<int>( faciesValues[i] ) )
+                                   .arg( faciesValues[i] )
+                                   .arg( colorLegend->colorLegendName() ) );
+            values.clear();
+            return false;
+        }
+
+        int idx = static_cast<int>( formationValues[i] );
         if ( std::isinf( formationValues[i] ) || idx < 0 || idx >= static_cast<int>( formationNamesVector.size() ) )
         {
             RiaLogging::error(
@@ -295,8 +307,10 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         }
         else
         {
-            RiaLogging::error(
-                QString( "Missing elastic properties. Field='%1', formation='%2', facies='%3'" ).arg( fieldName ).arg( formationName ).arg( faciesName ) );
+            RiaLogging::error( QString( "Missing elastic properties. Formation='%1', facies='%2'. Facies value: %3" )
+                                   .arg( formationName )
+                                   .arg( faciesName )
+                                   .arg( static_cast<int>( faciesValues[i] ) ) );
             values.clear();
             return false;
         }
@@ -308,14 +322,18 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimStimPlanModelElasticPropertyCalculator::findFaciesName( const RimColorLegend& colorLegend, double value )
+std::pair<bool, QString> RimStimPlanModelElasticPropertyCalculator::findFaciesName( const RimColorLegend& colorLegend,
+                                                                                    double                value,
+                                                                                    const QString&        defaultFaciesName )
 {
+    if ( std::isinf( value ) || std::isnan( value ) ) return { true, defaultFaciesName };
+
     for ( auto item : colorLegend.colorLegendItems() )
     {
-        if ( item->categoryValue() == static_cast<int>( value ) ) return item->categoryName();
+        if ( item->categoryValue() == static_cast<int>( value ) ) return { true, item->categoryName() };
     }
 
-    return "not found";
+    return { false, "not found" };
 }
 
 //--------------------------------------------------------------------------------------------------

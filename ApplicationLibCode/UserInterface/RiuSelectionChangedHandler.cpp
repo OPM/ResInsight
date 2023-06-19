@@ -19,6 +19,8 @@
 
 #include "RiuSelectionChangedHandler.h"
 
+#include "RiaResultNames.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigDepthResultAccessor.h"
 #include "RigEclipseCaseData.h"
@@ -26,7 +28,6 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 #include "RigTimeHistoryResultAccessor.h"
-#include "RiuFemTimeHistoryResultAccessor.h"
 
 #include "Rim2dIntersectionView.h"
 #include "RimEclipseCase.h"
@@ -41,6 +42,7 @@
 #include "Riu3dSelectionManager.h"
 #include "RiuDepthQwtPlot.h"
 #include "RiuFemResultTextBuilder.h"
+#include "RiuFemTimeHistoryResultAccessor.h"
 #include "RiuMainWindow.h"
 #include "RiuMohrsCirclePlot.h"
 #include "RiuPvtPlotPanel.h"
@@ -49,6 +51,7 @@
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuResultQwtPlot.h"
 #include "RiuResultTextBuilder.h"
+#include "RiuSeismicHistogramPanel.h"
 
 #include <QStatusBar>
 
@@ -446,14 +449,15 @@ void RiuSelectionChangedHandler::addDepthCurveFromSelectionItem( const RiuSelect
 
         std::vector<double> resultValues = RigDepthResultAccessor::resultValues( casedata,
                                                                                  eclResDef,
-                                                                                 eclipseSelectionItem->m_gridIndex,
+                                                                                 static_cast<int>( eclipseSelectionItem->m_gridIndex ),
                                                                                  eclipseSelectionItem->m_gridLocalCellIndex,
                                                                                  currentTimeStep );
 
-        std::vector<int> kValues = RigDepthResultAccessor::kValues( casedata, eclipseSelectionItem->m_gridIndex );
+        std::vector<int> kValues = RigDepthResultAccessor::kValues( casedata, static_cast<int>( eclipseSelectionItem->m_gridIndex ) );
 
-        std::vector<double> depthValues =
-            RigDepthResultAccessor::depthValues( casedata, eclipseSelectionItem->m_gridLocalCellIndex, eclipseSelectionItem->m_gridIndex );
+        std::vector<double> depthValues = RigDepthResultAccessor::depthValues( casedata,
+                                                                               static_cast<int>( eclipseSelectionItem->m_gridLocalCellIndex ),
+                                                                               static_cast<int>( eclipseSelectionItem->m_gridIndex ) );
 
         CVF_ASSERT( kValues.size() == resultValues.size() );
 

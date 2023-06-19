@@ -159,8 +159,7 @@ bool RimSummaryCase::hasCaseRealizationParameters() const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection* RimSummaryCase::ensemble() const
 {
-    RimSummaryCaseCollection* e;
-    firstAncestorOrThisOfType( e );
+    RimSummaryCaseCollection* e = firstAncestorOrThisOfType<RimSummaryCaseCollection>();
     return e && e->isEnsemble() ? e : nullptr;
 }
 
@@ -175,7 +174,6 @@ void RimSummaryCase::copyFrom( const RimSummaryCase& rhs )
     m_isObservedData            = rhs.m_isObservedData;
 
     this->updateTreeItemName();
-    this->updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,6 +196,7 @@ void RimSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     }
     else if ( changedField == &m_displayName )
     {
+        m_displayNameOption = RimCaseDisplayNameTools::DisplayName::CUSTOM;
         updateTreeItemName();
         nameChanged.send();
     }
@@ -205,16 +204,6 @@ void RimSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     {
         updateConnectedEditors();
     }
-
-    updateOptionSensitivity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCase::updateOptionSensitivity()
-{
-    m_displayName.uiCapability()->setUiReadOnly( m_displayNameOption != RimCaseDisplayNameTools::DisplayName::CUSTOM );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,10 +239,16 @@ void RimSummaryCase::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryCase::userDescriptionField()
+{
+    return &m_displayName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    updateOptionSensitivity();
-
     uiOrdering.add( &m_displayName );
     uiOrdering.add( &m_displayNameOption );
     uiOrdering.add( &m_summaryHeaderFilename );
@@ -347,8 +342,6 @@ void RimSummaryCase::initAfterRead()
     {
         m_displayNameOption = RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME;
     }
-
-    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------

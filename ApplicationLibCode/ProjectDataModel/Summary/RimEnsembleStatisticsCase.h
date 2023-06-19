@@ -18,7 +18,9 @@
 
 #pragma once
 
+#include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
+
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimSummaryCase.h"
@@ -55,11 +57,14 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
 private:
-    void calculate( const std::vector<RimSummaryCase*> sumCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
-    void                         clearData();
-    std::vector<RimSummaryCase*> validSummaryCases( const std::vector<RimSummaryCase*> allSumCases,
-                                                    const RifEclipseSummaryAddress&    inputAddress,
-                                                    bool                               includeIncompleteCurves );
+    void calculate( const std::vector<RimSummaryCase*>& sumCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
+    void                                clearData();
+    static std::vector<RimSummaryCase*> validSummaryCases( const std::vector<RimSummaryCase*>& allSumCases,
+                                                           const RifEclipseSummaryAddress&     inputAddress,
+                                                           bool                                includeIncompleteCurves );
+    static std::pair<time_t, time_t>    findMinMaxTimeStep( const std::vector<RimSummaryCase*>& sumCases,
+                                                            const RifEclipseSummaryAddress&     inputAddress );
+    static RiaDefines::DateTimePeriod   findBestResamplingPeriod( time_t minTimeStep, time_t maxTimeStep );
 
 private:
     std::unique_ptr<RifEnsembleStatisticsReader> m_statisticsReader;

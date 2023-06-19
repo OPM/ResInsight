@@ -42,7 +42,8 @@ public:
         REGION,
         VECTOR,
         BLOCK,
-        AQUIFER
+        AQUIFER,
+        WELL_SEGMENT
     };
 
 public:

@@ -246,6 +246,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
         if ( chr == QChar( '[' ) )
         {
+            std::vector<QString> allValues;
+            QString              currentValue;
             while ( !inputStream.atEnd() )
             {
                 errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
@@ -259,11 +261,25 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
                 {
                     nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
                     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+                    if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
+                    currentValue = "";
                 }
+                else
+                {
+                    currentValue += errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                }
+            }
+            if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
 
-                T value;
-                PdmFieldScriptingCapabilityIOHandler<T>::writeToField( value, inputStream, errorMessageContainer, true );
-                fieldValue.push_back( value );
+            for ( QString textValue : allValues )
+            {
+                QTextStream singleValueStream( &textValue, QIODevice::ReadOnly );
+                T           singleValue;
+                PdmFieldScriptingCapabilityIOHandler<T>::writeToField( singleValue,
+                                                                       singleValueStream,
+                                                                       errorMessageContainer,
+                                                                       stringsAreQuoted );
+                fieldValue.push_back( singleValue );
             }
         }
         else
@@ -496,8 +512,7 @@ public:
                        bool                  stringsAreQuoted    = true,
                        caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
     {
-        std::vector<DataType*> allObjectsOfType;
-        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+        std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
         DataType* object = nullptr;
         PdmFieldScriptingCapabilityIOHandler<DataType*>::writeToField( object,
@@ -541,8 +556,7 @@ public:
                        bool                  stringsAreQuoted    = true,
                        caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
     {
-        std::vector<DataType*> allObjectsOfType;
-        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+        std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
         DataType* object = nullptr;
         PdmFieldScriptingCapabilityIOHandler<DataType*>::writeToField( object,
@@ -586,8 +600,7 @@ public:
                        bool                  stringsAreQuoted    = true,
                        caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
     {
-        std::vector<DataType*> allObjectsOfType;
-        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+        std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
         std::vector<DataType*> objects;
         PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
@@ -603,7 +616,7 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->ptrReferencedObjects(),
+        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->ptrReferencedObjectsByType(),
                                                                                      outputStream,
                                                                                      quoteStrings,
                                                                                      quoteNonBuiltins );
@@ -631,8 +644,7 @@ public:
                        bool                  stringsAreQuoted    = true,
                        caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
     {
-        std::vector<DataType*> allObjectsOfType;
-        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+        std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
         std::vector<DataType*> objects;
         PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
@@ -648,7 +660,7 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->children(),
+        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->childrenByType(),
                                                                                      outputStream,
                                                                                      quoteStrings,
                                                                                      quoteNonBuiltins );

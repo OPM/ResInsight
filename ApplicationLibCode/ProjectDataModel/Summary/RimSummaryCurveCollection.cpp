@@ -51,7 +51,7 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 {
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves" );
+    CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Curves" );
     m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
     caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimSummaryCurveCollection::onCurvesReordered );
@@ -115,8 +115,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate( bool updateParentPlot )
 
     if ( updateParentPlot )
     {
-        RimSummaryPlot* parentPlot;
-        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         parentPlot->updateAll();
     }
 }
@@ -133,8 +132,7 @@ void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle
             curve->updateCurveAppearance();
         }
 
-        RimSummaryPlot* parentPlot;
-        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         parentPlot->plotWidget()->scheduleReplot();
     }
 }
@@ -252,7 +250,7 @@ void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 {
-    return m_curves.children();
+    return m_curves.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,8 +360,7 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
         curve->updateConnectedEditors();
     }
 
-    RimSummaryPlot* parentPlot;
-    firstAncestorOrThisOfTypeAsserted( parentPlot );
+    auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     parentPlot->updatePlotTitle();
     if ( parentPlot->plotWidget() ) parentPlot->plotWidget()->updateLegend();
@@ -384,9 +381,7 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolbar()
 {
-    RimSummaryCrossPlot* parentCrossPlot;
-    firstAncestorOrThisOfType( parentCrossPlot );
-
+    auto parentCrossPlot = firstAncestorOrThisOfType<RimSummaryCrossPlot>();
     if ( parentCrossPlot )
     {
         return m_unionSourceStepping->fieldsToShowInToolbar();
@@ -463,8 +458,7 @@ void RimSummaryCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
     }
     else if ( changedField == &m_editPlot )
     {
-        RimSummaryPlot* plot = nullptr;
-        this->firstAncestorOrThisOfType( plot );
+        auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot )
         {
             RicEditSummaryPlotFeature::editSummaryPlot( plot );

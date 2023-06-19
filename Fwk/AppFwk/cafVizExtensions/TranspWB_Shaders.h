@@ -12,7 +12,7 @@ static const char TranspWB_CombinationFrag_inl[] =
 "// Weighted Blended Order-Independent Transparency                                                                                        \n"
 "// Morgan McGuire and Louis Bavoil NVIDIA                                                                                                 \n"
 "// Journal of Computer Graphics Techniques Vol. 2, No. 2, 2013                                                                            \n"
-"// Adapted by Jacob Støren to fit with a pure combination pass with no blending                                                           \n"
+"// Adapted by Jacob Storen to fit with a pure combination pass with no blending                                                           \n"
 "//--------------------------------------------------------------------------------------                                                  \n"
 "                                                                                                                                          \n"
 "#extension GL_ARB_texture_rectangle : enable                                                                                              \n"

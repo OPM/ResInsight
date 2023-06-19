@@ -234,6 +234,21 @@ StructGridInterface::FaceType StructGridInterface::oppositeFace( FaceType face )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<StructGridInterface::FaceType> StructGridInterface::validFaceTypes()
+{
+    return {
+        cvf::StructGridInterface::FaceType::NEG_I,
+        cvf::StructGridInterface::FaceType::POS_I,
+        cvf::StructGridInterface::FaceType::NEG_J,
+        cvf::StructGridInterface::FaceType::POS_J,
+        cvf::StructGridInterface::FaceType::NEG_K,
+        cvf::StructGridInterface::FaceType::POS_K,
+    };
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Return values are set to cvf::UNDEFINED_SIZE_T if the neighbor is in the negative area
 //--------------------------------------------------------------------------------------------------
 void StructGridInterface::neighborIJKAtCellFace( size_t i, size_t j, size_t k, FaceType face, size_t* ni, size_t* nj, size_t* nk )

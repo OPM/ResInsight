@@ -78,6 +78,7 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_spinBox->blockSignals( true );
         m_spinBox->setMinimum( m_attributes.m_minimum );
         m_spinBox->setMaximum( m_attributes.m_maximum );
+        m_spinBox->setSingleStep( m_attributes.m_step );
 
         QString textValue = uiField()->uiValue().toString();
         m_spinBox->setValue( textValue.toInt() );
@@ -89,6 +90,7 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
     {
         m_slider->blockSignals( true );
         m_slider->setRange( m_attributes.m_minimum, m_attributes.m_maximum );
+        m_slider->setSingleStep( m_attributes.m_step );
         updateSliderPosition();
         m_slider->blockSignals( false );
     }

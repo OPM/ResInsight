@@ -51,8 +51,7 @@ void RicDeleteWellPathTargetFeature::onActionTriggered( bool isChecked )
 
     if ( targets.size() > 0 )
     {
-        RimWellPathGeometryDef* wellGeomDef = nullptr;
-        targets[0]->firstAncestorOrThisOfTypeAsserted( wellGeomDef );
+        RimWellPathGeometryDef* wellGeomDef = targets[0]->firstAncestorOrThisOfTypeAsserted<RimWellPathGeometryDef>();
 
         for ( auto target : targets )
         {

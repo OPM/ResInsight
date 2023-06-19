@@ -158,7 +158,11 @@ void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
             const int frameCount = femPartResultsColl->frameCount( stepIdx );
             for ( int frameIdx = 0; frameIdx < frameCount; frameIdx++ )
             {
-                RiuGeoMechXfTensorResultAccessor stressXfAccessor( femPartResultsColl, *m_femResultAddress, m_gridIndex, stepIdx, frameIdx );
+                RiuGeoMechXfTensorResultAccessor stressXfAccessor( femPartResultsColl,
+                                                                   *m_femResultAddress,
+                                                                   static_cast<int>( m_gridIndex ),
+                                                                   stepIdx,
+                                                                   frameIdx );
                 float scalarValue = stressXfAccessor.calculateElmNodeValue( m_intersectionTriangle, closestElmNodeResIndex );
                 m_timeHistoryValues.push_back( scalarValue );
             }

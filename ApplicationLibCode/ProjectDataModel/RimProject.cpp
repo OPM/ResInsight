@@ -72,6 +72,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
+#include "RimSeismicDataCollection.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
@@ -79,6 +80,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryMultiPlotCollection.h"
+#include "RimSummaryTableCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
@@ -125,7 +127,7 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProject::RimProject( void )
+RimProject::RimProject()
     : m_nextValidCaseId( 0 )
     , m_nextValidCaseGroupId( 0 )
     , m_nextValidViewId( -1 )
@@ -238,7 +240,7 @@ RimProject::RimProject( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProject::~RimProject( void )
+RimProject::~RimProject()
 {
 }
 
@@ -301,7 +303,7 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::initAfterRead()
+void RimProject::beforeInitAfterRead()
 {
     this->distributePathsFromGlobalPathList();
 
@@ -356,6 +358,14 @@ void RimProject::initAfterRead()
 
     if ( m_subWindowsTiled3DWindow_OBSOLETE ) m_subWindowsTileMode3DWindow = RiaDefines::WindowTileMode::DEFAULT;
     if ( m_subWindowsTiledPlotWindow_OBSOLETE ) m_subWindowsTileModePlotWindow = RiaDefines::WindowTileMode::DEFAULT;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::initAfterRead()
+{
+    // Function moved to beforeInitAfterRead() to make sure that file path objects are replaced before other initAfterRead() is called
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,11 +492,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         std::vector<QString> searchedPaths;
 
         QString filePathCandidate = filePath->path();
-        if ( filePathCandidate.startsWith( '.' ) )
-        {
-            filePathCandidate = filePathCandidate.right( filePathCandidate.size() - 1 );
-            filePathCandidate = newProjectPath + filePathCandidate;
-        }
 
         QString newFilePath = RimTools::relocateFile( filePathCandidate, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
         filePath->setPath( newFilePath );
@@ -560,9 +565,7 @@ void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
     {
-        std::vector<RimCase*> cases;
-        this->descendantsIncludingThisOfType( cases );
-
+        std::vector<RimCase*> cases = this->descendantsIncludingThisOfType<RimCase>();
         for ( RimCase* rimCase : cases )
         {
             m_nextValidCaseId = std::max( m_nextValidCaseId, rimCase->caseId() + 1 );
@@ -579,8 +582,7 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 {
     if ( caseGroup )
     {
-        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups;
-        this->descendantsIncludingThisOfType( identicalCaseGroups );
+        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups = this->descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
 
         for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
         {
@@ -600,8 +602,7 @@ void RimProject::assignViewIdToView( Rim3dView* view )
     {
         if ( m_nextValidViewId < 0 )
         {
-            std::vector<Rim3dView*> views;
-            this->descendantsIncludingThisOfType( views );
+            std::vector<Rim3dView*> views = this->descendantsIncludingThisOfType<Rim3dView>();
 
             for ( Rim3dView* existingView : views )
             {
@@ -622,8 +623,7 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
     {
         if ( m_nextValidPlotId < 0 )
         {
-            std::vector<RimPlotWindow*> plotWindows;
-            this->descendantsIncludingThisOfType( plotWindows );
+            std::vector<RimPlotWindow*> plotWindows = this->descendantsIncludingThisOfType<RimPlotWindow>();
 
             for ( RimPlotWindow* existingPlotWindow : plotWindows )
             {
@@ -1169,8 +1169,7 @@ std::vector<RimTextAnnotation*> RimProject::textAnnotations() const
     allVisibleGridViews( visibleViews );
     for ( const auto& view : visibleViews )
     {
-        std::vector<RimAnnotationInViewCollection*> annotationColls;
-        view->descendantsIncludingThisOfType( annotationColls );
+        std::vector<RimAnnotationInViewCollection*> annotationColls = view->descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
         if ( annotationColls.size() == 1 )
         {
@@ -1412,6 +1411,11 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 uiTreeOrdering.add( m_mainPlotCollection->summaryCrossPlotCollection() );
             }
 
+            if ( m_mainPlotCollection->summaryTableCollection() )
+            {
+                uiTreeOrdering.add( m_mainPlotCollection->summaryTableCollection() );
+            }
+
             if ( m_mainPlotCollection->wellLogPlotCollection() )
             {
                 uiTreeOrdering.add( m_mainPlotCollection->wellLogPlotCollection() );
@@ -1516,6 +1520,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
+            if ( oilField->seismicCollection() ) uiTreeOrdering.add( oilField->seismicCollection() );
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() ) uiTreeOrdering.add( oilField->completionTemplateCollection() );
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );

@@ -9,18 +9,18 @@
 
 #include <QApplication>
 
-int main(int argc, char* argv[])
+int main( int argc, char* argv[] )
 {
     // https://www.w3.org/wiki/CSS/Properties/color/keywords
-    caf::UiAppearanceSettings::instance()->setAutoValueEditorColor("moccasin");
+    caf::UiAppearanceSettings::instance()->setAutoValueEditorColor( "moccasin" );
 
     auto appExitCode = 0;
     {
-        QApplication app(argc, argv);
+        QApplication app( argc, argv );
 
         MainWindow window;
-        window.setWindowTitle("Ceetron Application Framework Test Application");
-        window.resize(1000, 810);
+        window.setWindowTitle( "Ceetron Application Framework Test Application" );
+        window.resize( 1000, 810 );
         window.show();
 
         appExitCode = app.exec();

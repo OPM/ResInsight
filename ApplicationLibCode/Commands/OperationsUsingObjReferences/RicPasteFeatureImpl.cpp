@@ -89,12 +89,10 @@ RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup( caf::PdmObjec
     {
         return dynamic_cast<RimIdenticalGridCaseGroup*>( objectHandle );
     }
-    else if ( dynamic_cast<RimCaseCollection*>( objectHandle ) || dynamic_cast<RimEclipseCase*>( objectHandle ) )
-    {
-        RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
-        objectHandle->firstAncestorOrThisOfType( gridCaseGroup );
 
-        return gridCaseGroup;
+    if ( dynamic_cast<RimCaseCollection*>( objectHandle ) || dynamic_cast<RimEclipseCase*>( objectHandle ) )
+    {
+        return objectHandle->firstAncestorOrThisOfType<RimIdenticalGridCaseGroup>();
     }
 
     return nullptr;

@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaNetworkTools.h"
+#include "RiaPreferences.h"
 #include "RiaVersionInfo.h"
 
 #include "RiuMainWindow.h"
@@ -155,6 +156,19 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
         dlg.addVersionEntry( " ", QString( "   " ) + vendor + " : " + render );
     }
 
+    QString compiledUsingPythonVersion = RESINSIGHT_PYTHON_VERSION;
+    if ( !compiledUsingPythonVersion.isEmpty() )
+    {
+        auto pythonRuntimePath    = RiaPreferences::current()->pythonExecutable();
+        auto pythonRuntimeVersion = RicHelpAboutFeature::getPythonVersion( pythonRuntimePath );
+
+        dlg.addVersionEntry( " ", "" );
+        dlg.addVersionEntry( " ", "Python" );
+        dlg.addVersionEntry( " ", QString( "  Compiled with: Python " ) + compiledUsingPythonVersion );
+        dlg.addVersionEntry( " ", QString( "  Runtime binary: " ) + pythonRuntimePath );
+        dlg.addVersionEntry( " ", QString( "  Runtime version: " ) + pythonRuntimeVersion );
+    }
+
     dlg.create();
     dlg.resize( 300, 200 );
 
@@ -168,6 +182,27 @@ void RicHelpAboutFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&About" );
     actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicHelpAboutFeature::getPythonVersion( const QString& pathToPythonExecutable )
+{
+    QStringList arguments;
+    arguments << "--version";
+
+    QProcess process;
+    process.setProgram( pathToPythonExecutable );
+    process.setArguments( arguments );
+
+    process.start();
+    process.waitForFinished();
+
+    QByteArray output = process.readAllStandardOutput();
+
+    QString versionString = QString( output ).trimmed();
+    return versionString;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -59,7 +59,7 @@ public:
     static const QString CONFIGURATION_NAME;
 
 private:
-    typedef caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> AppearanceTypeAppEnum;
+    using AppearanceTypeAppEnum = caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType>;
 
 public:
     RicSummaryPlotEditorUi();

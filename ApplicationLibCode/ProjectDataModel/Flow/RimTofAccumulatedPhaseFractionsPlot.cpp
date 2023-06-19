@@ -107,8 +107,7 @@ void RimTofAccumulatedPhaseFractionsPlot::reloadFromWell()
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase* RimTofAccumulatedPhaseFractionsPlot::resultCase()
 {
-    RimWellAllocationPlot* allocationPlot;
-    firstAncestorOrThisOfTypeAsserted( allocationPlot );
+    auto allocationPlot = firstAncestorOrThisOfTypeAsserted<RimWellAllocationPlot>();
 
     return allocationPlot->rimCase();
 }
@@ -118,8 +117,7 @@ RimEclipseResultCase* RimTofAccumulatedPhaseFractionsPlot::resultCase()
 //--------------------------------------------------------------------------------------------------
 QString RimTofAccumulatedPhaseFractionsPlot::tracerName()
 {
-    RimWellAllocationPlot* allocationPlot;
-    firstAncestorOrThisOfTypeAsserted( allocationPlot );
+    auto allocationPlot = firstAncestorOrThisOfTypeAsserted<RimWellAllocationPlot>();
 
     return allocationPlot->wellName();
 }
@@ -129,8 +127,7 @@ QString RimTofAccumulatedPhaseFractionsPlot::tracerName()
 //--------------------------------------------------------------------------------------------------
 size_t RimTofAccumulatedPhaseFractionsPlot::timeStep()
 {
-    RimWellAllocationPlot* allocationPlot;
-    firstAncestorOrThisOfTypeAsserted( allocationPlot );
+    auto allocationPlot = firstAncestorOrThisOfTypeAsserted<RimWellAllocationPlot>();
 
     return static_cast<size_t>( allocationPlot->timeStep() );
 }

@@ -42,7 +42,7 @@
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
@@ -89,7 +89,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abtract base class for Eclipse Cases" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abstract base class for Eclipse Cases" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
     reservoirViews.uiCapability()->setUiTreeHidden( true );
@@ -305,21 +305,18 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
     rimEclipseView->setEclipseCase( this );
 
     // Set default values
+    if ( rimEclipseView->currentGridCellResults() )
     {
-        rimEclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-
-        auto prefs = RiaPreferences::current();
-        if ( prefs->loadAndShowSoil )
-        {
-            rimEclipseView->cellResult()->setResultVariable( RiaResultNames::soil() );
-        }
-
-        rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
-
-        rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
-        rimEclipseView->cellEdgeResult()->setActive( false );
-        rimEclipseView->fractureColors()->setDefaultResultName();
+        auto defaultResult = rimEclipseView->currentGridCellResults()->defaultResult();
+        rimEclipseView->cellResult()->setFromEclipseResultAddress( defaultResult );
     }
+
+    auto prefs = RiaPreferences::current();
+    rimEclipseView->faultCollection()->setActive( prefs->enableFaultsByDefault() );
+
+    rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
+    rimEclipseView->cellEdgeResult()->setActive( false );
+    rimEclipseView->fractureColors()->setDefaultResultName();
 
     caf::PdmDocument::updateUiIconStateRecursively( rimEclipseView );
 
@@ -426,9 +423,9 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
 
                 if ( wellRes->hasWellResult( i ) )
                 {
-                    for ( const auto& wellResultBranch : wellRes->wellResultFrame( i )->m_wellResultBranches )
+                    for ( const auto& wellResultBranch : wellRes->wellResultFrame( i )->wellResultBranches() )
                     {
-                        for ( const auto& r : wellResultBranch.m_branchResultPoints )
+                        for ( const auto& r : wellResultBranch.branchResultPoints() )
                         {
                             if ( r.isCell() )
                             {
@@ -562,8 +559,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
-        std::vector<PdmObjectHandle*> children;
-        reservoirViews.children( &children );
+        std::vector<PdmObjectHandle*> children = reservoirViews.children();
 
         for ( auto child : children )
             uiTreeOrdering.add( child );
@@ -683,7 +679,7 @@ RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection()
+RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection() const
 {
     return m_inputPropertyCollection();
 }
@@ -1054,8 +1050,7 @@ bool RimEclipseCase::openReserviorCase()
 
     // Update grids node
     {
-        std::vector<RimGridCollection*> gridColls;
-        descendantsIncludingThisOfType( gridColls );
+        std::vector<RimGridCollection*> gridColls = descendantsIncludingThisOfType<RimGridCollection>();
         for ( RimGridCollection* gridCollection : gridColls )
         {
             gridCollection->syncFromMainEclipseGrid();

@@ -99,12 +99,15 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLegendOverlayContentFrame.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSeismicHistogramPanel.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtDateScaleWrapper.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuMenuBarBuildTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -206,11 +209,14 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSeismicHistogramPanel.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLegendOverlayContentFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtDateScaleWrapper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuMenuBarBuildTools.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
@@ -257,6 +263,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuMdiArea.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuSeismicHistogramPanel.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotPanel.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuResultInfoPanel.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuResultQwtPlot.h
@@ -301,6 +308,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLegendOverlayContentFrame.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.h
 )
 
 list(APPEND QT_UI_FILES)

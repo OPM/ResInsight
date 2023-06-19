@@ -68,7 +68,8 @@ void QssSyntaxHighligter::highlightBlock( const QString& text )
 
     setCurrentBlockState( -1 );
 
-    auto parseClass = [this, text]( int startIndex, int length ) {
+    auto parseClass = [this, text]( int startIndex, int length )
+    {
         QTextCharFormat propertyFormat;
         propertyFormat.setFontWeight( QFont::Bold );
 

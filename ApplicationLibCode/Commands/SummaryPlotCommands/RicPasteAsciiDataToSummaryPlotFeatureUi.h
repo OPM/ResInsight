@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
 #include "RimPlotCurve.h"
 
 #include "RifCsvUserDataParser.h"
@@ -41,6 +42,7 @@ public:
         : useCustomDateTimeFormat( false )
         , assumeNumericDataColumns( false )
         , curveSymbolSkipDistance( 0.0f )
+        , defaultCategory( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID )
     {
     }
 
@@ -57,7 +59,10 @@ public:
     QString cellSeparator;
     QString timeSeriesColumnName;
 
-    bool assumeNumericDataColumns;
+    QDateTime startDateTime;
+    bool      assumeNumericDataColumns;
+
+    RifEclipseSummaryAddress::SummaryVarCategory defaultCategory;
 
     RiuQwtPlotCurveDefines::LineStyleEnum curveLineStyle;
     RiuPlotCurveSymbol::PointSymbolEnum   curveSymbol;
@@ -86,7 +91,7 @@ public:
         DECIMAL_DOT,
     };
 
-    typedef caf::AppEnum<DecimalSeparator> DecimalSeparatorEnum;
+    using DecimalSeparatorEnum = caf::AppEnum<DecimalSeparator>;
 
     enum DateFormat
     {
@@ -100,7 +105,7 @@ public:
         DATE_MMDDYY_SLASH_SEPARATED
     };
 
-    typedef caf::AppEnum<DateFormat> DateFormatEnum;
+    using DateFormatEnum = caf::AppEnum<DateFormat>;
 
     enum TimeFormat
     {
@@ -110,7 +115,7 @@ public:
         TIME_HHMMSSZZZ,
     };
 
-    typedef caf::AppEnum<TimeFormat> TimeFormatEnum;
+    using TimeFormatEnum = caf::AppEnum<TimeFormat>;
 
     enum CellSeparator
     {
@@ -119,7 +124,7 @@ public:
         CELL_SEMICOLON
     };
 
-    typedef caf::AppEnum<CellSeparator> CellSeparatorEnum;
+    using CellSeparatorEnum = caf::AppEnum<CellSeparator>;
 
 public:
     RicPasteAsciiDataToSummaryPlotFeatureUi();

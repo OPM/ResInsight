@@ -145,8 +145,7 @@ void RimPlot::removeFromMdiAreaAndCollection()
         revokeMdiWindowStatus();
     }
 
-    RimAbstractPlotCollection* plotCollection = nullptr;
-    this->firstAncestorOfType( plotCollection );
+    auto plotCollection = firstAncestorOfType<RimAbstractPlotCollection>();
     if ( plotCollection )
     {
         plotCollection->removeRimPlot( this );
@@ -214,8 +213,7 @@ void RimPlot::onPlotSelected( bool toggle )
 //--------------------------------------------------------------------------------------------------
 void RimPlot::onViewerDestroyed()
 {
-    RimPlotWindow* parent = nullptr;
-    this->firstAncestorOfType( parent );
+    auto parent = firstAncestorOfType<RimPlotWindow>();
 
     bool isIndependentPlot = parent == nullptr;
     bool hasVisibleParent  = parent && parent->showWindow();

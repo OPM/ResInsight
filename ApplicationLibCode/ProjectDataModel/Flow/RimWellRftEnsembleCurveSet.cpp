@@ -26,10 +26,10 @@
 
 #include "RiuQwtPlotWidget.h"
 
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QFrame>
 
@@ -53,7 +53,7 @@ RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
     CAF_PDM_InitField( &m_ensembleColorMode, "ColorMode", ColorModeEnum( ColorMode::SINGLE_COLOR ), "Coloring Mode" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter" );
-    m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleLegendConfig, "LegendConfig", "" );
     m_ensembleLegendConfig = new RimRegularLegendConfig();
@@ -184,8 +184,7 @@ void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( changedField == &m_ensembleColorMode || changedField == &m_ensembleParameter )
     {
-        RimWellRftPlot* rftPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( rftPlot );
+        RimWellRftPlot* rftPlot = firstAncestorOrThisOfTypeAsserted<RimWellRftPlot>();
         rftPlot->syncCurvesFromUiSelection();
         rftPlot->updateConnectedEditors();
     }

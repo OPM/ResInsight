@@ -23,11 +23,6 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveDefinition.h"
-#include "RiuPlotMainWindowTools.h"
-#include "RiuQwtLinearScaleEngine.h"
-#include "RiuQwtPlotItem.h"
-#include "RiuQwtPlotTools.h"
-#include "RiuQwtPlotWidget.h"
 
 #include "RifSummaryReaderInterface.h"
 
@@ -43,6 +38,12 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotAxisFormatter.h"
+
+#include "RiuPlotMainWindowTools.h"
+#include "RiuQwtLinearScaleEngine.h"
+#include "RiuQwtPlotItem.h"
+#include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -163,7 +164,6 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
@@ -441,7 +441,8 @@ void eraseInvalidEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, Valu
 {
     matrix.erase( std::remove_if( matrix.begin(),
                                   matrix.end(),
-                                  [=]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& entry ) {
+                                  [=]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& entry )
+                                  {
                                       bool isValid = RiaCurveDataTools::isValidValue( entry.m_correlationSum, false );
                                       return !isValid;
                                   } ),
@@ -454,7 +455,8 @@ void sortEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>&
     std::sort( matrix.begin(),
                matrix.end(),
                [&sortByAbsoluteValues]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& lhs,
-                                        const CorrelationMatrixRowOrColumn<KeyType, ValueType>& rhs ) -> bool {
+                                        const CorrelationMatrixRowOrColumn<KeyType, ValueType>& rhs ) -> bool
+               {
                    if ( sortByAbsoluteValues )
                        return lhs.m_correlationAbsSum > rhs.m_correlationAbsSum;
                    else
