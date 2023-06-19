@@ -49,6 +49,7 @@
 #include <QMenuBar>
 #include <QTreeView>
 #include <QUndoView>
+#include <QWebEngineView>
 
 class DemoPdmObjectGroup : public caf::PdmDocument
 {
@@ -1180,7 +1181,14 @@ MainWindow::MainWindow()
     m_plotLabel->setPixmap( pix.scaled( 250, 100 ) );
 
     m_smallPlotLabel = new QLabel( this );
-    m_smallPlotLabel->setPixmap( pix.scaled( 100, 50 ) );
+    m_smallPlotLabel->setPixmap( pix.scaled( 1000, 500 ) );
+
+    m_webView = new QWebEngineView( this );
+    m_webView->load( QUrl( "https://www.google.com" ) );
+    /*m_webView->load( QUrl::fromLocalFile(
+        "D:/Git/ResInsight/build/Fwk/AppFwk/cafTests/cafTestApplication/RelWithDebInfo/HTML-dist/index.html" ) );*/
+    /*m_webView->load( QUrl::fromLocalFile(
+        "D:/Git/ResInsight/build/Fwk/AppFwk/cafTests/cafTestApplication/RelWithDebInfo/HTML-dist/testIndex.html" ) );*/
 
     createActions();
     createDockPanels();
@@ -1377,15 +1385,18 @@ void MainWindow::setPdmRoot( caf::PdmObjectHandle* pdmRoot )
     m_customObjectEditor->removeWidget( m_plotLabel );
     m_customObjectEditor->removeWidget( m_smallPlotLabel );
 
+    m_customObjectEditor->removeWidget( m_webView );
+
     if ( obj.size() == 1 )
     {
         m_customObjectEditor->setPdmObject( obj[0] );
 
-        m_customObjectEditor->defineGridLayout( 5, 4 );
+        m_customObjectEditor->defineGridLayout( 1, 1 );
 
-        m_customObjectEditor->addBlankCell( 0, 0 );
-        m_customObjectEditor->addWidget( m_plotLabel, 0, 1, 1, 2 );
-        m_customObjectEditor->addWidget( m_smallPlotLabel, 1, 2, 2, 1 );
+        //m_customObjectEditor->addBlankCell( 0, 0 );
+        //m_customObjectEditor->addWidget( m_plotLabel, 0, 1, 1, 2 );
+        //m_customObjectEditor->addWidget( m_smallPlotLabel, 1, 2, 2, 1 );
+        m_customObjectEditor->addWidget( m_webView, 0, 0, 1, 1 );
     }
     else
     {

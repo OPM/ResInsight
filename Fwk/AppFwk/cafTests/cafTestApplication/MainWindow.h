@@ -3,6 +3,7 @@
 #include <QAbstractItemModel>
 #include <QItemSelection>
 #include <QMainWindow>
+#include <QWebEngineView>
 
 class DemoPdmObject;
 class DemoPdmObjectGroup;
@@ -68,4 +69,6 @@ private:
 
     QLabel* m_plotLabel;
     QLabel* m_smallPlotLabel;
+
+    QWebEngineView* m_webView;
 };
