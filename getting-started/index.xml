@@ -184,6 +184,18 @@ Multi Segment Well Improvements Multi Segmented Wells - MSW is updated with new 
     </item>
     
     <item>
+      <title>What&#39;s New in 2023.06</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2023_06/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_06/</guid>
+      <description>Seismic Data ResInsight supports the following seismic file formats:
+ SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY  Seismic Data
+Seismic Sections
+Summary Table Summary Tables are a display of curve data based on Eclipse Summary Data as a color map in table format.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

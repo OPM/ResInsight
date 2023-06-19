@@ -119,7 +119,15 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2023_06/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/plot-window/summaryplotdatasources/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/import/seismicdata/</loc>
   </url>
   
   <url>
@@ -192,6 +200,10 @@
   
   <url>
     <loc>https://resinsight.org/import/soursimrlresults/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/misc/advancedtextinput/</loc>
   </url>
   
   <url>
@@ -311,6 +323,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/plot-window/summarytables/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/plot-window/multiplots/</loc>
   </url>
   
@@ -407,6 +423,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/plot-window/declinecurveanalysis/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/3d-main-window/intersections/</loc>
   </url>
   
@@ -415,7 +435,15 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/plot-window/regressionanalysis/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/plot-window/wellborestabilityplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/3d-main-window/seismicsections/</loc>
   </url>
   
   <url>
@@ -471,6 +499,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/calculated-data/faultdistance/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/plot-window/pltplot/</loc>
   </url>
   
@@ -487,11 +519,19 @@
   </url>
   
   <url>
-    <loc>https://resinsight.org/plot-window/flowdiagnosticsplots/</loc>
+    <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/</loc>
   </url>
   
   <url>
     <loc>https://resinsight.org/3d-main-window/gridstatisticsdialog/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/</loc>
   </url>
   
   <url>

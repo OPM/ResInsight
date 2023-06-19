@@ -305,6 +305,18 @@ Multi Segment Well Improvements Multi Segmented Wells - MSW is updated with new 
     </item>
     
     <item>
+      <title>What&#39;s New in 2023.06</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2023_06/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_06/</guid>
+      <description>Seismic Data ResInsight supports the following seismic file formats:
+ SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY  Seismic Data
+Seismic Sections
+Summary Table Summary Tables are a display of curve data based on Eclipse Summary Data as a color map in table format.</description>
+    </item>
+    
+    <item>
       <title>Data Sources</title>
       <link>https://resinsight.org/plot-window/summaryplotdatasources/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -313,6 +325,16 @@ Multi Segment Well Improvements Multi Segmented Wells - MSW is updated with new 
       <description>Data Sources provides an overview of all data sources for summary plots by category to provide search, selection, and essential functionality pertinent to summary cases.
 As seen above, Data Sources enables search and sourcing of data from case, field, regions, wells, groups, or ensemble. See Summary Plots which illustrates use of Data Sources for effective search and selection of data for summary plots.
 Searching for data sources Atop the Data Sources window, there is a search field for effective searches across all available data sources.</description>
+    </item>
+    
+    <item>
+      <title>Seismic Data</title>
+      <link>https://resinsight.org/import/seismicdata/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/seismicdata/</guid>
+      <description>Importing Seismic Data ResInsight supports the following seismic file formats:
+ SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY  A seismic file is imported by right-clicking the Seismic item in Project Tree or by using menu item File-&amp;gt;Import-&amp;gt;Import Seismic.</description>
     </item>
     
     <item>
@@ -501,6 +523,17 @@ Importing such a file will enable result type called SourSimRL as explained in E
     </item>
     
     <item>
+      <title>Advanced Text Input</title>
+      <link>https://resinsight.org/misc/advancedtextinput/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/misc/advancedtextinput/</guid>
+      <description>When the user is requested to specify a list of integer values, it can be useful to input the list using a text string. This can be a selection of K slices, a selection of realisations or a selection of integer values in a integer cell result.
+Supported text format 5,10-13,20-26:2This text will produce an integer array with values
+[5, 10, 11, 12, 13, 20, 22, 24, 26]Using the syntax &amp;ldquo;20-26:2&amp;rdquo; will produce integer values in the range at a step of 2, resulting in [20, 22, 24, 26]</description>
+    </item>
+    
+    <item>
       <title>Build Instructions</title>
       <link>https://resinsight.org/getting-started/download-and-install/buildinstructions/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -521,10 +554,9 @@ On some configurations you will be asked to specify the location of Qt.</descrip
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</guid>
-      <description>Dependencies and Prerequisites Configuration and build    Tool Minimum version     git 2.7.4   gcc 7   python 3    Update apt installer
+      <description>Dependencies and Prerequisites Configuration and build    Tool Minimum version     git 2.7.4   gcc 10   python 3    Update apt installer
 sudo apt update Install GCC and related tools
-sudo apt install build-essentialsudo apt install curl zip unzip tar Install Qt
-sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-dev Clone and update sub modules git clone git://github.</description>
+sudo apt install build-essentialsudo apt install curl zip unzip tar As gcc 10 is required, it can be useful to set the default compiler. Set default compiler</description>
     </item>
     
     <item>
@@ -544,7 +576,7 @@ Command List Case Control Commands  openProject closeProject setStartDir loadCas
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/wells-and-completions/createnewwellpaths/</guid>
-      <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an ordinary imported well path.
+      <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an imported well path.
 Building a multilateral well path
 Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created Click in the 3D view on locations where the well path should pass (well path targets) When finished placing targets, click on &amp;ldquo;Stop Picking Targets&amp;rdquo; in the property editor  Well targets property editor fields:</description>
     </item>
@@ -782,6 +814,17 @@ A Summary Plot Template can subsequently be used for summary plotting of various
     </item>
     
     <item>
+      <title>Summary Tables</title>
+      <link>https://resinsight.org/plot-window/summarytables/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/summarytables/</guid>
+      <description>Summary Tables are a display of curve data based on Eclipse Summary Data as a color map in table format. It shows summary data of vectors for the selectable categories: Well, Group or Region.
+Summary tables are displayed with the summary vectors on each row, and time step values according to selected Date Resampling in each column - as shown with resampling Year in the screenshot above.
+The table can be formatted by use of the Property Editor, shown below.</description>
+    </item>
+    
+    <item>
       <title>Multi Plots</title>
       <link>https://resinsight.org/plot-window/multiplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -954,8 +997,8 @@ Note: The Octave interface does not support Geomechanical cases and flow diagnos
       
       <guid>https://resinsight.org/3d-main-window/resultinspection/</guid>
       <description>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. The selected cells will be highlighted, text information displayed in the Result Info docking window, and the time-history values plotted in the Result Plot, if available.
-Visibility of the docking widows can be controlled from the Windows menu.
-Result Info Clicking cells will display slightly different information text based on the case type as described in the following tables.</description>
+The values along the different K-layers is available in the Depth Plot
+Visibility of the docking widows can be controlled from the Windows menu.</description>
     </item>
     
     <item>
@@ -1018,6 +1061,17 @@ File Format The format is comma-separated values with one measurement per line. 
     </item>
     
     <item>
+      <title>Decline Curve Analysis</title>
+      <link>https://resinsight.org/plot-window/declinecurveanalysis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/declinecurveanalysis/</guid>
+      <description>Create Decline Curves Decline curves can be created from the right-click menu for a curve in the Plot Project Tree.
+Three decline curves are created, and the values for the decline curves can be inspected visually in the plot and values can be displayed using Show Plot Data from the menu inside the plot window.
+Origins J.J. Arps [1] concluded that the decline in oil production rate ($q_i$) over time can be described by these equations:</description>
+    </item>
+    
+    <item>
       <title>Intersections</title>
       <link>https://resinsight.org/3d-main-window/intersections/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1025,6 +1079,17 @@ File Format The format is comma-separated values with one measurement per line. 
       <guid>https://resinsight.org/3d-main-window/intersections/</guid>
       <description>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. There are two main types of intersections:
   Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
+    </item>
+    
+    <item>
+      <title>Regression Analysis</title>
+      <link>https://resinsight.org/plot-window/regressionanalysis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/regressionanalysis/</guid>
+      <description>Create Regression Analysis Regression analysis curves can be created from the right-click menu for a curve in the Plot Project Tree.
+Regression Types Linear Regression The linear regression (i.e. straight line fit) is calculated by choosing the line that minimizes the sum of the squared differences between the observed dependent variable values and the values predicted by the linear equation. The straight line equation can be written as:
+$$ y = a + bx $$</description>
     </item>
     
     <item>
@@ -1036,6 +1101,18 @@ File Format The format is comma-separated values with one measurement per line. 
       <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots to visualize Formations, Well Measurements, Well Path Attributes as well as a set of well path derived curves in different tracks.
 In the figure above, the first track contains Formations and an indication of sea level.
    Sea Level Formations          The second track contains a visualisation of the well, with well attributes of Casing Design as well Completions</description>
+    </item>
+    
+    <item>
+      <title>Seismic Sections</title>
+      <link>https://resinsight.org/3d-main-window/seismicsections/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/seismicsections/</guid>
+      <description>Creating a Seismic Section Import of data is described in Seismic Data
+Seismic Sections are cross sections that cut a grid model in various ways to display seismic data. A Seismic Section is created by right-clicking the Seismic Section item in Project Tree
+The following types of Seismic Sections are available:
+ Inline Section: A seismic line within a 3D survey parallel to the direction in which the data were acquired.</description>
     </item>
     
     <item>
@@ -1171,6 +1248,16 @@ Transmissibility Normalized by Area The transmissibility for cells and Non-Neigh
     </item>
     
     <item>
+      <title>Fault Distance</title>
+      <link>https://resinsight.org/calculated-data/faultdistance/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/faultdistance/</guid>
+      <description>Fault Distance When planning new well paths, it can be usedful to see the distance from the current cell to the closest fault. This result is available in Static-&amp;gt;FAULTDIST
+Calculation The distance is calculated based on the distance from each cell face center to the closest fault face center. One value is calculated per each cell. The calculation is started when the FAULTDIST result is selected.</description>
+    </item>
+    
+    <item>
       <title>PLT Plot</title>
       <link>https://resinsight.org/plot-window/pltplot/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1214,17 +1301,6 @@ $Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
     </item>
     
     <item>
-      <title>Flow Diagnostics Plots</title>
-      <link>https://resinsight.org/plot-window/flowdiagnosticsplots/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/plot-window/flowdiagnosticsplots/</guid>
-      <description>Flow Diagnostics Plots can be used to view well allocation, well inflow rates, cumulative saturation along time of flight and flow characteristics.
-They are managed from the folder Flow Diagnostics Plots located in Plot Project Tree in the Plot Main Window.
-This folder contains a default Flow Characteristics Plot and Well Allocation Plot. In addition, two folders with stored well allocation and flow characteristics plots will show up if there are any of those in the model.</description>
-    </item>
-    
-    <item>
       <title>Grid Statistics Dialog</title>
       <link>https://resinsight.org/3d-main-window/gridstatisticsdialog/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1233,6 +1309,26 @@ This folder contains a default Flow Characteristics Plot and Well Allocation Plo
       <description>ResInsight 3D Views has an info box in the upper right corner displaying statistics for the current view. A more detailed version of this information may also be displayed in a separate dialog window. Right click on the 3D view background and select Grid Statistics to bring up the dialog.
 Grid Statistics Dialog Fields The dialog consist of three information parts.
  Info text Histogram Cumulative Histogram  Info Text The Info Text field shows general info about the case, the selected results, and some statistics.</description>
+    </item>
+    
+    <item>
+      <title>Producer/Injector Connectivity Tables</title>
+      <link>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</guid>
+      <description>Producer/Injector Connectivity Tables is a display of Flow Diagnostics Data as a color map in table format. The table either shows flow rate data for a single time step, or accumulated flow volume data over a range of time steps.
+The table lists one producer per row and one injector per column. The cell data is the flow rate data or accumulated flow volume data based on the selected Time Step Type.</description>
+    </item>
+    
+    <item>
+      <title>Well Allocation Over Time Plot</title>
+      <link>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/</guid>
+      <description>Well Allocation Over Time Plot is a plot displaying the flow data of Well Allocation Plots over a range of time steps. The plot provides the union of wells existing across all time steps for the selected case.
+The plot utilize the Flow Diagnostics to provide an overview of which well or phase contributes most to the flow in a selected well. One can e.g. see which injectors are contributing to production of a producing well, and vice versa, over the selected time step range.</description>
     </item>
     
     <item>

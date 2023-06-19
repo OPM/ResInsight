@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Flow Diagnostics Plots on ResInsight</title>
+    <link>https://resinsight.org/plot-window/flow-diagnostics-plots/</link>
+    <description>Recent content in Flow Diagnostics Plots on ResInsight</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="https://resinsight.org/plot-window/flow-diagnostics-plots/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Producer/Injector Connectivity Tables</title>
+      <link>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</guid>
+      <description>Producer/Injector Connectivity Tables is a display of Flow Diagnostics Data as a color map in table format. The table either shows flow rate data for a single time step, or accumulated flow volume data over a range of time steps.
+The table lists one producer per row and one injector per column. The cell data is the flow rate data or accumulated flow volume data based on the selected Time Step Type.</description>
+    </item>
+    
+    <item>
+      <title>Well Allocation Over Time Plot</title>
+      <link>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/flow-diagnostics-plots/wellallocationovertimeplot/</guid>
+      <description>Well Allocation Over Time Plot is a plot displaying the flow data of Well Allocation Plots over a range of time steps. The plot provides the union of wells existing across all time steps for the selected case.
+The plot utilize the Flow Diagnostics to provide an overview of which well or phase contributes most to the flow in a selected well. One can e.g. see which injectors are contributing to production of a producing well, and vice versa, over the selected time step range.</description>
+    </item>
+    
+  </channel>
+</rss>

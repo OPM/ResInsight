@@ -54,6 +54,16 @@ This dialog is used for import of different file types like *.</description>
     </item>
     
     <item>
+      <title>Seismic Data</title>
+      <link>https://resinsight.org/import/seismicdata/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/seismicdata/</guid>
+      <description>Importing Seismic Data ResInsight supports the following seismic file formats:
+ SEGY: file format developed by the Society of Exploration Geophysicists for storing geophysical data VDS: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenVDS ZGY: file format for fast random access to multi-dimensional volumetric data as supported by OSDU OpenZGY  A seismic file is imported by right-clicking the Seismic item in Project Tree or by using menu item File-&amp;gt;Import-&amp;gt;Import Seismic.</description>
+    </item>
+    
+    <item>
       <title>Log ASCII Standard File</title>
       <link>https://resinsight.org/import/lasfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

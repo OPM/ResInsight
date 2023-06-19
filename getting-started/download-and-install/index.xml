@@ -55,10 +55,9 @@ On some configurations you will be asked to specify the location of Qt.</descrip
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</guid>
-      <description>Dependencies and Prerequisites Configuration and build    Tool Minimum version     git 2.7.4   gcc 7   python 3    Update apt installer
+      <description>Dependencies and Prerequisites Configuration and build    Tool Minimum version     git 2.7.4   gcc 10   python 3    Update apt installer
 sudo apt update Install GCC and related tools
-sudo apt install build-essentialsudo apt install curl zip unzip tar Install Qt
-sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-dev Clone and update sub modules git clone git://github.</description>
+sudo apt install build-essentialsudo apt install curl zip unzip tar As gcc 10 is required, it can be useful to set the default compiler. Set default compiler</description>
     </item>
     
   </channel>

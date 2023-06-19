@@ -38,7 +38,7 @@ Ascii Well Paths The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt;
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/wells-and-completions/createnewwellpaths/</guid>
-      <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an ordinary imported well path.
+      <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an imported well path.
 Building a multilateral well path
 Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created Click in the 3D view on locations where the well path should pass (well path targets) When finished placing targets, click on &amp;ldquo;Stop Picking Targets&amp;rdquo; in the property editor  Well targets property editor fields:</description>
     </item>

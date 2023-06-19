@@ -122,8 +122,8 @@ Visualization The tensor arrows visualize the principal vectors in three directi
       
       <guid>https://resinsight.org/3d-main-window/resultinspection/</guid>
       <description>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. The selected cells will be highlighted, text information displayed in the Result Info docking window, and the time-history values plotted in the Result Plot, if available.
-Visibility of the docking widows can be controlled from the Windows menu.
-Result Info Clicking cells will display slightly different information text based on the case type as described in the following tables.</description>
+The values along the different K-layers is available in the Depth Plot
+Visibility of the docking widows can be controlled from the Windows menu.</description>
     </item>
     
     <item>
@@ -146,6 +146,18 @@ Visibility of the docking widows can be controlled from the Windows menu.
       <guid>https://resinsight.org/3d-main-window/intersections/</guid>
       <description>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. There are two main types of intersections:
   Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
+    </item>
+    
+    <item>
+      <title>Seismic Sections</title>
+      <link>https://resinsight.org/3d-main-window/seismicsections/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/seismicsections/</guid>
+      <description>Creating a Seismic Section Import of data is described in Seismic Data
+Seismic Sections are cross sections that cut a grid model in various ways to display seismic data. A Seismic Section is created by right-clicking the Seismic Section item in Project Tree
+The following types of Seismic Sections are available:
+ Inline Section: A seismic line within a 3D survey parallel to the direction in which the data were acquired.</description>
     </item>
     
     <item>

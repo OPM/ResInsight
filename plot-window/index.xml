@@ -85,6 +85,17 @@ A Summary Plot Template can subsequently be used for summary plotting of various
     </item>
     
     <item>
+      <title>Summary Tables</title>
+      <link>https://resinsight.org/plot-window/summarytables/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/summarytables/</guid>
+      <description>Summary Tables are a display of curve data based on Eclipse Summary Data as a color map in table format. It shows summary data of vectors for the selectable categories: Well, Group or Region.
+Summary tables are displayed with the summary vectors on each row, and time step values according to selected Date Resampling in each column - as shown with resampling Year in the screenshot above.
+The table can be formatted by use of the Property Editor, shown below.</description>
+    </item>
+    
+    <item>
       <title>Multi Plots</title>
       <link>https://resinsight.org/plot-window/multiplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -164,6 +175,28 @@ A new plot with a single Track and Curve is created matching active case and sel
     </item>
     
     <item>
+      <title>Decline Curve Analysis</title>
+      <link>https://resinsight.org/plot-window/declinecurveanalysis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/declinecurveanalysis/</guid>
+      <description>Create Decline Curves Decline curves can be created from the right-click menu for a curve in the Plot Project Tree.
+Three decline curves are created, and the values for the decline curves can be inspected visually in the plot and values can be displayed using Show Plot Data from the menu inside the plot window.
+Origins J.J. Arps [1] concluded that the decline in oil production rate ($q_i$) over time can be described by these equations:</description>
+    </item>
+    
+    <item>
+      <title>Regression Analysis</title>
+      <link>https://resinsight.org/plot-window/regressionanalysis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/regressionanalysis/</guid>
+      <description>Create Regression Analysis Regression analysis curves can be created from the right-click menu for a curve in the Plot Project Tree.
+Regression Types Linear Regression The linear regression (i.e. straight line fit) is calculated by choosing the line that minimizes the sum of the squared differences between the observed dependent variable values and the values predicted by the linear equation. The straight line equation can be written as:
+$$ y = a + bx $$</description>
+    </item>
+    
+    <item>
       <title>Well Bore Stability Plots</title>
       <link>https://resinsight.org/plot-window/wellborestabilityplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -224,17 +257,6 @@ Create New PLT Plot There are several ways to create new PLT Plots</description>
       <description>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&amp;rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots.
 Creating VFP Plots VFP Plots are created by right-clicking the VFP Plots item in Plot Project Tree.
 Production VFP Plot The production VFP Plot shows the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing through the system.</description>
-    </item>
-    
-    <item>
-      <title>Flow Diagnostics Plots</title>
-      <link>https://resinsight.org/plot-window/flowdiagnosticsplots/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/plot-window/flowdiagnosticsplots/</guid>
-      <description>Flow Diagnostics Plots can be used to view well allocation, well inflow rates, cumulative saturation along time of flight and flow characteristics.
-They are managed from the folder Flow Diagnostics Plots located in Plot Project Tree in the Plot Main Window.
-This folder contains a default Flow Characteristics Plot and Well Allocation Plot. In addition, two folders with stored well allocation and flow characteristics plots will show up if there are any of those in the model.</description>
     </item>
     
     <item>

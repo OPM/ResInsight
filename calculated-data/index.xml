@@ -59,6 +59,16 @@ Transmissibility Normalized by Area The transmissibility for cells and Non-Neigh
     </item>
     
     <item>
+      <title>Fault Distance</title>
+      <link>https://resinsight.org/calculated-data/faultdistance/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/faultdistance/</guid>
+      <description>Fault Distance When planning new well paths, it can be usedful to see the distance from the current cell to the closest fault. This result is available in Static-&amp;gt;FAULTDIST
+Calculation The distance is calculated based on the distance from each cell face center to the closest fault face center. One value is calculated per each cell. The calculation is started when the FAULTDIST result is selected.</description>
+    </item>
+    
+    <item>
       <title>Derived Results - Geomechanical</title>
       <link>https://resinsight.org/calculated-data/derivedresultsgeomech/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

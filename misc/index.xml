@@ -51,6 +51,17 @@ Memory Indicator The tools are available from the memory indicator in the bottom
     </item>
     
     <item>
+      <title>Advanced Text Input</title>
+      <link>https://resinsight.org/misc/advancedtextinput/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/misc/advancedtextinput/</guid>
+      <description>When the user is requested to specify a list of integer values, it can be useful to input the list using a text string. This can be a selection of K slices, a selection of realisations or a selection of integer values in a integer cell result.
+Supported text format 5,10-13,20-26:2This text will produce an integer array with values
+[5, 10, 11, 12, 13, 20, 22, 24, 26]Using the syntax &amp;ldquo;20-26:2&amp;rdquo; will produce integer values in the range at a step of 2, resulting in [20, 22, 24, 26]</description>
+    </item>
+    
+    <item>
       <title>Keyboard Shortcuts</title>
       <link>https://resinsight.org/misc/keyboardshortcuts/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
