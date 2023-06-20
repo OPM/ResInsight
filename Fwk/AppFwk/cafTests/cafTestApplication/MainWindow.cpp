@@ -49,6 +49,7 @@
 #include <QMenuBar>
 #include <QTreeView>
 #include <QUndoView>
+#include <QWebEngineSettings>
 #include <QWebEngineView>
 
 class DemoPdmObjectGroup : public caf::PdmDocument
@@ -1184,11 +1185,18 @@ MainWindow::MainWindow()
     m_smallPlotLabel->setPixmap( pix.scaled( 1000, 500 ) );
 
     m_webView = new QWebEngineView( this );
-    m_webView->load( QUrl( "https://www.google.com" ) );
+    //m_webView->load( QUrl( "https://www.google.com" ) );
+    //m_webView->load( QUrl( "http://localhost:5173/" ) );
     /*m_webView->load( QUrl::fromLocalFile(
         "D:/Git/ResInsight/build/Fwk/AppFwk/cafTests/cafTestApplication/RelWithDebInfo/HTML-dist/index.html" ) );*/
+    m_webView->load( QUrl::fromLocalFile(
+        "D:/Git/ResInsight/build/Fwk/AppFwk/cafTests/cafTestApplication/RelWithDebInfo/HTML-dist-simple/index.html" ) );
     /*m_webView->load( QUrl::fromLocalFile(
         "D:/Git/ResInsight/build/Fwk/AppFwk/cafTests/cafTestApplication/RelWithDebInfo/HTML-dist/testIndex.html" ) );*/
+
+    /*QWebEngineSettings* settings = m_webView->settings();
+    settings->setAttribute( QWebEngineSettings::LocalContentCanAccessFileUrls, true );
+    settings->setAttribute( QWebEngineSettings::LocalContentCanAccessRemoteUrls, true );*/
 
     createActions();
     createDockPanels();
