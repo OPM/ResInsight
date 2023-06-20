@@ -77,4 +77,6 @@ private:
 
     caf::PdmField<int> m_faceAWellPathPartIndex;
     caf::PdmField<int> m_faceBWellPathPartIndex;
+
+    const double m_defaultDistanceFromIntersection = 1.0; // [m] Default value from intersection and into each part
 };

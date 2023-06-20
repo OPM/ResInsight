@@ -337,10 +337,6 @@ void RimWellAllocationPlot::updateFromWell()
                     accFlow = ( m_flowType == ACCUMULATED ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
                                                           : wfCalculator->tracerFlowPrConnection( tracerName, brIdx ) );
 
-                    // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
-                    curveDepthValues.insert( curveDepthValues.begin(), curveDepthValues[0] );
-                    accFlow.insert( accFlow.begin(), 0.0 );
-
                     if ( m_flowType == ACCUMULATED && brIdx == 0 && !accFlow.empty() ) // Add fictitious point to -1
                                                                                        // for first branch
                     {
@@ -473,6 +469,8 @@ void RimWellAllocationPlot::addStackedCurve( const QString&             tracerNa
     {
         curve->setColor( getTracerColor( tracerName ) );
     }
+
+    curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
 
     plotTrack->addCurve( curve );
 
