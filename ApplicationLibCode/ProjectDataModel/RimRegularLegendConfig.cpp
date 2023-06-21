@@ -697,7 +697,7 @@ void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateFieldVisibility()
 {
-    bool showRangeItems = m_mappingMode == MappingType::CATEGORY_INTEGER ? false : true;
+    bool showRangeItems = m_mappingMode != MappingType::CATEGORY_INTEGER;
 
     m_numLevels.uiCapability()->setUiHidden( !showRangeItems );
     m_precision.uiCapability()->setUiHidden( !showRangeItems );

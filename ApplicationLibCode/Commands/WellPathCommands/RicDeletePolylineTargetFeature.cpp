@@ -35,12 +35,7 @@ bool RicDeletePolylineTargetFeature::isCommandEnabled()
     std::vector<RimPolylineTarget*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
 
-    if ( !objects.empty() )
-    {
-        return true;
-    }
-
-    return false;
+    return !objects.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

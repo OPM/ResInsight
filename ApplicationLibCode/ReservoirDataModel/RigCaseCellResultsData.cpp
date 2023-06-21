@@ -494,9 +494,7 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex( const RigEclipseResultAdd
     if ( !m_cellScalarResults[scalarResultIndex].size() ) return true;
 
     size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
-    if ( firstTimeStepResultValueCount == m_ownerMainGrid->globalCellArray().size() ) return false;
-
-    return true;
+    return firstTimeStepResultValueCount != m_ownerMainGrid->globalCellArray().size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1107,14 +1105,9 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::hasCompleteTransmissibilityResults() const
 {
-    if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) &&
+    return hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) &&
          hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ) ) &&
-         hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) ) )
-    {
-        return true;
-    }
-
-    return false;
+         hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

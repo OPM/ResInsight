@@ -60,9 +60,7 @@ bool RicPasteEclipseViewsFeature::isCommandEnabled()
     if ( gridCaseGroup ) return false;
 
     RimEclipseCase* eclipseCase = RicPasteFeatureImpl::findEclipseCase( destinationObject );
-    if ( eclipseCase ) return true;
-
-    return false;
+    return eclipseCase != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

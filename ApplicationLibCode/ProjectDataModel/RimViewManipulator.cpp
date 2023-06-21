@@ -176,10 +176,5 @@ bool RimViewManipulator::isBoundingBoxesOverlappingOrClose( const cvf::BoundingB
     }
 
     double centerDist = ( sourceBB.center() - destBB.center() ).length();
-    if ( centerDist < largestExtent * 5 )
-    {
-        return true;
-    }
-
-    return false;
+    return centerDist < largestExtent * 5;
 }

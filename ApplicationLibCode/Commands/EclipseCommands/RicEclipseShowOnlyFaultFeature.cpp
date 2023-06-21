@@ -50,9 +50,7 @@ bool RicEclipseShowOnlyFaultFeature::isCommandEnabled()
     if ( !view ) return false;
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
-    if ( !eclView ) return false;
-
-    return true;
+    return eclView != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

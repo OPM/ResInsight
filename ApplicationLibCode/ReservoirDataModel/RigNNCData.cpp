@@ -689,12 +689,8 @@ const QString RigNNCData::getNNCDataTypeFromScalarResultIndex( const RigEclipseR
 //--------------------------------------------------------------------------------------------------
 bool RigNNCData::isNative( QString nncDataType ) const
 {
-    if ( nncDataType == RiaDefines::propertyNameCombTrans() || nncDataType == RiaDefines::propertyNameFluxGas() ||
+    return nncDataType == RiaDefines::propertyNameCombTrans() || nncDataType == RiaDefines::propertyNameFluxGas() ||
          nncDataType == RiaDefines::propertyNameFluxOil() || nncDataType == RiaDefines::propertyNameFluxWat() ||
          nncDataType == RiaDefines::propertyNameRiCombMult() || nncDataType == RiaDefines::propertyNameRiCombTrans() ||
-         nncDataType == RiaDefines::propertyNameRiCombTransByArea() )
-    {
-        return true;
-    }
-    return false;
+         nncDataType == RiaDefines::propertyNameRiCombTransByArea();
 }
