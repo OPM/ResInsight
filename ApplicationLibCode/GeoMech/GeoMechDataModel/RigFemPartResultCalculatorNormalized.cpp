@@ -121,7 +121,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int p
                 for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
                 {
                     RigElementType elmType = femPart->elementType( elmIdx );
-                    if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+                    if ( elmType != HEX8 && elmType != HEX8P ) continue;
 
                     bool porRegion = false;
                     for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )

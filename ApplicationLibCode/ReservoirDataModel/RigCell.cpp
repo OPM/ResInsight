@@ -98,15 +98,8 @@ std::array<cvf::Vec3d, 4> RigCell::faceCorners( cvf::StructGridInterface::FaceTy
 //--------------------------------------------------------------------------------------------------
 bool isNear( const cvf::Vec3d& p1, const cvf::Vec3d& p2, double tolerance )
 {
-    if ( cvf::Math::abs( p1[0] - p2[0] ) < tolerance && cvf::Math::abs( p1[1] - p2[1] ) < tolerance &&
-         cvf::Math::abs( p1[2] - p2[2] ) < tolerance )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return cvf::Math::abs( p1[0] - p2[0] ) < tolerance && cvf::Math::abs( p1[1] - p2[1] ) < tolerance &&
+         cvf::Math::abs( p1[2] - p2[2] ) < tolerance;
 }
 
 //--------------------------------------------------------------------------------------------------

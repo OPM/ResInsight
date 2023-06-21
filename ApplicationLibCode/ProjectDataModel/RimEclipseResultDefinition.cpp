@@ -1137,14 +1137,7 @@ bool RimEclipseResultDefinition::hasStaticResult() const
     const RigCaseCellResultsData* gridCellResults       = this->currentGridCellResults();
     RigEclipseResultAddress       gridScalarResultIndex = this->eclipseResultAddress();
 
-    if ( hasResult() && gridCellResults->timeStepCount( gridScalarResultIndex ) == 1 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return hasResult() && gridCellResults->timeStepCount( gridScalarResultIndex ) == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1465,13 +1458,8 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isFlowDiagOrInjectionFlooding() const
 {
-    if ( this->m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS ||
-         this->m_resultType() == RiaDefines::ResultCatType::INJECTION_FLOODING )
-    {
-        return true;
-    }
-
-    return false;
+    return this->m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS ||
+         this->m_resultType() == RiaDefines::ResultCatType::INJECTION_FLOODING;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1903,10 +1891,5 @@ bool RimEclipseResultDefinition::addPerCellFaceOptionsForVariableUiField() const
     RimEclipsePropertyFilter* propFilter = firstAncestorOrThisOfType<RimEclipsePropertyFilter>();
     RimCellEdgeColors*        cellEdge   = firstAncestorOrThisOfType<RimCellEdgeColors>();
 
-    if ( propFilter || curve || cellEdge )
-    {
-        return false;
-    }
-
-    return true;
+    return !(propFilter || curve || cellEdge);
 }

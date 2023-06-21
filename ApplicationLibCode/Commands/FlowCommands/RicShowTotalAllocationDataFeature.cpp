@@ -39,12 +39,7 @@ bool RicShowTotalAllocationDataFeature::isCommandEnabled()
 {
     std::set<RimWellAllocationPlot*> wellAllocPlots = RicShowTotalAllocationDataFeature::selectedWellAllocationPlots();
 
-    if ( wellAllocPlots.size() > 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return wellAllocPlots.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------

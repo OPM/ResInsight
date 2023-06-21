@@ -36,12 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 bool RiaColorTools::isBrightnessAboveThreshold( cvf::Color3f backgroundColor )
 {
-    if ( relativeLuminance( backgroundColor ) > 0.4 )
-    {
-        return true;
-    }
-
-    return false;
+    return relativeLuminance( backgroundColor ) > 0.4;
 }
 
 //--------------------------------------------------------------------------------------------------

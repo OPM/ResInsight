@@ -137,12 +137,5 @@ bool RicHoloLensAutoExportToSharingServerFeature::isCommandChecked()
 bool RicHoloLensAutoExportToSharingServerFeature::isSessionValid() const
 {
     RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
-    if ( session && session->isSessionValid() )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return session && session->isSessionValid();
 }

@@ -33,12 +33,7 @@ bool RicDeleteWellPathTargetFeature::isCommandEnabled()
     std::vector<RimWellPathTarget*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
 
-    if ( objects.size() > 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return objects.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------

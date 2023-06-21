@@ -57,9 +57,7 @@ bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
         if ( nameHelper->isPlotDisplayingSingleVectorName() ) plotCountWithSingleQuantity++;
     }
 
-    if ( plotCountWithSingleQuantity == 1 ) return true;
-
-    return false;
+    return plotCountWithSingleQuantity == 1;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -531,7 +531,7 @@ std::vector<double> RimGeoMechContourMapProjection::gridCellValues( RigFemResult
     for ( size_t globalCellIdx = 0; globalCellIdx < static_cast<size_t>( m_femPart->elementCount() ); ++globalCellIdx )
     {
         RigElementType elmType = m_femPart->elementType( globalCellIdx );
-        if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+        if ( elmType != HEX8 && elmType != HEX8P ) continue;
 
         if ( resAddr.resultPosType == RIG_ELEMENT )
         {

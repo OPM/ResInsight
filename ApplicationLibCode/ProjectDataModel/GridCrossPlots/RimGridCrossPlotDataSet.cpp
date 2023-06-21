@@ -1106,11 +1106,7 @@ bool RimGridCrossPlotDataSet::groupingEnabled() const
 {
     if ( m_grouping != NO_GROUPING )
     {
-        if ( m_grouping == GROUP_BY_RESULT && !m_groupingProperty->eclipseResultAddress().isValid() )
-        {
-            return false;
-        }
-        return true;
+        return !(m_grouping == GROUP_BY_RESULT && !m_groupingProperty->eclipseResultAddress().isValid());
     }
     return false;
 }

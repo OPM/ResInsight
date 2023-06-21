@@ -277,7 +277,7 @@ int RigCaseToCaseCellMapperTools::quadVxClosestToXYOfPoint( const cvf::Vec3d poi
 bool RigCaseToCaseCellMapperTools::elementCorners( const RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8] )
 {
     RigElementType elmType = femPart->elementType( elmIdx );
-    if ( !( elmType == HEX8 || elmType == HEX8P ) ) return false;
+    if ( elmType != HEX8 && elmType != HEX8P ) return false;
 
     const std::vector<cvf::Vec3f>& nodeCoords    = femPart->nodes().coordinates;
     const int*                     cornerIndices = femPart->connectivities( elmIdx );
@@ -337,7 +337,7 @@ bool RigCaseToCaseCellMapperTools::isEclFemCellsMatching( const cvf::Vec3d baseC
     {
         cvf::Vec3d diff = cell[i] - baseCell[i];
 
-        if ( !( fabs( diff.x() ) < xyTolerance && fabs( diff.y() ) < xyTolerance && fabs( diff.z() ) < zTolerance ) )
+        if ( fabs( diff.x() ) >= xyTolerance || fabs( diff.y() ) >= xyTolerance || fabs( diff.z() ) >= zTolerance )
         {
             isMatching = false;
             break;

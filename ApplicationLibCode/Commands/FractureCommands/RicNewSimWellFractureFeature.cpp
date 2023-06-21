@@ -123,10 +123,5 @@ bool RicNewSimWellFractureFeature::isCommandEnabled()
     if ( !objHandle ) return false;
 
     auto simWell = objHandle->firstAncestorOrThisOfType<RimSimWellInView>();
-    if ( simWell )
-    {
-        return true;
-    }
-
-    return false;
+    return simWell != nullptr;
 }

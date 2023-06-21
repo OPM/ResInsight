@@ -603,12 +603,7 @@ std::vector<double>
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanFractureTemplate::hasConductivity() const
 {
-    if ( m_stimPlanFractureDefinitionData.notNull() && !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty() )
-    {
-        return true;
-    }
-
-    return false;
+    return m_stimPlanFractureDefinitionData.notNull() && !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -56,12 +56,7 @@ void caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType>::set
 //--------------------------------------------------------------------------------------------------
 bool isExcplicitHandled( char secondChar )
 {
-    if ( secondChar == 'W' || secondChar == 'O' || secondChar == 'G' || secondChar == 'V' )
-    {
-        return true;
-    }
-
-    return false;
+    return secondChar == 'W' || secondChar == 'O' || secondChar == 'G' || secondChar == 'V';
 }
 
 //--------------------------------------------------------------------------------------------------

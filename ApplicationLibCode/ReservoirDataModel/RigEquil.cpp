@@ -163,11 +163,11 @@ RigEquil RigEquil::parseString( const QString& keywordData )
     }
     if ( items.size() > 6 )
     {
-        liveOilInitConstantRs = items.at( 6 ).toInt() > 0 ? true : false;
+        liveOilInitConstantRs = items.at( 6 ).toInt() > 0;
     }
     if ( items.size() > 7 )
     {
-        wetGasInitConstantRv = items.at( 7 ).toInt() > 0 ? true : false;
+        wetGasInitConstantRv = items.at( 7 ).toInt() > 0;
     }
     if ( items.size() > 8 )
     {

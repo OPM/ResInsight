@@ -1337,12 +1337,7 @@ bool RimWellLogExtractionCurve::branchDetection() const
 bool RimWellLogExtractionCurve::isEclipseCurve() const
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    if ( eclipseCase )
-    {
-        return true;
-    }
-
-    return false;
+    return eclipseCase != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

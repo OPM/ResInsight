@@ -44,11 +44,7 @@ bool RicHideIntersectionBoxFeature::isCommandEnabled()
     if ( !generalSelectionItem ) return false;
 
     RimBoxIntersection* intersectionBox = dynamic_cast<RimBoxIntersection*>( generalSelectionItem->m_object );
-    if ( intersectionBox )
-    {
-        return true;
-    }
-    return false;
+    return intersectionBox != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

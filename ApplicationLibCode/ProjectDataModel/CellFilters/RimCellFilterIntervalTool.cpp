@@ -59,9 +59,7 @@ bool RimCellFilterInterval::isIncluded( size_t val ) const
 
     size_t tmp = val - m_minIncludeVal;
 
-    if ( m_valid && ( tmp % m_step == 0 ) ) return true;
-
-    return false;
+    return m_valid && ( tmp % m_step == 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
