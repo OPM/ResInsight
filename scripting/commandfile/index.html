@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.68.0" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Command File :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1687178621" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1687178621" rel="stylesheet">
-    <link href="/css/hybrid.css?1687178621" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1687178621" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1687178621" rel="stylesheet">
-    <link href="/css/auto-complete.css?1687178621" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1687178621" rel="stylesheet">
-    <link href="/css/theme.css?1687178621" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1687178621" rel="stylesheet">
+    <link href="/css/nucleus.css?1687337813" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1687337813" rel="stylesheet">
+    <link href="/css/hybrid.css?1687337813" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1687337813" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1687337813" rel="stylesheet">
+    <link href="/css/auto-complete.css?1687337813" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1687337813" rel="stylesheet">
+    <link href="/css/theme.css?1687337813" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1687337813" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1687178621"></script>
+    <script src="/js/jquery-3.3.1.min.js?1687337813"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2713,19 +2713,18 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
+      
     </section>
   </div>
 </nav>
@@ -2862,7 +2861,7 @@ if (!doNotTrack) {
 <p>The command file interface allows a sequence of specified commands to be run in order from the command line.
 The interface is used by supplying the command file as a <a href="/scripting/commandlineinterface/">command line parameter</a>.
 Once the command file is finished executing, ResInsight will exit.</p>
-<p>It is possible to use these commands directly from a Python script. For further details, please see 
+<p>It is possible to use these commands directly from a Python script. For further details, please see
 the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
 <h2 id="command-list">Command List</h2>
 <h4 id="case-control-commands">Case Control Commands</h4>
@@ -2907,7 +2906,7 @@ the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
 <p>The line starts with the command name, followed by parenthesis. Within the parenthesis, parameters can be supplied. Each parameter must be named, followed by an equals sign and its value.</p>
 <p>As an example; <code>openProject(path=&quot;/path/to/ResInsightProject.rsp&quot;)</code> will execute the command <code>openProject</code> with the parameter <code>path</code>. <code>path</code> is a string, see <a href="#types">Types</a> for a list of all types a parameter can have.</p>
 <p>Not all parameters are required, in which case they can be omitted and their value will be defaulted. The order of parameters does not matter.</p>
-<pre><code>Command file examples are displayed in sections like this.
+<pre tabindex="0"><code>Command file examples are displayed in sections like this.
 </code></pre><h3 id="types">Types</h3>
 <p>There are different types of parameters that can be supplied.</p>
 <table>
@@ -2973,10 +2972,10 @@ the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
 </tr>
 </tbody>
 </table>
-<pre><code>openProject(path=&quot;/home/user/ResInsightProject.rsp&quot;)
+<pre tabindex="0"><code>openProject(path=&#34;/home/user/ResInsightProject.rsp&#34;)
 </code></pre><h3 id="closeproject">closeProject</h3>
 <p>Closes the current open project.</p>
-<pre><code>closeProject()
+<pre tabindex="0"><code>closeProject()
 </code></pre><h3 id="setstartdir">setStartDir</h3>
 <p>Set startup directory.</p>
 <table>
@@ -2997,7 +2996,7 @@ the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
 </tr>
 </tbody>
 </table>
-<pre><code>setStartDir(path=&quot;/home/user&quot;)
+<pre tabindex="0"><code>setStartDir(path=&#34;/home/user&#34;)
 </code></pre><h3 id="loadcase">loadCase</h3>
 <p>Import Eclipse case from file.</p>
 <table>
@@ -3018,7 +3017,7 @@ the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
 </tr>
 </tbody>
 </table>
-<pre><code>loadCase(path=&quot;/home/user/reservoir.EGRID&quot;)
+<pre tabindex="0"><code>loadCase(path=&#34;/home/user/reservoir.EGRID&#34;)
 </code></pre><h3 id="creategridcasegroup">createGridCaseGroup</h3>
 <p>Create a Grid Case Group from a list of files.</p>
 <table>
@@ -3059,7 +3058,7 @@ the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
 </tr>
 </tbody>
 </table>
-<pre><code>createGridCaseGroup(path=[&quot;/home/user/reservoir.EGRID&quot;, &quot;/home/user/other_reservoir.EGRID&quot;])
+<pre tabindex="0"><code>createGridCaseGroup(path=[&#34;/home/user/reservoir.EGRID&#34;, &#34;/home/user/other_reservoir.EGRID&#34;])
 createStatisticsCase(caseGroupId=0)
 </code></pre><h3 id="replacecase">replaceCase</h3>
 <p>Replaces a case in the current project with the specified new case.</p>
@@ -3088,7 +3087,7 @@ createStatisticsCase(caseGroupId=0)
 </tr>
 </tbody>
 </table>
-<pre><code>replaceCase(newGridFile=&quot;/home/user/otherReservoir.EGRID&quot;, caseId=4)
+<pre tabindex="0"><code>replaceCase(newGridFile=&#34;/home/user/otherReservoir.EGRID&#34;, caseId=4)
 </code></pre><h3 id="replacesourcecases">replaceSourceCases</h3>
 <p>Replaces multiple source cases in the current project.</p>
 <p><code>openProject</code> must be called before this command to set which project file is to be used when replacing cases. This command re-opens tje project with the cases replaced.</p>
@@ -3116,7 +3115,7 @@ createStatisticsCase(caseGroupId=0)
 </tr>
 </tbody>
 </table>
-<pre><code>replaceSourceCases(gridListFile=&quot;C:/resinsight/replacement_files.txt&quot;)
+<pre tabindex="0"><code>replaceSourceCases(gridListFile=&#34;C:/resinsight/replacement_files.txt&#34;)
 </code></pre><h2 id="export-commands-1">Export Commands</h2>
 <h3 id="exportmulticasesnapshots">exportMultiCaseSnapshots</h3>
 <p>Replaces the first case in the current project with each case in the given file and saves snapshots of all views.</p>
@@ -3140,7 +3139,7 @@ createStatisticsCase(caseGroupId=0)
 </tr>
 </tbody>
 </table>
-<pre><code>exportMultiCaseSnapshots(gridListFile=&quot;C:\\resinsight\\replacement_files.txt&quot;)
+<pre tabindex="0"><code>exportMultiCaseSnapshots(gridListFile=&#34;C:\\resinsight\\replacement_files.txt&#34;)
 </code></pre><h3 id="exportsnapshots">exportSnapshots</h3>
 <p>Export snapshots of specified type.</p>
 <p>Folder to output snapshots should be set using <code>setExportFolder</code> with <code>SNAPSHOTS</code> type.</p>
@@ -3174,7 +3173,7 @@ createStatisticsCase(caseGroupId=0)
 </tr>
 </tbody>
 </table>
-<pre><code>exportSnapshots(type=PLOTS)
+<pre tabindex="0"><code>exportSnapshots(type=PLOTS)
 </code></pre><h3 id="exportproperty">exportProperty</h3>
 <p>Exports property values for all cells in the grid to file in Eclipse format.</p>
 <table>
@@ -3225,7 +3224,7 @@ createStatisticsCase(caseGroupId=0)
 </tr>
 </tbody>
 </table>
-<pre><code>exportProperty(caseId=1, timeStep=4, property=&quot;SOIL&quot;)
+<pre tabindex="0"><code>exportProperty(caseId=1, timeStep=4, property=&#34;SOIL&#34;)
 </code></pre><h3 id="exportpropertyinviews">exportPropertyInViews</h3>
 <p>Exports property values for all cells in the grid to file in Eclipse format. Use specified cell result in view to define the export property. One file per view will be exported.</p>
 <table>
@@ -3258,9 +3257,9 @@ createStatisticsCase(caseGroupId=0)
 </tr>
 </tbody>
 </table>
-<pre><code>exportPropertyInViews(caseId=1)
+<pre tabindex="0"><code>exportPropertyInViews(caseId=1)
 
-exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot;])
+exportPropertyInViews(caseId=1, viewNames=[&#34;view A&#34;, &#34;view 4&#34;])
 </code></pre><h3 id="exportwellpathcompletions">exportWellPathCompletions</h3>
 <p>Export well path completions.</p>
 <table>
@@ -3329,7 +3328,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>exportWellPathCompletions(caseId=3, timeStep=5, includeFishbones=false)
+<pre tabindex="0"><code>exportWellPathCompletions(caseId=3, timeStep=5, includeFishbones=false)
 </code></pre><h3 id="exportsimwellfracturecompletions">exportSimWellFractureCompletions</h3>
 <p>Export fracture completions for simulation wells.</p>
 <table>
@@ -3380,7 +3379,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>exportSimWellFractureCompletions(caseId=3, viewName=&quot;View 2&quot;, timeStep=5)
+<pre tabindex="0"><code>exportSimWellFractureCompletions(caseId=3, viewName=&#34;View 2&#34;, timeStep=5)
 </code></pre><h3 id="exportmsw">exportMsw</h3>
 <p>Export multi-segment wells.</p>
 <table>
@@ -3407,7 +3406,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>exportMsw(caseId=1, wellPath=&quot;MainWell&quot;)
+<pre tabindex="0"><code>exportMsw(caseId=1, wellPath=&#34;MainWell&#34;)
 </code></pre><h3 id="exportwellpaths">exportWellPaths</h3>
 <p>Export well paths.</p>
 <table>
@@ -3434,7 +3433,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>exportWellPaths(wellPathNames=[&quot;B-1H&quot;, &quot;B-2H&quot;], mdStepSize=1.5)
+<pre tabindex="0"><code>exportWellPaths(wellPathNames=[&#34;B-1H&#34;, &#34;B-2H&#34;], mdStepSize=1.5)
 </code></pre><h3 id="exportvisiblecells">exportVisibleCells</h3>
 <p>Export visible cells</p>
 <table>
@@ -3485,7 +3484,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>exporVisibleCells(caseId=0, viewName=&quot;View 1&quot;, exportKeyword=MULTNUM)
+<pre tabindex="0"><code>exporVisibleCells(caseId=0, viewName=&#34;View 1&#34;, exportKeyword=MULTNUM)
 </code></pre><h3 id="exportflowcharacteristics">exportFlowCharacteristics</h3>
 <p>Export Flow Characteristics data to text file in CSV format</p>
 <table>
@@ -3542,7 +3541,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>exportFlowCharacteristics(caseId=0, timeSteps=[1, 5, 6], injectors=[&quot;INJA&quot;, &quot;INJB&quot;], producers=[&quot;PROD_F&quot;], fileName=&quot;myData.csv&quot;)
+<pre tabindex="0"><code>exportFlowCharacteristics(caseId=0, timeSteps=[1, 5, 6], injectors=[&#34;INJA&#34;, &#34;INJB&#34;], producers=[&#34;PROD_F&#34;], fileName=&#34;myData.csv&#34;)
 </code></pre><h3 id="setexportfolder">setExportFolder</h3>
 <p>Set the folder to export different types of data to. Set this before attempting to export data to ensure it is exported to desired location.</p>
 <table>
@@ -3575,7 +3574,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>setExportFolder(type=SNAPSHOTS, path=&quot;/home/user/snapshots&quot;)
+<pre tabindex="0"><code>setExportFolder(type=SNAPSHOTS, path=&#34;/home/user/snapshots&#34;)
 </code></pre><h2 id="other">Other</h2>
 <h3 id="runoctavescript">runOctaveScript</h3>
 <p>Execute an Octave script.</p>
@@ -3603,7 +3602,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>runOctaveScript(path=&quot;/home/user/octave/something.m&quot;, caseIds=[1,2,6])
+<pre tabindex="0"><code>runOctaveScript(path=&#34;/home/user/octave/something.m&#34;, caseIds=[1,2,6])
 </code></pre><h3 id="setmainwindowsize">setMainWindowSize</h3>
 <p>Resize the main window to the specified size.</p>
 <table>
@@ -3630,7 +3629,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>setMainWindowSize(width=1920, height=1200)
+<pre tabindex="0"><code>setMainWindowSize(width=1920, height=1200)
 </code></pre><h3 id="computecasegroupstatistics">computeCaseGroupStatistics</h3>
 <p>Compute statistics for statistics cases.</p>
 <table>
@@ -3651,7 +3650,7 @@ exportPropertyInViews(caseId=1, viewNames=[&quot;view A&quot;, &quot;view 4&quot
 </tr>
 </tbody>
 </table>
-<pre><code>computeCaseGroupStatistics(caseIds=[5])
+<pre tabindex="0"><code>computeCaseGroupStatistics(caseIds=[5])
 
 computeCaseGroupStatistics(caseIds=[2,4,8])
 </code></pre><h3 id="settimestep">setTimeStep</h3>
@@ -3680,7 +3679,7 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
 </tr>
 </tbody>
 </table>
-<pre><code>setTimeStep(caseId=1, timeStep=8)
+<pre tabindex="0"><code>setTimeStep(caseId=1, timeStep=8)
 </code></pre><h3 id="scalefracturetemplate">scaleFractureTemplate</h3>
 <p>Scale fracture template parameters.</p>
 <table>
@@ -3725,7 +3724,7 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
 </tr>
 </tbody>
 </table>
-<pre><code>scaleFractureTemplate(id=1, width=2, height=1.5)
+<pre tabindex="0"><code>scaleFractureTemplate(id=1, width=2, height=1.5)
 </code></pre><h3 id="setfracturecontainment">setFractureContainment</h3>
 <p>Set fracture template containment parameters.</p>
 <table>
@@ -3758,7 +3757,7 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
 </tr>
 </tbody>
 </table>
-<pre><code>setFractureContainment(id=1, topLayer=2, baseLayer=7)
+<pre tabindex="0"><code>setFractureContainment(id=1, topLayer=2, baseLayer=7)
 </code></pre><h3 id="createmultiplefractures">createMultipleFractures</h3>
 <p>Create multiple fractures on one or more well paths.</p>
 <table>
@@ -3827,7 +3826,7 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
 </tr>
 </tbody>
 </table>
-<pre><code>createMultipleFractures(caseId=0, templateId=1, wellPathNames=[&quot;B-1H&quot;, &quot;B-2H&quot;], action=REPLACE_FRACTURES)
+<pre tabindex="0"><code>createMultipleFractures(caseId=0, templateId=1, wellPathNames=[&#34;B-1H&#34;, &#34;B-2H&#34;], action=REPLACE_FRACTURES)
 </code></pre><h3 id="createlgrforcompletions">createLgrForCompletions</h3>
 <p>Create temporary LGRs for completions on the selected well paths. The splitType parameter controls which main grid cells to split into LGRs. The LGR_PER_CELL option splits only those main grid cells that intersect with a completion. The LGR_PER_COMPLETION option splits all main grid cells that are located within an IJK bounding box covering all intersected cells for each completion. The LGR_PER_WELL works like the previous option, but the bounding box covers intersected cells for all completions on a well path.</p>
 <table>
@@ -3884,7 +3883,7 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
 </tr>
 </tbody>
 </table>
-<pre><code>createLgrForCompletions(caseId=0, timeStep=0, wellPathNames=[&quot;B-1H&quot;, &quot;B-2H&quot;], refinementI=2, refinementJ=3, refinementK=4, splitType=LGR_PER_WELL)
+<pre tabindex="0"><code>createLgrForCompletions(caseId=0, timeStep=0, wellPathNames=[&#34;B-1H&#34;, &#34;B-2H&#34;], refinementI=2, refinementJ=3, refinementK=4, splitType=LGR_PER_WELL)
 </code></pre><h3 id="createsaturationpressureplots">createSaturationPressurePlots</h3>
 <p>Create saturation pressure plots for the specified cases.</p>
 <table>
@@ -3905,7 +3904,7 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
 </tr>
 </tbody>
 </table>
-<pre><code>createSaturationPressurePlots(caseIds=[0])
+<pre tabindex="0"><code>createSaturationPressurePlots(caseIds=[0])
 </code></pre>
 
 <footer class="footline">
@@ -6039,19 +6038,19 @@ computeCaseGroupStatistics(caseIds=[2,4,8])
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1687178621"></script>
-    <script src="/js/jquery.sticky.js?1687178621"></script>
-    <script src="/js/featherlight.min.js?1687178621"></script>
-    <script src="/js/highlight.pack.js?1687178621"></script>
+    <script src="/js/clipboard.min.js?1687337813"></script>
+    <script src="/js/perfect-scrollbar.min.js?1687337813"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1687337813"></script>
+    <script src="/js/jquery.sticky.js?1687337813"></script>
+    <script src="/js/featherlight.min.js?1687337813"></script>
+    <script src="/js/highlight.pack.js?1687337813"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1687178621"></script>
-    <script src="/js/learn.js?1687178621"></script>
-    <script src="/js/hugo-learn.js?1687178621"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1687337813"></script>
+    <script src="/js/learn.js?1687337813"></script>
+    <script src="/js/hugo-learn.js?1687337813"></script>
 
-    <link href="/mermaid/mermaid.css?1687178621" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1687178621"></script>
+    <link href="/mermaid/mermaid.css?1687337813" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1687337813"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

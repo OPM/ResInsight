@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.68.0" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Well Bore Stability Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1687178621" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1687178621" rel="stylesheet">
-    <link href="/css/hybrid.css?1687178621" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1687178621" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1687178621" rel="stylesheet">
-    <link href="/css/auto-complete.css?1687178621" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1687178621" rel="stylesheet">
-    <link href="/css/theme.css?1687178621" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1687178621" rel="stylesheet">
+    <link href="/css/nucleus.css?1687337813" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1687337813" rel="stylesheet">
+    <link href="/css/hybrid.css?1687337813" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1687337813" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1687337813" rel="stylesheet">
+    <link href="/css/auto-complete.css?1687337813" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1687337813" rel="stylesheet">
+    <link href="/css/theme.css?1687337813" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1687337813" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1687178621"></script>
+    <script src="/js/jquery-3.3.1.min.js?1687337813"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2713,19 +2713,18 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
+      
     </section>
   </div>
 </nav>
@@ -2853,7 +2852,7 @@ if (!doNotTrack) {
 <p>If any <a href="/wells-and-completions/wellmeasurements/">Well Measurements</a> are present, they will be visible as symbols in the track <strong>Stability Curves</strong>.</p>
 <h2 id="create-well-bore-stability-plots">Create Well Bore Stability plots</h2>
 <p>Well Bore Stability plots can be created from the right-click menu for a well path in <strong>Project Tree</strong> or from the the right-click menu of the Well Log Plots entry in <strong>Plot Project Tree</strong>. In the former case, the well bore stability plot will be created for the selected <strong>Well Path</strong>. In the latter case, it will be created for the first well path in the well path list and the well path for the entire plot can be changed with the <a href="/plot-window/welllogsandplots/#change-data-source-for-plots-and-curves">Change Data Source Feature</a>.</p>
-<p><img src="/images/plot-window/WellBoreStabilityCreation.png" alt=""> 
+<p><img src="/images/plot-window/WellBoreStabilityCreation.png" alt="">
 <img src="/images/plot-window/WellBoreStabilityCreation2.png" alt=""></p>
 <h2 id="input-requirements">Input requirements</h2>
 <p>In order to calculate <strong>PP</strong>, <strong>FG</strong>, <strong>SFG</strong> and <strong>SH_MK</strong>, the following input parameters are required:</p>
@@ -2951,7 +2950,7 @@ if (!doNotTrack) {
 <h3 id="stresses-at-the-borehole-wall---kirsch-equations">Stresses at the borehole wall - Kirsch equations</h3>
 <p>The basic input to wellbore stability models is the stresses at the borehole wall given by the Kirsch equations in cylindrical coordinates:</p>
 <p><img src="/images/plot-window/WellBoreStabilityKirschEquations.png" alt=""></p>
-<p>The transformation of stresses from cartesian coordinate system to x&rsquo;, y&rsquo;, z&rsquo; is performed by pre- and transposed postmultiplication of the stress tensor with a 3x3 transformation matrix <strong>M</strong>, i.e. 
+<p>The transformation of stresses from cartesian coordinate system to x&rsquo;, y&rsquo;, z&rsquo; is performed by pre- and transposed postmultiplication of the stress tensor with a 3x3 transformation matrix <strong>M</strong>, i.e.
 <img src="https://resinsight.org/images/plot-window/WellBoreStabilityStressTransformation.png" style="display:inline; vertical-align:middle; margin:0">
 .</p>
 <h3 id="fracture-gradient-calculations-based-on-kirsch-in-sand">Fracture gradient calculations based on Kirsch in sand</h3>
@@ -2967,7 +2966,7 @@ $$ FG = \frac{P_w}{TVD_{RKB} \: g  \: \rho}$$ where $TVD_{RKB} = TVD_{MSL} + Air
 <h3 id="sh-from-matthews--kelly">SH from Matthews &amp; Kelly</h3>
 <p>$$SH_{MK} = K0_{SH} \times (OBG0 - PP0) + PP0 + DF \times (PP-PP0)$$</p>
 <h3 id="stassi-dalia-failure-criterion-in-shale">Stassi-d&rsquo;Alia failure criterion in shale</h3>
-<p>Stassi-d&rsquo;Alia failure criterion in shale is calculated by finding the well pressure $P_w$ that satisfies the following equation 
+<p>Stassi-d&rsquo;Alia failure criterion in shale is calculated by finding the well pressure $P_w$ that satisfies the following equation
 for  $\theta \in [0 - 180]$:</p>
 <p><img src="/images/plot-window/WellBoreStabilityStassiEquations.png" alt=""></p>
 <p>where <img src="https://resinsight.org/images/plot-window/WellBoreStabilityPrincipalStresses.png" style="display:inline; vertical-align:middle; margin:0">
@@ -5112,19 +5111,19 @@ under <em>Python Examples</em>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1687178621"></script>
-    <script src="/js/jquery.sticky.js?1687178621"></script>
-    <script src="/js/featherlight.min.js?1687178621"></script>
-    <script src="/js/highlight.pack.js?1687178621"></script>
+    <script src="/js/clipboard.min.js?1687337813"></script>
+    <script src="/js/perfect-scrollbar.min.js?1687337813"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1687337813"></script>
+    <script src="/js/jquery.sticky.js?1687337813"></script>
+    <script src="/js/featherlight.min.js?1687337813"></script>
+    <script src="/js/highlight.pack.js?1687337813"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1687178621"></script>
-    <script src="/js/learn.js?1687178621"></script>
-    <script src="/js/hugo-learn.js?1687178621"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1687337813"></script>
+    <script src="/js/learn.js?1687337813"></script>
+    <script src="/js/hugo-learn.js?1687337813"></script>
 
-    <link href="/mermaid/mermaid.css?1687178621" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1687178621"></script>
+    <link href="/mermaid/mermaid.css?1687337813" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1687337813"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.68.0" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Surfaces :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1687178621" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1687178621" rel="stylesheet">
-    <link href="/css/hybrid.css?1687178621" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1687178621" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1687178621" rel="stylesheet">
-    <link href="/css/auto-complete.css?1687178621" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1687178621" rel="stylesheet">
-    <link href="/css/theme.css?1687178621" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1687178621" rel="stylesheet">
+    <link href="/css/nucleus.css?1687337812" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1687337812" rel="stylesheet">
+    <link href="/css/hybrid.css?1687337812" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1687337812" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1687337812" rel="stylesheet">
+    <link href="/css/auto-complete.css?1687337812" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1687337812" rel="stylesheet">
+    <link href="/css/theme.css?1687337812" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1687337812" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1687178621"></script>
+    <script src="/js/jquery-3.3.1.min.js?1687337812"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2713,19 +2713,18 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
+      
     </section>
   </div>
 </nav>
@@ -2826,11 +2825,11 @@ if (!doNotTrack) {
 <p><img src="/images/3d-main-window/SurfacesOverview.png" alt=""></p>
 <p>ResInsight is capable of mapping properties and simulation results onto 3D surfaces imported from GOCAD and Petrel as specified below.</p>
 <h2 id="import-and-appearance-of-surfaces">Import and appearance of surfaces</h2>
-<p>3D surfaces from GOCAD and Petrel are imported into ResInsight by the menu option <strong>File</strong>-&gt;<strong>Import</strong>-&gt;<strong>Import Surfaces</strong> 
+<p>3D surfaces from GOCAD and Petrel are imported into ResInsight by the menu option <strong>File</strong>-&gt;<strong>Import</strong>-&gt;<strong>Import Surfaces</strong>
 in the <strong>3D Main Window</strong>.</p>
 <p><img src="/images/3d-main-window/SurfacesImport.png" alt=""></p>
 <p>Imported surfaces are listed under the <img src="https://resinsight.org/images/3d-main-window/SurfacesProjectTreeNode.png" style="display:inline; vertical-align:middle; margin:0">
- entry 
+ entry
 in the <strong>Project Tree</strong>. You can click on a surface to change i.e. the name or color of the surface, or change the file to read the surface data from.</p>
 <p><img src="/images/3d-main-window/SurfacesPropertyEditor.png" alt=""></p>
 <p>You can also change the depth of the surface by adding a depth offset (positive or negative). This could be used i.e. to import the same surface file multiple times and assign each instance of the surface a separate depth offset. When a depth offset is set, the offset value will be shown as part of the surface name in the project tree.</p>
@@ -2843,7 +2842,7 @@ in the <strong>Project Tree</strong>. You can click on a surface to change i.e. 
 <p>To make it easier to organize the surfaces you import into your project, ResInsight supports creating surface folders in the project tree. To create a new folder, right-click on the top level <strong>Surfaces</strong> folder in the project tree and choose <strong>Add Folder</strong>.</p>
 <p><img src="/images/3d-main-window/surface_addfolder.png" alt=""></p>
 <h2 id="surface-results">Surface Results</h2>
-<p>Per default, ResInsight maps current <strong>Cell Result</strong> on a given surface. 
+<p>Per default, ResInsight maps current <strong>Cell Result</strong> on a given surface.
 If another result is to be displayed, specify the result under <strong>Surface Results</strong> as shown below.</p>
 <p><img src="/images/3d-main-window/SurfacesSeparateSurfaceResults.png" alt=""></p>
 <p>Clicking a surface of a <strong>View</strong> in the <strong>Project Tree</strong> activates the Property Editor for allowing view settings as shown below.</p>
@@ -2868,100 +2867,100 @@ section of the <strong>Property Editor</strong>.</p>
 <h2 id="supported-surface-formats">Supported Surface Formats</h2>
 <h3 id="gocad-surface-format">GOCAD Surface format</h3>
 <p>GOCAD is a computer application that allows you to import, create, modify, integrate, view, and export geological objects in 3D.
-The GOCAD export file format supported by ResInsight is <strong>TSURF</strong> (*.ts). 
-A TSURF data file is a triangle based surface format containing vertex coordinates and triangle to vertex connectivities as exemplified below. 
+The GOCAD export file format supported by ResInsight is <strong>TSURF</strong> (*.ts).
+A TSURF data file is a triangle based surface format containing vertex coordinates and triangle to vertex connectivities as exemplified below.
 ResInsight import vertex and triangle identifiers from the first TFACE section in such a file.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">GOCAD TSurf 1 
-HEADER { 
-name:MF_027_SU 
-} 
-GOCAD_ORIGINAL_COORDINATE_SYSTEM 
-NAME Default 
-AXIS_NAME &#34;X&#34; &#34;Y&#34; &#34;Z&#34; 
-AXIS_UNIT &#34;m&#34; &#34;m&#34; &#34;m&#34; 
-ZPOSITIVE Depth 
-END_ORIGINAL_COORDINATE_SYSTEM 
-TFACE 
-VRTX 1 458177.767090 7322538.712891 1643.655884 CNXYZ 
-VRTX 2 458260.834961 7322392.890625 1596.685303 CNXYZ 
-VRTX 3 457985.662109 7322783.783203 1542.060059 CNXYZ 
-VRTX 4 459601.453125 7322511.427734 3639.000000 CNXYZ 
-VRTX 5 459422.015625 7322689.230469 3639.000000 CNXYZ 
-VRTX 6 459793.410156 7322338.230469 3639.000000 CNXYZ 
-...
-TRGL 2 61 98  
-TRGL 20 153 66  
-TRGL 152 19 65  
-END 
-</code></pre></div><h3 id="petrel-surface-ptl-files">Petrel Surface PTL files</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>GOCAD TSurf 1 
+</span></span><span style="display:flex;"><span>HEADER { 
+</span></span><span style="display:flex;"><span>name:MF_027_SU 
+</span></span><span style="display:flex;"><span>} 
+</span></span><span style="display:flex;"><span>GOCAD_ORIGINAL_COORDINATE_SYSTEM 
+</span></span><span style="display:flex;"><span>NAME Default 
+</span></span><span style="display:flex;"><span>AXIS_NAME &#34;X&#34; &#34;Y&#34; &#34;Z&#34; 
+</span></span><span style="display:flex;"><span>AXIS_UNIT &#34;m&#34; &#34;m&#34; &#34;m&#34; 
+</span></span><span style="display:flex;"><span>ZPOSITIVE Depth 
+</span></span><span style="display:flex;"><span>END_ORIGINAL_COORDINATE_SYSTEM 
+</span></span><span style="display:flex;"><span>TFACE 
+</span></span><span style="display:flex;"><span>VRTX 1 458177.767090 7322538.712891 1643.655884 CNXYZ 
+</span></span><span style="display:flex;"><span>VRTX 2 458260.834961 7322392.890625 1596.685303 CNXYZ 
+</span></span><span style="display:flex;"><span>VRTX 3 457985.662109 7322783.783203 1542.060059 CNXYZ 
+</span></span><span style="display:flex;"><span>VRTX 4 459601.453125 7322511.427734 3639.000000 CNXYZ 
+</span></span><span style="display:flex;"><span>VRTX 5 459422.015625 7322689.230469 3639.000000 CNXYZ 
+</span></span><span style="display:flex;"><span>VRTX 6 459793.410156 7322338.230469 3639.000000 CNXYZ 
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>TRGL 2 61 98  
+</span></span><span style="display:flex;"><span>TRGL 20 153 66  
+</span></span><span style="display:flex;"><span>TRGL 152 19 65  
+</span></span><span style="display:flex;"><span>END 
+</span></span></code></pre></div><h3 id="petrel-surface-ptl-files">Petrel Surface PTL files</h3>
 <p>ResInsight is capable of importing a surface defined by a <strong>PTL</strong> (*.ptl) file format.
-A PTL data file specifies the quads of a surface by <em>x</em>, <em>y</em>, <em>z</em> nodal coordinates and the <em>i</em> and <em>j</em> indices as exemplified below. 
+A PTL data file specifies the quads of a surface by <em>x</em>, <em>y</em>, <em>z</em> nodal coordinates and the <em>i</em> and <em>j</em> indices as exemplified below.
 As seen, <em>#</em> denotes comment lines.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">#Type: scattered data
-#Version: 6
-#Description: No description
-#Format: free
-#Field: 1 x
-#Field: 2 y
-#Field: 3 z meters
-#Field: 4 column
-#Field: 5 row
-#Projection: Local Rectangular
-#Units: meters
-#End: 
-#Information from grid
-#Grid_size: Not_avaiable
-#Grid_space: Not_available
-#Z_field: z
-#Vertical_faults: Not_available
-#History: No history
-#Z_units: meters
-443479.500000 7305390.500000 -1000.000000 1 1
-443479.500000 7305488.500000 -1000.000000 1 2
-443479.500000 7305586.500000 -1000.000000 1 3
-443479.500000 7305684.500000 -1000.000000 1 4
-443479.500000 7305782.500000 -1000.000000 1 5
-443479.500000 7305880.500000 -1000.000000 1 6
-...
-</code></pre></div><h3 id="openworks-xyz-surface-files">OpenWorks XYZ Surface files</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>#Type: scattered data
+</span></span><span style="display:flex;"><span>#Version: 6
+</span></span><span style="display:flex;"><span>#Description: No description
+</span></span><span style="display:flex;"><span>#Format: free
+</span></span><span style="display:flex;"><span>#Field: 1 x
+</span></span><span style="display:flex;"><span>#Field: 2 y
+</span></span><span style="display:flex;"><span>#Field: 3 z meters
+</span></span><span style="display:flex;"><span>#Field: 4 column
+</span></span><span style="display:flex;"><span>#Field: 5 row
+</span></span><span style="display:flex;"><span>#Projection: Local Rectangular
+</span></span><span style="display:flex;"><span>#Units: meters
+</span></span><span style="display:flex;"><span>#End: 
+</span></span><span style="display:flex;"><span>#Information from grid
+</span></span><span style="display:flex;"><span>#Grid_size: Not_avaiable
+</span></span><span style="display:flex;"><span>#Grid_space: Not_available
+</span></span><span style="display:flex;"><span>#Z_field: z
+</span></span><span style="display:flex;"><span>#Vertical_faults: Not_available
+</span></span><span style="display:flex;"><span>#History: No history
+</span></span><span style="display:flex;"><span>#Z_units: meters
+</span></span><span style="display:flex;"><span>443479.500000 7305390.500000 -1000.000000 1 1
+</span></span><span style="display:flex;"><span>443479.500000 7305488.500000 -1000.000000 1 2
+</span></span><span style="display:flex;"><span>443479.500000 7305586.500000 -1000.000000 1 3
+</span></span><span style="display:flex;"><span>443479.500000 7305684.500000 -1000.000000 1 4
+</span></span><span style="display:flex;"><span>443479.500000 7305782.500000 -1000.000000 1 5
+</span></span><span style="display:flex;"><span>443479.500000 7305880.500000 -1000.000000 1 6
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><h3 id="openworks-xyz-surface-files">OpenWorks XYZ Surface files</h3>
 <p>ResInsight is capable of importing a surface defined by a <strong>XYZ</strong> (*.dat) file from OpenWorks.
-A XYZ data file specifies the quads of a surface by <em>x</em>, <em>y</em>, <em>z</em> nodal coordinates organized in a regular grid. 
+A XYZ data file specifies the quads of a surface by <em>x</em>, <em>y</em>, <em>z</em> nodal coordinates organized in a regular grid.
 As seen, <em>#</em> and <em>@</em> denotes comment lines.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">@File_Version: 4
-@Coordinate_Type_is: 1
-@Export_Type_is: 1
-@Number_of_Projects 1
-@Project_Type_Name: , 3,xxx,
-@Project_Unit_is: meters , xxx
-#File_Version____________-&gt; 4
-#Project_Name____________-&gt; xxx
-#Project_Type____________-&gt; 3
-#Export_XY_Unit__________-&gt; meters
-#OpenWorks_Project_______-&gt; &#39;xxx&#39;
-#Master_Project_______-&gt;
-#Coordinate_type_________-&gt; 1
-#Number_of_points_in_hzd_-&gt; 1
-#Horizon_internal_id_____-&gt; xxx
-#Horizon_extremes_are____-&gt; xxx,xxx
-#Horizon_onset_is_Minimum_____-&gt; 1
-#Horizon_type_is_DEPTH_STRUCTURE______-&gt; 2
-#Horizon_color_is________-&gt; 255 0 0
-#Horizon_name____________-&gt; xxx
-#Horizon_attribute_______-&gt; DEPTH_STRUCTURE
-#Horizon_version_________-&gt; UNKNOWN
-#Horizon_interp_status___-&gt; defaultStat
-#Horizon_class___________-&gt; defaultClass
-#Export_Z_Unit___________-&gt; meters
-#Horizon_onset_type______-&gt; Minimum
-#Horizon_data_domain_____-&gt; DEPTH
-#Horizon_remark_size_____-&gt; 50
-Horizon from Grid on Fri Aug 14 13:42:10 CEST 2020
-#End_of_Horizon_ASCII_Header_
-   4.5423435e+05   7.3239079e+06   1.5970070e+03
-   4.5424414e+05   7.3239157e+06   1.5970485e+03
-   4.5425392e+05   7.3239234e+06   1.5970899e+03
-   4.5426371e+05   7.3239312e+06   1.5971314e+03 
-</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>@File_Version: 4
+</span></span><span style="display:flex;"><span>@Coordinate_Type_is: 1
+</span></span><span style="display:flex;"><span>@Export_Type_is: 1
+</span></span><span style="display:flex;"><span>@Number_of_Projects 1
+</span></span><span style="display:flex;"><span>@Project_Type_Name: , 3,xxx,
+</span></span><span style="display:flex;"><span>@Project_Unit_is: meters , xxx
+</span></span><span style="display:flex;"><span>#File_Version____________-&gt; 4
+</span></span><span style="display:flex;"><span>#Project_Name____________-&gt; xxx
+</span></span><span style="display:flex;"><span>#Project_Type____________-&gt; 3
+</span></span><span style="display:flex;"><span>#Export_XY_Unit__________-&gt; meters
+</span></span><span style="display:flex;"><span>#OpenWorks_Project_______-&gt; &#39;xxx&#39;
+</span></span><span style="display:flex;"><span>#Master_Project_______-&gt;
+</span></span><span style="display:flex;"><span>#Coordinate_type_________-&gt; 1
+</span></span><span style="display:flex;"><span>#Number_of_points_in_hzd_-&gt; 1
+</span></span><span style="display:flex;"><span>#Horizon_internal_id_____-&gt; xxx
+</span></span><span style="display:flex;"><span>#Horizon_extremes_are____-&gt; xxx,xxx
+</span></span><span style="display:flex;"><span>#Horizon_onset_is_Minimum_____-&gt; 1
+</span></span><span style="display:flex;"><span>#Horizon_type_is_DEPTH_STRUCTURE______-&gt; 2
+</span></span><span style="display:flex;"><span>#Horizon_color_is________-&gt; 255 0 0
+</span></span><span style="display:flex;"><span>#Horizon_name____________-&gt; xxx
+</span></span><span style="display:flex;"><span>#Horizon_attribute_______-&gt; DEPTH_STRUCTURE
+</span></span><span style="display:flex;"><span>#Horizon_version_________-&gt; UNKNOWN
+</span></span><span style="display:flex;"><span>#Horizon_interp_status___-&gt; defaultStat
+</span></span><span style="display:flex;"><span>#Horizon_class___________-&gt; defaultClass
+</span></span><span style="display:flex;"><span>#Export_Z_Unit___________-&gt; meters
+</span></span><span style="display:flex;"><span>#Horizon_onset_type______-&gt; Minimum
+</span></span><span style="display:flex;"><span>#Horizon_data_domain_____-&gt; DEPTH
+</span></span><span style="display:flex;"><span>#Horizon_remark_size_____-&gt; 50
+</span></span><span style="display:flex;"><span>Horizon from Grid on Fri Aug 14 13:42:10 CEST 2020
+</span></span><span style="display:flex;"><span>#End_of_Horizon_ASCII_Header_
+</span></span><span style="display:flex;"><span>   4.5423435e+05   7.3239079e+06   1.5970070e+03
+</span></span><span style="display:flex;"><span>   4.5424414e+05   7.3239157e+06   1.5970485e+03
+</span></span><span style="display:flex;"><span>   4.5425392e+05   7.3239234e+06   1.5970899e+03
+</span></span><span style="display:flex;"><span>   4.5426371e+05   7.3239312e+06   1.5971314e+03 
+</span></span></code></pre></div>
 
 <footer class="footline">
 	
@@ -5094,19 +5093,19 @@ Horizon from Grid on Fri Aug 14 13:42:10 CEST 2020
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1687178621"></script>
-    <script src="/js/jquery.sticky.js?1687178621"></script>
-    <script src="/js/featherlight.min.js?1687178621"></script>
-    <script src="/js/highlight.pack.js?1687178621"></script>
+    <script src="/js/clipboard.min.js?1687337812"></script>
+    <script src="/js/perfect-scrollbar.min.js?1687337812"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1687337812"></script>
+    <script src="/js/jquery.sticky.js?1687337812"></script>
+    <script src="/js/featherlight.min.js?1687337812"></script>
+    <script src="/js/highlight.pack.js?1687337812"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1687178621"></script>
-    <script src="/js/learn.js?1687178621"></script>
-    <script src="/js/hugo-learn.js?1687178621"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1687337812"></script>
+    <script src="/js/learn.js?1687337812"></script>
+    <script src="/js/hugo-learn.js?1687337812"></script>
 
-    <link href="/mermaid/mermaid.css?1687178621" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1687178621"></script>
+    <link href="/mermaid/mermaid.css?1687337812" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1687337812"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

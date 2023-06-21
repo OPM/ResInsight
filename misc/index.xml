@@ -5,11 +5,7 @@
     <link>https://resinsight.org/misc/</link>
     <description>Recent content in Miscellaneous on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://resinsight.org/misc/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://resinsight.org/misc/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Preferences</title>
       <link>https://resinsight.org/misc/preferences/</link>
@@ -57,8 +53,8 @@ Memory Indicator The tools are available from the memory indicator in the bottom
       
       <guid>https://resinsight.org/misc/advancedtextinput/</guid>
       <description>When the user is requested to specify a list of integer values, it can be useful to input the list using a text string. This can be a selection of K slices, a selection of realisations or a selection of integer values in a integer cell result.
-Supported text format 5,10-13,20-26:2This text will produce an integer array with values
-[5, 10, 11, 12, 13, 20, 22, 24, 26]Using the syntax &amp;ldquo;20-26:2&amp;rdquo; will produce integer values in the range at a step of 2, resulting in [20, 22, 24, 26]</description>
+Supported text format 5,10-13,20-26:2 This text will produce an integer array with values
+[5, 10, 11, 12, 13, 20, 22, 24, 26] Using the syntax &amp;ldquo;20-26:2&amp;rdquo; will produce integer values in the range at a step of 2, resulting in [20, 22, 24, 26]</description>
     </item>
     
     <item>
@@ -69,7 +65,7 @@ Supported text format 5,10-13,20-26:2This text will produce an integer array wi
       <guid>https://resinsight.org/misc/keyboardshortcuts/</guid>
       <description>ResInsight supports a selection of Keyboard Shortcuts for convenience. These include Delete for removing deletable items from the project tree, Ctrl-Alt-A for Zoom All and Ctrl-Alt-S/N/W/E/D/U for changing the camera view to South, North, West, East, Down and Up respectively.
 Other available keyboard shortcuts are
- Ctrl-Shift-P for opening up the plot window when you are in the 3d View Ctrl-Shift-3 for opening up the 3d View while you are in the Plot Window Ctrl-X for Cut and Ctrl-V for Paste of project tree items where this functionality is available.</description>
+Ctrl-Shift-P for opening up the plot window when you are in the 3d View Ctrl-Shift-3 for opening up the 3d View while you are in the Plot Window Ctrl-X for Cut and Ctrl-V for Paste of project tree items where this functionality is available.</description>
     </item>
     
     <item>
@@ -79,7 +75,7 @@ Other available keyboard shortcuts are
       
       <guid>https://resinsight.org/misc/regressiontestsystem/</guid>
       <description>A regression tool for QA is build into ResInsight. This tool will do the following:
- Scan a directory for sub directories containing a RegressionTest.rsp files. Each found project file will be opened, and all views in this project will be exported as snapshot images to file. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. Based on these three sets of images, an HTML report is created and automatically displayed.</description>
+Scan a directory for sub directories containing a RegressionTest.rsp files. Each found project file will be opened, and all views in this project will be exported as snapshot images to file. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. Based on these three sets of images, an HTML report is created and automatically displayed.</description>
     </item>
     
   </channel>

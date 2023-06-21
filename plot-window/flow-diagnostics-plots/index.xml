@@ -5,11 +5,7 @@
     <link>https://resinsight.org/plot-window/flow-diagnostics-plots/</link>
     <description>Recent content in Flow Diagnostics Plots on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://resinsight.org/plot-window/flow-diagnostics-plots/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://resinsight.org/plot-window/flow-diagnostics-plots/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Producer/Injector Connectivity Tables</title>
       <link>https://resinsight.org/plot-window/flow-diagnostics-plots/producerinjectorconnectivitytable/</link>

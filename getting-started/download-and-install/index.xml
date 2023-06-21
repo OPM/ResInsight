@@ -5,11 +5,7 @@
     <link>https://resinsight.org/getting-started/download-and-install/</link>
     <description>Recent content in Download and Install on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://resinsight.org/getting-started/download-and-install/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://resinsight.org/getting-started/download-and-install/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Linux Installation</title>
       <link>https://resinsight.org/getting-started/download-and-install/linux-installation/</link>
@@ -17,10 +13,10 @@
       
       <guid>https://resinsight.org/getting-started/download-and-install/linux-installation/</guid>
       <description>Install From Binary Packages on Linux Please not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.
-Red Hat Enterprise Linux 6 or 7 Login as root and do:
-yum-config-manager --add-repo https://opm-project.org/package/opm.repoyum install resinsightyum install resinsight-octave Launch the application using the command ResInsight
+Red Hat Enterprise Linux 6 or 7 Login as root and do:
+yum-config-manager --add-repo https://opm-project.org/package/opm.repoyum install resinsightyum install resinsight-octaveLaunch the application using the command ResInsight
 Ubuntu On the command line do:
-sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add-repository ppa:opm/ppasudo apt-get updatesudo apt-get install resinsightsudo apt-get install octave-resinsight Launch the application using the command ResInsight</description>
+sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add-repository ppa:opm/ppasudo apt-get updatesudo apt-get install resinsightsudo apt-get install octave-resinsightLaunch the application using the command ResInsight</description>
     </item>
     
     <item>
@@ -29,9 +25,9 @@ sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/windows-installation/</guid>
-      <description>ResInsight Installation  Download ZIP binary distribution from https://github.com/OPM/ResInsight/releases Extract content from ZIP file Start ResInsight.exe  The binary distribution does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see Build Instructions.
-Octave Installation (optional)  Download Octave-4.0.0 and install it. (Newer versions will not work) Launch ResInsight.exe, open Edit-&amp;gt;Preferences. On the Octave tab, enter the path to the Octave command line interpreter executable.
-( Usually C:\Your\Path\To\Octave-x.</description>
+      <description>ResInsight Installation Download ZIP binary distribution from https://github.com/OPM/ResInsight/releases Extract content from ZIP file Start ResInsight.exe The binary distribution does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see Build Instructions.
+Octave Installation (optional) Download Octave-4.0.0 and install it. (Newer versions will not work) Launch ResInsight.exe, open Edit-&amp;gt;Preferences. On the Octave tab, enter the path to the Octave command line interpreter executable.
+( Usually C:\Your\Path\To\Octave-x.x.x\bin\octave-cli.exe ) A binary package of ResInsight will normally not work with other Octave versions than the one it is compiled with.</description>
     </item>
     
     <item>
@@ -44,7 +40,7 @@ sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
 GCC Compiler On RedHat Linux 7 or CentOS 7 you need to install devtoolset-10, and enable it with
-source /opt/rh/devtoolset-10/enable Qt 5 Qt 5.12 or later is supported, Qt 5.15 is recommended.
+source /opt/rh/devtoolset-10/enableQt 5 Qt 5.12 or later is supported, Qt 5.15 is recommended.
 Qt download
 On some configurations you will be asked to specify the location of Qt.</description>
     </item>
@@ -55,9 +51,11 @@ On some configurations you will be asked to specify the location of Qt.</descrip
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-ubuntu/</guid>
-      <description>Dependencies and Prerequisites Configuration and build    Tool Minimum version     git 2.7.4   gcc 10   python 3    Update apt installer
-sudo apt update Install GCC and related tools
-sudo apt install build-essentialsudo apt install curl zip unzip tar As gcc 10 is required, it can be useful to set the default compiler. Set default compiler</description>
+      <description>Dependencies and Prerequisites Configuration and build Tool Minimum version git 2.7.4 gcc 10 python 3 Update apt installer
+sudo apt updateInstall GCC and related tools
+sudo apt install build-essentialsudo apt install curl zip unzip tarAs gcc 10 is required, it can be useful to set the default compiler. Set default compiler
+Install Qt
+sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-devClone and update sub modules git clone git://github.</description>
     </item>
     
   </channel>

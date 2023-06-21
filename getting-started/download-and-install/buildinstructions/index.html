@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.68.0" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Build Instructions :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1687178621" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1687178621" rel="stylesheet">
-    <link href="/css/hybrid.css?1687178621" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1687178621" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1687178621" rel="stylesheet">
-    <link href="/css/auto-complete.css?1687178621" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1687178621" rel="stylesheet">
-    <link href="/css/theme.css?1687178621" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1687178621" rel="stylesheet">
+    <link href="/css/nucleus.css?1687337812" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1687337812" rel="stylesheet">
+    <link href="/css/hybrid.css?1687337812" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1687337812" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1687337812" rel="stylesheet">
+    <link href="/css/auto-complete.css?1687337812" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1687337812" rel="stylesheet">
+    <link href="/css/theme.css?1687337812" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1687337812" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1687178621"></script>
+    <script src="/js/jquery-3.3.1.min.js?1687337812"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2713,19 +2713,18 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
+      
     </section>
   </div>
 </nav>
@@ -2850,9 +2849,9 @@ if (!doNotTrack) {
 <h3 id="cmake">CMake</h3>
 <p><a href="https://cmake.org/download/">CMake</a> version 3.15 or later is supported.</p>
 <h2 id="build-instructions">Build Instructions</h2>
-<p>The ResInsight build may be configured in different ways, with optional support for Octave plugins, 
+<p>The ResInsight build may be configured in different ways, with optional support for Octave plugins,
 ABAQUS ODB API, HDF5, Pyton, and OpenMP. This is configured using options in CMake.</p>
-<p>If you check the button &lsquo;Grouped&rsquo; in the CMake GUI, the CMake variables are grouped by prefix. 
+<p>If you check the button &lsquo;Grouped&rsquo; in the CMake GUI, the CMake variables are grouped by prefix.
 This makes it easier to see all of the options for ResInsight.</p>
 <ul>
 <li>Open the CMake GUI</li>
@@ -3010,17 +3009,17 @@ This makes it easier to see all of the options for ResInsight.</p>
 <h4 id="octave">Octave</h4>
 <p>Octave is now detected searching the file system. If Octave is not detected, the following file path variable must be defined:</p>
 <p><code>OCTAVE_CONFIG_EXECUTABLE : d:\octave\Octave-4.0.0\bin\octave-config.exe</code></p>
-<p>It is possible to build ResInsight without compiling the Octave plugins. This can be done by specifying blank for 
-the Octave CMake options. The Octave plugin module will not be built, and CMake will show warnings like &lsquo;Failed to find mkoctfile&rsquo;. 
+<p>It is possible to build ResInsight without compiling the Octave plugins. This can be done by specifying blank for
+the Octave CMake options. The Octave plugin module will not be built, and CMake will show warnings like &lsquo;Failed to find mkoctfile&rsquo;.
 This will not break the build or compilation of ResInsight.</p>
 <p>ResInsight has been verified to build and run with Octave versions 3.4.3, 3.8.1, and 4.0.0 on RedHat linux, and 4.0.0 on Windows.</p>
 <h5 id="octave-dependencies-for-debian-based-distributions">Octave Dependencies for Debian Based Distributions</h5>
 <p>The following command line can be used as a starting point to install required libraries
 <code>sudo apt-get install git cmake build-essential octave liboctave-dev qtbase5-dev qtscript5-dev libqt5svg5-dev qtbase5-private-dev</code></p>
 <h4 id="odb-support">ODB support</h4>
-<p>ResInsight can be built with support for ABAQUS ODB files. This requires an installation of the ABAQUS ODB API 
-from Simulia on the build computer. The path to the ABAQUS ODB API folder containing header files and library 
-files must be specified. Leaving this option blank gives a build without ODB support. 
+<p>ResInsight can be built with support for ABAQUS ODB files. This requires an installation of the ABAQUS ODB API
+from Simulia on the build computer. The path to the ABAQUS ODB API folder containing header files and library
+files must be specified. Leaving this option blank gives a build without ODB support.
 ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windows 7/8/10 and RedHat Linux 6.</p>
 <h4 id="hdf5">HDF5</h4>
 <p>HDF5 is used to read SourSimRL result files. On Windows this is optional, while on Linux the installed HDF5 library will be used if present.</p>
@@ -5160,19 +5159,19 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1687178621"></script>
-    <script src="/js/jquery.sticky.js?1687178621"></script>
-    <script src="/js/featherlight.min.js?1687178621"></script>
-    <script src="/js/highlight.pack.js?1687178621"></script>
+    <script src="/js/clipboard.min.js?1687337812"></script>
+    <script src="/js/perfect-scrollbar.min.js?1687337812"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1687337812"></script>
+    <script src="/js/jquery.sticky.js?1687337812"></script>
+    <script src="/js/featherlight.min.js?1687337812"></script>
+    <script src="/js/highlight.pack.js?1687337812"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1687178621"></script>
-    <script src="/js/learn.js?1687178621"></script>
-    <script src="/js/hugo-learn.js?1687178621"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1687337812"></script>
+    <script src="/js/learn.js?1687337812"></script>
+    <script src="/js/hugo-learn.js?1687337812"></script>
 
-    <link href="/mermaid/mermaid.css?1687178621" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1687178621"></script>
+    <link href="/mermaid/mermaid.css?1687337812" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1687337812"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

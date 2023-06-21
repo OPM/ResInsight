@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.68.0" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title> Zonations/Formations :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1687178621" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1687178621" rel="stylesheet">
-    <link href="/css/hybrid.css?1687178621" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1687178621" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1687178621" rel="stylesheet">
-    <link href="/css/auto-complete.css?1687178621" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1687178621" rel="stylesheet">
-    <link href="/css/theme.css?1687178621" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1687178621" rel="stylesheet">
+    <link href="/css/nucleus.css?1687337812" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1687337812" rel="stylesheet">
+    <link href="/css/hybrid.css?1687337812" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1687337812" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1687337812" rel="stylesheet">
+    <link href="/css/auto-complete.css?1687337812" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1687337812" rel="stylesheet">
+    <link href="/css/theme.css?1687337812" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1687337812" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1687178621"></script>
+    <script src="/js/jquery-3.3.1.min.js?1687337812"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2713,19 +2713,18 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
+      
     </section>
   </div>
 </nav>
@@ -2838,36 +2837,36 @@ if (!doNotTrack) {
 <li>Formation Names description files (<em><code>*.lyr</code></em>)</li>
 <li>FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>)</li>
 </ul>
-<p>To select the appropriate file type, use the button to the right of file name in the <em>Import Formation Names</em> dialog. 
+<p>To select the appropriate file type, use the button to the right of file name in the <em>Import Formation Names</em> dialog.
 The imported Formation Names files are then listed in the <strong>Project Tree</strong> in a folder named <strong>Formations</strong>.</p>
 <h4 id="formation-names-description-files-_lyr_">Formation Names description files (<em><code>*.lyr</code></em>)</h4>
 <p>Formation Names description files (<em><code>*.lyr</code></em>) consist of a list of entries containing formation name, k-range, and <em>optionally</em> a formation color.
 Formation color can be given as a World Wide Web Consortium <a href="https://www.w3.org/TR/SVG11/types.html#ColorKeywords">SVG color keyword name</a>
-or a six-digit, three-byte hexadecimal number used in HTML, CSS, SVG, and other computing applications to represent the red, green and 
+or a six-digit, three-byte hexadecimal number used in HTML, CSS, SVG, and other computing applications to represent the red, green and
 blue components of the color, c.f. example below:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">-- Any text as comment
-&#39;My First  Formation Name&#39;                             4 - 12   red
-&#39;My Second Formation Name&#39;                            15 - 17   green
-&#39;Formation spanning 3 k-layers, i.e. 18,19 and 20&#39;       3      blue
-&#39;Last Formation Name&#39;                                 21 - 21   #FFFF00
-</code></pre></div><h4 id="fmu-layer-zone-table-_layer_zone_tabletxt_">FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>)</h4>
-<p>The FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>) contains two columns to correlate each grid k-layer with a formation name. 
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>-- Any text as comment
+</span></span><span style="display:flex;"><span>&#39;My First  Formation Name&#39;                             4 - 12   red
+</span></span><span style="display:flex;"><span>&#39;My Second Formation Name&#39;                            15 - 17   green
+</span></span><span style="display:flex;"><span>&#39;Formation spanning 3 k-layers, i.e. 18,19 and 20&#39;       3      blue
+</span></span><span style="display:flex;"><span>&#39;Last Formation Name&#39;                                 21 - 21   #FFFF00
+</span></span></code></pre></div><h4 id="fmu-layer-zone-table-_layer_zone_tabletxt_">FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>)</h4>
+<p>The FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>) contains two columns to correlate each grid k-layer with a formation name.
 Below is an example of a <em><code>layer_zone_table.txt</code></em> file:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">1   UpperReek
-2   UpperReek
-3   UpperReek
-4   UpperReek
-5   UpperReek
-6   MidReek
-7   MidReek
-8   MidReek
-9   MidReek
-10  MidReek
-11  LowerReek
-12  LowerReek
-13  LowerReek
-14  LowerReek
-</code></pre></div><h3 id="select-the-formation-file-in-a-case">Select the Formation File in a Case</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>1   UpperReek
+</span></span><span style="display:flex;"><span>2   UpperReek
+</span></span><span style="display:flex;"><span>3   UpperReek
+</span></span><span style="display:flex;"><span>4   UpperReek
+</span></span><span style="display:flex;"><span>5   UpperReek
+</span></span><span style="display:flex;"><span>6   MidReek
+</span></span><span style="display:flex;"><span>7   MidReek
+</span></span><span style="display:flex;"><span>8   MidReek
+</span></span><span style="display:flex;"><span>9   MidReek
+</span></span><span style="display:flex;"><span>10  MidReek
+</span></span><span style="display:flex;"><span>11  LowerReek
+</span></span><span style="display:flex;"><span>12  LowerReek
+</span></span><span style="display:flex;"><span>13  LowerReek
+</span></span><span style="display:flex;"><span>14  LowerReek
+</span></span></code></pre></div><h3 id="select-the-formation-file-in-a-case">Select the Formation File in a Case</h3>
 <p>If only one formation file is imported, the formation will automatically be set in the active view&rsquo;s case. If more than one formation file is imported at once, or if a case must change formation file, the formation file for a case can be set later on. This option is available in the <strong>Property Editor</strong> for a case. The formation is selected in the combo box for property <strong>Formation Names File</strong>.</p>
 <p><img src="/images/3d-main-window/formations_property_editor.PNG" alt=""></p>
 <h4 id="reload-of-formation-data">Reload of formation data</h4>
@@ -2900,7 +2899,7 @@ The user is asked to select <em><code>*.csv</code></em> files for import.</p>
 <p>The imported Well Pick files will be added to their associated well path, if a match on well name can be found. If not, new paths will be created, and they can all be found in <strong>Wells</strong> in the <strong>Project Tree</strong>. The file path of the formations can be found in a well path&rsquo;s <strong>Property Editor</strong>.</p>
 <p><img src="/images/3d-main-window/wellPathFormationsInPropertyEditor.PNG" alt=""></p>
 <p>A Well Pick file is a csv-file, which uses semicolon to separate entries in a table. Below is an example of such a file:</p>
-<pre><code>Well name; Column name; Unit name; Top MD; Base MD
+<pre tabindex="0"><code>Well name; Column name; Unit name; Top MD; Base MD
 B-3H; FLUID; GAS;2203.2;2317.4
 B-3H; FLUID; OIL;2317.4;2459
 B-3H; STRAT; FANGST GP. ;2203.399902;2223.350098
@@ -5061,19 +5060,19 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1687178621"></script>
-    <script src="/js/jquery.sticky.js?1687178621"></script>
-    <script src="/js/featherlight.min.js?1687178621"></script>
-    <script src="/js/highlight.pack.js?1687178621"></script>
+    <script src="/js/clipboard.min.js?1687337812"></script>
+    <script src="/js/perfect-scrollbar.min.js?1687337812"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1687337812"></script>
+    <script src="/js/jquery.sticky.js?1687337812"></script>
+    <script src="/js/featherlight.min.js?1687337812"></script>
+    <script src="/js/highlight.pack.js?1687337812"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1687178621"></script>
-    <script src="/js/learn.js?1687178621"></script>
-    <script src="/js/hugo-learn.js?1687178621"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1687337812"></script>
+    <script src="/js/learn.js?1687337812"></script>
+    <script src="/js/hugo-learn.js?1687337812"></script>
 
-    <link href="/mermaid/mermaid.css?1687178621" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1687178621"></script>
+    <link href="/mermaid/mermaid.css?1687337812" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1687337812"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

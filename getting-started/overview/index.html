@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.68.0" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Overview :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1687178621" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1687178621" rel="stylesheet">
-    <link href="/css/hybrid.css?1687178621" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1687178621" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1687178621" rel="stylesheet">
-    <link href="/css/auto-complete.css?1687178621" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1687178621" rel="stylesheet">
-    <link href="/css/theme.css?1687178621" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1687178621" rel="stylesheet">
+    <link href="/css/nucleus.css?1687337812" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1687337812" rel="stylesheet">
+    <link href="/css/hybrid.css?1687337812" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1687337812" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1687337812" rel="stylesheet">
+    <link href="/css/auto-complete.css?1687337812" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1687337812" rel="stylesheet">
+    <link href="/css/theme.css?1687337812" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1687337812" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1687178621"></script>
+    <script src="/js/jquery-3.3.1.min.js?1687337812"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2713,19 +2713,18 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
+      
     </section>
   </div>
 </nav>
@@ -2828,7 +2827,7 @@ if (!doNotTrack) {
 </p>
 <p>Each of the windows can also be closed freely, but if both are closed, ResInsight exits.</p>
 <h4 id="docking-windows">Docking Windows</h4>
-<p>Each of the main windows has a central area and several docking windows surrounding it. The different docking 
+<p>Each of the main windows has a central area and several docking windows surrounding it. The different docking
 windows can be managed from the <strong>Windows</strong> menu or directly using the local menu bar of the docking window.</p>
 <ul>
 <li><strong>Project Tree</strong> &ndash; contains all application objects in a tree structure.</li>
@@ -2841,7 +2840,7 @@ windows can be managed from the <strong>Windows</strong> menu or directly using 
 <p>Result Info and Result Plot is described in detail in <a href="/3d-main-window/resultinspection/"> Result Inspection </a></p>
 
 <div class="notices note" ><p><b>Use several Project Trees and Property Editors: </b>
-If you want to pin the property editor for a certain object, you can add 
+If you want to pin the property editor for a certain object, you can add
 a new Project Tree and Property Editor by using the command <b>Windows-&gt;New Project and Property View</b>.</p>
 </div>
 
@@ -2871,7 +2870,7 @@ Right-click menu commands are also available to do special operations on a selec
 <h3 id="cases-and-their-types">Cases and Their Types</h3>
 <p>A <em>Case</em> in ResInsight means a Grid model with a particular set of results or property data. There are three different types of Eclipse cases and one type of Geomechanical cases.</p>
 <h4 id="eclipse-cases">Eclipse Cases</h4>
-<p>The following Eclipse cases can be imported into ResInsight via the <strong>File-&gt;Import-&gt;Eclipse Cases</strong> menu, 
+<p>The following Eclipse cases can be imported into ResInsight via the <strong>File-&gt;Import-&gt;Eclipse Cases</strong> menu,
 see <a href="/import/eclipsecases/">Import Eclipse Cases</a>:</p>
 <p><strong>Result Case <img src="https://resinsight.org/images/getting-started/Case24x24.png" style="display:inline; vertical-align:middle; margin:0">
 </strong></p>
@@ -2890,7 +2889,7 @@ See <a href="/import/eclipsecases/"> Grid Import and Property Export </a></p>
 <h4 id="geomechanical-cases">Geomechanical cases</h4>
 <p>There are only one type of geomechanical <img src="https://resinsight.org/images/getting-started/GeoMechCase24x24.png" style="display:inline; vertical-align:middle; margin:0">
 
-cases, namely the ABAQUS-odb case type. 
+cases, namely the ABAQUS-odb case type.
 When ResInsight is compiled with ABAQUS-odb support, <em><code>*.odb</code></em> files can be imported by selecting the menu item:
 <strong>File-&gt;Import-&gt;Geo Mechanical Cases-&gt; <img src="https://resinsight.org/images/getting-started/GeoMechCase24x24.png" style="display:inline; vertical-align:middle; margin:0">
  Import Geo Mechanical Model</strong>.</p>
@@ -5027,19 +5026,19 @@ When ResInsight is compiled with ABAQUS-odb support, <em><code>*.odb</code></em>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1687178621"></script>
-    <script src="/js/jquery.sticky.js?1687178621"></script>
-    <script src="/js/featherlight.min.js?1687178621"></script>
-    <script src="/js/highlight.pack.js?1687178621"></script>
+    <script src="/js/clipboard.min.js?1687337812"></script>
+    <script src="/js/perfect-scrollbar.min.js?1687337812"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1687337812"></script>
+    <script src="/js/jquery.sticky.js?1687337812"></script>
+    <script src="/js/featherlight.min.js?1687337812"></script>
+    <script src="/js/highlight.pack.js?1687337812"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1687178621"></script>
-    <script src="/js/learn.js?1687178621"></script>
-    <script src="/js/hugo-learn.js?1687178621"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1687337812"></script>
+    <script src="/js/learn.js?1687337812"></script>
+    <script src="/js/hugo-learn.js?1687337812"></script>
 
-    <link href="/mermaid/mermaid.css?1687178621" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1687178621"></script>
+    <link href="/mermaid/mermaid.css?1687337812" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1687337812"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

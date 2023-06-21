@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.68.0" />
+    <meta name="generator" content="Hugo 0.113.0">
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Element Property Table :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1687178621" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1687178621" rel="stylesheet">
-    <link href="/css/hybrid.css?1687178621" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1687178621" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1687178621" rel="stylesheet">
-    <link href="/css/auto-complete.css?1687178621" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1687178621" rel="stylesheet">
-    <link href="/css/theme.css?1687178621" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1687178621" rel="stylesheet">
+    <link href="/css/nucleus.css?1687337812" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1687337812" rel="stylesheet">
+    <link href="/css/hybrid.css?1687337812" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1687337812" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1687337812" rel="stylesheet">
+    <link href="/css/auto-complete.css?1687337812" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1687337812" rel="stylesheet">
+    <link href="/css/theme.css?1687337812" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1687337812" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1687178621"></script>
+    <script src="/js/jquery-3.3.1.min.js?1687337812"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2713,19 +2713,18 @@ ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetr
 <a href="https://www.equinor.com">Equinor ASA</a>
 
 
-<script type="application/javascript">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6BNMNQQY0H"></script>
+<script>
 var doNotTrack = false;
 if (!doNotTrack) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	ga('create', 'G-6BNMNQQY0H', 'auto');
-	
-	ga('send', 'pageview');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-6BNMNQQY0H', { 'anonymize_ip': false });
 }
 </script>
 
+      
     </section>
   </div>
 </nav>
@@ -2830,27 +2829,27 @@ if (!doNotTrack) {
 <li>does not have the expected column count when splitting the line by <code>,</code></li>
 </ul>
 <p>When the datablock is found, the part of the line before <code>.</code> is stripped away, and first column is expected to be element ID</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">** ELASTIC SETTING FOR EACH ELEMENT
-*Distribution Table, name=RSV_Res-1_Elastic_Table
-MODULUS, RATIO
-*Distribution, name=RSV_Res-1_ELASTICS, location=ELEMENT, Table=RSV_Res-1_Elastic_Table
-** Description: Element-by-Element Elastic properties
-,     2.
-Res-1.210, 11198814808.2538, 0.19041
-Res-1.209, 11207002032.1436, 0.19063
-Res-1.208, 11222989223.0933, 0.19104
-Res-1.207, 11202549454.349, 0.19051
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">** DENSITY SETTING FOR EACH ELEMENT
-*Distribution Table, name=RSV_Res-1_Density_Table
-Density
-*Distribution, name=RSV_Res-1_DENSITIES, location=ELEMENT, Table=RSV_Res-1_Density_Table
-** Description: Element-by-Element Densities
-,     1.
-Res-1.210, 2500
-Res-1.209, 2500
-Res-1.208, 2500
-Res-1.207, 2500
-</code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>** ELASTIC SETTING FOR EACH ELEMENT
+</span></span><span style="display:flex;"><span>*Distribution Table, name=RSV_Res-1_Elastic_Table
+</span></span><span style="display:flex;"><span>MODULUS, RATIO
+</span></span><span style="display:flex;"><span>*Distribution, name=RSV_Res-1_ELASTICS, location=ELEMENT, Table=RSV_Res-1_Elastic_Table
+</span></span><span style="display:flex;"><span>** Description: Element-by-Element Elastic properties
+</span></span><span style="display:flex;"><span>,     2.
+</span></span><span style="display:flex;"><span>Res-1.210, 11198814808.2538, 0.19041
+</span></span><span style="display:flex;"><span>Res-1.209, 11207002032.1436, 0.19063
+</span></span><span style="display:flex;"><span>Res-1.208, 11222989223.0933, 0.19104
+</span></span><span style="display:flex;"><span>Res-1.207, 11202549454.349, 0.19051
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>** DENSITY SETTING FOR EACH ELEMENT
+</span></span><span style="display:flex;"><span>*Distribution Table, name=RSV_Res-1_Density_Table
+</span></span><span style="display:flex;"><span>Density
+</span></span><span style="display:flex;"><span>*Distribution, name=RSV_Res-1_DENSITIES, location=ELEMENT, Table=RSV_Res-1_Density_Table
+</span></span><span style="display:flex;"><span>** Description: Element-by-Element Densities
+</span></span><span style="display:flex;"><span>,     1.
+</span></span><span style="display:flex;"><span>Res-1.210, 2500
+</span></span><span style="display:flex;"><span>Res-1.209, 2500
+</span></span><span style="display:flex;"><span>Res-1.208, 2500
+</span></span><span style="display:flex;"><span>Res-1.207, 2500
+</span></span></code></pre></div>
 
 <footer class="footline">
 	
@@ -4983,19 +4982,19 @@ Res-1.207, 2500
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.min.js?1687178621"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1687178621"></script>
-    <script src="/js/jquery.sticky.js?1687178621"></script>
-    <script src="/js/featherlight.min.js?1687178621"></script>
-    <script src="/js/highlight.pack.js?1687178621"></script>
+    <script src="/js/clipboard.min.js?1687337813"></script>
+    <script src="/js/perfect-scrollbar.min.js?1687337813"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1687337813"></script>
+    <script src="/js/jquery.sticky.js?1687337813"></script>
+    <script src="/js/featherlight.min.js?1687337813"></script>
+    <script src="/js/highlight.pack.js?1687337813"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1687178621"></script>
-    <script src="/js/learn.js?1687178621"></script>
-    <script src="/js/hugo-learn.js?1687178621"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1687337813"></script>
+    <script src="/js/learn.js?1687337813"></script>
+    <script src="/js/hugo-learn.js?1687337813"></script>
 
-    <link href="/mermaid/mermaid.css?1687178621" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1687178621"></script>
+    <link href="/mermaid/mermaid.css?1687337813" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1687337813"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

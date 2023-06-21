@@ -5,11 +5,7 @@
     <link>https://resinsight.org/3d-main-window/</link>
     <description>Recent content in 3D Main Window on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://resinsight.org/3d-main-window/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://resinsight.org/3d-main-window/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>3D Views</title>
       <link>https://resinsight.org/3d-main-window/3dviews/</link>
@@ -29,7 +25,7 @@ Several views can be added to the same case by right-clicking the case or a view
       <guid>https://resinsight.org/3d-main-window/cellresults/</guid>
       <description>The main results to post process in ResInsight are Cell Results. A Cell Result is one value, or a small set of values per cell over a region of the grid. A Cell Result is also referred to as a Property.
 Cell Results are used in several operations and settings:
- Cell Colors Cell Edge Result (Eclipse Only) Separate Fault Result (Eclipse Only) Property Filters Well Log Extraction Curves Cell Result Time History Curves  In the property panel of all those, the same options are used to define the Cell Result of interest.</description>
+Cell Colors Cell Edge Result (Eclipse Only) Separate Fault Result (Eclipse Only) Property Filters Well Log Extraction Curves Cell Result Time History Curves In the property panel of all those, the same options are used to define the Cell Result of interest.</description>
     </item>
     
     <item>
@@ -40,7 +36,7 @@ Cell Results are used in several operations and settings:
       <guid>https://resinsight.org/3d-main-window/resultcolorlegend/</guid>
       <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.
 Legend configuration As shown above, the Legend configuration for cell results allows the following settings:
- Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors:  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
+Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors: Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
     </item>
     
     <item>
@@ -70,7 +66,7 @@ Standard Color Legends ResInsight offers an extensive set of built-in color lege
       
       <guid>https://resinsight.org/3d-main-window/comparisonview/</guid>
       <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.
-The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of an Eclipse simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
+The figure above exemplifies a Comparison View for comparison of two different simulations models and results.</description>
     </item>
     
     <item>
@@ -133,9 +129,9 @@ Visibility of the docking widows can be controlled from the Windows menu.</descr
       
       <guid>https://resinsight.org/3d-main-window/filters/</guid>
       <description>Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
- Cell Filter &amp;ndash; Extracts subset(s) of grid cells Property Filter &amp;ndash; Extracts cells with a property value matching a value range  The visibility of cells connected to wells, and fences can be controlled from  Simulation Wells.
+Cell Filter &amp;ndash; Extracts subset(s) of grid cells Property Filter &amp;ndash; Extracts cells with a property value matching a value range The visibility of cells connected to wells, and fences can be controlled from Simulation Wells.
 (Not applicable for Geomechanical cases)
-Common Properties Cell and Property Filters Filters can be turned on and off using their check-boxes in Project Tree and controlled by their corresponding Property Editor.</description>
+Common Properties Cell and Property Filters Filters can be turned on and off using their check-boxes in Project Tree and controlled by their corresponding Property Editor.</description>
     </item>
     
     <item>
@@ -145,7 +141,7 @@ Visibility of the docking widows can be controlled from the Windows menu.</descr
       
       <guid>https://resinsight.org/3d-main-window/intersections/</guid>
       <description>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. There are two main types of intersections:
-  Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
+Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
     </item>
     
     <item>
@@ -157,7 +153,7 @@ Visibility of the docking widows can be controlled from the Windows menu.</descr
       <description>Creating a Seismic Section Import of data is described in Seismic Data
 Seismic Sections are cross sections that cut a grid model in various ways to display seismic data. A Seismic Section is created by right-clicking the Seismic Section item in Project Tree
 The following types of Seismic Sections are available:
- Inline Section: A seismic line within a 3D survey parallel to the direction in which the data were acquired.</description>
+Inline Section: A seismic line within a 3D survey parallel to the direction in which the data were acquired.</description>
     </item>
     
     <item>
@@ -178,8 +174,8 @@ Imported surfaces are listed under the entry in the Project Tree. You can click 
       
       <guid>https://resinsight.org/3d-main-window/allandiagrams/</guid>
       <description>Allan Diagrams displays the overlap of formations and layers across fault faces.
-Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults  for more details.
-Property Editor Settings  Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault  Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
+Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults for more details.
+Property Editor Settings Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
     </item>
     
     <item>
@@ -205,7 +201,7 @@ All the tagged cell faces are then compared to the faults possibly imported from
       <description>This section will describe how to use formations for different k-layers of a case, and how to use well picks/zonations for ranges of measured depths of a well path.
 Formations for k-layers Formation information can be utilized in ResInsight as cell colors, used in property filters and are displayed in the Result info panel when selecting single cells.
 To use this functionality you will need to :
- Import one or more Formation Names file(s) Select the correct Formation Names file in the Case of interest  Import of Formation Names Files Formation Names files can be imported by using the command: File-&amp;gt;Import-&amp;gt;Import Formation Names.</description>
+Import one or more Formation Names file(s) Select the correct Formation Names file in the Case of interest Import of Formation Names Files Formation Names files can be imported by using the command: File-&amp;gt;Import-&amp;gt;Import Formation Names.</description>
     </item>
     
     <item>
@@ -226,7 +222,7 @@ Result Inspection</description>
       <guid>https://resinsight.org/3d-main-window/gridstatisticsdialog/</guid>
       <description>ResInsight 3D Views has an info box in the upper right corner displaying statistics for the current view. A more detailed version of this information may also be displayed in a separate dialog window. Right click on the 3D view background and select Grid Statistics to bring up the dialog.
 Grid Statistics Dialog Fields The dialog consist of three information parts.
- Info text Histogram Cumulative Histogram  Info Text The Info Text field shows general info about the case, the selected results, and some statistics.</description>
+Info text Histogram Cumulative Histogram Info Text The Info Text field shows general info about the case, the selected results, and some statistics.</description>
     </item>
     
     <item>
@@ -235,7 +231,7 @@ Grid Statistics Dialog Fields The dialog consist of three information parts.
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/casegroupsandstatistics/</guid>
-      <description>Grid Case Group&amp;lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
+      <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
 If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.</description>
     </item>
     
@@ -266,7 +262,7 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
       
       <guid>https://resinsight.org/3d-main-window/annotations/</guid>
       <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
- Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file    Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
+Text annotations Reach circle annotations Polyline annotations User defined polylines Polylines imported from file Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
     </item>
     
   </channel>
