@@ -302,6 +302,12 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
         std::vector<unsigned>   triangleIndices;
         std::vector<cvf::Vec3d> vertices;
 
+        cvf::Vec3st min, max;
+        if ( activeCells )
+        {
+            activeCells->IJKBoundingBox( min, max );
+        }
+
         for ( size_t i = minI; i <= maxI; i++ )
         {
             for ( size_t j = minJ; j <= maxJ; j++ )
@@ -314,8 +320,9 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
 
                 if ( !m_includeInactiveCells() && activeCells )
                 {
-                    auto reservoirCellIndex = grid->reservoirCellIndex( currentCellIndex );
-                    if ( !activeCells->isActive( reservoirCellIndex ) ) continue;
+                    if ( i < min.x() || i > max.x() ) continue;
+                    if ( j < min.y() || j > max.y() ) continue;
+                    if ( zeroBasedLayerIndex < min.z() || zeroBasedLayerIndex > max.z() ) continue;
                 }
 
                 cvf::Vec3d currentCornerVerts[8];
