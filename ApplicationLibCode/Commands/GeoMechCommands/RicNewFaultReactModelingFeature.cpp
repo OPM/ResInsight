@@ -86,10 +86,10 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 RigCell cell = eclView->mainGrid()->cell( currentCellIndex );
 
                 auto normal = cell.faceNormalWithAreaLength( face );
+                normal.z()  = normal.z() / eclView->scaleZ() / eclView->scaleZ();
                 normal.normalize();
                 normal *= eclView->ownerCase()->characteristicCellSize();
                 normal *= 3;
-                normal.z() = normal.z() / eclView->scaleZ();
 
                 auto antiNormal = -1.0 * normal;
 
