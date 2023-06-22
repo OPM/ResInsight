@@ -1459,7 +1459,7 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 bool RimEclipseResultDefinition::isFlowDiagOrInjectionFlooding() const
 {
     return this->m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS ||
-         this->m_resultType() == RiaDefines::ResultCatType::INJECTION_FLOODING;
+           this->m_resultType() == RiaDefines::ResultCatType::INJECTION_FLOODING;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1891,5 +1891,5 @@ bool RimEclipseResultDefinition::addPerCellFaceOptionsForVariableUiField() const
     RimEclipsePropertyFilter* propFilter = firstAncestorOrThisOfType<RimEclipsePropertyFilter>();
     RimCellEdgeColors*        cellEdge   = firstAncestorOrThisOfType<RimCellEdgeColors>();
 
-    return !(propFilter || curve || cellEdge);
+    return !( propFilter || curve || cellEdge );
 }
