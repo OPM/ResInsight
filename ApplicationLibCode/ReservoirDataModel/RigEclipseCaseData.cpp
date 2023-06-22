@@ -621,7 +621,7 @@ void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosi
 bool RigEclipseCaseData::hasFractureResults() const
 {
     return activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ) &&
-         activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->reservoirActiveCellCount() > 0;
+           activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->reservoirActiveCellCount() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------

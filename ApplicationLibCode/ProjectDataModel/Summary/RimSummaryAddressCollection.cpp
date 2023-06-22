@@ -424,7 +424,7 @@ bool RimSummaryAddressCollection::isEnsemble() const
 bool RimSummaryAddressCollection::isFolder() const
 {
     return contentType() == CollectionContentType::WELL_FOLDER || contentType() == CollectionContentType::GROUP_FOLDER ||
-         contentType() == CollectionContentType::REGION_FOLDER;
+           contentType() == CollectionContentType::REGION_FOLDER;
 }
 
 //--------------------------------------------------------------------------------------------------

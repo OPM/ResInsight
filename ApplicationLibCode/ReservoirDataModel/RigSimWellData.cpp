@@ -56,8 +56,6 @@ void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices( const
 
     m_resultTimeStepIndexToWellTimeStepIndex.resize( simulationTimeSteps.size(), cvf::UNDEFINED_SIZE_T );
 
-    
-
     size_t wellTimeStepIndex = 0;
     for ( size_t resultTimeStepIndex = 0; resultTimeStepIndex < simulationTimeSteps.size(); resultTimeStepIndex++ )
     {

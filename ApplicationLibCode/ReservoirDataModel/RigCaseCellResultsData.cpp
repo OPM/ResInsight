@@ -1106,8 +1106,8 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 bool RigCaseCellResultsData::hasCompleteTransmissibilityResults() const
 {
     return hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) &&
-         hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ) ) &&
-         hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) );
+           hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ) ) &&
+           hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
