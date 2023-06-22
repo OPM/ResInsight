@@ -1104,11 +1104,11 @@ bool RimGridCrossPlotDataSet::groupingByCategoryResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimGridCrossPlotDataSet::groupingEnabled() const
 {
-    if ( m_grouping != NO_GROUPING )
-    {
-        return !m_grouping == GROUP_BY_RESULT || m_groupingProperty->eclipseResultAddress().isValid();
-    }
-    return false;
+    if ( m_grouping == NO_GROUPING ) return false;
+
+    if ( m_grouping == GROUP_BY_RESULT && !m_groupingProperty->eclipseResultAddress().isValid() ) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
