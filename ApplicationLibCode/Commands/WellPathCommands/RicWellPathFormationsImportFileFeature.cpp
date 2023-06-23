@@ -37,14 +37,6 @@ CAF_CMD_SOURCE_INIT( RicWellPathFormationsImportFileFeature, "RicWellPathFormati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathFormationsImportFileFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path formations files

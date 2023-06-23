@@ -35,14 +35,6 @@ CAF_CMD_SOURCE_INIT( RicCopySurfaceFeature, "RicCopySurfaceFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopySurfaceFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCopySurfaceFeature::onActionTriggered( bool isChecked )
 {
     RimSurfaceCollection* surfColl = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimSurfaceCollection>();

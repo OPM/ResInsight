@@ -47,14 +47,6 @@ CAF_CMD_SOURCE_INIT( RicNewRftWellLogPlotFeature, "RicNewRftWellLogPlotFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRftWellLogPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewRftWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
     auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();

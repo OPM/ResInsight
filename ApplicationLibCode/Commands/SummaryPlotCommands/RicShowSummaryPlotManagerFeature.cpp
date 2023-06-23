@@ -28,14 +28,6 @@ CAF_CMD_SOURCE_INIT( RicShowSummaryPlotManagerFeature, "RicShowSummaryPlotManage
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowSummaryPlotManagerFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicShowSummaryPlotManagerFeature::onActionTriggered( bool isChecked )
 {
     RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();

@@ -65,14 +65,6 @@ QStringList RicWellLogsImportFileFeature::wellLogFileNameFilters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellLogsImportFileFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicWellLogsImportFileFeature::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path files

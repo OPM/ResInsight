@@ -102,7 +102,7 @@ void RicEditSummaryPlotFeature::editSummaryPlot( RimSummaryPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryPlotFeature::isCommandEnabled()
+bool RicEditSummaryPlotFeature::isCommandEnabled() const
 {
     if ( selectedSummaryPlot() ) return true;
 
