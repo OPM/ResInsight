@@ -30,7 +30,9 @@ CAF_CMD_SOURCE_INIT( RicDeletePolylineTargetFeature, "RicDeletePolylineTargetFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeletePolylineTargetFeature::isCommandEnabled() const {std::vector<RimPolylineTarget*> objects;
+bool RicDeletePolylineTargetFeature::isCommandEnabled() const
+{
+    std::vector<RimPolylineTarget*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
 
     if ( !objects.empty() )

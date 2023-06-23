@@ -36,7 +36,9 @@ CAF_CMD_SOURCE_INIT( RicPasteIntersectionsFeature, "RicPasteIntersectionsFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteIntersectionsFeature::isCommandEnabled() const {caf::PdmObjectGroup objectGroup;
+bool RicPasteIntersectionsFeature::isCommandEnabled() const
+{
+    caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
     std::vector<caf::PdmPointer<RimExtrudedCurveIntersection>> intersectionObjects;

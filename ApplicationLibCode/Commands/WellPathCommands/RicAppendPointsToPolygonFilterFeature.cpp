@@ -36,7 +36,9 @@ CAF_CMD_SOURCE_INIT( RicAppendPointsToPolygonFilterFeature, "RicAppendPointsToPo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendPointsToPolygonFilterFeature::isCommandEnabled() const {auto obj = caf::firstAncestorOfTypeFromSelectedObject<RimPolygonFilter>();
+bool RicAppendPointsToPolygonFilterFeature::isCommandEnabled() const
+{
+    auto obj = caf::firstAncestorOfTypeFromSelectedObject<RimPolygonFilter>();
     return obj != nullptr;
 }
 

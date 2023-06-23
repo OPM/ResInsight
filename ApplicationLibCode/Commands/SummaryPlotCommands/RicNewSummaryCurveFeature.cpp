@@ -47,7 +47,9 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryCurveFeature::isCommandEnabled() const {return ( selectedSummaryPlot() );
+bool RicNewSummaryCurveFeature::isCommandEnabled() const
+{
+    return ( selectedSummaryPlot() );
 }
 
 //--------------------------------------------------------------------------------------------------

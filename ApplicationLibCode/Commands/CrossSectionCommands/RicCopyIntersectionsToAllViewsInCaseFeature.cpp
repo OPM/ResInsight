@@ -57,7 +57,9 @@ static RimCase*                                   commonGridCase( std::vector<ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopyIntersectionsToAllViewsInCaseFeature::isCommandEnabled() const {return selectionComposition() != SEL_INVALID;
+bool RicCopyIntersectionsToAllViewsInCaseFeature::isCommandEnabled() const
+{
+    return selectionComposition() != SEL_INVALID;
 }
 
 //--------------------------------------------------------------------------------------------------

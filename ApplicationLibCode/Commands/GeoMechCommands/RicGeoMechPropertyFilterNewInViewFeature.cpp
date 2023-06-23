@@ -37,7 +37,9 @@ CAF_CMD_SOURCE_INIT( RicGeoMechPropertyFilterNewInViewFeature, "RicGeoMechProper
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicGeoMechPropertyFilterNewInViewFeature::isCommandEnabled() const {Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
+bool RicGeoMechPropertyFilterNewInViewFeature::isCommandEnabled() const
+{
+    Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return false;
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view );

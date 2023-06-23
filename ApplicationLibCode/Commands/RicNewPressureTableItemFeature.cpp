@@ -29,7 +29,9 @@ CAF_CMD_SOURCE_INIT( RicNewPressureTableItemFeature, "RicNewPressureTableItemFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPressureTableItemFeature::isCommandEnabled() const {return caf::SelectionManager::instance()->selectedItemOfType<RimPressureTable>() != nullptr;
+bool RicNewPressureTableItemFeature::isCommandEnabled() const
+{
+    return caf::SelectionManager::instance()->selectedItemOfType<RimPressureTable>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

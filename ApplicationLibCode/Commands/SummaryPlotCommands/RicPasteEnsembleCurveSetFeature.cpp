@@ -63,7 +63,9 @@ RimEnsembleCurveSet* RicPasteEnsembleCurveSetFeature::copyCurveSetAndAddToCollec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteEnsembleCurveSetFeature::isCommandEnabled() const {caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+bool RicPasteEnsembleCurveSetFeature::isCommandEnabled() const
+{
+    caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
     RimSummaryPlot* plot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();

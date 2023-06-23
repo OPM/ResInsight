@@ -30,7 +30,9 @@ CAF_CMD_SOURCE_INIT( RicToggleItemsOnFeature, "RicToggleItemsOnFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicToggleItemsOnFeature::isCommandEnabled() const {return RicToggleItemsFeatureImpl::isToggleCommandsAvailable();
+bool RicToggleItemsOnFeature::isCommandEnabled() const
+{
+    return RicToggleItemsFeatureImpl::isToggleCommandsAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------

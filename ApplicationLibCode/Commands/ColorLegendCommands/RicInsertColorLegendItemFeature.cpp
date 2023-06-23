@@ -35,7 +35,9 @@ CAF_CMD_SOURCE_INIT( RicInsertColorLegendItemFeature, "RicInsertColorLegendItemF
 //--------------------------------------------------------------------------------------------------
 /// Disallows insert of color legend item in standard color legends
 //--------------------------------------------------------------------------------------------------
-bool RicInsertColorLegendItemFeature::isCommandEnabled() const {RimColorLegend* legend = selectedColorLegend();
+bool RicInsertColorLegendItemFeature::isCommandEnabled() const
+{
+    RimColorLegend* legend = selectedColorLegend();
 
     if ( legend )
     {

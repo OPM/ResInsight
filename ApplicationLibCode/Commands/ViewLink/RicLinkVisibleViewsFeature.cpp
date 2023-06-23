@@ -39,7 +39,9 @@ CAF_CMD_SOURCE_INIT( RicLinkVisibleViewsFeature, "RicLinkVisibleViewsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicLinkVisibleViewsFeature::isCommandEnabled() const {RimProject* proj = RimProject::current();
+bool RicLinkVisibleViewsFeature::isCommandEnabled() const
+{
+    RimProject* proj = RimProject::current();
     if ( !proj ) return false;
 
     std::vector<Rim3dView*> visibleViews;

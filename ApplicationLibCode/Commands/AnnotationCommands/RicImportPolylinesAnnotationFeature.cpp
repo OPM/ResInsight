@@ -39,7 +39,9 @@ CAF_CMD_SOURCE_INIT( RicImportPolylinesAnnotationFeature, "RicImportPolylinesAnn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportPolylinesAnnotationFeature::isCommandEnabled() const {auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
+bool RicImportPolylinesAnnotationFeature::isCommandEnabled() const
+{
+    auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
     auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
 
     return selObjs.size() == 1 || ( selGroupColl.size() == 1 && selGroupColl.front()->uiCapability()->uiName() ==

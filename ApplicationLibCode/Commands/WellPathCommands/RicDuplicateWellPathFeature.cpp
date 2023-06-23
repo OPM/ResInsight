@@ -41,7 +41,9 @@ CAF_CMD_SOURCE_INIT( RicDuplicateWellPathFeature, "RicDuplicateWellPathFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDuplicateWellPathFeature::isCommandEnabled() const {auto wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
+bool RicDuplicateWellPathFeature::isCommandEnabled() const
+{
+    auto wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
 
     return wellPath != nullptr;
 }

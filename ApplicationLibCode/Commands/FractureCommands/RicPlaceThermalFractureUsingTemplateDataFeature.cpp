@@ -72,7 +72,9 @@ void RicPlaceThermalFractureUsingTemplateDataFeature::setupActionLook( QAction* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPlaceThermalFractureUsingTemplateDataFeature::isCommandEnabled() const {return selectedThermalFracture() != nullptr;
+bool RicPlaceThermalFractureUsingTemplateDataFeature::isCommandEnabled() const
+{
+    return selectedThermalFracture() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -60,7 +60,9 @@ void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryPlotFeature::isCommandEnabled() const {caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+bool RicPasteSummaryPlotFeature::isCommandEnabled() const
+{
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( !destinationObject ) return false;
 

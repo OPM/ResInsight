@@ -41,7 +41,9 @@ CAF_CMD_SOURCE_INIT( RicPasteEclipseViewsFeature, "RicPasteEclipseViewsFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteEclipseViewsFeature::isCommandEnabled() const {caf::PdmObjectGroup objectGroup;
+bool RicPasteEclipseViewsFeature::isCommandEnabled() const
+{
+    caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
     std::vector<caf::PdmPointer<RimEclipseView>> typedObjects;

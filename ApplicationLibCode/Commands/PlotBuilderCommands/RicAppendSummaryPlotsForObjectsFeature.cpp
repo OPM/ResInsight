@@ -47,7 +47,9 @@ CAF_CMD_SOURCE_INIT( RicAppendSummaryPlotsForObjectsFeature, "RicAppendSummaryPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendSummaryPlotsForObjectsFeature::isCommandEnabled() const {return !selectedCollections().empty();
+bool RicAppendSummaryPlotsForObjectsFeature::isCommandEnabled() const
+{
+    return !selectedCollections().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

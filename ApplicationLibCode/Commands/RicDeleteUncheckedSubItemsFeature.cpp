@@ -30,7 +30,9 @@ CAF_CMD_SOURCE_INIT( RicDeleteUncheckedSubItemsFeature, "RicDeleteUncheckedSubIt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteUncheckedSubItemsFeature::isCommandEnabled() const {return RicDeleteSubItemsFeature::canCommandBeEnabled();
+bool RicDeleteUncheckedSubItemsFeature::isCommandEnabled() const
+{
+    return RicDeleteSubItemsFeature::canCommandBeEnabled();
 }
 
 //--------------------------------------------------------------------------------------------------

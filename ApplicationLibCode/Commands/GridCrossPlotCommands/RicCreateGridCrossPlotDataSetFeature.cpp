@@ -34,7 +34,9 @@ CAF_CMD_SOURCE_INIT( RicCreateGridCrossPlotDataSetFeature, "RicCreateGridCrossPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateGridCrossPlotDataSetFeature::isCommandEnabled() const {return caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>() != nullptr;
+bool RicCreateGridCrossPlotDataSetFeature::isCommandEnabled() const
+{
+    return caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlot>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

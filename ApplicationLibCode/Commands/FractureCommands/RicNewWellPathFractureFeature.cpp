@@ -133,7 +133,9 @@ void RicNewWellPathFractureFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellPathFractureFeature::isCommandEnabled() const {if ( selectedWellPathFractureCollection() )
+bool RicNewWellPathFractureFeature::isCommandEnabled() const
+{
+    if ( selectedWellPathFractureCollection() )
     {
         return true;
     }

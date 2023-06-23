@@ -39,7 +39,9 @@ CAF_CMD_SOURCE_INIT( RicNewPerforationIntervalFeature, "RicNewPerforationInterva
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPerforationIntervalFeature::isCommandEnabled() const {return selectedPerforationCollection() != nullptr;
+bool RicNewPerforationIntervalFeature::isCommandEnabled() const
+{
+    return selectedPerforationCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

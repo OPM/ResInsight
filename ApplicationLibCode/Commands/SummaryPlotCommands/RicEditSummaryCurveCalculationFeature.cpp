@@ -42,7 +42,9 @@ CAF_CMD_SOURCE_INIT( RicEditSummaryCurveCalculationFeature, "RicEditSummaryCurve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryCurveCalculationFeature::isCommandEnabled() const {std::vector<RimSummaryCurve*> selectedCurves = caf::selectedObjectsByType<RimSummaryCurve*>();
+bool RicEditSummaryCurveCalculationFeature::isCommandEnabled() const
+{
+    std::vector<RimSummaryCurve*> selectedCurves = caf::selectedObjectsByType<RimSummaryCurve*>();
     return selectedCurves.size() == 1 && selectedCurves.front()->summaryAddressY().isCalculated();
 }
 

@@ -38,7 +38,9 @@ CAF_CMD_SOURCE_INIT( RicCreateTextAnnotationFeature, "RicCreateTextAnnotationFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateTextAnnotationFeature::isCommandEnabled() const {auto selObjsGlobal  = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
+bool RicCreateTextAnnotationFeature::isCommandEnabled() const
+{
+    auto selObjsGlobal  = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
     auto selObjs2InView = caf::selectedObjectsByTypeStrict<RimAnnotationInViewCollection*>();
     auto selGroupColl   = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
 

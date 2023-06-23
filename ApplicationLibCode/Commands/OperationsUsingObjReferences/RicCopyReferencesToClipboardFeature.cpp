@@ -50,7 +50,9 @@ CAF_CMD_SOURCE_INIT( RicCopyReferencesToClipboardFeature, "RicCopyReferencesToCl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopyReferencesToClipboardFeature::isCommandEnabled() const {return isAnyCopyableObjectSelected();
+bool RicCopyReferencesToClipboardFeature::isCommandEnabled() const
+{
+    return isAnyCopyableObjectSelected();
 }
 
 //--------------------------------------------------------------------------------------------------

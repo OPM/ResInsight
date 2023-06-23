@@ -59,7 +59,9 @@ caf::PdmScriptResponse RicUnstackSelectedCurvesFeature::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicUnstackSelectedCurvesFeature::isCommandEnabled() const {std::vector<caf::PdmUiItem*> selectedItems;
+bool RicUnstackSelectedCurvesFeature::isCommandEnabled() const
+{
+    std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );
 
     auto plotCurves = RicStackSelectedCurvesFeature::plotCurvesFromSelection( selectedItems );

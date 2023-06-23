@@ -35,7 +35,9 @@ CAF_CMD_SOURCE_INIT( RicDuplicateSummaryCrossPlotFeature, "RicDuplicateSummaryCr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDuplicateSummaryCrossPlotFeature::isCommandEnabled() const {RimSummaryCrossPlotCollection* sumPlotColl = nullptr;
+bool RicDuplicateSummaryCrossPlotFeature::isCommandEnabled() const
+{
+    RimSummaryCrossPlotCollection* sumPlotColl = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )

@@ -32,7 +32,9 @@ CAF_CMD_SOURCE_INIT( RicHoloLensTerminateSessionFeature, "RicHoloLensTerminateSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensTerminateSessionFeature::isCommandEnabled() const {return RicHoloLensSessionManager::instance()->session() ? true : false;
+bool RicHoloLensTerminateSessionFeature::isCommandEnabled() const
+{
+    return RicHoloLensSessionManager::instance()->session() ? true : false;
 }
 
 //--------------------------------------------------------------------------------------------------

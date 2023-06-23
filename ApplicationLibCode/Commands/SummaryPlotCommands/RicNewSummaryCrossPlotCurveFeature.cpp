@@ -43,7 +43,9 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryCrossPlotCurveFeature, "RicNewSummaryCrossPlot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryCrossPlotCurveFeature::isCommandEnabled() const {return ( selectedCrossPlot() );
+bool RicNewSummaryCrossPlotCurveFeature::isCommandEnabled() const
+{
+    return ( selectedCrossPlot() );
 }
 
 //--------------------------------------------------------------------------------------------------

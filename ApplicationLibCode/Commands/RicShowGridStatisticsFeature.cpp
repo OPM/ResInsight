@@ -36,7 +36,9 @@ CAF_CMD_SOURCE_INIT( RicShowGridStatisticsFeature, "RicShowGridStatisticsFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowGridStatisticsFeature::isCommandEnabled() const {if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
+bool RicShowGridStatisticsFeature::isCommandEnabled() const
+{
+    if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 
     return RiaApplication::instance()->activeGridView() != nullptr;
 }
