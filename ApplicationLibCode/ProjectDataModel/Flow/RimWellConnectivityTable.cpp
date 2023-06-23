@@ -125,7 +125,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3D View" );
-    CAF_PDM_InitFieldNoDefault( &m_viewFilterType, "ViewFilterType", "Filter type" );
+    CAF_PDM_InitFieldNoDefault( &m_viewFilterType, "ViewFilterType", "    Filter type" );
 
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution" );
     m_flowDiagSolution.uiCapability()->setUiHidden( true );
@@ -214,8 +214,7 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
     auto eclView = simWell->firstAncestorOrThisOfType<RimEclipseView>();
     auto eclCase = simWell->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
-    m_cellFilterView = eclView;
-    m_case           = eclCase;
+    m_case = eclCase;
 
     // Set valid single time step and time step range selections based on case
     setValidTimeStepSelectionsForCase();
