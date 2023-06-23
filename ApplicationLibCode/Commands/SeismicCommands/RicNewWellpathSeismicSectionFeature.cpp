@@ -27,14 +27,6 @@ CAF_CMD_SOURCE_INIT( RicNewWellpathSeismicSectionFeature, "RicNewWellpathSeismic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellpathSeismicSectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewWellpathSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
     RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_WELLPATH );

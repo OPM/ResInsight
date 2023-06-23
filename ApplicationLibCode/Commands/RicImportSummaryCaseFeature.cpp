@@ -25,14 +25,6 @@ CAF_CMD_SOURCE_INIT( RicImportSummaryCaseFeature, "RicImportSummaryCaseFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
     RicImportGeneralDataFeature::openFileDialog( RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE );

@@ -85,14 +85,6 @@ void RicShowGridCalculatorFeature::hideGridCalculatorDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowGridCalculatorFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicShowGridCalculatorFeature::onActionTriggered( bool isChecked )
 {
     RicGridCalculatorDialog* dialog = RicShowGridCalculatorFeature::gridCalculatorDialog( true );

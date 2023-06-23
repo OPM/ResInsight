@@ -44,14 +44,6 @@ CAF_CMD_SOURCE_INIT( RicImportSummaryGroupFeature, "RicImportSummaryGroupFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryGroupFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app           = RiaGuiApplication::instance();
