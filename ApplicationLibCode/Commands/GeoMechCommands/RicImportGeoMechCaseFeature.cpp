@@ -30,14 +30,6 @@ CAF_CMD_SOURCE_INIT( RicImportGeoMechCaseFeature, "RicImportGeoMechCaseFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeoMechCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportGeoMechCaseFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app = RiaApplication::instance();

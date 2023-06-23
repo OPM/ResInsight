@@ -71,11 +71,3 @@ void RicConvertAllFractureTemplatesToMetricFeature::setupActionLook( QAction* ac
 {
     actionToSetup->setText( "Convert All Ellipse Fracture Templates to Metric" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicConvertAllFractureTemplatesToMetricFeature::isCommandEnabled()
-{
-    return true;
-}

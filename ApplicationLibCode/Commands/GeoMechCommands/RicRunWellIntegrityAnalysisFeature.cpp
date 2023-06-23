@@ -144,11 +144,3 @@ void RicRunWellIntegrityAnalysisFeature::setupActionLook( QAction* actionToSetup
     actionToSetup->setIcon( QIcon( ":/WellIntAnalysis.png" ) );
     actionToSetup->setText( "Run..." );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicRunWellIntegrityAnalysisFeature::isCommandEnabled()
-{
-    return true;
-}

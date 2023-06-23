@@ -67,11 +67,3 @@ void RicNewWellPathStimPlanModelAtPosFeature::setupActionLook( QAction* actionTo
     actionToSetup->setIcon( QIcon( ":/FractureSymbol16x16.png" ) );
     actionToSetup->setText( "Create StimPlan Model at this Depth" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicNewWellPathStimPlanModelAtPosFeature::isCommandEnabled()
-{
-    return true;
-}

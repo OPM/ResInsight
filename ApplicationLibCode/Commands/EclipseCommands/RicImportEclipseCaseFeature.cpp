@@ -36,14 +36,6 @@ CAF_CMD_SOURCE_INIT( RicImportEclipseCaseFeature, "RicImportEclipseCaseFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportEclipseCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportEclipseCaseFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app = RiaApplication::instance();

@@ -94,14 +94,6 @@ void RicNewStimPlanFractureTemplateFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewStimPlanFractureTemplateFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RicNewStimPlanFractureTemplateFeature::fileFilter()
 {
     return "StimPlan XML File (*.xml);;All files(*.*)";

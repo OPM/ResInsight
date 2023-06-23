@@ -59,11 +59,3 @@ void RicNewElasticPropertyScalingFeature::setupActionLook( QAction* actionToSetu
 {
     actionToSetup->setText( "New Property Scaling" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicNewElasticPropertyScalingFeature::isCommandEnabled()
-{
-    return true;
-}

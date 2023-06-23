@@ -104,11 +104,3 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::setupActionLook( QActio
 
     actionToSetup->setText( text );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicCreateDuplicateTemplateInOtherUnitSystemFeature::isCommandEnabled()
-{
-    return true;
-}

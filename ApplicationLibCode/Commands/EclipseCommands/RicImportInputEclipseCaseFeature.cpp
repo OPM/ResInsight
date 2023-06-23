@@ -26,14 +26,6 @@ CAF_CMD_SOURCE_INIT( RicImportInputEclipseCaseFeature, "RicImportInputEclipseCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportInputEclipseCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportInputEclipseCaseFeature::onActionTriggered( bool isChecked )
 {
     RicImportGeneralDataFeature::openFileDialog( RiaDefines::ImportFileType::ECLIPSE_INPUT_FILE );

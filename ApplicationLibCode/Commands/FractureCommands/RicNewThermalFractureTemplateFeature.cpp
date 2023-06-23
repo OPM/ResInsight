@@ -93,14 +93,6 @@ void RicNewThermalFractureTemplateFeature::setupActionLook( QAction* actionToSet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewThermalFractureTemplateFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RicNewThermalFractureTemplateFeature::fileFilter()
 {
     return "Reveal Open-Server Files (*.csv);;All files (*.*)";
