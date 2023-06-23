@@ -36,14 +36,6 @@ CAF_CMD_SOURCE_INIT( RicCreateGridStatisticsPlotFeature, "RicCreateGridStatistic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateGridStatisticsPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateGridStatisticsPlotFeature::onActionTriggered( bool isChecked )
 {
     RimGridStatisticsPlotCollection* collection = RimMainPlotCollection::current()->gridStatisticsPlotCollection();

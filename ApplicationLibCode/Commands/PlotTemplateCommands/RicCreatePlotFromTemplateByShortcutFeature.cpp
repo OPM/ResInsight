@@ -37,14 +37,6 @@ CAF_CMD_SOURCE_INIT( RicCreatePlotFromTemplateByShortcutFeature, "RicCreatePlotF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreatePlotFromTemplateByShortcutFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isChecked )
 {
     QString fileName = RiaPreferences::current()->lastUsedPlotTemplateAbsolutePath();

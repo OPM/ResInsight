@@ -110,14 +110,6 @@ std::vector<RimSaturationPressurePlot*> RicCreateSaturationPressurePlotsFeature:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateSaturationPressurePlotsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked )
 {
     RimSaturationPressurePlotCollection* collection = RimMainPlotCollection::current()->saturationPressurePlotCollection();

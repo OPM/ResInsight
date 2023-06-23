@@ -31,14 +31,6 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryPlotFromCurveFeature, "RicNewSummaryPlotFromCu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryPlotFromCurveFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewSummaryPlotFromCurveFeature::onActionTriggered( bool isChecked )
 {
     QVariant userData = this->userData();

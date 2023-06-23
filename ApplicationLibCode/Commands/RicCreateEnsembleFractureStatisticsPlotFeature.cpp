@@ -34,14 +34,6 @@ CAF_CMD_SOURCE_INIT( RicCreateEnsembleFractureStatisticsPlotFeature, "RicCreateE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateEnsembleFractureStatisticsPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleFractureStatisticsPlotFeature::onActionTriggered( bool isChecked )
 {
     RimEnsembleFractureStatisticsPlotCollection* collection = RimMainPlotCollection::current()->ensembleFractureStatisticsPlotCollection();
