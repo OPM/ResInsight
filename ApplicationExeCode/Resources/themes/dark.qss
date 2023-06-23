@@ -27,6 +27,20 @@ $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #e82257; // External input background color
 
+QTreeView[state="UseRadioButtons"] {
+ color: $textColor;
+ selection-color: $textColor;
+}
+
+QTreeView[state="UseRadioButtons"]::indicator:checked {
+    image: url(:/themes/shared/radio-button-active.svg);
+}
+
+QTreeView[state="UseRadioButtons"]::indicator:unchecked {
+    image: url(:/themes/shared/radio-circle-active.svg);
+}
+
+
  svg {
         stroke: white;
         stroke-width: 2;

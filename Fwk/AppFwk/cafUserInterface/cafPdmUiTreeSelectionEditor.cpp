@@ -303,6 +303,24 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_textFilterLineEdit->setPlaceholderText( "Type to filter items" );
     }
 
+    // Set the CSS property to use radio buttons instead of check boxes
+    // This is done by setting the "state" property to "UseRadioButtons"
+    QString stateText;
+    if ( m_useSingleSelectionMode )
+    {
+        stateText = "UseRadioButtons";
+    }
+
+    std::string propertyName  = "state";
+    auto        propertyValue = m_treeView->property( propertyName.data() ).toString();
+    if ( propertyValue != stateText )
+    {
+        m_treeView->setProperty( propertyName.data(), stateText );
+        m_treeView->style()->unpolish( m_treeView );
+        m_treeView->style()->polish( m_treeView );
+        m_treeView->update();
+    }
+
     // It is required to use a timer here, as the layout of the widgets are handled by events
     // Calling scrollTo() here has no effect, or scrolls to wrong location
     QTimer::singleShot( 150, this, SLOT( slotScrollToFirstCheckedItem() ) );
