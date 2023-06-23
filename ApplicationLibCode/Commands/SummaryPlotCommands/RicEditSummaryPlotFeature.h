@@ -43,5 +43,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimSummaryPlot* selectedSummaryPlot();
+    RimSummaryPlot* selectedSummaryPlot() const;
 };

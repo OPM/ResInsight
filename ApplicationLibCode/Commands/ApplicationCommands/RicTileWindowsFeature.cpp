@@ -349,7 +349,7 @@ void RicTilePlotWindowsHorizontallyFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTilePlotWindowsHorizontallyFeature::isCommandChecked()
+bool RicTilePlotWindowsHorizontallyFeature::isCommandChecked() const
 {
     auto proj = RimProject::current();
 

@@ -38,5 +38,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    std::vector<RimEclipseStatisticsCase*> selectedCases();
+    static std::vector<RimEclipseStatisticsCase*> selectedCases();
 };

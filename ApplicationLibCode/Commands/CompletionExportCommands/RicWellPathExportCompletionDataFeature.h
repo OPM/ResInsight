@@ -41,5 +41,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    std::vector<RimWellPath*> selectedWellPaths();
+    static std::vector<RimWellPath*> selectedWellPaths();
 };

@@ -36,5 +36,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimPerforationCollection* selectedPerforationCollection();
+    static RimPerforationCollection* selectedPerforationCollection();
 };

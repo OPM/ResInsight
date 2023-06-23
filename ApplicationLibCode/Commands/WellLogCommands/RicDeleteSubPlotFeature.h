@@ -38,5 +38,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static void getSelection( std::vector<RimPlot*>& selection );
+    void getSelection( std::vector<RimPlot*>& selection ) const;
 };
