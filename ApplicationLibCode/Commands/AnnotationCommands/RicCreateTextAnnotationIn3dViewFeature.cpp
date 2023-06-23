@@ -42,14 +42,6 @@ CAF_CMD_SOURCE_INIT( RicCreateTextAnnotationIn3dViewFeature, "RicCreateTextAnnot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateTextAnnotationIn3dViewFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered( bool isChecked )
 
 {
