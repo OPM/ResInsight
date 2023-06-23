@@ -54,14 +54,6 @@ caf::PdmScriptResponse RicSaveProjectAsFeature::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveProjectAsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSaveProjectAsFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();

@@ -50,14 +50,6 @@ RicNewAzimuthDipIntersectionFeature::RicNewAzimuthDipIntersectionFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewAzimuthDipIntersectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewAzimuthDipIntersectionFeature::onActionTriggered( bool isChecked )
 {
     RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();

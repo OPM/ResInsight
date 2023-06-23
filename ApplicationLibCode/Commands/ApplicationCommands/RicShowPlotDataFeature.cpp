@@ -168,7 +168,7 @@ private:
 ///
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowPlotDataFeature::isCommandEnabled()
+bool RicShowPlotDataFeature::isCommandEnabled() const
 {
     QString content = RiaFeatureCommandContext::instance()->contentString();
     if ( !content.isEmpty() )
@@ -355,7 +355,7 @@ void RicShowPlotDataFeature::showTextWindow( const QString& title, const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowPlotDataFeature::getSelection( std::vector<RimPlotWindow*>& selection )
+void RicShowPlotDataFeature::getSelection( std::vector<RimPlotWindow*>& selection ) const
 {
     if ( sender() )
     {

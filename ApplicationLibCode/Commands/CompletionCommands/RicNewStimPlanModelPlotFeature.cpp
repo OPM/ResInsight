@@ -174,14 +174,6 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewStimPlanModelPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewStimPlanModelPlotFeature::onActionTriggered( bool isChecked )
 {
     RimStimPlanModel* stimPlanModel = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimStimPlanModel>();
