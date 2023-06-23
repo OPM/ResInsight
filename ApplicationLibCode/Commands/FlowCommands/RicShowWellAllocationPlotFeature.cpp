@@ -43,7 +43,9 @@ CAF_CMD_SOURCE_INIT( RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowWellAllocationPlotFeature::isCommandEnabled() const {std::vector<RimSimWellInView*> simWellCollection;
+bool RicShowWellAllocationPlotFeature::isCommandEnabled() const
+{
+    std::vector<RimSimWellInView*> simWellCollection;
     caf::SelectionManager::instance()->objectsByType( &simWellCollection );
 
     if ( simWellCollection.size() > 0 )

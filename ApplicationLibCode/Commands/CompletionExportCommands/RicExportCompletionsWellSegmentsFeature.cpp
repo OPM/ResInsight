@@ -130,7 +130,9 @@ void RicExportCompletionsWellSegmentsFeature::setupActionLook( QAction* actionTo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportCompletionsWellSegmentsFeature::isCommandEnabled() const {if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>() )
+bool RicExportCompletionsWellSegmentsFeature::isCommandEnabled() const
+{
+    if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>() )
     {
         return true;
     }

@@ -75,7 +75,9 @@ void RicImportPressureDepthDataFeature::selectPressureDepthDataPathInDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportPressureDepthDataFeature::isCommandEnabled() const {std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
+bool RicImportPressureDepthDataFeature::isCommandEnabled() const
+{
+    std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
     caf::SelectionManager::instance()->objectsByType( &selectionObservedDataCollection );
 
     std::vector<RimObservedSummaryData*> selectionObservedData;

@@ -32,7 +32,9 @@ CAF_CMD_SOURCE_INIT( RicShowAllLinkedViewsFeature, "RicShowAllLinkedViewsFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowAllLinkedViewsFeature::isCommandEnabled() const {return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimViewLinkerCollection>() != nullptr;
+bool RicShowAllLinkedViewsFeature::isCommandEnabled() const
+{
+    return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimViewLinkerCollection>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

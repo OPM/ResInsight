@@ -38,7 +38,9 @@ CAF_CMD_SOURCE_INIT( RicPasteAsciiDataCurveFeature, "RicPasteAsciiDataCurveFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteAsciiDataCurveFeature::isCommandEnabled() const {auto summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
+bool RicPasteAsciiDataCurveFeature::isCommandEnabled() const
+{
+    auto summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     if ( !summaryPlot )
     {
         return false;

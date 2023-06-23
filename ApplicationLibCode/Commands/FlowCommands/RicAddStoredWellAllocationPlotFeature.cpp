@@ -36,7 +36,9 @@ CAF_CMD_SOURCE_INIT( RicAddStoredWellAllocationPlotFeature, "RicAddStoredWellAll
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled() const {RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled() const
+{
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
     if ( flowPlotColl )
     {
         RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>( caf::SelectionManager::instance()->selectedItem() );

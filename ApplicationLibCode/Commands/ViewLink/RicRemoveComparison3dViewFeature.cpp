@@ -63,7 +63,9 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRemoveComparison3dViewFeature::isCommandEnabled() const {RemoveComparison3dViewImpl cmdImpl;
+bool RicRemoveComparison3dViewFeature::isCommandEnabled() const
+{
+    RemoveComparison3dViewImpl cmdImpl;
 
     return cmdImpl.makeReady();
 }

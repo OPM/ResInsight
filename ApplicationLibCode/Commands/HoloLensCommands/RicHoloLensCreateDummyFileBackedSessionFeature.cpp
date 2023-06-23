@@ -27,7 +27,9 @@ CAF_CMD_SOURCE_INIT( RicHoloLensCreateDummyFiledBackedSessionFeature, "RicHoloLe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensCreateDummyFiledBackedSessionFeature::isCommandEnabled() const {return RicHoloLensSessionManager::instance()->session() ? false : true;
+bool RicHoloLensCreateDummyFiledBackedSessionFeature::isCommandEnabled() const
+{
+    return RicHoloLensSessionManager::instance()->session() ? false : true;
 }
 
 //--------------------------------------------------------------------------------------------------

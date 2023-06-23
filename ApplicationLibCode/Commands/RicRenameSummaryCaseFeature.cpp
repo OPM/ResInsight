@@ -30,7 +30,9 @@ CAF_CMD_SOURCE_INIT( RicRenameSummaryCaseFeature, "RicRenameSummaryCaseFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRenameSummaryCaseFeature::isCommandEnabled() const {auto summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryCase>();
+bool RicRenameSummaryCaseFeature::isCommandEnabled() const
+{
+    auto summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryCase>();
     return ( summaryCase != nullptr );
 }
 

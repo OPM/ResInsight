@@ -34,7 +34,9 @@ CAF_CMD_SOURCE_INIT( RicMoveWellLogFilesFeature, "RicMoveWellLogFilesFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMoveWellLogFilesFeature::isCommandEnabled() const {RimWellLogFile* selectedWellLogFile = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogFile>();
+bool RicMoveWellLogFilesFeature::isCommandEnabled() const
+{
+    RimWellLogFile* selectedWellLogFile = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogFile>();
 
     if ( !selectedWellLogFile ) return false;
 

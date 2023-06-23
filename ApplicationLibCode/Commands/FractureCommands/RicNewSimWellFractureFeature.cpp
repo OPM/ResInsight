@@ -114,7 +114,9 @@ void RicNewSimWellFractureFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureFeature::isCommandEnabled() const {RimProject* proj = RimProject::current();
+bool RicNewSimWellFractureFeature::isCommandEnabled() const
+{
+    RimProject* proj = RimProject::current();
     if ( proj->allFractureTemplates().empty() ) return false;
 
     auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();

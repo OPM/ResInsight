@@ -31,7 +31,9 @@ CAF_CMD_SOURCE_INIT( RicAppendSummaryCurvesForObjectsFeature, "RicAppendSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendSummaryCurvesForObjectsFeature::isCommandEnabled() const {return !RicAppendSummaryPlotsForObjectsFeature::selectedCollections().empty();
+bool RicAppendSummaryCurvesForObjectsFeature::isCommandEnabled() const
+{
+    return !RicAppendSummaryPlotsForObjectsFeature::selectedCollections().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

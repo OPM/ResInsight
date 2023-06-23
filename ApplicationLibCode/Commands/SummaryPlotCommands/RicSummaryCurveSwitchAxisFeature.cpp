@@ -32,7 +32,9 @@ CAF_CMD_SOURCE_INIT( RicSummaryCurveSwitchAxisFeature, "RicSummaryCurveSwitchAxi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled() const {std::vector<RimSummaryCurve*>         summaryCurves;
+bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled() const
+{
+    std::vector<RimSummaryCurve*>         summaryCurves;
     std::vector<RimAsciiDataCurve*>       asciiDataCurves;
     std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves;
 

@@ -41,7 +41,9 @@ CAF_CMD_SOURCE_INIT( RicChangeDataSourceFeature, "RicChangeDataSourceFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicChangeDataSourceFeature::isCommandEnabled() const {if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
+bool RicChangeDataSourceFeature::isCommandEnabled() const
+{
+    if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
 
     std::vector<RimWellLogCurve*> curves;

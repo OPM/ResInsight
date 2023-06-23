@@ -32,7 +32,9 @@ CAF_CMD_SOURCE_INIT( RicHideIntersectionBoxFeature, "RicHideIntersectionBoxFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHideIntersectionBoxFeature::isCommandEnabled() const {Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+bool RicHideIntersectionBoxFeature::isCommandEnabled() const
+{
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( !activeView ) return false;
 
     Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();

@@ -34,7 +34,9 @@ CAF_CMD_SOURCE_INIT( RicHoloLensCreateSessionFeature, "RicHoloLensCreateSessionF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensCreateSessionFeature::isCommandEnabled() const {return RicHoloLensSessionManager::instance()->session() ? false : true;
+bool RicHoloLensCreateSessionFeature::isCommandEnabled() const
+{
+    return RicHoloLensSessionManager::instance()->session() ? false : true;
 }
 
 //--------------------------------------------------------------------------------------------------

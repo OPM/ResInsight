@@ -39,7 +39,9 @@ CAF_CMD_SOURCE_INIT( RicSetMasterViewFeature, "RicSetMasterViewFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSetMasterViewFeature::isCommandEnabled() const {RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
+bool RicSetMasterViewFeature::isCommandEnabled() const
+{
+    RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return false;
     if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) != nullptr ) return false;
     if ( dynamic_cast<RimGeoMechContourMapView*>( activeView ) != nullptr ) return false;

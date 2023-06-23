@@ -38,7 +38,9 @@ CAF_CMD_SOURCE_INIT( RicExportCompletionsForVisibleWellPathsFeature, "RicExportC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled() const {bool                         foundWellPathCollection = false;
+bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled() const
+{
+    bool                         foundWellPathCollection = false;
     std::vector<caf::PdmObject*> selectedObjects;
     caf::SelectionManager::instance()->objectsByType( &selectedObjects );
     for ( caf::PdmObject* object : selectedObjects )

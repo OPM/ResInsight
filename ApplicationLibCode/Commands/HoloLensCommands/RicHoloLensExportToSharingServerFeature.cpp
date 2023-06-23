@@ -32,7 +32,9 @@ CAF_CMD_SOURCE_INIT( RicHoloLensExportToSharingServerFeature, "RicHoloLensExport
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensExportToSharingServerFeature::isCommandEnabled() const {RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
+bool RicHoloLensExportToSharingServerFeature::isCommandEnabled() const
+{
+    RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
     if ( session && session->isSessionValid() )
     {
         return true;

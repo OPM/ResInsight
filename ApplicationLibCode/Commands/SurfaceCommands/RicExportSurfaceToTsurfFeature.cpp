@@ -39,7 +39,9 @@ CAF_CMD_SOURCE_INIT( RicExportSurfaceToTsurfFeature, "RicExportSurfaceToTsurfFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportSurfaceToTsurfFeature::isCommandEnabled() const {std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
+bool RicExportSurfaceToTsurfFeature::isCommandEnabled() const
+{
+    std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
 
     return !surfaces.empty();
 }

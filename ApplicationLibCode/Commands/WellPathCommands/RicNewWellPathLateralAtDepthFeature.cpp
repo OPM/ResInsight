@@ -46,7 +46,9 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathLateralAtDepthFeature, "RicNewWellPathLateral
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellPathLateralAtDepthFeature::isCommandEnabled() const {if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
+bool RicNewWellPathLateralAtDepthFeature::isCommandEnabled() const
+{
+    if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
     {
         return true;
     }

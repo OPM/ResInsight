@@ -44,7 +44,9 @@ CAF_CMD_SOURCE_INIT( RicCreateNewPlotFromTemplateFeature, "RicCreateNewPlotFromT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateNewPlotFromTemplateFeature::isCommandEnabled() const {std::vector<caf::PdmUiItem*> uiItems;
+bool RicCreateNewPlotFromTemplateFeature::isCommandEnabled() const
+{
+    std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems( uiItems );
     if ( uiItems.size() != 1 ) return false;
 

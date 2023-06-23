@@ -44,7 +44,9 @@ CAF_CMD_SOURCE_INIT( RicEclipseShowOnlyFaultFeature, "RicEclipseShowOnlyFaultFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseShowOnlyFaultFeature::isCommandEnabled() const {Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+bool RicEclipseShowOnlyFaultFeature::isCommandEnabled() const
+{
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if ( !view ) return false;
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );

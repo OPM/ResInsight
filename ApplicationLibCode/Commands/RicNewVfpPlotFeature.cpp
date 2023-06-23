@@ -45,7 +45,9 @@ CAF_CMD_SOURCE_INIT( RicNewVfpPlotFeature, "RicNewVfpPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewVfpPlotFeature::isCommandEnabled() const {RimVfpPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimVfpPlotCollection>();
+bool RicNewVfpPlotFeature::isCommandEnabled() const
+{
+    RimVfpPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimVfpPlotCollection>();
     return ( plotColl != nullptr );
 }
 

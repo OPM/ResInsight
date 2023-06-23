@@ -35,7 +35,9 @@ CAF_CMD_SOURCE_INIT( RicClearSourceSteppingSummaryCurveFeature, "RicClearSourceS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicClearSourceSteppingSummaryCurveFeature::isCommandEnabled() const {std::vector<caf::PdmObject*> objects;
+bool RicClearSourceSteppingSummaryCurveFeature::isCommandEnabled() const
+{
+    std::vector<caf::PdmObject*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     if ( objects.size() == 1 )

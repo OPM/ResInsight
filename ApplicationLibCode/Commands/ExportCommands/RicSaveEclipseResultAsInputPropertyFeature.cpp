@@ -34,7 +34,9 @@ CAF_CMD_SOURCE_INIT( RicSaveEclipseResultAsInputPropertyFeature, "RicSaveEclipse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveEclipseResultAsInputPropertyFeature::isCommandEnabled() const {return selectedEclipseCellColors() != nullptr || selectedEclipseView() != nullptr;
+bool RicSaveEclipseResultAsInputPropertyFeature::isCommandEnabled() const
+{
+    return selectedEclipseCellColors() != nullptr || selectedEclipseView() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -32,7 +32,9 @@ CAF_CMD_SOURCE_INIT( RicNewPolylineTargetFeature, "RicNewPolylineTargetFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPolylineTargetFeature::isCommandEnabled() const {{
+bool RicNewPolylineTargetFeature::isCommandEnabled() const
+{
+    {
         std::vector<RimUserDefinedPolylinesAnnotation*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
 

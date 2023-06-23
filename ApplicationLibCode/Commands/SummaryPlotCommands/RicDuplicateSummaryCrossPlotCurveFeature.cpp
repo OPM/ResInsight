@@ -44,7 +44,9 @@ CAF_CMD_SOURCE_INIT( RicDuplicateSummaryCrossPlotCurveFeature, "RicDuplicateSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDuplicateSummaryCrossPlotCurveFeature::isCommandEnabled() const {RimSummaryCrossPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCrossPlot>();
+bool RicDuplicateSummaryCrossPlotCurveFeature::isCommandEnabled() const
+{
+    RimSummaryCrossPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCrossPlot>();
     return ( selectedPlot );
 }
 

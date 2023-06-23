@@ -38,7 +38,9 @@ CAF_CMD_SOURCE_INIT( RicWellLogFileCloseFeature, "RicWellLogFileCloseFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellLogFileCloseFeature::isCommandEnabled() const {std::vector<RimWellLogFile*> objects = caf::selectedObjectsByType<RimWellLogFile*>();
+bool RicWellLogFileCloseFeature::isCommandEnabled() const
+{
+    std::vector<RimWellLogFile*> objects = caf::selectedObjectsByType<RimWellLogFile*>();
     return objects.size() > 0;
 }
 

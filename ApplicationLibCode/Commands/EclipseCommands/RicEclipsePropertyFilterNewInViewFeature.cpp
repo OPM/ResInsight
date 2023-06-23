@@ -38,7 +38,9 @@ CAF_CMD_SOURCE_INIT( RicEclipsePropertyFilterNewInViewFeature, "RicEclipseProper
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipsePropertyFilterNewInViewFeature::isCommandEnabled() const {Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
+bool RicEclipsePropertyFilterNewInViewFeature::isCommandEnabled() const
+{
+    Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return false;
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );

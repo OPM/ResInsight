@@ -35,7 +35,9 @@ CAF_CMD_SOURCE_INIT( RicDuplicateSummaryPlotFeature, "RicDuplicateSummaryPlotFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDuplicateSummaryPlotFeature::isCommandEnabled() const {RimSummaryMultiPlot* multiPlot = nullptr;
+bool RicDuplicateSummaryPlotFeature::isCommandEnabled() const
+{
+    RimSummaryMultiPlot* multiPlot = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )

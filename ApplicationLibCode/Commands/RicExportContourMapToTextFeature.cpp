@@ -60,7 +60,9 @@ RicExportContourMapToTextFeature::RicExportContourMapToTextFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportContourMapToTextFeature::isCommandEnabled() const {auto [existingEclipseContourMap, existingGeoMechContourMap] = findContourMapView();
+bool RicExportContourMapToTextFeature::isCommandEnabled() const
+{
+    auto [existingEclipseContourMap, existingGeoMechContourMap] = findContourMapView();
 
     return existingEclipseContourMap || existingGeoMechContourMap;
 }

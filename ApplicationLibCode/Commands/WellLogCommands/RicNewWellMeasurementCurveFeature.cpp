@@ -37,7 +37,9 @@ CAF_CMD_SOURCE_INIT( RicNewWellMeasurementCurveFeature, "RicNewWellMeasurementCu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellMeasurementCurveFeature::isCommandEnabled() const {if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
+bool RicNewWellMeasurementCurveFeature::isCommandEnabled() const
+{
+    if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
 
     return ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>() != nullptr );
 }

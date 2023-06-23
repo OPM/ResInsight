@@ -23,5 +23,7 @@ CAF_CMD_SOURCE_INIT( RicShowPlotDataCtxFeature, "RicShowPlotDataCtxFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowPlotDataCtxFeature::isCommandEnabled() const {return true;
+bool RicShowPlotDataCtxFeature::isCommandEnabled() const
+{
+    return true;
 }

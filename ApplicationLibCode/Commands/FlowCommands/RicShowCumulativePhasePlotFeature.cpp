@@ -37,7 +37,9 @@ CAF_CMD_SOURCE_INIT( RicShowCumulativePhasePlotFeature, "RicShowCumulativePhaseP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowCumulativePhasePlotFeature::isCommandEnabled() const {auto plot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellAllocationPlot>();
+bool RicShowCumulativePhasePlotFeature::isCommandEnabled() const
+{
+    auto plot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellAllocationPlot>();
     if ( plot != nullptr ) return true;
 
     auto simWell = caf::SelectionManager::instance()->selectedItemOfType<RimSimWellInView>();
