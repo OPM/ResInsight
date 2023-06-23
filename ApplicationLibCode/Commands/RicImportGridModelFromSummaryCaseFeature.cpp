@@ -71,14 +71,6 @@ bool RicImportGridModelFromSummaryCaseFeature::openOrImportGridModelFromSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGridModelFromSummaryCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportGridModelFromSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
     RimFileSummaryCase* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();

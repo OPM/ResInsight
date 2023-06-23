@@ -32,14 +32,6 @@ CAF_CMD_SOURCE_INIT( RicCreateSurfaceIntersectionCurveFeature, "RicCreateSurface
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateSurfaceIntersectionCurveFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateSurfaceIntersectionCurveFeature::onActionTriggered( bool isChecked )
 {
     auto* intersection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimExtrudedCurveIntersection>();

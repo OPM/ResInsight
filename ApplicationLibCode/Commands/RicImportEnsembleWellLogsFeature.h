@@ -39,7 +39,6 @@ class RicImportEnsembleWellLogsFeature : public caf::CmdFeature
                                                                               RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
 
 private:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

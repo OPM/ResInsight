@@ -33,7 +33,6 @@ class RicImportFormationNamesFeature : public caf::CmdFeature
     static RimFormationNames* importFormationFiles( const QStringList& fileNames );
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
