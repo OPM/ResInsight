@@ -43,9 +43,7 @@ CAF_CMD_SOURCE_INIT( RicExportVisibleWellPathsFeature, "RicExportVisibleWellPath
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportVisibleWellPathsFeature::isCommandEnabled()
-{
-    std::vector<RimWellPath*> selectedWellPaths = caf::selectedObjectsByTypeStrict<RimWellPath*>();
+bool RicExportVisibleWellPathsFeature::isCommandEnabled() const {std::vector<RimWellPath*> selectedWellPaths = caf::selectedObjectsByTypeStrict<RimWellPath*>();
     std::vector<RimWellPath*> visibleWellPaths  = RicExportCompletionsForVisibleWellPathsFeature::visibleWellPaths();
 
     return !selectedWellPaths.empty() && !visibleWellPaths.empty();

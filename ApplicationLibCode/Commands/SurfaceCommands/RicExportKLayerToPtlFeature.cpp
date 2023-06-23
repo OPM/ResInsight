@@ -38,9 +38,7 @@ CAF_CMD_SOURCE_INIT( RicExportKLayerToPtlFeature, "RicExportKLayerToPtlFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportKLayerToPtlFeature::isCommandEnabled()
-{
-    // std::vector<RimGridCaseSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimGridCaseSurface*>();
+bool RicExportKLayerToPtlFeature::isCommandEnabled() const {// std::vector<RimGridCaseSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimGridCaseSurface*>();
 
     std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
 

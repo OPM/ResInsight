@@ -37,9 +37,7 @@ CAF_CMD_SOURCE_INIT( RicReloadCaseFeature, "RicReloadCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadCaseFeature::isCommandEnabled()
-{
-    std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
+bool RicReloadCaseFeature::isCommandEnabled() const {std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
     caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
     for ( caf::PdmObject* pdmObject : selectedFormationNamesCollObjs )
     {

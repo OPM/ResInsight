@@ -45,9 +45,7 @@ CAF_CMD_SOURCE_INIT( RicNewPythonScriptFeature, "RicNewPythonScriptFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPythonScriptFeature::isCommandEnabled()
-{
-    std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
+bool RicNewPythonScriptFeature::isCommandEnabled() const {std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
     if ( calcScriptCollections.empty() ) return false;
     return !calcScriptCollections.front()->directory().isEmpty();
 }

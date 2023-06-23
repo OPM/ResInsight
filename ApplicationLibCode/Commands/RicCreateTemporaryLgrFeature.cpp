@@ -132,9 +132,7 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateTemporaryLgrFeature::isCommandEnabled()
-{
-    std::vector<RimWellPathCompletions*> completions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
+bool RicCreateTemporaryLgrFeature::isCommandEnabled() const {std::vector<RimWellPathCompletions*> completions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
     std::vector<RimWellPath*>            wellPaths   = caf::selectedObjectsByTypeStrict<RimWellPath*>();
 
     return !completions.empty() || !wellPaths.empty();

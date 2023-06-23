@@ -29,9 +29,7 @@ CAF_CMD_SOURCE_INIT( RicCloseSourSimDataFeature, "RicCloseSourSimDataFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCloseSourSimDataFeature::isCommandEnabled()
-{
-    return getSelectedEclipseCase() != nullptr;
+bool RicCloseSourSimDataFeature::isCommandEnabled() const {return getSelectedEclipseCase() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

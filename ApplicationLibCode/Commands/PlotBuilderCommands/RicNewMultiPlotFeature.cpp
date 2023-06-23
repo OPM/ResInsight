@@ -65,9 +65,7 @@ caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewMultiPlotFeature::isCommandEnabled()
-{
-    auto plots = selectedPlots();
+bool RicNewMultiPlotFeature::isCommandEnabled() const {auto plots = selectedPlots();
 
     std::vector<caf::PdmUiItem*> selectedUiItems;
     caf::SelectionManager::instance()->selectedItems( selectedUiItems );

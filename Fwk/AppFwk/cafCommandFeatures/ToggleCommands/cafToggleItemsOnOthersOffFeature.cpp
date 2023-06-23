@@ -52,7 +52,7 @@ CAF_CMD_SOURCE_INIT( ToggleItemsOnOthersOffFeature, "cafToggleItemsOnOthersOffFe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ToggleItemsOnOthersOffFeature::isCommandEnabled()
+bool ToggleItemsOnOthersOffFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmObject*> selectedObjects;
     caf::SelectionManager::instance()->objectsByType( &selectedObjects );

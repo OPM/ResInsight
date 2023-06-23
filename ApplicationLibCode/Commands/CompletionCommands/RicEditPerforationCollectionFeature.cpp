@@ -34,9 +34,7 @@ CAF_CMD_SOURCE_INIT( RicEditPerforationCollectionFeature, "RicEditPerforationCol
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEditPerforationCollectionFeature::isCommandEnabled()
-{
-    return selectedPerforationCollection() != nullptr;
+bool RicEditPerforationCollectionFeature::isCommandEnabled() const {return selectedPerforationCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

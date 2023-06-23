@@ -57,9 +57,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteAllLinkedViewsFeature::isCommandEnabled()
-{
-    return caf::SelectionManager::instance()->selectedItemOfType<RimViewLinker>() != nullptr;
+bool RicDeleteAllLinkedViewsFeature::isCommandEnabled() const {return caf::SelectionManager::instance()->selectedItemOfType<RimViewLinker>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

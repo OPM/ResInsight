@@ -42,9 +42,7 @@ CAF_CMD_SOURCE_INIT( RicWellPathImportPerforationIntervalsFeature, "RicWellPathI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathImportPerforationIntervalsFeature::isCommandEnabled()
-{
-    if ( RicWellPathImportPerforationIntervalsFeature::selectedWellPathCollection() != nullptr )
+bool RicWellPathImportPerforationIntervalsFeature::isCommandEnabled() const {if ( RicWellPathImportPerforationIntervalsFeature::selectedWellPathCollection() != nullptr )
     {
         return true;
     }

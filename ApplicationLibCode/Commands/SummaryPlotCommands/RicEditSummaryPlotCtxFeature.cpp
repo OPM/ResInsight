@@ -23,7 +23,5 @@ CAF_CMD_SOURCE_INIT( RicEditSummaryPlotCtxFeature, "RicEditSummaryPlotCtxFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryPlotCtxFeature::isCommandEnabled()
-{
-    return true;
+bool RicEditSummaryPlotCtxFeature::isCommandEnabled() const {return true;
 }

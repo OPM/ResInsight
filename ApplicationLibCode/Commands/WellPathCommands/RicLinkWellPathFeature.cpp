@@ -33,7 +33,7 @@ CAF_CMD_SOURCE_INIT( RicLinkWellPathFeature, "RicLinkWellPathFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicLinkWellPathFeature::isCommandEnabled()
+bool RicLinkWellPathFeature::isCommandEnabled() const
 {
     return ( !wellPaths().empty() );
 }
@@ -70,7 +70,7 @@ void RicLinkWellPathFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicLinkWellPathFeature::isCommandChecked()
+bool RicLinkWellPathFeature::isCommandChecked() const
 {
     if ( !wellPaths().empty() )
     {

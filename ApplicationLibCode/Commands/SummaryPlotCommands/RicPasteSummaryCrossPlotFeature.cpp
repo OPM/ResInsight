@@ -65,9 +65,7 @@ void RicPasteSummaryCrossPlotFeature::copyPlotAndAddToCollection( RimSummaryCros
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryCrossPlotFeature::isCommandEnabled()
-{
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+bool RicPasteSummaryCrossPlotFeature::isCommandEnabled() const {caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
     RimSummaryCrossPlotCollection* plotColl = destinationObject->firstAncestorOrThisOfType<RimSummaryCrossPlotCollection>();

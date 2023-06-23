@@ -68,9 +68,7 @@ void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReplaceSummaryCaseFeature::isCommandEnabled()
-{
-    RimSummaryCase* rimSummaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
+bool RicReplaceSummaryCaseFeature::isCommandEnabled() const {RimSummaryCase* rimSummaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
     return rimSummaryCase != nullptr;
 }
 

@@ -51,9 +51,7 @@ void RicNewViewFeature::addReservoirView( RimEclipseCase* eclipseCase, RimGeoMec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewViewFeature::isCommandEnabled()
-{
-    return selectedEclipseCase() != nullptr || selectedEclipseView() != nullptr || selectedGeoMechCase() != nullptr ||
+bool RicNewViewFeature::isCommandEnabled() const {return selectedEclipseCase() != nullptr || selectedEclipseView() != nullptr || selectedGeoMechCase() != nullptr ||
            selectedGeoMechView() != nullptr;
 }
 

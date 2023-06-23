@@ -35,9 +35,7 @@ CAF_CMD_SOURCE_INIT( RicCopyGridStatisticsToClipboardFeature, "RicCopyGridStatis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopyGridStatisticsToClipboardFeature::isCommandEnabled()
-{
-    if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
+bool RicCopyGridStatisticsToClipboardFeature::isCommandEnabled() const {if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 
     return RiaApplication::instance()->activeGridView() != nullptr;
 }

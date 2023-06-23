@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicSeismicSectionFromIntersectionFeature, "RicSeismicSectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSeismicSectionFromIntersectionFeature::isCommandEnabled()
+bool RicSeismicSectionFromIntersectionFeature::isCommandEnabled() const
 {
     RimExtrudedCurveIntersection* intersection = getSelectedIntersection();
     if ( intersection != nullptr )
@@ -120,7 +120,7 @@ void RicSeismicSectionFromIntersectionFeature::setupActionLook( QAction* actionT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimExtrudedCurveIntersection* RicSeismicSectionFromIntersectionFeature::getSelectedIntersection()
+RimExtrudedCurveIntersection* RicSeismicSectionFromIntersectionFeature::getSelectedIntersection() const
 {
     std::vector<caf::PdmUiItem*> selectedUiItems;
     caf::SelectionManager::instance()->selectedItems( selectedUiItems );

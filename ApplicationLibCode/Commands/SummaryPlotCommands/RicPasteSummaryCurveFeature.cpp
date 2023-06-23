@@ -82,9 +82,7 @@ RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( RimSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryCurveFeature::isCommandEnabled()
-{
-    caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+bool RicPasteSummaryCurveFeature::isCommandEnabled() const {caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
     if ( !RiaSummaryTools::parentSummaryPlot( destinationObject ) )

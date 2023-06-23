@@ -56,7 +56,7 @@ void RicTileWindowsFeature::applyTiling( RiuMainWindow* mainWindow, RiaDefines::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTileWindowsFeature::isCommandEnabled()
+bool RicTileWindowsFeature::isCommandEnabled() const
 {
     auto* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
@@ -91,7 +91,7 @@ void RicTileWindowsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTileWindowsFeature::isCommandChecked()
+bool RicTileWindowsFeature::isCommandChecked() const
 {
     auto proj = RimProject::current();
 
@@ -124,7 +124,7 @@ void RicTilePlotWindowsFeature::applyTiling( RiuPlotMainWindow* mainWindow, RiaD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTilePlotWindowsFeature::isCommandEnabled()
+bool RicTilePlotWindowsFeature::isCommandEnabled() const
 {
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( mainPlotWindow )
@@ -159,7 +159,7 @@ void RicTilePlotWindowsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTilePlotWindowsFeature::isCommandChecked()
+bool RicTilePlotWindowsFeature::isCommandChecked() const
 {
     auto proj = RimProject::current();
 
@@ -171,7 +171,7 @@ CAF_CMD_SOURCE_INIT( RicTileWindowsVerticallyFeature, "RicTileWindowsVerticallyF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTileWindowsVerticallyFeature::isCommandEnabled()
+bool RicTileWindowsVerticallyFeature::isCommandEnabled() const
 {
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
@@ -205,7 +205,7 @@ void RicTileWindowsVerticallyFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTileWindowsVerticallyFeature::isCommandChecked()
+bool RicTileWindowsVerticallyFeature::isCommandChecked() const
 {
     auto proj = RimProject::current();
 
@@ -217,7 +217,7 @@ CAF_CMD_SOURCE_INIT( RicTileWindowsHorizontallyFeature, "RicTileWindowsHorizonta
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTileWindowsHorizontallyFeature::isCommandEnabled()
+bool RicTileWindowsHorizontallyFeature::isCommandEnabled() const
 {
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
@@ -251,7 +251,7 @@ void RicTileWindowsHorizontallyFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTileWindowsHorizontallyFeature::isCommandChecked()
+bool RicTileWindowsHorizontallyFeature::isCommandChecked() const
 {
     auto proj = RimProject::current();
 
@@ -269,7 +269,7 @@ CAF_CMD_SOURCE_INIT( RicTilePlotWindowsVerticallyFeature, "RicTilePlotWindowsVer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTilePlotWindowsVerticallyFeature::isCommandEnabled()
+bool RicTilePlotWindowsVerticallyFeature::isCommandEnabled() const
 {
     auto* mainWindow = RiuPlotMainWindow::instance();
     if ( mainWindow )
@@ -303,7 +303,7 @@ void RicTilePlotWindowsVerticallyFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTilePlotWindowsVerticallyFeature::isCommandChecked()
+bool RicTilePlotWindowsVerticallyFeature::isCommandChecked() const
 {
     auto proj = RimProject::current();
 
@@ -315,7 +315,7 @@ CAF_CMD_SOURCE_INIT( RicTilePlotWindowsHorizontallyFeature, "RicTilePlotWindowsH
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTilePlotWindowsHorizontallyFeature::isCommandEnabled()
+bool RicTilePlotWindowsHorizontallyFeature::isCommandEnabled() const
 {
     auto* mainWindow = RiuPlotMainWindow::instance();
     if ( mainWindow )

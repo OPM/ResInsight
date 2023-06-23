@@ -35,9 +35,7 @@ CAF_CMD_SOURCE_INIT( RicEclipsePropertyFilterInsertFeature, "RicEclipsePropertyF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipsePropertyFilterInsertFeature::isCommandEnabled()
-{
-    std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilters();
+bool RicEclipsePropertyFilterInsertFeature::isCommandEnabled() const {std::vector<RimEclipsePropertyFilter*> propertyFilters = RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilters();
     if ( propertyFilters.size() == 1 )
     {
         return RicEclipsePropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( propertyFilters[0] );

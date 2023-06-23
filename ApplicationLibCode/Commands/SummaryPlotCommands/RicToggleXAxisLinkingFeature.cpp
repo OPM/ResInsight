@@ -29,9 +29,7 @@ CAF_CMD_SOURCE_INIT( RicToggleXAxisLinkingFeature, "RicToggleXAxisLinkingFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicToggleXAxisLinkingFeature::isCommandEnabled()
-{
-    auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
+bool RicToggleXAxisLinkingFeature::isCommandEnabled() const {auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
     return ( summaryMultiPlot != nullptr );
 }
 

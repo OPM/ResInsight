@@ -36,9 +36,7 @@ CAF_CMD_SOURCE_INIT( RicNewCorrelationReportPlotFeature, "RicNewCorrelationRepor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewCorrelationReportPlotFeature::isCommandEnabled()
-{
-    if ( caf::firstAncestorOfTypeFromSelectedObject<RimCorrelationPlotCollection>() ) return true;
+bool RicNewCorrelationReportPlotFeature::isCommandEnabled() const {if ( caf::firstAncestorOfTypeFromSelectedObject<RimCorrelationPlotCollection>() ) return true;
     if ( caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>() ) return true;
 
     return false;

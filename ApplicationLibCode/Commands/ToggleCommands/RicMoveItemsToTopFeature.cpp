@@ -38,9 +38,7 @@ CAF_CMD_SOURCE_INIT( RicMoveItemsToTopFeature, "RicMoveItemsToTopFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMoveItemsToTopFeature::isCommandEnabled()
-{
-    using namespace caf;
+bool RicMoveItemsToTopFeature::isCommandEnabled() const {using namespace caf;
 
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );

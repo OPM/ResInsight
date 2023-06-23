@@ -127,9 +127,7 @@ void RicNewStimPlanModelFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewStimPlanModelFeature::isCommandEnabled()
-{
-    return selectedStimPlanModelCollection() != nullptr;
+bool RicNewStimPlanModelFeature::isCommandEnabled() const {return selectedStimPlanModelCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,9 +39,7 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryCaseFeature, "RicPasteSummaryCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryCaseFeature::isCommandEnabled()
-{
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+bool RicPasteSummaryCaseFeature::isCommandEnabled() const {caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
     RimSummaryCaseCollection*     summaryCaseCollection     = destinationObject->firstAncestorOrThisOfType<RimSummaryCaseCollection>();

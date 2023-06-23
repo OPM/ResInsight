@@ -93,9 +93,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicLinkViewFeature::isCommandEnabled()
-{
-    RicLinkViewFeatureImpl cmdImpl;
+bool RicLinkViewFeature::isCommandEnabled() const {RicLinkViewFeatureImpl cmdImpl;
     return cmdImpl.prepareToExecute();
 }
 

@@ -134,7 +134,7 @@ RimWellBoreStabilityPlot* RicNewWellBoreStabilityPlotFeature::createPlot( RimGeo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled()
+bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled() const
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if ( !view ) return false;

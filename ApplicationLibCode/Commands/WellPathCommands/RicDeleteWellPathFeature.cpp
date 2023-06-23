@@ -31,9 +31,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteWellPathFeature, "RicDeleteWellPathFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteWellPathFeature::isCommandEnabled()
-{
-    std::vector<RimWellPath*> objects;
+bool RicDeleteWellPathFeature::isCommandEnabled() const {std::vector<RimWellPath*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return !objects.empty();

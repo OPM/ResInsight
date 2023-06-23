@@ -40,7 +40,7 @@ public:
     caf::PdmScriptResponse execute() override;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

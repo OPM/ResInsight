@@ -94,9 +94,7 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportObservedFmuDataFeature::isCommandEnabled()
-{
-    std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
+bool RicImportObservedFmuDataFeature::isCommandEnabled() const {std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
     caf::SelectionManager::instance()->objectsByType( &selectionObservedDataCollection );
 
     std::vector<RimObservedSummaryData*> selectionObservedData;

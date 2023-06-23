@@ -37,9 +37,7 @@ CAF_CMD_SOURCE_INIT( RicApplyPropertyFilterAsCellResultFeature, "RicApplyPropert
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicApplyPropertyFilterAsCellResultFeature::isCommandEnabled()
-{
-    {
+bool RicApplyPropertyFilterAsCellResultFeature::isCommandEnabled() const {{
         std::vector<RimEclipsePropertyFilter*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
 

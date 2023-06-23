@@ -56,9 +56,7 @@ CAF_CMD_SOURCE_INIT( RicSaveMultiPlotTemplateFeature, "RicSaveMultiPlotTemplateF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveMultiPlotTemplateFeature::isCommandEnabled()
-{
-    if ( selectedSummaryPlot() ) return true;
+bool RicSaveMultiPlotTemplateFeature::isCommandEnabled() const {if ( selectedSummaryPlot() ) return true;
 
     return false;
 }

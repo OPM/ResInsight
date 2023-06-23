@@ -36,9 +36,7 @@ CAF_CMD_SOURCE_INIT( RicAppendSummaryPlotsForSummaryCasesFeature, "RicAppendSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendSummaryPlotsForSummaryCasesFeature::isCommandEnabled()
-{
-    auto cases     = selectedCases();
+bool RicAppendSummaryPlotsForSummaryCasesFeature::isCommandEnabled() const {auto cases     = selectedCases();
     auto ensembles = selectedEnsembles();
 
     if ( cases.empty() && ensembles.empty() ) return false;

@@ -51,9 +51,7 @@ CAF_CMD_SOURCE_INIT( RicNewPltPlotFeature, "RicNewPltPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPltPlotFeature::isCommandEnabled()
-{
-    if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
+bool RicNewPltPlotFeature::isCommandEnabled() const {if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
     RimSimWellInView* simWell          = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView>();
     RimWellPath*      selectedWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();

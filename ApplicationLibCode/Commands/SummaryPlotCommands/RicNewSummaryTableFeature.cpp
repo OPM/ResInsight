@@ -38,9 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryTableFeature, "RicNewSummaryTableFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryTableFeature::isCommandEnabled()
-{
-    RimSummaryTableCollection* tableColl = nullptr;
+bool RicNewSummaryTableFeature::isCommandEnabled() const {RimSummaryTableCollection* tableColl = nullptr;
 
     // Summary table collection selection
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );

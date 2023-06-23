@@ -62,9 +62,7 @@ const size_t largeSamplingThresholdCellCount  = 5000000u;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewContourMapViewFeature::isCommandEnabled()
-{
-    bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
+bool RicNewContourMapViewFeature::isCommandEnabled() const {bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
     bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
 
     RimGeoMechView* gmView = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();

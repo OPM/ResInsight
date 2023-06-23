@@ -40,9 +40,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteSubPlotFeature, "RicDeleteSubPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteSubPlotFeature::isCommandEnabled()
-{
-    if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
+bool RicDeleteSubPlotFeature::isCommandEnabled() const {if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
     std::vector<RimPlot*> selection;
     getSelection( selection );

@@ -45,9 +45,7 @@ CAF_CMD_SOURCE_INIT( RicAddEclipseInputPropertyFeature, "RicAddEclipseInputPrope
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
-{
-    return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputCase>() ||
+bool RicAddEclipseInputPropertyFeature::isCommandEnabled() const {return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputCase>() ||
            caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultCase>() ||
            caf::SelectionManager::instance()->selectedItemOfType<RimRoffCase>() ||
            caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCellColors>() ||

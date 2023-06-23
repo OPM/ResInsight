@@ -54,9 +54,7 @@ void RicSelectColorResult::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSelectColorResult::isCommandEnabled()
-{
-    if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
+bool RicSelectColorResult::isCommandEnabled() const {if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 
     return RiaApplication::instance()->activeReservoirView() != nullptr;
 }

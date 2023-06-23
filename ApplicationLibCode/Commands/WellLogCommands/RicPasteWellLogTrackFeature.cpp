@@ -39,9 +39,7 @@ CAF_CMD_SOURCE_INIT( RicPasteWellLogTrackFeature, "RicPasteWellLogTrackFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteWellLogTrackFeature::isCommandEnabled()
-{
-    if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
+bool RicPasteWellLogTrackFeature::isCommandEnabled() const {if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
     RimWellLogPlot* wellLogPlot = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogPlot>();
     RimWellRftPlot* rftPlot     = caf::firstAncestorOfTypeFromSelectedObject<RimWellRftPlot>();

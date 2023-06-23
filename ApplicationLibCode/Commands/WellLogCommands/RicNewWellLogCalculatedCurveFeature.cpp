@@ -38,9 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogCalculatedCurveFeature, "RicNewWellLogCalculat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogCalculatedCurveFeature::isCommandEnabled()
-{
-    std::vector<RimWellLogCurve*> wellLogCurves;
+bool RicNewWellLogCalculatedCurveFeature::isCommandEnabled() const {std::vector<RimWellLogCurve*> wellLogCurves;
     caf::SelectionManager::instance()->objectsByType( &wellLogCurves );
 
     return ( caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr || wellLogCurves.size() == 2 );

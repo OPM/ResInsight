@@ -41,9 +41,7 @@ CAF_CMD_SOURCE_INIT( RicCreateUserDefinedPolylinesAnnotationFeature, "RicCreateU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateUserDefinedPolylinesAnnotationFeature::isCommandEnabled()
-{
-    auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
+bool RicCreateUserDefinedPolylinesAnnotationFeature::isCommandEnabled() const {auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
     auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
 
     return selObjs.size() == 1 || ( selGroupColl.size() == 1 && selGroupColl.front()->uiCapability()->uiName() ==

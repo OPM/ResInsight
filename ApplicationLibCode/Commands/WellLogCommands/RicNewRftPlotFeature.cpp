@@ -40,9 +40,7 @@ CAF_CMD_SOURCE_INIT( RicNewRftPlotFeature, "RicNewRftPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRftPlotFeature::isCommandEnabled()
-{
-    RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection>();
+bool RicNewRftPlotFeature::isCommandEnabled() const {RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection>();
     if ( simWell ) return true;
 
     if ( selectedWellName().isEmpty() )

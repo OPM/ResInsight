@@ -32,9 +32,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathLateralFeature, "RicNewWellPathLateralFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellPathLateralFeature::isCommandEnabled()
-{
-    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
+bool RicNewWellPathLateralFeature::isCommandEnabled() const {RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
 
     return wellPath != nullptr;
 }

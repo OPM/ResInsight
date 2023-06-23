@@ -37,9 +37,7 @@ CAF_CMD_SOURCE_INIT( RicNewParameterResultCrossPlotFeature, "RicNewParameterResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewParameterResultCrossPlotFeature::isCommandEnabled()
-{
-    if ( caf::firstAncestorOfTypeFromSelectedObject<RimCorrelationPlotCollection>() ) return true;
+bool RicNewParameterResultCrossPlotFeature::isCommandEnabled() const {if ( caf::firstAncestorOfTypeFromSelectedObject<RimCorrelationPlotCollection>() ) return true;
     if ( caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>() ) return true;
 
     return false;

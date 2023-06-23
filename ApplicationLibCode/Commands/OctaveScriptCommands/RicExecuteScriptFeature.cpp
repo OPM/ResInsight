@@ -44,9 +44,7 @@ CAF_CMD_SOURCE_INIT( RicExecuteScriptFeature, "RicExecuteScriptFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExecuteScriptFeature::isCommandEnabled()
-{
-    std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
+bool RicExecuteScriptFeature::isCommandEnabled() const {std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
     return selection.size() > 0;
 }
 

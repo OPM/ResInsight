@@ -36,7 +36,7 @@ public:
     static void appendPlotsForAddresses( RimSummaryMultiPlot* summaryMultiPlot, const std::vector<RimSummaryAddress*>& addresses );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

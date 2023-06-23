@@ -29,9 +29,7 @@ CAF_CMD_SOURCE_INIT( RicDeletePressureTableItemFeature, "RicDeletePressureTableI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeletePressureTableItemFeature::isCommandEnabled()
-{
-    std::vector<RimPressureTableItem*> objects;
+bool RicDeletePressureTableItemFeature::isCommandEnabled() const {std::vector<RimPressureTableItem*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
     return !objects.empty();
 }

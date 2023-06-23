@@ -35,9 +35,7 @@ CAF_CMD_SOURCE_INIT( RicAddStoredFlowCharacteristicsPlotFeature, "RicAddStoredFl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAddStoredFlowCharacteristicsPlotFeature::isCommandEnabled()
-{
-    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+bool RicAddStoredFlowCharacteristicsPlotFeature::isCommandEnabled() const {RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
     if ( flowPlotColl )
     {
         RimFlowCharacteristicsPlot* flowCharacteristicsPlot =

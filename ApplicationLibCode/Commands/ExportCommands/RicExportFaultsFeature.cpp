@@ -44,9 +44,7 @@ CAF_CMD_SOURCE_INIT( RicExportFaultsFeature, "RicExportFaultsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportFaultsFeature::isCommandEnabled()
-{
-    std::vector<RimFaultInView*> selectedFaults;
+bool RicExportFaultsFeature::isCommandEnabled() const {std::vector<RimFaultInView*> selectedFaults;
 
     caf::SelectionManager::instance()->objectsByType( &selectedFaults );
 

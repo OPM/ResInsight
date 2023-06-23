@@ -31,9 +31,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathListTargetFeature, "RicNewWellPathListTargetF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellPathListTargetFeature::isCommandEnabled()
-{
-    {
+bool RicNewWellPathListTargetFeature::isCommandEnabled() const {{
         std::vector<RimWellPathGeometryDef*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
 

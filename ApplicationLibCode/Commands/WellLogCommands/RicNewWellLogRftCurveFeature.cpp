@@ -46,9 +46,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogRftCurveFeature, "RicNewWellLogRftCurveFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogRftCurveFeature::isCommandEnabled()
-{
-    if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
+bool RicNewWellLogRftCurveFeature::isCommandEnabled() const {if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
     if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr )
     {
         return true;

@@ -53,9 +53,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogExtractionCurveFeature, "RicNewWellLogExtracti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogExtractionCurveFeature::isCommandEnabled()
-{
-    if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
+bool RicNewWellLogExtractionCurveFeature::isCommandEnabled() const {if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
     int branchIndex;
     return ( caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr ||

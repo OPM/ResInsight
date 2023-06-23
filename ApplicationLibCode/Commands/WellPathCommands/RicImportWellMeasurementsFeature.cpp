@@ -37,9 +37,7 @@ CAF_CMD_SOURCE_INIT( RicImportWellMeasurementsFeature, "RicImportWellMeasurement
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportWellMeasurementsFeature::isCommandEnabled()
-{
-    return ( RicWellMeasurementImportTools::selectedWellPathCollection() != nullptr );
+bool RicImportWellMeasurementsFeature::isCommandEnabled() const {return ( RicWellMeasurementImportTools::selectedWellPathCollection() != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

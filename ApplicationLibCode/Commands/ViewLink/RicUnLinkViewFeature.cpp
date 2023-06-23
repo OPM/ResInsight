@@ -39,9 +39,7 @@ CAF_CMD_SOURCE_INIT( RicUnLinkViewFeature, "RicUnLinkViewFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicUnLinkViewFeature::isCommandEnabled()
-{
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+bool RicUnLinkViewFeature::isCommandEnabled() const {Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( !activeView ) return false;
 
     if ( activeView->assosiatedViewLinker() )

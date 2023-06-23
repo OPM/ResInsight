@@ -99,9 +99,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportObservedDataFeature::isCommandEnabled()
-{
-    std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
+bool RicImportObservedDataFeature::isCommandEnabled() const {std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
     caf::SelectionManager::instance()->objectsByType( &selectionObservedDataCollection );
 
     std::vector<RimObservedSummaryData*> selectionObservedData;

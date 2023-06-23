@@ -36,9 +36,7 @@ CAF_CMD_SOURCE_INIT( RicCutReferencesToClipboardFeature, "RicCutReferencesToClip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCutReferencesToClipboardFeature::isCommandEnabled()
-{
-    return isAnyCuttableObjectSelected();
+bool RicCutReferencesToClipboardFeature::isCommandEnabled() const {return isAnyCuttableObjectSelected();
 }
 
 //--------------------------------------------------------------------------------------------------

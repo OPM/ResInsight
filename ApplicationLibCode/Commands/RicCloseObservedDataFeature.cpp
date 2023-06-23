@@ -97,9 +97,7 @@ void RicCloseObservedDataFeature::deleteObservedRmuRftData( const std::vector<Ri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCloseObservedDataFeature::isCommandEnabled()
-{
-    std::vector<RimObservedSummaryData*> summarySelection;
+bool RicCloseObservedDataFeature::isCommandEnabled() const {std::vector<RimObservedSummaryData*> summarySelection;
     caf::SelectionManager::instance()->objectsByType( &summarySelection );
 
     std::vector<RimObservedFmuRftData*> fmuRftSelection;

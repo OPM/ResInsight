@@ -31,9 +31,7 @@ CAF_CMD_SOURCE_INIT( RicReloadWellPathFormationNamesFeature, "RicReloadWellPathF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadWellPathFormationNamesFeature::isCommandEnabled()
-{
-    std::vector<RimWellPath*> wellPaths;
+bool RicReloadWellPathFormationNamesFeature::isCommandEnabled() const {std::vector<RimWellPath*> wellPaths;
     caf::SelectionManager::instance()->objectsByType( &wellPaths );
 
     std::vector<RimWellPathCollection*> wellPathCollection;

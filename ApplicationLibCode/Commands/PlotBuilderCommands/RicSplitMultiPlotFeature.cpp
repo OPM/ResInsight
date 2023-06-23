@@ -38,9 +38,7 @@ CAF_CMD_SOURCE_INIT( RicSplitMultiPlotFeature, "RicSplitMultiPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSplitMultiPlotFeature::isCommandEnabled()
-{
-    RimSummaryPlot* plot = getSelectedPlot();
+bool RicSplitMultiPlotFeature::isCommandEnabled() const {RimSummaryPlot* plot = getSelectedPlot();
     if ( plot )
     {
         return ( ( plot->summaryCurves().size() > 1 ) || ( plot->curveSets().size() > 1 ) );

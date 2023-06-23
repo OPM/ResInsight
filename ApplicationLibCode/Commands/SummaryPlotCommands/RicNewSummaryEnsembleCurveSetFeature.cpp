@@ -139,9 +139,7 @@ RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled()
-{
-    bool summaryPlotSelected = selectedSummaryPlot();
+bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled() const {bool summaryPlotSelected = selectedSummaryPlot();
     if ( summaryPlotSelected )
     {
         RimProject* project = RimProject::current();

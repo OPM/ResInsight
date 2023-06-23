@@ -35,9 +35,7 @@ CAF_CMD_SOURCE_INIT( RicShowTotalAllocationDataFeature, "RicShowTotalAllocationD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowTotalAllocationDataFeature::isCommandEnabled()
-{
-    std::set<RimWellAllocationPlot*> wellAllocPlots = RicShowTotalAllocationDataFeature::selectedWellAllocationPlots();
+bool RicShowTotalAllocationDataFeature::isCommandEnabled() const {std::set<RimWellAllocationPlot*> wellAllocPlots = RicShowTotalAllocationDataFeature::selectedWellAllocationPlots();
 
     if ( wellAllocPlots.size() > 0 )
     {

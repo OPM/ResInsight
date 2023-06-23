@@ -77,9 +77,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::setupActionLook( QAction* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPerforationIntervalAtMeasuredDepthFeature::isCommandEnabled()
-{
-    if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
+bool RicNewPerforationIntervalAtMeasuredDepthFeature::isCommandEnabled() const {if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
     {
         return true;
     }

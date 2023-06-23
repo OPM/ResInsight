@@ -39,9 +39,7 @@ CAF_CMD_SOURCE_INIT( RicExportCompletionsForTemporaryLgrsFeature, "RicExportComp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportCompletionsForTemporaryLgrsFeature::isCommandEnabled()
-{
-    if ( wellPathsAssociatedWithLgrs().empty() )
+bool RicExportCompletionsForTemporaryLgrsFeature::isCommandEnabled() const {if ( wellPathsAssociatedWithLgrs().empty() )
     {
         return false;
     }

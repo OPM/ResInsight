@@ -211,9 +211,7 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
-{
-    if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
+bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled() const {if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 
     std::vector<RiuSelectionItem*> items;
     Riu3dSelectionManager::instance()->selectedItems( items );

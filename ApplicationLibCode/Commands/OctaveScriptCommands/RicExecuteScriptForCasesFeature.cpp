@@ -37,9 +37,7 @@ CAF_CMD_SOURCE_INIT( RicExecuteScriptForCasesFeature, "RicExecuteScriptForCasesF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExecuteScriptForCasesFeature::isCommandEnabled()
-{
-    std::vector<RimCase*> selection;
+bool RicExecuteScriptForCasesFeature::isCommandEnabled() const {std::vector<RimCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
     if ( selection.size() > 0 )
