@@ -236,7 +236,7 @@ jobs:
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
 
       - name: Upload artifact
-        if: ${{contains( matrix.config.os, 'windows-latest') }}
+        if: ${{contains( matrix.config.os, 'windows') }}
         uses: actions/upload-artifact@v3
         with:
           name: ResInsight-${{ matrix.config.name }}
