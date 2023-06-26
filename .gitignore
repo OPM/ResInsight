@@ -81,3 +81,5 @@ CMakePresets.json
 *.pyc
 
 *.ESMRY
+
+vcpkg_installed

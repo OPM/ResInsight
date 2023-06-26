@@ -1,0 +1,8 @@
+{
+    "dependencies": [
+      "grpc",
+      "boost-filesystem",
+      "boost-spirit",
+      "eigen3"
+    ]
+  }
