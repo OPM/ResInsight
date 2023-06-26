@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicNewEditableWellPathFeature, "RicNewEditableWellPathFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewEditableWellPathFeature::isCommandEnabled()
+bool RicNewEditableWellPathFeature::isCommandEnabled() const
 {
     {
         std::vector<RimWellPath*> objects;

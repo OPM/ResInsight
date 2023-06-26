@@ -32,14 +32,6 @@ CAF_CMD_SOURCE_INIT( RicOpenProjectFeature, "RicOpenProjectFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicOpenProjectFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicOpenProjectFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();

@@ -114,7 +114,7 @@ void RicNewSimWellFractureFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureFeature::isCommandEnabled()
+bool RicNewSimWellFractureFeature::isCommandEnabled() const
 {
     RimProject* proj = RimProject::current();
     if ( proj->allFractureTemplates().empty() ) return false;

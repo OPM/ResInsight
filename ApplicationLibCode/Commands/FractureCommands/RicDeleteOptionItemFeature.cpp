@@ -60,7 +60,7 @@ void RicDeleteOptionItemFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteOptionItemFeature::isCommandEnabled()
+bool RicDeleteOptionItemFeature::isCommandEnabled() const
 {
     std::vector<RicCreateMultipleFracturesOptionItemUi*> optionItems;
     caf::SelectionManager::instance()->objectsByType( &optionItems, caf::SelectionManager::FIRST_LEVEL );

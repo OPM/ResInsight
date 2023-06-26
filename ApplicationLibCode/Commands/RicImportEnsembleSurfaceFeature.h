@@ -37,7 +37,6 @@ public:
     static void importEnsembleSurfaceFromFiles( const QStringList& fileNames, RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

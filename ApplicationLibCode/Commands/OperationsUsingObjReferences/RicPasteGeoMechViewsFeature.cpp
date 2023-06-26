@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicPasteGeoMechViewsFeature, "RicPasteGeoMechViewsFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteGeoMechViewsFeature::isCommandEnabled()
+bool RicPasteGeoMechViewsFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );

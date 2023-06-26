@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicPasteEllipseFractureFeature, "RicPasteEllipseFractureFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteEllipseFractureFeature::isCommandEnabled()
+bool RicPasteEllipseFractureFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );

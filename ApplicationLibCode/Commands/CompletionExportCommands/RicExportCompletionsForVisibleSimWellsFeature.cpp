@@ -32,7 +32,7 @@ CAF_CMD_SOURCE_INIT( RicExportCompletionsForVisibleSimWellsFeature, "RicExportCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportCompletionsForVisibleSimWellsFeature::isCommandEnabled()
+bool RicExportCompletionsForVisibleSimWellsFeature::isCommandEnabled() const
 {
     std::vector<RimSimWellInView*> simWells = visibleSimWells();
 

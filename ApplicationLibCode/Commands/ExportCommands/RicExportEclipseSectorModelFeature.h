@@ -40,7 +40,7 @@ public:
     static std::pair<cvf::Vec3i, cvf::Vec3i> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

@@ -23,7 +23,7 @@ CAF_CMD_SOURCE_INIT( RicOpenSummaryPlotEditorFromMdiAreaFeature, "RicOpenSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicOpenSummaryPlotEditorFromMdiAreaFeature::isCommandEnabled()
+bool RicOpenSummaryPlotEditorFromMdiAreaFeature::isCommandEnabled() const
 {
     return true;
 }

@@ -31,7 +31,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteWellPathAttributeFeature, "RicDeleteWellPathAttrib
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteWellPathAttributeFeature::isCommandEnabled()
+bool RicDeleteWellPathAttributeFeature::isCommandEnabled() const
 {
     {
         std::vector<RimWellPathAttribute*> objects;

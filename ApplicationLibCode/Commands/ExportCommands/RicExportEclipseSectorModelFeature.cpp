@@ -261,7 +261,7 @@ std::pair<cvf::Vec3i, cvf::Vec3i> RicExportEclipseSectorModelFeature::getVisible
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportEclipseSectorModelFeature::isCommandEnabled()
+bool RicExportEclipseSectorModelFeature::isCommandEnabled() const
 {
     return selectedView() != nullptr;
 }

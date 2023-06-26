@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicAppendIntersectionBoxFeature, "RicAppendIntersectionBoxF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendIntersectionBoxFeature::isCommandEnabled()
+bool RicAppendIntersectionBoxFeature::isCommandEnabled() const
 {
     RimIntersectionCollection* coll = RicAppendIntersectionBoxFeature::intersectionCollection();
     return coll != nullptr;

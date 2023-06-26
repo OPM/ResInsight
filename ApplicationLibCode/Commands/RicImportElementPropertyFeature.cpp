@@ -36,14 +36,6 @@ CAF_CMD_SOURCE_INIT( RicImportElementPropertyFeature, "RicImportElementPropertyF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportElementPropertyFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportElementPropertyFeature::onActionTriggered( bool isChecked )
 {
     importElementProperties();

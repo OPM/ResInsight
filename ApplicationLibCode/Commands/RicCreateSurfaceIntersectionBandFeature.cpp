@@ -49,7 +49,7 @@ RimSurfaceCollection* RicCreateSurfaceIntersectionBandFeature::surfaceCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateSurfaceIntersectionBandFeature::isCommandEnabled()
+bool RicCreateSurfaceIntersectionBandFeature::isCommandEnabled() const
 {
     auto* surfColl = RicCreateSurfaceIntersectionBandFeature::surfaceCollection();
     auto  surfaces = surfColl->ensembleSurfaces();

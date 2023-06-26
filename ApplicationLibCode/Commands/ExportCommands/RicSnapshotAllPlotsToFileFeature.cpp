@@ -118,14 +118,6 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSnapshotAllPlotsToFileFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::onActionTriggered( bool isChecked )
 {
     QWidget* currentActiveWidget = nullptr;

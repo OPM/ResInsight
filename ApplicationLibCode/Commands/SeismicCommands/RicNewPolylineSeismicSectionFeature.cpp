@@ -27,14 +27,6 @@ CAF_CMD_SOURCE_INIT( RicNewPolylineSeismicSectionFeature, "RicNewPolylineSeismic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPolylineSeismicSectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewPolylineSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
     RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_POLYLINE );

@@ -31,7 +31,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteValveTemplateFeature, "RicDeleteValveTemplateFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteValveTemplateFeature::isCommandEnabled()
+bool RicDeleteValveTemplateFeature::isCommandEnabled() const
 {
     return caf::SelectionManager::instance()->selectedItemOfType<RimValveTemplate>() != nullptr;
 }

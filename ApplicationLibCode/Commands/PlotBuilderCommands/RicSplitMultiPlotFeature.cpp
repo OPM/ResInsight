@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicSplitMultiPlotFeature, "RicSplitMultiPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSplitMultiPlotFeature::isCommandEnabled()
+bool RicSplitMultiPlotFeature::isCommandEnabled() const
 {
     RimSummaryPlot* plot = getSelectedPlot();
     if ( plot )
@@ -92,7 +92,7 @@ void RicSplitMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicSplitMultiPlotFeature::getSelectedPlot()
+RimSummaryPlot* RicSplitMultiPlotFeature::getSelectedPlot() const
 {
     RimSummaryPlot* plot = nullptr;
 

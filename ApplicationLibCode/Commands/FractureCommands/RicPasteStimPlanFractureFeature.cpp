@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicPasteStimPlanFractureFeature, "RicPasteStimPlanFractureF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteStimPlanFractureFeature::isCommandEnabled()
+bool RicPasteStimPlanFractureFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );

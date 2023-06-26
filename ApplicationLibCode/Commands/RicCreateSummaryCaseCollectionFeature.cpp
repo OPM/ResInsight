@@ -54,7 +54,7 @@ RimSummaryCaseCollection*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled()
+bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );

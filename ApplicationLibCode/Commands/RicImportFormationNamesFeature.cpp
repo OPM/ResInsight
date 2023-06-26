@@ -97,14 +97,6 @@ RimFormationNames* RicImportFormationNamesFeature::importFormationFiles( const Q
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportFormationNamesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// If only one formation file is imported, the formation will automatically be set in the active
 /// view�s case. Import of LYR files with colors create custom color legends according to color
 /// definition on each file. However, color legend must be set by the user.

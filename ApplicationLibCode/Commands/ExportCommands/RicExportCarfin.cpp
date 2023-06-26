@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicExportCarfin, "RicExportCarfin" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportCarfin::isCommandEnabled()
+bool RicExportCarfin::isCommandEnabled() const
 {
     return RicExportCarfin::selectedCase() != nullptr;
 }

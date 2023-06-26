@@ -43,7 +43,7 @@ CAF_CMD_SOURCE_INIT( RicEclipseHideFaultFeature, "RicEclipseHideFaultFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseHideFaultFeature::isCommandEnabled()
+bool RicEclipseHideFaultFeature::isCommandEnabled() const
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if ( !view ) return false;

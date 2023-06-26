@@ -28,14 +28,6 @@ CAF_CMD_SOURCE_INIT( RicSaveProjectNoGlobalPathsFeature, "RicSaveProjectNoGlobal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveProjectNoGlobalPathsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSaveProjectNoGlobalPathsFeature::onActionTriggered( bool isChecked )
 {
     RimProject* proj = RimProject::current();

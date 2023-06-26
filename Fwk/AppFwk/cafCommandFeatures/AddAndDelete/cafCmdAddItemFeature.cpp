@@ -77,7 +77,7 @@ CmdExecuteCommand* CmdAddItemFeature::createExecuteCommand()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool CmdAddItemFeature::isCommandEnabled()
+bool CmdAddItemFeature::isCommandEnabled() const
 {
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = SelectionManager::instance()->activeChildArrayFieldHandle();
 

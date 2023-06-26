@@ -45,7 +45,7 @@ CAF_CMD_SOURCE_INIT( RicPasteEclipseCasesFeature, "RicPasteEclipseCasesFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteEclipseCasesFeature::isCommandEnabled()
+bool RicPasteEclipseCasesFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );

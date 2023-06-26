@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryPlotFromDataVectorFeature, "RicNewSummaryPlotF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled()
+bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );

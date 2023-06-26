@@ -36,14 +36,6 @@ CAF_CMD_SOURCE_INIT( RicCreateGridCaseGroupFromFilesFeature, "RicCreateGridCaseG
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateGridCaseGroupFromFilesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateGridCaseGroupFromFilesFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();

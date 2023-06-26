@@ -33,7 +33,7 @@ CAF_CMD_SOURCE_INIT( RicShowWellPlanFeature, "RicShowWellPlanFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowWellPlanFeature::isCommandEnabled()
+bool RicShowWellPlanFeature::isCommandEnabled() const
 {
     auto selectedWellPaths = caf::selectedObjectsByType<RimModeledWellPath*>();
     return !selectedWellPaths.empty();

@@ -37,14 +37,6 @@ CAF_CMD_SOURCE_INIT( RicAppendIntersectionFeature, "RicAppendIntersectionFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendIntersectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicAppendIntersectionFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmObjectHandle*> collection;

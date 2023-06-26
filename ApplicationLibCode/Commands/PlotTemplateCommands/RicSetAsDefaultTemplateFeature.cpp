@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicSetAsDefaultTemplateFeature, "RicSetAsDefaultTemplateFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSetAsDefaultTemplateFeature::isCommandEnabled()
+bool RicSetAsDefaultTemplateFeature::isCommandEnabled() const
 {
     return selectedTemplate() != nullptr;
 }
@@ -76,7 +76,7 @@ void RicSetAsDefaultTemplateFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotTemplateFileItem* RicSetAsDefaultTemplateFeature::selectedTemplate()
+RimPlotTemplateFileItem* RicSetAsDefaultTemplateFeature::selectedTemplate() const
 {
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems( uiItems );

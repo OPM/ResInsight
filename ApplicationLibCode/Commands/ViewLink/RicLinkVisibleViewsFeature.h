@@ -38,7 +38,7 @@ public:
     static std::vector<Rim3dView*> matchingViews( Rim3dView* primaryView, std::vector<Rim3dView*>& candidates );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
 
     void setupActionLook( QAction* actionToSetup ) override;

@@ -35,14 +35,6 @@
 
 CAF_CMD_SOURCE_INIT( RicEditPreferencesFeature, "RicEditPreferencesFeature" );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicEditPreferencesFeature::isCommandEnabled()
-{
-    return true;
-}
-
 std::vector<caf::FontHolderInterface*> findFontObjects()
 {
     auto                                   project        = RimProject::current();

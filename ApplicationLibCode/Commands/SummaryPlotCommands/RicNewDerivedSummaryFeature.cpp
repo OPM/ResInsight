@@ -33,7 +33,7 @@ CAF_CMD_SOURCE_INIT( RicNewDerivedSummaryFeature, "RicNewDerivedSummaryFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewDerivedSummaryFeature::isCommandEnabled()
+bool RicNewDerivedSummaryFeature::isCommandEnabled() const
 {
     return mainCollection() != nullptr;
 }

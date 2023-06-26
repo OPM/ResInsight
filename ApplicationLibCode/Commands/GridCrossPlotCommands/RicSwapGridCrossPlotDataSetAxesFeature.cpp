@@ -12,7 +12,7 @@ CAF_CMD_SOURCE_INIT( RicSwapGridCrossPlotDataSetAxesFeature, "RicSwapGridCrossPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSwapGridCrossPlotDataSetAxesFeature::isCommandEnabled()
+bool RicSwapGridCrossPlotDataSetAxesFeature::isCommandEnabled() const
 {
     if ( caf::SelectionManager::instance()->selectedItemOfType<RimGridCrossPlotDataSet>() )
     {

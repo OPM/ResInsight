@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteSubItemsFeature, "RicDeleteSubItemsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteSubItemsFeature::isCommandEnabled()
+bool RicDeleteSubItemsFeature::isCommandEnabled() const
 {
     return RicDeleteSubItemsFeature::canCommandBeEnabled();
 }

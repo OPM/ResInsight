@@ -54,14 +54,14 @@ class ToggleItemsOnOthersOffFeature : public caf::CmdFeature
 
 protected:
     // Overrides
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmFieldHandle* verifySameParentForSelection( const std::vector<caf::PdmObject*>& selectedObjects );
-    std::vector<caf::PdmObjectHandle*> childObjects( caf::PdmFieldHandle* parent );
-    caf::PdmField<bool>*               objectToggleField( caf::PdmObjectHandle* objectHandle );
+    static caf::PdmFieldHandle* verifySameParentForSelection( const std::vector<caf::PdmObject*>& selectedObjects );
+    static std::vector<caf::PdmObjectHandle*> childObjects( caf::PdmFieldHandle* parent );
+    static caf::PdmField<bool>*               objectToggleField( caf::PdmObjectHandle* objectHandle );
 };
 
 } // namespace caf

@@ -64,14 +64,6 @@ QString RicImportSummaryCasesFeature::m_fileNameFilter = "*";
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryCasesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication*   app           = RiaGuiApplication::instance();

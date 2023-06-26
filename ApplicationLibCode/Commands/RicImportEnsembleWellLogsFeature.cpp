@@ -48,14 +48,6 @@ RicImportEnsembleWellLogsFeature::RicImportEnsembleWellLogsFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportEnsembleWellLogsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName             = "ENSEMBLE_WELL_LOGS_FILES";

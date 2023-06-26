@@ -54,7 +54,7 @@ void RicReloadSummaryCaseFeature::reloadSummaryCase( RimSummaryCase* summaryCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadSummaryCaseFeature::isCommandEnabled()
+bool RicReloadSummaryCaseFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
 

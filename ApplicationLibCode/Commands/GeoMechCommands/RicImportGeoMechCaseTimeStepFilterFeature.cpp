@@ -62,11 +62,3 @@ void RicImportGeoMechCaseTimeStepFilterFeature::setupActionLook( QAction* action
     actionToSetup->setIcon( QIcon( ":/GeoMechCaseTime24x24.png" ) );
     actionToSetup->setText( "Import Geo Mechanical Model (Time Step Filtered)" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportGeoMechCaseTimeStepFilterFeature::isCommandEnabled()
-{
-    return true;
-}

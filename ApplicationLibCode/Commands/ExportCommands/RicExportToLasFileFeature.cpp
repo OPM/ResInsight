@@ -118,7 +118,7 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportToLasFileFeature::isCommandEnabled()
+bool RicExportToLasFileFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;

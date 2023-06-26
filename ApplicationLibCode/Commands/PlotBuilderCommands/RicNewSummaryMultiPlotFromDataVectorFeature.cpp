@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryMultiPlotFromDataVectorFeature, "RicNewSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryMultiPlotFromDataVectorFeature::isCommandEnabled()
+bool RicNewSummaryMultiPlotFromDataVectorFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );

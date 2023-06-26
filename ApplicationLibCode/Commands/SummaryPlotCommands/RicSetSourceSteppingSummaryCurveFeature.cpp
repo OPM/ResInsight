@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT( RicSetSourceSteppingSummaryCurveFeature, "RicSetSourceStepp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSetSourceSteppingSummaryCurveFeature::isCommandEnabled()
+bool RicSetSourceSteppingSummaryCurveFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCurve*> summaryCurves;
     caf::SelectionManager::instance()->objectsByType( &summaryCurves );

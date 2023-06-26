@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicAppendSummaryCurvesForSummaryAddressesFeature, "RicAppen
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendSummaryCurvesForSummaryAddressesFeature::isCommandEnabled()
+bool RicAppendSummaryCurvesForSummaryAddressesFeature::isCommandEnabled() const
 {
     return !selectedAddresses().empty();
 }

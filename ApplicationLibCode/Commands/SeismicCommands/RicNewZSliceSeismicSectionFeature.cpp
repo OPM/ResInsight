@@ -27,14 +27,6 @@ CAF_CMD_SOURCE_INIT( RicNewZSliceSeismicSectionFeature, "RicNewZSliceSeismicSect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewZSliceSeismicSectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewZSliceSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
     RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_DEPTHSLICE );

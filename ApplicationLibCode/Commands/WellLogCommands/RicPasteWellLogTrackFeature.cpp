@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicPasteWellLogTrackFeature, "RicPasteWellLogTrackFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteWellLogTrackFeature::isCommandEnabled()
+bool RicPasteWellLogTrackFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 

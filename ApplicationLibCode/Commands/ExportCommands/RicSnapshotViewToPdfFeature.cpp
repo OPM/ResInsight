@@ -37,14 +37,6 @@ CAF_CMD_SOURCE_INIT( RicSnapshotViewToPdfFeature, "RicSnapshotViewToPdfFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSnapshotViewToPdfFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToPdfFeature::onActionTriggered( bool isChecked )
 {
     // Get active view window before displaying the file selection dialog

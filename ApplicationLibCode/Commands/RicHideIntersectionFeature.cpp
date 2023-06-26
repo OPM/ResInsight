@@ -32,7 +32,7 @@ CAF_CMD_SOURCE_INIT( RicHideIntersectionFeature, "RicHideIntersectionFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHideIntersectionFeature::isCommandEnabled()
+bool RicHideIntersectionFeature::isCommandEnabled() const
 {
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( !activeView ) return false;

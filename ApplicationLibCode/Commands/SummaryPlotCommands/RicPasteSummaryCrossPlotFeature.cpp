@@ -65,7 +65,7 @@ void RicPasteSummaryCrossPlotFeature::copyPlotAndAddToCollection( RimSummaryCros
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryCrossPlotFeature::isCommandEnabled()
+bool RicPasteSummaryCrossPlotFeature::isCommandEnabled() const
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;

@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryTableFeature, "RicNewSummaryTableFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryTableFeature::isCommandEnabled()
+bool RicNewSummaryTableFeature::isCommandEnabled() const
 {
     RimSummaryTableCollection* tableColl = nullptr;
 

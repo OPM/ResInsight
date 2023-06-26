@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicCopyGridStatisticsToClipboardFeature, "RicCopyGridStatis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopyGridStatisticsToClipboardFeature::isCommandEnabled()
+bool RicCopyGridStatisticsToClipboardFeature::isCommandEnabled() const
 {
     if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 

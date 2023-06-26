@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicDuplicateSummaryPlotFeature, "RicDuplicateSummaryPlotFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDuplicateSummaryPlotFeature::isCommandEnabled()
+bool RicDuplicateSummaryPlotFeature::isCommandEnabled() const
 {
     RimSummaryMultiPlot* multiPlot = nullptr;
 

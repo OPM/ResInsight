@@ -36,7 +36,6 @@ public:
     static void executeCommand( const RicCreateEnsembleSurfaceUi& ui, const std::vector<QString>& fileNames );
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

@@ -39,14 +39,6 @@ CAF_CMD_SOURCE_INIT( RicNewEmptySummaryMultiPlotFeature, "RicNewEmptySummaryMult
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewEmptySummaryMultiPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewEmptySummaryMultiPlotFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;

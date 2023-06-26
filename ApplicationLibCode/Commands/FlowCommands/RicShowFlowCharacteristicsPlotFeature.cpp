@@ -53,7 +53,7 @@ RimEclipseResultCase* activeEclipseResultCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowFlowCharacteristicsPlotFeature::isCommandEnabled()
+bool RicShowFlowCharacteristicsPlotFeature::isCommandEnabled() const
 {
     RimEclipseResultCase* eclCase = activeEclipseResultCase();
 

@@ -30,7 +30,7 @@ CAF_CMD_SOURCE_INIT( RicRenameCaseFeature, "RicRenameCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRenameCaseFeature::isCommandEnabled()
+bool RicRenameCaseFeature::isCommandEnabled() const
 {
     auto rimCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>();
     return ( rimCase != nullptr );

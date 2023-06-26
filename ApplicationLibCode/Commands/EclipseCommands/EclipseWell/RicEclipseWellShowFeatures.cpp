@@ -52,7 +52,7 @@ void RicEclipseWellShowLabelFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowLabelFeature::isCommandEnabled()
+bool RicEclipseWellShowLabelFeature::isCommandEnabled() const
 {
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
@@ -60,7 +60,7 @@ bool RicEclipseWellShowLabelFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowLabelFeature::isCommandChecked()
+bool RicEclipseWellShowLabelFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if ( selection.size() > 0 )
@@ -100,7 +100,7 @@ void RicEclipseWellShowHeadFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowHeadFeature::isCommandEnabled()
+bool RicEclipseWellShowHeadFeature::isCommandEnabled() const
 {
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
@@ -108,7 +108,7 @@ bool RicEclipseWellShowHeadFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowHeadFeature::isCommandChecked()
+bool RicEclipseWellShowHeadFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if ( selection.size() > 0 )
@@ -148,7 +148,7 @@ void RicEclipseWellShowPipeFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowPipeFeature::isCommandEnabled()
+bool RicEclipseWellShowPipeFeature::isCommandEnabled() const
 {
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
@@ -156,7 +156,7 @@ bool RicEclipseWellShowPipeFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowPipeFeature::isCommandChecked()
+bool RicEclipseWellShowPipeFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if ( selection.size() > 0 )
@@ -196,7 +196,7 @@ void RicEclipseWellShowSpheresFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowSpheresFeature::isCommandEnabled()
+bool RicEclipseWellShowSpheresFeature::isCommandEnabled() const
 {
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
@@ -204,7 +204,7 @@ bool RicEclipseWellShowSpheresFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowSpheresFeature::isCommandChecked()
+bool RicEclipseWellShowSpheresFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if ( selection.size() > 0 )
@@ -244,7 +244,7 @@ void RicEclipseWellShowWellCellsFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowWellCellsFeature::isCommandEnabled()
+bool RicEclipseWellShowWellCellsFeature::isCommandEnabled() const
 {
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
@@ -252,7 +252,7 @@ bool RicEclipseWellShowWellCellsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowWellCellsFeature::isCommandChecked()
+bool RicEclipseWellShowWellCellsFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if ( selection.size() > 0 )
@@ -292,7 +292,7 @@ void RicEclipseWellShowWellCellFenceFeature::setupActionLook( QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowWellCellFenceFeature::isCommandEnabled()
+bool RicEclipseWellShowWellCellFenceFeature::isCommandEnabled() const
 {
     return RicEclipseWellFeatureImpl::isAnyWellSelected();
 }
@@ -300,7 +300,7 @@ bool RicEclipseWellShowWellCellFenceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseWellShowWellCellFenceFeature::isCommandChecked()
+bool RicEclipseWellShowWellCellFenceFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if ( selection.size() > 0 )

@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicPasteTimeHistoryCurveFeature, "RicPasteTimeHistoryCurveF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteTimeHistoryCurveFeature::isCommandEnabled()
+bool RicPasteTimeHistoryCurveFeature::isCommandEnabled() const
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 

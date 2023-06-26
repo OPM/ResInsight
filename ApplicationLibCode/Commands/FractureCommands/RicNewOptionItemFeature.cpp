@@ -34,14 +34,6 @@ CAF_CMD_SOURCE_INIT( RicNewOptionItemFeature, "RicNewOptionItemFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewOptionItemFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewOptionItemFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Option Item" );

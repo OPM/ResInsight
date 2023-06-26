@@ -80,11 +80,3 @@ void RicNewStimPlanModelTemplateFeature::setupActionLook( QAction* actionToSetup
     actionToSetup->setIcon( QIcon( ":/FractureTemplate16x16.png" ) );
     actionToSetup->setText( "New StimPlan Model Template" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicNewStimPlanModelTemplateFeature::isCommandEnabled()
-{
-    return true;
-}

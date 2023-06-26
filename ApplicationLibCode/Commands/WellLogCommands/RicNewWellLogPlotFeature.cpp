@@ -40,14 +40,6 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogPlotFeature, "RicNewWellLogPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();

@@ -30,8 +30,8 @@ class RicEclipseWellShowLabelFeature : public caf::CmdFeature
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
-    bool isCommandChecked() override;
+    bool isCommandEnabled() const override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -44,8 +44,8 @@ class RicEclipseWellShowHeadFeature : public caf::CmdFeature
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
-    bool isCommandChecked() override;
+    bool isCommandEnabled() const override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -58,8 +58,8 @@ class RicEclipseWellShowPipeFeature : public caf::CmdFeature
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
-    bool isCommandChecked() override;
+    bool isCommandEnabled() const override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -72,8 +72,8 @@ class RicEclipseWellShowSpheresFeature : public caf::CmdFeature
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
-    bool isCommandChecked() override;
+    bool isCommandEnabled() const override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -86,8 +86,8 @@ class RicEclipseWellShowWellCellsFeature : public caf::CmdFeature
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
-    bool isCommandChecked() override;
+    bool isCommandEnabled() const override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -100,6 +100,6 @@ class RicEclipseWellShowWellCellFenceFeature : public caf::CmdFeature
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
-    bool isCommandChecked() override;
+    bool isCommandEnabled() const override;
+    bool isCommandChecked() const override;
 };

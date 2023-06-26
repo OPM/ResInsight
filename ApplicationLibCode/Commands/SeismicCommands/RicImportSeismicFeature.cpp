@@ -43,14 +43,6 @@ CAF_CMD_SOURCE_INIT( RicImportSeismicFeature, "RicImportSeismicFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSeismicFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportSeismicFeature::onActionTriggered( bool isChecked )
 {
     QString         filter     = "Seismic volumes (*.zgy *.vds);;SEG-Y files (*.sgy *.segy);;All Files (*.*)";

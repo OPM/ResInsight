@@ -45,14 +45,6 @@ CAF_CMD_SOURCE_INIT( RicAsciiExportSummaryPlotFeature, "RicAsciiExportSummaryPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportSummaryPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();

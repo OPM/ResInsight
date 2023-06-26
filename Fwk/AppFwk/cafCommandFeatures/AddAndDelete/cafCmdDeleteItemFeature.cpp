@@ -103,7 +103,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool CmdDeleteItemFeature::isCommandEnabled()
+bool CmdDeleteItemFeature::isCommandEnabled() const
 {
     caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(
         caf::SelectionManager::instance()->selectedItem( caf::SelectionManager::FIRST_LEVEL ) );

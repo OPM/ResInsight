@@ -88,7 +88,7 @@ void RicNewValveAtMeasuredDepthFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled()
+bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled() const
 {
     auto wellPathSelectionItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     return wellPathSelectionItem && dynamic_cast<RimPerforationInterval*>( wellPathSelectionItem->m_wellPathComponent );

@@ -131,7 +131,7 @@ void RicNewFishbonesSubsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewFishbonesSubsFeature::isCommandEnabled()
+bool RicNewFishbonesSubsFeature::isCommandEnabled() const
 {
     return selectedFishbonesCollection() != nullptr;
 }

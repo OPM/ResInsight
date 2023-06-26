@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT( RicPasteModeledWellPathFeature, "RicPasteModeledWellPathFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteModeledWellPathFeature::isCommandEnabled()
+bool RicPasteModeledWellPathFeature::isCommandEnabled() const
 {
     if ( !modeledWellPathsFromClipboard().empty() ) return true;
     {

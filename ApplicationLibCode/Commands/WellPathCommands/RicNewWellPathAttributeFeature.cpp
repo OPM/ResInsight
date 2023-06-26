@@ -32,7 +32,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathAttributeFeature, "RicNewWellPathAttributeFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellPathAttributeFeature::isCommandEnabled()
+bool RicNewWellPathAttributeFeature::isCommandEnabled() const
 {
     {
         std::vector<RimWellPathAttribute*> objects;

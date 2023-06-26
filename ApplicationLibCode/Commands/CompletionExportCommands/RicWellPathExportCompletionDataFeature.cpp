@@ -202,7 +202,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
+bool RicWellPathExportCompletionDataFeature::isCommandEnabled() const
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
 

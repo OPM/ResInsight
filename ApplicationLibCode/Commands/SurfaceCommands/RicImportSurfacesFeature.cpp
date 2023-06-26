@@ -39,14 +39,6 @@ CAF_CMD_SOURCE_INIT( RicImportSurfacesFeature, "RicImportSurfacesFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSurfacesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();

@@ -37,7 +37,7 @@ public:
     static void deleteObject( caf::PdmObject* objectToDelete );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
 
     void setupActionLook( QAction* actionToSetup ) override;

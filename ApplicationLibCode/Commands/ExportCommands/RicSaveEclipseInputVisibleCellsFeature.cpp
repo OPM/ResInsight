@@ -109,7 +109,7 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveEclipseInputVisibleCellsFeature::isCommandEnabled()
+bool RicSaveEclipseInputVisibleCellsFeature::isCommandEnabled() const
 {
     return selectedView() != nullptr;
 }
@@ -155,7 +155,7 @@ RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled()
+bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled() const
 {
     return selectedView() != nullptr;
 }

@@ -49,14 +49,6 @@ CAF_CMD_SOURCE_INIT( RicCreateNewIssueHelpFeature, "RicCreateNewIssueHelpFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHelpAboutFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicHelpAboutFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
@@ -208,14 +200,6 @@ QString RicHelpAboutFeature::getPythonVersion( const QString& pathToPythonExecut
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHelpCommandLineFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicHelpCommandLineFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
@@ -232,14 +216,6 @@ void RicHelpCommandLineFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Command Line Help" );
     actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicHelpSummaryCommandLineFeature::isCommandEnabled()
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,14 +242,6 @@ void RicHelpSummaryCommandLineFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHelpOpenUsersGuideFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
@@ -289,14 +257,6 @@ void RicHelpOpenUsersGuideFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Users Guide" );
     actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicSearchHelpFeature::isCommandEnabled()
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -340,14 +300,6 @@ void RicSearchHelpFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSearchIssuesHelpFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSearchIssuesHelpFeature::onActionTriggered( bool isChecked )
 {
     QString usersGuideUrl = "https://github.com/OPM/ResInsight/issues";
@@ -361,14 +313,6 @@ void RicSearchIssuesHelpFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Search Issues" );
     actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicCreateNewIssueHelpFeature::isCommandEnabled()
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

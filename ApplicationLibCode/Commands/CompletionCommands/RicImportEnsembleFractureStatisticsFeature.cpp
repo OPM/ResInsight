@@ -45,14 +45,6 @@ QString RicImportEnsembleFractureStatisticsFeature::m_fileNameFilter = "*";
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportEnsembleFractureStatisticsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName             = "INPUT_FILES";

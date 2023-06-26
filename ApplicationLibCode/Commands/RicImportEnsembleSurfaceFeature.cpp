@@ -52,14 +52,6 @@ RicImportEnsembleSurfaceFeature::RicImportEnsembleSurfaceFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportEnsembleSurfaceFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName             = "ENSEMBLE_SURFACE_FILES";

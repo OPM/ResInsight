@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogPlotTrackFeature, "RicNewWellLogPlotTrackFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogPlotTrackFeature::isCommandEnabled()
+bool RicNewWellLogPlotTrackFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() || RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() )
     {

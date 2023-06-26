@@ -53,7 +53,7 @@ void RicCloseSummaryCaseInCollectionFeature::setupActionLook( QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled()
+bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
     caf::SelectionManager::instance()->objectsByType( &summaryCaseMainCollections );

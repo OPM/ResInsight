@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellMeasurementCurveFeature, "RicNewWellMeasurementCu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellMeasurementCurveFeature::isCommandEnabled()
+bool RicNewWellMeasurementCurveFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
 

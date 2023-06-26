@@ -130,7 +130,7 @@ void RicNewSimWellFractureAtPosFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
+bool RicNewSimWellFractureAtPosFeature::isCommandEnabled() const
 {
     RimProject* proj = RimProject::current();
     if ( proj->allFractureTemplates().empty() ) return false;

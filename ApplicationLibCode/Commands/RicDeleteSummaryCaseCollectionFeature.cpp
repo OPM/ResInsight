@@ -63,7 +63,7 @@ void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled()
+bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCaseCollection*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );

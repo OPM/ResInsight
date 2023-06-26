@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicAddScriptPathFeature, "RicAddScriptPathFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAddScriptPathFeature::isCommandEnabled()
+bool RicAddScriptPathFeature::isCommandEnabled() const
 {
     std::vector<RimScriptCollection*> selection = RicScriptFeatureImpl::selectedScriptCollections();
     return selection.size() > 0;

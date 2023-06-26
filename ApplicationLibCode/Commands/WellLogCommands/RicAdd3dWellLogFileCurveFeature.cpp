@@ -33,7 +33,7 @@ CAF_CMD_SOURCE_INIT( RicAdd3dWellLogFileCurveFeature, "RicAdd3dWellLogFileCurveF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAdd3dWellLogFileCurveFeature::isCommandEnabled()
+bool RicAdd3dWellLogFileCurveFeature::isCommandEnabled() const
 {
     std::vector<RimCase*> cases;
     RimProject::current()->allCases( cases );

@@ -53,7 +53,7 @@ CAF_CMD_SOURCE_INIT( RicPlotProductionRateFeature, "RicPlotProductionRateFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPlotProductionRateFeature::isCommandEnabled()
+bool RicPlotProductionRateFeature::isCommandEnabled() const
 {
     std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType( &collection );

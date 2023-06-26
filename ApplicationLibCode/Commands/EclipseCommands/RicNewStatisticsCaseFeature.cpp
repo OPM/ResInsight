@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicNewStatisticsCaseFeature, "RicNewStatisticsCaseFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewStatisticsCaseFeature::isCommandEnabled()
+bool RicNewStatisticsCaseFeature::isCommandEnabled() const
 {
     return selectedValidUIItem() != nullptr;
 }

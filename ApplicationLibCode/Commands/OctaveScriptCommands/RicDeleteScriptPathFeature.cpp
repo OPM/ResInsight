@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteScriptPathFeature, "RicDeleteScriptPathFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteScriptPathFeature::isCommandEnabled()
+bool RicDeleteScriptPathFeature::isCommandEnabled() const
 {
     std::vector<RimScriptCollection*> selection = RicScriptFeatureImpl::selectedScriptCollections();
     if ( selection.size() == 1 )

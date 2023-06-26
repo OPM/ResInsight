@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicPasteGridCrossPlotDataSetFeature, "RicPasteGridCrossPlot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteGridCrossPlotDataSetFeature::isCommandEnabled()
+bool RicPasteGridCrossPlotDataSetFeature::isCommandEnabled() const
 {
     auto curvesOnClipboard = gridCrossPlotDataSetsOnClipboard();
     if ( curvesOnClipboard.empty() ) return false;

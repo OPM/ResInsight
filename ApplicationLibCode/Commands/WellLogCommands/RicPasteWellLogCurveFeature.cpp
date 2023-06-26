@@ -42,7 +42,7 @@ CAF_CMD_SOURCE_INIT( RicPasteWellLogCurveFeature, "RicPasteWellLogCurveFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteWellLogCurveFeature::isCommandEnabled()
+bool RicPasteWellLogCurveFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;

@@ -77,7 +77,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::setupActionLook( QAction* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPerforationIntervalAtMeasuredDepthFeature::isCommandEnabled()
+bool RicNewPerforationIntervalAtMeasuredDepthFeature::isCommandEnabled() const
 {
     return RiuWellPathSelectionItem::wellPathSelectionItem() != nullptr;
 }

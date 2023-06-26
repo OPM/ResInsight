@@ -65,7 +65,7 @@ caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewMultiPlotFeature::isCommandEnabled()
+bool RicNewMultiPlotFeature::isCommandEnabled() const
 {
     auto plots = selectedPlots();
 

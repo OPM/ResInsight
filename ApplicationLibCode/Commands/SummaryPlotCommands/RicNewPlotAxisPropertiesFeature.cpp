@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT( RicNewPlotAxisPropertiesFeature, "RicNewPlotAxisPropertiesF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPlotAxisPropertiesFeature::isCommandEnabled()
+bool RicNewPlotAxisPropertiesFeature::isCommandEnabled() const
 {
     auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     return ( summaryPlot != nullptr );

@@ -35,14 +35,6 @@ CAF_CMD_SOURCE_INIT( RicNewSurfaceCollectionFeature, "RicNewSurfaceCollectionFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSurfaceCollectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewSurfaceCollectionFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSurfaceCollection*> colls = caf::selectedObjectsByTypeStrict<RimSurfaceCollection*>();

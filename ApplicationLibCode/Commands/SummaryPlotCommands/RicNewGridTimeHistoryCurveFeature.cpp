@@ -211,7 +211,7 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
+bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled() const
 {
     if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 

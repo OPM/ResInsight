@@ -84,7 +84,7 @@ public:
     void     refreshEnabledState();
     void     refreshCheckedState();
 
-    bool canFeatureBeExecuted();
+    bool canFeatureBeExecuted() const;
 
     static void applyShortcutWithHintToAction( QAction* action, const QKeySequence& keySequence );
 
@@ -94,8 +94,8 @@ public slots:
 protected:
     virtual void onActionTriggered( bool isChecked )       = 0;
     virtual void setupActionLook( QAction* actionToSetup ) = 0;
-    virtual bool isCommandEnabled()                        = 0;
-    virtual bool isCommandChecked();
+    virtual bool isCommandEnabled() const;
+    virtual bool isCommandChecked() const;
 
     void           disableModelChangeContribution();
     const QVariant userData() const;

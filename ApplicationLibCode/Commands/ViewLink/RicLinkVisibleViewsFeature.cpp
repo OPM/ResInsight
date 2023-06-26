@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicLinkVisibleViewsFeature, "RicLinkVisibleViewsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicLinkVisibleViewsFeature::isCommandEnabled()
+bool RicLinkVisibleViewsFeature::isCommandEnabled() const
 {
     RimProject* proj = RimProject::current();
     if ( !proj ) return false;

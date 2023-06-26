@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicNewSeismicDifferenceFeature, "RicNewSeismicDifferenceFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSeismicDifferenceFeature::isCommandEnabled()
+bool RicNewSeismicDifferenceFeature::isCommandEnabled() const
 {
     auto size = selectedSeismic().size();
     return size == 2;

@@ -32,14 +32,6 @@ CAF_CMD_SOURCE_INIT( RicNewStreamlineFeature, "RicNewStreamlineFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewStreamlineFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewStreamlineFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimStreamlineInViewCollection*> colls = caf::selectedObjectsByTypeStrict<RimStreamlineInViewCollection*>();

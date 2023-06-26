@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT( RicNewPlotDataFilterFeature, "RicNewPlotDataFilterFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPlotDataFilterFeature::isCommandEnabled()
+bool RicNewPlotDataFilterFeature::isCommandEnabled() const
 {
     RimAnalysisPlot* analysisPlot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimAnalysisPlot>();
 

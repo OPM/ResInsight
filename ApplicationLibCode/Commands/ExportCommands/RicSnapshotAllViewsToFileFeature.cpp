@@ -148,14 +148,6 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSnapshotAllViewsToFileFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSnapshotAllViewsToFileFeature::onActionTriggered( bool isChecked )
 {
     QWidget* currentActiveWidget = nullptr;

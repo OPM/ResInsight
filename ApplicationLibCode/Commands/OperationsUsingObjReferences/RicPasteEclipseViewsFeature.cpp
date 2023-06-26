@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicPasteEclipseViewsFeature, "RicPasteEclipseViewsFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteEclipseViewsFeature::isCommandEnabled()
+bool RicPasteEclipseViewsFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );

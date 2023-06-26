@@ -32,7 +32,7 @@ CAF_CMD_SOURCE_INIT( RicReloadFormationNamesFeature, "RicReloadFormationNamesFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadFormationNamesFeature::isCommandEnabled()
+bool RicReloadFormationNamesFeature::isCommandEnabled() const
 {
     std::vector<RimFormationNames*> selectedFormationNamesObjs;
     caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesObjs );

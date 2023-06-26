@@ -53,7 +53,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogExtractionCurveFeature, "RicNewWellLogExtracti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogExtractionCurveFeature::isCommandEnabled()
+bool RicNewWellLogExtractionCurveFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;

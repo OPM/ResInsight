@@ -51,7 +51,7 @@ CAF_CMD_SOURCE_INIT( RicOpenSummaryPlotEditorFeature, "RicOpenSummaryPlotEditorF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
+bool RicOpenSummaryPlotEditorFeature::isCommandEnabled() const
 {
     RimSummaryMultiPlot*                  multiPlot               = nullptr;
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;

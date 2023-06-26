@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT( RicCopyStandardLegendFeature, "RicCopyStandardLegendFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopyStandardLegendFeature::isCommandEnabled()
+bool RicCopyStandardLegendFeature::isCommandEnabled() const
 {
     return selectedColorLegend() != nullptr;
 }

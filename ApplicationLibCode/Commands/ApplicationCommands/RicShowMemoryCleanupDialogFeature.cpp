@@ -35,14 +35,6 @@ CAF_CMD_SOURCE_INIT( RicShowMemoryCleanupDialogFeature, "RicShowMemoryCleanupDia
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowMemoryCleanupDialogFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicShowMemoryCleanupDialogFeature::onActionTriggered( bool isChecked )
 {
     RiaMemoryCleanup memoryCleanup;

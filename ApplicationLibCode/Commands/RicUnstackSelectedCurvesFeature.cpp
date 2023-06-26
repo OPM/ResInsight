@@ -59,7 +59,7 @@ caf::PdmScriptResponse RicUnstackSelectedCurvesFeature::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicUnstackSelectedCurvesFeature::isCommandEnabled()
+bool RicUnstackSelectedCurvesFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );

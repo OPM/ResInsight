@@ -49,7 +49,7 @@ CAF_CMD_SOURCE_INIT( RicPasteAsciiDataToSummaryPlotFeature, "RicPasteAsciiDataTo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
+bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled() const
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 

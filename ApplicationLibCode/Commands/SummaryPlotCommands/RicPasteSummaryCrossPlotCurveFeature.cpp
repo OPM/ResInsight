@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryCrossPlotCurveFeature, "RicPasteSummaryCross
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryCrossPlotCurveFeature::isCommandEnabled()
+bool RicPasteSummaryCrossPlotCurveFeature::isCommandEnabled() const
 {
     caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
 

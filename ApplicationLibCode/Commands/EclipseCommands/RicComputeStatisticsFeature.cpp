@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicComputeStatisticsFeature, "RicComputeStatisticsFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicComputeStatisticsFeature::isCommandEnabled()
+bool RicComputeStatisticsFeature::isCommandEnabled() const
 {
     std::vector<RimEclipseStatisticsCase*> selection = selectedCases();
     if ( selection.size() > 0 )

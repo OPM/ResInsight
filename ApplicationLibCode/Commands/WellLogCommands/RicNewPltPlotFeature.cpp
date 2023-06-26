@@ -51,7 +51,7 @@ CAF_CMD_SOURCE_INIT( RicNewPltPlotFeature, "RicNewPltPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPltPlotFeature::isCommandEnabled()
+bool RicNewPltPlotFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 

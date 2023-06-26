@@ -102,7 +102,7 @@ void RicEditSummaryPlotFeature::editSummaryPlot( RimSummaryPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryPlotFeature::isCommandEnabled()
+bool RicEditSummaryPlotFeature::isCommandEnabled() const
 {
     return selectedSummaryPlot() != nullptr;
 }
@@ -127,7 +127,7 @@ void RicEditSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicEditSummaryPlotFeature::selectedSummaryPlot()
+RimSummaryPlot* RicEditSummaryPlotFeature::selectedSummaryPlot() const
 {
     RimSummaryPlot* sumPlot = nullptr;
 

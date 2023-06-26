@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicCreateRegressionAnalysisCurveFeature, "RicCreateRegressi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateRegressionAnalysisCurveFeature::isCommandEnabled()
+bool RicCreateRegressionAnalysisCurveFeature::isCommandEnabled() const
 {
     RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     return ( selectedPlot && !RiaSummaryTools::isSummaryCrossPlot( selectedPlot ) );

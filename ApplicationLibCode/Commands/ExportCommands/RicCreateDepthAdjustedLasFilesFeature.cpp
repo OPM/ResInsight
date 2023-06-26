@@ -46,14 +46,6 @@ CAF_CMD_SOURCE_INIT( RicCreateDepthAdjustedLasFilesFeature, "RicCreateDepthAdjus
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateDepthAdjustedLasFilesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
 {
     RicCreateDepthAdjustedLasFilesUi featureUi;

@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicChangeDataSourceFeature, "RicChangeDataSourceFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicChangeDataSourceFeature::isCommandEnabled()
+bool RicChangeDataSourceFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;

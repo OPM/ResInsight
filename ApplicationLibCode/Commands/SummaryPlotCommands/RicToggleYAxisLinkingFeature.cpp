@@ -30,7 +30,7 @@ CAF_CMD_SOURCE_INIT( RicToggleYAxisLinkingFeature, "RicToggleYAxisLinkingFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicToggleYAxisLinkingFeature::isCommandEnabled()
+bool RicToggleYAxisLinkingFeature::isCommandEnabled() const
 {
     auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot>();
     return ( summaryMultiPlot != nullptr );

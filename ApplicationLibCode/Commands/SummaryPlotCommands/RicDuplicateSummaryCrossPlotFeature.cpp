@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicDuplicateSummaryCrossPlotFeature, "RicDuplicateSummaryCr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDuplicateSummaryCrossPlotFeature::isCommandEnabled()
+bool RicDuplicateSummaryCrossPlotFeature::isCommandEnabled() const
 {
     RimSummaryCrossPlotCollection* sumPlotColl = nullptr;
 

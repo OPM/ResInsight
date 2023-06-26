@@ -37,14 +37,6 @@ CAF_CMD_SOURCE_INIT( RicImportFaciesFeature, "RicImportFaciesFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportFaciesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportFaciesFeature::onActionTriggered( bool isChecked )
 {
     RimStimPlanModelTemplate* stimPlanModelTemplate =

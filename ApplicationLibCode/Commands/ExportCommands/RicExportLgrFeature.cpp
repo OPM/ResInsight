@@ -760,7 +760,7 @@ std::vector<RigCompletionDataGridCell> RicExportLgrFeature::allIntersectedCells(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportLgrFeature::isCommandEnabled()
+bool RicExportLgrFeature::isCommandEnabled() const
 {
     std::vector<RimWellPathCompletions*> completions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
     std::vector<RimWellPath*>            wellPaths   = caf::selectedObjectsByTypeStrict<RimWellPath*>();

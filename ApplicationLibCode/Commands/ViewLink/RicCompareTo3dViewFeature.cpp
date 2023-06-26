@@ -32,14 +32,6 @@ CAF_CMD_SOURCE_INIT( RicCompareTo3dViewFeature, "RicCompareTo3dViewFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCompareTo3dViewFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCompareTo3dViewFeature::onActionTriggered( bool isChecked )
 {
     auto* activeView = RiaApplication::instance()->activeReservoirView();
