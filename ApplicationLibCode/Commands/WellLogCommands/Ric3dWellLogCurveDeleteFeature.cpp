@@ -37,7 +37,7 @@ bool Ric3dWellLogCurveDeleteFeature::isCommandEnabled()
     std::vector<Rim3dWellLogCurve*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
-    return objects.size() > 0;
+    return !objects.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ void Ric3dWellLogCurveDeleteFeature::onActionTriggered( bool isChecked )
     std::vector<Rim3dWellLogCurve*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
-    if ( objects.size() == 0 ) return;
+    if ( objects.empty() ) return;
 
     Rim3dWellLogCurve* firstCurve = objects[0];
 

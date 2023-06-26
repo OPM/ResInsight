@@ -42,7 +42,7 @@ bool RicExecuteScriptForCasesFeature::isCommandEnabled()
     std::vector<RimCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    return selection.size() > 0;
+    return !selection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
