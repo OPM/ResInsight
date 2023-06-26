@@ -18,6 +18,7 @@
 
 #include "RimSummaryCurvesData.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
@@ -31,6 +32,8 @@
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
+
+#include <QMessageBox>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -325,6 +328,16 @@ void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<R
         }
 
         auto allTimeSteps = RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( data.resamplePeriod, minTimeStep, maxTimeStep );
+
+        const size_t threshold = 50000;
+        if ( allTimeSteps.size() > threshold && RiaGuiApplication::isRunning() )
+        {
+            QString questionStr = QString( "This operation will produce %1 text lines. Do you want to continue?" ).arg( allTimeSteps.size() );
+
+            auto reply =
+                QMessageBox::question( nullptr, "Summary Text Export", questionStr, QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
+            if ( reply != QMessageBox::Yes ) return;
+        }
 
         out += "\n\n";
         out += "Date and time";
