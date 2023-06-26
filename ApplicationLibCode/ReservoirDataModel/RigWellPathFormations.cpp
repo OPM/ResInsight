@@ -348,11 +348,7 @@ bool RigWellPathFormations::isFluid( QString formationName )
 {
     formationName = formationName.trimmed();
 
-    if ( formationName == "OIL" || formationName == "GAS" || formationName == "WATER" )
-    {
-        return true;
-    }
-    return false;
+    return formationName == "OIL" || formationName == "GAS" || formationName == "WATER";
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -878,7 +878,7 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue( RigFemResultPosEnum   
     size_t         elmIdx  = intersectedCellsGlobIdx()[intersectionIdx];
     RigElementType elmType = femPart->elementType( elmIdx );
 
-    if ( !( elmType == HEX8 || elmType == HEX8P ) ) return T();
+    if ( elmType != HEX8 && elmType != HEX8P ) return T();
 
     if ( resultPosType == RIG_FORMATION_NAMES )
     {
@@ -990,7 +990,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         for ( size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx )
         {
             RigElementType elmType = femPart->elementType( closeCells[ccIdx] );
-            if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+            if ( elmType != HEX8 && elmType != HEX8P ) continue;
 
             const int* cornerIndices = femPart->connectivities( closeCells[ccIdx] );
 
@@ -1253,7 +1253,7 @@ std::vector<T> RigGeoMechWellLogExtractor::interpolateInterfaceValues( RigFemRes
     {
         size_t         elmIdx  = intersectedCellsGlobIdx()[intersectionIdx];
         RigElementType elmType = femPart->elementType( elmIdx );
-        if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+        if ( elmType != HEX8 && elmType != HEX8P ) continue;
 
         interpolatedInterfaceValues[intersectionIdx] =
             interpolateGridResultValue<T>( nativeAddr.resultPosType, unscaledResultValues, intersectionIdx );

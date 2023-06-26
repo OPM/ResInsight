@@ -139,10 +139,5 @@ bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
     if ( !objHandle ) return false;
 
     RimSimWellInView* eclipseWell = objHandle->firstAncestorOrThisOfType<RimSimWellInView>();
-    if ( eclipseWell )
-    {
-        return true;
-    }
-
-    return false;
+    return eclipseWell != nullptr;
 }

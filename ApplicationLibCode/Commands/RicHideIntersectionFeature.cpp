@@ -44,11 +44,7 @@ bool RicHideIntersectionFeature::isCommandEnabled()
     if ( !generalSelectionItem ) return false;
 
     RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
-    if ( intersection )
-    {
-        return true;
-    }
-    return false;
+    return intersection != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -577,10 +577,7 @@ void RimPlotCurve::checkAndApplyDefaultFillColor()
 //--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::isCrossPlotCurve() const
 {
-    auto crossPlot = firstAncestorOrThisOfType<RimSummaryCrossPlot>();
-    if ( crossPlot ) return true;
-
-    return false;
+    return firstAncestorOrThisOfType<RimSummaryCrossPlot>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

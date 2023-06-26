@@ -445,7 +445,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
         }
         if ( m_uniqueBranchDetection.size() == 1u )
         {
-            setBranchDetectionToApply( *m_uniqueBranchDetection.begin() == true ? caf::Tristate::State::True : caf::Tristate::State::False );
+            setBranchDetectionToApply( *m_uniqueBranchDetection.begin() ? caf::Tristate::State::True : caf::Tristate::State::False );
         }
         if ( m_uniqueWellNames.size() == 1u )
         {
@@ -460,7 +460,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
 
     if ( m_uniqueWbsSmoothing.size() == 1u )
     {
-        setWbsSmoothingToApply( *m_uniqueWbsSmoothing.begin() == true ? caf::Tristate::State::True : caf::Tristate::State::False );
+        setWbsSmoothingToApply( *m_uniqueWbsSmoothing.begin() ? caf::Tristate::State::True : caf::Tristate::State::False );
     }
 
     if ( m_uniqueWbsSmoothingThreshold.size() == 1u )

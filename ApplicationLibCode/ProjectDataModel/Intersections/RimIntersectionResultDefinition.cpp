@@ -207,14 +207,7 @@ RimTernaryLegendConfig* RimIntersectionResultDefinition::ternaryLegendConfig() c
 //--------------------------------------------------------------------------------------------------
 bool RimIntersectionResultDefinition::isEclipseResultDefinition()
 {
-    if ( dynamic_cast<RimEclipseCase*>( m_case() ) )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return dynamic_cast<RimEclipseCase*>( m_case() ) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

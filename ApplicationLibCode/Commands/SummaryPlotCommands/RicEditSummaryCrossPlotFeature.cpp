@@ -67,9 +67,7 @@ RicSummaryPlotEditorDialog* RicEditSummaryCrossPlotFeature::curveCreatorDialog()
 //--------------------------------------------------------------------------------------------------
 bool RicEditSummaryCrossPlotFeature::isCommandEnabled()
 {
-    if ( selectedSummaryPlot() ) return true;
-
-    return false;
+    return selectedSummaryPlot() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

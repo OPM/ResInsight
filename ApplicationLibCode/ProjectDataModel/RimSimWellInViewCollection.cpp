@@ -266,14 +266,7 @@ void RimSimWellInViewCollection::setShowWellCellsState( bool enable )
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInViewCollection::showWellCells()
 {
-    if ( m_showWellCells().isFalse() )
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return !m_showWellCells().isFalse();
 }
 
 //--------------------------------------------------------------------------------------------------

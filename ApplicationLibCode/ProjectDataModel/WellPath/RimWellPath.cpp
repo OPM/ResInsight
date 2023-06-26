@@ -993,12 +993,7 @@ bool RimWellPath::reloadWellPathFormationsFile( QString* errorMessage, RifWellPa
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::hasFormations() const
 {
-    if ( m_wellPathFormations.isNull() )
-    {
-        return false;
-    }
-
-    return true;
+    return !m_wellPathFormations.isNull();
 }
 
 //--------------------------------------------------------------------------------------------------

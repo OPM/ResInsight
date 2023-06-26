@@ -84,9 +84,7 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
     auto summaryCaseColl = dynamic_cast<RimSummaryCaseCollection*>( selObj );
     auto obsColl         = dynamic_cast<RimObservedDataCollection*>( selObj );
 
-    if ( summaryCase || summaryCaseColl || obsColl ) return true;
-
-    return false;
+    return summaryCase || summaryCaseColl || obsColl;
 }
 
 //--------------------------------------------------------------------------------------------------

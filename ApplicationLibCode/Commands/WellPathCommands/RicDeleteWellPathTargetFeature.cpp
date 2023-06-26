@@ -22,7 +22,9 @@ CAF_CMD_SOURCE_INIT( RicDeleteWellPathTargetFeature, "RicDeleteWellPathTargetFea
 #include "RimModeledWellPath.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
+
 #include "cafSelectionManager.h"
+
 #include <QAction>
 
 //--------------------------------------------------------------------------------------------------
@@ -33,12 +35,7 @@ bool RicDeleteWellPathTargetFeature::isCommandEnabled()
     std::vector<RimWellPathTarget*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
 
-    if ( objects.size() > 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return !objects.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

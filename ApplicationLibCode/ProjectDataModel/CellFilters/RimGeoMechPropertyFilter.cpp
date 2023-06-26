@@ -213,12 +213,7 @@ void RimGeoMechPropertyFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilter::isActiveAndHasResult()
 {
-    if ( this->isActive() && this->resultDefinition->hasResult() )
-    {
-        return true;
-    }
-
-    return false;
+    return this->isActive() && this->resultDefinition->hasResult();
 }
 
 //--------------------------------------------------------------------------------------------------

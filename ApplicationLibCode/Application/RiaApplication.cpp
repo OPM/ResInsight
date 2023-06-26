@@ -784,12 +784,7 @@ bool RiaApplication::saveProjectAs( const QString& fileName, gsl::not_null<QStri
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::hasValidProjectFileExtension( const QString& fileName )
 {
-    if ( fileName.contains( ".rsp", Qt::CaseInsensitive ) || fileName.contains( ".rip", Qt::CaseInsensitive ) )
-    {
-        return true;
-    }
-
-    return false;
+    return fileName.contains( ".rsp", Qt::CaseInsensitive ) || fileName.contains( ".rip", Qt::CaseInsensitive );
 }
 
 //--------------------------------------------------------------------------------------------------

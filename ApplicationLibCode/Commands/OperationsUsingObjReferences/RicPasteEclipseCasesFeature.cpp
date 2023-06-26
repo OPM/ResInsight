@@ -61,9 +61,7 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup( destinationObject );
-    if ( gridCaseGroup ) return true;
-
-    return false;
+    return gridCaseGroup != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
