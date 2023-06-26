@@ -222,13 +222,13 @@ jobs:
       - name: Stats for buildcache
         run: ${{ github.workspace }}/buildcache/bin/buildcache -s
       - name: Run Unit Tests
-        if: matrix.config.execute-unit-tests == 'true'
+        if: matrix.config.execute-unit-tests
         shell: bash
         run: |
           cmakebuild/ApplicationExeCode/ResInsight --unittest
 
       - name: Run pytest
-        if: matrix.config.build-python-module == 'true'
+        if: matrix.config.build-python-module
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
