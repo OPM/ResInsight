@@ -20,6 +20,7 @@
 
 #include "RiaPreferencesGeoMech.h"
 
+#include "RigBasicPlane.h"
 #include "RigPolyLinesData.h"
 
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
@@ -51,8 +52,13 @@ RimFaultReactivationModel::RimFaultReactivationModel()
 
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Model" ), "Name" );
 
+    CAF_PDM_InitField( &m_extentHorizontal, "HorizontalExtent", 1000.0, "Horizontal Extent" );
+    CAF_PDM_InitField( &m_extentVertical, "VerticalExtent", 500.0, "Vertical Extent" );
+
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_faultPlaneColor, "FaultPlaneColor", cvf::Color3f( cvf::Color3f::GRAY ), "Plane Color" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -64,6 +70,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     this->uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );
+
+    m_faultPlane = new RigBasicPlane();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,6 +185,13 @@ caf::PickEventHandler* RimFaultReactivationModel::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::updateVisualization()
 {
+    auto normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
+    normal.normalize();
+
+    m_faultPlane->setPlane( m_targets[0]->targetPointXYZ(), normal );
+    m_faultPlane->setMaxExtentFromAnchor( m_extentHorizontal, m_extentVertical );
+    m_faultPlane->setColor( m_faultPlaneColor );
+
     auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
@@ -239,15 +254,9 @@ RivFaultReactivationModelPartMgr* RimFaultReactivationModel::partMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Plane> RimFaultReactivationModel::faultPlane() const
+cvf::ref<RigBasicPlane> RimFaultReactivationModel::faultPlane() const
 {
-    cvf::ref<cvf::Plane> plane = new cvf::Plane();
-
-    cvf::Vec3d normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
-    normal.normalize();
-
-    plane->setFromPointAndNormal( m_targets[0]->targetPointXYZ(), normal );
-    return plane;
+    return m_faultPlane;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,4 +271,40 @@ cvf::ref<cvf::Plane> RimFaultReactivationModel::modelPlane() const
 
     plane->setFromPoints( m_targets[0]->targetPointXYZ(), m_targets[1]->targetPointXYZ(), p3 );
     return plane;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    auto genGrp = uiOrdering.addNewGroup( "General" );
+    genGrp->add( &m_userDescription );
+
+    auto faultGrp = uiOrdering.addNewGroup( "Fault Plane" );
+
+    faultGrp->add( &m_fault );
+    faultGrp->add( &m_faultPlaneColor );
+    faultGrp->add( &m_extentHorizontal );
+    faultGrp->add( &m_extentVertical );
+
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_userDescription )
+    {
+        updateConnectedEditors();
+        return;
+    }
+
+    if ( ( changedField == &m_extentHorizontal ) || ( changedField == &m_extentVertical ) || ( changedField == &m_faultPlaneColor ) ||
+         ( changedField == &m_targets ) )
+    {
+        updateVisualization();
+    }
 }

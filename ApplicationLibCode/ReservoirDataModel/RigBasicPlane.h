@@ -21,6 +21,7 @@
 #include "cvfArray.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
+#include "cvfPlane.h"
 #include "cvfVector3.h"
 
 #include <memory>
@@ -44,13 +45,22 @@ public:
     bool isValid() const;
     void reset();
 
-    void setRect( cvf::Vec3dArray rect );
+    void setPlane( cvf::Vec3d anchorPoint, cvf::Vec3d normal );
+    void setMaxExtentFromAnchor( double maxExtentHorz, double maxExtentVert );
     void setColor( cvf::Color3f color );
 
     cvf::Vec3dArray             rect() const;
     cvf::ref<cvf::TextureImage> texture() const;
 
 private:
+    void updateRect();
+
+private:
+    cvf::Vec3d m_planeNormal;
+    cvf::Vec3d m_planeAnchor;
+
+    std::pair<double, double> m_maxExtent;
+
     cvf::Vec3dArray             m_rect;
     bool                        m_isRectValid;
     cvf::Color3f                m_color;

@@ -17,7 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RivTexturePartMgr.h"
+
 #include "cafPdmPointer.h"
+#include "cvfArray.h"
 #include "cvfObject.h"
 
 namespace cvf
@@ -26,6 +29,7 @@ class ModelBasicList;
 class Part;
 class DrawableGeo;
 class BoundingBox;
+class TextureImage;
 } // namespace cvf
 
 namespace caf
@@ -36,8 +40,9 @@ class DisplayCoordTransform;
 class RimFaultReactivationModel;
 class Rim3dView;
 class RivPolylinePartMgr;
+class RigBasicPlane;
 
-class RivFaultReactivationModelPartMgr : public cvf::Object
+class RivFaultReactivationModelPartMgr : public RivTexturePartMgr
 {
 public:
     explicit RivFaultReactivationModelPartMgr( RimFaultReactivationModel* frm );
@@ -51,8 +56,8 @@ public:
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
-protected:
 private:
     caf::PdmPointer<RimFaultReactivationModel> m_frm;
-    cvf::ref<RivPolylinePartMgr>               m_polylinePartMgr;
+
+    cvf::ref<RivPolylinePartMgr> m_polylinePartMgr;
 };

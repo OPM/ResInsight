@@ -17,9 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RivTexturePartMgr.h"
+
 #include "cafPdmPointer.h"
 #include "cvfArray.h"
-#include "cvfObject.h"
 
 namespace cvf
 {
@@ -45,7 +46,7 @@ class RimSeismicSection;
 class Rim3dView;
 class RivPolylinePartMgr;
 
-class RivSeismicSectionPartMgr : public cvf::Object
+class RivSeismicSectionPartMgr : public RivTexturePartMgr
 {
 public:
     explicit RivSeismicSectionPartMgr( RimSeismicSection* section );
@@ -60,15 +61,9 @@ public:
                                      const cvf::BoundingBox&           boundingBox );
 
 protected:
-    cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
-    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image );
-
     cvf::TextureImage* createImageFromData( ZGYAccess::SeismicSliceData* data );
 
 private:
     caf::PdmPointer<RimSeismicSection> m_section;
     cvf::ref<RivPolylinePartMgr>       m_polylinePartMgr;
-    cvf::ref<cvf::ShaderProgram>       m_textureShaderProg;
-
-    bool m_canUseShaders;
 };

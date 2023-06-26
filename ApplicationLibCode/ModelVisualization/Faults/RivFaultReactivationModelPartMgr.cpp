@@ -20,6 +20,8 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RigBasicPlane.h"
+
 #include "RivPolylinePartMgr.h"
 
 #include "Rim3dView.h"
@@ -63,4 +65,20 @@ void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBas
                                                                    const caf::DisplayCoordTransform* displayCoordTransform,
                                                                    const cvf::BoundingBox&           boundingBox )
 {
+    if ( !m_canUseShaders ) return;
+
+    auto plane = m_frm->faultPlane();
+    if ( !plane->isValid() ) return;
+
+    cvf::Vec3dArray displayPoints;
+    displayPoints.reserve( plane->rect().size() );
+
+    for ( auto& vOrg : plane->rect() )
+    {
+        displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
+    }
+
+    cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, plane->texture(), false );
+
+    model->addPart( quadPart.p() );
 }

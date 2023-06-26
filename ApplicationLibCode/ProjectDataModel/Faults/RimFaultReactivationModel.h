@@ -28,6 +28,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfColor3.h"
 #include "cvfVector3.h"
 
 #include <QString>
@@ -39,6 +40,7 @@ class RicPolylineTargetsPickEventHandler;
 class RimFaultInView;
 class RimPolylineTarget;
 class RivFaultReactivationModelPartMgr;
+class RigBasicPlane;
 
 namespace cvf
 {
@@ -76,13 +78,16 @@ public:
     // polyline data interface
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
-    cvf::ref<cvf::Plane> faultPlane() const;
+    cvf::ref<RigBasicPlane> faultPlane() const;
 
     cvf::ref<cvf::Plane> modelPlane() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
@@ -92,4 +97,10 @@ private:
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmPtrField<RimFaultInView*>           m_fault;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+    caf::PdmField<cvf::Color3f>                 m_faultPlaneColor;
+
+    caf::PdmField<double> m_extentVertical;
+    caf::PdmField<double> m_extentHorizontal;
+
+    cvf::ref<RigBasicPlane> m_faultPlane;
 };
