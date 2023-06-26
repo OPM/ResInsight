@@ -1,4 +1,4 @@
-grpcio < 1.49
-grpcio-tools < 1.49
-protobuf < 3.21
+grpcio
+grpcio-tools
+protobuf
 m2r
