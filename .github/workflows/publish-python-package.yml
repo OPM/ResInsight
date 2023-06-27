@@ -29,7 +29,7 @@ jobs:
 
     - name: Build rips package
       run: |
-        cd GrpcInterface/Python
+        cd ResInsight/GrpcInterface/Python
         python setup.py sdist
         pip install -r requirements.txt
   
@@ -41,4 +41,4 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
-        packages-dir: GrpcInterface/Python/dist/
+        packages-dir: ResInsight/GrpcInterface/Python/dist/
