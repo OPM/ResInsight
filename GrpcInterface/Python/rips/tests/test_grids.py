@@ -1,6 +1,11 @@
 import sys
 import os
-from typing import Any, Dict, List, TypedDict
+
+if sys.version_info >= (3, 8):
+    from typing import Any, Dict, List, TypedDict
+else:
+    from typing_extensions import TypedDict
+
 import math
 
 from generated.generated_classes import Case
