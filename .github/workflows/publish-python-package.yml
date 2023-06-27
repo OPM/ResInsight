@@ -31,6 +31,11 @@ jobs:
       run: |
         dir
         cd GrpcInterface
+        cd cmake
+        cmake .
+        python compile_proto_files.py
+        cd ..
+
         cd Python
         python setup.py sdist
         pip install -r requirements.txt
