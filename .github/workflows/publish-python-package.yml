@@ -1,6 +1,8 @@
 name: publish-python-package
 
-on: [push]
+on: 
+  push:
+  workflow_dispatch:
 
 jobs:
   pypi-publish:
@@ -11,7 +13,6 @@ jobs:
       url: https://pypi.org/p/rips
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
-
     # If this is a tagged release
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
