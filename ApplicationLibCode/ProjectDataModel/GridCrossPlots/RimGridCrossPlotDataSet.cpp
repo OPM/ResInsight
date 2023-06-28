@@ -1615,6 +1615,17 @@ void RimGridCrossPlotDataSet::curveAppearanceChanged( const caf::SignalEmitter* 
     triggerPlotNameUpdateAndReplot();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotDataSet::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_crossPlotRegressionCurves )
+    {
+        triggerPlotNameUpdateAndReplot();
+    }
+}
+
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotDataSetNameConfig, "RimGridCrossPlotCurveSetNameConfig" );
 
 //--------------------------------------------------------------------------------------------------
