@@ -22,6 +22,7 @@
 #include "RiaPreferencesGeoMech.h"
 
 #include "RigBasicPlane.h"
+#include "RigFaultReactivationModel.h"
 #include "RigPolyLinesData.h"
 
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
@@ -43,6 +44,7 @@
 #include <cafPdmUiDoubleSliderEditor.h>
 
 #include "cvfPlane.h"
+#include "cvfTextureImage.h"
 
 CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 
@@ -82,6 +84,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     setDeletable( true );
 
     m_faultPlane = new RigBasicPlane();
+    m_modelPlane = new RigFaultReactivationModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,6 +201,8 @@ void RimFaultReactivationModel::updateVisualization()
     m_faultPlane->setMaxExtentFromAnchor( m_extentHorizontal, m_extentVerticalAbove, m_extentVerticalBelow );
     m_faultPlane->setColor( m_faultPlaneColor );
 
+    // m_modelPlane->setPartColors
+
     auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( view )
     {
@@ -277,15 +282,9 @@ cvf::ref<RigBasicPlane> RimFaultReactivationModel::faultPlane() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Plane> RimFaultReactivationModel::modelPlane() const
+cvf::ref<RigFaultReactivationModel> RimFaultReactivationModel::modelPlane() const
 {
-    cvf::ref<cvf::Plane> plane = new cvf::Plane();
-
-    cvf::Vec3d p3 = m_targets[0]->targetPointXYZ();
-    p3.z()        = p3.z() + 1000.0;
-
-    plane->setFromPoints( m_targets[0]->targetPointXYZ(), m_targets[1]->targetPointXYZ(), p3 );
-    return plane;
+    return m_modelPlane;
 }
 
 //--------------------------------------------------------------------------------------------------

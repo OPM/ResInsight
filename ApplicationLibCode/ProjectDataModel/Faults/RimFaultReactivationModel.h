@@ -42,6 +42,7 @@ class RimFaultInView;
 class RimPolylineTarget;
 class RivFaultReactivationModelPartMgr;
 class RigBasicPlane;
+class RigFaultReactivationModel;
 
 namespace cvf
 {
@@ -81,7 +82,7 @@ public:
 
     cvf::ref<RigBasicPlane> faultPlane() const;
 
-    cvf::ref<cvf::Plane> modelPlane() const;
+    cvf::ref<RigFaultReactivationModel> modelPlane() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
@@ -107,5 +108,6 @@ private:
     caf::PdmField<double> m_extentVerticalBelow;
     caf::PdmField<double> m_extentHorizontal;
 
-    cvf::ref<RigBasicPlane> m_faultPlane;
+    cvf::ref<RigBasicPlane>             m_faultPlane;
+    cvf::ref<RigFaultReactivationModel> m_modelPlane;
 };
