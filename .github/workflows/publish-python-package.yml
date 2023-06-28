@@ -11,9 +11,11 @@ jobs:
       url: https://pypi.org/p/rips
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
-    steps:
-    # retrieve your distributions here
 
+    # If this is a tagged release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+
+    steps:
     - name: Checkout
       uses: actions/checkout@v3
 
@@ -22,21 +24,19 @@ jobs:
       with:
         python-version: "3.8"
     
-    - name: Install dependencies
+    - name: Update pip
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+
+    - name: Generated version info and compile proto files
+      run: |
+        cd GrpcInterface/scripts
+        cmake .
+        python compile_proto_files.py
 
     - name: Build rips package
       run: |
-        dir
-        cd GrpcInterface
-        cd cmake
-        cmake .
-        python compile_proto_files.py
-        cd ..
-
-        cd Python
+        cd GrpcInterface/Python
         python setup.py sdist
         pip install -r requirements.txt
   
@@ -45,7 +45,9 @@ jobs:
     #  uses: pypa/gh-action-pypi-publish@release/v1
 
     - name: Publish package distributions to TestPyPI
+      # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
         packages-dir: GrpcInterface/Python/dist/
+
