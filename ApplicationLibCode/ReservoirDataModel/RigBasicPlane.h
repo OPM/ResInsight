@@ -46,7 +46,7 @@ public:
     void reset();
 
     void setPlane( cvf::Vec3d anchorPoint, cvf::Vec3d normal );
-    void setMaxExtentFromAnchor( double maxExtentHorz, double maxExtentVert );
+    void setMaxExtentFromAnchor( double maxExtentHorz, double maxExtentVertAbove, double maxExtentVertBelow );
     void setColor( cvf::Color3f color );
 
     cvf::Vec3dArray             rect() const;
@@ -59,7 +59,9 @@ private:
     cvf::Vec3d m_planeNormal;
     cvf::Vec3d m_planeAnchor;
 
-    std::pair<double, double> m_maxExtent;
+    double m_maxHorzExtent;
+    double m_maxVertExtentAbove;
+    double m_maxVertExtentBelow;
 
     cvf::Vec3dArray             m_rect;
     bool                        m_isRectValid;

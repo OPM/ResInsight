@@ -18,6 +18,7 @@
 
 #include "RimFaultReactivationModel.h"
 
+#include "RiaApplication.h"
 #include "RiaPreferencesGeoMech.h"
 
 #include "RigBasicPlane.h"
@@ -31,12 +32,15 @@
 #include "RivFaultReactivationModelPartMgr.h"
 
 #include "Rim3dView.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimPolylineTarget.h"
 #include "RimTools.h"
 
 #include "cafPdmUiTableViewEditor.h"
+#include <cafPdmUiDoubleSliderEditor.h>
 
 #include "cvfPlane.h"
 
@@ -53,7 +57,13 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Model" ), "Name" );
 
     CAF_PDM_InitField( &m_extentHorizontal, "HorizontalExtent", 1000.0, "Horizontal Extent" );
-    CAF_PDM_InitField( &m_extentVertical, "VerticalExtent", 500.0, "Vertical Extent" );
+    CAF_PDM_InitField( &m_extentVerticalAbove, "VerticalExtentAbove", 200.0, "Vertical Extent Above Anchor" );
+    m_extentVerticalAbove.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_extentVerticalAbove.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
+
+    CAF_PDM_InitField( &m_extentVerticalBelow, "VerticalExtentBelow", 200.0, "Vertical Extent Below Anchor" );
+    m_extentVerticalBelow.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_extentVerticalBelow.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
@@ -160,7 +170,7 @@ void RimFaultReactivationModel::insertTarget( const RimPolylineTarget* targetToI
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::deleteTarget( RimPolylineTarget* targetToDelete )
 {
-    // do nothing, we should only have 2 predefined targets
+    // do nothing, we should always have 2 predefined targets
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,15 +195,20 @@ caf::PickEventHandler* RimFaultReactivationModel::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::updateVisualization()
 {
-    auto normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
-    normal.normalize();
-
-    m_faultPlane->setPlane( m_targets[0]->targetPointXYZ(), normal );
-    m_faultPlane->setMaxExtentFromAnchor( m_extentHorizontal, m_extentVertical );
+    m_faultPlane->setMaxExtentFromAnchor( m_extentHorizontal, m_extentVerticalAbove, m_extentVerticalBelow );
     m_faultPlane->setColor( m_faultPlaneColor );
 
     auto view = firstAncestorOrThisOfType<Rim3dView>();
-    if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+    if ( view )
+    {
+        auto normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
+        normal.z()  = normal.z() * view->scaleZ() * view->scaleZ();
+        normal.normalize();
+
+        m_faultPlane->setPlane( m_targets[0]->targetPointXYZ(), normal );
+
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,7 +301,11 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     faultGrp->add( &m_fault );
     faultGrp->add( &m_faultPlaneColor );
     faultGrp->add( &m_extentHorizontal );
-    faultGrp->add( &m_extentVertical );
+    faultGrp->add( &m_extentVerticalAbove );
+    faultGrp->add( &m_extentVerticalBelow );
+
+    auto trgGroup = uiOrdering.addNewGroup( "Debug" );
+    trgGroup->add( &m_targets );
 
     uiOrdering.skipRemainingFields();
 }
@@ -302,9 +321,58 @@ void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* cha
         return;
     }
 
-    if ( ( changedField == &m_extentHorizontal ) || ( changedField == &m_extentVertical ) || ( changedField == &m_faultPlaneColor ) ||
-         ( changedField == &m_targets ) )
+    if ( ( changedField == &m_extentHorizontal ) || ( changedField == &m_extentVerticalAbove ) || ( changedField == &m_extentVerticalBelow ) ||
+         ( changedField == &m_faultPlaneColor ) || ( changedField == &m_targets ) || ( changedField == &m_isChecked ) )
     {
         updateVisualization();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_targets )
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttribute )
+        {
+            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+        }
+    }
+    else if ( ( field == &m_extentVerticalAbove ) || ( field == &m_extentVerticalBelow ) )
+    {
+        auto* attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+
+        if ( attr )
+        {
+            auto eclCase = eclipseCase();
+            if ( eclCase )
+            {
+                auto   bb       = eclCase->allCellsBoundingBox();
+                double diff     = bb.max().z() - bb.min().z();
+                attr->m_minimum = 0;
+                attr->m_maximum = diff;
+            }
+            else
+            {
+                attr->m_minimum = 0;
+                attr->m_maximum = 1000;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimFaultReactivationModel::eclipseCase()
+{
+    auto activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
+    if ( activeView )
+    {
+        return activeView->eclipseCase();
+    }
+    return nullptr;
 }

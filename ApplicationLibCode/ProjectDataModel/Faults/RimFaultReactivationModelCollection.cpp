@@ -69,7 +69,9 @@ RimFaultReactivationModel* RimFaultReactivationModelCollection::addNewModel( Rim
 
     m_models.push_back( newModel );
 
-    updateView();
+    newModel->updateVisualization();
+
+    // updateView();
     return newModel;
 }
 

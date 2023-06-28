@@ -77,9 +77,12 @@ void RigBasicPlane::setColor( cvf::Color3f color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigBasicPlane::setMaxExtentFromAnchor( double maxExtentHorz, double maxExtentVert )
+void RigBasicPlane::setMaxExtentFromAnchor( double maxExtentHorz, double maxExtentVertAbove, double maxExtentVertBelow )
 {
-    m_maxExtent = std::make_pair( maxExtentHorz, maxExtentVert );
+    m_maxHorzExtent      = maxExtentHorz;
+    m_maxVertExtentAbove = maxExtentVertAbove;
+    m_maxVertExtentBelow = maxExtentVertBelow;
+
     updateRect();
 }
 
@@ -94,9 +97,7 @@ void RigBasicPlane::setMaxExtentFromAnchor( double maxExtentHorz, double maxExte
 //--------------------------------------------------------------------------------------------------
 void RigBasicPlane::updateRect()
 {
-    auto [extHorz, extVert] = m_maxExtent;
-
-    if ( ( extHorz == 0.0 ) || ( extVert == 0.0 ) )
+    if ( ( m_maxHorzExtent <= 0.0 ) || ( m_maxVertExtentAbove <= 0.0 ) || ( m_maxVertExtentBelow <= 0.0 ) )
     {
         m_isRectValid = false;
         return;
@@ -110,17 +111,15 @@ void RigBasicPlane::updateRect()
     upwards.normalize();
     alongPlane.normalize();
 
-    extHorz /= 2.0;
-    extVert /= 2.0;
-
-    auto ml = m_planeAnchor + alongPlane * extHorz;
-    auto mr = m_planeAnchor - alongPlane * extHorz;
+    const double extHorz = m_maxHorzExtent / 2.0;
+    auto         ml      = m_planeAnchor + alongPlane * extHorz;
+    auto         mr      = m_planeAnchor - alongPlane * extHorz;
 
     m_rect.resize( 4 );
-    m_rect[0] = ml - upwards * extVert;
-    m_rect[1] = ml + upwards * extVert;
-    m_rect[2] = mr + upwards * extVert;
-    m_rect[3] = mr - upwards * extVert;
+    m_rect[0] = ml - upwards * m_maxVertExtentAbove;
+    m_rect[1] = ml + upwards * m_maxVertExtentBelow;
+    m_rect[2] = mr + upwards * m_maxVertExtentBelow;
+    m_rect[3] = mr - upwards * m_maxVertExtentAbove;
 
     m_isRectValid = true;
 }

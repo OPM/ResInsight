@@ -37,6 +37,7 @@
 #include <utility>
 
 class RicPolylineTargetsPickEventHandler;
+class RimEclipseCase;
 class RimFaultInView;
 class RimPolylineTarget;
 class RivFaultReactivationModelPartMgr;
@@ -88,6 +89,9 @@ protected:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    RimEclipseCase* eclipseCase();
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
@@ -99,7 +103,8 @@ private:
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
     caf::PdmField<cvf::Color3f>                 m_faultPlaneColor;
 
-    caf::PdmField<double> m_extentVertical;
+    caf::PdmField<double> m_extentVerticalAbove;
+    caf::PdmField<double> m_extentVerticalBelow;
     caf::PdmField<double> m_extentHorizontal;
 
     cvf::ref<RigBasicPlane> m_faultPlane;
