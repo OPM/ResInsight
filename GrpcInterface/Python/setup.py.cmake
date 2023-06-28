@@ -6,7 +6,7 @@ with open('README.md') as f:
 with open('LICENSE') as f:
 	license = f.read()
 
-RIPS_DIST_VERSION = '1'
+RIPS_DIST_VERSION = '2'
 	
 setup(
     name='rips',
@@ -19,5 +19,5 @@ setup(
     license=license,
     packages=['rips'],
     package_data={'rips': ['*.py', 'generated/*.py', 'PythonExamples/*.py', 'tests/*.py']},
-    install_requires=['grpcio>=1.20.0', 'protobuf', 'wheel']
+    install_requires=['grpcio', 'protobuf', 'wheel']
 )
