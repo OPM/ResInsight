@@ -26,9 +26,10 @@ jobs:
       with:
         python-version: "3.8"
     
-    - name: Update pip
+    - name: Update pip and install requirements
       run: |
         python -m pip install --upgrade pip
+        pip install -r GrpcInterface/Python/requirements.txt
 
     - name: Generated version info and compile proto files
       run: |
@@ -40,7 +41,6 @@ jobs:
       run: |
         cd GrpcInterface/Python
         python setup.py sdist
-        pip install -r requirements.txt
   
 
     #- name: Publish package distributions to PyPI
