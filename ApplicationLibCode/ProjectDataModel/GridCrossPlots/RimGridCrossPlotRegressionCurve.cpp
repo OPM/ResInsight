@@ -234,6 +234,15 @@ void RimGridCrossPlotRegressionCurve::setCurveAutoAppearance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotRegressionCurve::updateCurveAppearance()
+{
+    RimPlotCurve::updateCurveAppearance();
+    updateRectAnnotation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimGridCrossPlotRegressionCurve::groupIndex() const
 {
     return m_groupIndex;

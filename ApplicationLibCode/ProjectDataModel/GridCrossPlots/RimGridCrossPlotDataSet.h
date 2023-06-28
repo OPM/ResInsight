@@ -177,6 +177,8 @@ protected:
     cvf::Color3f createCurveColor( bool useCustomColor, int colorIndex ) const;
     cvf::Color3f createCurveColor( const std::vector<double>& tickValues, int groupIndex ) const;
 
+    void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+
 private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
