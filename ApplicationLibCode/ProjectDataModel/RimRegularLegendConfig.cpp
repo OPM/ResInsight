@@ -325,6 +325,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         if ( changedField != &m_showLegend )
         {
             crossPlotCurveSet->destroyCurves();
+            crossPlotCurveSet->destroyRegressionCurves();
         }
 
         crossPlotCurveSet->loadDataAndUpdate( true );

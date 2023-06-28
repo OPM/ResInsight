@@ -128,7 +128,6 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_crossPlotCurves.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_crossPlotRegressionCurves, "CrossPlotRegressionCurves", "Regression Curves" );
-    // m_crossPlotRegressionCurves.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_useCustomColor, "UseCustomColor", false, "Use Custom Color" );
     CAF_PDM_InitField( &m_customColor, "CustomColor", cvf::Color3f( cvf::Color3f::BLACK ), "Custom Color" );
@@ -469,6 +468,16 @@ void RimGridCrossPlotDataSet::initAfterRead()
         m_groupingProperty->setEclipseCase( eclipseCase );
         m_plotCellFilterCollection->setCase( eclipseCase );
     }
+
+    for ( auto curve : m_crossPlotCurves )
+    {
+        curve->appearanceChanged.connect( this, &RimGridCrossPlotDataSet::curveAppearanceChanged );
+    }
+
+    for ( auto curve : m_crossPlotRegressionCurves )
+    {
+        curve->appearanceChanged.connect( this, &RimGridCrossPlotDataSet::curveAppearanceChanged );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -673,6 +682,7 @@ void RimGridCrossPlotDataSet::createCurves( const RigEclipseCrossPlotResult& res
         curve->setSamples( result.xValues, result.yValues );
         curve->setCurveAutoAppearance();
         curve->updateUiIconFromPlotSymbol();
+        curve->appearanceChanged.connect( this, &RimGridCrossPlotDataSet::curveAppearanceChanged );
         m_crossPlotCurves.push_back( curve );
     }
     else
@@ -697,6 +707,7 @@ void RimGridCrossPlotDataSet::createCurves( const RigEclipseCrossPlotResult& res
             curve->setLegendEntryText( createAutoName() );
             curve->setCurveAutoAppearance();
             curve->updateUiIconFromPlotSymbol();
+            curve->appearanceChanged.connect( this, &RimGridCrossPlotDataSet::curveAppearanceChanged );
             m_crossPlotCurves.push_back( curve );
         }
     }
@@ -752,6 +763,7 @@ void RimGridCrossPlotDataSet::createRegressionCurves( const RigEclipseCrossPlotR
         curve->setSamples( result.xValues, result.yValues );
         curve->setCurveAutoAppearance();
         curve->updateUiIconFromPlotSymbol();
+        curve->appearanceChanged.connect( this, &RimGridCrossPlotDataSet::curveAppearanceChanged );
     }
     else
     {
@@ -780,6 +792,7 @@ void RimGridCrossPlotDataSet::createRegressionCurves( const RigEclipseCrossPlotR
             curve->setLegendEntryText( createAutoName() );
             curve->setCurveAutoAppearance();
             curve->updateUiIconFromPlotSymbol();
+            curve->appearanceChanged.connect( this, &RimGridCrossPlotDataSet::curveAppearanceChanged );
         }
     }
 }
@@ -822,6 +835,10 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingRegressionCurves( const Rig
 void RimGridCrossPlotDataSet::destroyCurves()
 {
     detachAllCurves();
+
+    for ( auto curve : m_crossPlotCurves )
+        curve->appearanceChanged.disconnect( this );
+
     m_crossPlotCurves.deleteChildren();
 }
 
@@ -831,6 +848,10 @@ void RimGridCrossPlotDataSet::destroyCurves()
 void RimGridCrossPlotDataSet::destroyRegressionCurves()
 {
     detachAllRegressionCurves();
+
+    for ( auto curve : m_crossPlotRegressionCurves )
+        curve->appearanceChanged.disconnect( this );
+
     m_crossPlotRegressionCurves.deleteChildren();
 }
 
@@ -1584,6 +1605,14 @@ void RimGridCrossPlotDataSet::filterInvalidCurveValues( RigEclipseCrossPlotResul
 
         *result = validResult;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlotDataSet::curveAppearanceChanged( const caf::SignalEmitter* emitter )
+{
+    triggerPlotNameUpdateAndReplot();
 }
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotDataSetNameConfig, "RimGridCrossPlotCurveSetNameConfig" );

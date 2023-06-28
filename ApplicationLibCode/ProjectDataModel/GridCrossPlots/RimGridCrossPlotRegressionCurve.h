@@ -44,6 +44,8 @@ public:
     void setSamples( const std::vector<double>& xValues, const std::vector<double>& yValues );
     void setRangeDefaults( const std::vector<double>& xValues, const std::vector<double>& yValues );
 
+    void updateCurveAppearance() override;
+
     void   setCurveAutoAppearance();
     int    groupIndex() const;
     size_t sampleCount() const;
