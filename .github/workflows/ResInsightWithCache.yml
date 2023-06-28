@@ -20,6 +20,11 @@ concurrency:
 jobs:
   ResInsight-x64-buildcache:
     runs-on: ${{ matrix.config.os }}
+    environment:
+      name: pypi
+      url: https://pypi.org/p/rips
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
     strategy:
       fail-fast: false
       matrix:
@@ -34,6 +39,7 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
               unity-build: true,
+              publish-to-pypi: false,
             }
           - {
               name: "Ubuntu Latest gcc",
@@ -45,6 +51,7 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
               unity-build: false,
+              publish-to-pypi: true,
             }
           - {
               name: "Ubuntu Latest clang",
@@ -56,6 +63,7 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
               unity-build: false,
+              publish-to-pypi: false,
             }
     steps:
       - name: Checkout
@@ -231,7 +239,9 @@ jobs:
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
-          cd GrpcInterface/Python/rips
+          cd GrpcInterface/Python
+          python setup.py sdist          
+          cd rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
 
       - name: Upload artifact
@@ -240,3 +250,14 @@ jobs:
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
+
+     #- name: Publish package distributions to PyPI
+     #  uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Publish package distributions to TestPyPI
+        if: matrix.config.publish-to-pypi
+      # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: GrpcInterface/Python/dist/
