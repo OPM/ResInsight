@@ -94,6 +94,8 @@ protected:
 
     RimEclipseCase* eclipseCase();
 
+    void initAfterRead() override;
+
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
