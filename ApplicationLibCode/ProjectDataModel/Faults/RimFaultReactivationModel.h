@@ -81,8 +81,10 @@ public:
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
     cvf::ref<RigBasicPlane> faultPlane() const;
+    bool                    showFaultPlane() const;
 
     cvf::ref<RigFaultReactivationModel> modelPlane() const;
+    bool                                showModelPlane() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
@@ -107,6 +109,9 @@ private:
     caf::PdmField<cvf::Color3f>                 m_faultPlaneColor;
     caf::PdmField<cvf::Color3f>                 m_modelPart1Color;
     caf::PdmField<cvf::Color3f>                 m_modelPart2Color;
+
+    caf::PdmField<bool> m_showFaultPlane;
+    caf::PdmField<bool> m_showModelPlane;
 
     caf::PdmField<double> m_extentVerticalAbove;
     caf::PdmField<double> m_extentVerticalBelow;

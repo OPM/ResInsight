@@ -69,7 +69,7 @@ void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBas
     if ( !m_canUseShaders ) return;
 
     auto plane = m_frm->faultPlane();
-    if ( plane->isValid() )
+    if ( plane->isValid() && m_frm->showFaultPlane() )
     {
         cvf::Vec3dArray displayPoints;
         displayPoints.reserve( plane->rect().size() );
@@ -85,7 +85,7 @@ void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBas
     }
 
     auto modelPlane = m_frm->modelPlane();
-    if ( modelPlane->isValid() )
+    if ( modelPlane->isValid() && m_frm->showModelPlane() )
     {
         for ( auto part : modelPlane->allParts() )
         {

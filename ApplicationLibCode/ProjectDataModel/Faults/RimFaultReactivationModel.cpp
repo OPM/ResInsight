@@ -71,6 +71,9 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Model Start Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
+    CAF_PDM_InitField( &m_showFaultPlane, "ShowFaultPlane", true, "Show Fault Plane" );
+    CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
+
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
 
@@ -314,20 +317,38 @@ cvf::ref<RigFaultReactivationModel> RimFaultReactivationModel::modelPlane() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::showFaultPlane() const
+{
+    return m_showFaultPlane;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::showModelPlane() const
+{
+    return m_showModelPlane;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( &m_userDescription );
+    genGrp->add( &m_fault );
 
     auto faultGrp = uiOrdering.addNewGroup( "Fault Plane" );
 
-    faultGrp->add( &m_fault );
+    faultGrp->add( &m_showFaultPlane );
     faultGrp->add( &m_faultPlaneColor );
     faultGrp->add( &m_extentHorizontal );
     faultGrp->add( &m_extentVerticalAbove );
     faultGrp->add( &m_extentVerticalBelow );
 
     auto modelGrp = uiOrdering.addNewGroup( "2D Model" );
+    modelGrp->add( &m_showModelPlane );
     modelGrp->add( &m_modelExtentFromAnchor );
     modelGrp->add( &m_modelMinZ );
     modelGrp->add( &m_modelBelowSize );
@@ -355,7 +376,8 @@ void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* cha
     if ( ( changedField == &m_extentHorizontal ) || ( changedField == &m_extentVerticalAbove ) ||
          ( changedField == &m_extentVerticalBelow ) || ( changedField == &m_faultPlaneColor ) || ( changedField == &m_targets ) ||
          ( changedField == &m_isChecked ) || ( changedField == &m_modelExtentFromAnchor ) || ( changedField == &m_modelMinZ ) ||
-         ( changedField == &m_modelBelowSize ) || ( changedField == &m_modelPart1Color ) || ( changedField == &m_modelPart2Color ) )
+         ( changedField == &m_modelBelowSize ) || ( changedField == &m_modelPart1Color ) || ( changedField == &m_modelPart2Color ) ||
+         ( changedField == &m_showFaultPlane ) || ( changedField == &m_showModelPlane ) )
     {
         updateVisualization();
     }
