@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ResInsight-x64-buildcache:
+  build:
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -255,6 +255,7 @@ jobs:
 
   pypi-publish:
     name: Upload release to PyPI
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: pypi
