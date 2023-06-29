@@ -264,7 +264,7 @@ jobs:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
     
     # If this is a tagged release
-    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
     steps:
     - name: Download python distribution folder
@@ -273,12 +273,13 @@ jobs:
         name: python-distribution
         path: dist
 
-    #- name: Publish package distributions to PyPI
-    #  uses: pypa/gh-action-pypi-publish@release/v1
+    - name: Display structure of downloaded files
+      run: ls -R
 
     - name: Publish package distributions to TestPyPI
       # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
       uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
+      # uncomment the two lines below to publish to test PyPi
+      # with:
+        # repository-url: https://test.pypi.org/legacy/
 
