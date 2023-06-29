@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 
 #include "RigBasicPlane.h"
+#include "RigFaultReactivationModel.h"
 
 #include "RivPolylinePartMgr.h"
 
@@ -68,17 +69,37 @@ void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBas
     if ( !m_canUseShaders ) return;
 
     auto plane = m_frm->faultPlane();
-    if ( !plane->isValid() ) return;
-
-    cvf::Vec3dArray displayPoints;
-    displayPoints.reserve( plane->rect().size() );
-
-    for ( auto& vOrg : plane->rect() )
+    if ( plane->isValid() )
     {
-        displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
+        cvf::Vec3dArray displayPoints;
+        displayPoints.reserve( plane->rect().size() );
+
+        for ( auto& vOrg : plane->rect() )
+        {
+            displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
+        }
+
+        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, plane->texture(), false );
+
+        model->addPart( quadPart.p() );
     }
 
-    cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, plane->texture(), false );
+    auto modelPlane = m_frm->modelPlane();
+    if ( modelPlane->isValid() )
+    {
+        for ( auto part : modelPlane->allParts() )
+        {
+            cvf::Vec3dArray displayPoints;
+            displayPoints.reserve( modelPlane->rect( part ).size() );
 
-    model->addPart( quadPart.p() );
+            for ( auto& vOrg : modelPlane->rect( part ) )
+            {
+                displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
+            }
+
+            cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, modelPlane->texture( part ), false );
+
+            model->addPart( quadPart.p() );
+        }
+    }
 }

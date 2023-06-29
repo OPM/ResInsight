@@ -25,6 +25,9 @@
 //--------------------------------------------------------------------------------------------------
 RigBasicPlane::RigBasicPlane()
     : m_isRectValid( false )
+    , m_maxHorzExtent( 0.0 )
+    , m_maxVertExtentAbove( 0.0 )
+    , m_maxVertExtentBelow( 0.0 )
 {
     m_texture = new cvf::TextureImage();
     m_texture->allocate( 1, 1 );
@@ -62,7 +65,6 @@ void RigBasicPlane::setPlane( cvf::Vec3d anchorPoint, cvf::Vec3d normal )
 {
     m_planeAnchor = anchorPoint;
     m_planeNormal = normal;
-    updateRect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,18 +84,16 @@ void RigBasicPlane::setMaxExtentFromAnchor( double maxExtentHorz, double maxExte
     m_maxHorzExtent      = maxExtentHorz;
     m_maxVertExtentAbove = maxExtentVertAbove;
     m_maxVertExtentBelow = maxExtentVertBelow;
-
-    updateRect();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+///             ti
 ///      1 ----------- 2
 ///        |         |
 ///     ml |         | mr
 ///        |         |
 ///      0 ----------- 3
-///
+///             bi
 //--------------------------------------------------------------------------------------------------
 void RigBasicPlane::updateRect()
 {
@@ -122,6 +122,9 @@ void RigBasicPlane::updateRect()
     m_rect[3] = mr - upwards * m_maxVertExtentAbove;
 
     m_isRectValid = true;
+
+    m_topIntersect    = m_planeAnchor - upwards * m_maxVertExtentAbove;
+    m_bottomIntersect = m_planeAnchor + upwards * m_maxVertExtentBelow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,4 +141,27 @@ cvf::Vec3dArray RigBasicPlane::rect() const
 cvf::ref<cvf::TextureImage> RigBasicPlane::texture() const
 {
     return m_texture;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigBasicPlane::maxDepth()
+{
+    if ( !m_isRectValid ) return 0.0;
+
+    double maxdepth = 0.0;
+    for ( auto p : m_rect )
+    {
+        maxdepth = std::max( maxdepth, std::abs( p.z() ) );
+    }
+    return maxdepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3d, cvf::Vec3d> RigBasicPlane::intersectTopBottomLine()
+{
+    return std::make_pair( m_topIntersect, m_bottomIntersect );
 }

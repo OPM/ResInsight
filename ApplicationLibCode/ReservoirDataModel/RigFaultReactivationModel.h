@@ -36,13 +36,10 @@ class TextureImage;
 class RigFRModelPart
 {
 public:
-    RigFRModelPart()
-        : isRectValid( false ){};
+    RigFRModelPart(){};
     ~RigFRModelPart(){};
 
-public:
     cvf::Vec3dArray             rect;
-    bool                        isRectValid;
     cvf::ref<cvf::TextureImage> texture;
 };
 
@@ -67,7 +64,9 @@ public:
     RigFaultReactivationModel();
     ~RigFaultReactivationModel() override;
 
-    bool isValid( ModelParts part );
+    std::vector<ModelParts> allParts() const;
+
+    bool isValid() const;
     void reset();
 
     void setPlane( cvf::Vec3d anchorPoint, cvf::Vec3d normal );
@@ -81,9 +80,6 @@ public:
     cvf::Vec3dArray             rect( ModelParts part ) const;
     cvf::ref<cvf::TextureImage> texture( ModelParts part ) const;
 
-protected:
-    void setRectsValid();
-
 private:
     cvf::Vec3d m_planeNormal;
     cvf::Vec3d m_planeAnchor;
@@ -96,4 +92,5 @@ private:
     double m_maxZ;
 
     std::map<ModelParts, RigFRModelPart> m_parts;
+    bool                                 m_isValid;
 };

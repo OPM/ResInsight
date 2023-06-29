@@ -40,7 +40,6 @@ class DisplayCoordTransform;
 class RimFaultReactivationModel;
 class Rim3dView;
 class RivPolylinePartMgr;
-class RigBasicPlane;
 
 class RivFaultReactivationModelPartMgr : public RivTexturePartMgr
 {

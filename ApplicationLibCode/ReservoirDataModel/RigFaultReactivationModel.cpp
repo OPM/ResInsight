@@ -24,6 +24,10 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigFaultReactivationModel::RigFaultReactivationModel()
+    : m_maxZ( 0 )
+    , m_minZ( 0 )
+    , m_maxHorzExtent( 0 )
+    , m_isValid( false )
 {
     for ( auto part :
           { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 } )
@@ -32,6 +36,7 @@ RigFaultReactivationModel::RigFaultReactivationModel()
         m_parts[part].texture = new cvf::TextureImage();
         m_parts[part].texture->allocate( 1, 1 );
         m_parts[part].texture->fill( cvf::Color4ub( 0, 0, 0, 0 ) );
+        m_parts[part].rect.reserve( 4 );
     }
 }
 
@@ -45,34 +50,30 @@ RigFaultReactivationModel::~RigFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::allParts() const
+{
+    return { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModel::reset()
 {
-    for ( auto part :
-          { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 } )
+    m_isValid = false;
+    for ( auto part : allParts() )
     {
-        m_parts[part].isRectValid = false;
         m_parts[part].rect.clear();
+        m_parts[part].rect.reserve( 4 );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::setRectsValid()
+bool RigFaultReactivationModel::isValid() const
 {
-    for ( auto part :
-          { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 } )
-    {
-        m_parts[part].isRectValid = true;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigFaultReactivationModel::isValid( ModelParts part )
-{
-    return m_parts[part].isRectValid;
+    return m_isValid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +100,6 @@ void RigFaultReactivationModel::setPartColors( cvf::Color3f part1Color, cvf::Col
     {
         m_parts[part].texture->fill( cvf::Color4ub( part2Color.rByte(), part2Color.gByte(), part2Color.bByte(), 255 ) );
     }
-    reset();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,9 +147,10 @@ void RigFaultReactivationModel::setFaultPlaneIntersect( cvf::Vec3d faultPlaneTop
 //--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModel::updateRects()
 {
+    reset();
+
     if ( ( m_maxHorzExtent <= 0.0 ) || ( m_minZ == m_maxZ ) )
     {
-        reset();
         return;
     }
 
@@ -167,7 +168,7 @@ void RigFaultReactivationModel::updateRects()
     points.resize( 12 );
 
     points[0]     = ml;
-    points[0].z() = m_maxZ;
+    points[0].z() = -m_maxZ;
 
     points[1]     = ml;
     points[1].z() = m_faultPlaneIntersectBottom.z();
@@ -176,19 +177,19 @@ void RigFaultReactivationModel::updateRects()
     points[2].z() = m_faultPlaneIntersectTop.z();
 
     points[3]     = ml;
-    points[3].z() = m_minZ;
+    points[3].z() = -m_minZ;
 
     points[4]     = m_faultPlaneIntersectBottom;
-    points[4].z() = m_maxZ;
+    points[4].z() = -m_maxZ;
 
     points[5] = m_faultPlaneIntersectBottom;
     points[6] = m_faultPlaneIntersectTop;
 
     points[7]     = m_faultPlaneIntersectTop;
-    points[7].z() = m_minZ;
+    points[7].z() = -m_minZ;
 
     points[8]     = mr;
-    points[8].z() = m_maxZ;
+    points[8].z() = -m_maxZ;
 
     points[9]     = mr;
     points[9].z() = m_faultPlaneIntersectBottom.z();
@@ -197,43 +198,38 @@ void RigFaultReactivationModel::updateRects()
     points[10].z() = m_faultPlaneIntersectTop.z();
 
     points[11]     = mr;
-    points[11].z() = m_minZ;
+    points[11].z() = -m_minZ;
 
-    int j = 0;
     for ( int i : { 2, 3, 7, 6 } )
     {
-        m_parts[ModelParts::HiPart1].rect[j++] = points[i];
+        m_parts[ModelParts::HiPart1].rect.add( points[i] );
     }
 
-    j = 0;
     for ( int i : { 1, 2, 6, 5 } )
     {
-        m_parts[ModelParts::MidPart1].rect[j++] = points[i];
+        m_parts[ModelParts::MidPart1].rect.add( points[i] );
     }
 
-    j = 0;
     for ( int i : { 0, 1, 5, 4 } )
     {
-        m_parts[ModelParts::LowPart1].rect[j++] = points[i];
+        m_parts[ModelParts::LowPart1].rect.add( points[i] );
     }
 
-    j = 0;
     for ( int i : { 6, 7, 11, 10 } )
     {
-        m_parts[ModelParts::HiPart2].rect[j++] = points[i];
+        m_parts[ModelParts::HiPart2].rect.add( points[i] );
     }
 
-    j = 0;
     for ( int i : { 5, 6, 10, 9 } )
     {
-        m_parts[ModelParts::MidPart2].rect[j++] = points[i];
+        m_parts[ModelParts::MidPart2].rect.add( points[i] );
     }
 
-    j = 0;
     for ( int i : { 4, 5, 9, 8 } )
     {
-        m_parts[ModelParts::LowPart2].rect[j++] = points[i];
+        m_parts[ModelParts::LowPart2].rect.add( points[i] );
     }
+    m_isValid = true;
 }
 
 //--------------------------------------------------------------------------------------------------

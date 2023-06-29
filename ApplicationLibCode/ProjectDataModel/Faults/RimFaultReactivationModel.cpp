@@ -67,10 +67,16 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_extentVerticalBelow.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_extentVerticalBelow.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
 
+    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Model Extent" );
+    CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Model Start Depth" );
+    CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
+
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_faultPlaneColor, "FaultPlaneColor", cvf::Color3f( cvf::Color3f::GRAY ), "Plane Color" );
+    CAF_PDM_InitField( &m_modelPart1Color, "ModelPart1Color", cvf::Color3f( cvf::Color3f::GREEN ), "Part 1 Color" );
+    CAF_PDM_InitField( &m_modelPart2Color, "ModelPart2Color", cvf::Color3f( cvf::Color3f::BLUE ), "Part 2 Color" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -198,22 +204,32 @@ caf::PickEventHandler* RimFaultReactivationModel::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::updateVisualization()
 {
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
+    if ( !view ) return;
+
+    auto normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
+    normal.z()  = normal.z() * view->scaleZ() * view->scaleZ();
+    normal.normalize();
+
+    m_faultPlane->setPlane( m_targets[0]->targetPointXYZ(), normal );
     m_faultPlane->setMaxExtentFromAnchor( m_extentHorizontal, m_extentVerticalAbove, m_extentVerticalBelow );
     m_faultPlane->setColor( m_faultPlaneColor );
+    m_faultPlane->updateRect();
 
-    // m_modelPlane->setPartColors
+    double maxZ              = m_faultPlane->maxDepth();
+    auto [topInt, bottomInt] = m_faultPlane->intersectTopBottomLine();
 
-    auto view = firstAncestorOrThisOfType<Rim3dView>();
-    if ( view )
-    {
-        auto normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
-        normal.z()  = normal.z() * view->scaleZ() * view->scaleZ();
-        normal.normalize();
+    cvf::Vec3d zdir( 0, 0, 1 );
+    auto       modelNormal = normal ^ zdir;
+    modelNormal.normalize();
 
-        m_faultPlane->setPlane( m_targets[0]->targetPointXYZ(), normal );
+    m_modelPlane->setPlane( m_targets[0]->targetPointXYZ(), modelNormal );
+    m_modelPlane->setFaultPlaneIntersect( topInt, bottomInt );
+    m_modelPlane->setMaxExtentFromAnchor( m_modelExtentFromAnchor, m_modelMinZ, maxZ + m_modelBelowSize );
+    m_modelPlane->setPartColors( m_modelPart1Color, m_modelPart2Color );
+    m_modelPlane->updateRects();
 
-        view->scheduleCreateDisplayModelAndRedraw();
-    }
+    view->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,7 +319,15 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     faultGrp->add( &m_extentVerticalAbove );
     faultGrp->add( &m_extentVerticalBelow );
 
+    auto modelGrp = uiOrdering.addNewGroup( "2D Model" );
+    modelGrp->add( &m_modelExtentFromAnchor );
+    modelGrp->add( &m_modelMinZ );
+    modelGrp->add( &m_modelBelowSize );
+    modelGrp->add( &m_modelPart1Color );
+    modelGrp->add( &m_modelPart2Color );
+
     auto trgGroup = uiOrdering.addNewGroup( "Debug" );
+    trgGroup->setCollapsedByDefault();
     trgGroup->add( &m_targets );
 
     uiOrdering.skipRemainingFields();
@@ -320,8 +344,10 @@ void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* cha
         return;
     }
 
-    if ( ( changedField == &m_extentHorizontal ) || ( changedField == &m_extentVerticalAbove ) || ( changedField == &m_extentVerticalBelow ) ||
-         ( changedField == &m_faultPlaneColor ) || ( changedField == &m_targets ) || ( changedField == &m_isChecked ) )
+    if ( ( changedField == &m_extentHorizontal ) || ( changedField == &m_extentVerticalAbove ) ||
+         ( changedField == &m_extentVerticalBelow ) || ( changedField == &m_faultPlaneColor ) || ( changedField == &m_targets ) ||
+         ( changedField == &m_isChecked ) || ( changedField == &m_modelExtentFromAnchor ) || ( changedField == &m_modelMinZ ) ||
+         ( changedField == &m_modelBelowSize ) || ( changedField == &m_modelPart1Color ) || ( changedField == &m_modelPart2Color ) )
     {
         updateVisualization();
     }

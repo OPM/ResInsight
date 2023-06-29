@@ -45,15 +45,17 @@ public:
     bool isValid() const;
     void reset();
 
+    void updateRect();
+
     void setPlane( cvf::Vec3d anchorPoint, cvf::Vec3d normal );
     void setMaxExtentFromAnchor( double maxExtentHorz, double maxExtentVertAbove, double maxExtentVertBelow );
     void setColor( cvf::Color3f color );
 
+    double                            maxDepth();
+    std::pair<cvf::Vec3d, cvf::Vec3d> intersectTopBottomLine();
+
     cvf::Vec3dArray             rect() const;
     cvf::ref<cvf::TextureImage> texture() const;
-
-private:
-    void updateRect();
 
 private:
     cvf::Vec3d m_planeNormal;
@@ -62,6 +64,9 @@ private:
     double m_maxHorzExtent;
     double m_maxVertExtentAbove;
     double m_maxVertExtentBelow;
+
+    cvf::Vec3d m_topIntersect;
+    cvf::Vec3d m_bottomIntersect;
 
     cvf::Vec3dArray             m_rect;
     bool                        m_isRectValid;

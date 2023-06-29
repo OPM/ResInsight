@@ -103,10 +103,15 @@ private:
     caf::PdmPtrField<RimFaultInView*>           m_fault;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
     caf::PdmField<cvf::Color3f>                 m_faultPlaneColor;
+    caf::PdmField<cvf::Color3f>                 m_modelPart1Color;
+    caf::PdmField<cvf::Color3f>                 m_modelPart2Color;
 
     caf::PdmField<double> m_extentVerticalAbove;
     caf::PdmField<double> m_extentVerticalBelow;
     caf::PdmField<double> m_extentHorizontal;
+    caf::PdmField<double> m_modelExtentFromAnchor;
+    caf::PdmField<double> m_modelMinZ;
+    caf::PdmField<double> m_modelBelowSize;
 
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;
