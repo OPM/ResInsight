@@ -1747,7 +1747,12 @@ bool RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
         std::vector<time_t> allTimeSteps;
         for ( RimSummaryCurve* curve : stackedCurves )
         {
-            allTimeSteps.insert( allTimeSteps.end(), curve->timeStepsY().begin(), curve->timeStepsY().end() );
+            auto timeSteps = curve->timeStepsY();
+            if ( !timeSteps.empty() )
+            {
+                // https://github.com/OPM/ResInsight/issues/10438
+                allTimeSteps.insert( allTimeSteps.end(), timeSteps.begin(), timeSteps.end() );
+            }
         }
         std::sort( allTimeSteps.begin(), allTimeSteps.end() );
         allTimeSteps.erase( std::unique( allTimeSteps.begin(), allTimeSteps.end() ), allTimeSteps.end() );
