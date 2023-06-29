@@ -77,7 +77,7 @@ if(Protobuf_FOUND)
   # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
   # cmake installation.
   find_package(gRPC CONFIG REQUIRED)
-  message(STATUS "Using gRPC ${gRPC_VERSION}")
+  message(STATUS "Generate C++ code using grpc : ${gRPC_VERSION}")
 
   set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
   set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
@@ -144,6 +144,12 @@ add_custom_target(PipInstall)
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   message(STATUS "Using Python Executable: ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}")
+  
+  execute_process(COMMAND "${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}" -m grpc_tools.protoc --version
+                  OUTPUT_VARIABLE PYTHON_GRPC_PROTOC_VERSION
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  message(STATUS "Using Python grpc protoc compiler: ${PYTHON_GRPC_PROTOC_VERSION}")
 else()
     message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install Python client code")
 endif()
