@@ -20,11 +20,6 @@ concurrency:
 jobs:
   ResInsight-x64-buildcache:
     runs-on: ${{ matrix.config.os }}
-    environment:
-      name: pypi
-      url: https://pypi.org/p/rips
-    permissions:
-      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
     strategy:
       fail-fast: false
       matrix:
@@ -244,20 +239,45 @@ jobs:
           cd rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
 
-      - name: Upload artifact
+      - name: Upload python distribution folder
+        if: matrix.config.publish-to-pypi
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-distribution
+          path: GrpcInterface/Python/dist
+
+      - name: Upload windows install artifact
         if: ${{contains( matrix.config.os, 'windows') }}
         uses: actions/upload-artifact@v3
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
 
-     #- name: Publish package distributions to PyPI
-     #  uses: pypa/gh-action-pypi-publish@release/v1
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/rips
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing  
+    
+    # If this is a tagged release
+    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
-      - name: Publish package distributions to TestPyPI
-        if: matrix.config.publish-to-pypi == true && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    steps:
+    - name: Download python distribution folder
+      uses: actions/download-artifact@v3
+      with:
+        name: python-distribution
+
+    #- name: Publish package distributions to PyPI
+    #  uses: pypa/gh-action-pypi-publish@release/v1
+
+    - name: Publish package distributions to TestPyPI
       # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-          packages-dir: GrpcInterface/Python/dist/
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        packages-dir: GrpcInterface/Python/dist/
+
