@@ -2,6 +2,9 @@ name: clang-tidy
 
 on:
   push:
+    branches:
+      - main
+      - dev
     paths:
       - '**.clang-tidy'
   workflow_dispatch:
