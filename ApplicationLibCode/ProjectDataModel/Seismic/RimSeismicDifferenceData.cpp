@@ -506,7 +506,7 @@ QList<caf::PdmOptionItemInfo> RimSeismicDifferenceData::calculateValueOptions( c
         RimProject* proj = RimProject::current();
         if ( ( proj != nullptr ) && ( m_seismicData1() != nullptr ) )
         {
-            const auto& coll = proj->activeOilField()->seismicCollection().p();
+            const auto& coll = proj->activeOilField()->seismicDataCollection().p();
 
             for ( auto seisData : coll->seismicData() )
             {

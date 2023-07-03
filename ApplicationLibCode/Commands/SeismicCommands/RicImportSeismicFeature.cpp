@@ -63,7 +63,7 @@ void RicImportSeismicFeature::onActionTriggered( bool isChecked )
     app->setLastUsedDialogDirectory( "SEISMIC_GRID", QFileInfo( fileName ).absolutePath() );
 
     auto  proj     = RimProject::current();
-    auto& seisColl = proj->activeOilField()->seismicCollection();
+    auto& seisColl = proj->activeOilField()->seismicDataCollection();
 
     if ( !seisColl ) return;
 

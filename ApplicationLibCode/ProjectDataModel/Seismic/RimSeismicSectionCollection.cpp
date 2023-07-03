@@ -72,7 +72,7 @@ RimSeismicSection* RimSeismicSectionCollection::addNewSection( RiaDefines::Seism
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        const auto& coll = proj->activeOilField()->seismicCollection().p();
+        const auto& coll = proj->activeOilField()->seismicDataCollection().p();
         for ( auto* c : coll->seismicData() )
         {
             if ( c->boundingBox()->intersects( view->domainBoundingBox() ) )
@@ -266,5 +266,5 @@ bool RimSeismicSectionCollection::shouldBeVisibleInTree() const
     RimProject* proj = RimProject::current();
     if ( proj == nullptr ) return false;
 
-    return !proj->activeOilField()->seismicCollection()->isEmpty();
+    return !proj->activeOilField()->seismicDataCollection()->isEmpty();
 }

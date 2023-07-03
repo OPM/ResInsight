@@ -384,7 +384,7 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options )
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        const auto& coll = proj->activeOilField()->seismicCollection().p();
+        const auto& coll = proj->activeOilField()->seismicDataCollection().p();
 
         for ( auto* c : coll->seismicData() )
         {
@@ -403,7 +403,7 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, c
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        const auto& coll = proj->activeOilField()->seismicCollection().p();
+        const auto& coll = proj->activeOilField()->seismicDataCollection().p();
 
         for ( auto* c : coll->seismicData() )
         {
