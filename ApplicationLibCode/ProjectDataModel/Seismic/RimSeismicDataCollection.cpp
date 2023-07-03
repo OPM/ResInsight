@@ -37,7 +37,7 @@ CAF_PDM_SOURCE_INIT( RimSeismicDataCollection, "SeismicDataCollection", "Seismic
 //--------------------------------------------------------------------------------------------------
 RimSeismicDataCollection::RimSeismicDataCollection()
 {
-    CAF_PDM_InitObject( "Seismic", ":/Seismic16x16.png" );
+    CAF_PDM_InitObject( "Data", ":/Seismic16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
     m_seismicData.uiCapability()->setUiTreeHidden( true );

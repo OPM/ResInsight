@@ -116,6 +116,7 @@
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicSectionCollection.h"
+#include "RimSeismicViewCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -1055,6 +1056,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicImportSeismicFeature";
         }
+        else if ( dynamic_cast<RimSeismicViewCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewSeismicViewFeature";
+        }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) || dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
@@ -1245,6 +1250,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSeismicData*>( firstUiItem ) )
         {
+            menuBuilder << "RicNewSeismicViewFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewSeismicDifferenceFeature";
         }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) )

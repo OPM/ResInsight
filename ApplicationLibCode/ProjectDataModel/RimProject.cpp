@@ -73,6 +73,7 @@
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSeismicDataCollection.h"
+#include "RimSeismicViewCollection.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
@@ -1520,7 +1521,12 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
-            if ( oilField->seismicCollection() ) uiTreeOrdering.add( oilField->seismicCollection() );
+            if ( oilField->seismicDataCollection() )
+            {
+                auto child = uiTreeOrdering.add( "Seismic", ":/Seismic16x16.png" );
+                child->add( oilField->seismicDataCollection() );
+                child->add( oilField->seismicViewCollection() );
+            }
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() ) uiTreeOrdering.add( oilField->completionTemplateCollection() );
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );

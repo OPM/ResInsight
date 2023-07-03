@@ -38,6 +38,7 @@ class RimWellPathCollection;
 class RimAnnotationCollection;
 class RimMeasurement;
 class RimSeismicDataCollection;
+class RimSeismicViewCollection;
 class RimSurfaceCollection;
 class RimEnsembleWellLogsCollection;
 
@@ -69,7 +70,8 @@ public:
     caf::PdmChildField<RimAnnotationCollection*>         annotationCollection;
     caf::PdmChildField<RimMeasurement*>                  measurement;
     caf::PdmChildField<RimSurfaceCollection*>            surfaceCollection;
-    caf::PdmChildField<RimSeismicDataCollection*>        seismicCollection;
+    caf::PdmChildField<RimSeismicDataCollection*>        seismicDataCollection;
+    caf::PdmChildField<RimSeismicViewCollection*>        seismicViewCollection;
     caf::PdmChildField<RimEnsembleWellLogsCollection*>   ensembleWellLogsCollection;
 
 protected:
