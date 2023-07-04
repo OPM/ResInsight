@@ -86,6 +86,7 @@ RimSummaryTable::RimSummaryTable()
 
     // Table settings
     CAF_PDM_InitField( &m_showValueLabels, "ShowValueLabels", false, "Show Value Labels" );
+    CAF_PDM_InitField( &m_maxTimeLabelCount, "MaxTimeLabelCount", 20, "Maximum Time Label Count" );
 
     // Font control
     CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
@@ -283,6 +284,10 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
         onLoadDataAndUpdate();
     }
+    else if ( changedField == &m_maxTimeLabelCount )
+    {
+        onLoadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,6 +328,7 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     fontGroup->add( &m_axisTitleFontSize );
     fontGroup->add( &m_axisLabelFontSize );
     fontGroup->add( &m_valueLabelFontSize );
+    fontGroup->add( &m_maxTimeLabelCount );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -464,6 +470,7 @@ void RimSummaryTable::onLoadDataAndUpdate()
     m_matrixPlotWidget->setLegendFontSize( legendFontSize() );
     m_matrixPlotWidget->setAxisTitleFontSize( axisTitleFontSize() );
     m_matrixPlotWidget->setAxisLabelFontSize( axisLabelFontSize() );
+    m_matrixPlotWidget->setMaxColumnLabelCount( m_maxTimeLabelCount() );
 
     m_matrixPlotWidget->createPlot();
 }
