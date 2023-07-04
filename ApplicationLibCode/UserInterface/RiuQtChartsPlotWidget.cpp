@@ -235,7 +235,7 @@ void RiuQtChartsPlotWidget::setAxisFormat( RiuPlotAxis axis, const QString& form
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setPlotTitle( const QString& plotTitle )
 {
-    m_plotTitle = plotTitle;
+    m_plotTitleText = plotTitle;
     applyPlotTitleToPlot();
 }
 
@@ -244,7 +244,7 @@ void RiuQtChartsPlotWidget::setPlotTitle( const QString& plotTitle )
 //--------------------------------------------------------------------------------------------------
 const QString& RiuQtChartsPlotWidget::plotTitle() const
 {
-    return m_plotTitle;
+    return m_plotTitleText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -547,7 +547,7 @@ void RiuQtChartsPlotWidget::keyPressEvent( QKeyEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::applyPlotTitleToPlot()
 {
-    QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
+    QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitleText : QString( "" );
     m_viewer->chart()->setTitle( plotTitleToApply );
     m_viewer->chart()->update();
 }
