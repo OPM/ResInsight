@@ -209,20 +209,6 @@ void RimGeoMechView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
-void RimGeoMechView::onUpdateScaleTransform()
-{
-    cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
-    scale( 2, 2 )    = scaleZ();
-
-    this->scaleTransform()->setLocalTransform( scale );
-
-    if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimGeoMechView::createAutoName() const
 {
     QStringList autoName;
@@ -519,22 +505,6 @@ void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
     m_geomechCase = gmCase;
     cellResult()->setGeoMechCase( gmCase );
     cellFilterCollection()->setCase( gmCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechView::onResetLegendsInViewer()
-{
-    for ( auto legendConfig : legendConfigs() )
-    {
-        if ( legendConfig )
-        {
-            legendConfig->recreateLegend();
-        }
-    }
-
-    nativeOrOverrideViewer()->removeAllColorLegends();
 }
 
 //--------------------------------------------------------------------------------------------------

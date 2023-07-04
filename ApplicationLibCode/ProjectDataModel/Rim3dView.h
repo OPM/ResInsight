@@ -218,22 +218,23 @@ protected:
 
     // Abstract methods to implement in subclasses
 
+    virtual void onUpdateDisplayModelVisibility(){};
+    virtual void onClearReservoirCellVisibilitiesIfNecessary(){};
+    virtual void onResetLegendsInViewer();
+    virtual void onUpdateScaleTransform();
+
     virtual void   onCreateDisplayModel()                   = 0;
     virtual void   onUpdateDisplayModelForCurrentTimeStep() = 0;
-    virtual void   onUpdateDisplayModelVisibility(){};
-    virtual void   onClampCurrentTimestep()   = 0;
-    virtual size_t onTimeStepCountRequested() = 0;
+    virtual void   onClampCurrentTimestep()                 = 0;
+    virtual size_t onTimeStepCountRequested()               = 0;
 
-    virtual void onClearReservoirCellVisibilitiesIfNecessary(){};
     virtual bool isTimeStepDependentDataVisible() const                                            = 0;
     virtual void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
     virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )          = 0;
     virtual void onUpdateStaticCellColors()                                                        = 0;
-    virtual void onResetLegendsInViewer()                                                          = 0;
     virtual void onUpdateLegends()                                                                 = 0;
 
-    virtual void            onUpdateScaleTransform() = 0;
-    virtual cvf::Transform* scaleTransform()         = 0;
+    virtual cvf::Transform* scaleTransform() = 0;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

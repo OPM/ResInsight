@@ -203,7 +203,6 @@ private:
                                               RimEclipseResultDefinition* eclResDef,
                                               int                         timeStepIndex );
 
-    void onResetLegendsInViewer() override;
     void updateVirtualConnectionLegendRanges();
 
     void updateFaultColors();

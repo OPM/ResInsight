@@ -414,8 +414,8 @@ void RimEclipseView::onUpdateScaleTransform()
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale( 2, 2 )    = scaleZ();
 
-    this->scaleTransform()->setLocalTransform( scale );
-    m_simWellsPartManager->setScaleTransform( this->scaleTransform() );
+    scaleTransform()->setLocalTransform( scale );
+    m_simWellsPartManager->setScaleTransform( scaleTransform() );
 
     if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
 }
@@ -2061,22 +2061,6 @@ void RimEclipseView::setCurrentCellResultData( const std::vector<double>& values
             *modResult = values;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::onResetLegendsInViewer()
-{
-    for ( auto legendConfig : legendConfigs() )
-    {
-        if ( legendConfig )
-        {
-            legendConfig->recreateLegend();
-        }
-    }
-
-    nativeOrOverrideViewer()->removeAllColorLegends();
 }
 
 //--------------------------------------------------------------------------------------------------
