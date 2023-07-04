@@ -108,44 +108,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
     CVF_ASSERT( m_destinationCase );
 
     // First build the destination result data structures to receive the statistics
-
-    for ( int i = 0; i < resultSpecification.size(); i++ )
-    {
-        RiaDefines::PorosityModelType poroModel  = resultSpecification[i].m_poroModel;
-        RiaDefines::ResultCatType     resultType = resultSpecification[i].m_resType;
-        QString                       resultName = resultSpecification[i].m_resVarName;
-
-        size_t                  activeCellCount     = m_destinationCase->activeCellInfo( poroModel )->reservoirActiveCellCount();
-        RigCaseCellResultsData* destCellResultsData = m_destinationCase->results( poroModel );
-
-        // Placeholder data used to be created here,
-        // this is now moved to RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
-
-        // Create new result data structures to contain the statistical values
-        std::vector<QString> statisticalResultNames;
-
-        statisticalResultNames.push_back( createResultNameMin( resultName ) );
-        statisticalResultNames.push_back( createResultNameMax( resultName ) );
-        statisticalResultNames.push_back( createResultNameSum( resultName ) );
-        statisticalResultNames.push_back( createResultNameMean( resultName ) );
-        statisticalResultNames.push_back( createResultNameDev( resultName ) );
-        statisticalResultNames.push_back( createResultNameRange( resultName ) );
-
-        if ( m_statisticsConfig.m_calculatePercentiles )
-        {
-            statisticalResultNames.push_back( createResultNamePVal( resultName, m_statisticsConfig.m_pMinPos ) );
-            statisticalResultNames.push_back( createResultNamePVal( resultName, m_statisticsConfig.m_pMidPos ) );
-            statisticalResultNames.push_back( createResultNamePVal( resultName, m_statisticsConfig.m_pMaxPos ) );
-        }
-
-        if ( activeCellCount > 0 )
-        {
-            for ( size_t j = 0; j < statisticalResultNames.size(); ++j )
-            {
-                addNamedResult( destCellResultsData, resultType, statisticalResultNames[j], activeCellCount );
-            }
-        }
-    }
+    addNamedResults( resultSpecification );
 
     // Start the loop that calculates the statistics
 
@@ -359,6 +322,49 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
         }
 
         progressInfo.setProgress( timeIndicesIdx );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& resultSpecification )
+{
+    for ( int i = 0; i < resultSpecification.size(); i++ )
+    {
+        RiaDefines::PorosityModelType poroModel  = resultSpecification[i].m_poroModel;
+        RiaDefines::ResultCatType     resultType = resultSpecification[i].m_resType;
+        QString                       resultName = resultSpecification[i].m_resVarName;
+
+        size_t activeCellCount = m_destinationCase->activeCellInfo( poroModel )->reservoirActiveCellCount();
+        if ( activeCellCount == 0 ) continue;
+
+        RigCaseCellResultsData* destCellResultsData = m_destinationCase->results( poroModel );
+
+        // Placeholder data used to be created here,
+        // this is now moved to RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
+
+        // Create new result data structures to contain the statistical values
+        std::vector<QString> statisticalResultNames;
+
+        statisticalResultNames.push_back( createResultNameMin( resultName ) );
+        statisticalResultNames.push_back( createResultNameMax( resultName ) );
+        statisticalResultNames.push_back( createResultNameSum( resultName ) );
+        statisticalResultNames.push_back( createResultNameMean( resultName ) );
+        statisticalResultNames.push_back( createResultNameDev( resultName ) );
+        statisticalResultNames.push_back( createResultNameRange( resultName ) );
+
+        if ( m_statisticsConfig.m_calculatePercentiles )
+        {
+            statisticalResultNames.push_back( createResultNamePVal( resultName, m_statisticsConfig.m_pMinPos ) );
+            statisticalResultNames.push_back( createResultNamePVal( resultName, m_statisticsConfig.m_pMidPos ) );
+            statisticalResultNames.push_back( createResultNamePVal( resultName, m_statisticsConfig.m_pMaxPos ) );
+        }
+
+        for ( size_t j = 0; j < statisticalResultNames.size(); ++j )
+        {
+            addNamedResult( destCellResultsData, resultType, statisticalResultNames[j], activeCellCount );
+        }
     }
 }
 
