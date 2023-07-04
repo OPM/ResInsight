@@ -2062,22 +2062,6 @@ void RimEclipseView::setCurrentCellResultData( const std::vector<double>& values
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::onResetLegendsInViewer()
-{
-    for ( auto legendConfig : legendConfigs() )
-    {
-        if ( legendConfig )
-        {
-            legendConfig->recreateLegend();
-        }
-    }
-
-    nativeOrOverrideViewer()->removeAllColorLegends();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateVirtualConnectionLegendRanges()
 {
     if ( !eclipseCase() ) return;

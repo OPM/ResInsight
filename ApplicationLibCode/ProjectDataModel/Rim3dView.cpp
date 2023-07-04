@@ -34,6 +34,7 @@
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimGridView.h"
+#include "RimLegendConfig.h"
 #include "RimMainPlotCollection.h"
 #include "RimMeasurement.h"
 #include "RimProject.h"
@@ -1747,4 +1748,34 @@ RimViewLinker* Rim3dView::viewLinkerIfMasterView() const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::onResetLegendsInViewer()
+{
+    for ( auto legendConfig : legendConfigs() )
+    {
+        if ( legendConfig ) legendConfig->recreateLegend();
+    }
+
+    auto viewer = nativeOrOverrideViewer();
+    if ( viewer ) viewer->removeAllColorLegends();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::onUpdateScaleTransform()
+{
+    if ( scaleTransform() )
+    {
+        cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
+        scale( 2, 2 )    = scaleZ();
+
+        scaleTransform()->setLocalTransform( scale );
+
+        if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
+    }
 }

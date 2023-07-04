@@ -19,13 +19,19 @@
 
 #include "RiaSeismicDefines.h"
 
+#include "Rim3dView.h"
+
 #include "cafPdmField.h"
 
 #include "cafPdmObject.h"
 
+class RimCase;
 class RimSeismicData;
+class RimSurfaceInViewCollection;
+class RimSeismicSectionCollection;
+class Rim3dOverlayInfoConfig;
 
-class RimSeismicView : public caf::PdmObject
+class RimSeismicView : public Rim3dView
 {
     CAF_PDM_HEADER_INIT;
 
@@ -35,4 +41,48 @@ public:
 
     void setSeismicData( RimSeismicData* data );
     void addSlice( RiaDefines::SeismicSliceDirection sliceType );
+
+    RimSurfaceInViewCollection*  surfaceInViewCollection() const;
+    RimSeismicSectionCollection* seismicSectionCollection() const;
+
+    RimCase*                      ownerCase() const override;
+    RiaDefines::View3dContent     viewContent() const override;
+    bool                          isGridVisualizationMode() const override;
+    bool                          isUsingFormationNames() const override;
+    std::vector<RimLegendConfig*> legendConfigs() const override;
+    void                          scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
+
+protected:
+    void initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    void   onCreateDisplayModel() override;
+    void   onUpdateDisplayModelForCurrentTimeStep() override;
+    void   onClampCurrentTimestep() override;
+    size_t onTimeStepCountRequested() override;
+    bool   isTimeStepDependentDataVisible() const override;
+    void   defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
+    void   onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+    void   onUpdateStaticCellColors() override;
+    void   onUpdateLegends() override;
+
+    void onLoadDataAndUpdate() override;
+    void selectOverlayInfoConfig() override;
+
+    cvf::Transform* scaleTransform() override;
+
+    QString createAutoName() const override;
+
+private:
+    caf::PdmChildField<RimSurfaceInViewCollection*>  m_surfaceCollection;
+    caf::PdmChildField<RimSeismicSectionCollection*> m_seismicSectionCollection;
+
+    caf::PdmChildField<Rim3dOverlayInfoConfig*> m_overlayInfoConfig;
+
+    caf::PdmPtrField<RimSeismicData*> m_seismicData;
+
+    cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
+
+    cvf::ref<cvf::Transform> m_scaleTransform;
 };

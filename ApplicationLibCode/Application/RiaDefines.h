@@ -230,7 +230,8 @@ enum class View3dContent
     GEOMECH_DATA      = 0b00000010,
     FLAT_INTERSECTION = 0b00000100,
     CONTOUR           = 0b00001000,
-    ALL               = 0b00001111
+    SEISMIC           = 0b00010000,
+    ALL               = 0b00011111
 };
 
 }; // namespace RiaDefines
