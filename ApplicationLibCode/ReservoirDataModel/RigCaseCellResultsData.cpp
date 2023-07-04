@@ -703,12 +703,19 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
 {
     for ( size_t resultIdx = 0; resultIdx < m_cellScalarResults.size(); ++resultIdx )
     {
-        for ( size_t tsIdx = 0; tsIdx < m_cellScalarResults[resultIdx].size(); ++tsIdx )
+        if ( resultIdx < m_resultInfos.size() &&
+             m_resultInfos[resultIdx].eclipseResultAddress().resultCatType() == RiaDefines::ResultCatType::GENERATED )
+        {
+            // Not possible to recreate generated results, keep them
+            continue;
+        }
+
+        for ( auto& tsIdx : m_cellScalarResults[resultIdx] )
         {
             // Using swap with an empty vector as that is the safest way to really get rid of the allocated data in a
             // vector
             std::vector<double> empty;
-            m_cellScalarResults[resultIdx][tsIdx].swap( empty );
+            tsIdx.swap( empty );
         }
     }
 }
