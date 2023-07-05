@@ -448,6 +448,8 @@ void RiuMatrixPlotWidget::createMatrixCells()
 //--------------------------------------------------------------------------------------------------
 std::map<size_t, QString> RiuMatrixPlotWidget::createIndexLabelMap( const std::vector<QString>& labels, int maxLabelCount )
 {
+    if ( labels.empty() ) return {};
+
     int increment = 1;
     if ( (int)labels.size() > maxLabelCount )
     {
