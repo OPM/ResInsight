@@ -157,6 +157,21 @@ RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuFlowCharacteristicsPlot::setCaseName( const QString& caseName )
+{
+    QString title = "Lorenz Coefficient";
+    if ( !caseName.isEmpty() )
+    {
+        title += " - " + caseName;
+    }
+    m_lorenzPlot->setTitle( title );
+
+    setWindowTitle( title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::setLorenzCurve( const QStringList&            dateTimeStrings,
                                                  const std::vector<QDateTime>& dateTimes,
                                                  const std::vector<double>&    timeHistoryValues )
@@ -306,14 +321,6 @@ void RiuFlowCharacteristicsPlot::showLegend( bool show )
     {
         m_lorenzPlot->insertLegend( nullptr );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimFlowCharacteristicsPlot* RiuFlowCharacteristicsPlot::ownerPlotDefinition()
-{
-    return m_plotDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------
