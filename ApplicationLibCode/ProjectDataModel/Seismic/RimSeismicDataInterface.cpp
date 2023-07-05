@@ -137,3 +137,16 @@ std::vector<double> RimSeismicDataInterface::alphaValues() const
 {
     return m_clippedAlphaValues;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSeismicDataInterface::inlineSpacing()
+{
+    if ( !hasValidData() ) return 1.0;
+
+    cvf::Vec3d world1 = convertToWorldCoords( inlineMin(), xlineMin(), zMin() );
+    cvf::Vec3d world2 = convertToWorldCoords( inlineMin() + 1, xlineMin(), zMin() );
+
+    return world1.pointDistance( world2 );
+}

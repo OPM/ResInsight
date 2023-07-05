@@ -300,7 +300,7 @@ void RimGeoMechView::onCreateDisplayModel()
     cvf::BoundingBox femBBox = femParts()->boundingBox();
 
     m_wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), femBBox );
+    addWellPathsToModel( m_wellPathPipeVizModel.p(), femBBox, ownerCase()->characteristicCellSize() );
 
     nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
 
@@ -429,7 +429,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                     wellPathModelBasicList->setName( name );
 
                     cvf::BoundingBox femBBox = femParts()->boundingBox();
-                    addDynamicWellPathsToModel( wellPathModelBasicList.p(), femBBox );
+                    addDynamicWellPathsToModel( wellPathModelBasicList.p(), femBBox, ownerCase()->characteristicCellSize() );
 
                     frameScene->addModel( wellPathModelBasicList.p() );
                 }

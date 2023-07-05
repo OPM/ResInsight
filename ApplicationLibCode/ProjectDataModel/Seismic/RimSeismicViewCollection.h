@@ -39,7 +39,7 @@ public:
 
     bool isEmpty();
 
-    RimSeismicView* addView( RimSeismicData* data, RiaDefines::SeismicSliceDirection defaultSlice );
+    RimSeismicView* addView( RimSeismicData* data, RiaDefines::SeismicSectionType defaultSection );
 
     std::vector<RimSeismicView*> views() const;
 

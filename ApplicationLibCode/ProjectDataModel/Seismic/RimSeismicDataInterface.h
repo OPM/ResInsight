@@ -56,6 +56,7 @@ public:
     virtual bool                    gridIsEqual( RimSeismicDataInterface* other );
     virtual RimRegularLegendConfig* legendConfig() const;
     virtual RimSeismicAlphaMapper*  alphaValueMapper() const;
+    virtual double                  inlineSpacing();
 
     // interface to be implemented by subclasses
 public:

@@ -73,12 +73,14 @@ void RimSeismicViewCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicView* RimSeismicViewCollection::addView( RimSeismicData* data, RiaDefines::SeismicSliceDirection defaultSlice )
+RimSeismicView* RimSeismicViewCollection::addView( RimSeismicData* data, RiaDefines::SeismicSectionType defaultSection )
 {
     RimSeismicView* view = new RimSeismicView();
 
     view->setSeismicData( data );
-    view->addSlice( defaultSlice );
+    view->loadDataAndUpdate();
+
+    view->addSlice( defaultSection );
 
     m_views.push_back( view );
 

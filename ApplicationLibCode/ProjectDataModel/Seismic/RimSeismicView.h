@@ -40,7 +40,7 @@ public:
     ~RimSeismicView() override;
 
     void setSeismicData( RimSeismicData* data );
-    void addSlice( RiaDefines::SeismicSliceDirection sliceType );
+    void addSlice( RiaDefines::SeismicSectionType sectionType );
 
     RimSurfaceInViewCollection*  surfaceInViewCollection() const;
     RimSeismicSectionCollection* seismicSectionCollection() const;
@@ -52,10 +52,14 @@ public:
     std::vector<RimLegendConfig*> legendConfigs() const override;
     void                          scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
 
+    cvf::BoundingBox domainBoundingBox() override;
+    void             updateGridBoxData() override;
+
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void   onCreateDisplayModel() override;
     void   onUpdateDisplayModelForCurrentTimeStep() override;

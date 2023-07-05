@@ -25,6 +25,7 @@
 #include "RimProject.h"
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
+#include "RimSeismicView.h"
 #include "RimSeismicViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -75,13 +76,15 @@ void RicNewSeismicViewFeature::onActionTriggered( bool isChecked )
 
     if ( selectedData )
     {
-        auto view = seisViewColl->addView( selectedData, RiaDefines::SeismicSliceDirection::INLINE );
+        auto view = seisViewColl->addView( selectedData, RiaDefines::SeismicSectionType::SS_INLINE );
 
         if ( view )
         {
             seisViewColl->updateAllRequiredEditors();
+            view->scheduleCreateDisplayModelAndRedraw();
+            // view->defaultView view->zoomAll();
 
-            // Riu3DMainWindowTools::selectAsCurrentItem( view );
+            Riu3DMainWindowTools::selectAsCurrentItem( view );
         }
     }
 }

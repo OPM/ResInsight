@@ -29,8 +29,12 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 
+#include "cafPdmUiTreeOrdering.h"
+
+#include "cafDisplayCoordTransform.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfScene.h"
 #include "cvfString.h"
 #include "cvfTransform.h"
 
@@ -92,8 +96,10 @@ void RimSeismicView::setSeismicData( RimSeismicData* data )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::addSlice( RiaDefines::SeismicSliceDirection sliceType )
+void RimSeismicView::addSlice( RiaDefines::SeismicSectionType sectionType )
 {
+    auto section = m_seismicSectionCollection->addNewSection( sectionType );
+    section->setSeismicData( m_seismicData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,6 +182,20 @@ void RimSeismicView::scheduleGeometryRegen( RivCellSetEnum geometryType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimSeismicView::domainBoundingBox()
+{
+    cvf::BoundingBox bb;
+
+    if ( m_seismicData )
+    {
+        bb.add( *m_seismicData->boundingBox() );
+    }
+    return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSeismicView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
 }
@@ -191,8 +211,65 @@ void RimSeismicView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+{
+    // uiTreeOrdering.add( m_overlayInfoConfig() );
+
+    // well paths
+    // addRequiredUiTreeObjects( uiTreeOrdering );
+
+    uiTreeOrdering.add( seismicSectionCollection() );
+    if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+
+    uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSeismicView::onCreateDisplayModel()
 {
+    if ( nativeOrOverrideViewer() == nullptr ) return;
+
+    if ( !m_seismicData ) return;
+
+    // Remove all existing frames from the viewer.
+    nativeOrOverrideViewer()->removeAllFrames( isUsingOverrideViewer() );
+
+    // Set the Main scene in the viewer.
+    cvf::ref<cvf::Scene> mainScene = new cvf::Scene;
+
+    // Seismic sections
+
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    m_seismicVizModel->removeAllParts();
+    // TODO - if no slices/parts, add an empty outline to the seismicvizmodel
+    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), domainBoundingBox() );
+    mainScene->addModel( m_seismicVizModel.p() );
+    nativeOrOverrideViewer()->setMainScene( mainScene.p(), isUsingOverrideViewer() );
+
+    // Well path model
+
+    m_wellPathPipeVizModel->removeAllParts();
+    addWellPathsToModel( m_wellPathPipeVizModel.p(), domainBoundingBox(), m_seismicData->inlineSpacing() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
+
+    // Surfaces
+
+    m_surfaceVizModel->removeAllParts();
+    if ( m_surfaceCollection )
+    {
+        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform() );
+        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+    }
+
+    onUpdateLegends();
+    if ( m_surfaceCollection )
+    {
+        m_surfaceCollection->applySingleColorEffect();
+    }
+
+    // m_overlayInfoConfig()->update3DInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,4 +410,15 @@ QString RimSeismicView::createAutoName() const
     }
 
     return "Seismic View";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicView::updateGridBoxData()
+{
+    if ( viewer() )
+    {
+        viewer()->updateGridBoxData( m_scaleZ(), cvf::Vec3d::ZERO, backgroundColor(), domainBoundingBox(), fontSize() );
+    }
 }

@@ -752,6 +752,8 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     }
     else if ( changedField == &m_showImage )
     {
+        if ( m_seismicData == nullptr ) return;
+
         QDialog     w;
         QLabel      l;
         QHBoxLayout layout;

@@ -165,11 +165,11 @@ public:
     void updateDisplayModelForCurrentTimeStepAndRedraw();
     void createHighlightAndGridBoxDisplayModelAndRedraw();
     void createMeasurementDisplayModelAndRedraw();
-    void updateGridBoxData();
     void updateAnnotationItems();
     void resetLegends();
 
-    cvf::BoundingBox domainBoundingBox();
+    virtual void             updateGridBoxData();
+    virtual cvf::BoundingBox domainBoundingBox();
 
     void   setScaleZ( double scaleZ );
     void   setScaleZAndUpdate( double scaleZ );
@@ -203,8 +203,12 @@ protected:
 
     RimWellPathCollection* wellPathCollection() const;
 
-    void addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox );
-    void addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox );
+    void addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                              const cvf::BoundingBox& wellPathClipBoundingBox,
+                              double                  characteristicCellSize );
+    void addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                                     const cvf::BoundingBox& wellPathClipBoundingBox,
+                                     double                  characteristicCellSize );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
     void addMeasurementToModel( cvf::ModelBasicList* measureModel );
     void addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel );
@@ -260,6 +264,7 @@ protected:
     cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
     cvf::ref<cvf::ModelBasicList> m_seismicVizModel;
     cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
+    cvf::ref<cvf::ModelBasicList> m_highlightVizModel;
 
     caf::PdmField<double> m_scaleZ;
     caf::PdmField<double> m_customScaleZ;
@@ -321,7 +326,6 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_fontSize;
 
     // 3D display model data
-    cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
     cvf::ref<RivCellFilterPartMgr>  m_cellfilterPartManager;

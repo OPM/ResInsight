@@ -165,7 +165,7 @@ Rim3dView::Rim3dView()
     m_cellfilterPartManager  = new RivCellFilterPartMgr( this );
     m_measurementPartManager = new RivMeasurementPartMgr( this );
 
-    setAs3DViewMdiWindow();
+    this->setAs3DViewMdiWindow();
 
     // Every timer tick, send a signal for updating animations.
     // Any animation is supposed to connect to this signal
@@ -199,9 +199,9 @@ Rim3dView::~Rim3dView()
             }
         }
 
-        if ( isMasterView() )
+        if ( this->isMasterView() )
         {
-            RimViewLinker* viewLinker = assosiatedViewLinker();
+            RimViewLinker* viewLinker = this->assosiatedViewLinker();
             viewLinker->setMasterView( nullptr );
 
             delete proj->viewLinkerCollection->viewLinker();
@@ -210,7 +210,7 @@ Rim3dView::~Rim3dView()
             proj->uiCapability()->updateConnectedEditors();
         }
 
-        RimViewController* vController = viewController();
+        RimViewController* vController = this->viewController();
         if ( vController )
         {
             vController->setManagedView( nullptr );
@@ -360,7 +360,7 @@ QWidget* Rim3dView::createViewWidget( QWidget* mainWindowParent )
     cvf::String yLabel;
     cvf::String zLabel;
 
-    defineAxisLabels( &xLabel, &yLabel, &zLabel );
+    this->defineAxisLabels( &xLabel, &yLabel, &zLabel );
     m_viewer->setAxisLabels( xLabel, yLabel, zLabel );
 
     updateZScaleLabel();
@@ -376,7 +376,7 @@ void Rim3dView::updateViewWidgetAfterCreation()
 
     m_viewer->setDefaultPerspectiveNearPlaneDistance( 10 );
 
-    onResetLegendsInViewer();
+    this->onResetLegendsInViewer();
 
     m_viewer->updateNavigationPolicy();
     m_viewer->enablePerfInfoHud( RiaPreferencesSystem::current()->show3dInformation() );
@@ -387,9 +387,9 @@ void Rim3dView::updateViewWidgetAfterCreation()
 
     m_viewer->mainCamera()->viewport()->setClearColor( cvf::Color4f( backgroundColor() ) );
 
-    updateGridBoxData();
-    updateAnnotationItems();
-    createHighlightAndGridBoxDisplayModel();
+    this->updateGridBoxData();
+    this->updateAnnotationItems();
+    this->createHighlightAndGridBoxDisplayModel();
 
     m_viewer->update();
 }
@@ -401,7 +401,7 @@ void Rim3dView::setId( int id )
 {
     m_id                  = id;
     QString viewIdTooltip = QString( "View id: %1" ).arg( m_id );
-    setUiToolTip( viewIdTooltip );
+    this->setUiToolTip( viewIdTooltip );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,7 +442,7 @@ void Rim3dView::updateMdiWindowTitle()
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* Rim3dView::assosiatedViewLinker() const
 {
-    RimViewLinker* viewLinker = viewLinkerIfMasterView();
+    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
     if ( !viewLinker )
     {
         RimViewController* viewController = this->viewController();
@@ -503,7 +503,7 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Grid Appearance" );
     gridGroup->add( &m_scaleZ );
-    m_scaleZ.uiCapability()->setUiReadOnly( !isScaleZEditable() );
+    m_scaleZ.uiCapability()->setUiReadOnly( !this->isScaleZEditable() );
     gridGroup->add( &meshMode );
     gridGroup->add( &surfaceMode );
 
@@ -534,9 +534,9 @@ QImage Rim3dView::snapshotWindowContent()
 void Rim3dView::scheduleCreateDisplayModelAndRedraw()
 {
     RiaViewRedrawScheduler::instance()->scheduleDisplayModelUpdateAndRedraw( this );
-    if ( isMasterView() )
+    if ( this->isMasterView() )
     {
-        RimViewLinker* viewLinker = assosiatedViewLinker();
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
         if ( viewLinker )
         {
             viewLinker->scheduleCreateDisplayModelAndRedrawForDependentViews();
@@ -580,7 +580,7 @@ std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView()
 //--------------------------------------------------------------------------------------------------
 bool Rim3dView::isScaleZEditable()
 {
-    return ( viewsUsingThisAsComparisonView().empty() || ( viewController() && viewController()->isCameraLinked() ) );
+    return ( this->viewsUsingThisAsComparisonView().empty() || ( this->viewController() && this->viewController()->isCameraLinked() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -611,7 +611,7 @@ bool Rim3dView::isTimeStepDependentDataVisibleInThisOrComparisonView() const
 //--------------------------------------------------------------------------------------------------
 size_t Rim3dView::timeStepCount()
 {
-    return onTimeStepCountRequested();
+    return this->onTimeStepCountRequested();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -619,9 +619,9 @@ size_t Rim3dView::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 QString Rim3dView::timeStepName( int frameIdx ) const
 {
-    if ( ownerCase() )
+    if ( this->ownerCase() )
     {
-        return ownerCase()->timeStepName( frameIdx );
+        return this->ownerCase()->timeStepName( frameIdx );
     }
     return QString( "" );
 }
@@ -639,7 +639,7 @@ void Rim3dView::setCurrentTimeStep( int frameIndex )
     if ( m_currentTimeStep != oldTimeStep )
     {
         RiuTimeStepChangedHandler::instance()->handleTimeStepChanged( this );
-        onClearReservoirCellVisibilitiesIfNecessary();
+        this->onClearReservoirCellVisibilitiesIfNecessary();
     }
 }
 
@@ -661,7 +661,7 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
 
     if ( nativeOrOverrideViewer() )
     {
-        onUpdateDisplayModelForCurrentTimeStep();
+        this->onUpdateDisplayModelForCurrentTimeStep();
         appendAnnotationsToModel();
         appendMeasurementToModel();
         appendCellFiltersToModel();
@@ -681,7 +681,7 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
 
     m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw = true;
 
-    std::set<Rim3dView*> containerViews = viewsUsingThisAsComparisonView();
+    std::set<Rim3dView*> containerViews = this->viewsUsingThisAsComparisonView();
     if ( !containerViews.empty() && !isUsingOverrideViewer() )
     {
         for ( auto view : containerViews )
@@ -702,7 +702,7 @@ void Rim3dView::createDisplayModelAndRedraw()
 {
     if ( nativeOrOverrideViewer() )
     {
-        onClampCurrentTimestep();
+        this->onClampCurrentTimestep();
 
         onUpdateScaleTransform();
 
@@ -784,7 +784,7 @@ void Rim3dView::setDefaultView()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::endAnimation()
 {
-    onUpdateStaticCellColors();
+    this->onUpdateStaticCellColors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -937,7 +937,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
 
         RiuMainWindow::instance()->updateScaleValue();
 
-        RimViewLinker* viewLinker = assosiatedViewLinker();
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
         if ( viewLinker )
         {
             viewLinker->updateScaleZ( this, scaleZ() );
@@ -996,8 +996,8 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
                 fontHolder->updateFonts();
             }
         }
-        applyBackgroundColorAndFontChanges();
-        updateConnectedEditors();
+        this->applyBackgroundColorAndFontChanges();
+        this->updateConnectedEditors();
     }
     else if ( changedField == &maximumFrameRate )
     {
@@ -1025,15 +1025,15 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox )
+void Rim3dView::addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                                     const cvf::BoundingBox& wellPathClipBoundingBox,
+                                     double                  characteristicCellSize )
 {
-    if ( !ownerCase() ) return;
-
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
     m_wellPathsPartManager->appendStaticGeometryPartsToModel( wellPathModelBasicList,
                                                               transForm.p(),
-                                                              ownerCase()->characteristicCellSize(),
+                                                              characteristicCellSize,
                                                               wellPathClipBoundingBox );
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
@@ -1042,17 +1042,17 @@ void Rim3dView::addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox )
+void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                                            const cvf::BoundingBox& wellPathClipBoundingBox,
+                                            double                  characteristicCellSize )
 {
-    if ( !ownerCase() ) return;
-
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
     size_t timeStepIndex = currentTimeStep();
     m_wellPathsPartManager->appendDynamicGeometryPartsToModel( wellPathModelBasicList,
                                                                timeStepIndex,
                                                                transForm.p(),
-                                                               ownerCase()->characteristicCellSize(),
+                                                               characteristicCellSize,
                                                                wellPathClipBoundingBox );
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
@@ -1063,7 +1063,7 @@ void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBa
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
 {
-    if ( !ownerCase() ) return;
+    if ( !this->ownerCase() ) return;
 
     auto annotationCollections = descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
@@ -1085,7 +1085,7 @@ void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel )
 {
-    if ( !ownerCase() ) return;
+    if ( !this->ownerCase() ) return;
 
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
     m_cellfilterPartManager->appendGeometryPartsToModel( cellFilterModel, transForm.p(), ownerCase()->allCellsBoundingBox() );
@@ -1098,7 +1098,7 @@ void Rim3dView::addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel )
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 {
-    if ( !ownerCase() ) return;
+    if ( !this->ownerCase() ) return;
 
     RimMeasurement* measurement = RimProject::current()->measurement();
 
@@ -1125,7 +1125,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 //---------------------------------------------------- ----------------------------------------------
 bool Rim3dView::isMasterView() const
 {
-    RimViewLinker* viewLinker = assosiatedViewLinker();
+    RimViewLinker* viewLinker = this->assosiatedViewLinker();
     return viewLinker && this == viewLinker->masterView();
 }
 
@@ -1198,7 +1198,7 @@ void Rim3dView::setScaleZAndUpdate( double scalingFactor )
 {
     if ( scaleZ() != scalingFactor )
     {
-        m_scaleZ.setValueWithFieldChanged( scalingFactor );
+        this->m_scaleZ.setValueWithFieldChanged( scalingFactor );
     }
 }
 
@@ -1231,8 +1231,8 @@ void Rim3dView::updateScaling()
         dir = viewer()->mainCamera()->direction();
         up  = viewer()->mainCamera()->up();
 
-        eye[2] = poi[2] * m_scaleZ() / scaleTransform()->worldTransform()( 2, 2 ) + ( eye[2] - poi[2] );
-        poi[2] = poi[2] * m_scaleZ() / scaleTransform()->worldTransform()( 2, 2 );
+        eye[2] = poi[2] * m_scaleZ() / this->scaleTransform()->worldTransform()( 2, 2 ) + ( eye[2] - poi[2] );
+        poi[2] = poi[2] * m_scaleZ() / this->scaleTransform()->worldTransform()( 2, 2 );
 
         viewer()->mainCamera()->setFromLookAt( eye, eye + dir, up );
         viewer()->setPointOfInterest( poi );
@@ -1247,7 +1247,7 @@ void Rim3dView::updateScaling()
     updateGridBoxData();
     updateZScaleLabel();
 
-    scheduleCreateDisplayModelAndRedraw();
+    this->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1320,7 +1320,7 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
         nativeOrOverrideViewer()->addStaticModelOnce( m_highlightVizModel.p(), isUsingOverrideViewer() );
     }
 
-    updateGridBoxData();
+    this->updateGridBoxData();
 
     if ( viewer() ) viewer()->showGridBox( m_showGridBox() );
 }
@@ -1356,7 +1356,7 @@ void Rim3dView::applyBackgroundColorAndFontChanges()
     updateConnectedEditors();
 
     onUpdateLegends();
-    scheduleCreateDisplayModelAndRedraw();
+    this->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1432,7 +1432,7 @@ void Rim3dView::updateDisplayModelVisibility()
     viewer()->setEnableMask( mask, false );
     viewer()->setEnableMask( mask, true );
 
-    onUpdateDisplayModelVisibility();
+    this->onUpdateDisplayModelVisibility();
 
     viewer()->update();
 }
@@ -1628,7 +1628,7 @@ void Rim3dView::appendAnnotationsToModel()
     if ( frameScene )
     {
         cvf::String name = "Annotations";
-        removeModelByName( frameScene, name );
+        this->removeModelByName( frameScene, name );
 
         cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
         model->setName( name );
@@ -1650,7 +1650,7 @@ void Rim3dView::appendCellFiltersToModel()
     if ( frameScene )
     {
         cvf::String name = "CellFilters";
-        removeModelByName( frameScene, name );
+        this->removeModelByName( frameScene, name );
 
         cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
         model->setName( name );
@@ -1672,7 +1672,7 @@ void Rim3dView::appendMeasurementToModel()
     if ( frameScene )
     {
         cvf::String name = "Measurement";
-        removeModelByName( frameScene, name );
+        this->removeModelByName( frameScene, name );
 
         cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
         model->setName( name );
