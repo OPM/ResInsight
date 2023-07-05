@@ -449,14 +449,14 @@ void RiuMatrixPlotWidget::createMatrixCells()
 std::map<size_t, QString> RiuMatrixPlotWidget::createIndexLabelMap( const std::vector<QString>& labels, int maxLabelCount )
 {
     int increment = 1;
-    if ( labels.size() > maxLabelCount )
+    if ( (int)labels.size() > maxLabelCount )
     {
         increment = (int)labels.size() / ( maxLabelCount - 1 );
         increment = std::max( 1, increment );
     }
 
     std::map<size_t, QString> indexLabelMap;
-    for ( size_t i = 0; i < std::min( (int)labels.size(), maxLabelCount - 1 ); ++i )
+    for ( size_t i = 0; i < std::min( labels.size(), size_t( maxLabelCount - 1 ) ); ++i )
     {
         auto index = i * increment;
         indexLabelMap.emplace( index, labels[index] );
