@@ -20,6 +20,7 @@
 
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
@@ -471,6 +472,9 @@ void RimSummaryTable::onLoadDataAndUpdate()
     m_matrixPlotWidget->setAxisTitleFontSize( axisTitleFontSize() );
     m_matrixPlotWidget->setAxisLabelFontSize( axisLabelFontSize() );
     m_matrixPlotWidget->setMaxColumnLabelCount( m_maxTimeLabelCount() );
+
+    const auto windowTitle = RiaStdStringTools::removeHtmlTags( title.toStdString() );
+    m_matrixPlotWidget->setWindowTitle( QString::fromStdString( windowTitle ) );
 
     m_matrixPlotWidget->createPlot();
 }

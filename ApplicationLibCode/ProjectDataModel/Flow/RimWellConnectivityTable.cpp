@@ -20,6 +20,7 @@
 
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaWellFlowDefines.h"
 
 #include "RigAccWellFlowCalculator.h"
@@ -676,6 +677,9 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
     m_matrixPlotWidget->setLegendFontSize( legendFontSize() );
     m_matrixPlotWidget->setAxisTitleFontSize( axisTitleFontSize() );
     m_matrixPlotWidget->setAxisLabelFontSize( axisLabelFontSize() );
+
+    const auto windowTitle = RiaStdStringTools::removeHtmlTags( createTableTitle().toStdString() );
+    m_matrixPlotWidget->setWindowTitle( QString::fromStdString( windowTitle ) );
 
     m_matrixPlotWidget->createPlot();
 }

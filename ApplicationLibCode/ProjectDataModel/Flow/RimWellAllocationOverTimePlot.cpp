@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaStdStringTools.h"
 
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
@@ -405,7 +406,10 @@ void RimWellAllocationOverTimePlot::updateFromWell()
     QString newDescription = descriptionText + ", " + valueTypeText;
 
     setDescription( newDescription );
-    m_plotWidget->setWindowTitle( newDescription );
+
+    const auto windowTitle = RiaStdStringTools::removeHtmlTags( newDescription.toStdString() );
+    m_plotWidget->setWindowTitle( QString::fromStdString( windowTitle ) );
+
     m_plotWidget->setPlotTitle( descriptionText + "<br>" + valueTypeText + "</br>" );
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), valueTypeText );
 

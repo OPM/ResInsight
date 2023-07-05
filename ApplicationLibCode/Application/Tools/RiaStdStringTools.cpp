@@ -22,6 +22,7 @@
 
 #include <cctype>
 #include <charconv>
+#include <regex>
 
 const std::string WHITESPACE = " \n\r\t\f\v";
 
@@ -258,4 +259,15 @@ int RiaStdStringTools::computeEditDistance( const std::string& x, const std::str
 
     // The distance between the two full strings as the last value computed.
     return T[m][n];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::removeHtmlTags( const std::string& s )
+{
+    std::regex  html_tags( "<.*?>" ); // Matches any HTML tag
+    std::string result = std::regex_replace( s, html_tags, "" );
+
+    return result;
 }
