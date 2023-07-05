@@ -1025,15 +1025,15 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox )
+void Rim3dView::addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                                     const cvf::BoundingBox& wellPathClipBoundingBox,
+                                     double                  characteristicCellSize )
 {
-    if ( !this->ownerCase() ) return;
-
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
     m_wellPathsPartManager->appendStaticGeometryPartsToModel( wellPathModelBasicList,
                                                               transForm.p(),
-                                                              this->ownerCase()->characteristicCellSize(),
+                                                              characteristicCellSize,
                                                               wellPathClipBoundingBox );
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
@@ -1042,17 +1042,17 @@ void Rim3dView::addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox )
+void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                                            const cvf::BoundingBox& wellPathClipBoundingBox,
+                                            double                  characteristicCellSize )
 {
-    if ( !this->ownerCase() ) return;
-
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
     size_t timeStepIndex = currentTimeStep();
     m_wellPathsPartManager->appendDynamicGeometryPartsToModel( wellPathModelBasicList,
                                                                timeStepIndex,
                                                                transForm.p(),
-                                                               this->ownerCase()->characteristicCellSize(),
+                                                               characteristicCellSize,
                                                                wellPathClipBoundingBox );
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();

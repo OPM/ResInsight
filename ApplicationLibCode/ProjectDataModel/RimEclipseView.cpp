@@ -613,7 +613,7 @@ void RimEclipseView::onCreateDisplayModel()
     // as the fracture geometry depends on the StimPlan legend colors
     fractureColors()->updateLegendData();
 
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox() );
+    addWellPathsToModel( m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox(), ownerCase()->characteristicCellSize() );
 
     m_wellPathsPartManager->appendStaticFracturePartsToModel( m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox() );
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
@@ -939,7 +939,9 @@ void RimEclipseView::appendWellsAndFracturesToModel()
                 cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                 wellPathModelBasicList->setName( name );
 
-                addDynamicWellPathsToModel( wellPathModelBasicList.p(), currentActiveCellInfo()->geometryBoundingBox() );
+                addDynamicWellPathsToModel( wellPathModelBasicList.p(),
+                                            currentActiveCellInfo()->geometryBoundingBox(),
+                                            ownerCase()->characteristicCellSize() );
 
                 frameScene->addModel( wellPathModelBasicList.p() );
             }
