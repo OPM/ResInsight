@@ -7,18 +7,10 @@ resinsight = rips.Instance.find()
 test_model_path = "e:/gitroot-second/ResInsight/TestModels"
 
 case_paths = []
-case_paths.append(
-    test_model_path + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
-)
-case_paths.append(
-    test_model_path + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
-)
-case_paths.append(
-    test_model_path + "/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID"
-)
-case_paths.append(
-    test_model_path + "/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID"
-)
+case_paths.append(test_model_path + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
+case_paths.append(test_model_path + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
+case_paths.append(test_model_path + "/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID")
+case_paths.append(test_model_path + "/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID")
 
 for case_path in case_paths:
     assert os.path.exists(
@@ -35,16 +27,24 @@ for case in cases:
     porv_results = case.active_cell_property("STATIC_NATIVE", "PORV", 0)
 
     for time_step_index in range(0, len(time_step_info)):
-        pressure_results = case.active_cell_property("DYNAMIC_NATIVE", "PRESSURE", time_step_index)
+        pressure_results = case.active_cell_property(
+            "DYNAMIC_NATIVE", "PRESSURE", time_step_index
+        )
 
         results = []
-        for (pressure, porv) in zip(pressure_results, porv_results):
-                results.append(pressure * porv)
+        for pressure, porv in zip(pressure_results, porv_results):
+            results.append(pressure * porv)
 
         # set the computed values in the case
-        case.set_active_cell_property(results, "GENERATED", "PRESSURE_PORV", time_step_index)
+        case.set_active_cell_property(
+            results, "GENERATED", "PRESSURE_PORV", time_step_index
+        )
 
-    print("Case id: " + str(case.id), "  Case name: " + case.name, " : Calculation complete")
+    print(
+        "Case id: " + str(case.id),
+        "  Case name: " + case.name,
+        " : Calculation complete",
+    )
 
 
 print("Transferred all results back to ResInsight")
@@ -56,4 +56,3 @@ print("Transferred all results back to ResInsight")
 # - select the generated result(PRESSURE_PORV) as source for computations
 # - compute statistics
 # - create a view and investigate the statistics of the generated data (PRESSURE_PORV)
-

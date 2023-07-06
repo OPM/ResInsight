@@ -6,18 +6,10 @@ resinsight = rips.Instance.find()
 test_model_path = "e:/gitroot-second/ResInsight/TestModels"
 
 case_paths = []
-case_paths.append(
-    test_model_path + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
-)
-case_paths.append(
-    test_model_path + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
-)
-case_paths.append(
-    test_model_path + "/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID"
-)
-case_paths.append(
-    test_model_path + "/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID"
-)
+case_paths.append(test_model_path + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")
+case_paths.append(test_model_path + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID")
+case_paths.append(test_model_path + "/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID")
+case_paths.append(test_model_path + "/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID")
 
 for case_path in case_paths:
     assert os.path.exists(
