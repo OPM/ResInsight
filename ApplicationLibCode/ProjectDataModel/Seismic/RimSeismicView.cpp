@@ -20,10 +20,13 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimLegendConfig.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicData.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
+#include "RimSurfaceCollection.h"
 #include "RimSurfaceInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -51,7 +54,6 @@ RimSeismicView::RimSeismicView()
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field" );
     m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
-    m_surfaceCollection = new RimSurfaceInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
     m_seismicSectionCollection.uiCapability()->setUiTreeHidden( true );
@@ -157,9 +159,12 @@ std::vector<RimLegendConfig*> RimSeismicView::legendConfigs() const
 {
     std::vector<RimLegendConfig*> legends;
 
-    for ( auto legendConfig : surfaceInViewCollection()->legendConfigs() )
+    if ( m_surfaceCollection )
     {
-        legends.push_back( legendConfig );
+        for ( auto legendConfig : m_surfaceCollection->legendConfigs() )
+        {
+            legends.push_back( legendConfig );
+        }
     }
 
     for ( auto section : seismicSectionCollection()->seismicSections() )
@@ -372,13 +377,13 @@ void RimSeismicView::onUpdateLegends()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::onLoadDataAndUpdate()
 {
-    // updateSurfacesInViewTreeItems();
+    updateSurfacesInViewTreeItems();
 
     onUpdateScaleTransform();
 
     updateMdiWindowVisibility();
 
-    m_surfaceCollection->loadData();
+    if ( m_surfaceCollection ) m_surfaceCollection->loadData();
 
     scheduleCreateDisplayModelAndRedraw();
 }
@@ -421,4 +426,30 @@ void RimSeismicView::updateGridBoxData()
     {
         viewer()->updateGridBoxData( m_scaleZ(), cvf::Vec3d::ZERO, backgroundColor(), domainBoundingBox(), fontSize() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicView::updateSurfacesInViewTreeItems()
+{
+    RimProject*           proj     = RimProject::current();
+    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+
+    if ( surfColl && surfColl->containsSurface() )
+    {
+        if ( !m_surfaceCollection() )
+        {
+            m_surfaceCollection = new RimSurfaceInViewCollection();
+        }
+
+        m_surfaceCollection->setSurfaceCollection( surfColl );
+        m_surfaceCollection->updateFromSurfaceCollection();
+    }
+    else
+    {
+        delete m_surfaceCollection;
+    }
+
+    updateConnectedEditors();
 }
