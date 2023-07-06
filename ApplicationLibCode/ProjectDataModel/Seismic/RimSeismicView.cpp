@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT( RimSeismicView, "RimSeismicView", "SeismicView" );
 //--------------------------------------------------------------------------------------------------
 RimSeismicView::RimSeismicView()
 {
-    CAF_PDM_InitObject( "Seismic View", ":/Seismic16x16.png" );
+    CAF_PDM_InitObject( "Seismic View", ":/SeismicView24x24.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
 
