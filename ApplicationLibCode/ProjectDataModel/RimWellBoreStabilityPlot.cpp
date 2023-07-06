@@ -132,13 +132,7 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     legendGroup->setCollapsedByDefault();
     RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, true );
 
-    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
-    fontGroup->setCollapsedByDefault();
-    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
-
-    fontGroup->add( &m_subTitleFontSize );
-    fontGroup->add( &m_axisTitleFontSize );
-    fontGroup->add( &m_axisValueFontSize );
+    RimDepthTrackPlot::uiOrderingForFonts( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }

@@ -198,8 +198,14 @@ protected:
     void updatePlots();
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    void                                  createAndSetCurveTextProvider( RimWellLogTrack* track );
-    virtual RiuPlotCurveInfoTextProvider* curveTextProvider() const;
+    void uiOrderingForFonts( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
+protected:
+    bool                                                 m_commonDataSourceEnabled;
+    caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
+    caf::PdmChildField<RimWellLogPlotNameConfig*>        m_nameConfig;
+    caf::PdmField<caf::AppEnum<DepthTypeEnum>>           m_depthType;
+    caf::PdmField<caf::AppEnum<RiaDefines::Orientation>> m_depthOrientation;
 
 private:
     void cleanupBeforeClose();
@@ -209,17 +215,16 @@ private:
     void doUpdateLayout() override;
     void onPlotsReordered( const caf::SignalEmitter* emitter );
 
-protected:
-    caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
-    bool                                                 m_commonDataSourceEnabled;
+    static void                          createAndSetCurveTextProvider( RimWellLogTrack* track );
+    static RiuPlotCurveInfoTextProvider* curveTextProvider();
 
+private:
     caf::PdmField<QString> m_plotWindowTitle;
     caf::PdmField<QString> m_nameTemplateText;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ObjectNamingMethod>> m_namingMethod;
 
     // Depth axis
-    caf::PdmField<caf::AppEnum<DepthTypeEnum>>                       m_depthType;
     caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>>           m_depthUnit;
     caf::PdmField<double>                                            m_minVisibleDepth;
     caf::PdmField<double>                                            m_maxVisibleDepth;
@@ -235,13 +240,10 @@ protected:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
-    caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
-    caf::PdmChildArrayField<RimWellLogTrack*>     m_plots;
+    caf::PdmChildArrayField<RimWellLogTrack*> m_plots;
 
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
-
-    caf::PdmField<caf::AppEnum<RiaDefines::Orientation>> m_depthOrientation;
 
     QPointer<RiuWellLogPlot>            m_viewer;
     std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;

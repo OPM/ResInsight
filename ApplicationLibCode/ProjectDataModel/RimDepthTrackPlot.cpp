@@ -810,7 +810,7 @@ void RimDepthTrackPlot::recreatePlotWidgets()
 
     for ( size_t idx = 0; idx < m_plots.size(); ++idx )
     {
-        createAndSetCurveTextProvider( m_plots[idx] );
+        RimDepthTrackPlot::createAndSetCurveTextProvider( m_plots[idx] );
     }
 }
 
@@ -1130,12 +1130,7 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     legendGroup->setCollapsedByDefault();
     RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, true );
 
-    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
-    fontGroup->setCollapsedByDefault();
-    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
-    fontGroup->add( &m_subTitleFontSize );
-    fontGroup->add( &m_axisTitleFontSize );
-    fontGroup->add( &m_axisValueFontSize );
+    uiOrderingForFonts( uiConfigName, uiOrdering );
 
     std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets = descendantsOfType<RimEnsembleWellLogCurveSet>();
     if ( !ensembleWellLogCurveSets.empty() )
@@ -1291,6 +1286,19 @@ caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::uiOrderingForFonts( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
+    fontGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
+    fontGroup->add( &m_subTitleFontSize );
+    fontGroup->add( &m_axisTitleFontSize );
+    fontGroup->add( &m_axisValueFontSize );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::createAndSetCurveTextProvider( RimWellLogTrack* track )
 {
     if ( !track ) return;
@@ -1305,7 +1313,7 @@ void RimDepthTrackPlot::createAndSetCurveTextProvider( RimWellLogTrack* track )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurveInfoTextProvider* RimDepthTrackPlot::curveTextProvider() const
+RiuPlotCurveInfoTextProvider* RimDepthTrackPlot::curveTextProvider()
 {
     static auto textProvider = RimWellLogCurveInfoTextProvider();
     return &textProvider;
