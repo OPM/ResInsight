@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaStdStringTools.h"
 
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
@@ -54,6 +55,8 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include "qwt_scale_draw.h"
 
 CAF_PDM_SOURCE_INIT( RimWellAllocationOverTimePlot, "RimWellAllocationOverTimePlot" );
 
@@ -281,6 +284,16 @@ RiuPlotWidget* RimWellAllocationOverTimePlot::doCreatePlotViewWidget( QWidget* m
     // Workaround: Enable axis title for bottom axis to activate correct font size for date axis
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+
+    if ( auto qwtPlot = m_plotWidget->qwtPlot() )
+    {
+        auto scaleDraw = qwtPlot->axisScaleDraw( QwtAxis::XBottom );
+        if ( scaleDraw )
+        {
+            scaleDraw->setLabelRotation( 30.0 );
+        }
+    }
+
     m_plotWidget->insertLegend( RiuPlotWidget::Legend::RIGHT );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "[Date]" );
@@ -393,7 +406,10 @@ void RimWellAllocationOverTimePlot::updateFromWell()
     QString newDescription = descriptionText + ", " + valueTypeText;
 
     setDescription( newDescription );
-    m_plotWidget->setWindowTitle( newDescription );
+
+    const auto windowTitle = RiaStdStringTools::removeHtmlTags( newDescription.toStdString() );
+    m_plotWidget->setWindowTitle( QString::fromStdString( windowTitle ) );
+
     m_plotWidget->setPlotTitle( descriptionText + "<br>" + valueTypeText + "</br>" );
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), valueTypeText );
 

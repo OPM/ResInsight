@@ -72,6 +72,7 @@ public:
     void setAxisTitleFontSize( int fontSize );
     void setAxisLabelFontSize( int fontSize );
     void setValueFontSize( int fontSize );
+    void setMaxColumnLabelCount( int maxLabelCount );
 
     void scheduleReplot();
 
@@ -86,7 +87,7 @@ private slots:
 private:
     void                      updateAxes();
     void                      createMatrixCells();
-    std::map<size_t, QString> createIndexLabelMap( const std::vector<QString>& labels );
+    std::map<size_t, QString> createIndexLabelMap( const std::vector<QString>& labels, int maxLabelCount );
 
 private:
     QPointer<RiuQwtPlotWidget>       m_plotWidget;
@@ -107,7 +108,8 @@ private:
 
     QString m_rowTitle;
     QString m_columnTitle;
-    int     m_axisTitleFontSize = 8;
-    int     m_axisLabelFontSize = 8;
-    int     m_valueFontSize     = 8;
+    int     m_axisTitleFontSize   = 8;
+    int     m_axisLabelFontSize   = 8;
+    int     m_valueFontSize       = 8;
+    int     m_maxColumnLabelCount = 100;
 };

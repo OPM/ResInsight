@@ -51,6 +51,7 @@ public:
     RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuFlowCharacteristicsPlot() override;
 
+    void setCaseName( const QString& caseName );
     void setLorenzCurve( const QStringList&            dateTimeStrings,
                          const std::vector<QDateTime>& dateTimes,
                          const std::vector<double>&    timeHistoryValues );
@@ -62,8 +63,7 @@ public:
 
     void showLegend( bool show );
 
-    RimFlowCharacteristicsPlot* ownerPlotDefinition();
-    RimViewWindow*              ownerViewWindow() const override;
+    RimViewWindow* ownerViewWindow() const override;
 
     static void             addWindowZoom( QwtPlot* plot );
     static RiuQwtPlotCurve* createEmptyCurve( QwtPlot* plot, const QString& curveName, const QColor& curveColor );

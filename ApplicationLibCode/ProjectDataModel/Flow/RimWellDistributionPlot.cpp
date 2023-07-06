@@ -350,7 +350,6 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
     const QString timeStepName = m_case ? m_case->timeStepName( m_timeStepIndex ) : "N/A";
 
     const QString plotTitleStr = QString( "%1 Distribution: %2, %3" ).arg( phaseString ).arg( m_wellName ).arg( timeStepName );
-    m_plotWidget->setPlotTitleRenderingFlags( Qt::AlignHCenter | Qt::TextWordWrap );
     m_plotWidget->setPlotTitle( plotTitleStr );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "TOF [years]" );

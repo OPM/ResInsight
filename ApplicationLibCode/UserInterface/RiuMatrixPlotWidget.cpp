@@ -337,12 +337,21 @@ void RiuMatrixPlotWidget::setValueFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMatrixPlotWidget::setMaxColumnLabelCount( int maxLabelCount )
+{
+    m_maxColumnLabelCount = maxLabelCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMatrixPlotWidget::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
     // Labels on y-axis
-    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::YLeft, new TextScaleDraw( createIndexLabelMap( m_rowHeaders ) ) );
+    const int maxLabelCount = 1000;
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::YLeft, new TextScaleDraw( createIndexLabelMap( m_rowHeaders, maxLabelCount ) ) );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), m_rowTitle );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
@@ -358,7 +367,7 @@ void RiuMatrixPlotWidget::updateAxes()
                                                          static_cast<double>( m_rowHeaders.size() ) );
 
     // Labels on column axis
-    auto scaleDraw = new TextScaleDraw( createIndexLabelMap( m_columnHeaders ) );
+    auto scaleDraw = new TextScaleDraw( createIndexLabelMap( m_columnHeaders, m_maxColumnLabelCount ) );
     scaleDraw->setLabelRotation( 30.0 );
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, scaleDraw );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new RiuQwtLinearScaleEngine );
@@ -437,13 +446,26 @@ void RiuMatrixPlotWidget::createMatrixCells()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, QString> RiuMatrixPlotWidget::createIndexLabelMap( const std::vector<QString>& labels )
+std::map<size_t, QString> RiuMatrixPlotWidget::createIndexLabelMap( const std::vector<QString>& labels, int maxLabelCount )
 {
-    std::map<size_t, QString> indexLabelMap;
-    for ( size_t i = 0; i < labels.size(); ++i )
+    if ( labels.empty() ) return {};
+
+    int increment = 1;
+    if ( (int)labels.size() > maxLabelCount )
     {
-        indexLabelMap.emplace( i, labels[i] );
+        increment = (int)labels.size() / ( maxLabelCount - 1 );
+        increment = std::max( 1, increment );
     }
+
+    std::map<size_t, QString> indexLabelMap;
+    for ( size_t i = 0; i < std::min( labels.size(), size_t( maxLabelCount - 1 ) ); ++i )
+    {
+        auto index = i * increment;
+        indexLabelMap.emplace( index, labels[index] );
+    }
+
+    indexLabelMap.emplace( labels.size() - 1, labels.back() );
+
     return indexLabelMap;
 }
 

@@ -55,6 +55,8 @@ public:
 
     static int computeEditDistance( const std::string& x, const std::string& y );
 
+    static std::string removeHtmlTags( const std::string& s );
+
 private:
     template <class Container>
     static void   splitByDelimiter( const std::string& str, Container& cont, char delimiter = ' ' );

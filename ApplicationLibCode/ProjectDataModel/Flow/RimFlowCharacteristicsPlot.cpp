@@ -703,6 +703,15 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 
         m_timeStepToFlowResultMap = timeStepToFlowResultMap;
 
+        if ( m_case() )
+        {
+            m_flowCharPlotWidget->setCaseName( m_case()->caseUserDescription() );
+        }
+        else
+        {
+            m_flowCharPlotWidget->setCaseName( "" );
+        }
+
         m_flowCharPlotWidget->setLorenzCurve( timeStepStrings, timeStepDates, lorenzVals );
 
         for ( int timeStepIdx : m_currentlyPlottedTimeSteps )

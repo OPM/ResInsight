@@ -101,7 +101,6 @@ public:
     void           setPlotTitleEnabled( bool enabled ) override;
     bool           plotTitleEnabled() const override;
     void           setPlotTitleFontSize( int titleFontSize ) override;
-    void           setPlotTitleRenderingFlags( int flags );
 
     void setLegendFontSize( int fontSize ) override;
     void setInternalLegendVisible( bool visible ) override;
@@ -237,4 +236,5 @@ private:
     QPointer<QwtPlot> m_plot;
 
     int m_titleRenderingFlags;
+    int m_titleFontSize;
 };

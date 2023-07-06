@@ -18,6 +18,9 @@
 
 #include "RimWellDistributionPlotCollection.h"
 
+#include "RiaColorTools.h"
+#include "RiaPreferences.h"
+
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
@@ -27,8 +30,6 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigTofWellDistributionCalculator.h"
-
-#include "RiaColorTools.h"
 
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotWidget.h"
@@ -200,6 +201,12 @@ QWidget* RimWellDistributionPlotCollection::createViewWidget( QWidget* mainWindo
 {
     m_viewer = new RiuMultiPlotPage( this, mainWindowParent );
     m_viewer->setPlotTitle( m_plotWindowTitle );
+
+    auto pointSize =
+        caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::XLarge );
+
+    m_viewer->setTitleFontSizes( pointSize, pointSize );
+
     recreatePlotWidgets();
 
     return m_viewer;
