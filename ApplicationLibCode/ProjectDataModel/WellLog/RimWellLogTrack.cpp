@@ -294,6 +294,8 @@ RimWellLogTrack::RimWellLogTrack()
 RimWellLogTrack::~RimWellLogTrack()
 {
     m_curves.deleteChildren();
+
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
