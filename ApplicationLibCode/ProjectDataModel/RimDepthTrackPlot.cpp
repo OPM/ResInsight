@@ -798,19 +798,13 @@ void RimDepthTrackPlot::recreatePlotWidgets()
 {
     CVF_ASSERT( m_viewer );
 
-    auto plotVector = plots();
-
     m_viewer->removeAllPlots();
 
-    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
+    for ( auto plot : m_plots )
     {
-        plotVector[tIdx]->createPlotWidget();
-        m_viewer->addPlot( plotVector[tIdx]->plotWidget() );
-    }
+        RimDepthTrackPlot::createPlotWidgetAndAttachCurveTextProvider( plot );
 
-    for ( size_t idx = 0; idx < m_plots.size(); ++idx )
-    {
-        RimDepthTrackPlot::createAndSetCurveTextProvider( m_plots[idx] );
+        m_viewer->addPlot( plot->plotWidget() );
     }
 }
 
@@ -1299,12 +1293,12 @@ void RimDepthTrackPlot::uiOrderingForFonts( const QString& uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::createAndSetCurveTextProvider( RimWellLogTrack* track )
+void RimDepthTrackPlot::createPlotWidgetAndAttachCurveTextProvider( RimWellLogTrack* track )
 {
     if ( !track ) return;
+    track->createPlotWidget();
 
     auto* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() );
-
     if ( !qwtPlotWidget ) return;
 
     new RiuWellLogCurvePointTracker( qwtPlotWidget->qwtPlot(), curveTextProvider(), track );
@@ -1333,7 +1327,8 @@ void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
 
         if ( m_viewer )
         {
-            wellLogTrack->createPlotWidget();
+            RimDepthTrackPlot::createPlotWidgetAndAttachCurveTextProvider( wellLogTrack );
+
             m_viewer->insertPlot( wellLogTrack->plotWidget(), index );
         }
         wellLogTrack->setShowWindow( true );

@@ -215,7 +215,7 @@ private:
     void doUpdateLayout() override;
     void onPlotsReordered( const caf::SignalEmitter* emitter );
 
-    static void                          createAndSetCurveTextProvider( RimWellLogTrack* track );
+    static void                          createPlotWidgetAndAttachCurveTextProvider( RimWellLogTrack* track );
     static RiuPlotCurveInfoTextProvider* curveTextProvider();
 
 private:
