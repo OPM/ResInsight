@@ -66,7 +66,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseStatisticsCase, "RimStatisticalCalculation" );
 RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     : RimEclipseCase()
 {
-    CAF_PDM_InitObject( "Case Group Statistics", ":/Histogram16x16.png" );
+    CAF_PDM_InitScriptableObject( "Case Group Statistics", ":/Histogram16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_calculateEditCommand, "m_editingAllowed", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_calculateEditCommand );
@@ -200,6 +200,44 @@ RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection() co
 void RimEclipseStatisticsCase::populateResultSelectionAfterLoadingGrid()
 {
     m_populateSelectionAfterLoadingGrid = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::setSourceProperties( RiaDefines::ResultCatType propertyType, const std::vector<QString>& propertyNames )
+{
+    switch ( propertyType )
+    {
+        case RiaDefines::ResultCatType::DYNAMIC_NATIVE:
+            m_selectedDynamicProperties = propertyNames;
+            break;
+        case RiaDefines::ResultCatType::STATIC_NATIVE:
+            m_selectedStaticProperties = propertyNames;
+            break;
+        case RiaDefines::ResultCatType::SOURSIMRL:
+            break;
+        case RiaDefines::ResultCatType::GENERATED:
+            m_selectedGeneratedProperties = propertyNames;
+            break;
+        case RiaDefines::ResultCatType::INPUT_PROPERTY:
+            m_selectedInputProperties = propertyNames;
+            break;
+        case RiaDefines::ResultCatType::FORMATION_NAMES:
+            break;
+        case RiaDefines::ResultCatType::ALLAN_DIAGRAMS:
+            break;
+        case RiaDefines::ResultCatType::FLOW_DIAGNOSTICS:
+            break;
+        case RiaDefines::ResultCatType::INJECTION_FLOODING:
+            break;
+        case RiaDefines::ResultCatType::REMOVED:
+            break;
+        case RiaDefines::ResultCatType::UNDEFINED:
+            break;
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
