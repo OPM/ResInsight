@@ -78,6 +78,8 @@ protected:
 
     QString createAutoName() const override;
 
+    void updateSurfacesInViewTreeItems();
+
 private:
     caf::PdmChildField<RimSurfaceInViewCollection*>  m_surfaceCollection;
     caf::PdmChildField<RimSeismicSectionCollection*> m_seismicSectionCollection;

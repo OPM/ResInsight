@@ -157,7 +157,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     onUpdateScaleTransform();
 
-    this->updateSurfacesInViewTreeItems();
+    updateSurfacesInViewTreeItems();
 
     if ( m_geomechCase )
     {

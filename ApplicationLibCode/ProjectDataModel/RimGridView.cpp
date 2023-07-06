@@ -495,7 +495,7 @@ void RimGridView::updateSurfacesInViewTreeItems()
         delete m_surfaceCollection;
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
