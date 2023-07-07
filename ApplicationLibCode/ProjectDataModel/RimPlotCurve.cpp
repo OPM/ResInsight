@@ -1211,7 +1211,7 @@ void RimPlotCurve::detach( bool deletePlotCurve )
         }
     }
 
-    m_parentPlot->scheduleReplot();
+    if ( m_parentPlot ) m_parentPlot->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------

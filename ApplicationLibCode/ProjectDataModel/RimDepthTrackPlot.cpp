@@ -798,19 +798,13 @@ void RimDepthTrackPlot::recreatePlotWidgets()
 {
     CVF_ASSERT( m_viewer );
 
-    auto plotVector = plots();
-
     m_viewer->removeAllPlots();
 
-    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
+    for ( auto plot : m_plots )
     {
-        plotVector[tIdx]->createPlotWidget();
-        m_viewer->addPlot( plotVector[tIdx]->plotWidget() );
-    }
+        RimDepthTrackPlot::createPlotWidgetAndAttachCurveTextProvider( plot );
 
-    for ( size_t idx = 0; idx < m_plots.size(); ++idx )
-    {
-        createAndSetCurveTextProvider( m_plots[idx] );
+        m_viewer->addPlot( plot->plotWidget() );
     }
 }
 
@@ -1130,12 +1124,7 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     legendGroup->setCollapsedByDefault();
     RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, true );
 
-    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
-    fontGroup->setCollapsedByDefault();
-    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
-    fontGroup->add( &m_subTitleFontSize );
-    fontGroup->add( &m_axisTitleFontSize );
-    fontGroup->add( &m_axisValueFontSize );
+    uiOrderingForFonts( uiConfigName, uiOrdering );
 
     std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets = descendantsOfType<RimEnsembleWellLogCurveSet>();
     if ( !ensembleWellLogCurveSets.empty() )
@@ -1291,12 +1280,25 @@ caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::createAndSetCurveTextProvider( RimWellLogTrack* track )
+void RimDepthTrackPlot::uiOrderingForFonts( const QString& uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
+    fontGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
+    fontGroup->add( &m_subTitleFontSize );
+    fontGroup->add( &m_axisTitleFontSize );
+    fontGroup->add( &m_axisValueFontSize );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::createPlotWidgetAndAttachCurveTextProvider( RimWellLogTrack* track )
 {
     if ( !track ) return;
+    track->createPlotWidget();
 
     auto* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() );
-
     if ( !qwtPlotWidget ) return;
 
     new RiuWellLogCurvePointTracker( qwtPlotWidget->qwtPlot(), curveTextProvider(), track );
@@ -1305,7 +1307,7 @@ void RimDepthTrackPlot::createAndSetCurveTextProvider( RimWellLogTrack* track )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurveInfoTextProvider* RimDepthTrackPlot::curveTextProvider() const
+RiuPlotCurveInfoTextProvider* RimDepthTrackPlot::curveTextProvider()
 {
     static auto textProvider = RimWellLogCurveInfoTextProvider();
     return &textProvider;
@@ -1325,7 +1327,8 @@ void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
 
         if ( m_viewer )
         {
-            wellLogTrack->createPlotWidget();
+            RimDepthTrackPlot::createPlotWidgetAndAttachCurveTextProvider( wellLogTrack );
+
             m_viewer->insertPlot( wellLogTrack->plotWidget(), index );
         }
         wellLogTrack->setShowWindow( true );
