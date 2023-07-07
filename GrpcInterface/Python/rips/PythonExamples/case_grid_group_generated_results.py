@@ -49,10 +49,16 @@ for case in cases:
 
 print("Transferred all results back to ResInsight")
 
-# The API does not support configuration of a computation
-# Suggested next steps
-# - open ResInsight
-# - select the statistics object
-# - select the generated result(PRESSURE_PORV) as source for computations
-# - compute statistics
-# - create a view and investigate the statistics of the generated data (PRESSURE_PORV)
+# one of "GENERATED", "DYNAMIC_NATIVE", "STATIC_NATIVE", "IMPORTED"
+# https://api.resinsight.org/en/main/rips.html#result-definition
+property_type = "GENERATED"
+
+property_name = "PRESSURE_PORV"
+
+statistics_case = case_group.create_statistics_case()
+statistics_case.set_source_properties(property_type, [property_name])
+statistics_case.compute_statistics()
+
+view = statistics_case.create_view()
+statistics_property_name = property_name + "_MEAN"
+view.apply_cell_result(result_type=property_type, result_variable=statistics_property_name)

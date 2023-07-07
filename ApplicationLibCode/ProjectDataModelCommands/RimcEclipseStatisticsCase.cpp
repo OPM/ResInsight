@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,36 +20,20 @@
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include "RicImportSummaryCasesFeature.h"
 
-/*
-#include "RimEclipseCase.h"
-#include "RimFileSummaryCase.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RimSummaryCase.h"
-#include "RimSurfaceCollection.h"
-#include "RiuPlotMainWindow.h"
-*/
-
-#include "RiaLogging.h"
 #include "RimEclipseStatisticsCase.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 
-/*
-#include <QDir>
-#include <QFileInfo>
-
-#include <memory>
-*/
-
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseStatisticsCase, RimcEclipseStatisticsCase_defineSourceProperties, "set_source_result" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseStatisticsCase, RimcEclipseStatisticsCase_setSourceProperties, "set_source_properties" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcEclipseStatisticsCase_defineSourceProperties::RimcEclipseStatisticsCase_defineSourceProperties( caf::PdmObjectHandle* self )
+RimcEclipseStatisticsCase_setSourceProperties::RimcEclipseStatisticsCase_setSourceProperties( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Define Source Properties" );
@@ -60,7 +44,7 @@ RimcEclipseStatisticsCase_defineSourceProperties::RimcEclipseStatisticsCase_defi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcEclipseStatisticsCase_defineSourceProperties::execute()
+caf::PdmObjectHandle* RimcEclipseStatisticsCase_setSourceProperties::execute()
 {
     RiaDefines::ResultCatType myEnum = caf::AppEnum<RiaDefines::ResultCatType>::fromText( m_propertyType() );
 
@@ -81,7 +65,7 @@ caf::PdmObjectHandle* RimcEclipseStatisticsCase_defineSourceProperties::execute(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcEclipseStatisticsCase_defineSourceProperties::resultIsPersistent() const
+bool RimcEclipseStatisticsCase_setSourceProperties::resultIsPersistent() const
 {
     return false;
 }
@@ -89,7 +73,7 @@ bool RimcEclipseStatisticsCase_defineSourceProperties::resultIsPersistent() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcEclipseStatisticsCase_defineSourceProperties::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimcEclipseStatisticsCase_setSourceProperties::defaultResult() const
 {
     return nullptr;
 }
@@ -97,7 +81,7 @@ std::unique_ptr<caf::PdmObjectHandle> RimcEclipseStatisticsCase_defineSourceProp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcEclipseStatisticsCase_defineSourceProperties::isNullptrValidResult() const
+bool RimcEclipseStatisticsCase_setSourceProperties::isNullptrValidResult() const
 {
     return true;
 }
@@ -143,6 +127,60 @@ std::unique_ptr<caf::PdmObjectHandle> RimcEclipseStatisticsCase_computeStatistic
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimcEclipseStatisticsCase_computeStatistics::isNullptrValidResult() const
+{
+    return true;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimEclipseStatisticsCase, RimcEclipseStatisticsCase_clearSourceProperties, "clear_source_properties" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcEclipseStatisticsCase_clearSourceProperties::RimcEclipseStatisticsCase_clearSourceProperties( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcEclipseStatisticsCase_clearSourceProperties::execute()
+{
+    auto myEnums = { RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                     RiaDefines::ResultCatType::STATIC_NATIVE,
+                     RiaDefines::ResultCatType::INPUT_PROPERTY,
+                     RiaDefines::ResultCatType::GENERATED };
+
+    auto eclipseCase = self<RimEclipseStatisticsCase>();
+
+    for ( auto myEnum : myEnums )
+    {
+        eclipseCase->setSourceProperties( myEnum, {} );
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcEclipseStatisticsCase_clearSourceProperties::resultIsPersistent() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcEclipseStatisticsCase_clearSourceProperties::defaultResult() const
+{
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcEclipseStatisticsCase_clearSourceProperties::isNullptrValidResult() const
 {
     return true;
 }

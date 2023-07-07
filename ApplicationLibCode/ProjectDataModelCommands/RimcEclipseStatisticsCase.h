@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,12 +29,12 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcEclipseStatisticsCase_defineSourceProperties : public caf::PdmObjectMethod
+class RimcEclipseStatisticsCase_setSourceProperties : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcEclipseStatisticsCase_defineSourceProperties( caf::PdmObjectHandle* self );
+    RimcEclipseStatisticsCase_setSourceProperties( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
@@ -55,6 +55,22 @@ class RimcEclipseStatisticsCase_computeStatistics : public caf::PdmObjectMethod
 
 public:
     RimcEclipseStatisticsCase_computeStatistics( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    bool                             isNullptrValidResult() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcEclipseStatisticsCase_clearSourceProperties : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcEclipseStatisticsCase_clearSourceProperties( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;

@@ -59,6 +59,7 @@ public:
     bool contains( RimEclipseCase* reservoir ) const;
 
     RimEclipseStatisticsCase* createAndAppendStatisticsCase();
+    RimEclipseStatisticsCase* createAndAppendEmptyStatisticsCase();
 
     RimEclipseCase* mainCase();
     void            loadMainCaseAndActiveCellInfo();
@@ -77,6 +78,8 @@ private:
     void updateMainGridAndActiveCellsForStatisticsCases();
     void clearStatisticsResults();
     void clearActiveCellUnions();
+
+    RimEclipseStatisticsCase* createStatisticsCase( bool selectDefaultResults );
 
 private:
     RigMainGrid* m_mainGrid;

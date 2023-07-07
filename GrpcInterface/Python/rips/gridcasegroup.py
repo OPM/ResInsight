@@ -11,20 +11,6 @@ from .resinsight_classes import GridCaseGroup
 from .resinsight_classes import EclipseView
 from .resinsight_classes import RimStatisticalCalculation
 
-@add_method(GridCaseGroup)
-def create_statistics_case(self):
-    """Create a Statistics case in the Grid Case Group
-
-    Returns:
-        :class:`rips.generated.generated_classes.EclipseCase`
-    """
-    command_reply = self._execute_command(
-        createStatisticsCase=Commands_pb2.CreateStatisticsCaseRequest(
-            caseGroupId=self.group_id
-        )
-    )
-    return Case(self.channel, command_reply.createStatisticsCaseResult.caseId)
-
 
 @add_method(GridCaseGroup)
 def statistics_cases(self):

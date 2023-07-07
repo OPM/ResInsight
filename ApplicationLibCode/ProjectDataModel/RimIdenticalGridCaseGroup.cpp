@@ -347,16 +347,17 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
 {
-    RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
+    bool selectDefaultResults = true;
+    return createStatisticsCase( selectDefaultResults );
+}
 
-    newStatisticsCase->setCaseUserDescription( QString( "Statistics " ) + QString::number( statisticsCaseCollection()->reservoirs.size() + 1 ) );
-    statisticsCaseCollection()->reservoirs.push_back( newStatisticsCase );
-
-    newStatisticsCase->populateResultSelectionAfterLoadingGrid();
-    newStatisticsCase->openEclipseGridFile();
-    newStatisticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
-
-    return newStatisticsCase;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendEmptyStatisticsCase()
+{
+    bool selectDefaultResults = false;
+    return createStatisticsCase( selectDefaultResults );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -416,6 +417,24 @@ void RimIdenticalGridCaseGroup::clearActiveCellUnions()
 {
     m_unionOfMatrixActiveCells->clear();
     m_unionOfFractureActiveCells->clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createStatisticsCase( bool selectDefaultResults )
+{
+    RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
+
+    newStatisticsCase->setCaseUserDescription( QString( "Statistics " ) + QString::number( statisticsCaseCollection()->reservoirs.size() + 1 ) );
+    statisticsCaseCollection()->reservoirs.push_back( newStatisticsCase );
+
+    if ( selectDefaultResults ) newStatisticsCase->populateResultSelectionAfterLoadingGrid();
+
+    newStatisticsCase->openEclipseGridFile();
+    newStatisticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
+
+    return newStatisticsCase;
 }
 
 //--------------------------------------------------------------------------------------------------
