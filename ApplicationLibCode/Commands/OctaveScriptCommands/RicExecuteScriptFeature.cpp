@@ -19,6 +19,8 @@
 
 #include "RicExecuteScriptFeature.h"
 
+#include "RiaGuiApplication.h"
+
 #include "RicExecuteLastUsedScriptFeature.h"
 #include "RicScriptFeatureImpl.h"
 
@@ -75,6 +77,15 @@ void RicExecuteScriptFeature::setupActionLook( QAction* actionToSetup )
 void RicExecuteScriptFeature::executeScript( RimCalcScript* calcScript )
 {
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    if ( !mainWindow )
+    {
+        // It is required to have a main window for the process monitor. If the process monitor is not present, no text can be displayed in
+        // message window, and text feedback from script is not possible to see in the user interface.
+
+        RiaGuiApplication* app = RiaGuiApplication::instance();
+        mainWindow             = app->getOrCreateAndShowMainWindow();
+    }
+
     mainWindow->showProcessMonitorDockPanel();
 
     RiaApplication* app = RiaApplication::instance();
