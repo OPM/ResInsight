@@ -9,7 +9,7 @@ from .case import Case
 import Commands_pb2
 from .resinsight_classes import GridCaseGroup
 from .resinsight_classes import EclipseView
-
+from .resinsight_classes import RimStatisticalCalculation
 
 @add_method(GridCaseGroup)
 def create_statistics_case(self):
@@ -34,8 +34,7 @@ def statistics_cases(self):
         List of :class:`rips.generated.generated_classes.EclipseCase`
 
     """
-    stat_case_collection = self.children("StatisticsCaseCollection")[0]
-    return stat_case_collection.children("Reservoirs")
+    return self.descendants(RimStatisticalCalculation)
 
 
 @add_method(GridCaseGroup)
