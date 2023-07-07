@@ -61,4 +61,6 @@ statistics_case.compute_statistics()
 
 view = statistics_case.create_view()
 statistics_property_name = property_name + "_MEAN"
-view.apply_cell_result(result_type=property_type, result_variable=statistics_property_name)
+view.apply_cell_result(
+    result_type=property_type, result_variable=statistics_property_name
+)
