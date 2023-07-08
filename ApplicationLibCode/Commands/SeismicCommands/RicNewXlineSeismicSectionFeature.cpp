@@ -37,6 +37,6 @@ void RicNewXlineSeismicSectionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewXlineSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SeismicSection16x16.png" ) );
     actionToSetup->setText( "New Xline Section" );
 }

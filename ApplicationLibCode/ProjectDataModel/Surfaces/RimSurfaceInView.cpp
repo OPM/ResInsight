@@ -144,6 +144,20 @@ RivSurfacePartMgr* RimSurfaceInView::surfacePartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RivSurfacePartMgr* RimSurfaceInView::nativeSurfacePartMgr()
+{
+    bool nativeOnly = true;
+    if ( m_surfacePartMgr.isNull() || !m_surfacePartMgr->isNativePartMgr() )
+    {
+        m_surfacePartMgr = new RivSurfacePartMgr( this, nativeOnly );
+    }
+
+    return m_surfacePartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RivIntersectionGeometryGeneratorInterface* RimSurfaceInView::intersectionGeometryGenerator() const
 {
     if ( m_surfacePartMgr.notNull() ) return m_surfacePartMgr->intersectionGeometryGenerator();
@@ -242,8 +256,12 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResultsCollection()
 {
-    auto view = firstAncestorOrThisOfTypeAsserted<RimGridView>();
-    return view->separateSurfaceResultsCollection();
+    auto view = firstAncestorOrThisOfType<RimGridView>();
+    if ( view )
+    {
+        return view->separateSurfaceResultsCollection();
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

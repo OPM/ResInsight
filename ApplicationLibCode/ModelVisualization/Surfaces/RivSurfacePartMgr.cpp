@@ -49,16 +49,28 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSurfacePartMgr::RivSurfacePartMgr( RimSurfaceInView* surface )
+RivSurfacePartMgr::RivSurfacePartMgr( RimSurfaceInView* surface, bool nativeOnly )
     : m_surfaceInView( surface )
+    , m_useNativePartsOnly( nativeOnly )
 {
     CVF_ASSERT( surface );
 
-    cvf::ref<RivIntersectionHexGridInterface> hexGrid = m_surfaceInView->createHexGridInterface();
-    m_intersectionGenerator                           = new RivSurfaceIntersectionGeometryGenerator( m_surfaceInView, hexGrid.p() );
+    if ( !nativeOnly )
+    {
+        cvf::ref<RivIntersectionHexGridInterface> hexGrid = m_surfaceInView->createHexGridInterface();
+        m_intersectionGenerator                           = new RivSurfaceIntersectionGeometryGenerator( m_surfaceInView, hexGrid.p() );
+    }
 
     m_intersectionFacesTextureCoords = new cvf::Vec2fArray;
     m_nativeTrianglesTextureCoords   = new cvf::Vec2fArray;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RivSurfacePartMgr::isNativePartMgr() const
+{
+    return m_useNativePartsOnly;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,8 +381,9 @@ void RivSurfacePartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::generateNativePartGeometry()
 {
-    auto       ownerCase         = m_surfaceInView->firstAncestorOrThisOfTypeAsserted<RimCase>();
-    cvf::Vec3d displayModOffsett = ownerCase->displayModelOffset();
+    cvf::Vec3d displayModOffsett( 0, 0, 0 );
+    auto       ownerCase = m_surfaceInView->firstAncestorOrThisOfType<RimCase>();
+    if ( ownerCase ) displayModOffsett = ownerCase->displayModelOffset();
 
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
     if ( m_usedSurfaceData.isNull() ) return;

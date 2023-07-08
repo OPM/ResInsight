@@ -68,7 +68,7 @@ CAF_PDM_SOURCE_INIT( RimSeismicSection, "SeismicSection" );
 RimSeismicSection::RimSeismicSection()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
-    CAF_PDM_InitObject( "Seismic Section", ":/Seismic16x16.png" );
+    CAF_PDM_InitObject( "Seismic Section", ":/SeismicSection16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDescription", "Description" );
 

@@ -37,6 +37,6 @@ void RicNewPolylineSeismicSectionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SeismicSection16x16.png" ) );
     actionToSetup->setText( "New Polyline Section" );
 }

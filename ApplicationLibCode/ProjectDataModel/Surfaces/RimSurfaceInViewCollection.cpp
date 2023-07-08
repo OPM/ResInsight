@@ -279,7 +279,7 @@ void RimSurfaceInViewCollection::clearGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform, bool onlyNativeParts )
 {
     if ( !isChecked() ) return;
 
@@ -287,7 +287,7 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
     {
         if ( coll->isChecked() )
         {
-            coll->appendPartsToModel( model, scaleTransform );
+            coll->appendPartsToModel( model, scaleTransform, onlyNativeParts );
         }
     }
 
@@ -295,7 +295,14 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
     {
         if ( surf->isActive() )
         {
-            surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
+            if ( onlyNativeParts )
+            {
+                surf->nativeSurfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
+            }
+            else
+            {
+                surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
+            }
         }
     }
 

@@ -60,6 +60,7 @@
 #include "RimLegendConfig.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimSeismicDataInterface.h"
 #include "RimSeismicSection.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -1211,7 +1212,15 @@ bool RiuViewerCommands::handleOverlayItemPicking( int winPosX, int winPosY )
             {
                 if ( legendConfig && legendConfig->titledOverlayFrame() == pickedOverlayItem )
                 {
-                    RiuMainWindow::instance()->selectAsCurrentItem( legendConfig );
+                    auto seisInterface = legendConfig->firstAncestorOfType<RimSeismicDataInterface>();
+                    if ( seisInterface != nullptr )
+                    {
+                        RiuMainWindow::instance()->selectAsCurrentItem( seisInterface );
+                    }
+                    else
+                    {
+                        RiuMainWindow::instance()->selectAsCurrentItem( legendConfig );
+                    }
 
                     return true;
                 }
