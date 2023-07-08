@@ -53,6 +53,7 @@ public:
 
     void                                             clearGeometry();
     RivSurfacePartMgr*                               surfacePartMgr();
+    RivSurfacePartMgr*                               nativeSurfacePartMgr();
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
     void loadDataAndUpdate();

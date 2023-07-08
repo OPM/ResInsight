@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimSeismicViewCollection, "SeismicViewCollection", "Seismic
 //--------------------------------------------------------------------------------------------------
 RimSeismicViewCollection::RimSeismicViewCollection()
 {
-    CAF_PDM_InitObject( "Views", ":/Seismic16x16.png" );
+    CAF_PDM_InitObject( "Views", ":/SeismicViews24x24.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_views, "Views", "Seismic Views" );
     m_views.uiCapability()->setUiTreeHidden( true );

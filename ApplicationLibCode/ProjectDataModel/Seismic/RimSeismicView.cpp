@@ -210,6 +210,11 @@ void RimSeismicView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    auto genGrp = uiOrdering.addNewGroup( "General" );
+
+    genGrp->add( userDescriptionField() );
+    genGrp->add( &m_seismicData );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -219,9 +224,6 @@ void RimSeismicView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 void RimSeismicView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     // uiTreeOrdering.add( m_overlayInfoConfig() );
-
-    // well paths
-    // addRequiredUiTreeObjects( uiTreeOrdering );
 
     uiTreeOrdering.add( seismicSectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
@@ -264,7 +266,8 @@ void RimSeismicView::onCreateDisplayModel()
     m_surfaceVizModel->removeAllParts();
     if ( m_surfaceCollection )
     {
-        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform() );
+        bool nativeOnly = true;
+        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform(), nativeOnly );
         nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
     }
 

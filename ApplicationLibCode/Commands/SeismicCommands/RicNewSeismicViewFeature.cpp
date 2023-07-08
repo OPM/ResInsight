@@ -94,6 +94,6 @@ void RicNewSeismicViewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewSeismicViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SeismicView16x16.png" ) );
     actionToSetup->setText( "New Seismic View" );
 }
