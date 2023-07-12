@@ -1,7 +1,5 @@
 project(cafPdmScripting)
 
-option(CAF_CVF_SCRIPTING "Enable CVF-data support in Scripting" OFF)
-
 # Unity Build
 if(CAF_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
@@ -30,21 +28,13 @@ set(PROJECT_FILES
     cafPdmMarkdownGenerator.cpp
     cafPdmMarkdownBuilder.h
     cafPdmMarkdownBuilder.cpp
-)
-
-set(CAF_LIBS cafProjectDataModel)
-
-if(CAF_CVF_SCRIPTING)
-  list(
-    APPEND
-    PROJECT_FILES
     cafPdmFieldScriptingCapabilityCvfColor3.h
     cafPdmFieldScriptingCapabilityCvfColor3.cpp
     cafPdmFieldScriptingCapabilityCvfVec3d.h
     cafPdmFieldScriptingCapabilityCvfVec3d.cpp
-  )
-  list(APPEND CAF_LIBS cafPdmCvf)
-endif()
+)
+
+set(CAF_LIBS cafProjectDataModel cafPdmCvf)
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})
 

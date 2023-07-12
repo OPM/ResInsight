@@ -34,6 +34,7 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -46,7 +47,7 @@ CAF_PDM_SOURCE_INIT( RimRoffCase, "RimRoffCase" );
 RimRoffCase::RimRoffCase()
     : RimEclipseCase()
 {
-    CAF_PDM_InitObject( "RimRoffCase", ":/EclipseInput48x48.png" );
+    CAF_PDM_InitScriptableObject( "RimRoffCase", ":/EclipseInput48x48.png" );
 }
 
 //--------------------------------------------------------------------------------------------------

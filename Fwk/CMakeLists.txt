@@ -12,6 +12,27 @@ set(CMAKE_CXX_STANDARD 17)
 
 project (TestCafAndVizFwk)
 
+# ##############################################################################
+# Setup the main platform defines
+# ##############################################################################
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  add_definitions(-DCVF_LINUX)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  add_definitions(-DCVF_OSX)
+elseif(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+  set(_HAS_STD_BYTE 0)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(CMAKE_CXX_FLAGS
+      "-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -Wno-unused-parameter"
+  )
+  set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
+endif()
+
+
 find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
 

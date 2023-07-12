@@ -8,17 +8,19 @@ from .plot import Plot
 from .pdmobject import PdmObjectBase, add_method
 from .resinsight_classes import WellLogPlot
 
+from typing import List
+
 
 @add_method(WellLogPlot)
 def export_data_as_las(
-    self,
-    export_folder,
-    file_prefix="",
-    export_tvdrkb=False,
-    capitalize_file_names=False,
-    resample_interval=0.0,
-    convert_to_standard_units=False,
-):
+    self: WellLogPlot,
+    export_folder: str,
+    file_prefix: str = "",
+    export_tvdrkb: bool = False,
+    capitalize_file_names: bool = False,
+    resample_interval: float = 0.0,
+    convert_to_standard_units: bool = False,
+) -> List[str]:
     """Export LAS file(s) for the current plot
 
     Arguments:
@@ -48,8 +50,11 @@ def export_data_as_las(
 
 @add_method(WellLogPlot)
 def export_data_as_ascii(
-    self, export_folder, file_prefix="", capitalize_file_names=False
-):
+    self: WellLogPlot,
+    export_folder: str,
+    file_prefix: str = "",
+    capitalize_file_names: bool = False,
+) -> List[str]:
     """Export LAS file(s) for the current plot
 
     Arguments:

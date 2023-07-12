@@ -29,6 +29,7 @@
 #include "RicVec3dPickEventHandler.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiPickableLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
@@ -44,7 +45,7 @@ CAF_PDM_SOURCE_INIT( RimTextAnnotation, "RimTextAnnotation" );
 //--------------------------------------------------------------------------------------------------
 RimTextAnnotation::RimTextAnnotation()
 {
-    CAF_PDM_InitObject( "TextAnnotation", ":/TextAnnotation16x16.png" );
+    CAF_PDM_InitScriptableObject( "TextAnnotation", ":/TextAnnotation16x16.png" );
     setUi3dEditorTypeName( RicTextAnnotation3dEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point" );

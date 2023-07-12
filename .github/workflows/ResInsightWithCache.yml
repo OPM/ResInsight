@@ -230,6 +230,14 @@ jobs:
         run: |
           cmakebuild/ApplicationExeCode/ResInsight --unittest
 
+      - name: (Python) Check types using mypy
+        if: matrix.config.build-python-module
+        shell: bash
+        run: |
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install mypy types-protobuf
+          cd GrpcInterface/Python/rips
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy *.py generated/generated_classes.py
+
       - name: Run pytest
         if: matrix.config.build-python-module
         env:

@@ -37,6 +37,7 @@ result
 
 import builtins
 import grpc
+from typing import List, Tuple
 
 import Case_pb2
 import Case_pb2_grpc
@@ -74,7 +75,7 @@ def __custom_init__(self, pb2_object, channel):
 
 
 @add_method(Case)
-def __grid_count(self):
+def __grid_count(self) -> int:
     """Get number of grids in the case"""
     try:
         return self.__case_stub.GetGridCount(self.__request()).count
@@ -125,7 +126,7 @@ def __generate_property_input_chunks(self, array, parameters):
 
 
 @add_method(Case)
-def grid(self, index=0):
+def grid(self, index: int = 0) -> Grid:
     """Get Grid of a given index
 
     Arguments:
@@ -138,7 +139,7 @@ def grid(self, index=0):
 
 
 @add_method(Case)
-def grids(self):
+def grids(self) -> List[Grid]:
     """Get a list of all rips Grid objects in the case
 
     Returns:
@@ -166,7 +167,7 @@ def replace(self, new_grid_file):
 
 
 @add_method(Case)
-def cell_count(self, porosity_model="MATRIX_MODEL"):
+def cell_count(self, porosity_model: str = "MATRIX_MODEL") -> int:
     """Get a cell count object containing number of active cells and total number of cells
 
     Arguments:
@@ -193,7 +194,7 @@ def cell_count(self, porosity_model="MATRIX_MODEL"):
 
 
 @add_method(Case)
-def cell_info_for_active_cells_async(self, porosity_model="MATRIX_MODEL"):
+def cell_info_for_active_cells_async(self, porosity_model: str = "MATRIX_MODEL"):
     """Get Stream of cell info objects for current case
 
     Arguments:
@@ -213,7 +214,7 @@ def cell_info_for_active_cells_async(self, porosity_model="MATRIX_MODEL"):
 
 
 @add_method(Case)
-def cell_info_for_active_cells(self, porosity_model="MATRIX_MODEL"):
+def cell_info_for_active_cells(self, porosity_model: str = "MATRIX_MODEL"):
     """Get list of cell info objects for current case
 
     Arguments:
@@ -298,7 +299,7 @@ def reservoir_boundingbox(self):
 
 
 @add_method(Case)
-def reservoir_depth_range(self):
+def reservoir_depth_range(self) -> Tuple[float, float]:
     """Get the reservoir depth range
 
     Returns:
@@ -604,7 +605,7 @@ def export_flow_characteristics(
 
 
 @add_method(Case)
-def available_properties(self, property_type, porosity_model="MATRIX_MODEL"):
+def available_properties(self, property_type, porosity_model: str = "MATRIX_MODEL"):
     """Get a list of available properties
 
     For argument details, see :ref:`Result Definition <result-definition-label>`
@@ -626,7 +627,7 @@ def available_properties(self, property_type, porosity_model="MATRIX_MODEL"):
 
 @add_method(Case)
 def active_cell_property_async(
-    self, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+    self, property_type, property_name, time_step, porosity_model: str = "MATRIX_MODEL"
 ):
     """Get a cell property for all active cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -655,7 +656,7 @@ def active_cell_property_async(
 
 @add_method(Case)
 def active_cell_property(
-    self, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+    self, property_type, property_name, time_step, porosity_model: str = "MATRIX_MODEL"
 ):
     """Get a cell property for all active cells. Sync, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -681,7 +682,7 @@ def active_cell_property(
 
 @add_method(Case)
 def selected_cell_property_async(
-    self, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+    self, property_type, property_name, time_step, porosity_model: str = "MATRIX_MODEL"
 ):
     """Get a cell property for all selected cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -710,7 +711,7 @@ def selected_cell_property_async(
 
 @add_method(Case)
 def selected_cell_property(
-    self, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+    self, property_type, property_name, time_step, porosity_model: str = "MATRIX_MODEL"
 ):
     """Get a cell property for all selected cells. Sync, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -741,7 +742,7 @@ def grid_property_async(
     property_name,
     time_step,
     grid_index=0,
-    porosity_model="MATRIX_MODEL",
+    porosity_model: str = "MATRIX_MODEL",
 ):
     """Get a cell property for all grid cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -777,7 +778,7 @@ def grid_property(
     property_name,
     time_step,
     grid_index=0,
-    porosity_model="MATRIX_MODEL",
+    porosity_model: str = "MATRIX_MODEL",
 ):
     """Get a cell property for all grid cells. Synchronous, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -808,7 +809,7 @@ def set_active_cell_property_async(
     property_type,
     property_name,
     time_step,
-    porosity_model="MATRIX_MODEL",
+    porosity_model: str = "MATRIX_MODEL",
 ):
     """Set cell property for all active cells Async. Takes an iterator to the input values. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -835,7 +836,12 @@ def set_active_cell_property_async(
 
 @add_method(Case)
 def set_active_cell_property(
-    self, values, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+    self,
+    values,
+    property_type,
+    property_name,
+    time_step,
+    porosity_model: str = "MATRIX_MODEL",
 ):
     """Set a cell property for all active cells. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -869,7 +875,7 @@ def set_grid_property(
     property_name,
     time_step,
     grid_index=0,
-    porosity_model="MATRIX_MODEL",
+    porosity_model: str = "MATRIX_MODEL",
 ):
     """Set a cell property for all grid cells. For argument details, see :ref:`Result Definition <result-definition-label>`
 
@@ -989,7 +995,7 @@ def simulation_wells(self):
 
 
 @add_method(Case)
-def active_cell_centers_async(self, porosity_model="MATRIX_MODEL"):
+def active_cell_centers_async(self, porosity_model: str = "MATRIX_MODEL"):
     """Get a cell centers for all active cells. Async, so returns an iterator
 
     Arguments:
@@ -1007,7 +1013,7 @@ def active_cell_centers_async(self, porosity_model="MATRIX_MODEL"):
 
 
 @add_method(Case)
-def active_cell_centers(self, porosity_model="MATRIX_MODEL"):
+def active_cell_centers(self, porosity_model: str = "MATRIX_MODEL"):
     """Get a cell centers for all active cells. Synchronous, so returns a list.
 
     Arguments:
@@ -1025,7 +1031,7 @@ def active_cell_centers(self, porosity_model="MATRIX_MODEL"):
 
 
 @add_method(Case)
-def active_cell_corners_async(self, porosity_model="MATRIX_MODEL"):
+def active_cell_corners_async(self, porosity_model: str = "MATRIX_MODEL"):
     """Get a cell corners for all active cells. Async, so returns an iterator
 
     Arguments:
@@ -1043,7 +1049,7 @@ def active_cell_corners_async(self, porosity_model="MATRIX_MODEL"):
 
 
 @add_method(Case)
-def active_cell_corners(self, porosity_model="MATRIX_MODEL"):
+def active_cell_corners(self, porosity_model: str = "MATRIX_MODEL"):
     """Get a cell corners for all active cells. Synchronous, so returns a list.
 
         Arguments:
@@ -1287,7 +1293,7 @@ def __generate_nnc_property_input_chunks(self, array, parameters):
 
 @add_method(Case)
 def set_nnc_connections_values(
-    self, values, property_name, time_step, porosity_model="MATRIX_MODEL"
+    self, values, property_name, time_step, porosity_model: str = "MATRIX_MODEL"
 ):
     """Set nnc connection values for all connections..
 

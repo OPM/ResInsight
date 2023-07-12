@@ -32,6 +32,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 
@@ -42,7 +43,7 @@ CAF_PDM_SOURCE_INIT( RimPerforationInterval, "Perforation" );
 //--------------------------------------------------------------------------------------------------
 RimPerforationInterval::RimPerforationInterval()
 {
-    CAF_PDM_InitObject( "Perforation", ":/PerforationInterval16x16.png" );
+    CAF_PDM_InitScriptableObject( "Perforation", ":/PerforationInterval16x16.png" );
 
     CAF_PDM_InitField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD" );
     CAF_PDM_InitField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD" );
