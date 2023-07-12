@@ -184,6 +184,7 @@ foreach(rips_proto ${GRPC_PROTO_FILES})
         ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m grpc_tools.protoc -I
         "${rips_proto_path}" --python_out
         "${GRPC_PYTHON_SOURCE_PATH}/rips/generated" --grpc_python_out
+        "${GRPC_PYTHON_SOURCE_PATH}/rips/generated" --pyi_out
         "${GRPC_PYTHON_SOURCE_PATH}/rips/generated" "${rips_proto}"
       DEPENDS "${rips_proto}"
       COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"

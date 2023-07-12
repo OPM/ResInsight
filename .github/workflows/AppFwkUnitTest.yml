@@ -46,7 +46,7 @@ jobs:
         run: |
           execute_process(
             COMMAND cmake
-              -S Fwk/AppFwk
+              -S Fwk
               -B cmakebuild
               -G Ninja
             RESULT_VARIABLE result
@@ -70,13 +70,13 @@ jobs:
       - name: Run Unit Tests
         shell: bash
         run: |
-          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
-          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
-          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
-          cmakebuild/cafPdmScripting/cafPdmScripting_UnitTests/cafPdmScripting_UnitTests
+          cmakebuild/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
+          cmakebuild/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
+          cmakebuild/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
+          cmakebuild/AppFwk/cafPdmScripting/cafPdmScripting_UnitTests/cafPdmScripting_UnitTests
 
       - name: Run Unit Tests Windows (does not work on Linux)
         if: contains( matrix.os, 'windows')
         shell: bash
         run: |
-          cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
+          cmakebuild/AppFwk/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests

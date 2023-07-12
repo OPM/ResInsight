@@ -17,7 +17,9 @@ from .contour_map import EclipseContourMap, GeoMechContourMap
 from .well_log_plot import WellLogPlot
 from .simulation_well import SimulationWell
 
-__all__ = []
+from typing import List
+
+__all__: List[str] = []
 for key in class_dict():
     __all__.append(key)
 

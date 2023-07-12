@@ -8,6 +8,12 @@ about Case grids.
 import Case_pb2
 import Grid_pb2
 import Grid_pb2_grpc
+import Definitions_pb2
+
+from typing import Tuple, Optional, List
+from grpc import Channel
+
+from .case import Case
 
 
 class Grid:
@@ -16,15 +22,15 @@ class Grid:
     :meth:`rips.case.grids()`
     """
 
-    def __init__(self, index, case, channel):
+    def __init__(self, index: int, case: Case, channel: Channel) -> None:
         self.__channel = channel
         self.__stub = Grid_pb2_grpc.GridStub(self.__channel)
 
-        self.case = case
-        self.index = index
+        self.case: Case = case
+        self.index: int = index
         self.cached_dimensions = None
 
-    def dimensions(self):
+    def dimensions(self) -> Optional[Definitions_pb2.Vec3i]:
         """The dimensions in i, j, k direction
 
         Returns:
@@ -52,7 +58,7 @@ class Grid:
         for chunk in chunks:
             yield chunk
 
-    def cell_centers(self):
+    def cell_centers(self) -> List[Definitions_pb2.Vec3d]:
         """The cell center for all cells in given grid
 
         Returns:
@@ -92,7 +98,7 @@ class Grid:
                 corners.append(center)
         return corners
 
-    def property_data_index_from_ijk(self, i, j, k):
+    def property_data_index_from_ijk(self, i: int, j: int, k: int) -> int:
         """Compute property index from 1-based IJK cell address. Cell Property Result data is organized by I, J and K.
 
         property_data_index = dims.i * dims.j * (k - 1) + dims.i * (j - 1) + (i - 1)
@@ -102,12 +108,12 @@ class Grid:
         """
 
         dims = self.dimensions()
+        if dims:
+            return int(dims.i * dims.j * (k - 1) + dims.i * (j - 1) + (i - 1))
+        else:
+            return -1
 
-        property_data_index = dims.i * dims.j * (k - 1) + dims.i * (j - 1) + (i - 1)
-
-        return property_data_index
-
-    def cell_count(self):
+    def cell_count(self) -> int:
         """Cell count in grid
 
         Returns:
@@ -115,7 +121,7 @@ class Grid:
         """
 
         dims = self.dimensions()
-
-        count = dims.i * dims.j * dims.k
-
-        return count
+        if dims:
+            return int(dims.i * dims.j * dims.k)
+        else:
+            return 0
