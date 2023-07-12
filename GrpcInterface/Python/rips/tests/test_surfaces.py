@@ -10,10 +10,6 @@ import rips
 import dataroot
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"),
-    reason="Brugge is currently exceptionally slow on Linux",
-)
 def test_create_and_export_surface(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
     case = rips_instance.project.load_case(path=case_path)

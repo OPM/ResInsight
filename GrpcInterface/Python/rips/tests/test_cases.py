@@ -140,10 +140,6 @@ def test_PdmObject(rips_instance, initialize_test):
     assert case.__class__.__name__ == "EclipseCase"
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"),
-    reason="Brugge is currently exceptionally slow on Linux",
-)
 def test_brugge_0010(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID"
     case = rips_instance.project.load_case(path=case_path)
@@ -157,10 +153,6 @@ def test_brugge_0010(rips_instance, initialize_test):
     assert len(days_since_start) == 11
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"),
-    reason="Brugge is currently exceptionally slow on Linux",
-)
 def test_replaceCase(rips_instance, initialize_test):
     project = rips_instance.project.open(
         dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp"
@@ -192,10 +184,6 @@ def test_loadNonExistingCase(rips_instance, initialize_test):
         assert rips_instance.project.load_case(case_path)
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"),
-    reason="Brugge is currently exceptionally slow on Linux",
-)
 def test_exportFlowCharacteristics(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID"
     case = rips_instance.project.load_case(case_path)
