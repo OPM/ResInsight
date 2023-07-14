@@ -32,10 +32,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
-#include "cafPdmObjectScriptingCapability.h"
-
 
 CAF_PDM_SOURCE_INIT( RimPerforationInterval, "Perforation" );
 
