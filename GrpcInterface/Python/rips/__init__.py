@@ -16,4 +16,3 @@ from .plot import Plot, PlotWindow
 from .contour_map import EclipseContourMap, GeoMechContourMap
 from .well_log_plot import WellLogPlot
 from .simulation_well import SimulationWell
-
