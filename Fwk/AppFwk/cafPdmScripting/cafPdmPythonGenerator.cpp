@@ -45,6 +45,9 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
 
+#include <cvfColor3.h>
+#include <cvfVector3.h>
+
 #include <QRegularExpression>
 #include <QTextStream>
 
@@ -135,10 +138,10 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                         auto pdmChildArrayField = dynamic_cast<const PdmChildArrayFieldHandle*>( field );
                         if ( pdmValueField )
                         {
-                            QString dataType = PdmPythonGenerator::dataTypeString( field, true );
+                            QString dataType = PdmPythonGenerator::dataTypeString( field, false );
                             if ( field->xmlCapability()->isVectorField() )
                             {
-                                dataType = QString( "List of %1" ).arg( dataType );
+                                dataType = QString( "List[%1]" ).arg( dataType );
                             }
 
                             bool shouldBeMethod = false;
@@ -159,9 +162,10 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                                                               .arg( comment )
                                                               .arg( dataType );
 
-                                    QString fieldCode = QString( "    def %1(self):\n%2\n        return "
-                                                                 "self._call_get_method(\"%3\")\n" )
+                                    QString fieldCode = QString( "    def %1(self) -> %2:\n%3\n        return "
+                                                                 "self._call_get_method(\"%4\")\n" )
                                                             .arg( snake_field_name )
+                                                            .arg( dataType )
                                                             .arg( fullComment )
                                                             .arg( scriptability->scriptFieldName() );
                                     classMethodsGenerated[field->ownerClass()][snake_field_name] = fieldCode;
@@ -173,11 +177,13 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                                                               .arg( comment )
                                                               .arg( dataType );
 
-                                    QString fieldCode = QString( "    def set_%1(self, values):\n%2\n        "
-                                                                 "self._call_set_method(\"%3\", values)\n" )
-                                                            .arg( snake_field_name )
-                                                            .arg( fullComment )
-                                                            .arg( scriptability->scriptFieldName() );
+                                    QString fieldCode =
+                                        QString( "    def set_%1(self, values : %2) -> None:\n%3\n        "
+                                                 "self._call_set_method(\"%4\", values)\n" )
+                                            .arg( snake_field_name )
+                                            .arg( dataType )
+                                            .arg( fullComment )
+                                            .arg( scriptability->scriptFieldName() );
                                     classMethodsGenerated[field->ownerClass()][QString( "set_%1" ).arg( snake_field_name )] =
                                         fieldCode;
                                 }
@@ -186,8 +192,13 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                             {
                                 QString valueString = getDefaultValue( field );
 
+                                if ( valueString == "None" )
+                                {
+                                    dataType = QString( "Optional[%1]" ).arg( dataType );
+                                }
+
                                 QString fieldCode =
-                                    QString( "        self.%1 = %2\n" ).arg( snake_field_name ).arg( valueString );
+                                    QString( "        self.%1: %2 = %3\n" ).arg( snake_field_name ).arg( dataType ).arg( valueString );
 
                                 QString fullComment;
                                 {
@@ -218,7 +229,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                             dataTypesInChildFields.insert( scriptDataType );
 
                             QString commentDataType = field->xmlCapability()->isVectorField()
-                                                          ? QString( "List of %1" ).arg( scriptDataType )
+                                                          ? QString( "List[%1]" ).arg( scriptDataType )
                                                           : scriptDataType;
 
                             QString fullComment =
@@ -228,20 +239,22 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
 
                             if ( pdmChildField )
                             {
-                                QString fieldCode = QString( "    def %1(self):\n%2\n        children = "
-                                                             "self.children(\"%3\", %4)\n        return children[0] if "
-                                                             "len(children) > 0 else None\n" )
-                                                        .arg( snake_field_name )
-                                                        .arg( fullComment )
-                                                        .arg( scriptability->scriptFieldName() )
-                                                        .arg( scriptDataType );
+                                QString fieldCode =
+                                    QString( "    def %1(self) -> Optional[%4]:\n%2\n        children = "
+                                             "self.children(\"%3\", %4)\n        return children[0] if "
+                                             "len(children) > 0 else None\n" )
+                                        .arg( snake_field_name )
+                                        .arg( fullComment )
+                                        .arg( scriptability->scriptFieldName() )
+                                        .arg( scriptDataType );
                                 classMethodsGenerated[field->ownerClass()][snake_field_name] = fieldCode;
                             }
                             else
                             {
-                                QString fieldCode = QString( "    def %1(self):\n%2\n        return "
-                                                             "self.children(\"%3\", %4)\n" )
+                                QString fieldCode = QString( "    def %1(self) -> List[%2]:\n%3\n        return "
+                                                             "self.children(\"%4\", %5)\n" )
                                                         .arg( snake_field_name )
+                                                        .arg( scriptDataType )
                                                         .arg( fullComment )
                                                         .arg( scriptability->scriptFieldName() )
                                                         .arg( scriptDataType );
@@ -269,8 +282,27 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 QStringList argumentComments;
 
                 outputArgumentStrings.push_back( QString( "\"%1\"" ).arg( methodName ) );
+
+                QString returnDataType = "None";
                 QString returnComment;
-                if ( method->defaultResult() ) returnComment = method->defaultResult()->xmlCapability()->classKeyword();
+                if ( method->defaultResult() )
+                {
+                    QString dataType = method->defaultResult()->xmlCapability()->classKeyword();
+
+                    QString scriptDataType =
+                        PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
+
+                    returnComment = method->defaultResult()->xmlCapability()->classKeyword();
+
+                    returnDataType = scriptDataType;
+
+                    outputArgumentStrings.push_back( QString( "%1" ).arg( returnDataType ) );
+
+                    if ( method->isNullptrValidResult() )
+                    {
+                        returnDataType = QString( "Optional[%1]" ).arg( returnDataType );
+                    }
+                }
 
                 for ( auto field : arguments )
                 {
@@ -279,9 +311,13 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                     auto dataType      = dataTypeString( field, false );
 
                     bool isList = field->xmlCapability()->isVectorField();
-                    if ( isList ) dataType = "List of " + dataType;
+                    if ( isList ) dataType = QString( "List[%1]" ).arg( dataType );
 
                     QString defaultValue = getDefaultValue( field );
+                    if ( defaultValue == "None" )
+                    {
+                        dataType = QString( "Optional[%1]" ).arg( dataType );
+                    }
 
                     QString commentOrEnumDescription = field->uiCapability()->uiWhatsThis();
 
@@ -293,7 +329,8 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                         commentOrEnumDescription = "One of [" + enumTexts.join( ", " ) + "]";
                     }
 
-                    inputArgumentStrings.push_back( QString( "%1=%2" ).arg( argumentName ).arg( defaultValue ) );
+                    inputArgumentStrings.push_back(
+                        QString( "%1: %2=%3" ).arg( argumentName ).arg( dataType ).arg( defaultValue ) );
                     outputArgumentStrings.push_back( QString( "%1=%1" ).arg( argumentName ) );
                     argumentComments.push_back(
                         QString( "%1 (%2): %3" ).arg( argumentName ).arg( dataType ).arg( commentOrEnumDescription ) );
@@ -304,12 +341,28 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                                           .arg( argumentComments.join( "\n            " ) )
                                           .arg( returnComment );
 
-                QString methodCode = QString( "    def %1(self, %2):\n%3\n        return "
-                                              "self._call_pdm_method(%4)\n" )
+                QString methodBody = QString( "self._call_pdm_method_void(%1)" ).arg( outputArgumentStrings.join( ", " ) );
+                //
+                if ( returnDataType != "None" )
+                {
+                    if ( method->isNullptrValidResult() )
+                    {
+                        methodBody = QString( "return self._call_pdm_method_return_optional_value(%1)" )
+                                         .arg( outputArgumentStrings.join( ", " ) );
+                    }
+                    else
+                    {
+                        methodBody =
+                            QString( "return self._call_pdm_method_return_value(%1)" ).arg( outputArgumentStrings.join( ", " ) );
+                    }
+                }
+
+                QString methodCode = QString( "    def %1(self, %2) -> %3:\n%4\n        %5\n" )
                                          .arg( snake_method_name )
                                          .arg( inputArgumentStrings.join( ", " ) )
+                                         .arg( returnDataType )
                                          .arg( fullComment )
-                                         .arg( outputArgumentStrings.join( ", " ) );
+                                         .arg( methodBody );
 
                 classMethodsGenerated[classKeyword][snake_method_name] = methodCode;
             }
@@ -320,8 +373,12 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     std::set<QString> classesWritten;
     classesWritten.insert( "PdmObjectBase" );
 
+    out << "from __future__ import annotations\n";
     out << "from rips.pdmobject import PdmObjectBase\n";
-    out << "from typing import Optional, Dict\n";
+    out << "import PdmObject_pb2\n";
+    out << "import grpc\n";
+    out << "from typing import Optional, Dict, List\n";
+    out << "\n";
 
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
     {
@@ -368,7 +425,9 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 classCode +=
                     QString( "    __custom_init__ = None #: Assign a custom init routine to be run at __init__\n\n" );
 
-                classCode += QString( "    def __init__(self, pb2_object=None, channel=None):\n" );
+                classCode +=
+                    QString( "    def __init__(self, pb2_object: Optional[PdmObject_pb2.PdmObject]=None, channel: "
+                             "Optional[grpc.Channel]=None) -> None:\n" );
                 if ( !scriptSuperClassNames.empty() )
                 {
                     // Own attributes. This initializes a lot of attributes to None.
@@ -399,19 +458,6 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
             scriptSuperClassNames.push_back( scriptClassName );
         }
     }
-    out << "def class_dict() -> Dict[str, PdmObjectBase]:\n";
-    out << "    classes = {}\n";
-    for ( QString classKeyword : classesWritten )
-    {
-        out << QString( "    classes['%1'] = %1\n" ).arg( classKeyword );
-    }
-    out << "    return classes\n\n";
-
-    out << "def class_from_keyword(class_keyword : str) -> Optional[PdmObjectBase]:\n";
-    out << "    all_classes = class_dict()\n";
-    out << "    if class_keyword in all_classes.keys():\n";
-    out << "        return all_classes[class_keyword]\n";
-    out << "    return None\n";
 
     // Check if all referenced data types are exported as classes
     for ( const auto& scriptDataType : dataTypesInChildFields )
@@ -450,7 +496,12 @@ QString PdmPythonGenerator::getDefaultValue( PdmFieldHandle* field )
             QTextStream valueStream( &valueString );
             scriptability->readFromField( valueStream, true, true );
         }
-        if ( valueString.isEmpty() ) valueString = QString( "\"\"" );
+
+        if ( valueString.isEmpty() )
+        {
+            valueString = defaultValue;
+        }
+
         valueString = pythonifyDataValue( valueString );
 
         defaultValue = valueString;
@@ -483,14 +534,20 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
     auto scriptability = field->capability<PdmAbstractFieldScriptingCapability>();
     if ( scriptability && !scriptability->enumScriptTexts().empty() ) return "str";
 
-    QString dataType = xmlObj->dataTypeName();
+    QString dataType = PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( xmlObj->dataTypeName() );
 
-    std::map<QString, QString> builtins = { { QString::fromStdString( typeid( double ).name() ), "float" },
-                                            { QString::fromStdString( typeid( float ).name() ), "float" },
-                                            { QString::fromStdString( typeid( int ).name() ), "int" },
-                                            { QString::fromStdString( typeid( bool ).name() ), "bool" },
-                                            { QString::fromStdString( typeid( time_t ).name() ), "time" },
-                                            { QString::fromStdString( typeid( QString ).name() ), "str" } };
+    std::map<QString, QString> builtins = {
+        { QString::fromStdString( typeid( double ).name() ), "float" },
+        { QString::fromStdString( typeid( float ).name() ), "float" },
+        { QString::fromStdString( typeid( int ).name() ), "int" },
+        { QString::fromStdString( typeid( bool ).name() ), "bool" },
+        { QString::fromStdString( typeid( time_t ).name() ), "int" },
+        { QString::fromStdString( typeid( QString ).name() ), "str" },
+        { QString::fromStdString( typeid( cvf::Vec3d ).name() ), "List[float]" },
+        { QString::fromStdString( typeid( cvf::Color3f ).name() ), "str" },
+        { QString::fromStdString( typeid( caf::FilePath ).name() ), "str" },
+        { QString::fromStdString( typeid( std::vector<double> ).name() ), "List[float]" },
+    };
 
     bool foundBuiltin = false;
     for ( auto builtin : builtins )

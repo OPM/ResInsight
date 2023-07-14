@@ -79,7 +79,9 @@ class PdmObjectBase:
         return response
 
     def __init__(
-        self, pb2_object: PdmObject_pb2.PdmObject, channel: grpc.Channel
+        self,
+        pb2_object: Optional[PdmObject_pb2.PdmObject],
+        channel: Optional[grpc.Channel],
     ) -> None:
         self.__warnings = []
         self.__chunk_size = 8160
@@ -252,24 +254,18 @@ class PdmObjectBase:
             values.append(self.__convert_from_grpc_value(string))
         return values
 
+    D = TypeVar("D")
+
     def __from_pb2_to_resinsight_classes(
-        self, pb2_object_list, super_class_definition
-    ) -> List[Self]:
+        self, pb2_object_list: List[PdmObject_pb2.PdmObject], class_definition: type[D]
+    ) -> List[D]:
         pdm_object_list = []
-        from .generated.generated_classes import class_from_keyword
-
         for pb2_object in pb2_object_list:
-            child_class_definition = class_from_keyword(pb2_object.class_keyword)
-            if child_class_definition is None:
-                child_class_definition = super_class_definition
-
-            pdm_object = child_class_definition(
-                pb2_object=pb2_object, channel=self.channel()
-            )
+            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
             pdm_object_list.append(pdm_object)
         return pdm_object_list
 
-    def descendants(self, class_definition) -> List[Self]:
+    def descendants(self, class_definition: type[D]) -> List[D]:
         """Get a list of all project tree descendants matching the class keyword
         Arguments:
             class_definition[class]: A class definition matching the type of class wanted
@@ -291,7 +287,7 @@ class PdmObjectBase:
                 return []  # Valid empty result
             raise e
 
-    def children(self, child_field, class_definition):
+    def children(self, child_field: str, class_definition: type[D]) -> List[D]:
         """Get a list of all direct project tree children inside the provided child_field
         Arguments:
             child_field[str]: A field name
@@ -309,7 +305,9 @@ class PdmObjectBase:
                 return []
             raise e
 
-    def add_new_object(self, class_definition, child_field="") -> Self:
+    def add_new_object(
+        self, class_definition: type[D], child_field: str = ""
+    ) -> Optional[D]:
         """Create and add an object to the specified child field
         Arguments:
             class_definition[class]: Class definition of the object to create
@@ -317,8 +315,6 @@ class PdmObjectBase:
         Returns:
             The created PdmObject inside the child_field
         """
-        from .generated.generated_classes import class_from_keyword
-
         assert inspect.isclass(class_definition)
 
         class_keyword = class_definition.__name__
@@ -330,21 +326,14 @@ class PdmObjectBase:
         )
         try:
             pb2_object = self._pdm_object_stub.CreateChildPdmObject(request)
-            child_class_definition = class_from_keyword(pb2_object.class_keyword)
-
-            if child_class_definition is None:
-                child_class_definition = class_keyword
-
-            pdm_object = child_class_definition(
-                pb2_object=pb2_object, channel=self.channel()
-            )
+            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
             return pdm_object
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 return None
             raise e
 
-    def ancestor(self, class_definition):
+    def ancestor(self, class_definition: type[D]) -> Optional[D]:
         """Find the first ancestor that matches the provided class_keyword
         Arguments:
             class_definition[class]: A class definition matching the type of class wanted
@@ -352,21 +341,13 @@ class PdmObjectBase:
         assert inspect.isclass(class_definition)
 
         class_keyword = class_definition.__name__
-        from .generated.generated_classes import class_from_keyword
 
         request = PdmObject_pb2.PdmParentObjectRequest(
             object=self._pb2_object, parent_keyword=class_keyword
         )
         try:
             pb2_object = self._pdm_object_stub.GetAncestorPdmObject(request)
-            child_class_definition = class_from_keyword(pb2_object.class_keyword)
-
-            if child_class_definition is None:
-                child_class_definition = class_definition
-
-            pdm_object = child_class_definition(
-                pb2_object=pb2_object, channel=self.channel()
-            )
+            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
             return pdm_object
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
@@ -435,7 +416,7 @@ class PdmObjectBase:
         chunk = PdmObject_pb2.PdmObjectSetterChunk()
         yield chunk
 
-    def _call_set_method(self, method_name, values) -> None:
+    def _call_set_method(self, method_name: str, values) -> None:
         method_request = PdmObject_pb2.PdmObjectGetterRequest(
             object=self._pb2_object, method=method_name
         )
@@ -444,7 +425,23 @@ class PdmObjectBase:
         if reply.accepted_value_count < len(values):
             raise IndexError
 
-    def _call_pdm_method(self, method_name, **kwargs: List[str]) -> Optional[Self]:
+    def _call_pdm_method_void(self, method_name: str, **kwargs: Any) -> None:
+        pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
+        for key, value in kwargs.items():
+            pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(
+                value
+            )
+        request = PdmObject_pb2.PdmObjectMethodRequest(
+            object=self._pb2_object, method=method_name, params=pb2_params
+        )
+
+        self._pdm_object_stub.CallPdmObjectMethod(request)
+
+    X = TypeVar("X")
+
+    def _call_pdm_method_return_value(
+        self, method_name: str, klass: type[X], **kwargs: Any
+    ) -> X:
         pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
         for key, value in kwargs.items():
             pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(
@@ -456,15 +453,28 @@ class PdmObjectBase:
 
         pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
 
-        from .generated.generated_classes import class_from_keyword
+        pdm_object = klass(pb2_object=pb2_object, channel=self.channel())
+        return pdm_object
 
-        child_class_definition = class_from_keyword(pb2_object.class_keyword)
-        if child_class_definition is None:
+    O = TypeVar("O")
+
+    def _call_pdm_method_return_optional_value(
+        self, method_name: str, klass: type[O], **kwargs: Any
+    ) -> Optional[O]:
+        pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
+        for key, value in kwargs.items():
+            pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(
+                value
+            )
+        request = PdmObject_pb2.PdmObjectMethodRequest(
+            object=self._pb2_object, method=method_name, params=pb2_params
+        )
+
+        pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
+        if pb2_object is None:
             return None
 
-        pdm_object = child_class_definition(
-            pb2_object=pb2_object, channel=self.channel()
-        )
+        pdm_object = klass(pb2_object=pb2_object, channel=self.channel())
         return pdm_object
 
     def update(self) -> None:

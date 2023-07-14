@@ -17,12 +17,9 @@ from .contour_map import EclipseContourMap, GeoMechContourMap
 from .well_log_plot import WellLogPlot
 from .simulation_well import SimulationWell
 
-__all__ = []
-for key in class_dict():
-    __all__.append(key)
 
 # Add classes not in resinsight_classes
 __all__.append("Grid")
-__all__.append("Instance")
+__all__.append("Instance")#
 
 __all__.sort()
