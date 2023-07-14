@@ -459,6 +459,20 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
         }
     }
 
+    out << "def class_dict():\n";
+    out << "    classes = {}\n";
+    for ( QString classKeyword : classesWritten )
+    {
+        out << QString( "    classes['%1'] = %1\n" ).arg( classKeyword );
+    }
+    out << "    return classes\n\n";
+
+    out << "def class_from_keyword(class_keyword : str):\n";
+    out << "    all_classes = class_dict()\n";
+    out << "    if class_keyword in all_classes.keys():\n";
+    out << "        return all_classes[class_keyword]\n";
+    out << "    return None\n";
+
     // Check if all referenced data types are exported as classes
     for ( const auto& scriptDataType : dataTypesInChildFields )
     {

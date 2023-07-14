@@ -257,11 +257,22 @@ class PdmObjectBase:
     D = TypeVar("D")
 
     def __from_pb2_to_resinsight_classes(
-        self, pb2_object_list: List[PdmObject_pb2.PdmObject], class_definition: type[D]
+        self,
+        pb2_object_list: List[PdmObject_pb2.PdmObject],
+        super_class_definition: type[D],
     ) -> List[D]:
         pdm_object_list = []
+        from .generated.generated_classes import class_from_keyword
+
         for pb2_object in pb2_object_list:
-            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
+            child_class_definition = class_from_keyword(pb2_object.class_keyword)
+            if child_class_definition is None:
+                child_class_definition = super_class_definition
+
+            pdm_object = child_class_definition(
+                pb2_object=pb2_object, channel=self.channel()
+            )
+
             pdm_object_list.append(pdm_object)
         return pdm_object_list
 
@@ -315,6 +326,8 @@ class PdmObjectBase:
         Returns:
             The created PdmObject inside the child_field
         """
+        from .generated.generated_classes import class_from_keyword
+
         assert inspect.isclass(class_definition)
 
         class_keyword = class_definition.__name__
@@ -326,7 +339,15 @@ class PdmObjectBase:
         )
         try:
             pb2_object = self._pdm_object_stub.CreateChildPdmObject(request)
-            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
+            child_class_definition = class_from_keyword(pb2_object.class_keyword)
+
+            if child_class_definition is None:
+                child_class_definition = class_definition
+
+            pdm_object = child_class_definition(
+                pb2_object=pb2_object, channel=self.channel()
+            )
+
             return pdm_object
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
