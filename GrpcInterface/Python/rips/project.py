@@ -17,7 +17,7 @@ from Definitions_pb2 import Empty
 import Project_pb2_grpc
 import Project_pb2
 import PdmObject_pb2
-from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase
+from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase, Reservoir
 
 from typing import Optional, List
 
@@ -47,17 +47,17 @@ def open(self, path):
 
 
 @add_method(Project)
-def cases(self: Project) -> List[Case]:
+def cases(self: Project) -> List[Reservoir]:
     """Get a list of all grid cases in the project
 
     Returns:
         A list of :class:`rips.generated.generated_classes.Case`
     """
-    return self.descendants(Case)
+    return self.descendants(Reservoir)
 
 
 @add_method(Project)
-def case(self: Project, case_id: int) -> Optional[Case]:
+def case(self: Project, case_id: int) -> Optional[Reservoir]:
     """Get a specific grid case from the provided case Id
 
     Arguments:
@@ -90,7 +90,7 @@ def close(self) -> None:
 
 
 @add_method(Project)
-def load_case(self: Project, path: str, grid_only: bool = False) -> Case:
+def load_case(self: Project, path: str, grid_only: bool = False) -> Reservoir:
     """Load a new grid case from the given file path
 
     Arguments:
