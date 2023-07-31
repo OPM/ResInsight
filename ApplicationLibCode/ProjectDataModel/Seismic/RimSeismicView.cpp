@@ -203,6 +203,7 @@ cvf::BoundingBox RimSeismicView::domainBoundingBox()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
