@@ -21,6 +21,8 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 
+#include "RigPolyLinesData.h"
+
 #include "cvfBoundingBox.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimSeismicDataInterface, "SeismicDataInterface" ); // Abstract class.
@@ -149,4 +151,41 @@ double RimSeismicDataInterface::inlineSpacing()
     cvf::Vec3d world2 = convertToWorldCoords( inlineMin() + 1, xlineMin(), zMin() );
 
     return world1.pointDistance( world2 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicDataInterface::addSeismicOutline( RigPolyLinesData* pld )
+{
+    if ( pld == nullptr ) return;
+
+    auto outline = worldOutline();
+    if ( outline.size() == 8 )
+    {
+        // seismic bounding box could be all the way up to the sea surface,
+        // make sure to skip bounding box check in drawing code
+        pld->setSkipBoundingBoxCheck( true );
+
+        std::vector<cvf::Vec3d> box;
+
+        for ( auto i : { 4, 0, 1, 3, 2, 0 } )
+            box.push_back( outline[i] );
+        pld->addPolyLine( box );
+        box.clear();
+
+        for ( auto i : { 1, 5, 4, 6, 7, 5 } )
+            box.push_back( outline[i] );
+        pld->addPolyLine( box );
+        box.clear();
+
+        box.push_back( outline[2] );
+        box.push_back( outline[6] );
+        pld->addPolyLine( box );
+        box.clear();
+
+        box.push_back( outline[3] );
+        box.push_back( outline[7] );
+        pld->addPolyLine( box );
+    }
 }

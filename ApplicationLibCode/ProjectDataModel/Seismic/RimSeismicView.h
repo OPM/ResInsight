@@ -20,6 +20,7 @@
 #include "RiaSeismicDefines.h"
 
 #include "Rim3dView.h"
+#include "RimPolylinesDataInterface.h"
 
 #include "cafPdmField.h"
 
@@ -30,8 +31,9 @@ class RimSeismicData;
 class RimSurfaceInViewCollection;
 class RimSeismicSectionCollection;
 class Rim3dOverlayInfoConfig;
+class RivPolylinePartMgr;
 
-class RimSeismicView : public Rim3dView
+class RimSeismicView : public Rim3dView, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -54,6 +56,8 @@ public:
 
     cvf::BoundingBox domainBoundingBox() override;
     void             updateGridBoxData() override;
+
+    cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
 protected:
     void initAfterRead() override;
@@ -89,6 +93,7 @@ private:
     caf::PdmPtrField<RimSeismicData*> m_seismicData;
 
     cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
+    cvf::ref<RivPolylinePartMgr>  m_polylinePartMgr;
 
     cvf::ref<cvf::Transform> m_scaleTransform;
 };

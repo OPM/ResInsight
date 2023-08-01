@@ -478,34 +478,7 @@ cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
 
     if ( m_showSeismicOutline() && m_seismicData != nullptr )
     {
-        auto outline = m_seismicData->worldOutline();
-        if ( outline.size() == 8 )
-        {
-            // seismic bounding box could be all the way up to the sea surface,
-            // make sure to skip bounding box check in drawing code
-            pld->setSkipBoundingBoxCheck( true );
-
-            std::vector<cvf::Vec3d> box;
-
-            for ( auto i : { 4, 0, 1, 3, 2, 0 } )
-                box.push_back( outline[i] );
-            pld->addPolyLine( box );
-            box.clear();
-
-            for ( auto i : { 1, 5, 4, 6, 7, 5 } )
-                box.push_back( outline[i] );
-            pld->addPolyLine( box );
-            box.clear();
-
-            box.push_back( outline[2] );
-            box.push_back( outline[6] );
-            pld->addPolyLine( box );
-            box.clear();
-
-            box.push_back( outline[3] );
-            box.push_back( outline[7] );
-            pld->addPolyLine( box );
-        }
+        m_seismicData->addSeismicOutline( pld.p() );
     }
 
     pld->setLineAppearance( m_lineThickness, m_lineColor, false );

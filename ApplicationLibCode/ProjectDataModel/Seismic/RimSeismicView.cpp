@@ -18,6 +18,8 @@
 
 #include "RimSeismicView.h"
 
+#include "RigPolyLinesData.h"
+
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
@@ -31,6 +33,8 @@
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
+
+#include "RivPolylinePartMgr.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
@@ -251,7 +255,10 @@ void RimSeismicView::onCreateDisplayModel()
 
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
     m_seismicVizModel->removeAllParts();
-    // TODO - if no slices/parts, add an empty outline to the seismicvizmodel
+
+    if ( m_polylinePartMgr.isNull() ) m_polylinePartMgr = new RivPolylinePartMgr( this, this, this );
+    m_polylinePartMgr->appendDynamicGeometryPartsToModel( m_seismicVizModel.p(), transform.p(), domainBoundingBox() );
+
     m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), domainBoundingBox() );
     mainScene->addModel( m_seismicVizModel.p() );
     nativeOrOverrideViewer()->setMainScene( mainScene.p(), isUsingOverrideViewer() );
@@ -456,4 +463,26 @@ void RimSeismicView::updateSurfacesInViewTreeItems()
     }
 
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigPolyLinesData> RimSeismicView::polyLinesData() const
+{
+    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
+
+    if ( m_seismicData != nullptr )
+    {
+        m_seismicData->addSeismicOutline( pld.p() );
+        pld->setLineAppearance( 1, { 255, 255, 255 }, false );
+        pld->setZPlaneLock( false, 0.0 );
+        pld->setVisibility( true, false );
+    }
+    else
+    {
+        pld->setVisibility( false, false );
+    }
+
+    return pld;
 }
