@@ -29,8 +29,7 @@ RigFaultReactivationModel::RigFaultReactivationModel()
     , m_maxHorzExtent( 0 )
     , m_isValid( false )
 {
-    for ( auto part :
-          { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 } )
+    for ( auto part : allParts() )
     {
         m_parts[part]         = RigFRModelPart();
         m_parts[part].texture = new cvf::TextureImage();
@@ -230,6 +229,8 @@ void RigFaultReactivationModel::updateRects()
         m_parts[ModelParts::LowPart2].rect.add( points[i] );
     }
     m_isValid = true;
+
+    generateMeshLines( points );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,4 +247,11 @@ cvf::Vec3dArray RigFaultReactivationModel::rect( ModelParts part ) const
 cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( ModelParts part ) const
 {
     return m_parts.at( part ).texture;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::generateMeshLines( cvf::Vec3dArray points )
+{
 }

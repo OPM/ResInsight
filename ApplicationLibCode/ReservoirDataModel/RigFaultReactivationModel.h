@@ -80,6 +80,9 @@ public:
     cvf::Vec3dArray             rect( ModelParts part ) const;
     cvf::ref<cvf::TextureImage> texture( ModelParts part ) const;
 
+protected:
+    void generateMeshLines( cvf::Vec3dArray points );
+
 private:
     cvf::Vec3d m_planeNormal;
     cvf::Vec3d m_planeAnchor;
@@ -93,4 +96,7 @@ private:
 
     std::map<ModelParts, RigFRModelPart> m_parts;
     bool                                 m_isValid;
+
+    std::vector<std::vector<cvf::Vec3d>> m_meshLinesPart1;
+    std::vector<std::vector<cvf::Vec3d>> m_meshLinesPart2;
 };
