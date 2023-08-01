@@ -32,6 +32,7 @@
 
 class RimSeismicAlphaMapper;
 class RimRegularLegendConfig;
+class RigPolyLinesData;
 
 namespace cvf
 {
@@ -57,6 +58,8 @@ public:
     virtual RimRegularLegendConfig* legendConfig() const;
     virtual RimSeismicAlphaMapper*  alphaValueMapper() const;
     virtual double                  inlineSpacing();
+
+    void addSeismicOutline( RigPolyLinesData* pld );
 
     // interface to be implemented by subclasses
 public:
