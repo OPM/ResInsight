@@ -370,15 +370,15 @@ class Instance:
 
     def major_version(self) -> int:
         """Get an integer with the major version number"""
-        return self.__version_message().major_version
+        return int(self.__version_message().major_version)
 
     def minor_version(self) -> int:
         """Get an integer with the minor version number"""
-        return self.__version_message().minor_version
+        return int(self.__version_message().minor_version)
 
     def patch_version(self) -> int:
         """Get an integer with the patch version number"""
-        return self.__version_message().patch_version
+        return int(self.__version_message().patch_version)
 
     def version_string(self) -> str:
         """Get a full version string, i.e. 2019.04.01"""
@@ -392,7 +392,7 @@ class Instance:
 
     def client_version_string(self) -> str:
         """Get a full version string, i.e. 2019.04.01"""
-        version_string = RiaVersionInfo.RESINSIGHT_MAJOR_VERSION + "."
+        version_string: str = RiaVersionInfo.RESINSIGHT_MAJOR_VERSION + "."
         version_string += RiaVersionInfo.RESINSIGHT_MINOR_VERSION + "."
         version_string += RiaVersionInfo.RESINSIGHT_PATCH_VERSION
         return version_string
