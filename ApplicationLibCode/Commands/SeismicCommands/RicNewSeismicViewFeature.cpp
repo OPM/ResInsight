@@ -25,6 +25,8 @@
 #include "RimProject.h"
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
+#include "RimSeismicSection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSeismicView.h"
 #include "RimSeismicViewCollection.h"
 
@@ -82,9 +84,16 @@ void RicNewSeismicViewFeature::onActionTriggered( bool isChecked )
         {
             seisViewColl->updateAllRequiredEditors();
             view->scheduleCreateDisplayModelAndRedraw();
-            // view->defaultView view->zoomAll();
 
-            Riu3DMainWindowTools::selectAsCurrentItem( view );
+            if ( view->seismicSectionCollection()->size() > 0 )
+            {
+                auto section = view->seismicSectionCollection()->seismicSections()[0];
+                Riu3DMainWindowTools::selectAsCurrentItem( section );
+            }
+            else
+            {
+                Riu3DMainWindowTools::selectAsCurrentItem( view );
+            }
         }
     }
 }
