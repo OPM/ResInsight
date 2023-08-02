@@ -70,7 +70,7 @@ public:
     bool isGridVisualizationMode() const override;
 
     void updateWellMeasurements();
-    void updateSurfacesInViewTreeItems();
+    void updateSurfacesInViewTreeItems() override;
 
 protected:
     virtual void       updateViewFollowingCellFilterUpdates();

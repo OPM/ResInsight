@@ -252,7 +252,7 @@ void RiuViewer::clearRimView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setDefaultView()
+void RiuViewer::setDefaultView( const cvf::Vec3d& dir, const cvf::Vec3d& up )
 {
     cvf::BoundingBox bb = m_mainRendering->boundingBox();
     if ( !bb.isValid() )
@@ -273,7 +273,7 @@ void RiuViewer::setDefaultView()
         }
     }
 
-    m_mainCamera->fitView( bb, -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS );
+    m_mainCamera->fitView( bb, dir, up );
 }
 
 //--------------------------------------------------------------------------------------------------

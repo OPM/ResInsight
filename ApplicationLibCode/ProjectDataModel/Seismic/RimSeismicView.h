@@ -82,7 +82,9 @@ protected:
 
     QString createAutoName() const override;
 
-    void updateSurfacesInViewTreeItems();
+    void setDefaultView() override;
+
+    void updateSurfacesInViewTreeItems() override;
 
 private:
     caf::PdmChildField<RimSurfaceInViewCollection*>  m_surfaceCollection;

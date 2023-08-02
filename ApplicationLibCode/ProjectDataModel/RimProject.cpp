@@ -73,6 +73,7 @@
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSeismicDataCollection.h"
+#include "RimSeismicView.h"
 #include "RimSeismicViewCollection.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCalculation.h"
@@ -812,6 +813,18 @@ void RimProject::allViews( std::vector<Rim3dView*>& views ) const
             }
         }
     }
+
+    for ( size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++ )
+    {
+        RimOilField* oilField = oilFields[oilFieldIdx];
+        if ( !oilField ) continue;
+        if ( !oilField->seismicViewCollection() ) continue;
+
+        for ( auto seisview : oilField->seismicViewCollection()->views() )
+        {
+            views.push_back( seisview );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -869,6 +882,11 @@ void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
         {
             views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
         }
+    }
+
+    for ( auto seisview : activeOilField()->seismicViewCollection()->views() )
+    {
+        seisview->scheduleCreateDisplayModelAndRedraw();
     }
 }
 

@@ -112,11 +112,14 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
 
     if ( fieldNeedingOptions == &m_separateDataSource )
     {
-        std::vector<RimIntersectionResultDefinition*> iResDefs = findSeparateResultsCollection()->intersectionResultsDefinitions();
-
-        for ( auto iresdef : iResDefs )
+        if ( findSeparateResultsCollection() )
         {
-            options.push_back( caf::PdmOptionItemInfo( iresdef->autoName(), iresdef ) );
+            std::vector<RimIntersectionResultDefinition*> iResDefs = findSeparateResultsCollection()->intersectionResultsDefinitions();
+
+            for ( auto iresdef : iResDefs )
+            {
+                options.push_back( caf::PdmOptionItemInfo( iresdef->autoName(), iresdef ) );
+            }
         }
     }
 
@@ -129,7 +132,8 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
 RimIntersectionResultsDefinitionCollection* RimIntersection::findSeparateResultsCollection()
 {
     auto view = firstAncestorOrThisOfTypeAsserted<RimGridView>();
-    return view->separateIntersectionResultsCollection();
+    if ( view ) return view->separateIntersectionResultsCollection();
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
