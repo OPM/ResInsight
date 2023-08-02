@@ -30,6 +30,7 @@
 #include "RimSeismicSectionCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceInViewCollection.h"
+#include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
@@ -285,6 +286,8 @@ void RimSeismicView::onCreateDisplayModel()
         m_surfaceCollection->applySingleColorEffect();
     }
 
+    if ( m_seismicData ) nativeOrOverrideViewer()->setPointOfInterest( m_seismicData->boundingBox()->center() );
+
     // m_overlayInfoConfig()->update3DInfo();
 }
 
@@ -496,4 +499,19 @@ void RimSeismicView::setDefaultView()
     {
         viewer()->setDefaultView( cvf::Vec3d::Y_AXIS, cvf::Vec3d::Z_AXIS );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimSeismicView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_seismicData )
+    {
+        RimTools::seismicDataOptionItems( &options, domainBoundingBox() );
+    }
+
+    return options;
 }
