@@ -345,9 +345,7 @@ class PdmObjectBase:
                 child_class_definition = class_definition
 
             assert child_class_definition.__name__ == class_definition.__name__
-            pdm_object = class_definition(
-                pb2_object=pb2_object, channel=self.channel()
-            )
+            pdm_object = class_definition(pb2_object=pb2_object, channel=self.channel())
 
             return pdm_object
         except grpc.RpcError as e:

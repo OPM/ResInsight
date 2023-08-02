@@ -404,12 +404,14 @@ class Instance:
 
     def is_console(self) -> bool:
         """Returns true if the connected ResInsight instance is a console app"""
-        return self.app.GetRuntimeInfo(
-            Empty()
-        ).app_type == App_pb2.ApplicationTypeEnum.Value("CONSOLE_APPLICATION")
+        return bool(
+            self.app.GetRuntimeInfo(Empty()).app_type
+            == App_pb2.ApplicationTypeEnum.Value("CONSOLE_APPLICATION")
+        )
 
     def is_gui(self) -> bool:
         """Returns true if the connected ResInsight instance is a GUI app"""
-        return self.app.GetRuntimeInfo(
-            Empty()
-        ).app_type == App_pb2.ApplicationTypeEnum.Value("GUI_APPLICATION")
+        return bool(
+            self.app.GetRuntimeInfo(Empty()).app_type
+            == App_pb2.ApplicationTypeEnum.Value("GUI_APPLICATION")
+        )
