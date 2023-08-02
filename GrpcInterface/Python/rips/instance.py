@@ -95,7 +95,7 @@ class Instance:
         console: bool = False,
         launch_port: int = -1,
         command_line_parameters: List[str] = [],
-    ) -> Optional[Self]:
+    ) -> Optional[Instance]:
         """Launch a new Instance of ResInsight. This requires the environment variable
         RESINSIGHT_EXECUTABLE to be set or the parameter resinsight_executable to be provided.
         The RESINSIGHT_GRPC_PORT environment variable can be set to an alternative port number.
@@ -162,7 +162,7 @@ class Instance:
         return None
 
     @staticmethod
-    def find(start_port: int = 50051, end_port: int = 50071) -> Optional[Self]:
+    def find(start_port: int = 50051, end_port: int = 50071) -> Optional[Instance]:
         """Search for an existing Instance of ResInsight by testing ports.
 
         By default we search from port 50051 to 50071 or if the environment
