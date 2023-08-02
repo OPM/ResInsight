@@ -45,8 +45,8 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
 
-#include <cvfColor3.h>
-#include <cvfVector3.h>
+#include "cvfColor3.h"
+#include "cvfVector3.h"
 
 #include <QRegularExpression>
 #include <QTextStream>
