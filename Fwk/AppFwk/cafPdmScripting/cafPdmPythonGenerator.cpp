@@ -38,15 +38,14 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectFactory.h"
 #include "cafPdmObjectMethod.h"
 #include "cafPdmObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
-
-#include "cvfColor3.h"
-#include "cvfVector3.h"
 
 #include <QRegularExpression>
 #include <QTextStream>
