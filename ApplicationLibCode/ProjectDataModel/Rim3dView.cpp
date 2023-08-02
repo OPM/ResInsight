@@ -775,7 +775,7 @@ void Rim3dView::setDefaultView()
 {
     if ( m_viewer )
     {
-        m_viewer->setDefaultView();
+        m_viewer->setDefaultView( -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS );
     }
 }
 
@@ -1778,4 +1778,11 @@ void Rim3dView::onUpdateScaleTransform()
 
         if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateSurfacesInViewTreeItems()
+{
 }

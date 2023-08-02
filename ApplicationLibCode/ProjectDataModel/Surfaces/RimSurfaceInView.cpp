@@ -235,7 +235,7 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( scheduleRedraw )
     {
-        auto ownerView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
+        auto ownerView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
 }

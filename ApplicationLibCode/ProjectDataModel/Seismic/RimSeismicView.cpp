@@ -486,3 +486,14 @@ cvf::ref<RigPolyLinesData> RimSeismicView::polyLinesData() const
 
     return pld;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicView::setDefaultView()
+{
+    if ( viewer() )
+    {
+        viewer()->setDefaultView( cvf::Vec3d::Y_AXIS, cvf::Vec3d::Z_AXIS );
+    }
+}

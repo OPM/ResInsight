@@ -187,6 +187,8 @@ public:
     RimViewLinker*     assosiatedViewLinker() const override;
     RimViewController* viewController() const override;
 
+    virtual void updateSurfacesInViewTreeItems();
+
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
 
