@@ -43,7 +43,7 @@ if(CAF_CVF_SCRIPTING)
     cafPdmFieldScriptingCapabilityCvfVec3d.h
     cafPdmFieldScriptingCapabilityCvfVec3d.cpp
   )
-  list(APPEND CAF_LIBS cafPdmCvf)
+  list(APPEND CAF_LIBS cafPdmCvf LibCore)
 endif()
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})
