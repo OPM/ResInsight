@@ -66,7 +66,7 @@ RimSeismicView::RimSeismicView()
 
     CAF_PDM_InitFieldNoDefault( &m_overlayInfoConfig, "OverlayInfoConfig", "Info Box" );
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
-    // m_overlayInfoConfig->setReservoirView( this );
+    m_overlayInfoConfig->setReservoirView( this );
     m_overlayInfoConfig.uiCapability()->setUiTreeHidden( true );
 
     m_scaleTransform = new cvf::Transform();
@@ -90,6 +90,14 @@ RimSeismicView::~RimSeismicView()
 void RimSeismicView::setSeismicData( RimSeismicData* data )
 {
     m_seismicData = data;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicData* RimSeismicView::seismicData() const
+{
+    return m_seismicData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,7 +209,7 @@ cvf::BoundingBox RimSeismicView::domainBoundingBox()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if (changedField == &m_seismicData)
+    if ( changedField == &m_seismicData )
     {
         updateGridBoxData();
         scheduleCreateDisplayModelAndRedraw();
@@ -230,7 +238,7 @@ void RimSeismicView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    // uiTreeOrdering.add( m_overlayInfoConfig() );
+    uiTreeOrdering.add( m_overlayInfoConfig() );
 
     uiTreeOrdering.add( seismicSectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
@@ -289,7 +297,7 @@ void RimSeismicView::onCreateDisplayModel()
 
     if ( m_seismicData ) nativeOrOverrideViewer()->setPointOfInterest( m_seismicData->boundingBox()->center() );
 
-    // m_overlayInfoConfig()->update3DInfo();
+    m_overlayInfoConfig()->update3DInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -528,4 +536,32 @@ double RimSeismicView::characteristicCellSize() const
     }
 
     return Rim3dView::characteristicCellSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigHistogramData RimSeismicView::histogramData()
+{
+    RigHistogramData histData;
+
+    if ( m_seismicData )
+    {
+        auto xvals = m_seismicData->histogramXvalues();
+        auto yvals = m_seismicData->histogramYvalues();
+
+        histData.min  = xvals.front();
+        histData.max  = xvals.back();
+        histData.mean = 0.0;
+        histData.sum  = 0.0;
+
+        histData.histogram.resize( yvals.size() );
+
+        int i = 0;
+        for ( auto val : yvals )
+        {
+            histData.histogram[i++] = (size_t)val;
+        }
+    }
+    return histData;
 }

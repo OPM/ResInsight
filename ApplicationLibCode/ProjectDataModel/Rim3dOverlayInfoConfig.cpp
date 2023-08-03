@@ -55,7 +55,10 @@
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimGridView.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSeismicView.h"
+#include "RimSeismicData.h"
 #include "RimSimWellInViewCollection.h"
 
 #include "RiuViewer.h"
@@ -157,6 +160,7 @@ RigHistogramData Rim3dOverlayInfoConfig::histogramData()
     auto geoMechView       = dynamic_cast<RimGeoMechView*>( m_viewDef.p() );
     auto eclipseContourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
     auto geoMechContourMap = dynamic_cast<RimGeoMechContourMapView*>( geoMechView );
+    auto seismicView       = dynamic_cast<RimSeismicView*>( m_viewDef.p() );
 
     if ( eclipseContourMap )
         return m_histogramCalculator->histogramData( eclipseContourMap );
@@ -166,6 +170,10 @@ RigHistogramData Rim3dOverlayInfoConfig::histogramData()
         return m_histogramCalculator->histogramData( eclipseView, m_statisticsCellRange(), m_statisticsTimeRange() );
     else if ( geoMechView )
         return m_histogramCalculator->histogramData( geoMechView, m_statisticsCellRange(), m_statisticsTimeRange() );
+    else if (seismicView)
+    {
+        return seismicView->histogramData();
+    }
     return RigHistogramData();
 }
 
@@ -188,10 +196,14 @@ QString Rim3dOverlayInfoConfig::timeStepText()
 QString Rim3dOverlayInfoConfig::caseInfoText()
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>( m_viewDef.p() );
-    auto geoMechView = dynamic_cast<RimGeoMechView*>( m_viewDef.p() );
-
     if ( eclipseView ) return caseInfoText( eclipseView );
+
+    auto geoMechView = dynamic_cast<RimGeoMechView*>( m_viewDef.p() );
     if ( geoMechView ) return caseInfoText( geoMechView );
+
+    auto seisView = dynamic_cast<RimSeismicView*>( m_viewDef.p() );
+    if ( seisView ) return caseInfoText( seisView );
+
     return "";
 }
 
@@ -391,6 +403,37 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimGeoMechView* geoMechView )
             }
         }
     }
+    return infoText;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::caseInfoText( RimSeismicView* seisView )
+{
+    QString infoText;
+
+    if (seisView)
+    {
+        auto seisData = seisView->seismicData();
+
+        if ( seisData )
+        {
+            QString depthRange = QString( "%1 to %2" ).arg( seisData->zMin() ).arg( seisData->zMax() );
+            QString zScale     = QString::number( seisView->scaleZ() );
+            QString ilineRange = QString( "%1 to %2" ).arg( seisData->inlineMin() ).arg( seisData->inlineMax() );
+            QString xlineRange = QString( "%1 to %2" ).arg( seisData->xlineMin() ).arg( seisData->xlineMax() );
+            QString seisName   = QString::fromStdString(seisData->userDescription());
+
+            infoText = QString( "<p><b>-- %1 --</b><p>"
+                                "<b>Depth Range:</b> %2 <b>Z-Scale:</b> %3<br>"
+                                "<b>Inline Range:</b> %4 <br>"
+                                "<b>Xline Range:</b> %5 <br>" )
+                           .arg( seisName, depthRange, zScale, ilineRange,xlineRange );
+        }
+    }
+
     return infoText;
 }
 
@@ -669,7 +712,8 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::showStatisticsInfoDialog( bool raise )
 {
-    if ( m_viewDef )
+    auto gridView = dynamic_cast<RimGridView*>( m_viewDef.p() );
+    if ( gridView )
     {
         RicGridStatisticsDialog* dialog = getOrCreateGridStatisticsDialog();
         // Show dialog before setting data due to text edit auto height setting
@@ -677,7 +721,7 @@ void Rim3dOverlayInfoConfig::showStatisticsInfoDialog( bool raise )
         dialog->show();
 
         dialog->setLabel( "Grid statistics" );
-        dialog->updateFromRimView( m_viewDef );
+        dialog->updateFromRimView( gridView );
 
         if ( raise )
         {
@@ -735,7 +779,6 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( m_viewDef.p() );
-
     if ( geoMechView )
     {
         m_showVolumeWeightedMean = false;
@@ -744,6 +787,15 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
         // Update statistics dialog
         getOrCreateGridStatisticsDialog()->updateFromRimView( geoMechView );
+    }
+
+    RimSeismicView* seisView = dynamic_cast<RimSeismicView*>( m_viewDef.p() );
+    if (seisView)
+    {
+        m_showVolumeWeightedMean = false;
+        m_showAnimProgress       = false;
+
+        updateSeismicInfo( seisView );
     }
 
     update3DInfoIn2dViews();
@@ -763,6 +815,17 @@ caf::PdmFieldHandle* Rim3dOverlayInfoConfig::objectToggleField()
 void Rim3dOverlayInfoConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* visGroup = uiOrdering.addNewGroup( "Visibility" );
+
+    RimSeismicView* seisView = dynamic_cast<RimSeismicView*>( m_viewDef.p() );
+    if ( seisView )
+    {
+        visGroup->add( &m_showCaseInfo );
+        visGroup->add( &m_showHistogram );
+        visGroup->add( &m_showVersionInfo );
+
+        uiOrdering.skipRemainingFields( true );
+        return;
+    }
 
     RimEclipseView*           eclipseView = dynamic_cast<RimEclipseView*>( m_viewDef.p() );
     RimEclipseContourMapView* contourMap  = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
@@ -816,7 +879,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::setReservoirView( RimGridView* ownerReservoirView )
+void Rim3dOverlayInfoConfig::setReservoirView( Rim3dView* ownerReservoirView )
 {
     m_viewDef = ownerReservoirView;
 }
@@ -907,6 +970,41 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
             geoMechView->viewer()->showHistogram( true );
             geoMechView->viewer()->setHistogram( histData.min, histData.max, histData.histogram );
             geoMechView->viewer()->setHistogramPercentiles( histData.p90, histData.p10, histData.mean );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dOverlayInfoConfig::updateSeismicInfo( RimSeismicView* seisView )
+{
+    RigHistogramData histData;
+
+    if ( m_showResultInfo() || m_showHistogram() )
+    {
+        histData = seisView->histogramData( );
+    }
+
+    // Compose text
+
+    QString infoText;
+
+    if ( m_showCaseInfo() )
+    {
+        infoText = caseInfoText( seisView );
+    }
+
+    seisView->viewer()->setInfoText( infoText );
+
+    // Populate histogram
+
+    if ( m_showHistogram() )
+    {
+        if ( histData.isHistogramVectorValid() )
+        {
+            seisView->viewer()->showHistogram( true );
+            seisView->viewer()->setHistogram( histData.min, histData.max, histData.histogram );
         }
     }
 }
@@ -1009,11 +1107,13 @@ void Rim3dOverlayInfoConfig::displayPropertyFilteredStatisticsMessage( bool show
 //--------------------------------------------------------------------------------------------------
 bool Rim3dOverlayInfoConfig::hasInvalidStatisticsCombination()
 {
-    if ( m_viewDef->propertyFilterCollection() && m_viewDef->propertyFilterCollection()->hasActiveDynamicFilters() &&
+    auto gridView = dynamic_cast<RimGridView*>( m_viewDef.p() );
+
+    if ( gridView && gridView->propertyFilterCollection() && gridView->propertyFilterCollection()->hasActiveDynamicFilters() &&
          m_statisticsCellRange() == RimHistogramCalculator::StatisticsCellRangeType::VISIBLE_CELLS &&
          m_statisticsTimeRange() == RimHistogramCalculator::StatisticsTimeRangeType::ALL_TIMESTEPS )
     {
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_viewDef.p() );
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( gridView );
         if ( !( eclipseView && eclipseView->cellResult()->isFlowDiagOrInjectionFlooding() ) ) // If
                                                                                               // isFlowDiagOrInjFlooding
                                                                                               // then skip this check as
