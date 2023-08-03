@@ -376,7 +376,7 @@ void Rim3dView::updateViewWidgetAfterCreation()
 
     m_viewer->setDefaultPerspectiveNearPlaneDistance( 10 );
 
-    this->onResetLegendsInViewer();
+    onResetLegendsInViewer();
 
     m_viewer->updateNavigationPolicy();
     m_viewer->enablePerfInfoHud( RiaPreferencesSystem::current()->show3dInformation() );
@@ -387,9 +387,9 @@ void Rim3dView::updateViewWidgetAfterCreation()
 
     m_viewer->mainCamera()->viewport()->setClearColor( cvf::Color4f( backgroundColor() ) );
 
-    this->updateGridBoxData();
-    this->updateAnnotationItems();
-    this->createHighlightAndGridBoxDisplayModel();
+    updateGridBoxData();
+    updateAnnotationItems();
+    createHighlightAndGridBoxDisplayModel();
 
     m_viewer->update();
 }
@@ -1320,7 +1320,7 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
         nativeOrOverrideViewer()->addStaticModelOnce( m_highlightVizModel.p(), isUsingOverrideViewer() );
     }
 
-    this->updateGridBoxData();
+    updateGridBoxData();
 
     if ( viewer() ) viewer()->showGridBox( m_showGridBox() );
 }

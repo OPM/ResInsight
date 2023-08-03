@@ -371,30 +371,30 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 
     if ( changedField == &m_showInvalidCells )
     {
-        this->scheduleGeometryRegen( INACTIVE );
-        this->scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
+        scheduleGeometryRegen( INACTIVE );
+        scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
 
         scheduleCreateDisplayModelAndRedraw();
     }
     else if ( changedField == &m_showInactiveCells )
     {
-        this->updateGridBoxData();
+        updateGridBoxData();
 
-        this->scheduleGeometryRegen( INACTIVE );
-        this->scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
+        scheduleGeometryRegen( INACTIVE );
+        scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
 
         scheduleCreateDisplayModelAndRedraw();
     }
     else if ( changedField == &m_cellFilterCollection )
     {
-        this->scheduleGeometryRegen( RANGE_FILTERED );
-        this->scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
+        scheduleGeometryRegen( RANGE_FILTERED );
+        scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
 
         scheduleCreateDisplayModelAndRedraw();
     }
     else if ( changedField == &m_propertyFilterCollection )
     {
-        this->scheduleGeometryRegen( PROPERTY_FILTERED );
+        scheduleGeometryRegen( PROPERTY_FILTERED );
 
         scheduleCreateDisplayModelAndRedraw();
     }

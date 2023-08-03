@@ -87,14 +87,6 @@ RimSeismicView::~RimSeismicView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::initAfterRead()
-{
-    Rim3dView::initAfterRead();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSeismicView::setSeismicData( RimSeismicData* data )
 {
     m_seismicData = data;
@@ -187,6 +179,7 @@ std::vector<RimLegendConfig*> RimSeismicView::legendConfigs() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::scheduleGeometryRegen( RivCellSetEnum geometryType )
 {
+    // no need do do anything here
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,7 +201,15 @@ cvf::BoundingBox RimSeismicView::domainBoundingBox()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
+    if (changedField == &m_seismicData)
+    {
+        updateGridBoxData();
+        scheduleCreateDisplayModelAndRedraw();
+    }
+    else
+    {
+        Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
