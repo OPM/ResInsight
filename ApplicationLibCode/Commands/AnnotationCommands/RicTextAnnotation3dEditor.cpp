@@ -102,7 +102,7 @@ void RicTextAnnotation3dEditor::configureAndUpdateUi( const QString& uiConfigNam
     }
 
     cvf::ref<caf::DisplayCoordTransform> dispXf     = view->displayCoordTransform();
-    double                               handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
+    double                               handleSize = 0.7 * view->characteristicCellSize();
 
     cvf::Vec3d labelPos( textAnnot->m_labelPointXyd() );
     labelPos.z() *= -1.0;

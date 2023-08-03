@@ -78,7 +78,7 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t frameIndex, const caf::Displ
 
     RimSimWellInView* well = m_rimWell;
 
-    double characteristicCellSize = viewWithSettings()->ownerCase()->characteristicCellSize();
+    double characteristicCellSize = viewWithSettings()->characteristicCellSize();
 
     cvf::Vec3d whEndPos;
     cvf::Vec3d whStartPos;

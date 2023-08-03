@@ -98,7 +98,7 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigNam
     }
 
     cvf::ref<caf::DisplayCoordTransform> dispXf     = view->displayCoordTransform();
-    double                               handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
+    double                               handleSize = 0.7 * view->characteristicCellSize();
 
     m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() ) );
     // m_manipulator->setTangent(target->tangent());

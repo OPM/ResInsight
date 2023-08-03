@@ -125,6 +125,7 @@ public:
     void         setShowGridBox( bool showGridBox );
     virtual bool isShowingActiveCellsOnly();
     virtual bool isGridVisualizationMode() const = 0;
+    virtual double characteristicCellSize() const;
 
     void         setBackgroundColor( const cvf::Color3f& newBackgroundColor );
     cvf::Color3f backgroundColor() const override; // Implementation of RiuViewerToViewInterface

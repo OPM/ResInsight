@@ -1785,4 +1785,18 @@ void Rim3dView::onUpdateScaleTransform()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateSurfacesInViewTreeItems()
 {
+    // default is to do nothing
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim3dView::characteristicCellSize() const
+{
+    if (ownerCase())
+    {
+        return ownerCase()->characteristicCellSize();
+    }
+
+    return 1.0;
 }

@@ -111,7 +111,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
 
     cvf::ref<caf::DisplayCoordTransform> dispXf     = view->displayCoordTransform();
-    double                               handleSize = view->ownerCase()->characteristicCellSize() * geomDef->wellTargetScalingFactor();
+    double                               handleSize = view->characteristicCellSize() * geomDef->wellTargetScalingFactor();
 
     m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->anchorPointXyz() ) );
     m_manipulator->setTangent( target->tangent() );

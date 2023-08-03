@@ -563,9 +563,9 @@ void Rim2dIntersectionView::onCreateDisplayModel()
         {
             m_flatWellpathPartMgr = new RivWellPathPartMgr( m_intersection->wellPath(), settingsView );
             m_flatWellpathPartMgr->appendFlattenedStaticGeometryPartsToModel( m_intersectionVizModel.p(),
-                                                                              this->displayCoordTransform().p(),
-                                                                              this->ownerCase()->characteristicCellSize(),
-                                                                              this->ownerCase()->activeCellsBoundingBox() );
+                                                                              displayCoordTransform().p(),
+                                                                              ownerCase()->characteristicCellSize(),
+                                                                              ownerCase()->activeCellsBoundingBox() );
         }
     }
 
