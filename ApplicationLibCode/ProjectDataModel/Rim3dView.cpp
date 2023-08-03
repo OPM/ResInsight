@@ -1793,7 +1793,7 @@ void Rim3dView::updateSurfacesInViewTreeItems()
 //--------------------------------------------------------------------------------------------------
 double Rim3dView::characteristicCellSize() const
 {
-    if (ownerCase())
+    if ( ownerCase() )
     {
         return ownerCase()->characteristicCellSize();
     }

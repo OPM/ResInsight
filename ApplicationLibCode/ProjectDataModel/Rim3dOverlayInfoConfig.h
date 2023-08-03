@@ -39,8 +39,9 @@ class RimGeoMechContourMapView;
 class RimEclipseContourMapView;
 class RimEclipseView;
 class RimGeoMechView;
-class RimGridView;
+class Rim3dView;
 class RicGridStatisticsDialog;
+class RimSeismicView;
 
 //==================================================================================================
 ///
@@ -56,7 +57,7 @@ public:
 
     void update3DInfo();
 
-    void setReservoirView( RimGridView* ownerView );
+    void setReservoirView( Rim3dView* ownerView );
 
     void setPosition( cvf::Vec2ui position );
 
@@ -82,11 +83,13 @@ private:
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                 updateEclipse3DInfo( RimEclipseView* reservoirView );
     void                 updateGeoMech3DInfo( RimGeoMechView* geoMechView );
+    void                 updateSeismicInfo( RimSeismicView* seisView );
     void                 update3DInfoIn2dViews() const;
     QString              timeStepText( RimEclipseView* eclipseView );
     QString              timeStepText( RimGeoMechView* geoMechView );
     QString              caseInfoText( RimEclipseView* eclipseView );
     QString              caseInfoText( RimGeoMechView* geoMechView );
+    QString              caseInfoText( RimSeismicView* seisView );
     QString              resultInfoText( const RigHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
     QString              resultInfoText( const RigHistogramData& histData, RimGeoMechView* geoMechView );
 
@@ -107,7 +110,7 @@ private:
     caf::PdmField<caf::AppEnum<RimHistogramCalculator::StatisticsTimeRangeType>> m_statisticsTimeRange;
     caf::PdmField<caf::AppEnum<RimHistogramCalculator::StatisticsCellRangeType>> m_statisticsCellRange;
 
-    caf::PdmPointer<RimGridView> m_viewDef;
+    caf::PdmPointer<Rim3dView> m_viewDef;
     cvf::Vec2ui                  m_position;
 
     std::unique_ptr<RimHistogramCalculator> m_histogramCalculator;

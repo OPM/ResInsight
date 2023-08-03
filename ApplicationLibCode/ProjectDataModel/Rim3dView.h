@@ -117,14 +117,14 @@ public:
 
     virtual RiaDefines::View3dContent viewContent() const = 0;
 
-    void         setMeshOnlyDrawstyle();
-    void         setMeshSurfDrawstyle();
-    void         setSurfOnlyDrawstyle();
-    void         setFaultMeshSurfDrawstyle();
-    void         setSurfaceDrawstyle();
-    void         setShowGridBox( bool showGridBox );
-    virtual bool isShowingActiveCellsOnly();
-    virtual bool isGridVisualizationMode() const = 0;
+    void           setMeshOnlyDrawstyle();
+    void           setMeshSurfDrawstyle();
+    void           setSurfOnlyDrawstyle();
+    void           setFaultMeshSurfDrawstyle();
+    void           setSurfaceDrawstyle();
+    void           setShowGridBox( bool showGridBox );
+    virtual bool   isShowingActiveCellsOnly();
+    virtual bool   isGridVisualizationMode() const = 0;
     virtual double characteristicCellSize() const;
 
     void         setBackgroundColor( const cvf::Color3f& newBackgroundColor );

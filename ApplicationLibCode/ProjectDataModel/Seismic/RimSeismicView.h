@@ -32,6 +32,7 @@ class RimSurfaceInViewCollection;
 class RimSeismicSectionCollection;
 class Rim3dOverlayInfoConfig;
 class RivPolylinePartMgr;
+class RigHistogramData;
 
 class RimSeismicView : public Rim3dView, public RimPolylinesDataInterface
 {
@@ -42,6 +43,8 @@ public:
     ~RimSeismicView() override;
 
     void setSeismicData( RimSeismicData* data );
+    RimSeismicData* seismicData() const;
+
     void addSlice( RiaDefines::SeismicSectionType sectionType );
 
     RimSurfaceInViewCollection*  surfaceInViewCollection() const;
@@ -57,6 +60,7 @@ public:
     cvf::BoundingBox domainBoundingBox() override;
     void             updateGridBoxData() override;
     double           characteristicCellSize() const override;
+    RigHistogramData histogramData();
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
