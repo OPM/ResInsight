@@ -57,8 +57,8 @@
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimSeismicView.h"
 #include "RimSeismicData.h"
+#include "RimSeismicView.h"
 #include "RimSimWellInViewCollection.h"
 
 #include "RiuViewer.h"
@@ -170,7 +170,7 @@ RigHistogramData Rim3dOverlayInfoConfig::histogramData()
         return m_histogramCalculator->histogramData( eclipseView, m_statisticsCellRange(), m_statisticsTimeRange() );
     else if ( geoMechView )
         return m_histogramCalculator->histogramData( geoMechView, m_statisticsCellRange(), m_statisticsTimeRange() );
-    else if (seismicView)
+    else if ( seismicView )
     {
         return seismicView->histogramData();
     }
@@ -406,7 +406,6 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimGeoMechView* geoMechView )
     return infoText;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -414,7 +413,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimSeismicView* seisView )
 {
     QString infoText;
 
-    if (seisView)
+    if ( seisView )
     {
         auto seisData = seisView->seismicData();
 
@@ -424,13 +423,13 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimSeismicView* seisView )
             QString zScale     = QString::number( seisView->scaleZ() );
             QString ilineRange = QString( "%1 to %2" ).arg( seisData->inlineMin() ).arg( seisData->inlineMax() );
             QString xlineRange = QString( "%1 to %2" ).arg( seisData->xlineMin() ).arg( seisData->xlineMax() );
-            QString seisName   = QString::fromStdString(seisData->userDescription());
+            QString seisName   = QString::fromStdString( seisData->userDescription() );
 
             infoText = QString( "<p><b>-- %1 --</b><p>"
                                 "<b>Depth Range:</b> %2 <b>Z-Scale:</b> %3<br>"
                                 "<b>Inline Range:</b> %4 <br>"
                                 "<b>Xline Range:</b> %5 <br>" )
-                           .arg( seisName, depthRange, zScale, ilineRange,xlineRange );
+                           .arg( seisName, depthRange, zScale, ilineRange, xlineRange );
         }
     }
 
@@ -790,7 +789,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     }
 
     RimSeismicView* seisView = dynamic_cast<RimSeismicView*>( m_viewDef.p() );
-    if (seisView)
+    if ( seisView )
     {
         m_showVolumeWeightedMean = false;
         m_showAnimProgress       = false;
@@ -983,7 +982,7 @@ void Rim3dOverlayInfoConfig::updateSeismicInfo( RimSeismicView* seisView )
 
     if ( m_showResultInfo() || m_showHistogram() )
     {
-        histData = seisView->histogramData( );
+        histData = seisView->histogramData();
     }
 
     // Compose text

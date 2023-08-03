@@ -111,7 +111,7 @@ private:
     caf::PdmField<caf::AppEnum<RimHistogramCalculator::StatisticsCellRangeType>> m_statisticsCellRange;
 
     caf::PdmPointer<Rim3dView> m_viewDef;
-    cvf::Vec2ui                  m_position;
+    cvf::Vec2ui                m_position;
 
     std::unique_ptr<RimHistogramCalculator> m_histogramCalculator;
 
