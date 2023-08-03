@@ -68,6 +68,8 @@
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimScriptCollection.h"
+#include "RimSeismicView.h"
+#include "RimSeismicViewCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanModel.h"
@@ -667,6 +669,14 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     for ( RimCase* cas : casesToLoad )
     {
         cas->intersectionViewCollection()->syncFromExistingIntersections( false );
+    }
+
+    for ( RimOilField* oilField : m_project->oilFields )
+    {
+        for ( auto seisView : oilField->seismicViewCollection()->views() )
+        {
+            seisView->loadDataAndUpdate();
+        }
     }
 
     // Init summary case groups
