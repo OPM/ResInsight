@@ -42,7 +42,7 @@ public:
     RimSeismicView();
     ~RimSeismicView() override;
 
-    void setSeismicData( RimSeismicData* data );
+    void            setSeismicData( RimSeismicData* data );
     RimSeismicData* seismicData() const;
 
     void addSlice( RiaDefines::SeismicSectionType sectionType );
