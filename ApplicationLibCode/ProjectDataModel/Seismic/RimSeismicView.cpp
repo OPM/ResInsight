@@ -201,7 +201,7 @@ cvf::BoundingBox RimSeismicView::domainBoundingBox()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if (changedField == &m_seismicData)
+    if ( changedField == &m_seismicData )
     {
         updateGridBoxData();
         scheduleCreateDisplayModelAndRedraw();
