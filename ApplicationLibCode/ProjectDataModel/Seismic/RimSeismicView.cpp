@@ -515,3 +515,16 @@ QList<caf::PdmOptionItemInfo> RimSeismicView::calculateValueOptions( const caf::
 
     return options;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSeismicView::characteristicCellSize() const
+{
+    if ( m_seismicData != nullptr )
+    {
+        return m_seismicData->inlineSpacing();
+    }
+
+    return Rim3dView::characteristicCellSize();
+}

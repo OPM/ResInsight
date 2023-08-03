@@ -56,6 +56,7 @@ public:
 
     cvf::BoundingBox domainBoundingBox() override;
     void             updateGridBoxData() override;
+    double           characteristicCellSize() const override;
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
