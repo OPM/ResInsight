@@ -48,7 +48,7 @@ CAF_CMD_SOURCE_INIT( RicNewFaultReactModelingFeature, "RicNewFaultReactModelingF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewFaultReactModelingFeature::isCommandEnabled()
+bool RicNewFaultReactModelingFeature::isCommandEnabled() const
 {
     return RiaPreferencesGeoMech::current()->validateFRMSettings();
 }
