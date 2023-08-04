@@ -53,11 +53,11 @@ RimPlotTemplateFileItem::~RimPlotTemplateFileItem()
 void RimPlotTemplateFileItem::setFilePath( const QString& filePath )
 {
     QFileInfo fi( filePath );
-    this->uiCapability()->setUiName( fi.baseName() );
+    uiCapability()->setUiName( fi.baseName() );
 
     m_absoluteFileName = filePath;
 
-    if ( isEnsembleTemplate() ) this->uiCapability()->setUiIcon( caf::IconProvider( ":/plot-template-ensemble.svg" ) );
+    if ( isEnsembleTemplate() ) uiCapability()->setUiIcon( caf::IconProvider( ":/plot-template-ensemble.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ bool RimPlotTemplateFileItem::isEnsembleTemplate() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotTemplateFileItem::updateIconState()
 {
-    caf::IconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = uiIconProvider();
     if ( !iconProvider.valid() ) return;
 
     if ( isDefaultTemplate() )
@@ -93,7 +93,7 @@ void RimPlotTemplateFileItem::updateIconState()
         iconProvider.setOverlayResourceString( "" );
     }
 
-    this->setUiIcon( iconProvider );
+    setUiIcon( iconProvider );
 }
 
 //--------------------------------------------------------------------------------------------------

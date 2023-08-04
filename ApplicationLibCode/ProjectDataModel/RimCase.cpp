@@ -123,8 +123,8 @@ void RimCase::setGridFileName( const QString& fileName )
 {
     m_caseFileName.v().setPath( fileName );
 
-    this->updateAutoShortName();
-    this->updateTreeItemName();
+    updateAutoShortName();
+    updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ std::vector<Rim3dView*> RimCase::views() const
 {
     if ( m_isInActiveDestruction ) return std::vector<Rim3dView*>();
 
-    std::vector<Rim3dView*>             allViews   = this->allSpecialViews();
+    std::vector<Rim3dView*>             allViews   = allSpecialViews();
     std::vector<Rim2dIntersectionView*> isectViews = m_2dIntersectionViewCollection->views();
 
     for ( auto view : isectViews )

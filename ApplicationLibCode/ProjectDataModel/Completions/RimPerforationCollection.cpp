@@ -43,7 +43,7 @@ RimPerforationCollection::RimPerforationCollection()
     CAF_PDM_InitObject( "Perforations", ":/PerforationIntervals16x16.png" );
 
     nameField()->uiCapability()->setUiHidden( true );
-    this->setName( "Perforations" );
+    setName( "Perforations" );
 
     CAF_PDM_InitFieldNoDefault( &m_perforations, "Perforations", "Perforations" );
     m_perforations.uiCapability()->setUiTreeHidden( true );

@@ -103,9 +103,9 @@ void RimViewWindow::removeMdiWindowFromMdiArea()
 //--------------------------------------------------------------------------------------------------
 QString RimViewWindow::windowTitle()
 {
-    if ( this->userDescriptionField() )
+    if ( userDescriptionField() )
     {
-        caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
+        caf::PdmUiFieldHandle* uiFieldHandle = userDescriptionField()->uiCapability();
         if ( uiFieldHandle )
         {
             QVariant v = uiFieldHandle->uiValue();

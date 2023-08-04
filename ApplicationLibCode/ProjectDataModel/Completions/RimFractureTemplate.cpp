@@ -877,7 +877,7 @@ void RimFractureTemplate::loadDataAndUpdateGeometryHasChanged()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFracture*> RimFractureTemplate::fracturesUsingThisTemplate() const
 {
-    return this->objectsWithReferringPtrFieldsOfType<RimFracture>();
+    return objectsWithReferringPtrFieldsOfType<RimFracture>();
 }
 
 //--------------------------------------------------------------------------------------------------

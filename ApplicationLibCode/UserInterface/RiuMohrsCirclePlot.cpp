@@ -81,9 +81,9 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot( QWidget* parent )
     // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.
     QwtLegend* legend = new QwtLegend( this );
-    this->insertLegend( legend, BottomLegend );
+    insertLegend( legend, BottomLegend );
 
-    // this->setTitle(QString("SE"));
+    // setTitle(QString("SE"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void RiuMohrsCirclePlot::appendSelection( const RiuSelectionItem* selectionItem 
 {
     m_viewToFollowAnimationFrom = nullptr;
 
-    if ( this->isVisible() )
+    if ( isVisible() )
     {
         Rim3dView*               newFollowAnimView    = nullptr;
         RiuGeoMechSelectionItem* geoMechSelectionItem = nullptr;
@@ -132,7 +132,7 @@ void RiuMohrsCirclePlot::appendSelection( const RiuSelectionItem* selectionItem 
     }
     else
     {
-        this->clearPlot();
+        clearPlot();
     }
 }
 
@@ -145,7 +145,7 @@ void RiuMohrsCirclePlot::clearPlot()
 
     m_viewToFollowAnimationFrom = nullptr;
 
-    this->replot();
+    replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +153,7 @@ void RiuMohrsCirclePlot::clearPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::updateOnTimeStepChanged( Rim3dView* changedView )
 {
-    if ( !this->isVisible() )
+    if ( !isVisible() )
     {
         return;
     }
@@ -690,8 +690,8 @@ void RiuMohrsCirclePlot::setAxesScaleAndReplot()
         return;
     }
 
-    int canvasHeight = this->canvas()->height();
-    int canvasWidth  = this->canvas()->width();
+    int canvasHeight = canvas()->height();
+    int canvasWidth  = canvas()->width();
 
     const double minPlotWidth  = xMax - xMin;
     const double minPlotHeight = yMax;
@@ -715,10 +715,10 @@ void RiuMohrsCirclePlot::setAxesScaleAndReplot()
         yMaxDisplayed = heightToKeepAspectRatio;
     }
 
-    this->setAxisScale( QwtAxis::YLeft, 0, yMaxDisplayed );
-    this->setAxisScale( QwtAxis::XBottom, xMin, xMaxDisplayed );
+    setAxisScale( QwtAxis::YLeft, 0, yMaxDisplayed );
+    setAxisScale( QwtAxis::XBottom, xMin, xMaxDisplayed );
 
-    this->replot();
+    replot();
 }
 
 RiuGeoMechSelectionItem* RiuMohrsCirclePlot::extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem, Rim3dView*& newFollowAnimView )

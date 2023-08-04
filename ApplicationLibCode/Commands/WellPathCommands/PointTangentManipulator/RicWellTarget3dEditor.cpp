@@ -72,7 +72,7 @@ RicWellTarget3dEditor::~RicWellTarget3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    auto*      target         = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto*      target         = dynamic_cast<RimWellPathTarget*>( pdmObject() );
     auto*      ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
     Rim3dView* view           = mainOrComparisonView();
 
@@ -157,7 +157,7 @@ void RicWellTarget3dEditor::cleanupBeforeSettingPdmObject()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& tangent )
 {
-    auto*      manipulatedTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto*      manipulatedTarget = dynamic_cast<RimWellPathTarget*>( pdmObject() );
     Rim3dView* view              = mainOrComparisonView();
 
     if ( !manipulatedTarget || !view )
@@ -324,7 +324,7 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotSelectedIn3D()
 {
-    auto* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto* target = dynamic_cast<RimWellPathTarget*>( pdmObject() );
     if ( !target )
     {
         return;
@@ -338,7 +338,7 @@ void RicWellTarget3dEditor::slotSelectedIn3D()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotDragFinished()
 {
-    auto* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto* target = dynamic_cast<RimWellPathTarget*>( pdmObject() );
     if ( !target )
     {
         return;
@@ -352,7 +352,7 @@ void RicWellTarget3dEditor::slotDragFinished()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::removeAllFieldEditors()
 {
-    if ( auto* oldTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() ) )
+    if ( auto* oldTarget = dynamic_cast<RimWellPathTarget*>( pdmObject() ) )
     {
         for ( auto field : oldTarget->fieldsFor3dManipulator() )
         {

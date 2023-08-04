@@ -379,7 +379,7 @@ void RimGridTimeHistoryCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+    RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     if ( isChecked() && m_plotCurve )
     {

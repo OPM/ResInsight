@@ -745,7 +745,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         m_selectedTimeSteps.v().clear();
 
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_selectedTimeSteps )
     {
@@ -810,7 +810,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 m_yValuesSummaryCaseCollection = curveSelection[0].ensemble();
                 m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
 
-                this->loadDataAndUpdate( true );
+                loadDataAndUpdate( true );
 
                 plot->updateAxes();
                 plot->updatePlotTitle();
@@ -849,7 +849,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                     summaryAddress->setAddress( address.summaryAddress() );
                     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
-                this->loadDataAndUpdate( true );
+                loadDataAndUpdate( true );
             }
         }
 
@@ -1142,7 +1142,7 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 
     uiTreeOrdering.skipRemainingChildren( true );
 
-    caf::IconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = uiIconProvider();
     if ( !iconProvider.valid() ) return;
 
     auto coll = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
@@ -1151,7 +1151,7 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
         iconProvider.setOverlayResourceString( ":/StepUpDownCorner16x16.png" );
     }
 
-    this->setUiIcon( iconProvider );
+    setUiIcon( iconProvider );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1391,7 +1391,7 @@ RiaSummaryCurveDefinitionAnalyser* RimEnsembleCurveSet::getOrCreateSelectedCurve
     {
         m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
     }
-    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( curveDefinitions() );
     return m_analyserOfSelectedCurveDefs.get();
 }
 
@@ -1937,7 +1937,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves()
 RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
 {
     RimEnsembleCurveSet* copy =
-        dynamic_cast<RimEnsembleCurveSet*>( this->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        dynamic_cast<RimEnsembleCurveSet*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     copy->setSummaryCaseCollection( m_yValuesSummaryCaseCollection() );
 
     // Update summary case references

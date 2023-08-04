@@ -271,7 +271,7 @@ void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
             return;
         }
     }
-    this->saveWinGeoAndDockToolBarLayout();
+    saveWinGeoAndDockToolBarLayout();
     QMainWindow::closeEvent( event );
 }
 
@@ -748,7 +748,7 @@ RiuMessagePanel* RiuPlotMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
 {
-    auto dockWidget = RiuDockWidgetTools::findDockWidget( this->dockManager(), RiuDockWidgetTools::plotMainWindowPlotManagerName() );
+    auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::plotMainWindowPlotManagerName() );
     if ( dockWidget )
     {
         dockWidget->setVisible( true );
@@ -983,7 +983,7 @@ void RiuPlotMainWindow::customMenuRequested( const QPoint& pos )
 
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the
     // viewport(). Since we might get this signal from different treeViews, we need to map the position accordingly.
-    QObject*   senderObj = this->sender();
+    QObject*   senderObj = sender();
     QTreeView* treeView  = dynamic_cast<QTreeView*>( senderObj );
     if ( treeView )
     {

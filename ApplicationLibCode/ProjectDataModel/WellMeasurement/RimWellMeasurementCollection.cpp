@@ -69,7 +69,7 @@ void RimWellMeasurementCollection::updateAllCurves()
         curve->loadDataAndUpdate( true );
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insert
         m_measurements.push_back( measurement );
 
     addFilePath( measurement->filePath() );
-    this->updateAllCurves();
+    updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ void RimWellMeasurementCollection::appendMeasurement( RimWellMeasurement* measur
 {
     m_measurements.push_back( measurement );
     addFilePath( measurement->filePath() );
-    this->updateAllCurves();
+    updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measur
     m_measurements.removeChild( measurementToDelete );
     delete measurementToDelete;
 
-    this->updateAllCurves();
+    updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measur
 void RimWellMeasurementCollection::deleteAllMeasurements()
 {
     m_measurements.deleteChildren();
-    this->updateAllCurves();
+    updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,5 +262,5 @@ void RimWellMeasurementCollection::removeMeasurementsForFilePath( RimWellMeasure
     }
 
     RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
-    this->updateAllCurves();
+    updateAllCurves();
 }

@@ -146,7 +146,7 @@ caf::PdmFieldHandle* RimIntersection::objectToggleField()
 void RimIntersection::defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     QString inactiveText;
-    if ( !this->activeSeparateResultDefinition() )
+    if ( !activeSeparateResultDefinition() )
     {
         inactiveText = " (Inactive)";
     }
@@ -199,7 +199,7 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
             return new RivEclipseIntersectionGrid( eclipseCase->eclipseCaseData()->mainGrid(),
                                                    eclipseCase->eclipseCaseData()->activeCellInfo(
                                                        resDef->eclipseResultDefinition()->porosityModel() ),
-                                                   this->isInactiveCellsVisible() );
+                                                   isInactiveCellsVisible() );
         }
 
         // Geomech case
@@ -217,7 +217,7 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
     {
         RigMainGrid* grid = eclipseView->mainGrid();
 
-        return new RivEclipseIntersectionGrid( grid, eclipseView->currentActiveCellInfo(), this->isInactiveCellsVisible() );
+        return new RivEclipseIntersectionGrid( grid, eclipseView->currentActiveCellInfo(), isInactiveCellsVisible() );
     }
 
     if ( geoView && geoView->femParts() )

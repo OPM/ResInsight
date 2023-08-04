@@ -422,7 +422,7 @@ std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsem
     if ( m_cachedSortedEnsembleParameters.empty() )
     {
         std::set<QString> paramSet;
-        for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+        for ( RimSummaryCase* rimCase : allSummaryCases() )
         {
             if ( rimCase->caseRealizationParameters() != nullptr )
             {
@@ -437,7 +437,7 @@ std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsem
         m_cachedSortedEnsembleParameters.reserve( paramSet.size() );
         for ( const QString& parameterName : paramSet )
         {
-            auto ensembleParameter = this->createEnsembleParameter( parameterName );
+            auto ensembleParameter = createEnsembleParameter( parameterName );
             m_cachedSortedEnsembleParameters.push_back( ensembleParameter );
         }
         RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
@@ -620,7 +620,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 std::vector<RigEnsembleParameter> RimSummaryCaseCollection::alphabeticEnsembleParameters() const
 {
     std::set<QString> paramSet;
-    for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+    for ( RimSummaryCase* rimCase : allSummaryCases() )
     {
         if ( rimCase->caseRealizationParameters() != nullptr )
         {
@@ -636,7 +636,7 @@ std::vector<RigEnsembleParameter> RimSummaryCaseCollection::alphabeticEnsemblePa
     sortedEnsembleParameters.reserve( paramSet.size() );
     for ( const QString& parameterName : paramSet )
     {
-        sortedEnsembleParameters.push_back( this->createEnsembleParameter( parameterName ) );
+        sortedEnsembleParameters.push_back( createEnsembleParameter( parameterName ) );
     }
     return sortedEnsembleParameters;
 }
@@ -1145,7 +1145,7 @@ int RimSummaryCaseCollection::ensembleId() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCaseCollection::hasEnsembleParameters() const
 {
-    for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+    for ( RimSummaryCase* rimCase : allSummaryCases() )
     {
         if ( rimCase->caseRealizationParameters() != nullptr )
         {

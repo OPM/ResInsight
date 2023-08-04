@@ -54,7 +54,7 @@ CAF_PDM_SOURCE_INIT( RimCorrelationReportPlot, "CorrelationReportPlot" );
 RimCorrelationReportPlot::RimCorrelationReportPlot()
 {
     CAF_PDM_InitObject( "Correlation Report Plot", ":/CorrelationReportPlot16x16.png" );
-    this->setDeletable( true );
+    setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_plotWindowTitle, "PlotWindowTitle", "Title" );
     m_plotWindowTitle.registerGetMethod( this, &RimCorrelationReportPlot::createPlotWindowTitle );
@@ -91,7 +91,7 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     m_parameterResultCrossPlot = new RimParameterResultCrossPlot;
     m_parameterResultCrossPlot->setLegendsVisible( true );
 
-    this->uiCapability()->setUiTreeChildrenHidden( true );
+    uiCapability()->setUiTreeChildrenHidden( true );
 
     m_correlationMatrixPlot->matrixCellSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
     m_correlationPlot->tornadoItemSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
@@ -367,7 +367,7 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    this->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -375,7 +375,7 @@ void RimCorrelationReportPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
-    this->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

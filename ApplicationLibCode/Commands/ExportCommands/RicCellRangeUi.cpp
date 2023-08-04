@@ -212,7 +212,7 @@ void RicCellRangeUi::setDefaultValues()
     const cvf::StructGridInterface* grid = RigReservoirGridTools::gridByIndex( m_case, m_gridIndex() );
     if ( !grid ) return;
 
-    RigActiveCellInfo* actCellInfo = this->activeCellInfo();
+    RigActiveCellInfo* actCellInfo = activeCellInfo();
 
     const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( m_case );
 

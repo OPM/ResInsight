@@ -92,7 +92,7 @@ RimViewController::RimViewController()
 //--------------------------------------------------------------------------------------------------
 RimViewController::~RimViewController()
 {
-    this->removeOverrides();
+    removeOverrides();
     auto managedView = m_managedView();
     m_managedView    = nullptr;
 
@@ -113,9 +113,9 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
         proj->allNotLinkedViews( views );
 
         // Add currently linked view to list
-        if ( this->managedView() )
+        if ( managedView() )
         {
-            views.push_back( this->managedView() );
+            views.push_back( managedView() );
         }
 
         RimViewLinker* viewLinker = firstAncestorOrThisOfTypeAsserted<RimViewLinker>();
@@ -299,7 +299,7 @@ void RimViewController::updateOverrides()
             }
         }
 
-        this->updateCellFilterOverrides( nullptr );
+        updateCellFilterOverrides( nullptr );
 
         if ( manGeoView )
         {
@@ -382,44 +382,44 @@ void RimViewController::updateOptionSensitivity()
 
     if ( isMasterAndDependentViewDifferentType )
     {
-        this->m_syncCellResult.uiCapability()->setUiReadOnly( true );
-        this->m_syncCellResult = false;
+        m_syncCellResult.uiCapability()->setUiReadOnly( true );
+        m_syncCellResult = false;
 
-        this->m_syncLegendDefinitions.uiCapability()->setUiReadOnly( true );
-        this->m_syncLegendDefinitions = false;
+        m_syncLegendDefinitions.uiCapability()->setUiReadOnly( true );
+        m_syncLegendDefinitions = false;
     }
     else
     {
-        this->m_syncCellResult.uiCapability()->setUiReadOnly( false );
+        m_syncCellResult.uiCapability()->setUiReadOnly( false );
 
-        if ( this->m_syncCellResult )
+        if ( m_syncCellResult )
         {
-            this->m_syncLegendDefinitions.uiCapability()->setUiReadOnly( false );
+            m_syncLegendDefinitions.uiCapability()->setUiReadOnly( false );
         }
         else
         {
-            this->m_syncLegendDefinitions.uiCapability()->setUiReadOnly( true );
+            m_syncLegendDefinitions.uiCapability()->setUiReadOnly( true );
         }
     }
 
     if ( isPropertyFilterControlPossible() )
     {
-        this->m_syncPropertyFilters.uiCapability()->setUiReadOnly( false );
+        m_syncPropertyFilters.uiCapability()->setUiReadOnly( false );
     }
     else
     {
-        this->m_syncPropertyFilters.uiCapability()->setUiReadOnly( true );
-        this->m_syncPropertyFilters = false;
+        m_syncPropertyFilters.uiCapability()->setUiReadOnly( true );
+        m_syncPropertyFilters = false;
     }
 
     if ( m_syncCamera )
     {
-        this->m_showCursor.uiCapability()->setUiReadOnly( false );
+        m_showCursor.uiCapability()->setUiReadOnly( false );
     }
     else
     {
-        this->m_showCursor.uiCapability()->setUiReadOnly( true );
-        this->m_showCursor = false;
+        m_showCursor.uiCapability()->setUiReadOnly( true );
+        m_showCursor = false;
     }
 }
 
@@ -552,10 +552,10 @@ void RimViewController::updateDuplicatedPropertyFilters()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateCameraLink()
 {
-    if ( !this->isCameraLinked() ) return;
+    if ( !isCameraLinked() ) return;
     if ( m_managedView )
     {
-        RimViewLinker* viewLinker = this->ownerViewLinker();
+        RimViewLinker* viewLinker = ownerViewLinker();
 
         viewLinker->updateScaleZ( viewLinker->masterView(), viewLinker->masterView()->scaleZ() );
         viewLinker->updateCamera( viewLinker->masterView() );
@@ -567,11 +567,11 @@ void RimViewController::updateCameraLink()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateTimeStepLink()
 {
-    if ( !this->isTimeStepLinked() ) return;
+    if ( !isTimeStepLinked() ) return;
 
     if ( m_managedView )
     {
-        RimViewLinker* viewLinker = this->ownerViewLinker();
+        RimViewLinker* viewLinker = ownerViewLinker();
 
         viewLinker->updateTimeStep( viewLinker->masterView(), viewLinker->masterView()->currentTimeStep() );
     }
@@ -582,7 +582,7 @@ void RimViewController::updateTimeStepLink()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateResultColorsControl()
 {
-    if ( !this->isResultColorControlled() ) return;
+    if ( !isResultColorControlled() ) return;
 
     RimViewLinker* viewLinker = ownerViewLinker();
     viewLinker->updateCellResult();
@@ -593,7 +593,7 @@ void RimViewController::updateResultColorsControl()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateLegendDefinitions()
 {
-    if ( !this->isLegendDefinitionsControlled() ) return;
+    if ( !isLegendDefinitionsControlled() ) return;
 
     RimViewLinker* viewLinker = ownerViewLinker();
     viewLinker->updateCellResult();
@@ -713,20 +713,19 @@ bool RimViewController::isMasterAndDepViewDifferentType() const
 //--------------------------------------------------------------------------------------------------
 void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() const
 {
-    if ( !this->isActive() ) return;
+    if ( !isActive() ) return;
 
-    if ( this->isVisibleCellsOveridden() || this->isCellFiltersControlled() || this->isPropertyFilterOveridden() ||
-         this->isResultColorControlled() )
+    if ( isVisibleCellsOveridden() || isCellFiltersControlled() || isPropertyFilterOveridden() || isResultColorControlled() )
     {
-        if ( this->managedView() )
+        if ( managedView() )
         {
-            this->managedView()->scheduleCreateDisplayModelAndRedraw();
+            managedView()->scheduleCreateDisplayModelAndRedraw();
         }
     }
 
-    if ( this->isResultColorControlled() && this->managedView() )
+    if ( isResultColorControlled() && managedView() )
     {
-        auto gridView = dynamic_cast<RimGridView*>( this->managedView() );
+        auto gridView = dynamic_cast<RimGridView*>( managedView() );
         if ( gridView ) gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
@@ -736,19 +735,18 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() co
 //--------------------------------------------------------------------------------------------------
 void RimViewController::scheduleGeometryRegenForDepViews( RivCellSetEnum geometryType ) const
 {
-    if ( !this->isActive() ) return;
+    if ( !isActive() ) return;
 
-    if ( this->isVisibleCellsOveridden() || this->isCellFiltersControlled() || this->isPropertyFilterOveridden() ||
-         this->isResultColorControlled() )
+    if ( isVisibleCellsOveridden() || isCellFiltersControlled() || isPropertyFilterOveridden() || isResultColorControlled() )
     {
-        if ( this->managedView() )
+        if ( managedView() )
         {
-            if ( this->isVisibleCellsOveridden() )
+            if ( isVisibleCellsOveridden() )
             {
-                this->managedView()->scheduleGeometryRegen( OVERRIDDEN_CELL_VISIBILITY );
+                managedView()->scheduleGeometryRegen( OVERRIDDEN_CELL_VISIBILITY );
             }
 
-            this->managedView()->scheduleGeometryRegen( geometryType );
+            managedView()->scheduleGeometryRegen( geometryType );
         }
     }
 }
@@ -758,7 +756,7 @@ void RimViewController::scheduleGeometryRegenForDepViews( RivCellSetEnum geometr
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isActive() const
 {
-    return ownerViewLinker()->isActive() && this->m_isActive();
+    return ownerViewLinker()->isActive() && m_isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -766,7 +764,7 @@ bool RimViewController::isActive() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isCameraLinked() const
 {
-    if ( ownerViewLinker()->isActive() && this->m_isActive() )
+    if ( ownerViewLinker()->isActive() && m_isActive() )
     {
         return m_syncCamera;
     }
@@ -787,7 +785,7 @@ bool RimViewController::showCursor() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isTimeStepLinked() const
 {
-    if ( ownerViewLinker()->isActive() && this->m_isActive() )
+    if ( ownerViewLinker()->isActive() && m_isActive() )
     {
         return m_syncTimeStep;
     }
@@ -800,7 +798,7 @@ bool RimViewController::isTimeStepLinked() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isResultColorControlled() const
 {
-    if ( ownerViewLinker()->isActive() && this->m_isActive() )
+    if ( ownerViewLinker()->isActive() && m_isActive() )
     {
         return m_syncCellResult;
     }
@@ -813,7 +811,7 @@ bool RimViewController::isResultColorControlled() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isLegendDefinitionsControlled() const
 {
-    if ( ownerViewLinker()->isActive() && this->m_isActive() )
+    if ( ownerViewLinker()->isActive() && m_isActive() )
     {
         return m_syncLegendDefinitions;
     }
@@ -897,7 +895,7 @@ bool RimViewController::isPropertyFilterControlAdvisable() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isCellFiltersControlled() const
 {
-    if ( ownerViewLinker() && ownerViewLinker()->isActive() && this->m_isActive() )
+    if ( ownerViewLinker() && ownerViewLinker()->isActive() && m_isActive() )
     {
         return m_syncCellFilters;
     }
@@ -942,7 +940,7 @@ bool RimViewController::isPropertyFilterOveridden() const
 {
     if ( !isPropertyFilterControlPossible() ) return false;
 
-    if ( ownerViewLinker()->isActive() && this->m_isActive() )
+    if ( ownerViewLinker()->isActive() && m_isActive() )
     {
         return m_syncPropertyFilters;
     }

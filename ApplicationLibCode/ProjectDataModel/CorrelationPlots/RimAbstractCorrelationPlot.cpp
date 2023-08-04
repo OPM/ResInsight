@@ -53,7 +53,7 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     : m_selectMultipleVectors( false )
 {
     CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png" );
-    this->setDeletable( true );
+    setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector" );
     m_selectedVarsUiField.xmlCapability()->disableIO();
@@ -161,8 +161,8 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
                     m_dataSources.push_back( plotEntry );
                 }
                 connectAllCaseSignals();
-                this->loadDataAndUpdate();
-                this->updateConnectedEditors();
+                loadDataAndUpdate();
+                updateConnectedEditors();
             }
         }
 
@@ -170,17 +170,17 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     }
     else if ( changedField == &m_timeStep )
     {
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
+        loadDataAndUpdate();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_showPlotTitle || changedField == &m_useAutoPlotTitle || changedField == &m_description )
     {
-        this->updatePlotTitle();
+        updatePlotTitle();
     }
     else if ( changedField == &m_labelFontSize || changedField == &m_axisTitleFontSize || changedField == &m_axisValueFontSize ||
               changedField == &m_legendFontSize || changedField == &m_titleFontSize )
     {
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
     else if ( changedField == &m_timeStepFilter )
     {
@@ -196,17 +196,17 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         m_timeStep = allDateTimes[filteredTimeStepIndices.back()];
 
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_curveSetForFiltering )
     {
         connectCurveFilterSignals();
 
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
     else if ( changedField == &m_useCaseFilter )
     {
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
     else if ( changedField == &m_editCaseFilter )
     {
@@ -370,7 +370,7 @@ RiaSummaryCurveDefinitionAnalyser* RimAbstractCorrelationPlot::getOrCreateSelect
         m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
     }
 
-    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( curveDefinitions() );
     return m_analyserOfSelectedCurveDefs.get();
 }
 

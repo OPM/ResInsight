@@ -152,7 +152,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellIASettingsCollection, "WellIASettings", "Integrity Analysis Settings" );
     m_wellIASettingsCollection = new RimWellIASettingsCollection();
 
-    this->setDeletable( true );
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -826,7 +826,7 @@ double RimWellPath::combinedScaleFactor() const
 {
     RimWellPathCollection* wellPathColl = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
-    return this->m_wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
+    return m_wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1169,7 +1169,7 @@ std::vector<RimWellPath*> RimWellPath::allWellPathLaterals() const
 {
     std::vector<RimWellPath*> laterals;
 
-    this->wellPathLateralsRecursively( laterals );
+    wellPathLateralsRecursively( laterals );
 
     return laterals;
 }

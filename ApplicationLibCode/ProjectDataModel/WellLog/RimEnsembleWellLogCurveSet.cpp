@@ -513,10 +513,10 @@ void RimEnsembleWellLogCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
 {
     uiTreeOrdering.skipRemainingChildren( true );
 
-    caf::IconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = uiIconProvider();
     if ( !iconProvider.valid() ) return;
 
-    this->setUiIcon( iconProvider );
+    setUiIcon( iconProvider );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -68,7 +68,7 @@ struct WellBorePartForTransCalc
     double intersectionWithWellMeasuredDepth;
     size_t lateralIndex;
 
-    void setSourcePdmObject( const caf::PdmObject* sourcePdmObj ) { this->sourcePdmObject = const_cast<caf::PdmObject*>( sourcePdmObj ); }
+    void setSourcePdmObject( const caf::PdmObject* sourcePdmObj ) { sourcePdmObject = const_cast<caf::PdmObject*>( sourcePdmObj ); }
     caf::PdmPointer<caf::PdmObject> sourcePdmObject;
 };
 

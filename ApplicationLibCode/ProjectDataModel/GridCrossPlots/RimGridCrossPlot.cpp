@@ -477,7 +477,7 @@ RiuPlotWidget* RimGridCrossPlot::doCreatePlotViewWidget( QWidget* mainWindowPare
 
         updateCurveNamesAndPlotTitle();
 
-        this->connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
+        connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
     }
     return m_plotWidget;
 }
@@ -623,7 +623,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
 
     if ( m_plotWidget )
     {
-        QString plotTitle = this->createAutoName();
+        QString plotTitle = createAutoName();
         m_plotWidget->setPlotTitle( plotTitle );
         m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     }

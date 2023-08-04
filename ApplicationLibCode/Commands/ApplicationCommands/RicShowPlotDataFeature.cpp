@@ -217,7 +217,7 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     std::vector<RimPlotWindow*> selection;
     getSelection( selection );

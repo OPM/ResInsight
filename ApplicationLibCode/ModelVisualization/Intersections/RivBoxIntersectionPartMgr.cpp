@@ -75,7 +75,7 @@ RivBoxIntersectionPartMgr::RivBoxIntersectionPartMgr( RimBoxIntersection* inters
 void RivBoxIntersectionPartMgr::applySingleColorEffect()
 {
     m_defaultColor = cvf::Color3f::OLIVE; // m_rimCrossSection->CrossSectionColor();
-    this->updatePartEffect();
+    updatePartEffect();
 }
 
 //--------------------------------------------------------------------------------------------------

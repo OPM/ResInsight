@@ -165,7 +165,7 @@ bool RimFileSurface::loadDataFromFile()
 {
     std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> surface;
 
-    QString filePath = this->surfaceFilePath();
+    QString filePath = surfaceFilePath();
     if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
     {
         surface = RifSurfaceImporter::readPetrelFile( filePath );

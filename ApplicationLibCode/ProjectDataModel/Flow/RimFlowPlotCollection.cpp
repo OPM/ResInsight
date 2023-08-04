@@ -164,7 +164,7 @@ RimWellConnectivityTable* RimFlowPlotCollection::defaultWellConnectivityTable()
         m_defaultWellConnectivityTable = new RimWellConnectivityTable;
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return m_defaultWellConnectivityTable;
 }
@@ -180,7 +180,7 @@ RimWellAllocationOverTimePlot* RimFlowPlotCollection::defaultWellAllocOverTimePl
         m_defaultWellAllocOverTimePlot->setDescription( "Default Well Allocation Over Time Plot" );
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return m_defaultWellAllocOverTimePlot();
 }
@@ -196,7 +196,7 @@ RimWellAllocationPlot* RimFlowPlotCollection::defaultWellAllocPlot()
         m_defaultWellAllocPlot->setDescription( "Default Flow Diagnostics Plot" );
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return m_defaultWellAllocPlot();
 }
@@ -211,7 +211,7 @@ RimFlowCharacteristicsPlot* RimFlowPlotCollection::defaultFlowCharacteristicsPlo
         m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return m_flowCharacteristicsPlot();
 }

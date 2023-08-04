@@ -158,7 +158,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         }
         else
         {
-            this->addSurface( newSurface );
+            addSurface( newSurface );
             surfacesToLoad.push_back( newSurface );
             ++newSurfCount;
         }
@@ -169,7 +169,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         RiaLogging::warning( "Import Surfaces : Could not import the following files:\n" + errorMessages );
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     updateViews( surfacesToLoad, showLegend );
 
@@ -194,7 +194,7 @@ void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces, bo
         surface->reloadData();
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     updateViews( surfaces, showLegend );
 }
@@ -227,7 +227,7 @@ RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surface
         retsurf = surface;
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return retsurf;
 }
@@ -251,7 +251,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
 
     m_surfaces.push_back( s );
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     std::vector<RimSurface*> surfacesToRefresh;
     surfacesToRefresh.push_back( s );
@@ -477,7 +477,7 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
 void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
 {
     m_subCollections.push_back( subcoll );
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     updateViews();
 

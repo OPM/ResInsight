@@ -1493,7 +1493,7 @@ void RimGridCrossPlotDataSet::updateCurveNames( size_t dataSetIndex, size_t data
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::updateDataSetName()
 {
-    this->setName( createAutoName() );
+    setName( createAutoName() );
 }
 
 //--------------------------------------------------------------------------------------------------

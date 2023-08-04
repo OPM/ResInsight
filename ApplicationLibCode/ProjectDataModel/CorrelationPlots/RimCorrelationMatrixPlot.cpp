@@ -171,7 +171,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
 
     setLegendsVisible( false );
 
-    this->uiCapability()->setUiTreeChildrenHidden( true );
+    uiCapability()->setUiTreeChildrenHidden( true );
     m_selectMultipleVectors = true;
 }
 
@@ -376,8 +376,8 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 
         m_plotWidget->qwtPlot()->insertLegend( nullptr );
 
-        this->updateAxes();
-        this->updatePlotTitle();
+        updateAxes();
+        updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
 }
@@ -387,7 +387,7 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
-    this->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

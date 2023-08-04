@@ -246,7 +246,7 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
         positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath( m_measuredDepth() );
     }
 
-    this->setAnchorPosition( positionAlongWellpath );
+    setAnchorPosition( positionAlongWellpath );
 }
 
 //--------------------------------------------------------------------------------------------------

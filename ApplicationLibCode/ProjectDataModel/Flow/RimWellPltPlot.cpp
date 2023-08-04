@@ -134,7 +134,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_nameConfig->setCustomName( "PLT Plot" );
     setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
 
-    this->setAsPlotMdiWindow();
+    setAsPlotMdiWindow();
     m_doInitAfterLoad       = false;
     m_isOnLoad              = true;
     m_plotLegendsHorizontal = false;

@@ -169,7 +169,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         }
     }
 
-    this->populateReturnArrays( uniqueIntersections );
+    populateReturnArrays( uniqueIntersections );
 }
 
 //--------------------------------------------------------------------------------------------------

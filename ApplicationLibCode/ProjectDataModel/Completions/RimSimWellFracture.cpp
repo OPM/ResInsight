@@ -212,7 +212,7 @@ void RimSimWellFracture::updateFracturePositionFromLocation()
     {
         cvf::Vec3d interpolated = m_branchCenterLines[m_branchIndex()].interpolatedPointAlongWellPath( m_location() );
 
-        this->setAnchorPosition( interpolated );
+        setAnchorPosition( interpolated );
 
         RimProject* proj = RimProject::current();
         if ( proj ) proj->scheduleCreateDisplayModelAndRedrawAllViews();

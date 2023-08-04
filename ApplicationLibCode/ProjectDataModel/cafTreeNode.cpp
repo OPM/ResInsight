@@ -134,7 +134,7 @@ QString cafNamedTreeNode::name() const
 //--------------------------------------------------------------------------------------------------
 void cafNamedTreeNode::setIcon( const QString& iconResourceName )
 {
-    this->setUiIconFromResourceString( iconResourceName );
+    setUiIconFromResourceString( iconResourceName );
 }
 
 //--------------------------------------------------------------------------------------------------

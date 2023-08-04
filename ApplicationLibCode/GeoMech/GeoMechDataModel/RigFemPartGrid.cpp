@@ -481,7 +481,7 @@ void RigFemPartGrid::cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8
 cvf::Vec3d RigFemPartGrid::cellCentroid( size_t cellIndex ) const
 {
     std::array<cvf::Vec3d, 8> cellVertices;
-    this->cellCornerVertices( cellIndex, cellVertices.data() );
+    cellCornerVertices( cellIndex, cellVertices.data() );
 
     cvf::Vec3d centroid( 0.0, 0.0, 0.0 );
     for ( int i = 0; i < 8; ++i )

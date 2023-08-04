@@ -206,7 +206,7 @@ std::vector<size_t> RimFracture::getPotentiallyFracturedCells( const RigMainGrid
     std::vector<size_t> cellindecies;
     if ( !mainGrid ) return cellindecies;
 
-    cvf::BoundingBox fractureBBox = this->boundingBoxInDomainCoords();
+    cvf::BoundingBox fractureBBox = boundingBoxInDomainCoords();
 
     mainGrid->findIntersectingCells( fractureBBox, &cellindecies );
 
@@ -279,7 +279,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     }
 
     if ( changedField == &m_azimuth || changedField == &m_fractureTemplate || changedField == &m_stimPlanTimeIndexToPlot ||
-         changedField == this->objectToggleField() || changedField == &m_dip || changedField == &m_tilt || changedField == &m_perforationLength )
+         changedField == objectToggleField() || changedField == &m_dip || changedField == &m_tilt || changedField == &m_perforationLength )
     {
         clearCachedNonDarcyProperties();
 
@@ -461,7 +461,7 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords() const
     std::vector<cvf::Vec3f> nodeCoordVec;
     std::vector<cvf::uint>  triangleIndices;
 
-    this->triangleGeometryTransformed( &triangleIndices, &nodeCoordVec, true );
+    triangleGeometryTransformed( &triangleIndices, &nodeCoordVec, true );
 
     cvf::BoundingBox fractureBBox;
     for ( const auto& nodeCoord : nodeCoordVec )
@@ -902,10 +902,10 @@ void RimFracture::setFractureTemplate( RimFractureTemplate* fractureTemplate )
     }
     else
     {
-        this->updateAzimuthBasedOnWellAzimuthAngle();
+        updateAzimuthBasedOnWellAzimuthAngle();
     }
-    this->m_wellDiameter      = fractureTemplate->wellDiameter();
-    this->m_perforationLength = fractureTemplate->perforationLength();
+    m_wellDiameter      = fractureTemplate->wellDiameter();
+    m_perforationLength = fractureTemplate->perforationLength();
 
     clearCachedNonDarcyProperties();
 

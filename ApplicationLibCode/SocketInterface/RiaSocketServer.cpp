@@ -346,11 +346,11 @@ void RiaSocketServer::handleNextPendingConnection()
 
         if ( m_currentClient->bytesAvailable() )
         {
-            bool isFinished = this->readCommandFromOctave();
+            bool isFinished = readCommandFromOctave();
             if ( isFinished )
             {
                 // Call ourselves recursively until there are none left, or until it can not be processed in one go.
-                this->handleNextPendingConnection();
+                handleNextPendingConnection();
             }
         }
     }

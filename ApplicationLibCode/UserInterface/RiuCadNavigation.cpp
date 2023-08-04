@@ -62,7 +62,7 @@ bool RiuCadNavigation::handleInputEvent( QInputEvent* inputEvent )
 
             if ( me->button() == Qt::MiddleButton && me->modifiers() == Qt::NoModifier && isRotationEnabled() )
             {
-                this->pickAndSetPointOfInterest( me->x(), me->y() );
+                pickAndSetPointOfInterest( me->x(), me->y() );
 
                 m_trackball->startNavigation( cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY );
                 m_isNavigating                  = true;

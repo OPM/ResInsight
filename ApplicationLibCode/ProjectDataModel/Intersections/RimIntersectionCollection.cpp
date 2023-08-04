@@ -125,7 +125,7 @@ void RimIntersectionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& ui
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::applySingleColorEffect()
 {
-    if ( !this->isActive() ) return;
+    if ( !isActive() ) return;
 
     for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
@@ -149,7 +149,7 @@ void RimIntersectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex )
 {
-    if ( !this->isActive() ) return;
+    if ( !isActive() ) return;
 
     for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
@@ -190,7 +190,7 @@ void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult
 //--------------------------------------------------------------------------------------------------
 bool RimIntersectionCollection::hasAnyActiveSeparateResults()
 {
-    if ( !this->isActive() ) return false;
+    if ( !isActive() ) return false;
 
     for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {

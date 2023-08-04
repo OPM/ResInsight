@@ -129,6 +129,6 @@ void RigEclipseMultiPropertyStatCalc::addNativeStatisticsCalculator( RigCaseCell
 {
     if ( eclipseResultAddress.isValid() )
     {
-        this->addStatisticsCalculator( new RigEclipseNativeStatCalc( cellResultsData, eclipseResultAddress ) );
+        addStatisticsCalculator( new RigEclipseNativeStatCalc( cellResultsData, eclipseResultAddress ) );
     }
 }

@@ -114,7 +114,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     setFocusPolicy( Qt::StrongFocus );
     setAcceptDrops( true );
 
-    this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
+    setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
 
     applyLook();
 
@@ -636,7 +636,7 @@ void RiuMultiPlotPage::onLegendUpdated()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::refreshLegends()
 {
-    QList<QPointer<RiuQwtPlotLegend>> legends = this->legendsForVisiblePlots();
+    QList<QPointer<RiuQwtPlotLegend>> legends = legendsForVisiblePlots();
     for ( const auto& l : legends )
     {
         l->setVisible( !l->isEmpty() );
@@ -649,7 +649,7 @@ void RiuMultiPlotPage::refreshLegends()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::updatePlotLayouts()
 {
-    QList<QPointer<RiuPlotWidget>> plotWidgets = this->visiblePlotWidgets();
+    QList<QPointer<RiuPlotWidget>> plotWidgets = visiblePlotWidgets();
     for ( auto p : plotWidgets )
         p->updateLayout();
 }
@@ -661,16 +661,16 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 {
     clearGridLayout();
 
-    QList<QPointer<QLabel>>                   subTitles    = this->subTitlesForVisiblePlots();
-    QList<QPointer<RiuQwtPlotLegend>>         legends      = this->legendsForVisiblePlots();
-    QList<QPointer<RiuDraggableOverlayFrame>> legendFrames = this->legendFramesForVisiblePlots();
-    QList<QPointer<RiuPlotWidget>>            plotWidgets  = this->visiblePlotWidgets();
+    QList<QPointer<QLabel>>                   subTitles    = subTitlesForVisiblePlots();
+    QList<QPointer<RiuQwtPlotLegend>>         legends      = legendsForVisiblePlots();
+    QList<QPointer<RiuDraggableOverlayFrame>> legendFrames = legendFramesForVisiblePlots();
+    QList<QPointer<RiuPlotWidget>>            plotWidgets  = visiblePlotWidgets();
 
     m_visibleIndexToPositionMapping.clear();
 
     if ( !plotWidgets.empty() )
     {
-        auto [rowCount, columnCount] = this->rowAndColumnCount( plotWidgets.size() );
+        auto [rowCount, columnCount] = rowAndColumnCount( plotWidgets.size() );
 
         int row    = 0;
         int column = 0;

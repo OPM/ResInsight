@@ -234,7 +234,7 @@ RimProject::RimProject()
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back( new RimOilField );
 
-    this->setUiHidden( true );
+    setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 void RimProject::beforeInitAfterRead()
 {
-    this->distributePathsFromGlobalPathList();
+    distributePathsFromGlobalPathList();
 
     // Create an empty oil field in case the project did not contain one
     if ( oilFields.size() < 1 )
@@ -406,9 +406,9 @@ RimMainPlotCollection* RimProject::mainPlotCollection() const
 //--------------------------------------------------------------------------------------------------
 bool RimProject::writeProjectFile()
 {
-    this->transferPathsToGlobalPathList();
-    bool couldOpenFile = this->writeFile();
-    this->distributePathsFromGlobalPathList();
+    transferPathsToGlobalPathList();
+    bool couldOpenFile = writeFile();
+    distributePathsFromGlobalPathList();
 
     return couldOpenFile;
 }
@@ -475,9 +475,9 @@ bool RimProject::isProjectFileVersionEqualOrOlderThan( const QString& otherProje
 void RimProject::setProjectFileNameAndUpdateDependencies( const QString& projectFileName )
 {
     // Extract the filename of the project file when it was saved
-    QString oldProjectFileName = this->fileName;
+    QString oldProjectFileName = fileName;
     // Replace with the new actual filename
-    this->fileName = projectFileName;
+    fileName = projectFileName;
 
     QFileInfo fileInfo( projectFileName );
     QString   newProjectPath = fileInfo.path();
@@ -565,7 +565,7 @@ void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
     {
-        std::vector<RimCase*> cases = this->descendantsIncludingThisOfType<RimCase>();
+        std::vector<RimCase*> cases = descendantsIncludingThisOfType<RimCase>();
         for ( RimCase* rimCase : cases )
         {
             m_nextValidCaseId = std::max( m_nextValidCaseId, rimCase->caseId() + 1 );
@@ -582,7 +582,7 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 {
     if ( caseGroup )
     {
-        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups = this->descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
+        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups = descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
 
         for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
         {
@@ -602,7 +602,7 @@ void RimProject::assignViewIdToView( Rim3dView* view )
     {
         if ( m_nextValidViewId < 0 )
         {
-            std::vector<Rim3dView*> views = this->descendantsIncludingThisOfType<Rim3dView>();
+            std::vector<Rim3dView*> views = descendantsIncludingThisOfType<Rim3dView>();
 
             for ( Rim3dView* existingView : views )
             {
@@ -623,7 +623,7 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
     {
         if ( m_nextValidPlotId < 0 )
         {
-            std::vector<RimPlotWindow*> plotWindows = this->descendantsIncludingThisOfType<RimPlotWindow>();
+            std::vector<RimPlotWindow*> plotWindows = descendantsIncludingThisOfType<RimPlotWindow>();
 
             for ( RimPlotWindow* existingPlotWindow : plotWindows )
             {
@@ -843,7 +843,7 @@ void RimProject::allVisibleViews( std::vector<Rim3dView*>& views ) const
 void RimProject::allVisibleGridViews( std::vector<RimGridView*>& views ) const
 {
     std::vector<Rim3dView*> visibleViews;
-    this->allVisibleViews( visibleViews );
+    allVisibleViews( visibleViews );
     for ( Rim3dView* view : visibleViews )
     {
         RimGridView* gridView = dynamic_cast<RimGridView*>( view );
@@ -877,7 +877,7 @@ void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 void RimProject::allOilFields( std::vector<RimOilField*>& allOilFields ) const
 {
     allOilFields.clear();
-    for ( const auto& oilField : this->oilFields )
+    for ( const auto& oilField : oilFields )
     {
         allOilFields.push_back( oilField );
     }

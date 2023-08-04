@@ -44,7 +44,7 @@ CAF_CMD_SOURCE_INIT( RicAsciiExportWellLogPlotFeature, "RicAsciiExportWellLogPlo
 //--------------------------------------------------------------------------------------------------
 void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     std::vector<RimWellLogPlot*> selectedWellLogPlots;
     caf::SelectionManager::instance()->objectsByType( &selectedWellLogPlots );

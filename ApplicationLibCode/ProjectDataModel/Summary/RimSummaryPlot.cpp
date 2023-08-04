@@ -530,7 +530,7 @@ std::set<RiaSummaryCurveDefinition> RimSummaryPlot::summaryAndEnsembleCurveDefin
 {
     std::set<RiaSummaryCurveDefinition> allCurveDefs;
 
-    for ( const auto& curve : this->summaryAndEnsembleCurves() )
+    for ( const auto& curve : summaryAndEnsembleCurves() )
     {
         allCurveDefs.insert( RiaSummaryCurveDefinition( curve->summaryCaseY(), curve->summaryAddressY(), curve->isEnsembleCurve() ) );
     }
@@ -813,7 +813,7 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate )
 {
-    std::set<RiaSummaryCurveDefinition> allCurveDefs = this->summaryAndEnsembleCurveDefinitions();
+    std::set<RiaSummaryCurveDefinition> allCurveDefs = summaryAndEnsembleCurveDefinitions();
     RimSummaryCurveAppearanceCalculator curveLookCalc( allCurveDefs );
 
     for ( auto& curve : curvesToUpdate )
@@ -1454,7 +1454,7 @@ void RimSummaryPlot::connectCurveToPlot( RimSummaryCurve* curve, bool update, bo
         if ( update )
         {
             curve->setParentPlotAndReplot( plotWidget() );
-            this->updateAxes();
+            updateAxes();
         }
         else
         {
@@ -1560,7 +1560,7 @@ void RimSummaryPlot::addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve )
     if ( plotWidget() )
     {
         curve->setParentPlotAndReplot( plotWidget() );
-        this->updateAxes();
+        updateAxes();
     }
 }
 
@@ -1661,7 +1661,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
             c->detach( true );
         }
 
-        for ( auto& curveSet : this->ensembleCurveSetCollection()->curveSets() )
+        for ( auto& curveSet : ensembleCurveSetCollection()->curveSets() )
         {
             curveSet->deletePlotCurves();
         }
@@ -1674,7 +1674,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 
     if ( changedField == &m_normalizeCurveYValues )
     {
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
 }
 
@@ -1866,7 +1866,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
         plotWidget()->setLegendFontSize( legendFontSize() );
         plotWidget()->updateLegend();
     }
-    this->updateAxes();
+    updateAxes();
 
     updateStackedCurveData();
 }
@@ -2690,7 +2690,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
             m_ensembleCurveSetCollection->setParentPlotNoReplot( plotWidget() );
         }
 
-        this->connect( plotWidget(), SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
+        connect( plotWidget(), SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
 
         updatePlotTitle();
     }
@@ -2825,7 +2825,7 @@ void RimSummaryPlot::doUpdateLayout()
 {
     updateFonts();
 
-    this->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

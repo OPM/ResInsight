@@ -47,7 +47,7 @@ void RiuQwtLegendOverlayContentFrame::setLegend( QwtLegend* legend )
 void RiuQwtLegendOverlayContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
 {
     painter->save();
-    painter->translate( targetRect.topLeft() + QPoint( this->contentsMargins().left(), this->contentsMargins().top() ) );
+    painter->translate( targetRect.topLeft() + QPoint( contentsMargins().left(), contentsMargins().top() ) );
 
     QRegion sourceRegion = visibleRegion();
     render( painter, QPoint(), sourceRegion );

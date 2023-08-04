@@ -76,7 +76,7 @@ RimEclipseCellColors* RicSaveEclipseResultAsInputPropertyFeature::selectedEclips
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseResultAsInputPropertyFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RimEclipseCellColors* eclipseCellColors = selectedEclipseCellColors();
     if ( !eclipseCellColors )

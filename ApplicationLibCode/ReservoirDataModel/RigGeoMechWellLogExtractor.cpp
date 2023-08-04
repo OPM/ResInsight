@@ -1021,7 +1021,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         insertIntersectionsInMap( intersections, p1, md1, p2, md2, tolerance, &uniqueIntersections );
     }
 
-    this->populateReturnArrays( uniqueIntersections );
+    populateReturnArrays( uniqueIntersections );
 }
 
 //--------------------------------------------------------------------------------------------------

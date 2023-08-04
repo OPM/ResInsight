@@ -620,7 +620,7 @@ ads::CDockAreaWidget* RiuMainWindowBase::addTabbedWidgets( std::vector<ads::CDoc
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setDefaultDockLayout()
 {
-    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    QAction* action = dynamic_cast<QAction*>( sender() );
     if ( action )
     {
         QString layoutName = action->text();
@@ -636,7 +636,7 @@ void RiuMainWindowBase::setDefaultDockLayout()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setDockLayout()
 {
-    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    QAction* action = dynamic_cast<QAction*>( sender() );
     if ( action )
     {
         QString layoutName = action->text();
@@ -649,7 +649,7 @@ void RiuMainWindowBase::setDockLayout()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::deleteDockLayout()
 {
-    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    QAction* action = dynamic_cast<QAction*>( sender() );
     if ( action )
     {
         QString name = action->text();

@@ -76,7 +76,7 @@ RimWellLogFileCurve::~RimWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+    RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     if ( isChecked() )
     {
@@ -155,10 +155,10 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     useLogarithmicScale = track->isLogarithmicScale();
                 }
 
-                this->setPropertyValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false, useLogarithmicScale );
+                setPropertyValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false, useLogarithmicScale );
 
                 QString errMsg;
-                if ( wellLogPlot && !this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
+                if ( wellLogPlot && !curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
                 {
                     QString depthTitle = wellLogPlot->depthAxisTitle();
                     errMsg             = QString( "Display of %1 for LAS curves is not possible without %2 "
@@ -188,13 +188,13 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
 
         RiaDefines::DepthTypeEnum depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
-        if ( wellLogPlot && this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
+        if ( wellLogPlot && curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
         {
             depthType = wellLogPlot->depthType();
         }
 
-        setPropertyAndDepthValuesToPlotCurve( this->curveData()->propertyValuesByIntervals(),
-                                              this->curveData()->depthValuesByIntervals( depthType, displayUnit ) );
+        setPropertyAndDepthValuesToPlotCurve( curveData()->propertyValuesByIntervals(),
+                                              curveData()->depthValuesByIntervals( depthType, displayUnit ) );
 
         if ( updateParentPlot )
         {
@@ -308,15 +308,15 @@ void RimWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
     if ( changedField == &m_wellPath )
     {
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     else if ( changedField == &m_wellLogChannelName )
     {
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     else if ( changedField == &m_wellLogFile )
     {
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     if ( m_parentPlot ) m_parentPlot->replot();
 }

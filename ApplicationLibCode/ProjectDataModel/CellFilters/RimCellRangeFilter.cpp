@@ -163,7 +163,7 @@ void RimCellRangeFilter::computeAndSetValidValues()
         cellCountK  = std::clamp( cellCountK.v(), 1, static_cast<int>( grid->cellCountK() ) );
         startIndexK = std::clamp( startIndexK.v(), 1, static_cast<int>( grid->cellCountK() ) );
     }
-    this->updateIconState();
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------

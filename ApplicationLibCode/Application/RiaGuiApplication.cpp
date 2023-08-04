@@ -454,8 +454,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
     if ( progOpt->option( "help" ) || progOpt->option( "?" ) )
     {
-        this->showFormattedTextInMessageBoxOrConsole( "The current command line options in ResInsight are:\n" +
-                                                      this->commandLineParameterHelp() );
+        showFormattedTextInMessageBoxOrConsole( "The current command line options in ResInsight are:\n" + commandLineParameterHelp() );
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
@@ -1374,7 +1373,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
         fontObject->updateFonts();
     }
 
-    if ( this->project() )
+    if ( project() )
     {
         std::vector<RimViewWindow*> allViewWindows = project()->descendantsIncludingThisOfType<RimViewWindow>();
 

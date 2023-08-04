@@ -59,7 +59,7 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
 
-    this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
+    setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ void RimUserDefinedPolylinesAnnotation::fieldChangedByUi( const caf::PdmFieldHan
 {
     if ( changedField == &m_enablePicking )
     {
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_showLines )
     {

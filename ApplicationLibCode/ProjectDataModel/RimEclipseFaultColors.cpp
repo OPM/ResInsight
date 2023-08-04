@@ -69,7 +69,7 @@ void RimEclipseFaultColors::setReservoirView( RimEclipseView* ownerReservoirView
 //--------------------------------------------------------------------------------------------------
 void RimEclipseFaultColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 
     if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
@@ -81,7 +81,7 @@ void RimEclipseFaultColors::initAfterRead()
 {
     m_customFaultResultColors->initAfterRead();
 
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ void RimEclipseFaultColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors* RimEclipseFaultColors::customFaultResult()
 {
-    return this->m_customFaultResultColors();
+    return m_customFaultResultColors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ void RimEclipseFaultColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseFaultColors::hasValidCustomResult()
 {
-    if ( this->showCustomFaultResult() )
+    if ( showCustomFaultResult() )
     {
         if ( m_customFaultResultColors->hasResult() || m_customFaultResultColors->isTernarySaturationSelected() )
         {

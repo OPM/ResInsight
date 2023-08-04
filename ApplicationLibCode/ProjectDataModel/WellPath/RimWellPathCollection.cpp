@@ -195,7 +195,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
     rebuildWellPathNodes();
 
-    this->sortWellsByName();
+    sortWellsByName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -380,7 +380,7 @@ std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringLi
         }
     }
 
-    this->sortWellsByName();
+    sortWellsByName();
     updateAllRequiredEditors();
 
     return logFileInfos;
@@ -432,7 +432,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
         RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
     }
 
-    this->sortWellsByName();
+    sortWellsByName();
     updateAllRequiredEditors();
 }
 

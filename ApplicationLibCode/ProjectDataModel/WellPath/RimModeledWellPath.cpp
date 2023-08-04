@@ -72,7 +72,7 @@ RimModeledWellPath::~RimModeledWellPath()
 //--------------------------------------------------------------------------------------------------
 void RimModeledWellPath::createWellPathGeometry()
 {
-    this->setWellPathGeometry( m_geometryDefinition->createWellPathGeometry().p() );
+    setWellPathGeometry( m_geometryDefinition->createWellPathGeometry().p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,7 +295,7 @@ void RimModeledWellPath::updateReferencePoint()
     RimWellPathTieIn* tieIn = wellPathTieIn();
     if ( !tieIn ) return;
 
-    auto topLevelModelledWell = dynamic_cast<RimModeledWellPath*>( this->topLevelWellPath() );
+    auto topLevelModelledWell = dynamic_cast<RimModeledWellPath*>( topLevelWellPath() );
     if ( !topLevelModelledWell ) return;
 
     auto refPoint = topLevelModelledWell->geometryDefinition()->anchorPointXyz();

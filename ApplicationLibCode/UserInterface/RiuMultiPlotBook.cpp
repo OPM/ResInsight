@@ -66,7 +66,7 @@ public:
     QSize calculateSize( int width ) const
     {
         int                      pageWidth = width - 2 * m_margins;
-        QList<RiuMultiPlotPage*> pages     = this->findChildren<RiuMultiPlotPage*>();
+        QList<RiuMultiPlotPage*> pages     = findChildren<RiuMultiPlotPage*>();
         QSize                    fullSize( 0, 0 );
         for ( auto page : pages )
         {
@@ -80,7 +80,7 @@ public:
 protected:
     QSize minimumSizeHint() const override
     {
-        QList<RiuMultiPlotPage*> pages = this->findChildren<RiuMultiPlotPage*>();
+        QList<RiuMultiPlotPage*> pages = findChildren<RiuMultiPlotPage*>();
         QSize                    fullSize( 0, 0 );
         for ( auto page : pages )
         {
@@ -111,7 +111,7 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
 {
     const int spacing = 8;
 
-    this->setContentsMargins( 0, 0, 0, 0 );
+    setContentsMargins( 0, 0, 0, 0 );
     m_layout = new QVBoxLayout( this );
     m_layout->setContentsMargins( 0, 0, 0, 0 );
     m_scrollArea = new QScrollArea( this );
@@ -133,14 +133,14 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
 
     setAutoFillBackground( true );
 
-    this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
+    setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
 
     setFocusPolicy( Qt::StrongFocus );
     setAcceptDrops( true );
 
     QSize pageSize = m_plotDefinition->pageLayout().fullRectPixels( RiaGuiApplication::applicationResolution() ).size();
     applyPagePreviewBookSize( pageSize.width() );
-    this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
+    setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
 
     applyLook();
 }
@@ -596,8 +596,8 @@ void RiuMultiPlotBook::createPages()
 {
     CAF_ASSERT( m_plotDefinition );
 
-    QList<QPointer<RiuPlotWidget>> plotWidgets = this->visiblePlotWidgets();
-    auto [rowCount, columnCount]               = this->rowAndColumnCount( plotWidgets.size() );
+    QList<QPointer<RiuPlotWidget>> plotWidgets = visiblePlotWidgets();
+    auto [rowCount, columnCount]               = rowAndColumnCount( plotWidgets.size() );
 
     int rowsPerPage = m_plotDefinition->rowsPerPage();
     int row         = 0;
@@ -676,7 +676,7 @@ void RiuMultiPlotBook::applyLook()
 {
     if ( m_previewMode )
     {
-        this->setBackgroundRole( QPalette::Dark );
+        setBackgroundRole( QPalette::Dark );
         m_book->setBackgroundRole( QPalette::Dark );
     }
     else
@@ -685,7 +685,7 @@ void RiuMultiPlotBook::applyLook()
         newPalette.setColor( QPalette::Window, Qt::white );
         setPalette( newPalette );
 
-        this->setBackgroundRole( QPalette::Window );
+        setBackgroundRole( QPalette::Window );
         m_book->setBackgroundRole( QPalette::Window );
         m_book->setPalette( newPalette );
     }

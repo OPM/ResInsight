@@ -238,7 +238,7 @@ void RimPerforationInterval::updateAllReferringTracks()
     {
         track->loadDataAndUpdate();
     }
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* change
         }
     }
 
-    this->updateAllReferringTracks();
+    updateAllReferringTracks();
 
     RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
@@ -331,7 +331,7 @@ void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    this->setName( QString( "%1 - %2" ).arg( m_startMD ).arg( m_endMD ) );
+    setName( QString( "%1 - %2" ).arg( m_startMD ).arg( m_endMD ) );
 }
 
 //--------------------------------------------------------------------------------------------------

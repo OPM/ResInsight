@@ -49,7 +49,7 @@ RiuGridStatisticsHistogramWidget::RiuGridStatisticsHistogramWidget( QWidget* par
 void RiuGridStatisticsHistogramWidget::paintEvent( QPaintEvent* event )
 {
     QPainter painter( this );
-    this->draw( &painter, 0, 0, this->width() - 1, this->height() - 1 );
+    draw( &painter, 0, 0, width() - 1, height() - 1 );
 }
 
 //--------------------------------------------------------------------------------------------------

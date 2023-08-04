@@ -181,33 +181,33 @@ void RimWellPathValve::applyValveLabelAndIcon()
 {
     if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
-        this->setUiIconFromResourceString( ":/ICVValve16x16.png" );
+        setUiIconFromResourceString( ":/ICVValve16x16.png" );
         QString fullName = QString( "%1: %2" ).arg( componentLabel() ).arg( m_measuredDepth() );
-        this->setName( fullName );
+        setName( fullName );
     }
     else if ( componentType() == RiaDefines::WellPathComponentType::ICD )
     {
-        this->setUiIconFromResourceString( ":/ICDValve16x16.png" );
+        setUiIconFromResourceString( ":/ICDValve16x16.png" );
         QString fullName = QString( "%1 %2: %3 - %4" )
                                .arg( m_multipleValveLocations->valveLocations().size() )
                                .arg( componentLabel() )
                                .arg( m_multipleValveLocations->rangeStart() )
                                .arg( m_multipleValveLocations->rangeEnd() );
-        this->setName( fullName );
+        setName( fullName );
     }
     else if ( componentType() == RiaDefines::WellPathComponentType::AICD )
     {
-        this->setUiIconFromResourceString( ":/AICDValve16x16.png" );
+        setUiIconFromResourceString( ":/AICDValve16x16.png" );
         QString fullName = QString( "%1 %2: %3 - %4" )
                                .arg( m_multipleValveLocations->valveLocations().size() )
                                .arg( componentLabel() )
                                .arg( m_multipleValveLocations->rangeStart() )
                                .arg( m_multipleValveLocations->rangeEnd() );
-        this->setName( fullName );
+        setName( fullName );
     }
     else
     {
-        this->setName( "Unspecified Valve" );
+        setName( "Unspecified Valve" );
     }
 }
 
@@ -481,7 +481,7 @@ void RimWellPathValve::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_valveTemplate )
     {
         applyValveLabelAndIcon();
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_createValveTemplate )
     {

@@ -53,7 +53,7 @@ RimWellMeasurementInViewCollection::RimWellMeasurementInViewCollection()
 
     m_isChecked = false;
 
-    this->setName( "Well Measurements" );
+    setName( "Well Measurements" );
 
     CAF_PDM_InitField( &m_linkWellVisibility, "linkWellVisibility", true, "Link Visibility to Well Path Visibility" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkWellVisibility );

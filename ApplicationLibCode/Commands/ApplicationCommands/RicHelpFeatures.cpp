@@ -51,7 +51,7 @@ CAF_CMD_SOURCE_INIT( RicCreateNewIssueHelpFeature, "RicCreateNewIssueHelpFeature
 //--------------------------------------------------------------------------------------------------
 void RicHelpAboutFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     caf::AboutDialog dlg( nullptr );
 
@@ -202,7 +202,7 @@ QString RicHelpAboutFeature::getPythonVersion( const QString& pathToPythonExecut
 //--------------------------------------------------------------------------------------------------
 void RicHelpCommandLineFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaApplication* app  = RiaApplication::instance();
     QString         text = app->commandLineParameterHelp();
@@ -223,7 +223,7 @@ void RicHelpCommandLineFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicHelpSummaryCommandLineFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaApplication* app  = RiaApplication::instance();
     QString         text = RicSummaryPlotFeatureImpl::summaryPlotCommandLineHelpText();
@@ -244,7 +244,7 @@ void RicHelpSummaryCommandLineFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
     RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
@@ -264,7 +264,7 @@ void RicHelpOpenUsersGuideFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicSearchHelpFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
 

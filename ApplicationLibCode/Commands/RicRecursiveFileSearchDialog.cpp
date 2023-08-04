@@ -358,7 +358,7 @@ QString RicRecursiveFileSearchDialog::cleanTextFromPathFilterField() const
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::rootDirWithEndSeparator() const
 {
-    QString rootDir = this->cleanTextFromPathFilterField();
+    QString rootDir = cleanTextFromPathFilterField();
     rootDir         = RiaFilePathTools::rootSearchPathFromSearchFilter( rootDir );
     return RiaFilePathTools::appendSeparatorIfNo( rootDir );
 }
@@ -368,7 +368,7 @@ QString RicRecursiveFileSearchDialog::rootDirWithEndSeparator() const
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::pathFilterWithoutStartSeparator() const
 {
-    QString pathFilter = this->cleanTextFromPathFilterField();
+    QString pathFilter = cleanTextFromPathFilterField();
     QString rootDir    = RiaFilePathTools::rootSearchPathFromSearchFilter( pathFilter );
 
     pathFilter.remove( 0, rootDir.size() );
@@ -542,8 +542,8 @@ QStringList RicRecursiveFileSearchDialog::findMatchingFiles()
 
     QStringList dirs;
 
-    QString pathFilter = this->pathFilterWithoutStartSeparator();
-    QString rootDir    = this->rootDirWithEndSeparator();
+    QString pathFilter = pathFilterWithoutStartSeparator();
+    QString rootDir    = rootDirWithEndSeparator();
     if ( rootDir.size() > 1 && rootDir.endsWith( RiaFilePathTools::separator() ) ) rootDir.chop( 1 );
 
     buildDirectoryListRecursiveSimple( rootDir, pathFilter, &dirs );
@@ -894,7 +894,7 @@ void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
 
         m_foundFiles = candidates;
 
-        this->updateFileListWidget();
+        updateFileListWidget();
 
         m_findOrCancelButton->setText( FIND_BUTTON_FIND_TEXT );
 
@@ -1042,7 +1042,7 @@ QStringList RicRecursiveFileSearchDialog::buildDirectoryListRecursive( const QSt
     // Optimizing for speed by a refined match at first directory level
     if ( level == 1 )
     {
-        QString pathFilter = this->pathFilterWithoutStartSeparator();
+        QString pathFilter = pathFilterWithoutStartSeparator();
         if ( !pathFilter.startsWith( "*" ) )
         {
             int wildcardIndex = pathFilter.indexOf( QRegExp( QString( "[*%1]" ).arg( RiaFilePathTools::separator() ) ) );

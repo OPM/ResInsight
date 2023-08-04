@@ -30,7 +30,7 @@ RiuCategoryLegendFrame::~RiuCategoryLegendFrame()
 //--------------------------------------------------------------------------------------------------
 void RiuCategoryLegendFrame::layoutInfo( LayoutInfo* layout ) const
 {
-    QFontMetrics fontMetrics( this->font() );
+    QFontMetrics fontMetrics( font() );
     QStringList  titleLines = RiaTextStringTools::splitSkipEmptyParts( m_title, "\n" );
 
     layout->charHeight        = fontMetrics.height();
@@ -105,7 +105,7 @@ QRect RiuCategoryLegendFrame::labelRect( const LayoutInfo& layout, int index ) c
     float     categoryHeight = static_cast<float>( layout.colorBarRect.height() ) / labelCount();
     const int posX           = layout.tickEndX + layout.tickTextLeadSpace;
     int       posY           = static_cast<int>( layout.colorBarRect.bottom() - ( index + 1 ) * categoryHeight );
-    QString   labelI         = this->label( index );
-    int       width          = this->fontMetrics().boundingRect( labelI ).width();
+    QString   labelI         = label( index );
+    int       width          = fontMetrics().boundingRect( labelI ).width();
     return QRect( posX, posY, width, categoryHeight );
 }

@@ -39,7 +39,7 @@ RicCalculatorWidgetCreator::RicCalculatorWidgetCreator( std::unique_ptr<RicUserD
     : m_pdmTableView( nullptr )
 {
     m_calculator = std::move( calculator );
-    this->setPdmObject( m_calculator.get() );
+    setPdmObject( m_calculator.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ RicCalculatorWidgetCreator::~RicCalculatorWidgetCreator()
         m_pdmTableView = nullptr;
     }
 
-    this->setPdmObject( nullptr );
+    setPdmObject( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ QWidget* RicCalculatorWidgetCreator::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QMinimizePanel* RicCalculatorWidgetCreator::updateGroupBoxWithContent( caf::PdmUiGroup* group, const QString& uiConfigName )
 {
-    QMinimizePanel* groupBox = findOrCreateGroupBox( this->widget(), group, uiConfigName );
+    QMinimizePanel* groupBox = findOrCreateGroupBox( widget(), group, uiConfigName );
 
     recursivelyConfigureAndUpdateUiOrderingInGridLayout( *group, groupBox->contentFrame(), uiConfigName );
     return groupBox;

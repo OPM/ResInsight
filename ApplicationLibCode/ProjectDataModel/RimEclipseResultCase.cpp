@@ -124,7 +124,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
     if ( gridFileName().contains( "Result Mock Debug Model" ) )
     {
-        readerInterface = this->createMockModel( this->gridFileName() );
+        readerInterface = createMockModel( gridFileName() );
     }
     else
     {
@@ -134,7 +134,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         }
 
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
-        readerEclipseOutput->setFilenamesWithFaults( this->filesContainingFaults() );
+        readerEclipseOutput->setFilenamesWithFaults( filesContainingFaults() );
         readerEclipseOutput->setReaderSettings( m_readerSettings );
 
         cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess( gridFileName() );
@@ -182,9 +182,9 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             return false;
         }
 
-        this->setFilesContainingFaults( readerEclipseOutput->filenamesWithFaults() );
+        setFilesContainingFaults( readerEclipseOutput->filenamesWithFaults() );
 
-        this->setReservoirData( eclipseCase.p() );
+        setReservoirData( eclipseCase.p() );
 
         readerInterface = readerEclipseOutput;
     }
@@ -196,7 +196,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
     m_flowDagSolverInterface = new RigFlowDiagSolverInterface( this );
 
-    CVF_ASSERT( this->eclipseCaseData() );
+    CVF_ASSERT( eclipseCaseData() );
     CVF_ASSERT( readerInterface.notNull() );
 
     progInfo.setProgressDescription( "Computing Case Cache" );
@@ -237,7 +237,7 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
 {
     bool importFaults = false;
     RifInputPropertyLoader::loadAndSynchronizeInputProperties( m_inputPropertyCollection,
-                                                               this->eclipseCaseData(),
+                                                               eclipseCaseData(),
                                                                std::vector<QString>( fileNames.begin(), fileNames.end() ),
                                                                importFaults );
 
@@ -266,7 +266,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
     cvf::ref<RifReaderInterface> readerInterface;
     if ( gridFileName().contains( "Result Mock Debug Model" ) )
     {
-        readerInterface = this->createMockModel( this->gridFileName() );
+        readerInterface = createMockModel( gridFileName() );
     }
     else
     {
@@ -287,7 +287,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
             return false;
         }
 
-        this->setReservoirData( eclipseCase.p() );
+        setReservoirData( eclipseCase.p() );
 
         readerInterface = readerEclipseOutput;
     }
@@ -295,7 +295,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
     results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
-    CVF_ASSERT( this->eclipseCaseData() );
+    CVF_ASSERT( eclipseCaseData() );
     CVF_ASSERT( readerInterface.notNull() );
 
     eclipseCaseData()->computeActiveCellBoundingBoxes();
@@ -468,7 +468,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
         QApplication::restoreOverrideCursor();
     }
 
-    this->setReservoirData( reservoir.p() );
+    setReservoirData( reservoir.p() );
 
     return mockFileInterface.p();
 }
@@ -551,7 +551,7 @@ RifReaderRftInterface* RimEclipseResultCase::rftReader()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::setCaseInfo( const QString& userDescription, const QString& fileName )
 {
-    this->setCaseUserDescription( userDescription );
+    setCaseUserDescription( userDescription );
     setGridFileName( fileName );
 
     RimProject* proj = RimProject::current();

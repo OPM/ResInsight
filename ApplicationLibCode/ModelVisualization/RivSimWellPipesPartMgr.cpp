@@ -161,7 +161,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                                                  int                               branchIndex,
                                                  size_t                            frameIndex )
 {
-    if ( !this->viewWithSettings() ) return;
+    if ( !viewWithSettings() ) return;
 
     m_wellBranches.clear();
     m_flattenedBranchWellHeadOffsets.clear();

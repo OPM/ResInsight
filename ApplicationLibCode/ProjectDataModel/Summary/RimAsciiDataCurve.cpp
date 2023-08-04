@@ -126,15 +126,15 @@ void RimAsciiDataCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+    RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     if ( isChecked() )
     {
-        std::vector<time_t> dateTimes = this->timeSteps();
-        std::vector<double> values    = this->yValues();
+        std::vector<time_t> dateTimes = timeSteps();
+        std::vector<double> values    = yValues();
 
         auto plot                = firstAncestorOrThisOfType<RimSummaryPlot>();
-        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->yAxis() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( yAxis() );
 
         if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
         {
@@ -197,7 +197,7 @@ void RimAsciiDataCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateQwtPlotAxis()
 {
-    if ( m_plotCurve ) updateAxisInPlot( this->yAxis() );
+    if ( m_plotCurve ) updateAxisInPlot( yAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

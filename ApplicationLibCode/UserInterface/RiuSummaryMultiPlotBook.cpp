@@ -48,7 +48,7 @@ void RiuSummaryMultiPlotBook::createPages()
 {
     CAF_ASSERT( m_plotDefinition );
 
-    QList<QPointer<RiuPlotWidget>> plotWidgets = this->visiblePlotWidgets();
+    QList<QPointer<RiuPlotWidget>> plotWidgets = visiblePlotWidgets();
 
     int columns     = std::max( 1, m_plotDefinition->columnCount() );
     int rowsPerPage = m_plotDefinition->rowsPerPage();

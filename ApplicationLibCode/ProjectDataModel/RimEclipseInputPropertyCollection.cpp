@@ -52,7 +52,7 @@ std::vector<RimEclipseInputProperty*> RimEclipseInputPropertyCollection::findInp
 {
     QFileInfo                             fileInfo( fileName );
     std::vector<RimEclipseInputProperty*> result;
-    for ( size_t i = 0; i < this->inputProperties.size(); ++i )
+    for ( size_t i = 0; i < inputProperties.size(); ++i )
     {
         if ( !inputProperties[i] ) continue;
 
@@ -68,7 +68,7 @@ std::vector<RimEclipseInputProperty*> RimEclipseInputPropertyCollection::findInp
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputProperty* RimEclipseInputPropertyCollection::findInputProperty( QString resultName )
 {
-    for ( size_t i = 0; i < this->inputProperties.size(); i++ )
+    for ( size_t i = 0; i < inputProperties.size(); i++ )
     {
         if ( inputProperties[i] && inputProperties[i]->resultName() == resultName )
         {

@@ -50,7 +50,7 @@ QSize RiuTextContentFrame::sizeHint() const
     LayoutInfo layout( QSize( 200, 100 ) ); // Use default size
     layoutInfo( &layout );
 
-    QFontMetrics fontMetrics( this->font() );
+    QFontMetrics fontMetrics( font() );
     QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 2000, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
     QRect        textRect  = fontMetrics.boundingRect( QRect( 0, 0, 2000, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_text );
 
@@ -71,11 +71,11 @@ QSize RiuTextContentFrame::minimumSizeHint() const
 {
     LayoutInfo layout( QSize( 200, 100 ) ); // Use default size
     layoutInfo( &layout );
-    QFont titleFont = this->font();
+    QFont titleFont = font();
     titleFont.setBold( true );
     QFontMetrics fontMetrics( titleFont );
     QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 2000, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
-    fontMetrics            = QFontMetrics( this->font() );
+    fontMetrics            = QFontMetrics( font() );
     QRect textRect         = fontMetrics.boundingRect( QRect( 0, 0, 2000, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_text );
 
     int preferredContentHeight = titleRect.height() + layout.lineSpacing + textRect.height();
@@ -101,7 +101,7 @@ void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
 
     painter->save();
 
-    painter->setFont( this->font() );
+    painter->setFont( font() );
     painter->translate( targetRect.topLeft() );
 
     {
@@ -110,7 +110,7 @@ void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
         painter->setPen( QPen( textColor ) );
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
-        td.setDefaultFont( this->font() );
+        td.setDefaultFont( font() );
         QString formattedTitle = m_title;
         td.setHtml(
             QString( "<body><font color='%1' ><b>%2</b></font></body>" ).arg( textColor.name() ).arg( formattedTitle.replace( "\n", "<br />" ) ) );
@@ -125,7 +125,7 @@ void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
 
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
-        td.setDefaultFont( this->font() );
+        td.setDefaultFont( font() );
         QString formattedTitle = m_text;
         td.setHtml(
             QString( "<body><font color='%1'>%2</font></body>" ).arg( textColor.name() ).arg( formattedTitle.replace( "\n", "<br />" ) ) );
@@ -151,7 +151,7 @@ void RiuTextContentFrame::paintEvent( QPaintEvent* e )
 //--------------------------------------------------------------------------------------------------
 void RiuTextContentFrame::layoutInfo( LayoutInfo* layout ) const
 {
-    QFontMetrics fontMetrics( this->font() );
+    QFontMetrics fontMetrics( font() );
     QStringList  titleLines = RiaTextStringTools::splitSkipEmptyParts( m_text, "\n" );
 
     layout->charHeight        = fontMetrics.height();

@@ -62,15 +62,15 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     Q_ASSERT( m_plotDefinition );
 
     QGridLayout* mainLayout = new QGridLayout();
-    this->setLayout( mainLayout );
-    this->layout()->setMargin( 3 );
-    this->layout()->setSpacing( 3 );
+    setLayout( mainLayout );
+    layout()->setMargin( 3 );
+    layout()->setSpacing( 3 );
 
     // White background
-    QPalette pal = this->palette();
+    QPalette pal = palette();
     pal.setColor( QPalette::Window, Qt::white );
-    this->setAutoFillBackground( true );
-    this->setPalette( pal );
+    setAutoFillBackground( true );
+    setPalette( pal );
 
     m_lorenzPlot              = new QwtPlot( this );
     m_flowCapVsStorageCapPlot = new QwtPlot( this );

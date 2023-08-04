@@ -144,11 +144,11 @@ void RimFileWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter, bool setWellNameForExport )
 {
-    if ( caf::Utils::fileExists( this->filePath() ) )
+    if ( caf::Utils::fileExists( filePath() ) )
     {
-        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData( this->filePath(), m_wellPathIndexInFile() );
+        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData( filePath(), m_wellPathIndexInFile() );
 
-        RifWellPathImporter::WellMetaData wellMetaData = RifWellPathImporter::readWellMetaData( this->filePath(), m_wellPathIndexInFile() );
+        RifWellPathImporter::WellMetaData wellMetaData = RifWellPathImporter::readWellMetaData( filePath(), m_wellPathIndexInFile() );
         // General well info
 
         if ( setWellNameForExport )
@@ -188,7 +188,7 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
     }
     else
     {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well path file: " + this->filePath();
+        if ( errorMessage ) ( *errorMessage ) = "Could not find the well path file: " + filePath();
         return false;
     }
 }
@@ -308,9 +308,9 @@ void RimFileWellPath::ensureWellPathStartAtSeaLevel( RigWellPath* wellPath )
         {
             mdAtSeaLevel = wellPath->datumElevation();
         }
-        else if ( this->airGap() != std::numeric_limits<double>::infinity() && this->airGap() > 0.0 )
+        else if ( airGap() != std::numeric_limits<double>::infinity() && airGap() > 0.0 )
         {
-            mdAtSeaLevel = this->airGap();
+            mdAtSeaLevel = airGap();
         }
 
         std::vector<double> newMeasuredDepths = { mdAtSeaLevel };

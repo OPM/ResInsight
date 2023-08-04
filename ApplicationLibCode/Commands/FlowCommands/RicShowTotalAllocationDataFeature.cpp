@@ -47,7 +47,7 @@ bool RicShowTotalAllocationDataFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicShowTotalAllocationDataFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     std::set<RimWellAllocationPlot*> wellAllocPlots = RicShowTotalAllocationDataFeature::selectedWellAllocationPlots();
     CVF_ASSERT( wellAllocPlots.size() > 0 );

@@ -232,8 +232,8 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, 
 
     if ( ev_0.curveStatus() == RiaSCurveCalculator::OK_INFINITE_RADIUS12 )
     {
-        *this               = ev_0;
-        this->m_solveStatus = CONVERGED;
+        *this         = ev_0;
+        m_solveStatus = CONVERGED;
         return;
     } // Todo: Handle infinite radius in one place
 

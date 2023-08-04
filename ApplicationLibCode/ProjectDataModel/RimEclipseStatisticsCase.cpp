@@ -135,7 +135,7 @@ RimEclipseStatisticsCase::~RimEclipseStatisticsCase()
 void RimEclipseStatisticsCase::setMainGrid( RigMainGrid* mainGrid )
 {
     CVF_ASSERT( mainGrid );
-    CVF_ASSERT( this->eclipseCaseData() );
+    CVF_ASSERT( eclipseCaseData() );
 
     eclipseCaseData()->setMainGrid( mainGrid );
 }
@@ -145,7 +145,7 @@ void RimEclipseStatisticsCase::setMainGrid( RigMainGrid* mainGrid )
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseStatisticsCase::openEclipseGridFile()
 {
-    if ( this->eclipseCaseData() ) return true;
+    if ( eclipseCaseData() ) return true;
 
     cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( this );
 
@@ -163,13 +163,13 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
     eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL,
                                     gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
 
-    this->setReservoirData( eclipseCase.p() );
+    setReservoirData( eclipseCase.p() );
 
     loadSimulationWellDataFromSourceCase();
 
     if ( m_populateSelectionAfterLoadingGrid )
     {
-        this->populateResultSelection();
+        populateResultSelection();
 
         m_populateSelectionAfterLoadingGrid = false;
     }
@@ -191,7 +191,7 @@ void RimEclipseStatisticsCase::reloadEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection() const
 {
-    return dynamic_cast<RimCaseCollection*>( this->parentField()->ownerObject() );
+    return dynamic_cast<RimCaseCollection*>( parentField()->ownerObject() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,7 +245,7 @@ void RimEclipseStatisticsCase::setSourceProperties( RiaDefines::ResultCatType pr
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::computeStatistics()
 {
-    if ( this->eclipseCaseData() == nullptr )
+    if ( eclipseCaseData() == nullptr )
     {
         openEclipseGridFile();
     }
@@ -606,13 +606,13 @@ void RimEclipseStatisticsCase::loadSimulationWellDataFromSourceCase()
         {
             const cvf::Collection<RigSimWellData>& sourceCaseSimWellData = sourceResultCase->eclipseCaseData()->wellResults();
 
-            this->eclipseCaseData()->setSimWellData( sourceCaseSimWellData );
+            eclipseCaseData()->setSimWellData( sourceCaseSimWellData );
         }
     }
     else
     {
         cvf::Collection<RigSimWellData> sourceCaseWellResults;
-        this->eclipseCaseData()->setSimWellData( sourceCaseWellResults );
+        eclipseCaseData()->setSimWellData( sourceCaseWellResults );
     }
 }
 
@@ -774,7 +774,7 @@ void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
         }
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

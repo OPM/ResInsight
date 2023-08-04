@@ -195,8 +195,8 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
         m_plotWidget->qwtPlot()->insertLegend( nullptr );
         m_plotWidget->updateLegend();
 
-        this->updateAxes();
-        this->updatePlotTitle();
+        updateAxes();
+        updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
 }

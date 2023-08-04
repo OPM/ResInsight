@@ -627,7 +627,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
         }
     }
 
-    this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+    defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -1161,7 +1161,7 @@ cvf::Vec3d RimExtrudedCurveIntersection::extrusionDirection() const
 
     if ( m_direction() == RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_HORIZONTAL )
     {
-        std::vector<std::vector<cvf::Vec3d>> lines = this->polyLines();
+        std::vector<std::vector<cvf::Vec3d>> lines = polyLines();
         if ( !lines.empty() && lines[0].size() > 1 )
         {
             std::vector<cvf::Vec3d> firstLine = lines[0];

@@ -394,7 +394,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
                     summaryAddress->setAddress( address.summaryAddress() );
                     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
-                this->loadDataAndUpdate();
+                loadDataAndUpdate();
             }
         }
 

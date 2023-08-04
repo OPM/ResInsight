@@ -29,7 +29,7 @@ CAF_CMD_SOURCE_INIT( RicCloseProjectFeature, "RicCloseProjectFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicCloseProjectFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
     if ( !app || !app->askUserToSaveModifiedProject() ) return;

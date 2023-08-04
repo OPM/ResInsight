@@ -133,7 +133,7 @@ RimWellRftPlot::RimWellRftPlot()
 
     setPlotTitleVisible( true );
 
-    this->setAsPlotMdiWindow();
+    setAsPlotMdiWindow();
     m_isOnLoad = true;
 }
 
@@ -534,7 +534,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             auto rftCase = curveDefToAdd.address().summaryCase();
             curve->setSummaryCase( rftCase );
             curve->setEnsemble( curveDefToAdd.address().ensemble() );
-            curve->setObservedFmuRftData( this->findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
+            curve->setObservedFmuRftData( findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
             RifEclipseRftAddress address = RifEclipseRftAddress::createAddress( m_wellPathNameOrSimWellName,
                                                                                 curveDefToAdd.timeStep(),
                                                                                 RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
@@ -578,7 +578,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     plotTrack->addCurve( curve );
                     curve->setEnsemble( ensemble );
                     curve->setRftAddress( rftAddress );
-                    curve->setObservedFmuRftData( this->findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
+                    curve->setObservedFmuRftData( findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
                     curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE ) );
                     applyCurveAppearance( curve );
                     auto                              symbol   = statisticsCurveSymbolFromAddress( rftAddress );
@@ -953,7 +953,7 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     {
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_showStatisticsCurves || changedField == &m_showEnsembleCurves || changedField == &m_showErrorInObservedData )
     {

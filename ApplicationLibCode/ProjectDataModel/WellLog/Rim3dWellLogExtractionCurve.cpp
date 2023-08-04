@@ -170,7 +170,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMds( std::vector<double>* values
 {
     CVF_ASSERT( m_timeStep() >= 0 );
 
-    return this->curveValuesAndMdsAtTimeStep( values, measuredDepthValues, m_timeStep );
+    return curveValuesAndMdsAtTimeStep( values, measuredDepthValues, m_timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ std::pair<double, double> Rim3dWellLogExtractionCurve::findCurveValueRange()
         {
             std::vector<double> values;
             std::vector<double> measuredDepths;
-            this->curveValuesAndMdsAtTimeStep( &values, &measuredDepths, timeStep );
+            curveValuesAndMdsAtTimeStep( &values, &measuredDepths, timeStep );
 
             for ( double value : values )
             {
@@ -435,13 +435,13 @@ void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* c
             m_geomResultDefinition->setGeoMechCase( geoMechCase );
         }
 
-        this->resetMinMaxValues();
-        this->updateConnectedEditors();
+        resetMinMaxValues();
+        updateConnectedEditors();
     }
     else if ( ( changedField == &m_timeStep ) || ( changedField == &m_geomPartId ) )
     {
-        this->resetMinMaxValues();
-        this->updateConnectedEditors();
+        resetMinMaxValues();
+        updateConnectedEditors();
     }
 
     Rim3dWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );

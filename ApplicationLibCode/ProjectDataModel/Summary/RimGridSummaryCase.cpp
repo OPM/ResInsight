@@ -103,8 +103,8 @@ void RimGridSummaryCase_obsolete::setAssociatedEclipseCase( RimEclipseCase* ecli
     m_summaryHeaderFilename = summaryHeaderFilenameFromEclipseCase( eclipseCase );
     m_cachedCaseName        = caseNameFromEclipseCase( eclipseCase );
 
-    this->updateAutoShortName();
-    this->updateTreeItemName();
+    updateAutoShortName();
+    updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,8 +128,8 @@ RimEclipseCase* RimGridSummaryCase_obsolete::associatedEclipseCase()
                 if ( sumHeaderFileName == m_summaryHeaderFilename().path() )
                 {
                     m_eclipseCase = eclCase;
-                    this->updateAutoShortName();
-                    this->updateTreeItemName();
+                    updateAutoShortName();
+                    updateTreeItemName();
 
                     break;
                 }

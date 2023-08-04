@@ -127,7 +127,7 @@ void RimColorLegend::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RimColorLegend::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    this->setUiIcon( paletteIconProvider() );
+    setUiIcon( paletteIconProvider() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ caf::IconProvider RimColorLegend::paletteIconProvider() const
 //--------------------------------------------------------------------------------------------------
 void RimColorLegend::onColorLegendItemHasChanged()
 {
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
 

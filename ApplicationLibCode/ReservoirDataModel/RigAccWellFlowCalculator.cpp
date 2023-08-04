@@ -289,7 +289,7 @@ std::vector<std::pair<QString, double>> RigAccWellFlowCalculator::totalWellFlowP
 
     for ( const QString& tracerName : tracerNames )
     {
-        const std::vector<double>& accFlow = this->accumulatedTracerFlowPrConnection( tracerName, 0 );
+        const std::vector<double>& accFlow = accumulatedTracerFlowPrConnection( tracerName, 0 );
         tracerWithValues.push_back( std::make_pair( tracerName, accFlow.back() ) );
     }
 

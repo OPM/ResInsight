@@ -60,7 +60,7 @@ RiuSummaryVectorSelectionDialog::RiuSummaryVectorSelectionDialog( QWidget* paren
 
     mainLayout->addLayout( labelLayout );
 
-    m_addrSelWidget->summaryAddressSelection()->setFieldChangedHandler( [this]() { this->updateLabel(); } );
+    m_addrSelWidget->summaryAddressSelection()->setFieldChangedHandler( [this]() { updateLabel(); } );
 
     updateLabel();
 }
@@ -229,7 +229,7 @@ RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionDialog::summaryAddressSele
 void RiuSummaryVectorSelectionDialog::updateLabel()
 {
     QString                                curveAddressText;
-    std::vector<RiaSummaryCurveDefinition> sumCasePairs = this->summaryAddressSelection()->selection();
+    std::vector<RiaSummaryCurveDefinition> sumCasePairs = summaryAddressSelection()->selection();
     if ( sumCasePairs.size() == 1 )
     {
         curveAddressText = sumCasePairs.front().curveDefinitionText();

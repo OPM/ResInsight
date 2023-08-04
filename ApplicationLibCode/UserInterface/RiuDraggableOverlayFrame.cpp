@@ -40,7 +40,7 @@ RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, const int s
     dropShadowEffect->setBlurRadius( 3.0 );
     dropShadowEffect->setColor( QColor( 100, 100, 100, 100 ) );
     setGraphicsEffect( dropShadowEffect );
-    this->setContentsMargins( 1, 1, 1, 1 );
+    setContentsMargins( 1, 1, 1, 1 );
     m_layout = new QVBoxLayout( this );
     m_layout->setContentsMargins( 0, 0, 0, 0 );
 }
@@ -68,7 +68,7 @@ void RiuDraggableOverlayFrame::setContentFrame( RiuAbstractOverlayContentFrame* 
 
     m_contentFrame = contentFrame;
     m_layout->addWidget( m_contentFrame );
-    this->adjustSize();
+    adjustSize();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ void RiuDraggableOverlayFrame::renderTo( QPainter* painter, const QRect& targetR
     if ( m_contentFrame )
     {
         painter->save();
-        painter->fillRect( targetRect, this->palette().color( QWidget::backgroundRole() ) );
+        painter->fillRect( targetRect, palette().color( QWidget::backgroundRole() ) );
         QRect contentRect = targetRect;
         contentRect.adjust( -1, -1, -1, -1 );
         m_contentFrame->renderTo( painter, contentRect );

@@ -390,13 +390,13 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle*
             {
                 exportParameters = EXPORT_TO_SEPARATE_FILE_PER_RESULT;
             }
-            this->updateConnectedEditors();
+            updateConnectedEditors();
         }
     }
     else if ( changedField == &exportGridBox )
     {
         applyBoundaryDefaults();
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
 }
 

@@ -161,8 +161,8 @@ RimPolygonFilter::RimPolygonFilter()
     m_polygonPlaneDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_polygonPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
 
-    this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
-    this->uiCapability()->setUiTreeChildrenHidden( true );
+    setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
+    uiCapability()->setUiTreeChildrenHidden( true );
 
     m_propagateToSubGrids = false;
 
@@ -412,7 +412,7 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     bool readOnlyState = isFilterControlled();
 
-    std::vector<caf::PdmFieldHandle*> objFields = this->fields();
+    std::vector<caf::PdmFieldHandle*> objFields = fields();
     for ( auto& objField : objFields )
     {
         objField->uiCapability()->setUiReadOnly( readOnlyState );
@@ -426,7 +426,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 {
     if ( changedField == &m_enablePicking )
     {
-        this->updateConnectedEditors();
+        updateConnectedEditors();
 
         enableFilter( !m_enablePicking() );
         filterChanged.send();
@@ -435,7 +435,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     {
         updateCells();
         filterChanged.send();
-        this->updateIconState();
+        updateIconState();
     }
 }
 
@@ -487,7 +487,7 @@ void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilte
     for ( size_t cellidx : m_cells[gridIndex] )
     {
         grid->ijkFromCellIndex( cellidx, &i, &j, &k );
-        if ( this->filterMode() == RimCellFilter::INCLUDE )
+        if ( filterMode() == RimCellFilter::INCLUDE )
         {
             cellRangeFilter->addCellInclude( i, j, k, propagateToSubGrids() );
         }

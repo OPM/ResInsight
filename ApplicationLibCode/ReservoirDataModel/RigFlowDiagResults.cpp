@@ -235,7 +235,7 @@ std::vector<double>* RigFlowDiagResults::calculateAverageTOFResult( const RigFlo
         findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::TracerStatusType::PRODUCER );
     std::vector<const std::vector<double>*> producerFractions =
         findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::TracerStatusType::PRODUCER );
-    size_t activeCellCount = this->activeCellInfo( resVarAddr )->reservoirActiveCellCount();
+    size_t activeCellCount = activeCellInfo( resVarAddr )->reservoirActiveCellCount();
 
     std::vector<double> injectorTotalFractions;
     std::vector<double> injectorFractMultTof;
@@ -245,7 +245,7 @@ std::vector<double>* RigFlowDiagResults::calculateAverageTOFResult( const RigFlo
     std::vector<double> producerFractMultTof;
     calculateSumOfFractionAndFractionMultTOF( activeCellCount, producerFractions, producerTOFs, &producerTotalFractions, &producerFractMultTof );
 
-    RigFlowDiagResultFrames* averageTofFrames = this->createScalarResult( resVarAddr );
+    RigFlowDiagResultFrames* averageTofFrames = createScalarResult( resVarAddr );
     std::vector<double>&     averageTof       = averageTofFrames->frameData( timeStepIndex );
     averageTof.resize( activeCellCount, HUGE_VAL );
 
@@ -309,10 +309,10 @@ std::vector<double>* RigFlowDiagResults::calculateSumOfFractionsResult( const Ri
                                                                                        RIG_FLD_CELL_FRACTION_RESNAME,
                                                                                        RimFlowDiagSolution::TracerStatusType::UNDEFINED );
 
-    RigFlowDiagResultFrames* sumOfFractionsFrames = this->createScalarResult( resVarAddr );
+    RigFlowDiagResultFrames* sumOfFractionsFrames = createScalarResult( resVarAddr );
     std::vector<double>&     sumOfFractions       = sumOfFractionsFrames->frameData( timeStepIndex );
 
-    size_t activeCellCount = this->activeCellInfo( resVarAddr )->reservoirActiveCellCount();
+    size_t activeCellCount = activeCellInfo( resVarAddr )->reservoirActiveCellCount();
 
     calculateSumOfFractions( fractions, activeCellCount, &sumOfFractions );
 
@@ -351,9 +351,9 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult( c
         }
     }
 
-    size_t activeCellCount = this->activeCellInfo( resVarAddr )->reservoirActiveCellCount();
+    size_t activeCellCount = activeCellInfo( resVarAddr )->reservoirActiveCellCount();
 
-    RigFlowDiagResultFrames* maxFractionTracerIdxFrames = this->createScalarResult( resVarAddr );
+    RigFlowDiagResultFrames* maxFractionTracerIdxFrames = createScalarResult( resVarAddr );
     std::vector<double>&     maxFractionTracerIdx       = maxFractionTracerIdxFrames->frameData( timeStepIndex );
     {
         maxFractionTracerIdx.resize( activeCellCount, HUGE_VAL );
@@ -392,7 +392,7 @@ std::vector<double>* RigFlowDiagResults::calculateCommunicationResult( const Rig
         findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::TracerStatusType::INJECTOR );
     std::vector<const std::vector<double>*> producerFractions =
         findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::TracerStatusType::PRODUCER );
-    size_t activeCellCount = this->activeCellInfo( resVarAddr )->reservoirActiveCellCount();
+    size_t activeCellCount = activeCellInfo( resVarAddr )->reservoirActiveCellCount();
 
     std::vector<double> sumOfInjectorFractions;
     calculateSumOfFractions( injectorFractions, activeCellCount, &sumOfInjectorFractions );
@@ -400,7 +400,7 @@ std::vector<double>* RigFlowDiagResults::calculateCommunicationResult( const Rig
     std::vector<double> sumOfProducerFractions;
     calculateSumOfFractions( producerFractions, activeCellCount, &sumOfProducerFractions );
 
-    RigFlowDiagResultFrames* commFrames = this->createScalarResult( resVarAddr );
+    RigFlowDiagResultFrames* commFrames = createScalarResult( resVarAddr );
     std::vector<double>&     commPI     = commFrames->frameData( timeStepIndex );
     commPI.resize( activeCellCount, HUGE_VAL );
 
@@ -428,7 +428,7 @@ void RigFlowDiagResults::calculateNumFloodedPV( const RigFlowDiagResultAddress& 
     }
     RigNumberOfFloodedPoreVolumesCalculator calc( eclipseCase, tracerNames );
 
-    RigFlowDiagResultFrames* frames = this->createScalarResult( resVarAddr );
+    RigFlowDiagResultFrames* frames = createScalarResult( resVarAddr );
     for ( size_t frameIdx = 0; frameIdx < m_timeStepCount; ++frameIdx )
     {
         std::vector<double>& frame = frames->frameData( frameIdx );
@@ -539,7 +539,7 @@ void RigFlowDiagResults::calculateSumOfFractions( const std::vector<const std::v
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::minMaxScalarValues( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* localMin, double* localMax )
 {
-    this->statistics( resVarAddr )->minMaxCellScalarValues( timeStepIndex, *localMin, *localMax );
+    statistics( resVarAddr )->minMaxCellScalarValues( timeStepIndex, *localMin, *localMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -547,7 +547,7 @@ void RigFlowDiagResults::minMaxScalarValues( const RigFlowDiagResultAddress& res
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::minMaxScalarValues( const RigFlowDiagResultAddress& resVarAddr, double* globalMin, double* globalMax )
 {
-    this->statistics( resVarAddr )->minMaxCellScalarValues( *globalMin, *globalMax );
+    statistics( resVarAddr )->minMaxCellScalarValues( *globalMin, *globalMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -558,7 +558,7 @@ void RigFlowDiagResults::posNegClosestToZero( const RigFlowDiagResultAddress& re
                                               double*                         localPosClosestToZero,
                                               double*                         localNegClosestToZero )
 {
-    this->statistics( resVarAddr )->posNegClosestToZero( timeStepIndex, *localPosClosestToZero, *localNegClosestToZero );
+    statistics( resVarAddr )->posNegClosestToZero( timeStepIndex, *localPosClosestToZero, *localNegClosestToZero );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,7 +568,7 @@ void RigFlowDiagResults::posNegClosestToZero( const RigFlowDiagResultAddress& re
                                               double*                         globalPosClosestToZero,
                                               double*                         globalNegClosestToZero )
 {
-    this->statistics( resVarAddr )->posNegClosestToZero( *globalPosClosestToZero, *globalNegClosestToZero );
+    statistics( resVarAddr )->posNegClosestToZero( *globalPosClosestToZero, *globalNegClosestToZero );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -578,7 +578,7 @@ void RigFlowDiagResults::meanScalarValue( const RigFlowDiagResultAddress& resVar
 {
     CVF_ASSERT( meanValue );
 
-    this->statistics( resVarAddr )->meanCellScalarValues( *meanValue );
+    statistics( resVarAddr )->meanCellScalarValues( *meanValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -586,7 +586,7 @@ void RigFlowDiagResults::meanScalarValue( const RigFlowDiagResultAddress& resVar
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::meanScalarValue( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* meanValue )
 {
-    this->statistics( resVarAddr )->meanCellScalarValues( timeStepIndex, *meanValue );
+    statistics( resVarAddr )->meanCellScalarValues( timeStepIndex, *meanValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -594,7 +594,7 @@ void RigFlowDiagResults::meanScalarValue( const RigFlowDiagResultAddress& resVar
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::p10p90ScalarValues( const RigFlowDiagResultAddress& resVarAddr, double* p10, double* p90 )
 {
-    this->statistics( resVarAddr )->p10p90CellScalarValues( *p10, *p90 );
+    statistics( resVarAddr )->p10p90CellScalarValues( *p10, *p90 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -602,7 +602,7 @@ void RigFlowDiagResults::p10p90ScalarValues( const RigFlowDiagResultAddress& res
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::p10p90ScalarValues( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* p10, double* p90 )
 {
-    this->statistics( resVarAddr )->p10p90CellScalarValues( timeStepIndex, *p10, *p90 );
+    statistics( resVarAddr )->p10p90CellScalarValues( timeStepIndex, *p10, *p90 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -612,7 +612,7 @@ void RigFlowDiagResults::sumScalarValue( const RigFlowDiagResultAddress& resVarA
 {
     CVF_ASSERT( sum );
 
-    this->statistics( resVarAddr )->sumCellScalarValues( *sum );
+    statistics( resVarAddr )->sumCellScalarValues( *sum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -622,7 +622,7 @@ void RigFlowDiagResults::sumScalarValue( const RigFlowDiagResultAddress& resVarA
 {
     CVF_ASSERT( sum );
 
-    this->statistics( resVarAddr )->sumCellScalarValues( timeStepIndex, *sum );
+    statistics( resVarAddr )->sumCellScalarValues( timeStepIndex, *sum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -630,7 +630,7 @@ void RigFlowDiagResults::sumScalarValue( const RigFlowDiagResultAddress& resVarA
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigFlowDiagResults::scalarValuesHistogram( const RigFlowDiagResultAddress& resVarAddr )
 {
-    return this->statistics( resVarAddr )->cellScalarValuesHistogram();
+    return statistics( resVarAddr )->cellScalarValuesHistogram();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -638,7 +638,7 @@ const std::vector<size_t>& RigFlowDiagResults::scalarValuesHistogram( const RigF
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigFlowDiagResults::scalarValuesHistogram( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex )
 {
-    return this->statistics( resVarAddr )->cellScalarValuesHistogram( timeStepIndex );
+    return statistics( resVarAddr )->cellScalarValuesHistogram( timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -646,7 +646,7 @@ const std::vector<size_t>& RigFlowDiagResults::scalarValuesHistogram( const RigF
 //--------------------------------------------------------------------------------------------------
 const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues( const RigFlowDiagResultAddress& resVarAddr )
 {
-    return this->statistics( resVarAddr )->uniqueCellScalarValues();
+    return statistics( resVarAddr )->uniqueCellScalarValues();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -654,7 +654,7 @@ const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues( const RigFlo
 //--------------------------------------------------------------------------------------------------
 const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex )
 {
-    return this->statistics( resVarAddr )->uniqueCellScalarValues( timeStepIndex );
+    return statistics( resVarAddr )->uniqueCellScalarValues( timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -662,7 +662,7 @@ const std::vector<int>& RigFlowDiagResults::uniqueCellScalarValues( const RigFlo
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* mean )
 {
-    this->statistics( resVarAddr )->mobileVolumeWeightedMean( timeStepIndex, *mean );
+    statistics( resVarAddr )->mobileVolumeWeightedMean( timeStepIndex, *mean );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -670,7 +670,7 @@ void RigFlowDiagResults::mobileVolumeWeightedMean( const RigFlowDiagResultAddres
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, double* mean )
 {
-    this->statistics( resVarAddr )->mobileVolumeWeightedMean( *mean );
+    statistics( resVarAddr )->mobileVolumeWeightedMean( *mean );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -906,5 +906,5 @@ RimFlowDiagSolution* RigFlowDiagResults::flowDiagSolution()
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::setStatisticsDataCacheNumBins( const RigFlowDiagResultAddress& resVarAddr, size_t numBins )
 {
-    this->statistics( resVarAddr )->setNumBins( numBins );
+    statistics( resVarAddr )->setNumBins( numBins );
 }

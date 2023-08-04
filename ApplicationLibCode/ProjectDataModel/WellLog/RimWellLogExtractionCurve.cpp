@@ -305,29 +305,29 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
 
         clearGeneratedSimWellPaths();
 
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     else if ( changedField == &m_wellPath )
     {
         if ( m_wellPath() == m_refWellPath() ) m_refWellPath = nullptr;
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     else if ( ( changedField == &m_refWellPath ) || ( changedField == &m_timeStep ) || ( changedField == &m_trajectoryType ) ||
               ( changedField == &m_geomPartId ) )
     {
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     else if ( ( changedField == &m_branchDetection ) || ( changedField == &m_branchIndex ) || ( changedField == &m_simWellName ) )
     {
         clearGeneratedSimWellPaths();
 
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
 
     if ( changedField == &m_addCaseNameToCurveName || changedField == &m_addPropertyToCurveName ||
          changedField == &m_addWellNameToCurveName || changedField == &m_addTimestepToCurveName || changedField == &m_addDateToCurveName )
     {
-        this->uiCapability()->updateConnectedEditors();
+        uiCapability()->updateConnectedEditors();
         updateCurveNameAndUpdatePlotLegendAndTitle();
     }
 }
@@ -376,7 +376,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
-            this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+            RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
             if ( isUsingPseudoLength )
             {
@@ -475,25 +475,25 @@ void RimWellLogExtractionCurve::extractData( bool*                        isUsin
 
         if ( curveData.tvDepthValues.empty() )
         {
-            this->setPropertyValuesAndDepths( curveData.values,
-                                              curveData.measuredDepthValues,
-                                              RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                              0.0,
-                                              curveData.depthUnit,
-                                              !performDataSmoothing,
-                                              useLogarithmicScale,
-                                              curveData.xUnits );
+            setPropertyValuesAndDepths( curveData.values,
+                                        curveData.measuredDepthValues,
+                                        RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                        0.0,
+                                        curveData.depthUnit,
+                                        !performDataSmoothing,
+                                        useLogarithmicScale,
+                                        curveData.xUnits );
         }
         else
         {
-            this->setPropertyValuesWithMdAndTVD( curveData.values,
-                                                 curveData.measuredDepthValues,
-                                                 curveData.tvDepthValues,
-                                                 curveData.rkbDiff,
-                                                 curveData.depthUnit,
-                                                 !performDataSmoothing,
-                                                 useLogarithmicScale,
-                                                 curveData.xUnits );
+            setPropertyValuesWithMdAndTVD( curveData.values,
+                                           curveData.measuredDepthValues,
+                                           curveData.tvDepthValues,
+                                           curveData.rkbDiff,
+                                           curveData.depthUnit,
+                                           !performDataSmoothing,
+                                           useLogarithmicScale,
+                                           curveData.xUnits );
         }
     }
     else
@@ -1015,7 +1015,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions( 
     }
     else if ( fieldNeedingOptions == &m_simWellName )
     {
-        std::set<QString> sortedWellNames = this->sortedSimWellNames();
+        std::set<QString> sortedWellNames = sortedSimWellNames();
 
         caf::IconProvider simWellIcon( ":/Well.svg" );
         for ( const QString& wname : sortedWellNames )

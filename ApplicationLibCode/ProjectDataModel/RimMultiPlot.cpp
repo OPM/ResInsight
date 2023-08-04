@@ -269,16 +269,16 @@ void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, in
     {
         if ( insertAtPosition >= 0 )
         {
-            this->insertPlot( plotsToMove[tIdx], (size_t)insertAtPosition + tIdx );
+            insertPlot( plotsToMove[tIdx], (size_t)insertAtPosition + tIdx );
         }
         else
         {
-            this->addPlot( plotsToMove[tIdx] );
+            addPlot( plotsToMove[tIdx] );
         }
     }
 
-    this->updateLayout();
-    this->updateAllRequiredEditors();
+    updateLayout();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -841,7 +841,7 @@ void RimMultiPlot::updatePlots()
         {
             plot->loadDataAndUpdate();
         }
-        this->updateZoom();
+        updateZoom();
     }
 }
 

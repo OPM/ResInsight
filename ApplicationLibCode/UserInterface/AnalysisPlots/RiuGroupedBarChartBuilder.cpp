@@ -57,11 +57,11 @@ public:
     {
         painter->save();
 
-        switch ( this->style() )
+        switch ( style() )
         {
             case QwtColumnSymbol::Box:
             {
-                switch ( this->frameStyle() )
+                switch ( frameStyle() )
                 {
                     case QwtColumnSymbol::NoFrame:
                     {
@@ -75,8 +75,8 @@ public:
                         }
 
                         painter->fillRect( r,
-                                           this->palette().window() ); // This line here is the difference. Qwt adds a 1
-                                                                       // to width and height.
+                                           palette().window() ); // This line here is the difference. Qwt adds a 1
+                                                                 // to width and height.
                     }
                     break;
                     default:
@@ -121,9 +121,9 @@ public:
         , m_labelFontPointSize( labelFontPointSize )
         , m_textColor( textColor )
     {
-        this->setTickLength( QwtScaleDiv::MajorTick, 0 );
-        this->setTickLength( QwtScaleDiv::MediumTick, 0 );
-        this->setTickLength( QwtScaleDiv::MinorTick, 0 );
+        setTickLength( QwtScaleDiv::MajorTick, 0 );
+        setTickLength( QwtScaleDiv::MediumTick, 0 );
+        setTickLength( QwtScaleDiv::MinorTick, 0 );
 
         int minorTextLineCount  = 0;
         int mediumTextLineCount = 0;
@@ -183,7 +183,7 @@ public:
         auto posTickIt = m_posTickTypeAndTexts.find( v );
         if ( posTickIt != m_posTickTypeAndTexts.end() )
         {
-            if ( this->alignment() == BottomScale )
+            if ( alignment() == BottomScale )
             {
                 if ( posTickIt->second.tickType == QwtScaleDiv::MediumTick )
                 {
@@ -198,7 +198,7 @@ public:
                     return createLabelFromString( posTickIt->second.label, -2 );
                 }
             }
-            else if ( this->alignment() == LeftScale )
+            else if ( alignment() == LeftScale )
             {
                 if ( posTickIt->second.tickType == QwtScaleDiv::MediumTick )
                 {

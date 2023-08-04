@@ -39,7 +39,7 @@ RicSaveProjectFeature::RicSaveProjectFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicSaveProjectFeature::execute()
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     bool    worked = false;
     QString errorMessage;

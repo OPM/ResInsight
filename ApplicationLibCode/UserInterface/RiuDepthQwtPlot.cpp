@@ -135,9 +135,9 @@ void RiuDepthQwtPlot::addCurve( const RimCase*             rimCase,
 
     updateAxisScaling();
 
-    this->applyFontSizes( false );
+    applyFontSizes( false );
 
-    this->replot();
+    replot();
 
     int caseId = rimCase->caseId();
 
@@ -193,7 +193,7 @@ void RiuDepthQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu menu;
 
-    const int curveCount = this->itemList( QwtPlotItem::Rtti_PlotCurve ).count();
+    const int curveCount = itemList( QwtPlotItem::Rtti_PlotCurve ).count();
 
     QAction* act = menu.addAction( "Show Plot Data", this, SLOT( slotCurrentPlotDataInTextDialog() ) );
     act->setEnabled( curveCount > 0 );
@@ -302,6 +302,6 @@ void RiuDepthQwtPlot::updateAxisScaling()
     double valRangeY = m_maxY - m_minY;
     if ( valRangeY == 0.0 ) valRangeY = 1.0;
 
-    this->setAxisScale( QwtAxis::YLeft, m_maxY + 0.02 * valRangeY, m_minY - 0.02 * valRangeY );
-    this->setAxisScale( QwtAxis::XTop, m_minX - 0.02 * valRangeX, m_maxX + 0.1 * valRangeX );
+    setAxisScale( QwtAxis::YLeft, m_maxY + 0.02 * valRangeY, m_minY - 0.02 * valRangeY );
+    setAxisScale( QwtAxis::XTop, m_minX - 0.02 * valRangeX, m_maxX + 0.1 * valRangeX );
 }

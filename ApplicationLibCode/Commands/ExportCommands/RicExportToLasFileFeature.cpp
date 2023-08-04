@@ -131,7 +131,7 @@ bool RicExportToLasFileFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
