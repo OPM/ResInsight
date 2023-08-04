@@ -51,7 +51,7 @@ public:
     virtual void updateViewAnnotationCollections();
     virtual void onAnnotationDeleted();
 
-    void                      scheduleRedrawOfRelevantViews();
+    void                    scheduleRedrawOfRelevantViews();
     std::vector<Rim3dView*> viewsContainingAnnotations() const;
 
 protected:
