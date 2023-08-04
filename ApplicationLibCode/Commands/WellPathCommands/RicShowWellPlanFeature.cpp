@@ -44,7 +44,7 @@ bool RicShowWellPlanFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicShowWellPlanFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     std::vector<RimModeledWellPath*> selectedWellPaths = caf::selectedObjectsByType<RimModeledWellPath*>();
     if ( selectedWellPaths.empty() )

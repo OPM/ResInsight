@@ -290,7 +290,7 @@ void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* ch
     if ( changedField == &m_refMDType )
     {
         m_refMD.uiCapability()->setUiHidden( m_refMDType == ReferenceMDType::AUTO_REFERENCE_MD );
-        this->updateAllRequiredEditors();
+        updateAllRequiredEditors();
     }
 
     if ( changedField == &m_enforceMaxSegmentLength )

@@ -105,7 +105,7 @@ double RigCombTransResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cv
         break;
         case cvf::StructGridInterface::NEG_I:
         {
-            return this->neighborCellTran( gridLocalCellIndex, cvf::StructGridInterface::NEG_I, m_xTransAccessor.p() );
+            return neighborCellTran( gridLocalCellIndex, cvf::StructGridInterface::NEG_I, m_xTransAccessor.p() );
         }
         break;
         case cvf::StructGridInterface::POS_J:
@@ -118,7 +118,7 @@ double RigCombTransResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cv
         break;
         case cvf::StructGridInterface::NEG_J:
         {
-            return this->neighborCellTran( gridLocalCellIndex, cvf::StructGridInterface::NEG_J, m_yTransAccessor.p() );
+            return neighborCellTran( gridLocalCellIndex, cvf::StructGridInterface::NEG_J, m_yTransAccessor.p() );
         }
         break;
         case cvf::StructGridInterface::POS_K:
@@ -131,7 +131,7 @@ double RigCombTransResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cv
         break;
         case cvf::StructGridInterface::NEG_K:
         {
-            return this->neighborCellTran( gridLocalCellIndex, cvf::StructGridInterface::NEG_K, m_zTransAccessor.p() );
+            return neighborCellTran( gridLocalCellIndex, cvf::StructGridInterface::NEG_K, m_zTransAccessor.p() );
         }
         break;
         default:
@@ -157,5 +157,5 @@ double RigCombTransResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) con
 double RigCombTransResultAccessor::cellFaceScalarGlobIdx( size_t globCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     size_t gridLocalCellIndex = m_grid->mainGrid()->cell( globCellIndex ).gridLocalCellIndex();
-    return this->cellFaceScalar( gridLocalCellIndex, faceId );
+    return cellFaceScalar( gridLocalCellIndex, faceId );
 }

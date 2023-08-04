@@ -48,47 +48,47 @@ RigEquil::RigEquil( double datumDepth,
 
 double RigEquil::datumDepth() const
 {
-    return this->datum_depth;
+    return datum_depth;
 }
 
 double RigEquil::datumDepthPressure() const
 {
-    return this->datum_depth_ps;
+    return datum_depth_ps;
 }
 
 double RigEquil::waterOilContactDepth() const
 {
-    return this->water_oil_contact_depth;
+    return water_oil_contact_depth;
 }
 
 double RigEquil::waterOilContactCapillaryPressure() const
 {
-    return this->water_oil_contact_capillary_pressure;
+    return water_oil_contact_capillary_pressure;
 }
 
 double RigEquil::gasOilContactDepth() const
 {
-    return this->gas_oil_contact_depth;
+    return gas_oil_contact_depth;
 }
 
 double RigEquil::gasOilContactCapillaryPressure() const
 {
-    return this->gas_oil_contact_capillary_pressure;
+    return gas_oil_contact_capillary_pressure;
 }
 
 bool RigEquil::liveOilInitConstantRs() const
 {
-    return this->live_oil_init_proc;
+    return live_oil_init_proc;
 }
 
 bool RigEquil::wetGasInitConstantRv() const
 {
-    return this->wet_gas_init_proc;
+    return wet_gas_init_proc;
 }
 
 int RigEquil::initializationTargetAccuracy() const
 {
-    return this->init_target_accuracy;
+    return init_target_accuracy;
 }
 
 //--------------------------------------------------------------------------------------------------

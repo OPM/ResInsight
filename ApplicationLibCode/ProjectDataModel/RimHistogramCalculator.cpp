@@ -343,7 +343,7 @@ RigHistogramData
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
             {
-                this->updateVisCellStatsIfNeeded( geoMechView );
+                updateVisCellStatsIfNeeded( geoMechView );
 
                 if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
                 {

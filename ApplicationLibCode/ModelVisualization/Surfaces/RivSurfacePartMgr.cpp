@@ -74,7 +74,7 @@ void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* m
     if ( m_nativeTrianglesPart.notNull() )
     {
         m_nativeTrianglesPart->setTransform( scaleTransform );
-        this->updateNativeSurfaceColors();
+        updateNativeSurfaceColors();
 
         model->addPart( m_nativeTrianglesPart.p() );
 

@@ -1265,7 +1265,7 @@ void RimDepthTrackPlot::updatePlots()
         {
             plot->loadDataAndUpdate();
         }
-        this->updateZoom();
+        updateZoom();
     }
 }
 

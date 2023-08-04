@@ -242,8 +242,8 @@ void RimTernaryLegendConfig::onRecreateLegend()
 void RimTernaryLegendConfig::setUiValuesFromLegendConfig( const RimTernaryLegendConfig* otherLegendConfig )
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
-    this->readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
-    this->updateLegend();
+    readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

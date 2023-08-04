@@ -81,27 +81,27 @@ void RimWellPathImport::updateRegions( const QStringList& regionStrings, const Q
     std::vector<RimOilRegionEntry*> regionsToRemove;
 
     // Remove regions and fields not present in last request
-    for ( size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++ )
+    for ( size_t regionIdx = 0; regionIdx < regions.size(); regionIdx++ )
     {
-        if ( !regionStrings.contains( this->regions[regionIdx]->name ) )
+        if ( !regionStrings.contains( regions[regionIdx]->name ) )
         {
-            regionsToRemove.push_back( this->regions[regionIdx] );
+            regionsToRemove.push_back( regions[regionIdx] );
         }
         else
         {
             std::vector<RimOilFieldEntry*> fieldsToRemove;
 
-            for ( size_t fIdx = 0; fIdx < this->regions[regionIdx]->fields.size(); fIdx++ )
+            for ( size_t fIdx = 0; fIdx < regions[regionIdx]->fields.size(); fIdx++ )
             {
-                if ( !fieldStrings.contains( this->regions[regionIdx]->fields[fIdx]->name ) )
+                if ( !fieldStrings.contains( regions[regionIdx]->fields[fIdx]->name ) )
                 {
-                    fieldsToRemove.push_back( this->regions[regionIdx]->fields[fIdx] );
+                    fieldsToRemove.push_back( regions[regionIdx]->fields[fIdx] );
                 }
             }
 
             for ( size_t i = 0; i < fieldsToRemove.size(); i++ )
             {
-                this->regions[regionIdx]->fields.removeChild( fieldsToRemove[i] );
+                regions[regionIdx]->fields.removeChild( fieldsToRemove[i] );
 
                 delete fieldsToRemove[i];
             }
@@ -110,7 +110,7 @@ void RimWellPathImport::updateRegions( const QStringList& regionStrings, const Q
 
     for ( size_t i = 0; i < regionsToRemove.size(); i++ )
     {
-        this->regions.removeChild( regionsToRemove[i] );
+        regions.removeChild( regionsToRemove[i] );
 
         delete regionsToRemove[i];
     }
@@ -120,17 +120,17 @@ void RimWellPathImport::updateRegions( const QStringList& regionStrings, const Q
         RimOilRegionEntry* oilRegionEntry = nullptr;
         RimOilFieldEntry*  oilFieldEntry  = nullptr;
 
-        for ( size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++ )
+        for ( size_t regionIdx = 0; regionIdx < regions.size(); regionIdx++ )
         {
-            if ( this->regions[regionIdx]->name == regionStrings[i] )
+            if ( regions[regionIdx]->name == regionStrings[i] )
             {
-                oilRegionEntry = this->regions[regionIdx];
+                oilRegionEntry = regions[regionIdx];
 
-                for ( size_t fIdx = 0; fIdx < this->regions[regionIdx]->fields.size(); fIdx++ )
+                for ( size_t fIdx = 0; fIdx < regions[regionIdx]->fields.size(); fIdx++ )
                 {
-                    if ( this->regions[regionIdx]->fields[fIdx]->edmId == edmIds[i] )
+                    if ( regions[regionIdx]->fields[fIdx]->edmId == edmIds[i] )
                     {
-                        oilFieldEntry = this->regions[regionIdx]->fields[fIdx];
+                        oilFieldEntry = regions[regionIdx]->fields[fIdx];
                     }
                 }
             }
@@ -141,7 +141,7 @@ void RimWellPathImport::updateRegions( const QStringList& regionStrings, const Q
             oilRegionEntry       = new RimOilRegionEntry;
             oilRegionEntry->name = regionStrings[i];
 
-            this->regions.push_back( oilRegionEntry );
+            regions.push_back( oilRegionEntry );
         }
 
         assert( oilRegionEntry );
@@ -244,11 +244,11 @@ void RimWellPathImport::updateFilePaths()
 {
     QString wellPathsFolderPath = RimFileWellPath::getCacheDirectoryPath();
 
-    for ( size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++ )
+    for ( size_t regionIdx = 0; regionIdx < regions.size(); regionIdx++ )
     {
-        for ( size_t fIdx = 0; fIdx < this->regions[regionIdx]->fields.size(); fIdx++ )
+        for ( size_t fIdx = 0; fIdx < regions[regionIdx]->fields.size(); fIdx++ )
         {
-            RimOilFieldEntry* oilField = this->regions[regionIdx]->fields[fIdx];
+            RimOilFieldEntry* oilField = regions[regionIdx]->fields[fIdx];
 
             QFileInfo fi( oilField->wellsFilePath );
 

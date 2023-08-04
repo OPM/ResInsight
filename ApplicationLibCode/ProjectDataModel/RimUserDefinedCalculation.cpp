@@ -234,7 +234,7 @@ bool RimUserDefinedCalculation::parseExpression()
         {
             if ( !findByName( variableName ) )
             {
-                this->addVariable( variableName );
+                addVariable( variableName );
             }
         }
     }

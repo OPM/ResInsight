@@ -128,7 +128,7 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
 
     m_summaryCurveSelectionEditor = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();
 
-    m_summaryCurveSelectionEditor->summaryAddressSelection()->setFieldChangedHandler( [this]() { this->selectionEditorFieldChanged(); } );
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setFieldChangedHandler( [this]() { selectionEditorFieldChanged(); } );
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setMultiSelectionMode( true );
 }
 

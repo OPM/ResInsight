@@ -613,11 +613,11 @@ const size_t* RifReaderEclipseOutput::eclipseCellIndexMapping()
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults )
 {
-    if ( this->filenamesWithFaults().size() > 0 )
+    if ( filenamesWithFaults().size() > 0 )
     {
-        for ( size_t i = 0; i < this->filenamesWithFaults().size(); i++ )
+        for ( size_t i = 0; i < filenamesWithFaults().size(); i++ )
         {
-            QString faultFilename = this->filenamesWithFaults()[i];
+            QString faultFilename = filenamesWithFaults()[i];
 
             RifEclipseInputFileTools::parseAndReadFaults( faultFilename, faults );
         }
@@ -635,7 +635,7 @@ void RifReaderEclipseOutput::importFaults( const QStringList& fileSet, cvf::Coll
                 std::vector<QString>::iterator last = std::unique( filenamesWithFaults.begin(), filenamesWithFaults.end() );
                 filenamesWithFaults.erase( last, filenamesWithFaults.end() );
 
-                this->setFilenamesWithFaults( filenamesWithFaults );
+                setFilenamesWithFaults( filenamesWithFaults );
             }
         }
     }
@@ -1481,7 +1481,7 @@ public:
             if ( ert_wellhead )
             {
                 size_t localGridCellidx = localGridCellIndexFromErtConnection( m_mainGrid->gridByIndex( gridNr ), ert_wellhead, nullptr );
-                this->insertTheParentCells( gridNr, localGridCellidx );
+                insertTheParentCells( gridNr, localGridCellidx );
             }
 
             std::string                      gridname = gridNr == 0 ? ECL_GRID_GLOBAL_GRID : m_mainGrid->gridByIndex( gridNr )->gridName();
@@ -1498,7 +1498,7 @@ public:
 
                         size_t localGridCellidx =
                             localGridCellIndexFromErtConnection( m_mainGrid->gridByIndex( gridNr ), ert_connection, nullptr );
-                        this->insertTheParentCells( gridNr, localGridCellidx );
+                        insertTheParentCells( gridNr, localGridCellidx );
                     }
                 }
             }
@@ -1723,7 +1723,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 
                         for ( int gridNr = lastGridNr; gridNr >= 0; --gridNr )
                         {
-                            std::string gridName = this->ertGridName( gridNr );
+                            std::string gridName = ertGridName( gridNr );
 
                             // If this segment has connections in any grid, transfer the innermost ones
 
@@ -1808,7 +1808,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 
                         for ( int gridNr = lastGridNr; gridNr >= 0; --gridNr )
                         {
-                            std::string gridName = this->ertGridName( gridNr );
+                            std::string gridName = ertGridName( gridNr );
 
                             // If this segment has connections in any grid, use the deepest innermost one
 
@@ -1881,7 +1881,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 
                                 for ( int gridNr = lastGridNr; gridNr >= 0; --gridNr )
                                 {
-                                    std::string gridName = this->ertGridName( gridNr );
+                                    std::string gridName = ertGridName( gridNr );
 
                                     // If this segment has connections in any grid, stop traversal
 
@@ -2047,7 +2047,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                     }
 
                     const well_conn_collection_type* connections =
-                        well_state_get_grid_connections( ert_well_state, this->ertGridName( gridNr ).data() );
+                        well_state_get_grid_connections( ert_well_state, ertGridName( gridNr ).data() );
 
                     // Import all well result cells for all connections
                     if ( connections )
@@ -2222,7 +2222,7 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
 
         for ( size_t i = 0; i < timeStepsOnFile.size(); i++ )
         {
-            if ( this->isTimeStepIncludedByFilter( i ) )
+            if ( isTimeStepIncludedByFilter( i ) )
             {
                 timeStepInfos.push_back(
                     RigEclipseTimeStepInfo( timeStepsOnFile[i], reportNumbersOnFile[i], daysSinceSimulationStartOnFile[i] ) );

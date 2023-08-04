@@ -154,7 +154,7 @@ void RimSurfaceInViewCollection::syncCollectionsWithView()
         {
             // check if this is a collection we need to create
 
-            RimSurfaceInViewCollection* viewSurfColl = this->getCollectionInViewForCollection( surfcoll );
+            RimSurfaceInViewCollection* viewSurfColl = getCollectionInViewForCollection( surfcoll );
             if ( viewSurfColl == nullptr )
             {
                 RimSurfaceInViewCollection* newColl = new RimSurfaceInViewCollection();
@@ -205,7 +205,7 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
         for ( auto surf : surfs )
         {
             // check if this is a surface we need to create
-            RimSurfaceInView* viewSurf = this->getSurfaceInViewForSurface( surf );
+            RimSurfaceInView* viewSurf = getSurfaceInViewForSurface( surf );
             if ( viewSurf == nullptr )
             {
                 RimSurfaceInView* newSurfInView = new RimSurfaceInView();
@@ -307,7 +307,7 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 
     if ( changedField == &m_isChecked )
     {
@@ -321,7 +321,7 @@ void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::initAfterRead()
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -361,7 +361,7 @@ RimSurfaceInViewCollection* RimSurfaceInViewCollection::getCollectionInViewForCo
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex )
 {
-    if ( !this->isChecked() ) return;
+    if ( !isChecked() ) return;
 
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {
@@ -407,7 +407,7 @@ void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResul
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::applySingleColorEffect()
 {
-    if ( !this->isChecked() ) return;
+    if ( !isChecked() ) return;
 
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {
@@ -431,7 +431,7 @@ void RimSurfaceInViewCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
 {
-    if ( !this->isChecked() ) return false;
+    if ( !isChecked() ) return false;
 
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {

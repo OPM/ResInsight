@@ -55,7 +55,7 @@ RimObservedSummaryData::RimObservedSummaryData()
 //--------------------------------------------------------------------------------------------------
 QString RimObservedSummaryData::caseName() const
 {
-    QFileInfo caseFileName( this->summaryHeaderFilename() );
+    QFileInfo caseFileName( summaryHeaderFilename() );
 
     return caseFileName.completeBaseName();
 }

@@ -229,7 +229,7 @@ void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& addres
 std::string RimSummaryCurve::unitNameY() const
 {
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
-    if ( reader ) return reader->unitName( this->summaryAddressY() );
+    if ( reader ) return reader->unitName( summaryAddressY() );
 
     return "";
 }
@@ -240,7 +240,7 @@ std::string RimSummaryCurve::unitNameY() const
 std::string RimSummaryCurve::unitNameX() const
 {
     RifSummaryReaderInterface* reader = valuesSummaryReaderX();
-    if ( reader ) return reader->unitName( this->summaryAddressX() );
+    if ( reader ) return reader->unitName( summaryAddressX() );
 
     return "";
 }
@@ -467,7 +467,7 @@ void RimSummaryCurve::setIsEnsembleCurve( bool isEnsembleCurve )
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions );
+    QList<caf::PdmOptionItemInfo> options = RimPlotCurve::calculateValueOptions( fieldNeedingOptions );
     if ( !options.isEmpty() ) return options;
 
     auto createOptionsForSummaryCase = []( RimSummaryCase* summaryCase, QList<caf::PdmOptionItemInfo>& options )
@@ -594,16 +594,16 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isChecked() )
     {
-        std::vector<double> curveValuesY = this->valuesY();
+        std::vector<double> curveValuesY = valuesY();
 
         auto plot                = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->axisY() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( axisY() );
 
         bool shouldPopulateViewWithEmptyData = false;
 
         if ( isCrossPlotCurve() )
         {
-            auto curveValuesX    = this->valuesX();
+            auto curveValuesX    = valuesX();
             auto curveTimeStepsX = timeStepsX();
 
             auto curveTimeStepsY = timeStepsY();
@@ -621,9 +621,9 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 if ( curveMerger.allXValues().size() > 0 )
                 {
-                    this->setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
-                                                  curveMerger.interpolatedYValuesForAllXValues( 1 ),
-                                                  useLogarithmicScale );
+                    setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
+                                            curveMerger.interpolatedYValuesForAllXValues( 1 ),
+                                            useLogarithmicScale );
                 }
                 else
                 {
@@ -633,7 +633,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         else
         {
-            std::vector<time_t> curveTimeStepsY = this->timeStepsY();
+            std::vector<time_t> curveTimeStepsY = timeStepsY();
             if ( curveTimeStepsY.size() > 0 && curveTimeStepsY.size() == curveValuesY.size() )
             {
                 if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
@@ -651,11 +651,11 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                             if ( !errValues.empty() )
                             {
-                                this->setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, useLogarithmicScale );
+                                setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, useLogarithmicScale );
                             }
                             else
                             {
-                                this->setSamplesFromXYValues( timeSteps, curveValuesY, useLogarithmicScale );
+                                setSamplesFromXYValues( timeSteps, curveValuesY, useLogarithmicScale );
                             }
                         }
                         else
@@ -677,12 +677,12 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                     resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
                                     resampledValues.insert( resampledValues.begin(), resampledValues.front() );
 
-                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, useLogarithmicScale );
+                                    setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, useLogarithmicScale );
                                 }
                             }
                             else
                             {
-                                this->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, useLogarithmicScale );
+                                setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, useLogarithmicScale );
                             }
                         }
                     }
@@ -701,7 +701,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         }
                     }
 
-                    this->setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, useLogarithmicScale );
+                    setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, useLogarithmicScale );
                 }
             }
             else
@@ -714,7 +714,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( shouldPopulateViewWithEmptyData )
         {
-            this->setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), useLogarithmicScale );
+            setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), useLogarithmicScale );
         }
 
         if ( updateParentPlot && hasParentPlot() )
@@ -747,7 +747,7 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
 {
     RimPlotCurve::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 
-    caf::IconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = uiIconProvider();
     if ( !iconProvider.valid() ) return;
 
     RimSummaryCurveCollection* coll = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
@@ -1055,7 +1055,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_yValuesSummaryAddress->setAddress( m_yValuesSummaryAddressUiField() );
 
-        this->calculateCurveInterpolationFromAddress();
+        calculateCurveInterpolationFromAddress();
 
         loadAndUpdate = true;
     }
@@ -1063,7 +1063,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_xValuesSummaryAddress->setAddress( m_xValuesSummaryAddressUiField() );
 
-        this->calculateCurveInterpolationFromAddress();
+        calculateCurveInterpolationFromAddress();
 
         loadAndUpdate = true;
     }
@@ -1097,7 +1097,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         plot->updateCaseNameHasChanged();
 
         // TODO: is it not ok to just set loadAndUpdate = true?
-        this->onLoadDataAndUpdate( true );
+        onLoadDataAndUpdate( true );
         dataChanged.send();
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
@@ -1171,10 +1171,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( crossPlotTestForMatchingTimeSteps )
     {
-        auto curveValuesX    = this->valuesX();
+        auto curveValuesX    = valuesX();
         auto curveTimeStepsX = timeStepsX();
 
-        auto curveValuesY    = this->valuesY();
+        auto curveValuesY    = valuesY();
         auto curveTimeStepsY = timeStepsY();
 
         if ( !curveValuesX.empty() && !curveValuesY.empty() )
@@ -1233,7 +1233,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::loadAndUpdateDataAndPlot()
 {
-    this->loadDataAndUpdate( true );
+    loadDataAndUpdate( true );
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 

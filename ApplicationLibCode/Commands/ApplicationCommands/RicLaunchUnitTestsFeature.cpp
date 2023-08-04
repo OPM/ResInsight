@@ -30,7 +30,7 @@ CAF_CMD_SOURCE_INIT( RicLaunchUnitTestsFeature, "RicLaunchUnitTestsFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicLaunchUnitTestsFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaApplication::instance()->launchUnitTestsWithConsole();
 }

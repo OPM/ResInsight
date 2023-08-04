@@ -108,7 +108,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     : duplicatePlot( this )
 {
     CAF_PDM_InitObject( "Multi Summary Plot", ":/SummaryPlotLight16x16.png" );
-    this->setDeletable( true );
+    setDeletable( true );
 
     CAF_PDM_InitField( &m_autoPlotTitle, "AutoPlotTitle", true, "Auto Plot Title" );
     CAF_PDM_InitField( &m_autoSubPlotTitle, "AutoSubPlotTitle", true, "Auto Sub Plot Title" );

@@ -355,7 +355,7 @@ void RigMainGrid::setFlipAxis( bool flipXAxis, bool flipYAxis )
 RigGridBase* RigMainGrid::gridById( int localGridId )
 {
     CVF_ASSERT( localGridId >= 0 && static_cast<size_t>( localGridId ) < m_gridIdToIndexMapping.size() );
-    return this->gridByIndex( m_gridIdToIndexMapping[localGridId] );
+    return gridByIndex( m_gridIdToIndexMapping[localGridId] );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,7 +399,7 @@ void RigMainGrid::setFaults( const cvf::Collection<RigFault>& faults )
 #pragma omp parallel for
     for ( int i = 0; i < static_cast<int>( m_faults.size() ); i++ )
     {
-        m_faults[i]->computeFaultFacesFromCellRanges( this->mainGrid() );
+        m_faults[i]->computeFaultFacesFromCellRanges( mainGrid() );
     }
 }
 
@@ -527,7 +527,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
             if ( firstNO_FAULTFaceForCell ) // To avoid doing this for every face, and only when detecting a NO_FAULT
             {
                 size_t gridLocalCellIndex;
-                hostGrid = this->gridAndGridLocalIdxFromGlobalCellIdx( gcIdx, &gridLocalCellIndex );
+                hostGrid = gridAndGridLocalIdxFromGlobalCellIdx( gcIdx, &gridLocalCellIndex );
 
                 hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
                 isCellActive = activeCellInfo->isActive( gcIdx );
@@ -602,7 +602,7 @@ void RigMainGrid::distributeNNCsToFaults()
 {
     if ( m_faultsPrCellAcc.isNull() ) return;
 
-    const RigConnectionContainer& nncs = this->nncData()->allConnections();
+    const RigConnectionContainer& nncs = nncData()->allConnections();
     for ( size_t nncIdx = 0; nncIdx < nncs.size(); ++nncIdx )
     {
         // Find the fault for each side of the nnc

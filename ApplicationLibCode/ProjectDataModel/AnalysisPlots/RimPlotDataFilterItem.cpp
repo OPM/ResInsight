@@ -243,24 +243,24 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
 {
     if ( changedField == &m_filterTarget )
     {
-        this->updateMaxMinAndDefaultValues( true );
+        updateMaxMinAndDefaultValues( true );
     }
     else if ( changedField == &m_filterQuantityUiField )
     {
         m_filterAddress->setAddress( m_filterQuantityUiField );
-        this->updateMaxMinAndDefaultValues( true );
+        updateMaxMinAndDefaultValues( true );
     }
     else if ( changedField == &m_filterEnsembleParameter )
     {
-        this->updateMaxMinAndDefaultValues( true );
+        updateMaxMinAndDefaultValues( true );
     }
     else if ( changedField == &m_filterOperation )
     {
-        this->updateMaxMinAndDefaultValues( false );
+        updateMaxMinAndDefaultValues( false );
     }
     else if ( changedField == &m_consideredTimestepsType || changedField == &m_explicitlySelectedTimeSteps )
     {
-        this->updateMaxMinAndDefaultValues( false );
+        updateMaxMinAndDefaultValues( false );
     }
     filterChanged.send();
 }

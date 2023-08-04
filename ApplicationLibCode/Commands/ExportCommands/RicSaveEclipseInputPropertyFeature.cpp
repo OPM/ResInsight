@@ -53,7 +53,7 @@ bool RicSaveEclipseInputPropertyFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RimEclipseInputProperty* inputProperty = selectedInputProperty();
     if ( !inputProperty ) return;

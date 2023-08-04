@@ -188,7 +188,7 @@ RimAnalysisPlot::~RimAnalysisPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::updateCaseNameHasChanged()
 {
-    this->onLoadDataAndUpdate();
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -421,7 +421,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::onFiltersChanged( const caf::SignalEmitter* emitter )
 {
-    this->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -453,7 +453,7 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         dlg.enableMultiSelect( true );
         dlg.enableIndividualEnsembleCaseSelection( true );
         dlg.hideEnsembles();
-        dlg.setCurveSelection( this->curveDefinitions() );
+        dlg.setCurveSelection( curveDefinitions() );
 
         if ( dlg.exec() == QDialog::Accepted )
         {
@@ -475,10 +475,10 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_selectedTimeSteps.v().clear();
 
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
 
-    this->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -792,8 +792,8 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
         m_plotWidget->updateLegend();
     }
 
-    this->updateAxes();
-    this->updatePlotTitle();
+    updateAxes();
+    updatePlotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1089,7 +1089,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
         {
             sumItemsToKeep = ( *filteredSummaryItems ); // Not filtering items
 
-            RigEnsembleParameter eParam = this->ensembleParameter( filter->ensembleParameterName() );
+            RigEnsembleParameter eParam = ensembleParameter( filter->ensembleParameterName() );
 
             for ( auto sumCase : ( *filteredSumCases ) )
             {
@@ -1154,7 +1154,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
         }
         else if ( filter->consideredTimeStepsType() == RimPlotDataFilterItem::PLOT_SOURCE_TIMESTEPS )
         {
-            selectedTimesteps = this->selectedTimeSteps();
+            selectedTimesteps = selectedTimeSteps();
         }
 
         std::function<void( double )> storeResultCoreLambda;
@@ -1626,7 +1626,7 @@ RiaSummaryCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefA
     {
         m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
     }
-    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( curveDefinitions() );
     return m_analyserOfSelectedCurveDefs.get();
 }
 

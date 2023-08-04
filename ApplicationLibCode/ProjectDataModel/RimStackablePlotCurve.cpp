@@ -81,7 +81,7 @@ void RimStackablePlotCurve::assignStackColor( size_t index, size_t count )
         m_curveAppearance->setColor( RiaColorTools::fromQColorTo3f( moreSaturatedColor ) );
     }
 
-    this->updateCurveAppearance();
+    updateCurveAppearance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 void RimStackablePlotCurve::onFillColorChanged( const caf::SignalEmitter* emitter )
 {
     m_isStackedWithPhaseColors = false;
-    this->updateConnectedEditors();
+    updateConnectedEditors();
     stackingColorsChanged.send( m_isStackedWithPhaseColors() );
 }
 

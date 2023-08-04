@@ -53,7 +53,7 @@ std::vector<caf::FontHolderInterface*> findFontObjects()
 //--------------------------------------------------------------------------------------------------
 void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
 

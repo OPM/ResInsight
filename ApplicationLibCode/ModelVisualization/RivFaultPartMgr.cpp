@@ -104,7 +104,7 @@ void RivFaultPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
 void RivFaultPartMgr::applySingleColorEffect()
 {
     m_defaultColor = m_rimFault->faultColor();
-    this->updatePartEffect();
+    updatePartEffect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCel
                                                                     m_nativeFaultFacesTextureCoords.p(),
                                                                     mapper,
                                                                     m_opacityLevel,
-                                                                    this->faceCullingMode(),
+                                                                    faceCullingMode(),
                                                                     eclipseView->isLightingDisabled() );
         }
         else
@@ -159,7 +159,7 @@ void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCel
                                                              m_nativeFaultFacesTextureCoords.p(),
                                                              mapper,
                                                              m_opacityLevel,
-                                                             this->faceCullingMode(),
+                                                             faceCullingMode(),
                                                              eclipseView->isLightingDisabled() );
         }
     }
@@ -182,7 +182,7 @@ void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCel
                                                                     m_oppositeFaultFacesTextureCoords.p(),
                                                                     mapper,
                                                                     m_opacityLevel,
-                                                                    this->faceCullingMode(),
+                                                                    faceCullingMode(),
                                                                     eclipseView->isLightingDisabled() );
         }
         else
@@ -204,7 +204,7 @@ void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCel
                                                              m_oppositeFaultFacesTextureCoords.p(),
                                                              mapper,
                                                              m_opacityLevel,
-                                                             this->faceCullingMode(),
+                                                             faceCullingMode(),
                                                              eclipseView->isLightingDisabled() );
         }
     }
@@ -232,7 +232,7 @@ void RivFaultPartMgr::updateCellEdgeResultColor( size_t                timeStepI
                                                                                     cellEdgeResultColors,
                                                                                     m_opacityLevel,
                                                                                     m_defaultColor,
-                                                                                    this->faceCullingMode(),
+                                                                                    faceCullingMode(),
                                                                                     cellResultColors->reservoirView()->isLightingDisabled() );
 
             m_nativeFaultFaces->setEffect( eff.p() );
@@ -252,7 +252,7 @@ void RivFaultPartMgr::updateCellEdgeResultColor( size_t                timeStepI
                                                                                     cellEdgeResultColors,
                                                                                     m_opacityLevel,
                                                                                     m_defaultColor,
-                                                                                    this->faceCullingMode(),
+                                                                                    faceCullingMode(),
                                                                                     cellResultColors->reservoirView()->isLightingDisabled() );
 
             m_oppositeFaultFaces->setEffect( eff.p() );

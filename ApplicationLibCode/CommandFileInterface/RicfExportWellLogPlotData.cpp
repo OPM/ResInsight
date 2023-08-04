@@ -50,7 +50,7 @@ CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotDataResult, "exportWellLogPlotDataResu
 RicfExportWellLogPlotDataResult::RicfExportWellLogPlotDataResult()
 {
     CAF_PDM_InitObject( "export_well_data_result" );
-    CAF_PDM_InitFieldNoDefault( &this->exportedFiles, "exportedFiles", "" );
+    CAF_PDM_InitFieldNoDefault( &exportedFiles, "exportedFiles", "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotData, "exportWellLogPlotData" );

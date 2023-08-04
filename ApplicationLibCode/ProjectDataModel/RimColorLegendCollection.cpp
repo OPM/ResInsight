@@ -181,7 +181,7 @@ void RimColorLegendCollection::createStandardColorLegends()
 
     m_standardColorLegends.push_back( createRockTypeColorLegend() );
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

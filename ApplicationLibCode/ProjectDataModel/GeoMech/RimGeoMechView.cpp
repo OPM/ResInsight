@@ -157,7 +157,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     onUpdateScaleTransform();
 
-    this->updateSurfacesInViewTreeItems();
+    updateSurfacesInViewTreeItems();
 
     if ( m_geomechCase )
     {
@@ -186,22 +186,22 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     progress.setProgressDescription( "Reading Current Result" );
 
-    CVF_ASSERT( this->cellResult() != nullptr );
-    m_geomechCase->geoMechData()->femPartResults()->setNormalizationAirGap( this->cellResult()->normalizationAirGap() );
-    m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded( this->cellResult()->resultAddress() );
+    CVF_ASSERT( cellResult() != nullptr );
+    m_geomechCase->geoMechData()->femPartResults()->setNormalizationAirGap( cellResult()->normalizationAirGap() );
+    m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded( cellResult()->resultAddress() );
     progress.incrementProgress();
     progress.setProgressDescription( "Create Display model" );
 
     updateMdiWindowVisibility();
 
-    this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
+    geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
     if ( m_surfaceCollection ) m_surfaceCollection->loadData();
 
     if ( m_partsCollection ) m_partsCollection->syncWithCase( m_geomechCase );
 
-    this->scheduleCreateDisplayModelAndRedraw();
+    scheduleCreateDisplayModelAndRedraw();
 
     progress.incrementProgress();
 }
@@ -215,7 +215,7 @@ void RimGeoMechView::onUpdateScaleTransform()
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale( 2, 2 )    = scaleZ();
 
-    this->scaleTransform()->setLocalTransform( scale );
+    scaleTransform()->setLocalTransform( scale );
 
     if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
 }
@@ -414,7 +414,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 
     updateElementDisplacements();
 
-    if ( this->isTimeStepDependentDataVisibleInThisOrComparisonView() )
+    if ( isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
         if ( nativeOrOverrideViewer() )
         {
@@ -469,10 +469,10 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
             }
         }
 
-        bool hasGeneralCellResult = this->cellResult()->hasResult();
+        bool hasGeneralCellResult = cellResult()->hasResult();
 
         if ( hasGeneralCellResult )
-            m_vizLogic->updateCellResultColor( m_currentTimeStep(), m_currentInternalTimeStep, m_currentDataFrameIndex, this->cellResult() );
+            m_vizLogic->updateCellResultColor( m_currentTimeStep(), m_currentInternalTimeStep, m_currentDataFrameIndex, cellResult() );
         else
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
@@ -550,7 +550,7 @@ void RimGeoMechView::onUpdateLegends()
         }
         else
         {
-            std::vector<RimLegendConfig*> legendConfs = this->legendConfigs();
+            std::vector<RimLegendConfig*> legendConfs = legendConfigs();
 
             for ( auto legendConf : legendConfs )
             {
@@ -558,7 +558,7 @@ void RimGeoMechView::onUpdateLegends()
             }
         }
 
-        this->updateLegendTextAndRanges( cellResult()->legendConfig(), m_currentTimeStep() );
+        updateLegendTextAndRanges( cellResult()->legendConfig(), m_currentTimeStep() );
 
         if ( cellResult()->hasResult() && cellResult()->legendConfig()->showLegend() )
         {
@@ -566,12 +566,12 @@ void RimGeoMechView::onUpdateLegends()
                                                                         isUsingOverrideViewer() );
         }
 
-        for ( RimIntersectionResultDefinition* sepInterResDef : this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+        for ( RimIntersectionResultDefinition* sepInterResDef : separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
         {
             sepInterResDef->updateLegendRangesTextAndVisibility( "Intersection Results:\n", nativeOrOverrideViewer(), isUsingOverrideViewer() );
         }
 
-        for ( RimIntersectionResultDefinition* sepInterResDef : this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+        for ( RimIntersectionResultDefinition* sepInterResDef : separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
         {
             sepInterResDef->updateLegendRangesTextAndVisibility( "Surface Results:\n", nativeOrOverrideViewer(), isUsingOverrideViewer() );
         }
@@ -655,7 +655,7 @@ void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* le
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex )
 {
-    if ( !this->isTimeStepDependentDataVisible() )
+    if ( !isTimeStepDependentDataVisible() )
     {
         return;
     }
@@ -697,12 +697,12 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
     absLegendConfigs.push_back( cellResult()->legendConfig() );
     absLegendConfigs.push_back( tensorResults()->arrowColorLegendConfig() );
 
-    for ( RimIntersectionResultDefinition* sepInterResDef : this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    for ( RimIntersectionResultDefinition* sepInterResDef : separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
     {
         absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
     }
 
-    for ( RimIntersectionResultDefinition* sepInterResDef : this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+    for ( RimIntersectionResultDefinition* sepInterResDef : separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
     {
         absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
     }
@@ -768,10 +768,10 @@ void RimGeoMechView::convertCameraPositionFromOldProjectFiles()
         RimCase*                  rimCase               = geoMechCase;
         RiuViewerToViewInterface* viewerToViewInterface = this;
         cvf::Vec3d                offset                = rimCase->displayModelOffset();
-        auto                      diplayCoordTrans      = this->displayCoordTransform();
+        auto                      diplayCoordTrans      = displayCoordTransform();
 
         {
-            cvf::Mat4d cameraMx = this->cameraPosition().getInverted();
+            cvf::Mat4d cameraMx = cameraPosition().getInverted();
 
             cvf::Vec3d translation = cameraMx.translation();
 
@@ -786,7 +786,7 @@ void RimGeoMechView::convertCameraPositionFromOldProjectFiles()
         }
 
         {
-            cvf::Vec3d pointOfInterest = this->cameraPointOfInterest();
+            cvf::Vec3d pointOfInterest = cameraPointOfInterest();
 
             cvf::Vec3d pointOfInterestDomain = diplayCoordTrans->scaleToDomainSize( pointOfInterest );
             pointOfInterestDomain -= offset;
@@ -798,8 +798,8 @@ void RimGeoMechView::convertCameraPositionFromOldProjectFiles()
 
         if ( viewer() )
         {
-            viewer()->mainCamera()->setViewMatrix( this->cameraPosition() );
-            viewer()->setPointOfInterest( this->cameraPointOfInterest() );
+            viewer()->mainCamera()->setViewMatrix( cameraPosition() );
+            viewer()->setPointOfInterest( cameraPointOfInterest() );
         }
     }
 }
@@ -847,22 +847,22 @@ size_t RimGeoMechView::onTimeStepCountRequested()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible() const
 {
-    if ( this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters() )
+    if ( cellResult()->hasResult() || geoMechPropertyFilterCollection()->hasActiveFilters() )
     {
         return true;
     }
 
-    if ( this->hasVisibleTimeStepDependent3dWellLogCurves() )
+    if ( hasVisibleTimeStepDependent3dWellLogCurves() )
     {
         return true;
     }
 
-    if ( this->intersectionCollection()->hasAnyActiveSeparateResults() )
+    if ( intersectionCollection()->hasAnyActiveSeparateResults() )
     {
         return true;
     }
 
-    if ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
+    if ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() )
     {
         return true;
     }
@@ -897,7 +897,7 @@ void RimGeoMechView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 
     if ( ( changedField == &m_showDisplacement ) || ( ( changedField == &m_displacementScaling ) && m_showDisplacement() ) )
     {
-        this->createDisplayModelAndRedraw();
+        createDisplayModelAndRedraw();
     }
 }
 
@@ -907,9 +907,9 @@ void RimGeoMechView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 void RimGeoMechView::initAfterRead()
 {
     RimGridView::initAfterRead();
-    this->cellResult()->setGeoMechCase( m_geomechCase );
+    cellResult()->setGeoMechCase( m_geomechCase );
 
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -927,9 +927,9 @@ void RimGeoMechView::scheduleGeometryRegen( RivCellSetEnum geometryType )
 {
     m_vizLogic->scheduleGeometryRegen( geometryType );
 
-    if ( this->isMasterView() )
+    if ( isMasterView() )
     {
-        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        RimViewLinker* viewLinker = assosiatedViewLinker();
         if ( viewLinker )
         {
             viewLinker->scheduleGeometryRegenForDepViews( geometryType );
@@ -950,8 +950,8 @@ void RimGeoMechView::setOverridePropertyFilterCollection( RimGeoMechPropertyFilt
     }
     m_propertyFilterCollection.uiCapability()->updateConnectedEditors();
 
-    this->scheduleGeometryRegen( PROPERTY_FILTERED );
-    this->scheduleCreateDisplayModelAndRedraw();
+    scheduleGeometryRegen( PROPERTY_FILTERED );
+    scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

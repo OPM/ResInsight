@@ -504,7 +504,7 @@ public:
 
         if ( server->currentClient()->bytesAvailable() )
         {
-            return this->interpretMore( server, server->currentClient() );
+            return interpretMore( server, server->currentClient() );
         }
 
         return false;
@@ -856,7 +856,7 @@ public:
 
         if ( server->currentClient()->bytesAvailable() )
         {
-            return this->interpretMore( server, server->currentClient() );
+            return interpretMore( server, server->currentClient() );
         }
 
         return false;

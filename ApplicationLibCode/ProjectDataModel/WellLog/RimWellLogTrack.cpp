@@ -935,7 +935,7 @@ void RimWellLogTrack::updateLegend()
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogTrack::asciiDataForPlotExport() const
 {
-    QString out = "\n" + this->description() + "\n";
+    QString out = "\n" + description() + "\n";
 
     std::vector<QString>             curveNames;
     std::vector<double>              curveDepths;
@@ -1433,16 +1433,16 @@ void RimWellLogTrack::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        this->updateWellPathAttributesCollection();
-        this->updateWellPathAttributesOnPlot();
+        updateWellPathAttributesCollection();
+        updateWellPathAttributesOnPlot();
         m_plotWidget->updateLegend();
 
-        this->updateAxisScaleEngine();
-        this->updateRegionAnnotationsOnPlot();
-        this->updatePropertyValueZoom();
+        updateAxisScaleEngine();
+        updateRegionAnnotationsOnPlot();
+        updatePropertyValueZoom();
     }
 
-    this->updatePropertyValueAxisAndGridTickIntervals();
+    updatePropertyValueAxisAndGridTickIntervals();
     m_majorTickIntervalPropertyAxis.uiCapability()->setUiHidden( !m_explicitTickIntervalsPropertyValueAxis() );
     m_minorTickIntervalPropertyAxis.uiCapability()->setUiHidden( !m_explicitTickIntervalsPropertyValueAxis() );
 
@@ -1767,7 +1767,7 @@ void RimWellLogTrack::updateParentPlotZoom()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateEditors()
 {
-    this->updateConnectedEditors();
+    updateConnectedEditors();
     RimPlotWindow* plotWindow = firstAncestorOrThisOfTypeAsserted<RimPlotWindow>();
     plotWindow->updateConnectedEditors();
 }
@@ -1777,7 +1777,7 @@ void RimWellLogTrack::updateEditors()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setVisiblePropertyValueRange( double minValue, double maxValue )
 {
-    this->setAutoScalePropertyValuesEnabled( false );
+    setAutoScalePropertyValuesEnabled( false );
     m_visiblePropertyValueRangeMin = minValue;
     m_visiblePropertyValueRangeMax = maxValue;
 }

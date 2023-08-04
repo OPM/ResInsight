@@ -337,7 +337,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         rftPlot->onLegendDefinitionChanged();
     }
 
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -667,7 +667,7 @@ void RimRegularLegendConfig::initAfterRead()
 
     updateFieldVisibility();
 
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -755,7 +755,7 @@ void RimRegularLegendConfig::onRecreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::Font* font      = RiaApplication::instance()->sceneFont( this->fontSize() );
+    cvf::Font* font      = RiaApplication::instance()->sceneFont( fontSize() );
     m_scalarMapperLegend = new caf::OverlayScalarMapperLegend( font );
     m_categoryLegend     = new caf::CategoryLegend( font, m_categoryMapper.p() );
 
@@ -1068,9 +1068,9 @@ RimLegendConfig::RangeModeType RimRegularLegendConfig::rangeMode() const
 void RimRegularLegendConfig::setUiValuesFromLegendConfig( const RimRegularLegendConfig* otherLegendConfig )
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
-    this->readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
-    this->resolveReferencesRecursively();
-    this->updateLegend();
+    readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
+    resolveReferencesRecursively();
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1143,7 +1143,7 @@ RimColorLegend* RimRegularLegendConfig::mapToColorLegend( ColorRangesType colorT
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateFonts()
 {
-    int  pointSize = this->fontSize();
+    int  pointSize = fontSize();
     auto font      = RiaApplication::instance()->sceneFont( pointSize );
 
     m_scalarMapperLegend = new caf::OverlayScalarMapperLegend( font );

@@ -98,7 +98,7 @@ RimGeoMechCase* RimGeoMechModels::copyCase( RimGeoMechCase* thecase, const QStri
     copy->resolveReferencesRecursively();
 
     copy->updateConnectedEditors();
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     for ( auto riv : copy->views() )
     {

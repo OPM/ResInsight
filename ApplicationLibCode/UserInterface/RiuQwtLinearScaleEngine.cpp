@@ -26,9 +26,9 @@
 QwtScaleDiv RiuQwtLinearScaleEngine::divideScaleWithExplicitIntervals( double x1, double x2, double majorStepInterval, double minorStepInterval )
 {
     QwtInterval   interval( x1, x2 );
-    QwtInterval   roundedInterval = this->align( interval, majorStepInterval );
-    QList<double> majorTicks      = this->buildMajorTicks( roundedInterval, majorStepInterval );
-    QList<double> minorTicks      = this->buildMajorTicks( roundedInterval, minorStepInterval );
+    QwtInterval   roundedInterval = align( interval, majorStepInterval );
+    QList<double> majorTicks      = buildMajorTicks( roundedInterval, majorStepInterval );
+    QList<double> minorTicks      = buildMajorTicks( roundedInterval, minorStepInterval );
 
     return QwtScaleDiv( x1, x2, minorTicks, minorTicks, majorTicks );
 }
@@ -44,8 +44,8 @@ QwtScaleDiv RiuQwtLinearScaleEngine::divideScaleWithExplicitIntervalsAndRange( d
                                                                                double rangeEnd )
 {
     QwtInterval   tickInterval( tickStart, tickEnd );
-    QList<double> majorTicks = this->buildMajorTicks( tickInterval, majorStepInterval );
-    QList<double> minorTicks = this->buildMajorTicks( tickInterval, minorStepInterval );
+    QList<double> majorTicks = buildMajorTicks( tickInterval, majorStepInterval );
+    QList<double> minorTicks = buildMajorTicks( tickInterval, minorStepInterval );
 
     return QwtScaleDiv( rangeStart, rangeEnd, minorTicks, minorTicks, majorTicks );
 }

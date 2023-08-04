@@ -63,7 +63,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
                                                     "WellPathGeometry",
                                                     "Class containing the geometry of a modeled Well Path" );
 
-    this->setUi3dEditorTypeName( RicWellPathGeometry3dEditor::uiEditorTypeName() );
+    setUi3dEditorTypeName( RicWellPathGeometry3dEditor::uiEditorTypeName() );
     CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_referencePointUtmXyd,
                                                   "ReferencePosUtmXyd",
                                                   "ReferencePoint",
@@ -477,7 +477,7 @@ const RimWellPathTarget* RimWellPathGeometryDef::lastActiveTarget() const
 void RimWellPathGeometryDef::enableTargetPointPicking( bool isEnabling )
 {
     m_pickPointsEnabled = isEnabling;
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -505,7 +505,7 @@ void RimWellPathGeometryDef::fieldChangedByUi( const caf::PdmFieldHandle* change
 {
     if ( changedField == &m_pickPointsEnabled )
     {
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_referencePointUtmXyd )
     {

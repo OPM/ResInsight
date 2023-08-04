@@ -70,12 +70,12 @@ double RigEnsembleParameter::normalizedStdDeviation() const
 //--------------------------------------------------------------------------------------------------
 bool RigEnsembleParameter::operator<( const RigEnsembleParameter& other ) const
 {
-    if ( this->variationBin != other.variationBin )
+    if ( variationBin != other.variationBin )
     {
-        return this->variationBin > other.variationBin; // Larger first
+        return variationBin > other.variationBin; // Larger first
     }
 
-    return this->name < other.name;
+    return name < other.name;
 }
 
 //--------------------------------------------------------------------------------------------------

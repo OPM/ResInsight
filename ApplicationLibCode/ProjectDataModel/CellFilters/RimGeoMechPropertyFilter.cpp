@@ -80,9 +80,9 @@ void RimGeoMechPropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
     if ( &lowerBound == changedField || &upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
          &m_selectedCategoryValues == changedField )
     {
-        this->updateIconState();
-        this->updateFilterName();
-        this->uiCapability()->updateConnectedEditors();
+        updateIconState();
+        updateFilterName();
+        uiCapability()->updateConnectedEditors();
 
         parentContainer()->updateDisplayModelNotifyManagedViews( this );
     }
@@ -118,7 +118,7 @@ void RimGeoMechPropertyFilter::setToDefaultValues()
 
     m_selectedCategoryValues = m_categoryValues;
 
-    this->updateFilterName();
+    updateFilterName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,7 +213,7 @@ void RimGeoMechPropertyFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilter::isActiveAndHasResult()
 {
-    return this->isActive() && this->resultDefinition->hasResult();
+    return isActive() && resultDefinition->hasResult();
 }
 
 //--------------------------------------------------------------------------------------------------

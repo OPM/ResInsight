@@ -335,7 +335,7 @@ void RimWbsParameters::loadDataAndUpdate()
             assignValidSource( field, supportedSources( parameter ) );
         }
     }
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

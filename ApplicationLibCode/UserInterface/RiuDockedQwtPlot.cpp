@@ -47,24 +47,24 @@ void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
     int axisFontSize   = caf::FontTools::absolutePointSize( fontSize, caf::FontTools::RelativeSize::Medium );
     int legendFontSize = caf::FontTools::absolutePointSize( fontSize, caf::FontTools::RelativeSize::Small );
 
-    QwtText titleText = this->title();
+    QwtText titleText = title();
     QFont   font      = titleText.font();
 
     font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
     titleText.setFont( font );
-    this->setTitle( titleText );
+    setTitle( titleText );
 
     for ( QwtAxis::Position axis : allAxes )
     {
-        QwtText text          = this->axisTitle( axis );
+        QwtText text          = axisTitle( axis );
         QFont   axisTitleFont = text.font();
         axisTitleFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
         text.setFont( axisTitleFont );
-        this->setAxisTitle( axis, text );
+        setAxisTitle( axis, text );
 
-        QFont valuesFont = this->axisFont( axis );
+        QFont valuesFont = axisFont( axis );
         valuesFont.setPixelSize( axisTitleFont.pixelSize() );
-        this->setAxisFont( axis, valuesFont );
+        setAxisFont( axis, valuesFont );
     }
 
     if ( legend() )

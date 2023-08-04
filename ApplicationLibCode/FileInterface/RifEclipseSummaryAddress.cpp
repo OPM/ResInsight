@@ -520,11 +520,11 @@ std::string RifEclipseSummaryAddress::itemUiText() const
 {
     std::string text;
 
-    switch ( this->category() )
+    switch ( category() )
     {
         case SUMMARY_REGION:
         {
-            text += std::to_string( this->regionNumber() );
+            text += std::to_string( regionNumber() );
         }
         break;
         case SUMMARY_REGION_2_REGION:
@@ -534,37 +534,37 @@ std::string RifEclipseSummaryAddress::itemUiText() const
         break;
         case SUMMARY_GROUP:
         {
-            text += this->groupName();
+            text += groupName();
         }
         break;
         case SUMMARY_WELL:
         {
-            text += this->wellName();
+            text += wellName();
         }
         break;
         case SUMMARY_WELL_COMPLETION:
         {
-            text += this->wellName();
+            text += wellName();
             text += ":" + blockAsString();
         }
         break;
         case SUMMARY_WELL_LGR:
         {
-            text += this->lgrName();
-            text += ":" + this->wellName();
+            text += lgrName();
+            text += ":" + wellName();
         }
         break;
         case SUMMARY_WELL_COMPLETION_LGR:
         {
-            text += this->lgrName();
-            text += ":" + this->wellName();
+            text += lgrName();
+            text += ":" + wellName();
             text += ":" + blockAsString();
         }
         break;
         case SUMMARY_WELL_SEGMENT:
         {
-            text += this->wellName();
-            text += ":" + std::to_string( this->wellSegmentNumber() );
+            text += wellName();
+            text += ":" + std::to_string( wellSegmentNumber() );
         }
         break;
         case SUMMARY_BLOCK:
@@ -574,18 +574,18 @@ std::string RifEclipseSummaryAddress::itemUiText() const
         break;
         case SUMMARY_BLOCK_LGR:
         {
-            text += this->lgrName();
+            text += lgrName();
             text += ":" + blockAsString();
         }
         break;
         case SUMMARY_AQUIFER:
         {
-            text += std::to_string( this->aquiferNumber() );
+            text += std::to_string( aquiferNumber() );
         }
         break;
         case SUMMARY_IMPORTED:
         {
-            text += this->vectorName();
+            text += vectorName();
         }
         break;
     }
@@ -968,7 +968,7 @@ std::string RifEclipseSummaryAddress::blockAsString() const
 {
     // Avoid space in address text https://github.com/OPM/ResInsight/issues/9707
 
-    return std::to_string( this->cellI() ) + "," + std::to_string( this->cellJ() ) + "," + std::to_string( this->cellK() );
+    return std::to_string( cellI() ) + "," + std::to_string( cellJ() ) + "," + std::to_string( cellK() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -990,7 +990,7 @@ std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText( const st
 //--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::formatUiTextRegionToRegion() const
 {
-    return std::to_string( this->regionNumber() ) + " - " + std::to_string( this->regionNumber2() );
+    return std::to_string( regionNumber() ) + " - " + std::to_string( regionNumber2() );
 }
 
 //--------------------------------------------------------------------------------------------------

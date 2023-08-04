@@ -49,7 +49,7 @@ void RimSummaryObservedDataFile::createSummaryReaderInterface()
 {
     m_summaryReader = new RifReaderObservedData;
 
-    if ( !m_summaryReader->open( this->summaryHeaderFilename(), identifierName(), summaryCategory() ) )
+    if ( !m_summaryReader->open( summaryHeaderFilename(), identifierName(), summaryCategory() ) )
     {
         m_summaryReader = nullptr;
     }

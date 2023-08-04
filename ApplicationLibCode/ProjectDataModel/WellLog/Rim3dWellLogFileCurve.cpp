@@ -181,8 +181,8 @@ void Rim3dWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 {
     if ( changedField == &m_wellLogFile || changedField == &m_wellLogChannelName )
     {
-        this->resetMinMaxValues();
-        this->updateConnectedEditors();
+        resetMinMaxValues();
+        updateConnectedEditors();
     }
     Rim3dWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 }

@@ -80,7 +80,7 @@ void RicShowMainWindowFeature::showMainWindow()
 //--------------------------------------------------------------------------------------------------
 void RicShowMainWindowFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RicShowMainWindowFeature::showMainWindow();
 }

@@ -647,7 +647,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         assignColorFromResultName( m_segmentResultName );
     }
 
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+    RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     DerivedMDSource derivedMDSource = DerivedMDSource::NO_SOURCE;
 
@@ -677,7 +677,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         if ( !anyValidValuesPresent( values ) || ( values.size() != tvDepthVector.size() ) )
         {
             clearCurveData();
-            this->detach( true );
+            detach( true );
             return;
         }
 
@@ -744,13 +744,13 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
 
         bool useLogarithmicScale = false;
-        this->setPropertyValuesWithMdAndTVD( values,
-                                             measuredDepthVector,
-                                             tvDepthVector,
-                                             rkbDiff,
-                                             RiaDefines::fromEclipseUnit( unitSystem ),
-                                             false,
-                                             useLogarithmicScale );
+        setPropertyValuesWithMdAndTVD( values,
+                                       measuredDepthVector,
+                                       tvDepthVector,
+                                       rkbDiff,
+                                       RiaDefines::fromEclipseUnit( unitSystem ),
+                                       false,
+                                       useLogarithmicScale );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )
@@ -764,8 +764,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 m_plotCurve->setPerPointLabels( perPointLabels );
 
-                auto propertyValues = this->curveData()->propertyValuesByIntervals();
-                auto depthValues    = this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
+                auto propertyValues = curveData()->propertyValuesByIntervals();
+                auto depthValues    = curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
 
                 if ( !errors.empty() )
                 {
@@ -776,7 +776,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
                 }
 
-                m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+                m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
                 auto wellLogTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
@@ -808,8 +808,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 m_plotCurve->setPerPointLabels( perPointLabels );
 
-                auto propertyValues = this->curveData()->propertyValuesByIntervals();
-                auto depthValues = this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
+                auto propertyValues = curveData()->propertyValuesByIntervals();
+                auto depthValues    = curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
                 bool useLogarithmicScale = false;
 
                 if ( !errors.empty() )
@@ -829,7 +829,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
             }
 
-            m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+            m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
         }
 
         if ( updateParentPlot )
@@ -1006,7 +1006,7 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         }
     }
 
-    if ( loadData ) this->loadDataAndUpdate( true );
+    if ( loadData ) loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------

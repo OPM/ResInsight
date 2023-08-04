@@ -117,7 +117,7 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_zLowerThreshold, "LowerThreshold", -1, "Lower Threshold" );
     m_zLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
+    setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 
     setDeletable( true );
 }
@@ -748,7 +748,7 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 {
     if ( changedField == &m_enablePicking )
     {
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_showImage )
     {

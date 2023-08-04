@@ -38,7 +38,7 @@ RimWellPathAttributeCollection::RimWellPathAttributeCollection()
     m_attributes.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_attributes.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_attributes.uiCapability()->setCustomContextMenuEnabled( true );
-    this->setName( "Casing Design" );
+    setName( "Casing Design" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ void RimWellPathAttributeCollection::updateAllReferringTracks()
     {
         track->loadDataAndUpdate();
     }
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ void RimWellPathAttributeCollection::insertAttribute( RimWellPathAttribute* inse
     else
         m_attributes.push_back( attribute );
 
-    this->updateAllReferringTracks();
+    updateAllReferringTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ void RimWellPathAttributeCollection::deleteAttribute( RimWellPathAttribute* attr
     m_attributes.removeChild( attributeToDelete );
     delete attributeToDelete;
 
-    this->updateAllReferringTracks();
+    updateAllReferringTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void RimWellPathAttributeCollection::deleteAttribute( RimWellPathAttribute* attr
 void RimWellPathAttributeCollection::deleteAllAttributes()
 {
     m_attributes.deleteChildren();
-    this->updateAllReferringTracks();
+    updateAllReferringTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,10 +163,10 @@ void RimWellPathAttributeCollection::defineUiTreeOrdering( caf::PdmUiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == this->objectToggleField() )
+    if ( changedField == objectToggleField() )
     {
         RimProject* proj = RimProject::current();
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
-        this->updateAllReferringTracks();
+        updateAllReferringTracks();
     }
 }

@@ -78,7 +78,7 @@ QSize RiuQwtPlotLegend::sizeHint() const
     const QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
     if ( legendLayout )
     {
-        QMargins margins = this->contentsMargins();
+        QMargins margins = contentsMargins();
 
         auto widgetSize = size();
 

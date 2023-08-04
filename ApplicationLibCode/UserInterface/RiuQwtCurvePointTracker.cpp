@@ -42,7 +42,7 @@ RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot* plot, bool isMainAxis
     , m_isMainAxisHorizontal( isMainAxisHorizontal )
     , m_curveInfoTextProvider( curveInfoTextProvider )
 {
-    this->setTrackerMode( QwtPicker::AlwaysOn );
+    setTrackerMode( QwtPicker::AlwaysOn );
     m_plotMarker = new QwtPlotMarker;
 
     // Have this marker always on top of all curves/plot items.
@@ -85,7 +85,7 @@ bool RiuQwtCurvePointTracker::eventFilter( QObject* watched, QEvent* event )
 {
     if ( event->type() == QEvent::Leave )
     {
-        this->removeMarkerOnFocusLeave();
+        removeMarkerOnFocusLeave();
     }
 
     // pass the event on to the parent class

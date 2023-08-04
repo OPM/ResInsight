@@ -63,7 +63,7 @@ RivGeoMechVizLogic::~RivGeoMechVizLogic()
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechVizLogic::appendNoAnimPartsToModel( cvf::ModelBasicList* model )
 {
-    this->appendPartsToModel( -1, model );
+    appendPartsToModel( -1, model );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ void RivGeoMechVizLogic::updateStaticCellColors( int viewerStepIndex )
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechVizLogic::scheduleGeometryRegen( RivCellSetEnum geometryType )
 {
-    this->scheduleRegenOfDirectlyDependentGeometry( geometryType );
+    scheduleRegenOfDirectlyDependentGeometry( geometryType );
 
     bool resultsOk = ( m_geomechView->geoMechCase() && m_geomechView->geoMechCase()->geoMechData() &&
                        m_geomechView->geoMechCase()->geoMechData()->femPartResults() );
@@ -149,7 +149,7 @@ void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry( RivCellSetEnu
 {
     if ( geometryType == RANGE_FILTERED )
     {
-        this->scheduleGeometryRegen( PROPERTY_FILTERED );
+        scheduleGeometryRegen( PROPERTY_FILTERED );
     }
 }
 

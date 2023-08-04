@@ -192,7 +192,7 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
     if ( m_wellCellsInGrid.size() ) return;
 
     std::vector<RigGridBase*> grids;
-    this->allGrids( &grids );
+    allGrids( &grids );
 
     // Debug code used to display grid names and grid sizes
     /*
@@ -747,7 +747,7 @@ const std::vector<double>* RigEclipseCaseData::resultValues( RiaDefines::Porosit
                                                              const QString&                resultName,
                                                              size_t                        timeStepIndex )
 {
-    RigCaseCellResultsData* gridCellResults = this->results( porosityModel );
+    RigCaseCellResultsData* gridCellResults = results( porosityModel );
 
     const std::vector<double>* swatResults = nullptr;
     if ( gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( type, resultName ) ) )

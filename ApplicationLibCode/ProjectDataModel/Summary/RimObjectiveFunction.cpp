@@ -211,7 +211,7 @@ QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 bool RimObjectiveFunction::operator<( const RimObjectiveFunction& other ) const
 {
-    return this->shortName() < other.shortName();
+    return shortName() < other.shortName();
 }
 
 //--------------------------------------------------------------------------------------------------

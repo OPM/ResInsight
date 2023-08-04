@@ -55,11 +55,11 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& ti
     , QwtPlotCurve( title )
     , m_showErrorBars( false )
 {
-    this->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
-    this->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
-    this->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
+    setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
+    setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
+    setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
 
-    this->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
     m_qwtCurveErrorBars = new QwtPlotIntervalCurve();
     m_qwtCurveErrorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );

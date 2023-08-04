@@ -215,7 +215,7 @@ void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* ac
 {
     m_activeFormationNamesData = activeFormationNames;
 
-    this->deleteResult( RigFemResultAddress( RIG_FORMATION_NAMES, "Active Formation Names", "" ) );
+    deleteResult( RigFemResultAddress( RIG_FORMATION_NAMES, "Active Formation Names", "" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,7 +260,7 @@ void RigFemPartResultsCollection::addElementPropertyFiles( const std::vector<QSt
     // Invalidate previous result if already in cache
     for ( const RigFemResultAddress& address : newAddresses )
     {
-        this->deleteResult( address );
+        deleteResult( address );
     }
 }
 
@@ -285,7 +285,7 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::removeElementPrope
 
     for ( const RigFemResultAddress& address : addressesToRemove )
     {
-        this->deleteResult( address );
+        deleteResult( address );
     }
 
     return addressesToRemove;
@@ -459,7 +459,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
 
     // We need to read the data as bulk fields, and populate the correct scalar caches
 
-    std::vector<RigFemResultAddress> resultAddressOfComponents = this->getResAddrToComponentsToRead( resVarAddr );
+    std::vector<RigFemResultAddress> resultAddressOfComponents = getResAddrToComponentsToRead( resVarAddr );
 
     if ( !resultAddressOfComponents.empty() )
     {
@@ -469,7 +469,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
             resultsForEachComponent.push_back( m_femPartResults[partIndex]->createScalarResult( resultAddressOfComponent ) );
         }
 
-        int               timeSteps = this->timeStepCount();
+        int               timeSteps = timeStepCount();
         caf::ProgressInfo progress( timeSteps, "" );
         progress.setProgressDescription(
             QString( "Loading Native Result %1 %2" ).arg( resVarAddr.fieldName.c_str(), resVarAddr.componentName.c_str() ) );
@@ -1183,7 +1183,7 @@ void RigFemPartResultsCollection::minMaxScalarValues( const RigFemResultAddress&
                                                       double*                    localMin,
                                                       double*                    localMax )
 {
-    this->statistics( resVarAddr )->minMaxCellScalarValues( stepIndex, *localMin, *localMax );
+    statistics( resVarAddr )->minMaxCellScalarValues( stepIndex, *localMin, *localMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1191,7 +1191,7 @@ void RigFemPartResultsCollection::minMaxScalarValues( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::minMaxScalarValues( const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax )
 {
-    this->statistics( resVarAddr )->minMaxCellScalarValues( *globalMin, *globalMax );
+    statistics( resVarAddr )->minMaxCellScalarValues( *globalMin, *globalMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1203,7 +1203,7 @@ void RigFemPartResultsCollection::posNegClosestToZero( const RigFemResultAddress
                                                        double*                    localPosClosestToZero,
                                                        double*                    localNegClosestToZero )
 {
-    this->statistics( resVarAddr )->posNegClosestToZero( stepIndex, *localPosClosestToZero, *localNegClosestToZero );
+    statistics( resVarAddr )->posNegClosestToZero( stepIndex, *localPosClosestToZero, *localNegClosestToZero );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1213,7 +1213,7 @@ void RigFemPartResultsCollection::posNegClosestToZero( const RigFemResultAddress
                                                        double*                    globalPosClosestToZero,
                                                        double*                    globalNegClosestToZero )
 {
-    this->statistics( resVarAddr )->posNegClosestToZero( *globalPosClosestToZero, *globalNegClosestToZero );
+    statistics( resVarAddr )->posNegClosestToZero( *globalPosClosestToZero, *globalNegClosestToZero );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1223,7 +1223,7 @@ void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& re
 {
     CVF_ASSERT( meanValue );
 
-    this->statistics( resVarAddr )->meanCellScalarValues( *meanValue );
+    statistics( resVarAddr )->meanCellScalarValues( *meanValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1231,7 +1231,7 @@ void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& re
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* meanValue )
 {
-    this->statistics( resVarAddr )->meanCellScalarValues( stepIndex, *meanValue );
+    statistics( resVarAddr )->meanCellScalarValues( stepIndex, *meanValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1239,7 +1239,7 @@ void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& re
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress& resVarAddr, double* p10, double* p90 )
 {
-    this->statistics( resVarAddr )->p10p90CellScalarValues( *p10, *p90 );
+    statistics( resVarAddr )->p10p90CellScalarValues( *p10, *p90 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1247,7 +1247,7 @@ void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* p10, double* p90 )
 {
-    this->statistics( resVarAddr )->p10p90CellScalarValues( stepIndex, *p10, *p90 );
+    statistics( resVarAddr )->p10p90CellScalarValues( stepIndex, *p10, *p90 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1257,7 +1257,7 @@ void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& res
 {
     CVF_ASSERT( sum );
 
-    this->statistics( resVarAddr )->sumCellScalarValues( *sum );
+    statistics( resVarAddr )->sumCellScalarValues( *sum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1267,7 +1267,7 @@ void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& res
 {
     CVF_ASSERT( sum );
 
-    this->statistics( resVarAddr )->sumCellScalarValues( stepIndex, *sum );
+    statistics( resVarAddr )->sumCellScalarValues( stepIndex, *sum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1275,7 +1275,7 @@ void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& res
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram( const RigFemResultAddress& resVarAddr )
 {
-    return this->statistics( resVarAddr )->cellScalarValuesHistogram();
+    return statistics( resVarAddr )->cellScalarValuesHistogram();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1284,7 +1284,7 @@ const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram( c
 const std::vector<size_t>&
     RigFemPartResultsCollection::scalarValuesHistogram( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex )
 {
-    return this->statistics( resVarAddr )->cellScalarValuesHistogram( stepIndex );
+    return statistics( resVarAddr )->cellScalarValuesHistogram( stepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1434,7 +1434,7 @@ void RigFemPartResultsCollection::setNormalizationAirGap( double normalizationAi
     {
         for ( auto result : normalizedResults() )
         {
-            this->deleteResult( result );
+            deleteResult( result );
         }
     }
     m_normalizationAirGap = normalizationAirGap;
@@ -1464,7 +1464,7 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents( con
 
     for ( const auto& address : tensorPrincipalComponentAdresses( resVarAddr ) )
     {
-        this->statistics( address )->minMaxCellScalarValues( stepIndex, min, max );
+        statistics( address )->minMaxCellScalarValues( stepIndex, min, max );
         if ( min < currentMin )
         {
             currentMin = min;
@@ -1493,7 +1493,7 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents( con
 
     for ( const auto& address : tensorPrincipalComponentAdresses( resVarAddr ) )
     {
-        this->statistics( address )->minMaxCellScalarValues( min, max );
+        statistics( address )->minMaxCellScalarValues( min, max );
         if ( min < currentMin )
         {
             currentMin = min;
@@ -1524,7 +1524,7 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents( co
 
     for ( const auto& address : tensorPrincipalComponentAdresses( resVarAddr ) )
     {
-        this->statistics( address )->posNegClosestToZero( stepIndex, pos, neg );
+        statistics( address )->posNegClosestToZero( stepIndex, pos, neg );
         if ( pos < currentPosClosestToZero )
         {
             currentPosClosestToZero = pos;
@@ -1553,7 +1553,7 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents( co
 
     for ( const auto& address : tensorPrincipalComponentAdresses( resVarAddr ) )
     {
-        this->statistics( address )->posNegClosestToZero( pos, neg );
+        statistics( address )->posNegClosestToZero( pos, neg );
         if ( pos < currentPosClosestToZero )
         {
             currentPosClosestToZero = pos;
@@ -1700,7 +1700,7 @@ void RigFemPartResultsCollection::setCalculationParameters( RimMudWeightWindowPa
     // Invalidate dependent results
     for ( auto result : mudWeightWindowResults() )
     {
-        this->deleteResult( result );
+        deleteResult( result );
     }
 }
 
@@ -1824,7 +1824,7 @@ void RigFemPartResultsCollection::setMudWeightWindowParameters( double          
     // Invalidate dependent results
     for ( auto result : mudWeightWindowResults() )
     {
-        this->deleteResult( result );
+        deleteResult( result );
     }
 }
 

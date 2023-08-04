@@ -159,8 +159,8 @@ void RimColorLegendItem::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 {
     QColor qcolor( m_color().rByte(), m_color().gByte(), m_color().bByte() );
 
-    caf::IconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = uiIconProvider();
 
     iconProvider.setBackgroundColorString( qcolor.name() );
-    this->setUiIcon( iconProvider );
+    setUiIcon( iconProvider );
 }

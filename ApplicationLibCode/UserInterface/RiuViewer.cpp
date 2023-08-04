@@ -109,8 +109,8 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     overlayItemsRendering()->addOverlayItem( m_axisCross.p() );
     m_showAxisCross = true;
 
-    this->enableOverlayPainting( true );
-    this->setReleaseOGLResourcesEachFrame( true );
+    enableOverlayPainting( true );
+    setReleaseOGLResourcesEachFrame( true );
 
     // Info Text
     m_infoLabel = new QLabel();
@@ -215,7 +215,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_scaleLegend->setOrientation( caf::OverlayScaleLegend::HORIZONTAL );
 
     m_comparisonWindowMover = new RiuComparisonViewMover( this );
-    this->setComparisonViewToFollowAnimation( false );
+    setComparisonViewToFollowAnimation( false );
 
     m_fontPointSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize() );
 }
@@ -281,7 +281,7 @@ void RiuViewer::setDefaultView()
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::mouseReleaseEvent( QMouseEvent* event )
 {
-    if ( !this->canRender() ) return;
+    if ( !canRender() ) return;
 
     if ( event->button() == Qt::LeftButton )
     {
@@ -421,18 +421,18 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
     if ( m_showInfoText ) columnWidth = std::max( columnWidth, m_infoLabel->sizeHint().width() );
 
-    int columnPos = this->width() - columnWidth - margin - edgeAxisFrameBorderWidth;
+    int columnPos = width() - columnWidth - margin - edgeAxisFrameBorderWidth;
 
-    if ( this->isComparisonViewActive() )
+    if ( isComparisonViewActive() )
     {
         Rim3dView* compView = dynamic_cast<Rim3dView*>( m_rimView.p() )->activeComparisonView();
         if ( compView )
         {
             columnWidth = 200;
 
-            // int sliderPos = this->width() * this->comparisonViewVisibleNormalizedRect().min().x();
-            int sliderPos         = 0.5 * this->width();
-            int compViewItemsXPos = sliderPos + 0.5 * ( this->width() - sliderPos ) - 0.5 * columnWidth;
+            // int sliderPos = width() * comparisonViewVisibleNormalizedRect().min().x();
+            int sliderPos         = 0.5 * width();
+            int compViewItemsXPos = sliderPos + 0.5 * ( width() - sliderPos ) - 0.5 * columnWidth;
             columnPos             = 0.5 * sliderPos - 0.5 * columnWidth;
 
             if ( m_showInfoText )
@@ -502,7 +502,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
         yPos += m_animationProgress->height() + margin;
     }
 
-    if ( m_showInfoText && !this->isComparisonViewActive() )
+    if ( m_showInfoText && !isComparisonViewActive() )
     {
         QPoint topLeft = QPoint( columnPos, yPos );
         m_infoLabel->resize( columnWidth, m_infoLabel->sizeHint().height() );
@@ -514,12 +514,12 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
         yPos += m_infoLabel->height() + margin;
     }
-    else if ( !this->isComparisonViewActive() )
+    else if ( !isComparisonViewActive() )
     {
         m_infoPickArea = QRect();
     }
 
-    if ( m_showHistogram && !this->isComparisonViewActive() )
+    if ( m_showHistogram && !isComparisonViewActive() )
     {
         m_histogramWidget->resize( columnWidth, 40 );
         m_histogramWidget->render( painter, QPoint( columnPos, yPos ) );
@@ -528,9 +528,8 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
 
     if ( m_showVersionInfo ) // Version Label
     {
-        QSize  size( m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height() );
-        QPoint pos( this->width() - size.width() - margin - edgeAxisFrameBorderWidth,
-                    this->height() - size.height() - margin - edgeAxisFrameBorderHeight );
+        QSize size( m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height() );
+        QPoint pos( width() - size.width() - margin - edgeAxisFrameBorderWidth, height() - size.height() - margin - edgeAxisFrameBorderHeight );
         m_versionInfoLabel->resize( size.width(), size.height() );
         m_versionInfoLabel->render( painter, pos );
     }
@@ -654,13 +653,13 @@ void RiuViewer::showGridBox( bool enable )
 {
     if ( enable )
     {
-        this->addStaticModelOnce( m_gridBoxGenerator->model(), false );
-        this->addStaticModelOnce( m_comparisonGridBoxGenerator->model(), true );
+        addStaticModelOnce( m_gridBoxGenerator->model(), false );
+        addStaticModelOnce( m_comparisonGridBoxGenerator->model(), true );
     }
     else
     {
-        this->removeStaticModel( m_gridBoxGenerator->model() );
-        this->removeStaticModel( m_comparisonGridBoxGenerator->model() );
+        removeStaticModel( m_gridBoxGenerator->model() );
+        removeStaticModel( m_comparisonGridBoxGenerator->model() );
     }
 }
 
@@ -1033,7 +1032,7 @@ void RiuViewer::optimizeClippingPlanes()
     if ( m_showWindowEdgeAxes )
     {
         m_windowEdgeAxisOverlay->setDisplayCoordTransform( m_rimView->displayCoordTransform().p() );
-        m_windowEdgeAxisOverlay->updateFromCamera( this->mainCamera() );
+        m_windowEdgeAxisOverlay->updateFromCamera( mainCamera() );
     }
 
     m_gridBoxGenerator->updateFromCamera( mainCamera() );

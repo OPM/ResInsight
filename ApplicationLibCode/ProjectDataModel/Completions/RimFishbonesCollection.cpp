@@ -43,7 +43,7 @@ RimFishbonesCollection::RimFishbonesCollection()
     CAF_PDM_InitObject( "Fishbones", ":/FishBones16x16.png" );
 
     nameField()->uiCapability()->setUiHidden( true );
-    this->setName( "Fishbones" );
+    setName( "Fishbones" );
 
     CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs" );
     m_fishbones.uiCapability()->setUiTreeHidden( true );

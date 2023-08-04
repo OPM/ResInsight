@@ -28,7 +28,7 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
 {
     QString title;
 
-    auto titleCaseName = this->caseName();
+    auto titleCaseName = caseName();
     if ( !other.isCaseInTitle() && !titleCaseName.isEmpty() )
     {
         if ( !title.isEmpty() ) title += ", ";
@@ -36,50 +36,50 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
         title += titleCaseName;
     }
 
-    auto wellName = this->titleWellName();
+    auto wellName = titleWellName();
     if ( !other.isWellNameInTitle() && !wellName.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString( wellName );
     }
 
-    auto groupName = this->titleGroupName();
+    auto groupName = titleGroupName();
     if ( !other.isGroupNameInTitle() && !groupName.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString( groupName );
     }
 
-    auto region = this->titleRegion();
+    auto region = titleRegion();
     if ( !other.isRegionInTitle() && !region.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += "Region : " + QString::fromStdString( region );
     }
 
-    auto block = this->titleBlock();
+    auto block = titleBlock();
     if ( !other.isBlockInTitle() && !block.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += "Block : " + QString::fromStdString( block );
     }
 
-    auto segment = this->titleSegment();
+    auto segment = titleSegment();
     if ( !other.isSegmentInTitle() && !segment.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += "Segment : " + QString::fromStdString( segment );
     }
 
-    auto completion = this->titleCompletion();
+    auto completion = titleCompletion();
     if ( !other.isCompletionInTitle() && !completion.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += "Completion : " + QString::fromStdString( completion );
     }
 
-    auto vectorName = this->titleVectorName();
-    if ( ( other.titleVectorName() != this->titleVectorName() ) && ( !vectorName.empty() ) )
+    auto vectorName = titleVectorName();
+    if ( ( other.titleVectorName() != titleVectorName() ) && ( !vectorName.empty() ) )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString( RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( vectorName, true ) );

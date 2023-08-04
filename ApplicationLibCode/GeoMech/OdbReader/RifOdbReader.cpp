@@ -448,7 +448,7 @@ std::vector<std::string> RifOdbReader::filteredStepNames() const
     for ( sIter.first(); !sIter.isDone(); sIter.next() )
     {
         std::string stepName( sIter.currentValue().name().CStr() );
-        if ( this->isTimeStepIncludedByFilter( stepIndex++ ) )
+        if ( isTimeStepIncludedByFilter( stepIndex++ ) )
         {
             stepNames.push_back( stepName );
         }
@@ -468,7 +468,7 @@ std::vector<double> RifOdbReader::frameTimes( int stepIndex ) const
 
     odb_StepList stepList = stepRepository.stepList();
 
-    int stepFileIndex = this->timeStepIndexOnFile( stepIndex );
+    int stepFileIndex = timeStepIndexOnFile( stepIndex );
 
     odb_Step& step = stepList.Get( stepFileIndex );
 
@@ -607,8 +607,8 @@ const odb_Frame& RifOdbReader::stepFrame( int stepIndex, int frameIndex ) const
     const odb_StepRepository& stepRepository = m_odb->steps();
     const odb_StepList&       stepList       = stepRepository.stepList();
 
-    int stepFileIndex  = this->timeStepIndexOnFile( stepIndex );
-    int fileFrameIndex = this->frameIndexOnFile( frameIndex );
+    int stepFileIndex  = timeStepIndexOnFile( stepIndex );
+    int fileFrameIndex = frameIndexOnFile( frameIndex );
 
     const odb_Step&          step       = stepList.ConstGet( stepFileIndex );
     const odb_SequenceFrame& stepFrames = step.frames();

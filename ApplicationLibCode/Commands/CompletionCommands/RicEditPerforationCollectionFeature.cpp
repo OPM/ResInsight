@@ -44,7 +44,7 @@ bool RicEditPerforationCollectionFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicEditPerforationCollectionFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RimPerforationCollection* perforationCollection = selectedPerforationCollection();
 

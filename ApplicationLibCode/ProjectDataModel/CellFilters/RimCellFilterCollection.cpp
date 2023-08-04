@@ -277,7 +277,7 @@ void RimCellFilterCollection::addFilter( RimCellFilter* pFilter )
     setAutoName( pFilter );
     m_cellFilters.push_back( pFilter );
     connectToFilterUpdates( pFilter );
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

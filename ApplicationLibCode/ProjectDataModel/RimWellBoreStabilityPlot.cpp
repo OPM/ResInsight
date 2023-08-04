@@ -157,7 +157,7 @@ void RimWellBoreStabilityPlot::childFieldChangedByUi( const caf::PdmFieldHandle*
     }
     else if ( changedChildField == &m_wbsParameters )
     {
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
 }
 
@@ -205,5 +205,5 @@ void RimWellBoreStabilityPlot::applyDataSource()
     m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
     m_wbsParameters->setFrameIndex( -1 );
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }

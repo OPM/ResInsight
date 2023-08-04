@@ -125,8 +125,8 @@ RimEclipseResultDefinition* RimEclipsePropertyFilter::resultDefinition() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::rangeValues( double* lower, double* upper ) const
 {
-    *lower = this->m_lowerBound;
-    *upper = this->m_upperBound;
+    *lower = m_lowerBound;
+    *upper = m_upperBound;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,11 +166,11 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
     {
         m_isDuplicatedFromLinkedView = false;
 
-        this->m_resultDefinition->loadResult();
-        this->computeResultValueRange();
+        m_resultDefinition->loadResult();
+        computeResultValueRange();
         updateFilterName();
-        this->updateIconState();
-        this->uiCapability()->updateConnectedEditors();
+        updateIconState();
+        uiCapability()->updateConnectedEditors();
 
         parentContainer()->updateDisplayModelNotifyManagedViews( this );
     }

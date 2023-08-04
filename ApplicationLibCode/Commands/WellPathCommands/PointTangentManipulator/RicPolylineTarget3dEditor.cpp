@@ -57,7 +57,7 @@ RicPolylineTarget3dEditor::~RicPolylineTarget3dEditor()
         ownerRiuViewer->removeStaticModel( m_cvfModel.p() );
     }
 
-    RimPolylineTarget* oldTarget = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
+    RimPolylineTarget* oldTarget = dynamic_cast<RimPolylineTarget*>( pdmObject() );
     if ( oldTarget )
     {
         oldTarget->targetPointUiCapability()->removeFieldEditor( this );
@@ -71,7 +71,7 @@ RicPolylineTarget3dEditor::~RicPolylineTarget3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    RimPolylineTarget* target         = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
+    RimPolylineTarget* target         = dynamic_cast<RimPolylineTarget*>( pdmObject() );
     RiuViewer*         ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
     Rim3dView*         view           = mainOrComparisonView();
 
@@ -114,7 +114,7 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigNam
 //--------------------------------------------------------------------------------------------------
 void RicPolylineTarget3dEditor::cleanupBeforeSettingPdmObject()
 {
-    RimPolylineTarget* oldTarget = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
+    RimPolylineTarget* oldTarget = dynamic_cast<RimPolylineTarget*>( pdmObject() );
     if ( oldTarget )
     {
         oldTarget->targetPointUiCapability()->removeFieldEditor( this );
@@ -126,7 +126,7 @@ void RicPolylineTarget3dEditor::cleanupBeforeSettingPdmObject()
 //--------------------------------------------------------------------------------------------------
 void RicPolylineTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& tangent )
 {
-    RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
+    RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( pdmObject() );
     Rim3dView*         view   = mainOrComparisonView();
 
     if ( !target || !view )
@@ -150,7 +150,7 @@ void RicPolylineTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf
 //--------------------------------------------------------------------------------------------------
 void RicPolylineTarget3dEditor::slotSelectedIn3D()
 {
-    RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
+    RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( pdmObject() );
     if ( !target )
     {
         return;
@@ -164,7 +164,7 @@ void RicPolylineTarget3dEditor::slotSelectedIn3D()
 //--------------------------------------------------------------------------------------------------
 void RicPolylineTarget3dEditor::slotDragFinished()
 {
-    RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
+    RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( pdmObject() );
     if ( target )
     {
         target->triggerVisualizationUpdate();

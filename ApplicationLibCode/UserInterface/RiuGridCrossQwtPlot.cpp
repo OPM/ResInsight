@@ -104,8 +104,8 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     RiuQwtPlotTools::setCommonPlotBehaviour( qwtPlot() );
     RiuQwtPlotTools::setDefaultAxes( qwtPlot() );
 
-    this->installEventFilter( this );
-    this->qwtPlot()->canvas()->installEventFilter( this );
+    installEventFilter( this );
+    qwtPlot()->canvas()->installEventFilter( this );
 
     setInternalQwtLegendVisible( true );
 
@@ -177,11 +177,11 @@ void RiuGridCrossQwtPlot::setInternalQwtLegendVisible( bool visible )
     if ( visible )
     {
         QwtLegend* legend = new QwtLegend( this );
-        this->qwtPlot()->insertLegend( legend, QwtPlot::BottomLegend );
+        qwtPlot()->insertLegend( legend, QwtPlot::BottomLegend );
     }
     else
     {
-        this->qwtPlot()->insertLegend( nullptr );
+        qwtPlot()->insertLegend( nullptr );
     }
 }
 //--------------------------------------------------------------------------------------------------

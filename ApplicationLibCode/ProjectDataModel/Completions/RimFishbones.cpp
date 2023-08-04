@@ -152,7 +152,7 @@ bool RimFishbones::isActive() const
 //--------------------------------------------------------------------------------------------------
 QString RimFishbones::generatedName() const
 {
-    caf::PdmChildArrayField<RimFishbones*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( this->parentField() );
+    caf::PdmChildArrayField<RimFishbones*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( parentField() );
     CVF_ASSERT( container );
 
     size_t index = container->indexOf( this ) + 1;

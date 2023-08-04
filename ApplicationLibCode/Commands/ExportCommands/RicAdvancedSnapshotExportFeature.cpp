@@ -67,7 +67,7 @@ bool RicAdvancedSnapshotExportFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicAdvancedSnapshotExportFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RimProject* proj = RimProject::current();
 

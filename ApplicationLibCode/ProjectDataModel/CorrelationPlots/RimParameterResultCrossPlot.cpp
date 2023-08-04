@@ -106,8 +106,8 @@ void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* c
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_ensembleParameter )
     {
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
+        loadDataAndUpdate();
+        updateConnectedEditors();
     }
 }
 
@@ -171,8 +171,8 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
             m_plotWidget->updateLegend();
         }
 
-        this->updateAxes();
-        this->updatePlotTitle();
+        updateAxes();
+        updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
 }

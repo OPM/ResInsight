@@ -164,7 +164,7 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummar
     RimObservedEclipseUserData* columnBasedUserData = new RimObservedEclipseUserData();
     observedData                                    = columnBasedUserData;
 
-    this->m_observedDataArray.push_back( observedData );
+    m_observedDataArray.push_back( observedData );
     observedData->setSummaryHeaderFileName( fileName );
     observedData->createSummaryReaderInterface();
     observedData->updateMetaData();
@@ -177,7 +177,7 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummar
     RimProject::current()->assignCaseIdToSummaryCase( observedData );
     updateNewObservedDataCreated( observedData );
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return observedData;
 }
@@ -231,7 +231,7 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummar
 
     if ( userData->summaryReader() )
     {
-        this->m_observedDataArray.push_back( userData );
+        m_observedDataArray.push_back( userData );
         observedData = userData;
     }
     else
@@ -243,7 +243,7 @@ RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummar
     RimProject::current()->assignCaseIdToSummaryCase( observedData );
     updateNewObservedDataCreated( observedData );
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return observedData;
 }
@@ -262,7 +262,7 @@ RimObservedFmuRftData* RimObservedDataCollection::createAndAddFmuRftDataFromPath
     m_observedFmuRftArray.push_back( fmuRftData );
 
     updateNewObservedDataCreated( fmuRftData );
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return fmuRftData;
 }
@@ -281,7 +281,7 @@ RimPressureDepthData* RimObservedDataCollection::createAndAddPressureDepthDataFr
     m_observedPressureDepthArray.push_back( data );
 
     updateNewObservedDataCreated( data );
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return data;
 }

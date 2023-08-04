@@ -274,11 +274,11 @@ bool RimSimWellInViewCollection::showWellCells()
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView* RimSimWellInViewCollection::findWell( QString name )
 {
-    for ( size_t i = 0; i < this->wells().size(); ++i )
+    for ( size_t i = 0; i < wells().size(); ++i )
     {
-        if ( this->wells()[i]->name() == name )
+        if ( wells()[i]->name() == name )
         {
-            return this->wells()[i];
+            return wells()[i];
         }
     }
     return nullptr;
@@ -289,13 +289,13 @@ RimSimWellInView* RimSimWellInViewCollection::findWell( QString name )
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInViewCollection::hasVisibleWellCells()
 {
-    if ( !this->isActive() ) return false;
-    if ( this->wells().size() == 0 ) return false;
+    if ( !isActive() ) return false;
+    if ( wells().size() == 0 ) return false;
 
     bool hasCells = false;
-    for ( size_t i = 0; !hasCells && i < this->wells().size(); ++i )
+    for ( size_t i = 0; !hasCells && i < wells().size(); ++i )
     {
-        RimSimWellInView* well = this->wells()[i];
+        RimSimWellInView* well = wells()[i];
         if ( well && well->simWellData() && ( ( well->showWell() && well->showWellCells() ) ) )
         {
             for ( size_t tIdx = 0; !hasCells && tIdx < well->simWellData()->m_wellCellsTimeSteps.size(); ++tIdx )
@@ -321,8 +321,8 @@ bool RimSimWellInViewCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInViewCollection::hasVisibleWellPipes()
 {
-    if ( !this->isActive() ) return false;
-    if ( this->wells().size() == 0 ) return false;
+    if ( !isActive() ) return false;
+    if ( wells().size() == 0 ) return false;
 
     return true;
 }
@@ -334,7 +334,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( &isActive == changedField )
     {
-        this->updateUiIconFromToggleField();
+        updateUiIconFromToggleField();
     }
 
     if ( &m_showWellLabel == changedField )

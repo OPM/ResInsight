@@ -76,7 +76,7 @@ void RimScriptCollection::readContentFromDisc( int folderLevelsLeft )
         return;
     }
 
-    QDir myDir( this->directory() );
+    QDir myDir( directory() );
     if ( !myDir.isReadable() )
     {
         return;

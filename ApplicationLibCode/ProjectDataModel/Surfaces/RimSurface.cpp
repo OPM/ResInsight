@@ -202,11 +202,11 @@ void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     }
     else if ( changedField == &m_userDescription )
     {
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_depthOffset )
     {
-        this->onLoadData();
+        onLoadData();
 
         updateViews = true;
     }

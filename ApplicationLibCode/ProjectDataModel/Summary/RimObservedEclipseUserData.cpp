@@ -61,12 +61,12 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
     m_multiSummaryReader = nullptr;
     m_summaryReader      = nullptr;
 
-    if ( caf::Utils::fileExists( this->summaryHeaderFilename() ) )
+    if ( caf::Utils::fileExists( summaryHeaderFilename() ) )
     {
-        QFile file( this->summaryHeaderFilename() );
+        QFile file( summaryHeaderFilename() );
         if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
         {
-            RiaLogging::error( QString( "Failed to open %1" ).arg( this->summaryHeaderFilename() ) );
+            RiaLogging::error( QString( "Failed to open %1" ).arg( summaryHeaderFilename() ) );
 
             return;
         }

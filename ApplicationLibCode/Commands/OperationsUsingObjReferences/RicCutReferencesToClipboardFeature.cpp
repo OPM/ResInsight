@@ -46,7 +46,7 @@ bool RicCutReferencesToClipboardFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCutReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     if ( !isAnyCuttableObjectSelected() ) return;
 

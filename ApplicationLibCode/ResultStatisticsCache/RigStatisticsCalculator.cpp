@@ -30,7 +30,7 @@ void RigStatisticsCalculator::meanCellScalarValue( double& meanValue )
     double valueSum    = 0.0;
     size_t sampleCount = 0;
 
-    this->valueSumAndSampleCount( valueSum, sampleCount );
+    valueSumAndSampleCount( valueSum, sampleCount );
 
     if ( sampleCount == 0 )
     {
@@ -50,7 +50,7 @@ void RigStatisticsCalculator::meanCellScalarValue( size_t timeStepIndex, double&
     double valueSum    = 0.0;
     size_t sampleCount = 0;
 
-    this->valueSumAndSampleCount( timeStepIndex, valueSum, sampleCount );
+    valueSumAndSampleCount( timeStepIndex, valueSum, sampleCount );
 
     if ( sampleCount == 0 )
     {
@@ -67,10 +67,10 @@ void RigStatisticsCalculator::meanCellScalarValue( size_t timeStepIndex, double&
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsCalculator::valueSumAndSampleCount( double& valueSum, size_t& sampleCount )
 {
-    size_t tsCount = this->timeStepCount();
+    size_t tsCount = timeStepCount();
     for ( size_t tIdx = 0; tIdx < tsCount; tIdx++ )
     {
-        this->valueSumAndSampleCount( tIdx, valueSum, sampleCount );
+        valueSumAndSampleCount( tIdx, valueSum, sampleCount );
     }
 }
 
@@ -79,10 +79,10 @@ void RigStatisticsCalculator::valueSumAndSampleCount( double& valueSum, size_t& 
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsCalculator::addDataToHistogramCalculator( RigHistogramCalculator& histogramCalculator )
 {
-    size_t tsCount = this->timeStepCount();
+    size_t tsCount = timeStepCount();
     for ( size_t tIdx = 0; tIdx < tsCount; tIdx++ )
     {
-        this->addDataToHistogramCalculator( tIdx, histogramCalculator );
+        addDataToHistogramCalculator( tIdx, histogramCalculator );
     }
 }
 
@@ -99,11 +99,11 @@ void RigStatisticsCalculator::mobileVolumeWeightedMean( size_t timeStepIndex, do
 void RigStatisticsCalculator::mobileVolumeWeightedMean( double& mean )
 {
     double sum     = 0.0;
-    size_t tsCount = this->timeStepCount();
+    size_t tsCount = timeStepCount();
     for ( size_t tIdx = 0; tIdx < tsCount; tIdx++ )
     {
         double meanForTimeStep;
-        this->mobileVolumeWeightedMean( tIdx, meanForTimeStep );
+        mobileVolumeWeightedMean( tIdx, meanForTimeStep );
         sum += meanForTimeStep;
     }
     if ( tsCount != 0 )

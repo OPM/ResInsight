@@ -391,7 +391,7 @@ double RigGridBase::characteristicIJCellSize() const
     double characteristicCellSize = HUGE_VAL;
 
     double cellSizeI, cellSizeJ, cellSizeK;
-    this->characteristicCellSizes( &cellSizeI, &cellSizeJ, &cellSizeK );
+    characteristicCellSizes( &cellSizeI, &cellSizeJ, &cellSizeK );
 
     if ( cellSizeI < characteristicCellSize ) characteristicCellSize = cellSizeI;
     if ( cellSizeJ < characteristicCellSize ) characteristicCellSize = cellSizeJ;
@@ -430,9 +430,9 @@ size_t RigGridBase::addCoarseningBox( size_t i1, size_t i2, size_t j1, size_t j2
         {
             for ( size_t i = i1; i <= i2; i++ )
             {
-                size_t cellIdx = this->cellIndexFromIJK( i, j, k );
+                size_t cellIdx = cellIndexFromIJK( i, j, k );
 
-                RigCell& c = this->cell( cellIdx );
+                RigCell& c = cell( cellIdx );
                 CVF_ASSERT( c.coarseningBoxIndex() == cvf::UNDEFINED_SIZE_T );
 
                 c.setCoarseningBoxIndex( coarseningBoxIndex );

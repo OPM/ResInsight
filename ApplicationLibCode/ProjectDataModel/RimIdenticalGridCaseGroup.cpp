@@ -264,7 +264,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
     if ( caseCollection->reservoirs.size() == 0 || !m_mainGrid )
     {
-        this->clearActiveCellUnions();
+        clearActiveCellUnions();
 
         return;
     }
@@ -371,7 +371,7 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 
         if ( rimStaticsCase->eclipseCaseData() )
         {
-            rimStaticsCase->eclipseCaseData()->setMainGrid( this->mainGrid() );
+            rimStaticsCase->eclipseCaseData()->setMainGrid( mainGrid() );
 
             if ( i == 0 )
             {

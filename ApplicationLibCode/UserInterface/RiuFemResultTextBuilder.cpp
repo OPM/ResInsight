@@ -105,7 +105,7 @@ QString RiuFemResultTextBuilder::mainResultText()
 
     if ( !text.isEmpty() ) text += "\n";
 
-    QString topoText = this->geometrySelectionText( "\n" );
+    QString topoText = geometrySelectionText( "\n" );
     text += topoText;
     appendDetails( text, formationDetails() );
     text += "\n";
@@ -197,7 +197,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
     {
         RigGeoMechCaseData* eclipseCaseData = m_geomResDef->geoMechCase()->geoMechData();
 
-        this->appendTextFromResultColors( eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_frameIndex, m_geomResDef, &text );
+        appendTextFromResultColors( eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_frameIndex, m_geomResDef, &text );
 
         if ( !text.isEmpty() )
         {

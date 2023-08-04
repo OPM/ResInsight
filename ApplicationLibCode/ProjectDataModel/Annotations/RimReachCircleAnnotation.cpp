@@ -145,11 +145,11 @@ void RimReachCircleAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* chan
     if ( changedField == &m_centerPointXyd )
     {
         m_centerPointPickEnabled = false;
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     if ( changedField == &m_centerPointPickEnabled )
     {
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     auto annColl = firstAncestorOrThisOfTypeAsserted<RimAnnotationCollection>();
 

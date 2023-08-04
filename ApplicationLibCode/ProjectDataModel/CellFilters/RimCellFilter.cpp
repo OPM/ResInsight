@@ -175,7 +175,7 @@ bool RimCellFilter::propagateToSubGrids() const
 //--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateIconState()
 {
-    caf::IconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = uiIconProvider();
 
     if ( !iconProvider.valid() ) return;
 
@@ -190,7 +190,7 @@ void RimCellFilter::updateIconState()
 
     iconProvider.setActive( m_isActive && !m_isActive.uiCapability()->isUiReadOnly() );
 
-    this->setUiIcon( iconProvider );
+    setUiIcon( iconProvider );
 }
 
 //--------------------------------------------------------------------------------------------------

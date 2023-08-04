@@ -421,7 +421,7 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath( QString proje
     }
     else
     {
-        absolutePath = this->lastUsedDialogDirectory( "BINARY_GRID" );
+        absolutePath = lastUsedDialogDirectory( "BINARY_GRID" );
     }
 
     QDir projectDir( absolutePath );
@@ -645,7 +645,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                         }
                     }
 
-                    this->setActiveReservoirView( riv );
+                    setActiveReservoirView( riv );
 
                     RimGridView* rigv = dynamic_cast<RimGridView*>( riv );
                     if ( rigv ) rigv->cellFilterCollection()->updateIconState();
@@ -1216,10 +1216,10 @@ void RiaApplication::applyPreferences()
     m_defaultAnnotationFont = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::ANNOTATION_FONT] );
     m_defaultWellLabelFont  = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::WELL_LABEL_FONT] );
 
-    if ( this->project() )
+    if ( project() )
     {
-        this->project()->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
-        this->project()->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
+        project()->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
+        project()->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
 
         project()->scriptCollection()->updateConnectedEditors();
         project()->rootPlotTemplateItem()->updateConnectedEditors();

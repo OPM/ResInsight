@@ -162,19 +162,11 @@ void RimWellLogCurve::setPropertyAndDepthsAndErrors( const std::vector<double>& 
 
     if ( isVerticalCurve() )
     {
-        this->setSamplesFromXYErrorValues( propertyValues,
-                                           depthValues,
-                                           errorValues,
-                                           useLogarithmicScale,
-                                           RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
+        setSamplesFromXYErrorValues( propertyValues, depthValues, errorValues, useLogarithmicScale, RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
     }
     else
     {
-        this->setSamplesFromXYErrorValues( depthValues,
-                                           propertyValues,
-                                           errorValues,
-                                           useLogarithmicScale,
-                                           RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
+        setSamplesFromXYErrorValues( depthValues, propertyValues, errorValues, useLogarithmicScale, RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
     }
 }
 
@@ -292,7 +284,7 @@ void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&          
                                             const RiaCurveDataTools::CurveIntervals& curveIntervals )
 {
     auto minmax_it = std::minmax_element( propertyValues.begin(), propertyValues.end() );
-    this->setOverrideCurveDataPropertyValueRange( *( minmax_it.first ), *( minmax_it.second ) );
+    setOverrideCurveDataPropertyValueRange( *( minmax_it.first ), *( minmax_it.second ) );
 
     if ( m_plotCurve )
     {

@@ -162,7 +162,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
 {
     if ( changedField == &m_showCurve )
     {
-        this->updateCurveVisibility();
+        updateCurveVisibility();
         if ( m_showCurve() ) loadDataAndUpdate( false );
         visibilityChanged.send( m_showCurve() );
     }
@@ -282,16 +282,16 @@ void RimPlotCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurvePresentation( bool updatePlotLegendAndTitle )
 {
-    this->updateCurveVisibility();
+    updateCurveVisibility();
 
     if ( updatePlotLegendAndTitle )
     {
-        this->updateCurveNameAndUpdatePlotLegendAndTitle();
-        this->updatePlotTitle();
+        updateCurveNameAndUpdatePlotLegendAndTitle();
+        updatePlotTitle();
     }
     else
     {
-        this->updateCurveNameNoLegendUpdate();
+        updateCurveNameNoLegendUpdate();
     }
 
     updateCurveAppearance();
@@ -330,7 +330,7 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
     {
         // Find all plot windows above this object upwards in the object hierarchy. Use the top most plot window as the
         // root to find all plot curves.
-        auto parentPlots = this->allAncestorsOfType<RimPlotWindow>();
+        auto parentPlots = allAncestorsOfType<RimPlotWindow>();
 
         if ( !parentPlots.empty() )
         {
@@ -405,11 +405,11 @@ void RimPlotCurve::updateCurveName()
 {
     if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
-        m_curveName = this->createCurveAutoName();
+        m_curveName = createCurveAutoName();
     }
     else if ( m_namingMethod == RiaDefines::ObjectNamingMethod::TEMPLATE )
     {
-        m_curveName = this->createCurveNameFromTemplate( m_curveNameTemplateText );
+        m_curveName = createCurveNameFromTemplate( m_curveNameTemplateText );
     }
 
     if ( !m_legendEntryText().isEmpty() )
@@ -588,7 +588,7 @@ bool RimPlotCurve::isCrossPlotCurve() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::loadDataAndUpdate( bool updateParentPlot )
 {
-    this->onLoadDataAndUpdate( updateParentPlot );
+    onLoadDataAndUpdate( updateParentPlot );
     if ( updateParentPlot )
     {
         dataChanged.send();

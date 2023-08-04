@@ -502,7 +502,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks()
         std::vector<RimWellLogCurve*> curves = parentPlot->descendantsIncludingThisOfType<RimWellLogCurve>();
         std::vector<RimWellLogTrack*> tracks = parentPlot->descendantsIncludingThisOfType<RimWellLogTrack>();
 
-        this->analyseCurvesAndTracks( curves, tracks );
+        analyseCurvesAndTracks( curves, tracks );
     }
 }
 
@@ -705,7 +705,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges()
         auto curves = parentPlot->descendantsIncludingThisOfType<RimWellLogCurve>();
         auto tracks = parentPlot->descendantsIncludingThisOfType<RimWellLogTrack>();
 
-        this->applyDataSourceChanges( curves, tracks );
+        applyDataSourceChanges( curves, tracks );
 
         // plot->loadDataAndUpdate() has been called in applyDataSourceChanges(), and this is required before the visibility of tracks and
         // curves can be updated. However, if the visibility of curves changes, another loadDataAndUpdate() is required to calculate zoom
@@ -845,7 +845,7 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandl
         m_wbsSmoothing.v() = caf::Tristate::State::True;
     }
 
-    this->applyDataSourceChanges();
+    applyDataSourceChanges();
 
     if ( changedField == &m_rftWellName )
     {
@@ -862,7 +862,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogCurveCommonDataSource::calculateValueOpt
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    this->analyseCurvesAndTracks();
+    analyseCurvesAndTracks();
 
     if ( fieldNeedingOptions == &m_case )
     {

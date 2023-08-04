@@ -72,7 +72,7 @@ bool RicTileWindowsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicTileWindowsFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     auto* mainWindow = RiuMainWindow::instance();
     applyTiling( mainWindow, RiaDefines::WindowTileMode::DEFAULT );
@@ -140,7 +140,7 @@ bool RicTilePlotWindowsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicTilePlotWindowsFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     auto* mainWindow = RiuPlotMainWindow::instance();
     RicTilePlotWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::DEFAULT );
@@ -187,7 +187,7 @@ bool RicTileWindowsVerticallyFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicTileWindowsVerticallyFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     auto* mainWindow = RiuMainWindow::instance();
     RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::VERTICAL );
@@ -233,7 +233,7 @@ bool RicTileWindowsHorizontallyFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicTileWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     auto* mainWindow = RiuMainWindow::instance();
     RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::HORIZONTAL );
@@ -285,7 +285,7 @@ bool RicTilePlotWindowsVerticallyFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicTilePlotWindowsVerticallyFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     auto* mainWindow = RiuPlotMainWindow::instance();
     RicTilePlotWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::VERTICAL );
@@ -331,7 +331,7 @@ bool RicTilePlotWindowsHorizontallyFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicTilePlotWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     auto* mainWindow = RiuPlotMainWindow::instance();
     RicTilePlotWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::HORIZONTAL );

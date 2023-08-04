@@ -60,7 +60,7 @@ bool RicCopyReferencesToClipboardFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCopyReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     if ( !isAnyCopyableObjectSelected() ) return;
 

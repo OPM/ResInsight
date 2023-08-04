@@ -154,7 +154,7 @@ void RimEllipseFractureTemplate::changeUnits()
         convertToUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
     // Default to 1/3 of height
     m_wellPathDepthAtFracture = m_height / 3.0;
 
-    this->setDefaultWellDiameterFromUnit();
+    setDefaultWellDiameterFromUnit();
 }
 
 //--------------------------------------------------------------------------------------------------

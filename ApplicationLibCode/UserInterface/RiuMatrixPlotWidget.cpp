@@ -83,13 +83,13 @@ RiuMatrixPlotWidget::RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, RimReg
     // Configure main layout
     QHBoxLayout* mainLayout = new QHBoxLayout();
     mainLayout->setContentsMargins( 15, 15, 15, 15 );
-    this->setLayout( mainLayout );
+    setLayout( mainLayout );
 
     // White background
     QPalette palette = this->palette();
     palette.setColor( QPalette::Window, Qt::white );
-    this->setAutoFillBackground( true );
-    this->setPalette( palette );
+    setAutoFillBackground( true );
+    setPalette( palette );
 
     // Add plot to main layout
     m_plotWidget = new RiuQwtPlotWidget( nullptr, parent );

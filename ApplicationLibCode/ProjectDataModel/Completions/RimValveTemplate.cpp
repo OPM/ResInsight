@@ -42,7 +42,7 @@ RimValveTemplate::RimValveTemplate()
     m_type = RiaDefines::WellPathComponentType::ICD;
     CAF_PDM_InitField( &m_userLabel, "UserLabel", QString( "Template" ), "Name" );
 
-    this->setName( fullLabel() );
+    setName( fullLabel() );
 
     CAF_PDM_InitField( &m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]" );
     CAF_PDM_InitField( &m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient" );
@@ -234,7 +234,7 @@ void RimValveTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 {
     if ( changedField == &m_type || changedField == &m_userLabel )
     {
-        this->setName( fullLabel() );
+        setName( fullLabel() );
     }
     if ( changedField == &m_type )
     {
@@ -252,17 +252,17 @@ void RimValveTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    this->setName( fullLabel() );
+    setName( fullLabel() );
     if ( m_type() == RiaDefines::WellPathComponentType::ICV )
     {
-        this->setUiIconFromResourceString( ":/ICVValve16x16.png" );
+        setUiIconFromResourceString( ":/ICVValve16x16.png" );
     }
     else if ( m_type() == RiaDefines::WellPathComponentType::ICD )
     {
-        this->setUiIconFromResourceString( ":/ICDValve16x16.png" );
+        setUiIconFromResourceString( ":/ICDValve16x16.png" );
     }
     else if ( m_type() == RiaDefines::WellPathComponentType::AICD )
     {
-        this->setUiIconFromResourceString( ":/AICDValve16x16.png" );
+        setUiIconFromResourceString( ":/AICDValve16x16.png" );
     }
 }

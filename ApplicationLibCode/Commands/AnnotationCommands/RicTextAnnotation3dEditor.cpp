@@ -55,7 +55,7 @@ RicTextAnnotation3dEditor::~RicTextAnnotation3dEditor()
         ownerRiuViewer->removeStaticModel( m_cvfModel.p() );
     }
 
-    auto textAnnot = dynamic_cast<RimTextAnnotation*>( this->pdmObject() );
+    auto textAnnot = dynamic_cast<RimTextAnnotation*>( pdmObject() );
     if ( textAnnot )
     {
         textAnnot->m_anchorPointXyd.uiCapability()->removeFieldEditor( this );
@@ -70,7 +70,7 @@ RicTextAnnotation3dEditor::~RicTextAnnotation3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicTextAnnotation3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    RimTextAnnotation* textAnnot      = dynamic_cast<RimTextAnnotation*>( this->pdmObject() );
+    RimTextAnnotation* textAnnot      = dynamic_cast<RimTextAnnotation*>( pdmObject() );
     RiuViewer*         ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
     Rim3dView*         view           = mainOrComparisonView();
 
@@ -126,7 +126,7 @@ void RicTextAnnotation3dEditor::configureAndUpdateUi( const QString& uiConfigNam
 //--------------------------------------------------------------------------------------------------
 void RicTextAnnotation3dEditor::cleanupBeforeSettingPdmObject()
 {
-    RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>( this->pdmObject() );
+    RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>( pdmObject() );
     if ( textAnnot )
     {
         textAnnot->m_anchorPointXyd.uiCapability()->removeFieldEditor( this );
@@ -139,7 +139,7 @@ void RicTextAnnotation3dEditor::cleanupBeforeSettingPdmObject()
 //--------------------------------------------------------------------------------------------------
 void RicTextAnnotation3dEditor::slotLabelUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& tangent )
 {
-    RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>( this->pdmObject() );
+    RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>( pdmObject() );
 
     if ( !textAnnot )
     {
@@ -154,7 +154,7 @@ void RicTextAnnotation3dEditor::slotLabelUpdated( const cvf::Vec3d& origin, cons
 //--------------------------------------------------------------------------------------------------
 void RicTextAnnotation3dEditor::slotAnchorUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& dummy )
 {
-    RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>( this->pdmObject() );
+    RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>( pdmObject() );
 
     if ( !textAnnot )
     {

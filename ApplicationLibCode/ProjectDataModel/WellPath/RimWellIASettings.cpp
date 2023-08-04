@@ -94,7 +94,7 @@ RimWellIASettings::RimWellIASettings()
     CAF_PDM_InitField( &m_boxValid, "boxValid", false, "Model box is valid" );
     m_boxValid.uiCapability()->setUiHidden( true );
 
-    this->setDeletable( true );
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ void RimWellIASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         updateVisualization();
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

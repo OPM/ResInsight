@@ -29,7 +29,7 @@ CAF_CMD_SOURCE_INIT( RicShowPlotWindowFeature, "RicShowPlotWindowFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotWindowFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
 }

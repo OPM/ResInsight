@@ -120,7 +120,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiTreeHidden( true );
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
-    this->setAsPlotMdiWindow();
+    setAsPlotMdiWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
     m_accumulatedWellFlowPlot->setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
@@ -631,7 +631,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( cons
 
     if ( fieldNeedingOptions == &m_wellName )
     {
-        std::set<QString> sortedWellNames = this->findSortedWellNames();
+        std::set<QString> sortedWellNames = findSortedWellNames();
 
         caf::IconProvider simWellIcon( ":/Well.svg" );
         for ( const QString& wname : sortedWellNames )

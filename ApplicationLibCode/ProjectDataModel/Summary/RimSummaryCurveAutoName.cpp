@@ -410,7 +410,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* chang
     // NOTE: The curve filter is parent object of a summary curve, and the update is supposed to update
     // the first parent, not the grandparent. This is the reason for not using firstAncestorOrThisOfType()
 
-    RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( this->parentField()->ownerObject() );
+    RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( parentField()->ownerObject() );
     if ( summaryCurve )
     {
         summaryCurve->updateCurveNameAndUpdatePlotLegendAndTitle();
@@ -419,7 +419,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* chang
         return;
     }
 
-    RicSummaryPlotEditorUi* curveCreator = dynamic_cast<RicSummaryPlotEditorUi*>( this->parentField()->ownerObject() );
+    RicSummaryPlotEditorUi* curveCreator = dynamic_cast<RicSummaryPlotEditorUi*>( parentField()->ownerObject() );
     if ( curveCreator )
     {
         curveCreator->updateCurveNames();
@@ -429,7 +429,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* chang
     }
 
     {
-        auto ensembleCurveSet = dynamic_cast<RimEnsembleCurveSet*>( this->parentField()->ownerObject() );
+        auto ensembleCurveSet = dynamic_cast<RimEnsembleCurveSet*>( parentField()->ownerObject() );
         if ( ensembleCurveSet )
         {
             ensembleCurveSet->updateAllTextInPlot();

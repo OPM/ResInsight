@@ -132,7 +132,7 @@ void Rim3dOverlayInfoConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         }
     }
 
-    this->update3DInfo();
+    update3DInfo();
 
     if ( m_viewDef && m_viewDef->viewer() )
     {
@@ -691,12 +691,12 @@ void Rim3dOverlayInfoConfig::showStatisticsInfoDialog( bool raise )
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfo()
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 
     if ( !m_viewDef ) return;
     if ( !m_viewDef->viewer() ) return;
 
-    if ( !this->m_active() )
+    if ( !m_active() )
     {
         m_viewDef->viewer()->showInfoText( false );
         m_viewDef->viewer()->showHistogram( false );
