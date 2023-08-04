@@ -19,7 +19,6 @@
 #include "RimGridView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimAnnotationInViewCollection.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
@@ -233,14 +232,6 @@ const RimCellFilterCollection* RimGridView::cellFilterCollection() const
     {
         return m_cellFilterCollection;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimAnnotationInViewCollection* RimGridView::annotationCollection() const
-{
-    return m_annotationCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

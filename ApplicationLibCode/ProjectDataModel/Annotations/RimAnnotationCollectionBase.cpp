@@ -115,9 +115,7 @@ void RimAnnotationCollectionBase::onAnnotationDeleted()
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollectionBase::scheduleRedrawOfRelevantViews()
 {
-    // Todo: Do a Bounding Box check to see if this annotation actually is relevant for the view
-
-    auto views = gridViewsContainingAnnotations();
+    auto views = viewsContainingAnnotations();
     if ( !views.empty() )
     {
         for ( auto& view : views )
@@ -130,19 +128,13 @@ void RimAnnotationCollectionBase::scheduleRedrawOfRelevantViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RimAnnotationCollectionBase::gridViewsContainingAnnotations() const
+std::vector<Rim3dView*> RimAnnotationCollectionBase::viewsContainingAnnotations() const
 {
     RimProject* project = RimProject::current();
     if ( !project ) return {};
 
-    std::vector<RimGridView*> views;
-    std::vector<RimGridView*> visibleGridViews;
-    project->allVisibleGridViews( visibleGridViews );
-
-    for ( auto& gridView : visibleGridViews )
-    {
-        views.push_back( gridView );
-    }
+    std::vector<Rim3dView*> views;
+    project->allViews( views );
     return views;
 }
 

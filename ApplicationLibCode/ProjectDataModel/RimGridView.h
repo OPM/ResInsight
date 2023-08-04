@@ -22,7 +22,6 @@
 
 #include "cvfArray.h"
 
-class RimAnnotationInViewCollection;
 class RimEclipseContourMapProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
@@ -53,7 +52,6 @@ public:
     virtual RimSurfaceInViewCollection*         surfaceInViewCollection() const;
     RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
     RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
-    RimAnnotationInViewCollection*              annotationCollection() const;
     RimWellMeasurementInViewCollection*         measurementCollection() const;
     RimSeismicSectionCollection*                seismicSectionCollection() const;
 
@@ -101,7 +99,6 @@ protected:
 
     caf::PdmChildField<Rim3dOverlayInfoConfig*>             m_overlayInfoConfig;
     caf::PdmChildField<RimGridCollection*>                  m_gridCollection;
-    caf::PdmChildField<RimAnnotationInViewCollection*>      m_annotationCollection;
     caf::PdmChildField<RimWellMeasurementInViewCollection*> m_wellMeasurementCollection;
     caf::PdmChildField<RimSurfaceInViewCollection*>         m_surfaceCollection;
     caf::PdmChildField<RimCellFilterCollection*>            m_cellFilterCollection;

@@ -44,6 +44,7 @@
 class RimCase;
 class RimLegendConfig;
 class RimWellPathCollection;
+class RimAnnotationInViewCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
@@ -190,6 +191,9 @@ public:
 
     virtual void updateSurfacesInViewTreeItems();
 
+    RimAnnotationInViewCollection* annotationCollection() const;
+    void                           syncronizeLocalAnnotationsFromGlobal();
+
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
 
@@ -272,6 +276,8 @@ protected:
     caf::PdmField<double> m_scaleZ;
     caf::PdmField<double> m_customScaleZ;
 
+    caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
+
 private:
     friend class RimProject;
 
@@ -297,9 +303,9 @@ private:
     // Pure private methods
 
     void createHighlightAndGridBoxDisplayModel();
-    void appendAnnotationsToModel();
     void appendMeasurementToModel();
     void appendCellFiltersToModel();
+    void appendAnnotationsToModel();
 
     // Pure private methods : Override viewer and comparison view
 

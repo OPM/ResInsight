@@ -33,6 +33,7 @@ class RimSeismicSectionCollection;
 class Rim3dOverlayInfoConfig;
 class RivPolylinePartMgr;
 class RigHistogramData;
+class RimAnnotationInViewCollection;
 
 class RimSeismicView : public Rim3dView, public RimPolylinesDataInterface
 {

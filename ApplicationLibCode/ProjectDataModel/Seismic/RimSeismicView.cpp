@@ -21,6 +21,8 @@
 #include "RigPolyLinesData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -63,6 +65,10 @@ RimSeismicView::RimSeismicView()
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
     m_seismicSectionCollection.uiCapability()->setUiTreeHidden( true );
     m_seismicSectionCollection = new RimSeismicSectionCollection();
+
+    CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
+    m_annotationCollection.uiCapability()->setUiTreeHidden( true );
+    m_annotationCollection = new RimAnnotationInViewCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_overlayInfoConfig, "OverlayInfoConfig", "Info Box" );
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
@@ -239,9 +245,9 @@ void RimSeismicView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 void RimSeismicView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
-
     uiTreeOrdering.add( seismicSectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+    uiTreeOrdering.add( annotationCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -288,6 +294,13 @@ void RimSeismicView::onCreateDisplayModel()
         m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform(), nativeOnly );
         nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
     }
+
+    // Annotations
+
+    cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+    model->setName( "Annotations" );
+    addAnnotationsToModel( model.p() );
+    mainScene->addModel( model.p() );
 
     onUpdateLegends();
     if ( m_surfaceCollection )
@@ -401,7 +414,7 @@ void RimSeismicView::onUpdateLegends()
 void RimSeismicView::onLoadDataAndUpdate()
 {
     updateSurfacesInViewTreeItems();
-
+    syncronizeLocalAnnotationsFromGlobal();
     onUpdateScaleTransform();
 
     updateMdiWindowVisibility();
