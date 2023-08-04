@@ -1608,22 +1608,6 @@ void RimEclipseView::syncronizeWellsWithResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
-{
-    RimProject* proj = RimProject::current();
-    if ( proj && proj->activeOilField() )
-    {
-        RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
-        if ( annotColl && annotationCollection() )
-        {
-            annotationCollection()->onGlobalCollectionChanged( annotColl );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RigEclipseResultAddress> RimEclipseView::additionalResultsForResultInfo() const
 {
     return m_additionalResultsForResultInfo()->additionalResultAddresses();

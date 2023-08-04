@@ -62,6 +62,7 @@
 #include "RimProject.h"
 #include "RimSeismicDataInterface.h"
 #include "RimSeismicSection.h"
+#include "RimSeismicView.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimSurfaceInView.h"
@@ -172,6 +173,8 @@ void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBu
         RimProject::current()->allViews( views );
         for ( auto view : views )
         {
+            if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
+
             if ( view != mainGridView )
             {
                 validComparisonViews.push_back( view );
@@ -263,6 +266,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
 
     // Check type of view
+
+    RimSeismicView* seisView = dynamic_cast<RimSeismicView*>( mainOrComparisonView );
+    if ( seisView )
+    {
+        // no context menu support in seismic views, yet
+        return;
+    }
 
     RimGridView*           gridView  = dynamic_cast<RimGridView*>( mainOrComparisonView );
     Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>( mainOrComparisonView );

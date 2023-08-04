@@ -27,7 +27,7 @@
 class QString;
 class RimTextAnnotation;
 class RimAnnotationGroupCollection;
-class RimGridView;
+class Rim3dView;
 
 //==================================================================================================
 ///
@@ -52,7 +52,7 @@ public:
     virtual void onAnnotationDeleted();
 
     void                      scheduleRedrawOfRelevantViews();
-    std::vector<RimGridView*> gridViewsContainingAnnotations() const;
+    std::vector<Rim3dView*> viewsContainingAnnotations() const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

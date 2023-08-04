@@ -160,8 +160,6 @@ public:
     std::vector<RimLegendConfig*> legendConfigs() const override;
     cvf::Color4f                  colorFromCellCategory( RivCellSetEnum geometryType ) const;
 
-    void syncronizeLocalAnnotationsFromGlobal();
-
     std::vector<RigEclipseResultAddress> additionalResultsForResultInfo() const;
 
 protected:

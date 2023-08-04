@@ -30,6 +30,7 @@
 #include "RicfCommandObject.h"
 
 #include "Rim3dWellLogCurve.h"
+#include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
@@ -37,6 +38,7 @@
 #include "RimLegendConfig.h"
 #include "RimMainPlotCollection.h"
 #include "RimMeasurement.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimViewController.h"
@@ -1063,18 +1065,14 @@ void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathMode
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
 {
-    if ( !this->ownerCase() ) return;
-
     auto annotationCollections = descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
-    if ( annotationCollections.empty() || !annotationCollections.front()->isActive() )
-    {
-        m_annotationsPartManager->clearGeometryCache();
-    }
-    else
+    m_annotationsPartManager->clearGeometryCache();
+
+    if ( !annotationCollections.empty() && annotationCollections.front()->isActive() )
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-        m_annotationsPartManager->appendGeometryPartsToModel( annotationsModel, transForm.p(), ownerCase()->allCellsBoundingBox() );
+        m_annotationsPartManager->appendGeometryPartsToModel( annotationsModel, transForm.p(), domainBoundingBox() );
     }
 
     annotationsModel->updateBoundingBoxesRecursive();
@@ -1799,4 +1797,28 @@ double Rim3dView::characteristicCellSize() const
     }
 
     return 1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationInViewCollection* Rim3dView::annotationCollection() const
+{
+    return m_annotationCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::syncronizeLocalAnnotationsFromGlobal()
+{
+    RimProject* proj = RimProject::current();
+    if ( proj && proj->activeOilField() )
+    {
+        RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
+        if ( annotColl && annotationCollection() )
+        {
+            annotationCollection()->onGlobalCollectionChanged( annotColl );
+        }
+    }
 }
