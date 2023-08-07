@@ -299,18 +299,15 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
 {
     RimProject* proj = RimProject::current();
 
+    // Make sure the tree items are synchronized
     std::vector<Rim3dView*> views;
     proj->allViews( views );
-
-    // Make sure the tree items are synchronized
-
     for ( auto view : views )
     {
-        auto gridView = dynamic_cast<RimGridView*>( view );
-        if ( gridView ) gridView->updateSurfacesInViewTreeItems();
+        view->updateSurfacesInViewTreeItems();
     }
 
-    std::set<RimGridView*> viewsNeedingUpdate;
+    std::set<Rim3dView*> viewsNeedingUpdate;
 
     for ( auto surf : surfsToReload )
     {
@@ -320,7 +317,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
             surfInView->clearGeometry();
             surfInView->surfaceResultDefinition()->legendConfig()->setShowLegend( showLegend );
 
-            auto gridView = surfInView->firstAncestorOrThisOfType<RimGridView>();
+            auto gridView = surfInView->firstAncestorOrThisOfType<Rim3dView>();
             if ( gridView ) viewsNeedingUpdate.insert( gridView );
         }
     }
@@ -346,9 +343,9 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::updateViews()
 {
-    RimProject*               proj = RimProject::current();
-    std::vector<RimGridView*> views;
-    proj->allVisibleGridViews( views );
+    RimProject*             proj = RimProject::current();
+    std::vector<Rim3dView*> views;
+    proj->allViews( views );
 
     // Make sure the tree items are synchronized
 

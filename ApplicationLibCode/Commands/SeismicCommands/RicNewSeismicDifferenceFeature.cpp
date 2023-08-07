@@ -51,7 +51,7 @@ bool RicNewSeismicDifferenceFeature::isCommandEnabled() const
 void RicNewSeismicDifferenceFeature::onActionTriggered( bool isChecked )
 {
     auto  proj     = RimProject::current();
-    auto& seisColl = proj->activeOilField()->seismicCollection();
+    auto& seisColl = proj->activeOilField()->seismicDataCollection();
     if ( !seisColl ) return;
 
     auto seismicInput = selectedSeismic();

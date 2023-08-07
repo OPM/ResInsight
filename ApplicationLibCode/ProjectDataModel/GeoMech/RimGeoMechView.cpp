@@ -209,20 +209,6 @@ void RimGeoMechView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
-void RimGeoMechView::onUpdateScaleTransform()
-{
-    cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
-    scale( 2, 2 )    = scaleZ();
-
-    scaleTransform()->setLocalTransform( scale );
-
-    if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimGeoMechView::createAutoName() const
 {
     QStringList autoName;
@@ -314,7 +300,7 @@ void RimGeoMechView::onCreateDisplayModel()
     cvf::BoundingBox femBBox = femParts()->boundingBox();
 
     m_wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), femBBox );
+    addWellPathsToModel( m_wellPathPipeVizModel.p(), femBBox, ownerCase()->characteristicCellSize() );
 
     nativeOrOverrideViewer()->addStaticModelOnce( m_wellPathPipeVizModel.p(), isUsingOverrideViewer() );
 
@@ -443,7 +429,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                     wellPathModelBasicList->setName( name );
 
                     cvf::BoundingBox femBBox = femParts()->boundingBox();
-                    addDynamicWellPathsToModel( wellPathModelBasicList.p(), femBBox );
+                    addDynamicWellPathsToModel( wellPathModelBasicList.p(), femBBox, ownerCase()->characteristicCellSize() );
 
                     frameScene->addModel( wellPathModelBasicList.p() );
                 }
@@ -519,22 +505,6 @@ void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
     m_geomechCase = gmCase;
     cellResult()->setGeoMechCase( gmCase );
     cellFilterCollection()->setCase( gmCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechView::onResetLegendsInViewer()
-{
-    for ( auto legendConfig : legendConfigs() )
-    {
-        if ( legendConfig )
-        {
-            legendConfig->recreateLegend();
-        }
-    }
-
-    nativeOrOverrideViewer()->removeAllColorLegends();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -275,7 +275,12 @@
         <file>open-text-editor.svg</file>
         <file>Seismic16x16.png</file>
         <file>SeismicDelta16x16.png</file>
-        <file>Fullscreen.png</file>
+        <file>SeismicView16x16.png</file>
+        <file>SeismicView24x24.png</file>
+		<file>SeismicViews24x24.png</file>
+		<file>SeismicData24x24.png</file>
+		<file>SeismicSection16x16.png</file>
+		<file>Fullscreen.png</file>
         <file>plot-template-standard.svg</file>
         <file>plot-template-ensemble.svg</file>
         <file>decline-curve.svg</file>

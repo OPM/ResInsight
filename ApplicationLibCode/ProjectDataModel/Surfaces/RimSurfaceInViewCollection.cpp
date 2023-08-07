@@ -18,6 +18,7 @@
 
 #include "RimSurfaceInViewCollection.h"
 
+#include "Rim3dView.h"
 #include "RimEnsembleSurface.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
@@ -51,7 +52,7 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "SurfacesInViewFieldCollections", "SurfacesInViewFieldCollections" );
     m_collectionsInView.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField" );
+    CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "Surfaces" );
     m_surfacesInView.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceCollectionRef", "SurfaceCollection" );
@@ -279,7 +280,7 @@ void RimSurfaceInViewCollection::clearGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform, bool onlyNativeParts )
 {
     if ( !isChecked() ) return;
 
@@ -287,7 +288,7 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
     {
         if ( coll->isChecked() )
         {
-            coll->appendPartsToModel( model, scaleTransform );
+            coll->appendPartsToModel( model, scaleTransform, onlyNativeParts );
         }
     }
 
@@ -295,7 +296,14 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
     {
         if ( surf->isActive() )
         {
-            surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
+            if ( onlyNativeParts )
+            {
+                surf->nativeSurfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
+            }
+            else
+            {
+                surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
+            }
         }
     }
 
@@ -311,7 +319,7 @@ void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( changedField == &m_isChecked )
     {
-        auto ownerView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
+        auto ownerView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
 }

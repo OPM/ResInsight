@@ -173,7 +173,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::Mod
 
     if ( !completionVizDataItems.empty() )
     {
-        double characteristicCellSize = eclView->ownerCase()->characteristicCellSize();
+        double characteristicCellSize = eclView->characteristicCellSize();
 
         double radius = m_rimWellPath->wellPathRadius( characteristicCellSize ) * m_virtualPerforationResult->geometryScaleFactor();
         radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry scale factor is

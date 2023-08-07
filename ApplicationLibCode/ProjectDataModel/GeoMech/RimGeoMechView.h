@@ -133,15 +133,11 @@ protected:
 private:
     QString createAutoName() const override;
 
-    void onUpdateScaleTransform() override;
-
     void   onClampCurrentTimestep() override;
     size_t onTimeStepCountRequested() override;
 
     void onUpdateDisplayModelForCurrentTimeStep() override;
     void onUpdateStaticCellColors() override;
-
-    void onResetLegendsInViewer() override;
 
     void onUpdateLegends() override;
 

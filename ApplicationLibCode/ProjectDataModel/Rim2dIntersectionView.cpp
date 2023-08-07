@@ -795,19 +795,6 @@ void Rim2dIntersectionView::onUpdateStaticCellColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onUpdateScaleTransform()
-{
-    cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
-    scale( 2, 2 )    = scaleZ();
-
-    scaleTransform()->setLocalTransform( scale );
-
-    if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 cvf::Transform* Rim2dIntersectionView::scaleTransform()
 {
     return m_scaleTransform.p();

@@ -91,7 +91,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
 
     m_visibleFracturePolygons.clear();
 
-    double characteristicCellSize = eclView.ownerCase()->characteristicCellSize();
+    double characteristicCellSize = eclView.characteristicCellSize();
 
     cvf::Collection<cvf::Part> parts;
     RimMeshFractureTemplate*   stimPlanFracTemplate = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
@@ -928,7 +928,7 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEcli
     auto displayCoordTransform = activeView.displayCoordTransform();
     if ( displayCoordTransform.isNull() ) return;
 
-    double characteristicCellSize = activeView.ownerCase()->characteristicCellSize();
+    double characteristicCellSize = activeView.characteristicCellSize();
     double wellPathRadius         = 1.0;
 
     {

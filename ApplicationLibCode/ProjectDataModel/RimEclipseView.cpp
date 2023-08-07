@@ -613,7 +613,7 @@ void RimEclipseView::onCreateDisplayModel()
     // as the fracture geometry depends on the StimPlan legend colors
     fractureColors()->updateLegendData();
 
-    addWellPathsToModel( m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox() );
+    addWellPathsToModel( m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox(), ownerCase()->characteristicCellSize() );
 
     m_wellPathsPartManager->appendStaticFracturePartsToModel( m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox() );
     m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
@@ -936,7 +936,9 @@ void RimEclipseView::appendWellsAndFracturesToModel()
                 cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                 wellPathModelBasicList->setName( name );
 
-                addDynamicWellPathsToModel( wellPathModelBasicList.p(), currentActiveCellInfo()->geometryBoundingBox() );
+                addDynamicWellPathsToModel( wellPathModelBasicList.p(),
+                                            currentActiveCellInfo()->geometryBoundingBox(),
+                                            ownerCase()->characteristicCellSize() );
 
                 frameScene->addModel( wellPathModelBasicList.p() );
             }
@@ -1602,22 +1604,6 @@ void RimEclipseView::syncronizeWellsWithResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
-{
-    RimProject* proj = RimProject::current();
-    if ( proj && proj->activeOilField() )
-    {
-        RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
-        if ( annotColl && annotationCollection() )
-        {
-            annotationCollection()->onGlobalCollectionChanged( annotColl );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RigEclipseResultAddress> RimEclipseView::additionalResultsForResultInfo() const
 {
     return m_additionalResultsForResultInfo()->additionalResultAddresses();
@@ -2057,22 +2043,6 @@ void RimEclipseView::setCurrentCellResultData( const std::vector<double>& values
             *modResult = values;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::onResetLegendsInViewer()
-{
-    for ( auto legendConfig : legendConfigs() )
-    {
-        if ( legendConfig )
-        {
-            legendConfig->recreateLegend();
-        }
-    }
-
-    nativeOrOverrideViewer()->removeAllColorLegends();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -113,7 +113,7 @@ void RicSeismicSectionFromIntersectionFeature::onActionTriggered( bool isChecked
 //--------------------------------------------------------------------------------------------------
 void RicSeismicSectionFromIntersectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SeismicSection16x16.png" ) );
     actionToSetup->setText( "Create as Seismic Section" );
 }
 

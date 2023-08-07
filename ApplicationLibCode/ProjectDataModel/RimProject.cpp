@@ -73,6 +73,8 @@
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSeismicDataCollection.h"
+#include "RimSeismicView.h"
+#include "RimSeismicViewCollection.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
@@ -811,6 +813,18 @@ void RimProject::allViews( std::vector<Rim3dView*>& views ) const
             }
         }
     }
+
+    for ( size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++ )
+    {
+        RimOilField* oilField = oilFields[oilFieldIdx];
+        if ( !oilField ) continue;
+        if ( !oilField->seismicViewCollection() ) continue;
+
+        for ( auto seisview : oilField->seismicViewCollection()->views() )
+        {
+            views.push_back( seisview );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -868,6 +882,11 @@ void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
         {
             views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
         }
+    }
+
+    for ( auto seisview : activeOilField()->seismicViewCollection()->views() )
+    {
+        seisview->scheduleCreateDisplayModelAndRedraw();
     }
 }
 
@@ -1520,7 +1539,12 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
-            if ( oilField->seismicCollection() ) uiTreeOrdering.add( oilField->seismicCollection() );
+            if ( oilField->seismicDataCollection() )
+            {
+                auto child = uiTreeOrdering.add( "Seismic", ":/Seismic16x16.png" );
+                child->add( oilField->seismicDataCollection() );
+                child->add( oilField->seismicViewCollection() );
+            }
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() ) uiTreeOrdering.add( oilField->completionTemplateCollection() );
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );

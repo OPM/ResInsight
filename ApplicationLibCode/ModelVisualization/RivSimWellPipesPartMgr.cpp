@@ -406,7 +406,7 @@ void RivSimWellPipesPartMgr::appendValvesGeo( const RimEclipseView*             
     if ( !m_simWellInView || !m_simWellInView->isWellValvesVisible( frameIndex ) ) return;
     if ( !eclipseView || !eclipseView->ownerCase() ) return;
 
-    const auto characteristicCellSize = eclipseView->ownerCase()->characteristicCellSize();
+    const auto characteristicCellSize = eclipseView->characteristicCellSize();
     const auto coords                 = pbd.m_pipeGeomGenerator->pipeCenterCoords();
 
     std::set<std::pair<size_t, size_t>> resultPointWithValve;

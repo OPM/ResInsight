@@ -44,6 +44,7 @@
 class RimCase;
 class RimLegendConfig;
 class RimWellPathCollection;
+class RimAnnotationInViewCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
@@ -117,14 +118,15 @@ public:
 
     virtual RiaDefines::View3dContent viewContent() const = 0;
 
-    void         setMeshOnlyDrawstyle();
-    void         setMeshSurfDrawstyle();
-    void         setSurfOnlyDrawstyle();
-    void         setFaultMeshSurfDrawstyle();
-    void         setSurfaceDrawstyle();
-    void         setShowGridBox( bool showGridBox );
-    virtual bool isShowingActiveCellsOnly();
-    virtual bool isGridVisualizationMode() const = 0;
+    void           setMeshOnlyDrawstyle();
+    void           setMeshSurfDrawstyle();
+    void           setSurfOnlyDrawstyle();
+    void           setFaultMeshSurfDrawstyle();
+    void           setSurfaceDrawstyle();
+    void           setShowGridBox( bool showGridBox );
+    virtual bool   isShowingActiveCellsOnly();
+    virtual bool   isGridVisualizationMode() const = 0;
+    virtual double characteristicCellSize() const;
 
     void         setBackgroundColor( const cvf::Color3f& newBackgroundColor );
     cvf::Color3f backgroundColor() const override; // Implementation of RiuViewerToViewInterface
@@ -165,11 +167,11 @@ public:
     void updateDisplayModelForCurrentTimeStepAndRedraw();
     void createHighlightAndGridBoxDisplayModelAndRedraw();
     void createMeasurementDisplayModelAndRedraw();
-    void updateGridBoxData();
     void updateAnnotationItems();
     void resetLegends();
 
-    cvf::BoundingBox domainBoundingBox();
+    virtual void             updateGridBoxData();
+    virtual cvf::BoundingBox domainBoundingBox();
 
     void   setScaleZ( double scaleZ );
     void   setScaleZAndUpdate( double scaleZ );
@@ -187,6 +189,11 @@ public:
     RimViewLinker*     assosiatedViewLinker() const override;
     RimViewController* viewController() const override;
 
+    virtual void updateSurfacesInViewTreeItems();
+
+    RimAnnotationInViewCollection* annotationCollection() const;
+    void                           syncronizeLocalAnnotationsFromGlobal();
+
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
 
@@ -203,8 +210,12 @@ protected:
 
     RimWellPathCollection* wellPathCollection() const;
 
-    void addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox );
-    void addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox );
+    void addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                              const cvf::BoundingBox& wellPathClipBoundingBox,
+                              double                  characteristicCellSize );
+    void addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                                     const cvf::BoundingBox& wellPathClipBoundingBox,
+                                     double                  characteristicCellSize );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
     void addMeasurementToModel( cvf::ModelBasicList* measureModel );
     void addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel );
@@ -218,22 +229,23 @@ protected:
 
     // Abstract methods to implement in subclasses
 
+    virtual void onUpdateDisplayModelVisibility(){};
+    virtual void onClearReservoirCellVisibilitiesIfNecessary(){};
+    virtual void onResetLegendsInViewer();
+    virtual void onUpdateScaleTransform();
+
     virtual void   onCreateDisplayModel()                   = 0;
     virtual void   onUpdateDisplayModelForCurrentTimeStep() = 0;
-    virtual void   onUpdateDisplayModelVisibility(){};
-    virtual void   onClampCurrentTimestep()   = 0;
-    virtual size_t onTimeStepCountRequested() = 0;
+    virtual void   onClampCurrentTimestep()                 = 0;
+    virtual size_t onTimeStepCountRequested()               = 0;
 
-    virtual void onClearReservoirCellVisibilitiesIfNecessary(){};
     virtual bool isTimeStepDependentDataVisible() const                                            = 0;
     virtual void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
     virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )          = 0;
     virtual void onUpdateStaticCellColors()                                                        = 0;
-    virtual void onResetLegendsInViewer()                                                          = 0;
     virtual void onUpdateLegends()                                                                 = 0;
 
-    virtual void            onUpdateScaleTransform() = 0;
-    virtual cvf::Transform* scaleTransform()         = 0;
+    virtual cvf::Transform* scaleTransform() = 0;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -259,9 +271,12 @@ protected:
     cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
     cvf::ref<cvf::ModelBasicList> m_seismicVizModel;
     cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
+    cvf::ref<cvf::ModelBasicList> m_highlightVizModel;
 
     caf::PdmField<double> m_scaleZ;
     caf::PdmField<double> m_customScaleZ;
+
+    caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
 
 private:
     friend class RimProject;
@@ -288,9 +303,9 @@ private:
     // Pure private methods
 
     void createHighlightAndGridBoxDisplayModel();
-    void appendAnnotationsToModel();
     void appendMeasurementToModel();
     void appendCellFiltersToModel();
+    void appendAnnotationsToModel();
 
     // Pure private methods : Override viewer and comparison view
 
@@ -320,7 +335,6 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_fontSize;
 
     // 3D display model data
-    cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
     cvf::ref<RivCellFilterPartMgr>  m_cellfilterPartManager;
