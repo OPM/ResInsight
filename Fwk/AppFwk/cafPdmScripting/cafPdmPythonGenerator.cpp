@@ -376,7 +376,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     out << "from rips.pdmobject import PdmObjectBase\n";
     out << "import PdmObject_pb2\n";
     out << "import grpc\n";
-    out << "from typing import Optional, Dict, List\n";
+    out << "from typing import Optional, Dict, List, Type\n";
     out << "\n";
 
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
@@ -458,15 +458,15 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
         }
     }
 
-    out << "def class_dict():\n";
-    out << "    classes = {}\n";
+    out << "def class_dict() -> Dict[str, Type[PdmObjectBase]]:\n";
+    out << "    classes : Dict[str, Type[PdmObjectBase]] = {}\n";
     for ( QString classKeyword : classesWritten )
     {
         out << QString( "    classes['%1'] = %1\n" ).arg( classKeyword );
     }
     out << "    return classes\n\n";
 
-    out << "def class_from_keyword(class_keyword : str):\n";
+    out << "def class_from_keyword(class_keyword : str) -> Optional[Type[PdmObjectBase]]:\n";
     out << "    all_classes = class_dict()\n";
     out << "    if class_keyword in all_classes.keys():\n";
     out << "        return all_classes[class_keyword]\n";
