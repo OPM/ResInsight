@@ -1822,7 +1822,9 @@ bool RimEclipseResultDefinition::isDeltaResultEnabled() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isDeltaTimeStepPossible() const
 {
-    return isDeltaResultEnabled() && m_resultTypeUiField() == RiaDefines::ResultCatType::DYNAMIC_NATIVE && !isTernarySaturationSelected();
+    return isDeltaResultEnabled() && !isTernarySaturationSelected() &&
+           ( m_resultTypeUiField() == RiaDefines::ResultCatType::DYNAMIC_NATIVE ||
+             m_resultTypeUiField() == RiaDefines::ResultCatType::GENERATED );
 }
 
 //--------------------------------------------------------------------------------------------------
