@@ -8,6 +8,9 @@ if(CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
+message(STATUS "CAF_CVF_SCRIPTING VALUE=${CAF_CVF_SCRIPTING}")
+
+
 set(PROJECT_FILES
     cafPdmCodeGenerator.h
     cafPdmAbstractFieldScriptingCapability.h
