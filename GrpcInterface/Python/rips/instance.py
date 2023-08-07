@@ -5,6 +5,7 @@ The Instance class contained have static methods launch and find for
 creating connections to ResInsight
 """
 
+from __future__ import annotations
 import os
 import socket
 import logging
