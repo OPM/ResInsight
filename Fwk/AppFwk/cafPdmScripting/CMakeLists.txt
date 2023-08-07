@@ -10,7 +10,6 @@ endif()
 
 message(STATUS "CAF_CVF_SCRIPTING VALUE=${CAF_CVF_SCRIPTING}")
 
-
 set(PROJECT_FILES
     cafPdmCodeGenerator.h
     cafPdmAbstractFieldScriptingCapability.h
