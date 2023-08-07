@@ -381,9 +381,9 @@ void RivSurfacePartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::generateNativePartGeometry()
 {
-    cvf::Vec3d displayModOffsett( 0, 0, 0 );
+    cvf::Vec3d displayModOffset( 0, 0, 0 );
     auto       ownerCase = m_surfaceInView->firstAncestorOrThisOfType<RimCase>();
-    if ( ownerCase ) displayModOffsett = ownerCase->displayModelOffset();
+    if ( ownerCase ) displayModOffset = ownerCase->displayModelOffset();
 
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
     if ( m_usedSurfaceData.isNull() ) return;
@@ -394,7 +394,7 @@ void RivSurfacePartMgr::generateNativePartGeometry()
     cvf::ref<cvf::Vec3fArray> cvfVertices = new cvf::Vec3fArray( vertices.size() );
     for ( size_t i = 0; i < vertices.size(); ++i )
     {
-        ( *cvfVertices )[i] = cvf::Vec3f( vertices[i] - displayModOffsett );
+        ( *cvfVertices )[i] = cvf::Vec3f( vertices[i] - displayModOffset );
     }
 
     const std::vector<unsigned>&           triangleIndices = m_usedSurfaceData->triangleIndices();

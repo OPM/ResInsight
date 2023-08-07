@@ -66,13 +66,6 @@ bool RimSeismicViewCollection::isEmpty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicViewCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimSeismicView* RimSeismicViewCollection::addView( RimSeismicData* data, RiaDefines::SeismicSectionType defaultSection )
 {
     RimSeismicView* view = new RimSeismicView();

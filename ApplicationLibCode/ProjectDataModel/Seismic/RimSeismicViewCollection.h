@@ -43,9 +43,6 @@ public:
 
     std::vector<RimSeismicView*> views() const;
 
-protected:
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
-
 private:
     caf::PdmChildArrayField<RimSeismicView*> m_views;
 };
