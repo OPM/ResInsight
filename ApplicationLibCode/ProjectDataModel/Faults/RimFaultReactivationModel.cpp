@@ -67,8 +67,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_extentVerticalBelow.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_extentVerticalBelow.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
 
-    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Model Extent" );
-    CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Model Start Depth" );
+    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Horz. Extent from Anchor" );
+    CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Start Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
     CAF_PDM_InitField( &m_showFaultPlane, "ShowFaultPlane", true, "Show Fault Plane" );
@@ -80,6 +80,12 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_faultPlaneColor, "FaultPlaneColor", cvf::Color3f( cvf::Color3f::GRAY ), "Plane Color" );
     CAF_PDM_InitField( &m_modelPart1Color, "ModelPart1Color", cvf::Color3f( cvf::Color3f::GREEN ), "Part 1 Color" );
     CAF_PDM_InitField( &m_modelPart2Color, "ModelPart2Color", cvf::Color3f( cvf::Color3f::BLUE ), "Part 2 Color" );
+
+    CAF_PDM_InitField( &m_numberOfCellsHorzPart1, "NumberOfCellsHorzPart1", 20, "Horizontal Number of Cells, Part 1" );
+    CAF_PDM_InitField( &m_numberOfCellsHorzPart2, "NumberOfCellsHorzPart2", 20, "Horizontal Number of Cells, Part 2" );
+    CAF_PDM_InitField( &m_numberOfCellsVertUp, "NumberOfCellsVertUp", 20, "Vertical Number of Cells, Upper Part" );
+    CAF_PDM_InitField( &m_numberOfCellsVertMid, "NumberOfCellsVertMid", 20, "Vertical Number of Cells, Middle Part" );
+    CAF_PDM_InitField( &m_numberOfCellsVertLow, "NumberOfCellsVertLow", 20, "Vertical Number of Cells, Lower Part" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -349,11 +355,23 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
 
     auto modelGrp = uiOrdering.addNewGroup( "2D Model" );
     modelGrp->add( &m_showModelPlane );
-    modelGrp->add( &m_modelExtentFromAnchor );
-    modelGrp->add( &m_modelMinZ );
-    modelGrp->add( &m_modelBelowSize );
-    modelGrp->add( &m_modelPart1Color );
-    modelGrp->add( &m_modelPart2Color );
+
+    auto sizeModelGrp = modelGrp->addNewGroup( "Size" );
+    sizeModelGrp->add( &m_modelExtentFromAnchor );
+    sizeModelGrp->add( &m_modelMinZ );
+    sizeModelGrp->add( &m_modelBelowSize );
+
+    auto gridModelGrp = modelGrp->addNewGroup( "Grid" );
+
+    gridModelGrp->add( &m_numberOfCellsHorzPart1 );
+    gridModelGrp->add( &m_numberOfCellsHorzPart2 );
+    gridModelGrp->add( &m_numberOfCellsVertUp );
+    gridModelGrp->add( &m_numberOfCellsVertMid );
+    gridModelGrp->add( &m_numberOfCellsVertLow );
+
+    auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
+    appModelGrp->add( &m_modelPart1Color );
+    appModelGrp->add( &m_modelPart2Color );
 
     auto trgGroup = uiOrdering.addNewGroup( "Debug" );
     trgGroup->setCollapsedByDefault();
@@ -370,14 +388,8 @@ void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* cha
     if ( changedField == &m_userDescription )
     {
         updateConnectedEditors();
-        return;
     }
-
-    if ( ( changedField == &m_extentHorizontal ) || ( changedField == &m_extentVerticalAbove ) ||
-         ( changedField == &m_extentVerticalBelow ) || ( changedField == &m_faultPlaneColor ) || ( changedField == &m_targets ) ||
-         ( changedField == &m_isChecked ) || ( changedField == &m_modelExtentFromAnchor ) || ( changedField == &m_modelMinZ ) ||
-         ( changedField == &m_modelBelowSize ) || ( changedField == &m_modelPart1Color ) || ( changedField == &m_modelPart2Color ) ||
-         ( changedField == &m_showFaultPlane ) || ( changedField == &m_showModelPlane ) )
+    else
     {
         updateVisualization();
     }

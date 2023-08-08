@@ -28,6 +28,12 @@ RigFaultReactivationModel::RigFaultReactivationModel()
     , m_minZ( 0 )
     , m_maxHorzExtent( 0 )
     , m_isValid( false )
+    , m_cellCountHorzPart1( 1 )
+    , m_cellCountHorzPart2( 1 )
+    , m_cellCountVertUpper( 1 )
+    , m_cellCountVertMiddle( 1 )
+    , m_cellCountVertLower( 1 )
+
 {
     for ( auto part : allParts() )
     {
@@ -37,6 +43,14 @@ RigFaultReactivationModel::RigFaultReactivationModel()
         m_parts[part].texture->fill( cvf::Color4ub( 0, 0, 0, 0 ) );
         m_parts[part].rect.reserve( 4 );
     }
+
+    m_cornerIndexes[ModelParts::HiPart1]  = { 2, 3, 7, 6 };
+    m_cornerIndexes[ModelParts::MidPart1] = { 1, 2, 6, 5 };
+    m_cornerIndexes[ModelParts::LowPart1] = { 0, 1, 5, 4 };
+
+    m_cornerIndexes[ModelParts::HiPart2]  = { 6, 7, 11, 10 };
+    m_cornerIndexes[ModelParts::MidPart2] = { 5, 6, 10, 9 };
+    m_cornerIndexes[ModelParts::LowPart2] = { 4, 5, 9, 8 };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,35 +213,14 @@ void RigFaultReactivationModel::updateRects()
     points[11]     = mr;
     points[11].z() = -m_minZ;
 
-    for ( int i : { 2, 3, 7, 6 } )
+    for ( auto part : allParts() )
     {
-        m_parts[ModelParts::HiPart1].rect.add( points[i] );
+        for ( auto i : m_cornerIndexes[part] )
+        {
+            m_parts[part].rect.add( points[i] );
+        }
     }
 
-    for ( int i : { 1, 2, 6, 5 } )
-    {
-        m_parts[ModelParts::MidPart1].rect.add( points[i] );
-    }
-
-    for ( int i : { 0, 1, 5, 4 } )
-    {
-        m_parts[ModelParts::LowPart1].rect.add( points[i] );
-    }
-
-    for ( int i : { 6, 7, 11, 10 } )
-    {
-        m_parts[ModelParts::HiPart2].rect.add( points[i] );
-    }
-
-    for ( int i : { 5, 6, 10, 9 } )
-    {
-        m_parts[ModelParts::MidPart2].rect.add( points[i] );
-    }
-
-    for ( int i : { 4, 5, 9, 8 } )
-    {
-        m_parts[ModelParts::LowPart2].rect.add( points[i] );
-    }
     m_isValid = true;
 
     generateMeshLines( points );
@@ -254,4 +247,7 @@ cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( ModelParts part 
 //--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModel::generateMeshLines( cvf::Vec3dArray points )
 {
+    for ( auto part : allParts() )
+    {
+    }
 }

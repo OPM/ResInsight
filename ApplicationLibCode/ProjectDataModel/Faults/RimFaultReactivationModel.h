@@ -119,6 +119,11 @@ private:
     caf::PdmField<double> m_modelExtentFromAnchor;
     caf::PdmField<double> m_modelMinZ;
     caf::PdmField<double> m_modelBelowSize;
+    caf::PdmField<int>    m_numberOfCellsHorzPart1;
+    caf::PdmField<int>    m_numberOfCellsHorzPart2;
+    caf::PdmField<int>    m_numberOfCellsVertUp;
+    caf::PdmField<int>    m_numberOfCellsVertMid;
+    caf::PdmField<int>    m_numberOfCellsVertLow;
 
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;

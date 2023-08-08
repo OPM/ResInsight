@@ -73,6 +73,8 @@ public:
     void setFaultPlaneIntersect( cvf::Vec3d faultPlaneTop, cvf::Vec3d faultPlaneBottom );
     void setMaxExtentFromAnchor( double maxExtentHorz, double minZ, double maxZ );
 
+    void setCellCounts( int horzPart1, int horzPart2, int vertUpper, int vertMiddle, int vertLower );
+
     void updateRects();
 
     void setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color );
@@ -93,6 +95,14 @@ private:
     double m_maxHorzExtent;
     double m_minZ;
     double m_maxZ;
+
+    int m_cellCountHorzPart1;
+    int m_cellCountHorzPart2;
+    int m_cellCountVertUpper;
+    int m_cellCountVertMiddle;
+    int m_cellCountVertLower;
+
+    std::map<ModelParts, std::vector<int>> m_cornerIndexes;
 
     std::map<ModelParts, RigFRModelPart> m_parts;
     bool                                 m_isValid;
