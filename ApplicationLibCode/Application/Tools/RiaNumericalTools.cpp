@@ -99,9 +99,9 @@ double RiaNumericalTools::roundToNumSignificantDigits( double value, double numS
 
     double factor = pow( 10.0, numSignificantDigits - logDecValue );
 
-    double tmp = value * factor;
-    double integerPart;
-    double fraction = modf( tmp, &integerPart );
+    double tmp         = value * factor;
+    double integerPart = 0.0;
+    modf( tmp, &integerPart );
 
     double candidateValue = integerPart / factor;
 
