@@ -258,11 +258,11 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         {
             if ( m_userDefinedMaxValue == m_userDefinedMaxValue.defaultValue() && m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
             {
-                m_userDefinedMaxValue = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMax, m_precision );
+                m_userDefinedMaxValue = RiaNumericalTools::roundToNumSignificantDigitsCeil( m_globalAutoMax, m_precision );
             }
             if ( m_userDefinedMinValue == m_userDefinedMinValue.defaultValue() && m_globalAutoMin != cvf::UNDEFINED_DOUBLE )
             {
-                m_userDefinedMinValue = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMin, m_precision );
+                m_userDefinedMinValue = RiaNumericalTools::roundToNumSignificantDigitsFloor( m_globalAutoMin, m_precision );
             }
         }
         updateFieldVisibility();
@@ -403,24 +403,24 @@ void RimRegularLegendConfig::updateLegend()
 
     if ( m_rangeMode == RangeModeType::AUTOMATIC_ALLTIMESTEPS )
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMin, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMax, m_precision );
+        adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( m_globalAutoMin, m_precision );
+        adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( m_globalAutoMax, m_precision );
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
     }
     else if ( m_rangeMode == RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_localAutoMin, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_localAutoMax, m_precision );
+        adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( m_localAutoMin, m_precision );
+        adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( m_localAutoMax, m_precision );
 
         posClosestToZero = m_localAutoPosClosestToZero;
         negClosestToZero = m_localAutoNegClosestToZero;
     }
     else
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_userDefinedMinValue, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_userDefinedMaxValue, m_precision );
+        adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( m_userDefinedMinValue, m_precision );
+        adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( m_userDefinedMaxValue, m_precision );
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
@@ -626,11 +626,11 @@ void RimRegularLegendConfig::disableAllTimeStepsRange( bool doDisable )
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setAutomaticRanges( double globalMin, double globalMax, double localMin, double localMax )
 {
-    double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( globalMin, m_precision );
-    double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( globalMax, m_precision );
+    double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( globalMin, m_precision );
+    double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( globalMax, m_precision );
 
-    double candidateLocalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( localMin, m_precision );
-    double candidateLocalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( localMax, m_precision );
+    double candidateLocalAutoMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( localMin, m_precision );
+    double candidateLocalAutoMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( localMax, m_precision );
 
     m_globalAutoMin = candidateGlobalAutoMin;
     m_globalAutoMax = candidateGlobalAutoMax;

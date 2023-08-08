@@ -376,8 +376,8 @@ void RimGridCrossPlotRegressionCurve::defineEditorAttribute( const caf::PdmField
         if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
             auto [min, max]    = m_dataRangeX;
-            myAttr->m_minimum  = RiaNumericalTools::roundToNumSignificantDigits( min, 2 );
-            myAttr->m_maximum  = RiaNumericalTools::roundToNumSignificantDigits( max, 2 );
+            myAttr->m_minimum  = RiaNumericalTools::roundToNumSignificantDigitsFloor( min, 2 );
+            myAttr->m_maximum  = RiaNumericalTools::roundToNumSignificantDigitsCeil( max, 2 );
             myAttr->m_decimals = 3;
         }
     }
@@ -386,8 +386,8 @@ void RimGridCrossPlotRegressionCurve::defineEditorAttribute( const caf::PdmField
         if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
             auto [min, max]    = m_dataRangeY;
-            myAttr->m_minimum  = RiaNumericalTools::roundToNumSignificantDigits( min, 2 );
-            myAttr->m_maximum  = RiaNumericalTools::roundToNumSignificantDigits( max, 2 );
+            myAttr->m_minimum  = RiaNumericalTools::roundToNumSignificantDigitsFloor( min, 2 );
+            myAttr->m_maximum  = RiaNumericalTools::roundToNumSignificantDigitsCeil( max, 2 );
             myAttr->m_decimals = 3;
         }
     }
