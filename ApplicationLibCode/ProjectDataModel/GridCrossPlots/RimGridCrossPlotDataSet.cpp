@@ -127,7 +127,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     CAF_PDM_InitFieldNoDefault( &m_crossPlotCurves, "CrossPlotCurves", "Curves" );
     m_crossPlotCurves.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_crossPlotRegressionCurves, "CrossPlotRegressionCurves", "Regression Curves" );
+    CAF_PDM_InitFieldNoDefault( &m_crossPlotRegressionCurves, "CrossPlotRegressionCurves", "Regression Curves", ":/regression-curve.svg" );
 
     CAF_PDM_InitField( &m_useCustomColor, "UseCustomColor", false, "Use Custom Color" );
     CAF_PDM_InitField( &m_customColor, "CustomColor", cvf::Color3f( cvf::Color3f::BLACK ), "Custom Color" );

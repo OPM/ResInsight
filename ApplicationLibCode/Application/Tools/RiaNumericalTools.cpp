@@ -70,7 +70,23 @@ double RiaNumericalTools::computeTenExponentFloor( double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaNumericalTools::roundToNumSignificantDigits( double value, double numSignificantDigits )
+double RiaNumericalTools::roundToNumSignificantDigitsFloor( double value, double numSignificantDigits )
+{
+    return roundToNumSignificantDigits( value, numSignificantDigits, RoundToSignificantDigitsMode::FLOOR );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaNumericalTools::roundToNumSignificantDigitsCeil( double value, double numSignificantDigits )
+{
+    return roundToNumSignificantDigits( value, numSignificantDigits, RoundToSignificantDigitsMode::CEIL );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaNumericalTools::roundToNumSignificantDigits( double value, double numSignificantDigits, RoundToSignificantDigitsMode mode )
 {
     double absoluteValue = cvf::Math::abs( value );
     if ( absoluteValue == 0.0 )
@@ -83,11 +99,20 @@ double RiaNumericalTools::roundToNumSignificantDigits( double value, double numS
 
     double factor = pow( 10.0, numSignificantDigits - logDecValue );
 
-    double tmp = value * factor;
-    double integerPart;
-    double fraction = modf( tmp, &integerPart );
+    double tmp         = value * factor;
+    double integerPart = 0.0;
+    modf( tmp, &integerPart );
 
-    if ( cvf::Math::abs( fraction ) >= 0.5 ) ( integerPart >= 0 ) ? integerPart++ : integerPart--;
+    double candidateValue = integerPart / factor;
+
+    if ( mode == RoundToSignificantDigitsMode::CEIL && candidateValue < value )
+    {
+        integerPart++;
+    }
+    else if ( mode == RoundToSignificantDigitsMode::FLOOR && value < candidateValue )
+    {
+        integerPart--;
+    }
 
     double roundedValue = integerPart / factor;
 
