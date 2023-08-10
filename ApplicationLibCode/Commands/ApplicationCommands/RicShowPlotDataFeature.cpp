@@ -75,7 +75,7 @@ public:
         }
         else
         {
-            return QString( "Plot Data, %1" ).arg( RiaQDateTimeTools::dateTimePeriodName( timePeriod ) );
+            return QString( "%1" ).arg( RiaQDateTimeTools::dateTimePeriodName( timePeriod ) );
         }
     }
 
@@ -110,9 +110,17 @@ private:
 
     static std::vector<RiaDefines::DateTimePeriod> tabs()
     {
-        std::vector<RiaDefines::DateTimePeriod> dateTimePeriods = RiaQDateTimeTools::dateTimePeriods();
-        dateTimePeriods.erase( std::remove( dateTimePeriods.begin(), dateTimePeriods.end(), RiaDefines::DateTimePeriod::DECADE ),
-                               dateTimePeriods.end() );
+        std::vector<RiaDefines::DateTimePeriod> dateTimePeriods;
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::NONE );
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::YEAR );
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::HALFYEAR );
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::QUARTER );
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::MONTH );
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::WEEK );
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::DAY );
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::HOUR );
+        dateTimePeriods.emplace_back( RiaDefines::DateTimePeriod::MINUTE );
+
         return dateTimePeriods;
     }
 
