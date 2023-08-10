@@ -585,7 +585,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
             auto trace = m_filereader->trace( iline, xline, zMinIndex, zSize );
 
-            if ( trace->size() != zSize )
+            if ( trace == nullptr || trace->size() != zSize )
             {
                 memset( pOut, 0, zSize * sizeof( float ) );
             }
@@ -614,7 +614,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
             auto trace = m_filereader->trace( iline, xline, zMinIndex, zSize );
 
-            if ( trace->size() != zSize )
+            if ( trace == nullptr || trace->size() != zSize )
             {
                 memset( pOut, 0, zSize * sizeof( float ) );
             }
