@@ -190,7 +190,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                 delete duplicateCase;
             }
 
-            if ( !candidateCases.empty() )
+            if ( !candidateCases.empty() && RiuPlotMainWindow::instance()->isVisible() )
             {
                 RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { candidateCases.front() }, {} );
                 RiuPlotMainWindowTools::setExpanded( candidateCases.front() );
@@ -206,7 +206,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
     project->activeOilField()->completionTemplateCollection()->setDefaultUnitSystemBasedOnLoadedCases();
 
-    RiuPlotMainWindowTools::refreshToolbars();
+    if ( RiuPlotMainWindow::instance()->isVisible() ) RiuPlotMainWindowTools::refreshToolbars();
 
     if ( RiaGuiApplication::isRunning() )
     {
