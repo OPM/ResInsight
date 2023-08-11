@@ -171,6 +171,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     // Scaling
     CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScale", 1.0, "Well Head Scale" );
+    CAF_PDM_InitField( &wellHeadPositionScaleFactor, "WellHeadPositionScaleFactor", 0.1, "Well Head Position Scale" );
     CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 0.1, "Pipe Radius Scale " );
     CAF_PDM_InitField( &spheresScaleFactor, "CellCenterSphereScale", 0.2, "Sphere Radius Scale" );
 
@@ -440,9 +441,10 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
-        else if ( &pipeCrossSectionVertexCount == changedField || &pipeScaleFactor == changedField || &wellHeadScaleFactor == changedField ||
-                  &m_showWellHead == changedField || &isAutoDetectingBranches == changedField || &wellHeadPosition == changedField ||
-                  &wellLabelColor == changedField || &wellPipeCoordType == changedField || &m_showWellPipe == changedField )
+        else if ( &pipeCrossSectionVertexCount == changedField || &pipeScaleFactor == changedField ||
+                  &wellHeadScaleFactor == changedField || &wellHeadPositionScaleFactor == changedField || &m_showWellHead == changedField ||
+                  &isAutoDetectingBranches == changedField || &wellHeadPosition == changedField || &wellLabelColor == changedField ||
+                  &wellPipeCoordType == changedField || &m_showWellPipe == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -651,6 +653,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
 
     caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup( "Size Scaling" );
     sizeScalingGroup->add( &wellHeadScaleFactor );
+    sizeScalingGroup->add( &wellHeadPositionScaleFactor );
     sizeScalingGroup->add( &pipeScaleFactor );
     sizeScalingGroup->add( &spheresScaleFactor );
 
