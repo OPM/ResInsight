@@ -116,6 +116,7 @@ public:
     caf::PdmField<bool> showWellsIntersectingVisibleCells;
 
     caf::PdmField<double> wellHeadScaleFactor;
+    caf::PdmField<double> wellHeadPositionScaleFactor;
     caf::PdmField<double> pipeScaleFactor;
     caf::PdmField<double> spheresScaleFactor;
 

@@ -254,11 +254,13 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
     }
     else
     {
-        // Position well head at top of active cells bounding box
+        // Position well head above top of active cells bounding box
 
-        cvf::Vec3d activeCellsBoundingBoxMax = rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max();
+        const auto boundingBox = rimReservoirView->currentActiveCellInfo()->geometryBoundingBox();
+        const auto maxZ        = boundingBox.max().z();
+        const auto extentZ     = boundingBox.extent().z();
 
-        top->z() = activeCellsBoundingBoxMax.z();
+        top->z() = maxZ + extentZ * rimReservoirView->wellCollection()->wellHeadPositionScaleFactor();
     }
 }
 
