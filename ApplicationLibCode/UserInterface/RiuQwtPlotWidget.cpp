@@ -1031,11 +1031,17 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             double zValue = plotCurve->z();
             if ( closestItems.count( plotCurve ) > 0 )
             {
-                auto saturation = 1.0;
-                auto value      = 1.0;
-                auto hue        = curveColor.hueF();
+                auto highlightColor = curveColor;
 
-                auto highlightColor = QColor::fromHsvF( hue, saturation, value );
+                const double threshold = 0.05;
+                if ( curveColor.hsvHueF() > threshold || curveColor.saturationF() > threshold )
+                {
+                    auto saturation = 1.0;
+                    auto value      = 1.0;
+                    auto hue        = curveColor.hueF();
+
+                    highlightColor = QColor::fromHsvF( hue, saturation, value );
+                }
 
                 existingPen.setColor( highlightColor );
                 existingPen.setWidth( penWidth + highlightItemWidthAdjustment() );
