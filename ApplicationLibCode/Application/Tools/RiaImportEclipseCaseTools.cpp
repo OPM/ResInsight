@@ -190,7 +190,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                 delete duplicateCase;
             }
 
-            if ( !candidateCases.empty() && RiuPlotMainWindow::instance()->isVisible() )
+            if ( !candidateCases.empty() && RiaGuiApplication::isRunning() && RiuPlotMainWindow::instance()->isVisible() )
             {
                 RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { candidateCases.front() }, {} );
                 RiuPlotMainWindowTools::setExpanded( candidateCases.front() );
@@ -206,10 +206,10 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
     project->activeOilField()->completionTemplateCollection()->setDefaultUnitSystemBasedOnLoadedCases();
 
-    if ( RiuPlotMainWindow::instance()->isVisible() ) RiuPlotMainWindowTools::refreshToolbars();
-
     if ( RiaGuiApplication::isRunning() )
     {
+        if ( RiuPlotMainWindow::instance()->isVisible() ) RiuPlotMainWindowTools::refreshToolbars();
+
         // Call process events to clear the queue. This make sure that we are able raise the 3D window on top of the
         // plot window. Otherwise the event processing ends up with the plot window on top.
         QApplication::processEvents();
