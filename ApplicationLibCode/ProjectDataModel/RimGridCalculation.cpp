@@ -120,7 +120,8 @@ bool RimGridCalculation::calculate()
 
     if ( !eclipseCase->results( porosityModel )->ensureKnownResultLoaded( resAddr ) )
     {
-        eclipseCase->results( porosityModel )->createResultEntry( resAddr, true );
+        bool needsToBeStored = false;
+        eclipseCase->results( porosityModel )->createResultEntry( resAddr, needsToBeStored );
     }
 
     eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
