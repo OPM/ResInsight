@@ -59,6 +59,11 @@ add_library(
   ${COMMAND_MOC_SOURCE_FILES}
 )
 
+if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
+  message("Precompiled Headers is enabled on : ${PROJECT_NAME}")
+  target_precompile_headers(Commands PRIVATE pch.h)
+endif()
+
 target_include_directories(
   ${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                           ${CMAKE_CURRENT_SOURCE_DIR}/EclipseCommands

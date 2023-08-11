@@ -16,38 +16,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
-#include "cafAppEnum.h"
 #include "cafAssert.h"
 #include "cafCmdFeature.h"
 #include "cafFactory.h"
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmUiOrdering.h"
-#include "cafSelectionManager.h"
 
-#include <QApplication>
 #include <QObject>
-#include <QString>
-#include <QTextStream>
-
-#include <map>
-#include <vector>
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
 #include "RimPlotCurve.h"
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
-
-// These files are reported as candidates for PCH file, but including them breaks the Unity build
-// #include "cafViewer.h"
-// #include "RiuViewer.h"
-// #include "cafOpenGLWidget.h"
-// #include <QGLWidget>
