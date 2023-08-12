@@ -132,7 +132,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
     , m_regionNumber( regionNumber )
     , m_regionNumber2( regionNumber2 )
     , m_groupName( groupName )
-    , m_networkName( networkName)
+    , m_networkName( networkName )
     , m_wellName( wellName )
     , m_wellSegmentNumber( wellSegmentNumber )
     , m_lgrName( lgrName )

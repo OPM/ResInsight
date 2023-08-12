@@ -180,9 +180,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
                                 "AquifierCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(),
-                                "NetworkNames",
-                                "Networks" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(), "NetworkNames", "Networks" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][1]->pdmField(),
                                 "NetworkVectors",
                                 "Network Vectors" );

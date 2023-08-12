@@ -241,7 +241,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
                                      regionNumber,
                                      regionNumber2,
                                      groupName,
-        networkName,
+                                     networkName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,
