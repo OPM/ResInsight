@@ -118,6 +118,7 @@ private:
 
     caf::PdmField<QString> m_wellName;
     caf::PdmField<QString> m_groupName;
+    caf::PdmField<QString> m_networkName;
     caf::PdmField<int>     m_region;
     caf::PdmField<QString> m_vectorName;
     caf::PdmField<QString> m_placeholderForLabel;

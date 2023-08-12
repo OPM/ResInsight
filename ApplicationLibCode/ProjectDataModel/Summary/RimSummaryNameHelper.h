@@ -41,6 +41,7 @@ public:
     virtual bool isPlotDisplayingSingleVectorName() const = 0;
     virtual bool isWellNameInTitle() const                = 0;
     virtual bool isGroupNameInTitle() const               = 0;
+    virtual bool isNetworkInTitle() const                 = 0;
     virtual bool isRegionInTitle() const                  = 0;
     virtual bool isCaseInTitle() const                    = 0;
     virtual bool isBlockInTitle() const                   = 0;
@@ -53,6 +54,7 @@ public:
     virtual std::string titleVectorName() const = 0;
     virtual std::string titleWellName() const   = 0;
     virtual std::string titleGroupName() const  = 0;
+    virtual std::string titleNetwork() const    = 0;
     virtual std::string titleRegion() const     = 0;
     virtual std::string titleBlock() const      = 0;
     virtual std::string titleSegment() const    = 0;

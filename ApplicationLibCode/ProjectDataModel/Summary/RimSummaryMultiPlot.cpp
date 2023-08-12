@@ -832,6 +832,10 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     {
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
     }
+    else if ( analyzer.networkNames().size() == 1 )
+    {
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK;
+    }
     else if ( analyzer.regionNumbers().size() == 1 )
     {
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
