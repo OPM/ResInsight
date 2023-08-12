@@ -789,7 +789,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
 
             if ( analyzer.networkNames().size() == 1 )
             {
-                QString txt = QString::fromStdString( *( analyzer.networkNames().begin() ) );
+                QString txt   = QString::fromStdString( *( analyzer.networkNames().begin() ) );
                 m_networkName = txt;
 
                 fieldsCommonForAllCurves.push_back( &m_networkName );
@@ -1562,7 +1562,7 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
                 {
                     isMatching = true;
                 }
-                else if ( !networkToMatch.empty() && a.networkName() == networkToMatch)
+                else if ( !networkToMatch.empty() && a.networkName() == networkToMatch )
                 {
                     isMatching = true;
                 }

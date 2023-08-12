@@ -137,7 +137,7 @@ std::set<std::string> RiaSummaryAddressAnalyzer::groupNames() const
 //--------------------------------------------------------------------------------------------------
 std::set<std::string> RiaSummaryAddressAnalyzer::networkNames() const
 {
-    return keysInMap( m_networkNames);
+    return keysInMap( m_networkNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ std::vector<std::vector<RifEclipseSummaryAddress>> RiaSummaryAddressAnalyzer::ad
 {
     auto wellAdr    = valuesInMap( m_wellNames );
     auto groupAdr   = valuesInMap( m_groupNames );
-    auto networkAdr   = valuesInMap( m_networkNames);
+    auto networkAdr = valuesInMap( m_networkNames );
     auto regionAdr  = valuesInMap( m_regionNumbers );
     auto blockAdr   = valuesInMap( m_blocks );
     auto aquiferAdr = valuesInMap( m_aquifers );

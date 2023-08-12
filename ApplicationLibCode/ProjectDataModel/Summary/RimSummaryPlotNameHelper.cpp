@@ -289,7 +289,7 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 
     auto wellNames  = m_analyzer->wellNames();
     auto groupNames = m_analyzer->groupNames();
-    auto networks = m_analyzer->networkNames();
+    auto networks   = m_analyzer->networkNames();
     auto regions    = m_analyzer->regionNumbers();
     auto blocks     = m_analyzer->blocks();
     auto categories = m_analyzer->categories();

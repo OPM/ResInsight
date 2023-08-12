@@ -169,7 +169,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     auto* groups        = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
     auto* wells         = getOrCreateSubfolder( CollectionContentType::WELL_FOLDER );
     auto* aquifer       = getOrCreateSubfolder( CollectionContentType::AQUIFER );
-    auto* networks       = getOrCreateSubfolder( CollectionContentType::NETWORK_FOLDER );
+    auto* networks      = getOrCreateSubfolder( CollectionContentType::NETWORK_FOLDER );
     auto* misc          = getOrCreateSubfolder( CollectionContentType::MISC );
     auto* regions       = getOrCreateSubfolder( CollectionContentType::REGION_FOLDER );
     auto* region2region = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
@@ -426,8 +426,7 @@ bool RimSummaryAddressCollection::isEnsemble() const
 bool RimSummaryAddressCollection::isFolder() const
 {
     return contentType() == CollectionContentType::WELL_FOLDER || contentType() == CollectionContentType::GROUP_FOLDER ||
-           contentType() == CollectionContentType::NETWORK_FOLDER ||
-           contentType() == CollectionContentType::REGION_FOLDER;
+           contentType() == CollectionContentType::NETWORK_FOLDER || contentType() == CollectionContentType::REGION_FOLDER;
 }
 
 //--------------------------------------------------------------------------------------------------
