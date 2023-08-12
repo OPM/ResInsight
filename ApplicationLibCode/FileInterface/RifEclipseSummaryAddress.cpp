@@ -58,6 +58,9 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
         case SUMMARY_GROUP:
             m_groupName = identifiers[INPUT_GROUP_NAME];
             break;
+        case SUMMARY_NETWORK:
+            m_networkName = identifiers[INPUT_NETWORK_NAME];
+            break;
         case SUMMARY_WELL:
             m_wellName = identifiers[INPUT_WELL_NAME];
             break;
@@ -541,6 +544,11 @@ std::string RifEclipseSummaryAddress::itemUiText() const
             text += groupName();
         }
         break;
+        case SUMMARY_NETWORK:
+        {
+            text += networkName();
+        }
+        break;
         case SUMMARY_WELL:
         {
             text += wellName();
@@ -612,6 +620,8 @@ std::string RifEclipseSummaryAddress::addressComponentUiText( RifEclipseSummaryA
             return wellName();
         case INPUT_GROUP_NAME:
             return groupName();
+        case INPUT_NETWORK_NAME:
+            return networkName();
         case INPUT_CELL_IJK:
             return blockAsString();
         case INPUT_LGR_NAME:
