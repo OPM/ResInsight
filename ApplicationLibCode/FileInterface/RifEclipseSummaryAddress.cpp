@@ -229,11 +229,13 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::aquiferAddress( const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::networkAddress( const std::string& vectorName, int calculationId )
+RifEclipseSummaryAddress
+    RifEclipseSummaryAddress::networkAddress( const std::string& vectorName, const std::string& networkName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_NETWORK;
     addr.m_vectorName       = vectorName;
+    addr.m_networkName      = networkName;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -795,7 +797,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
 
         case SUMMARY_NETWORK:
-            return networkAddress( vectorName );
+            return networkAddress( vectorName, token1 );
             break;
 
         case SUMMARY_MISC:
@@ -854,8 +856,8 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
         case SUMMARY_WELL_COMPLETION_LGR:
             if ( tokens.size() > 2 )
             {
-                auto token3 = tokens[3];
-                auto ijk    = RiaStdStringTools::splitString( token3, ',' );
+                const auto& token3 = tokens[3];
+                const auto  ijk    = RiaStdStringTools::splitString( token3, ',' );
                 if ( ijk.size() == 3 )
                 {
                     RiaStdStringTools::toInt( ijk[0], intValue0 );
@@ -913,7 +915,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
     }
 
-    return RifEclipseSummaryAddress();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

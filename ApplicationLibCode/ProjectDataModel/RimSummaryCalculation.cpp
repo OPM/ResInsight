@@ -519,7 +519,15 @@ std::vector<RimSummaryCalculationAddress>
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
     {
-        addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::networkAddress( name, m_id ) ) );
+        std::set<std::string> uniqueNames;
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr ) { uniqueNames.insert( addr.networkName() ); } );
+
+        for ( auto networkName : uniqueNames )
+        {
+            addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::networkAddress( name, networkName, m_id ) ) );
+        }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
@@ -600,7 +608,7 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
     {
-        return RifEclipseSummaryAddress::networkAddress( name, m_id );
+        return RifEclipseSummaryAddress::networkAddress( name, address.networkName(), m_id );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
