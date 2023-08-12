@@ -254,6 +254,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
                                    -1,
                                    -1,
                                    "",
+                                   "",
                                    well->name().toStdString(),
                                    -1,
                                    "",

@@ -68,6 +68,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region" );
     CAF_PDM_InitFieldNoDefault( &m_regionNumber2, "SummaryRegion2", "Region2" );
     CAF_PDM_InitFieldNoDefault( &m_groupName, "SummaryWellGroup", "Group" );
+    CAF_PDM_InitFieldNoDefault( &m_networkName, "SummaryNetworkGroup", "Network" );
     CAF_PDM_InitFieldNoDefault( &m_wellName, "SummaryWell", "Well" );
     CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumber, "SummaryWellSegment", "Well Segment" );
     CAF_PDM_InitFieldNoDefault( &m_lgrName, "SummaryLgr", "Grid" );
@@ -123,6 +124,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_regionNumber      = addr.regionNumber();
     m_regionNumber2     = addr.regionNumber2();
     m_groupName         = addr.groupName().c_str();
+    m_networkName = addr.networkName().c_str();
     m_wellName          = addr.wellName().c_str();
     m_wellSegmentNumber = addr.wellSegmentNumber();
     m_lgrName           = addr.lgrName().c_str();
@@ -148,6 +150,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address() const
                                      m_regionNumber(),
                                      m_regionNumber2(),
                                      m_groupName().toStdString(),
+                                     m_networkName().toStdString(),
                                      m_wellName().toStdString(),
                                      m_wellSegmentNumber(),
                                      m_lgrName().toStdString(),
@@ -190,6 +193,7 @@ QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddress::Summary
     if ( category == RifEclipseSummaryAddress::SUMMARY_WELL ) return m_wellName.keyword();
     if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP ) return m_groupName.keyword();
     if ( category == RifEclipseSummaryAddress::SUMMARY_REGION ) return m_regionNumber.keyword();
+    if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK ) return m_networkName.keyword();
 
     return {};
 }

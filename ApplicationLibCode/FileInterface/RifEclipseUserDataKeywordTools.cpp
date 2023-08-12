@@ -175,10 +175,11 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
 
     int         regionNumber      = -1;
     int         regionNumber2     = -1;
-    std::string groupName         = "";
-    std::string wellName          = "";
+    std::string groupName;
+    std::string networkName;         
+    std::string              wellName;          
     int         wellSegmentNumber = -1;
-    std::string lgrName           = "";
+    std::string              lgrName;           
     int         cellI             = -1;
     int         cellJ             = -1;
     int         cellK             = -1;
@@ -285,6 +286,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                                      regionNumber,
                                      regionNumber2,
                                      groupName,
+        networkName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,

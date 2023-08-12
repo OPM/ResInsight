@@ -149,7 +149,7 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
     }
 
     RifEclipseSummaryAddress
-        addr( RifEclipseSummaryAddress::SUMMARY_WELL, vectorName, -1, -1, "", wellName.toStdString(), -1, "", -1, -1, -1, -1, false, -1 );
+        addr( RifEclipseSummaryAddress::SUMMARY_WELL, vectorName, -1, -1, "", "", wellName.toStdString(), -1, "", -1, -1, -1, -1, false, -1 );
 
     if ( !summaryReader->hasAddress( addr ) )
     {

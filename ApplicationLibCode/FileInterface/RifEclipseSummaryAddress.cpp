@@ -114,6 +114,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
                                                     int16_t            regionNumber,
                                                     int16_t            regionNumber2,
                                                     const std::string& groupName,
+                                                    const std::string& networkName,
                                                     const std::string& wellName,
                                                     int16_t            wellSegmentNumber,
                                                     const std::string& lgrName,
@@ -128,6 +129,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
     , m_regionNumber( regionNumber )
     , m_regionNumber2( regionNumber2 )
     , m_groupName( groupName )
+    , m_networkName( networkName)
     , m_wellName( wellName )
     , m_wellSegmentNumber( wellSegmentNumber )
     , m_lgrName( lgrName )

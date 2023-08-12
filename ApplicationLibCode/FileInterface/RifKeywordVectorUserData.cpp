@@ -165,6 +165,7 @@ bool RifKeywordVectorUserData::parse( const QString& data, const QString& custom
                                                    -1,
                                                    -1,
                                                    "",
+                                                   "",
                                                    wellName.toStdString(),
                                                    -1,
                                                    "",

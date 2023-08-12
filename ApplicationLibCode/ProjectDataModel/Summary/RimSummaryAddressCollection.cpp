@@ -39,6 +39,7 @@ void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
     addItem( CollectionContentType::WELL_FOLDER, "WELL_FOLDER", RiaDefines::summaryWell() );
     addItem( CollectionContentType::GROUP_FOLDER, "GROUP_FOLDER", RiaDefines::summaryWellGroup() );
     addItem( CollectionContentType::REGION_FOLDER, "REGION_FOLDER", RiaDefines::summaryRegion() );
+    addItem( CollectionContentType::NETWORK_FOLDER, "NETWORK_FOLDER", RiaDefines::summaryNetwork() );
     addItem( CollectionContentType::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
     addItem( CollectionContentType::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
     addItem( CollectionContentType::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
@@ -168,7 +169,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     auto* groups        = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
     auto* wells         = getOrCreateSubfolder( CollectionContentType::WELL_FOLDER );
     auto* aquifer       = getOrCreateSubfolder( CollectionContentType::AQUIFER );
-    auto* network       = getOrCreateSubfolder( CollectionContentType::NETWORK );
+    auto* networks       = getOrCreateSubfolder( CollectionContentType::NETWORK_FOLDER );
     auto* misc          = getOrCreateSubfolder( CollectionContentType::MISC );
     auto* regions       = getOrCreateSubfolder( CollectionContentType::REGION_FOLDER );
     auto* region2region = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
@@ -192,6 +193,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                    if ( a.regionNumber() != b.regionNumber() ) return a.regionNumber() < b.regionNumber();
                    if ( a.regionNumber2() != b.regionNumber2() ) return a.regionNumber2() < b.regionNumber2();
                    if ( a.groupName() != b.groupName() ) return a.groupName() < b.groupName();
+                   if ( a.networkName() != b.networkName() ) return a.networkName() < b.networkName();
                    if ( a.lgrName() != b.lgrName() ) return a.lgrName() < b.lgrName();
                    if ( a.cellK() != b.cellK() ) return a.cellK() < b.cellK();
                    if ( a.cellJ() != b.cellJ() ) return a.cellJ() < b.cellJ();
@@ -217,7 +219,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK:
-                network->addAddress( address, caseId, ensembleId );
+                networks->addToSubfolder( QString::fromStdString( address.networkName() ), CollectionContentType::NETWORK, address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
@@ -424,6 +426,7 @@ bool RimSummaryAddressCollection::isEnsemble() const
 bool RimSummaryAddressCollection::isFolder() const
 {
     return contentType() == CollectionContentType::WELL_FOLDER || contentType() == CollectionContentType::GROUP_FOLDER ||
+           contentType() == CollectionContentType::NETWORK_FOLDER ||
            contentType() == CollectionContentType::REGION_FOLDER;
 }
 
@@ -472,6 +475,8 @@ QString RimSummaryAddressCollection::iconResourceText() const
             return ":/summary/components/images/well.svg";
         case RimSummaryAddressCollection::CollectionContentType::GROUP_FOLDER:
             return ":/summary/components/images/group.svg";
+        case RimSummaryAddressCollection::CollectionContentType::NETWORK_FOLDER:
+            return ":/summary/components/images/network.svg";
         case RimSummaryAddressCollection::CollectionContentType::REGION_FOLDER:
             return ":/summary/components/images/region.svg";
         case RimSummaryAddressCollection::CollectionContentType::BLOCK:

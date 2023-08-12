@@ -82,6 +82,7 @@ public:
                               int16_t            regionNumber,
                               int16_t            regionNumber2,
                               const std::string& groupName,
+                              const std::string& networkName,
                               const std::string& wellName,
                               int16_t            wellSegmentNumber,
                               const std::string& lgrName,
