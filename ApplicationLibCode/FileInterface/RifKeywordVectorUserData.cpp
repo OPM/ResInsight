@@ -160,7 +160,7 @@ bool RifKeywordVectorUserData::parse( const QString& data, const QString& custom
                         wellName = customWellName;
                     }
 
-                    auto addr = RifEclipseSummaryAddress::wellAddress( vectorText.toStdString(), wellName.toStdString(), -1);
+                    auto addr = RifEclipseSummaryAddress::wellAddress( vectorText.toStdString(), wellName.toStdString(), -1 );
                     m_allResultAddresses.insert( addr );
 
                     m_mapFromAddressToTimeIndex[addr]   = timeStepIndexIterator->second;
