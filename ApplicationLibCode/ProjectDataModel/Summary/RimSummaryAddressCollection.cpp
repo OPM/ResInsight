@@ -358,8 +358,8 @@ bool RimSummaryAddressCollection::canBeDragged() const
     bool ok = m_subfolders.empty();
 
     ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::GROUP ||
-                 m_contentType == CollectionContentType::NETWORK ||
-                 m_contentType == CollectionContentType::REGION || m_contentType == CollectionContentType::WELL_SEGMENT );
+                 m_contentType == CollectionContentType::NETWORK || m_contentType == CollectionContentType::REGION ||
+                 m_contentType == CollectionContentType::WELL_SEGMENT );
 
     return ok || isFolder();
 }
