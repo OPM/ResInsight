@@ -2325,6 +2325,13 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             curveAdr.setGroupName( droppedName );
             newCurveDef.setSummaryAddress( curveAdr );
         }
+        else if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_NETWORK ) &&
+                  ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::NETWORK ) )
+        {
+            objectIdentifierString = curveAdr.networkName();
+            curveAdr.setNetworkName( droppedName );
+            newCurveDef.setSummaryAddress( curveAdr );
+        }
         else if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_REGION ) &&
                   ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION ) )
         {
