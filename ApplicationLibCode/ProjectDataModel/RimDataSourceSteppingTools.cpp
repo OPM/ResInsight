@@ -117,6 +117,18 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
+    {
+        std::string oldString = oldValue.toString().toStdString();
+        std::string newString = newValue.toString().toStdString();
+
+        if ( adr->networkName() == oldString )
+        {
+            adr->setNetworkName( newString );
+
+            return true;
+        }
+    }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
         std::string oldString = oldValue.toString().toStdString();

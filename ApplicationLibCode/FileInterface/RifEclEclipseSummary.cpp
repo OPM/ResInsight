@@ -112,6 +112,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
     int                                          regionNumber( -1 );
     int                                          regionNumber2( -1 );
     std::string                                  groupName;
+    std::string                                  networkName;
     std::string                                  wellName;
     int                                          wellSegmentNumber( -1 );
     std::string                                  lgrName;
@@ -240,6 +241,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
                                      regionNumber,
                                      regionNumber2,
                                      groupName,
+                                     networkName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,

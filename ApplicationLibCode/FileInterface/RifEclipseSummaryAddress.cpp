@@ -58,6 +58,9 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
         case SUMMARY_GROUP:
             m_groupName = identifiers[INPUT_GROUP_NAME];
             break;
+        case SUMMARY_NETWORK:
+            m_networkName = identifiers[INPUT_NETWORK_NAME];
+            break;
         case SUMMARY_WELL:
             m_wellName = identifiers[INPUT_WELL_NAME];
             break;
@@ -114,6 +117,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
                                                     int16_t            regionNumber,
                                                     int16_t            regionNumber2,
                                                     const std::string& groupName,
+                                                    const std::string& networkName,
                                                     const std::string& wellName,
                                                     int16_t            wellSegmentNumber,
                                                     const std::string& lgrName,
@@ -128,6 +132,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
     , m_regionNumber( regionNumber )
     , m_regionNumber2( regionNumber2 )
     , m_groupName( groupName )
+    , m_networkName( networkName )
     , m_wellName( wellName )
     , m_wellSegmentNumber( wellSegmentNumber )
     , m_lgrName( lgrName )
@@ -229,11 +234,13 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::aquiferAddress( const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::networkAddress( const std::string& vectorName, int calculationId )
+RifEclipseSummaryAddress
+    RifEclipseSummaryAddress::networkAddress( const std::string& vectorName, const std::string& networkName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_NETWORK;
     addr.m_vectorName       = vectorName;
+    addr.m_networkName      = networkName;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -537,6 +544,11 @@ std::string RifEclipseSummaryAddress::itemUiText() const
             text += groupName();
         }
         break;
+        case SUMMARY_NETWORK:
+        {
+            text += networkName();
+        }
+        break;
         case SUMMARY_WELL:
         {
             text += wellName();
@@ -608,6 +620,8 @@ std::string RifEclipseSummaryAddress::addressComponentUiText( RifEclipseSummaryA
             return wellName();
         case INPUT_GROUP_NAME:
             return groupName();
+        case INPUT_NETWORK_NAME:
+            return networkName();
         case INPUT_CELL_IJK:
             return blockAsString();
         case INPUT_LGR_NAME:
@@ -795,7 +809,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
 
         case SUMMARY_NETWORK:
-            return networkAddress( vectorName );
+            return networkAddress( vectorName, token1 );
             break;
 
         case SUMMARY_MISC:
@@ -854,8 +868,8 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
         case SUMMARY_WELL_COMPLETION_LGR:
             if ( tokens.size() > 2 )
             {
-                auto token3 = tokens[3];
-                auto ijk    = RiaStdStringTools::splitString( token3, ',' );
+                const auto& token3 = tokens[3];
+                const auto  ijk    = RiaStdStringTools::splitString( token3, ',' );
                 if ( ijk.size() == 3 )
                 {
                     RiaStdStringTools::toInt( ijk[0], intValue0 );
@@ -913,7 +927,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
     }
 
-    return RifEclipseSummaryAddress();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

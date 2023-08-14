@@ -138,6 +138,14 @@ bool RimSummaryPlotNameHelper::isGroupNameInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotNameHelper::isNetworkInTitle() const
+{
+    return !m_titleNetwork.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotNameHelper::isRegionInTitle() const
 {
     return !m_titleRegion.empty();
@@ -218,6 +226,14 @@ std::string RimSummaryPlotNameHelper::titleGroupName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleNetwork() const
+{
+    return m_titleNetwork;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RimSummaryPlotNameHelper::titleRegion() const
 {
     return m_titleRegion;
@@ -255,6 +271,7 @@ void RimSummaryPlotNameHelper::clearTitleSubStrings()
     m_titleQuantity.clear();
     m_titleWellName.clear();
     m_titleGroupName.clear();
+    m_titleNetwork.clear();
     m_titleRegion.clear();
     m_titleBlock.clear();
     m_titleSegment.clear();
@@ -272,6 +289,7 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 
     auto wellNames  = m_analyzer->wellNames();
     auto groupNames = m_analyzer->groupNames();
+    auto networks   = m_analyzer->networkNames();
     auto regions    = m_analyzer->regionNumbers();
     auto blocks     = m_analyzer->blocks();
     auto categories = m_analyzer->categories();
@@ -304,6 +322,11 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
         if ( groupNames.size() == 1 )
         {
             m_titleGroupName = *( groupNames.begin() );
+        }
+
+        if ( networks.size() == 1 )
+        {
+            m_titleNetwork = *( networks.begin() );
         }
 
         if ( regions.size() == 1 )

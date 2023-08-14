@@ -162,6 +162,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
     int         regionNumber( -1 );
     int         regionNumber2( -1 );
     std::string groupName;
+    std::string networkName;
     std::string wellName;
     int         wellSegmentNumber( -1 );
     std::string lgrName;
@@ -192,6 +193,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
                                      regionNumber,
                                      regionNumber2,
                                      groupName,
+                                     networkName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,

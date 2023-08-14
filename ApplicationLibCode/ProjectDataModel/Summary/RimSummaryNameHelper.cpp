@@ -50,6 +50,13 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
         title += QString::fromStdString( groupName );
     }
 
+    auto networkName = titleNetwork();
+    if ( !other.isNetworkInTitle() && !networkName.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += QString::fromStdString( networkName );
+    }
+
     auto region = titleRegion();
     if ( !other.isRegionInTitle() && !region.empty() )
     {

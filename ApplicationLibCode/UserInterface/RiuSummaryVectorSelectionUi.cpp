@@ -102,7 +102,8 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
               new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ),
               new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID ) } },
           { RifEclipseSummaryAddress::SUMMARY_NETWORK,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ),
+            { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_NETWORK_NAME ),
+              new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ),
               new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID ) } },
           { RifEclipseSummaryAddress::SUMMARY_MISC,
             { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ),
@@ -179,10 +180,11 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
                                 "AquifierCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(), "NetworkNames", "Networks" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][1]->pdmField(),
                                 "NetworkVectors",
                                 "Network Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][2]->pdmField(),
                                 "NetworkCalculationIds",
                                 "Calculation Ids" );
 
@@ -885,7 +887,12 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     }
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_NETWORK )
     {
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField();
+        {
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryNetwork() + "s" );
+            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField() );
+        }
+
+        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][1]->pdmField();
     }
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_MISC )
     {

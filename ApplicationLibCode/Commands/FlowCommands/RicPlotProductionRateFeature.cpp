@@ -249,20 +249,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     CVF_ASSERT( summaryCase );
     CVF_ASSERT( well );
 
-    RifEclipseSummaryAddress addr( RifEclipseSummaryAddress::SUMMARY_WELL,
-                                   vectorName.toStdString(),
-                                   -1,
-                                   -1,
-                                   "",
-                                   well->name().toStdString(),
-                                   -1,
-                                   "",
-                                   -1,
-                                   -1,
-                                   -1,
-                                   -1,
-                                   false,
-                                   -1 );
+    RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::wellAddress( vectorName.toStdString(), well->name().toStdString(), -1 );
 
     if ( !summaryCase->summaryReader()->hasAddress( addr ) )
     {

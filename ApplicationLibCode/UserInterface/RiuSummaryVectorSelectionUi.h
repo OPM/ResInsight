@@ -103,7 +103,6 @@ private:
     bool isObservedData( const RimSummaryCase* sumCase ) const;
 
     std::vector<SummarySource*> selectedSummarySources() const;
-    static RimSummaryCase*      calculatedSummaryCase();
 
     void appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options ) const;
     void appendOptionItemsForCategories( QList<caf::PdmOptionItemInfo>& options ) const;

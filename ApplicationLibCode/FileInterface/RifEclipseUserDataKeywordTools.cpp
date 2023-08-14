@@ -173,18 +173,19 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
         return RifEclipseSummaryAddress::importedAddress( quantityName );
     }
 
-    int         regionNumber      = -1;
-    int         regionNumber2     = -1;
-    std::string groupName         = "";
-    std::string wellName          = "";
+    int         regionNumber  = -1;
+    int         regionNumber2 = -1;
+    std::string groupName;
+    std::string networkName;
+    std::string wellName;
     int         wellSegmentNumber = -1;
-    std::string lgrName           = "";
-    int         cellI             = -1;
-    int         cellJ             = -1;
-    int         cellK             = -1;
-    int         aquiferNumber     = -1;
-    bool        isErrorResult     = false;
-    int         id                = -1;
+    std::string lgrName;
+    int         cellI         = -1;
+    int         cellJ         = -1;
+    int         cellK         = -1;
+    int         aquiferNumber = -1;
+    bool        isErrorResult = false;
+    int         id            = -1;
 
     switch ( category )
     {
@@ -285,6 +286,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                                      regionNumber,
                                      regionNumber2,
                                      groupName,
+                                     networkName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,

@@ -48,6 +48,19 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Network )
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
+TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Network_name )
+{
+    std::string addrString = "NETW:MYNAME";
+
+    RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
+
+    EXPECT_TRUE( addr.isValid() );
+    EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_NETWORK, addr.category() );
+    EXPECT_EQ( "NETW", addr.vectorName() );
+    EXPECT_EQ( "MYNAME", addr.networkName() );
+    EXPECT_FALSE( addr.isErrorResult() );
+}
+
 TEST( RifEclipseSummaryAddressTest, DISABLED_TestEclipseAddressParsing_Misc )
 {
     std::string addrString = "CPU";

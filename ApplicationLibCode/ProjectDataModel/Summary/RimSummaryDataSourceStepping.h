@@ -39,6 +39,7 @@ public:
         ENSEMBLE,
         WELL,
         GROUP,
+        NETWORK,
         REGION,
         VECTOR,
         BLOCK,

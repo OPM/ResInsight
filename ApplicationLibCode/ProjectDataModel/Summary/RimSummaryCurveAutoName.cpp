@@ -310,6 +310,16 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
+        case RifEclipseSummaryAddress::SUMMARY_NETWORK:
+        {
+            bool skipSubString = nameHelper && nameHelper->isNetworkInTitle();
+            if ( !skipSubString )
+            {
+                if ( !text.empty() ) text += ":";
+                text += summaryAddress.networkName();
+            }
+        }
+        break;
         case RifEclipseSummaryAddress::SUMMARY_WELL:
         {
             appendWellName( text, summaryAddress, nameHelper );
