@@ -93,11 +93,12 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble, RimEclipseCase* eclipseCase )
 {
     m_sourceType  = SourceType::SUMMARY_RFT;
     m_summaryCase = summaryCase;
     m_ensemble    = ensemble;
+    m_eclCase     = eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------

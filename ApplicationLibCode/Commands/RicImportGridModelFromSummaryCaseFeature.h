@@ -32,11 +32,11 @@ class RicImportGridModelFromSummaryCaseFeature : public caf::CmdFeature
 
 public:
     static bool openOrImportGridModelFromSummaryCase( const RimFileSummaryCase* summaryCase );
+    static RimEclipseCase* gridModelFromSummaryCase( const RimSummaryCase* summaryCase );
 
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
     static bool            findAndActivateFirstView( const RimFileSummaryCase* summaryCase );
-    static RimEclipseCase* gridModelFromSummaryCase( const RimFileSummaryCase* summaryCase );
 };
