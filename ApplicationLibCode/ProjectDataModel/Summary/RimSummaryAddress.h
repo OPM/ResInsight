@@ -58,8 +58,6 @@ public:
 
     QString quantityName() const;
 
-    void ensureCalculationIdIsAssigned();
-
     RiaDefines::PhaseType addressPhaseType() const;
 
     QString keywordForCategory( RifEclipseSummaryAddress::SummaryVarCategory category ) const;
@@ -76,6 +74,7 @@ private:
     caf::PdmField<int>     m_regionNumber;
     caf::PdmField<int>     m_regionNumber2;
     caf::PdmField<QString> m_groupName;
+    caf::PdmField<QString> m_networkName;
     caf::PdmField<QString> m_wellName;
     caf::PdmField<int>     m_wellSegmentNumber;
     caf::PdmField<QString> m_lgrName;

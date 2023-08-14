@@ -33,6 +33,7 @@ public:
     bool isPlotDisplayingSingleVectorName() const override;
     bool isWellNameInTitle() const override;
     bool isGroupNameInTitle() const override;
+    bool isNetworkInTitle() const override;
     bool isRegionInTitle() const override;
     bool isCaseInTitle() const override;
     bool isBlockInTitle() const override;
@@ -45,6 +46,7 @@ public:
     std::string titleVectorName() const override;
     std::string titleWellName() const override;
     std::string titleGroupName() const override;
+    std::string titleNetwork() const override;
     std::string titleRegion() const override;
     std::string titleBlock() const override;
     std::string titleSegment() const override;

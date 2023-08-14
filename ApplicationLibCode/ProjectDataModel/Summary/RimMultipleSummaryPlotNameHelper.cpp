@@ -79,6 +79,14 @@ bool RimMultiSummaryPlotNameHelper::isGroupNameInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimMultiSummaryPlotNameHelper::isNetworkInTitle() const
+{
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isNetworkInTitle(); } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isRegionInTitle() const
 {
     return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isRegionInTitle(); } );
@@ -179,6 +187,19 @@ std::string RimMultiSummaryPlotNameHelper::titleGroupName() const
     for ( auto nameHelper : m_nameHelpers )
     {
         if ( nameHelper->isGroupNameInTitle() ) return nameHelper->titleGroupName();
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimMultiSummaryPlotNameHelper::titleNetwork() const
+{
+    for ( auto nameHelper : m_nameHelpers )
+    {
+        if ( nameHelper->isNetworkInTitle() ) return nameHelper->titleNetwork();
     }
 
     return "";

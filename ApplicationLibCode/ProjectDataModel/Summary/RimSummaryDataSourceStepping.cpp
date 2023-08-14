@@ -32,6 +32,7 @@ void AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>::setUp()
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR, "VECTOR", "Vector" );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL, "WELL", RiaDefines::summaryWell() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP, "GROUP", RiaDefines::summaryWellGroup() );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::REGION, "REGION", RiaDefines::summaryRegion() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );

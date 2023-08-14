@@ -65,6 +65,7 @@ public:
         INPUT_REGION_2_REGION,
         INPUT_WELL_NAME,
         INPUT_GROUP_NAME,
+        INPUT_NETWORK_NAME,
         INPUT_CELL_IJK,
         INPUT_LGR_NAME,
         INPUT_SEGMENT_NUMBER,
@@ -81,6 +82,7 @@ public:
                               int16_t            regionNumber,
                               int16_t            regionNumber2,
                               const std::string& groupName,
+                              const std::string& networkName,
                               const std::string& wellName,
                               int16_t            wellSegmentNumber,
                               const std::string& lgrName,
@@ -100,7 +102,7 @@ public:
 
     static RifEclipseSummaryAddress fieldAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress aquiferAddress( const std::string& vectorName, int aquiferNumber, int calculationId = -1 );
-    static RifEclipseSummaryAddress networkAddress( const std::string& vectorName, int calculationId = -1 );
+    static RifEclipseSummaryAddress networkAddress( const std::string& vectorName, const std::string& networkName, int calculationId = -1 );
     static RifEclipseSummaryAddress miscAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress regionAddress( const std::string& vectorName, int regionNumber, int calculationId = -1 );
     static RifEclipseSummaryAddress
@@ -142,6 +144,7 @@ public:
     int regionNumber2() const { return m_regionNumber2; }
 
     const std::string& groupName() const { return m_groupName; }
+    const std::string& networkName() const { return m_networkName; }
     const std::string& wellName() const { return m_wellName; }
     int                wellSegmentNumber() const { return m_wellSegmentNumber; }
     const std::string& lgrName() const { return m_lgrName; }
@@ -165,6 +168,7 @@ public:
     void setVectorName( const std::string& vectorName ) { m_vectorName = vectorName; }
     void setWellName( const std::string& wellName ) { m_wellName = wellName; }
     void setGroupName( const std::string& groupName ) { m_groupName = groupName; }
+    void setNetworkName( const std::string& networkName ) { m_networkName = networkName; }
     void setRegion( int region ) { m_regionNumber = (int16_t)region; }
     void setRegion2( int region2 ) { m_regionNumber2 = (int16_t)region2; }
     void setAquiferNumber( int aquiferNumber ) { m_aquiferNumber = (int16_t)aquiferNumber; }
@@ -201,6 +205,7 @@ private:
     std::string        m_vectorName;
     std::string        m_wellName;
     std::string        m_groupName;
+    std::string        m_networkName;
     std::string        m_lgrName;
     int32_t            m_cellK;
     int32_t            m_cellJ;
