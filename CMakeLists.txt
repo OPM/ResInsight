@@ -445,7 +445,7 @@ mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
 if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
   FetchContent_Declare(
     ri-dependencies
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/custom-opm-common.zip
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.08/custom-opm-common.zip
   )
   FetchContent_Populate(ri-dependencies)
   list(APPEND EXTERNAL_LINK_LIBRARIES
