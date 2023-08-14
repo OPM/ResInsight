@@ -1134,6 +1134,14 @@ RimWellPath* RimProject::wellPathFromSimWellName( const QString& simWellName, in
             return path;
         }
     }
+
+    for ( RimWellPath* const path : allWellPaths() )
+    {
+        if ( QString::compare( path->name(), simWellName ) == 0 )
+        {
+            return path;
+        }
+    }
     return nullptr;
 }
 
