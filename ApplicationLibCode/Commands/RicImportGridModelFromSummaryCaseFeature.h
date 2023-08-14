@@ -22,6 +22,7 @@
 
 class RimEclipseCase;
 class RimFileSummaryCase;
+class RimSummaryCase;
 
 //==================================================================================================
 ///
