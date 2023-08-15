@@ -447,6 +447,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
         std::map<std::string, std::vector<float>> elementProperties =
             m_elementPropertyReader->readAllElementPropertiesInFileContainingField( resVarAddr.fieldName );
 
+        // We are supposed to get here only once. Create result containers for all imported element results in one go
         for ( auto& [addrString, values] : elementProperties )
         {
             RigFemResultAddress       addressForElement( RIG_ELEMENT, addrString, "" );
@@ -454,7 +455,18 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
             currentFrames->enableAsSingleStepResult();
             currentFrames->frameData( 0, 0 ).swap( values );
         }
-        return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
+
+        // Try to find the element result and return it
+        frames = m_femPartResults[partIndex]->findScalarResult( resVarAddr );
+        if ( frames )
+        {
+            return frames;
+        }
+        else
+        {
+            // Create a dummy empty result
+            return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
+        }
     }
 
     // We need to read the data as bulk fields, and populate the correct scalar caches

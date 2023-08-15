@@ -58,6 +58,8 @@ int RigFemScalarResultFrames::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 int RigFemScalarResultFrames::frameCount( int timeStepIndex ) const
 {
+    if ( m_isSingleStepResult ) return 1;
+
     if ( timeStepIndex >= timeStepCount() ) return 0;
 
     return static_cast<int>( m_dataForEachFrame[timeStepIndex].size() );
@@ -70,7 +72,11 @@ std::vector<float>& RigFemScalarResultFrames::frameData( int timeStepIndex, int 
 {
     CVF_ASSERT( timeStepIndex < timeStepCount() );
 
-    if ( m_isSingleStepResult ) timeStepIndex = 0;
+    if ( m_isSingleStepResult )
+    {
+        timeStepIndex = 0;
+        frameIndex    = 0;
+    }
 
     int availFrames = int( m_dataForEachFrame[timeStepIndex].size() );
 
