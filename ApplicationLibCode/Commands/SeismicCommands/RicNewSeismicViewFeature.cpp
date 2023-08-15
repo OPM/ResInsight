@@ -56,11 +56,6 @@ bool RicNewSeismicViewFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicNewSeismicViewFeature::onActionTriggered( bool isChecked )
 {
-    auto  proj         = RimProject::current();
-    auto& seisViewColl = proj->activeOilField()->seismicViewCollection();
-    auto& seisDataColl = proj->activeOilField()->seismicDataCollection();
-    if ( !seisViewColl || !seisDataColl ) return;
-
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems( uiItems );
 
@@ -71,14 +66,50 @@ void RicNewSeismicViewFeature::onActionTriggered( bool isChecked )
         selectedData = dynamic_cast<RimSeismicData*>( uiItems[0] );
     }
 
-    if ( ( selectedData == nullptr ) && !seisDataColl->isEmpty() )
+    createSeismicView( selectedData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewSeismicViewFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setIcon( QIcon( ":/SeismicView16x16.png" ) );
+    actionToSetup->setText( "New Seismic View" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicView* RicNewSeismicViewFeature::createInitialViewIfNeeded( RimSeismicDataInterface* seisData )
+{
+    auto proj = RimProject::current();
+
+    std::vector<Rim3dView*> views;
+    proj->allViews( views );
+    if ( !views.empty() ) return nullptr;
+
+    return createSeismicView( seisData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicView* RicNewSeismicViewFeature::createSeismicView( RimSeismicDataInterface* seisData )
+{
+    auto  proj         = RimProject::current();
+    auto& seisViewColl = proj->activeOilField()->seismicViewCollection();
+    auto& seisDataColl = proj->activeOilField()->seismicDataCollection();
+    if ( !seisViewColl || !seisDataColl ) return nullptr;
+
+    if ( ( seisData == nullptr ) && !seisDataColl->isEmpty() )
     {
-        selectedData = seisDataColl->seismicData()[0];
+        seisData = seisDataColl->seismicData()[0];
     }
 
-    if ( selectedData )
+    if ( seisData )
     {
-        auto view = seisViewColl->addView( selectedData, RiaDefines::SeismicSectionType::SS_INLINE );
+        auto view = seisViewColl->addView( seisData, RiaDefines::SeismicSectionType::SS_INLINE );
 
         if ( view )
         {
@@ -95,14 +126,9 @@ void RicNewSeismicViewFeature::onActionTriggered( bool isChecked )
                 Riu3DMainWindowTools::selectAsCurrentItem( view );
             }
         }
-    }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewSeismicViewFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setIcon( QIcon( ":/SeismicView16x16.png" ) );
-    actionToSetup->setText( "New Seismic View" );
+        return view;
+    }
+
+    return nullptr;
 }
