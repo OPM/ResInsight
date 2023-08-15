@@ -18,6 +18,9 @@
 
 #include "RigFaultReactivationModel.h"
 
+#include "RigGriddedPlane.h"
+#include "RigPolyLinesData.h"
+
 #include "cvfTextureImage.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -138,6 +141,18 @@ void RigFaultReactivationModel::setFaultPlaneIntersect( cvf::Vec3d faultPlaneTop
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::setCellCounts( int horzPart1, int horzPart2, int vertUpper, int vertMiddle, int vertLower )
+{
+    m_cellCountHorzPart1  = horzPart1;
+    m_cellCountHorzPart2  = horzPart2;
+    m_cellCountVertUpper  = vertUpper;
+    m_cellCountVertMiddle = vertMiddle;
+    m_cellCountVertLower  = vertLower;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///                  7
 ///       3----------|----------- 11
 ///        |         |          |
@@ -217,19 +232,19 @@ void RigFaultReactivationModel::updateRects()
     {
         for ( auto i : m_cornerIndexes[part] )
         {
-            m_parts[part].rect.add( points[i] );
+            m_parts[part].rect.push_back( points[i] );
         }
     }
 
     m_isValid = true;
 
-    generateMeshLines( points );
+    generateGrids( points );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3dArray RigFaultReactivationModel::rect( ModelParts part ) const
+std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( ModelParts part ) const
 {
     return m_parts.at( part ).rect;
 }
@@ -245,9 +260,71 @@ cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( ModelParts part 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::generateMeshLines( cvf::Vec3dArray points )
+const std::vector<std::vector<cvf::Vec3d>>& RigFaultReactivationModel::meshLines( ModelParts part ) const
+{
+    return m_gridParts.at( part )->meshLines();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<int, int> RigFaultReactivationModel::cellCountHorzVert( ModelParts part ) const
+{
+    switch ( part )
+    {
+        case RigFaultReactivationModel::ModelParts::HiPart1:
+            return std::make_pair( m_cellCountHorzPart1, m_cellCountVertUpper );
+        case RigFaultReactivationModel::ModelParts::MidPart1:
+            return std::make_pair( m_cellCountHorzPart1, m_cellCountVertMiddle );
+        case RigFaultReactivationModel::ModelParts::LowPart1:
+            return std::make_pair( m_cellCountHorzPart1, m_cellCountVertLower );
+
+        case RigFaultReactivationModel::ModelParts::HiPart2:
+            return std::make_pair( m_cellCountHorzPart2, m_cellCountVertUpper );
+        case RigFaultReactivationModel::ModelParts::MidPart2:
+            return std::make_pair( m_cellCountHorzPart2, m_cellCountVertMiddle );
+        case RigFaultReactivationModel::ModelParts::LowPart2:
+            return std::make_pair( m_cellCountHorzPart2, m_cellCountVertLower );
+        default:
+            break;
+    }
+    return std::make_pair( 1, 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::generateGrids( cvf::Vec3dArray points )
 {
     for ( auto part : allParts() )
     {
+        auto [cellsHorz, cellsVert] = cellCountHorzVert( part );
+
+        m_gridParts[part] = std::make_unique<RigGriddedPlane>();
+        m_gridParts[part]->generateGeometry( m_parts[part].rect, cellsHorz, cellsVert );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigPolyLinesData> RigFaultReactivationModel::polyLinesData() const
+{
+    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData();
+
+    std::vector<cvf::Vec3d> line;
+
+    for ( auto part : allParts() )
+    {
+        for ( auto line : meshLines( part ) )
+        {
+            pld->addPolyLine( line );
+        }
+    }
+
+    pld->setLineAppearance( 1, cvf::Color3::LIGHT_GRAY, false );
+    pld->setZPlaneLock( false, 0.0 );
+    pld->setVisibility( true, false );
+
+    return pld;
 }

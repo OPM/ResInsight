@@ -55,8 +55,14 @@ public:
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
+    void appendMeshPartsToModel( Rim3dView*                        view,
+                                 cvf::ModelBasicList*              model,
+                                 const caf::DisplayCoordTransform* displayCoordTransform,
+                                 const cvf::BoundingBox&           boundingBox );
+
 private:
     caf::PdmPointer<RimFaultReactivationModel> m_frm;
 
     cvf::ref<RivPolylinePartMgr> m_polylinePartMgr;
+    cvf::ref<RivPolylinePartMgr> m_meshPartMgr;
 };

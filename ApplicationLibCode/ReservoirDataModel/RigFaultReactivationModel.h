@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimPolylinesDataInterface.h"
+
 #include "cvfArray.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
@@ -33,13 +35,15 @@ namespace cvf
 class TextureImage;
 }
 
+class RigGriddedPlane;
+
 class RigFRModelPart
 {
 public:
     RigFRModelPart(){};
     ~RigFRModelPart(){};
 
-    cvf::Vec3dArray             rect;
+    std::vector<cvf::Vec3d>     rect;
     cvf::ref<cvf::TextureImage> texture;
 };
 
@@ -47,7 +51,8 @@ public:
 ///
 ///
 //==================================================================================================
-class RigFaultReactivationModel : public cvf::Object
+class RigFaultReactivationModel : public cvf::Object, public RimPolylinesDataInterface
+
 {
 public:
     enum class ModelParts
@@ -79,11 +84,18 @@ public:
 
     void setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color );
 
-    cvf::Vec3dArray             rect( ModelParts part ) const;
+    std::vector<cvf::Vec3d>     rect( ModelParts part ) const;
     cvf::ref<cvf::TextureImage> texture( ModelParts part ) const;
 
+    const std::vector<std::vector<cvf::Vec3d>>& meshLines( ModelParts part ) const;
+
+    // polyline data interface
+    cvf::ref<RigPolyLinesData> polyLinesData() const override;
+
 protected:
-    void generateMeshLines( cvf::Vec3dArray points );
+    void generateGrids( cvf::Vec3dArray points );
+
+    std::pair<int, int> cellCountHorzVert( ModelParts part ) const;
 
 private:
     cvf::Vec3d m_planeNormal;
@@ -107,6 +119,5 @@ private:
     std::map<ModelParts, RigFRModelPart> m_parts;
     bool                                 m_isValid;
 
-    std::vector<std::vector<cvf::Vec3d>> m_meshLinesPart1;
-    std::vector<std::vector<cvf::Vec3d>> m_meshLinesPart2;
+    std::map<ModelParts, std::unique_ptr<RigGriddedPlane>> m_gridParts;
 };

@@ -244,6 +244,11 @@ void RimFaultReactivationModel::updateVisualization()
     m_modelPlane->setFaultPlaneIntersect( topInt, bottomInt );
     m_modelPlane->setMaxExtentFromAnchor( m_modelExtentFromAnchor, m_modelMinZ, maxZ + m_modelBelowSize );
     m_modelPlane->setPartColors( m_modelPart1Color, m_modelPart2Color );
+    m_modelPlane->setCellCounts( m_numberOfCellsHorzPart1,
+                                 m_numberOfCellsHorzPart2,
+                                 m_numberOfCellsVertUp,
+                                 m_numberOfCellsVertMid,
+                                 m_numberOfCellsVertLow );
     m_modelPlane->updateRects();
 
     view->scheduleCreateDisplayModelAndRedraw();

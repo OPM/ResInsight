@@ -62,6 +62,19 @@ void RivFaultReactivationModelPartMgr::appendPolylinePartsToModel( Rim3dView*   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivFaultReactivationModelPartMgr::appendMeshPartsToModel( Rim3dView*                        view,
+                                                               cvf::ModelBasicList*              model,
+                                                               const caf::DisplayCoordTransform* transform,
+                                                               const cvf::BoundingBox&           boundingBox )
+{
+    if ( m_meshPartMgr.isNull() ) m_meshPartMgr = new RivPolylinePartMgr( view, m_frm->modelPlane().p(), m_frm.p() );
+
+    m_meshPartMgr->appendDynamicGeometryPartsToModel( model, transform, boundingBox );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*              model,
                                                                    const caf::DisplayCoordTransform* displayCoordTransform,
                                                                    const cvf::BoundingBox&           boundingBox )

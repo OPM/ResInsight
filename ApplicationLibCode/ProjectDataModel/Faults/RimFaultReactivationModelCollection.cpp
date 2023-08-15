@@ -178,6 +178,7 @@ void RimFaultReactivationModelCollection::appendPartsToModel( Rim3dView*        
         {
             frm->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
             frm->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
+            frm->partMgr()->appendMeshPartsToModel( view, model, transform, boundingBox );
         }
     }
 
