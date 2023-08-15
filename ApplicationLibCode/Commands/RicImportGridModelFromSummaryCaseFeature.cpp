@@ -133,7 +133,7 @@ bool RicImportGridModelFromSummaryCaseFeature::findAndActivateFirstView( const R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicImportGridModelFromSummaryCaseFeature::gridModelFromSummaryCase( const RimFileSummaryCase* summaryCase )
+RimEclipseCase* RicImportGridModelFromSummaryCaseFeature::gridModelFromSummaryCase( const RimSummaryCase* summaryCase )
 {
     if ( summaryCase )
     {

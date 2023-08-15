@@ -59,7 +59,7 @@ public:
     RifDataSourceForRftPlt();
     RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase );
     RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemble );
-    RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble );
+    RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble, RimEclipseCase* eclipseCase );
     RifDataSourceForRftPlt( RimWellLogFile* wellLogFile );
     RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData );
     RifDataSourceForRftPlt( RimPressureDepthData* pressureDepthData );
@@ -77,8 +77,6 @@ public:
     static QString sourceTypeUiText( SourceType sourceType );
 
     std::vector<RiaDefines::EclipseUnitSystem> availableUnitSystems() const;
-
-    friend QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& addr );
 
     auto operator<=>( const RifDataSourceForRftPlt& rhs ) const -> std::strong_ordering;
 

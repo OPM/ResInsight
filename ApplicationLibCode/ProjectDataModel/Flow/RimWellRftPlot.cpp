@@ -25,6 +25,8 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
 
+#include "RicImportGridModelFromSummaryCaseFeature.h"
+
 #include "RifReaderEclipseRft.h"
 
 #include "RigCaseCellResultsData.h"
@@ -540,6 +542,10 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                                                                 RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
 
+            // A summary case address can optionally contain an Eclipse case used to compute the TVD/MD for a well path
+            // https://github.com/OPM/ResInsight/issues/10501
+            curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( curveDefToAdd.address().eclCase() ) );
+
             double zValue = 1.0;
             if ( !curveDefToAdd.address().ensemble() )
             {
@@ -842,8 +848,9 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
         {
             if ( summaryCase->rftReader() && summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
             {
-                auto parentEnsemble = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
-                auto addr           = RifDataSourceForRftPlt( summaryCase, parentEnsemble );
+                auto eclipeGridModel = RicImportGridModelFromSummaryCaseFeature::gridModelFromSummaryCase( summaryCase );
+                auto parentEnsemble  = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+                auto addr            = RifDataSourceForRftPlt( summaryCase, parentEnsemble, eclipeGridModel );
 
                 auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
                 item.setLevel( 1 );

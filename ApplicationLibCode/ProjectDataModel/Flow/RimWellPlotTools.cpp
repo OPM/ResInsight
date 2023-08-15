@@ -618,16 +618,19 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         const QString&             wellName   = rftAddress.wellName();
         const QDateTime&           timeStep   = rftAddress.timeStep();
 
-        if ( rftCase != nullptr )
+        if ( rftSummaryCase != nullptr )
+        {
+            // Presens of rftSummaryCase must be tested before rftCase because a rftSummaryCase can have a rftCase
+            // The rftCase is used to extract TVD/MD from the grid model
+
+            RimSummaryCaseCollection* parentEnsemble = rftSummaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftSummaryCase, parentEnsemble, rftCase ), wellName, timeStep );
+        }
+        else if ( rftCase != nullptr )
         {
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, rftCase ),
                                              wellName,
                                              timeStep );
-        }
-        else if ( rftSummaryCase != nullptr )
-        {
-            RimSummaryCaseCollection* parentEnsemble = rftSummaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
-            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftSummaryCase, parentEnsemble ), wellName, timeStep );
         }
         else if ( rftEnsemble != nullptr )
         {
@@ -805,7 +808,7 @@ std::set<RiaRftPltCurveDefinition>
             {
                 if ( summaryCase && summaryCase->rftReader() )
                 {
-                    RifDataSourceForRftPlt summaryAddr( summaryCase, addr.ensemble() );
+                    RifDataSourceForRftPlt summaryAddr( summaryCase, addr.ensemble(), addr.eclCase() );
 
                     std::set<QDateTime> timeSteps = summaryCase->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
                     for ( const QDateTime& time : timeSteps )
@@ -835,14 +838,12 @@ std::set<RiaRftPltCurveDefinition>
             auto summaryCase = addr.summaryCase();
             if ( summaryCase && summaryCase->rftReader() )
             {
-                RifDataSourceForRftPlt summaryAddr( summaryCase, addr.ensemble() );
-
                 std::set<QDateTime> timeSteps = summaryCase->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
                 for ( const QDateTime& time : timeSteps )
                 {
                     if ( selectedTimeStepSet.count( time ) )
                     {
-                        curveDefs.insert( RiaRftPltCurveDefinition( summaryAddr, wellPathNameOrSimWellName, time ) );
+                        curveDefs.insert( RiaRftPltCurveDefinition( addr, wellPathNameOrSimWellName, time ) );
                     }
                 }
             }

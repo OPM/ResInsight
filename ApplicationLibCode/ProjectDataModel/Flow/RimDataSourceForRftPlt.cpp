@@ -80,7 +80,7 @@ RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
         case RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA:
             return RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, m_eclCase );
         case RifDataSourceForRftPlt::SourceType::SUMMARY_RFT:
-            return RifDataSourceForRftPlt( m_summaryCase, m_ensemble );
+            return RifDataSourceForRftPlt( m_summaryCase, m_ensemble, m_eclCase );
         case RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT:
             return RifDataSourceForRftPlt( m_ensemble );
         case RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT:
