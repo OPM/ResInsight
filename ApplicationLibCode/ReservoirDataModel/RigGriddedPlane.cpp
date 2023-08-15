@@ -114,7 +114,7 @@ void RigGriddedPlane::generateGeometry( std::vector<cvf::Vec3d> cornerPoints, in
     cvf::Vec3d startP = cornerPoints[0];
     cvf::Vec3d endP   = cornerPoints[3];
 
-    for ( int h = 0; h <= numHorzCells; h++ )
+    for ( int v = 0; v <= numVertCells; v++ )
     {
         m_meshLines.push_back( { startP, endP } );
         startP += step0to1;
@@ -126,7 +126,7 @@ void RigGriddedPlane::generateGeometry( std::vector<cvf::Vec3d> cornerPoints, in
     startP = cornerPoints[0];
     endP   = cornerPoints[1];
 
-    for ( int v = 0; v <= numVertCells; v++ )
+    for ( int h = 0; h <= numHorzCells; h++ )
     {
         m_meshLines.push_back( { startP, endP } );
         startP += step0to3;
