@@ -72,7 +72,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
     CAF_PDM_InitField( &m_showFaultPlane, "ShowFaultPlane", true, "Show Fault Plane" );
-    CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
+    CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", false, "Show 2D Model" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
