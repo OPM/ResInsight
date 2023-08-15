@@ -40,4 +40,6 @@ public:
 
     static cvf::ref<cvf::DrawableGeo> createPointsFromPolylineDrawable( const std::vector<cvf::Vec3d>& polyLine );
     static cvf::ref<cvf::DrawableGeo> createPointsFromPolylineDrawable( const std::vector<std::vector<cvf::Vec3d>>& polyLines );
+
+    static cvf::ref<cvf::DrawableGeo> createSetOfLines( const std::vector<std::vector<cvf::Vec3d>>& lines );
 };

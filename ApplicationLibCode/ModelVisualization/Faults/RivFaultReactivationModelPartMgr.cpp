@@ -23,12 +23,15 @@
 #include "RigBasicPlane.h"
 #include "RigFaultReactivationModel.h"
 
+#include "RivPartPriority.h"
+#include "RivPolylineGenerator.h"
 #include "RivPolylinePartMgr.h"
 
 #include "Rim3dView.h"
 #include "RimFaultReactivationModel.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafEffectGenerator.h"
 #include "cafPdmObject.h"
 
 #include "cvfLibCore.h"
@@ -67,9 +70,35 @@ void RivFaultReactivationModelPartMgr::appendMeshPartsToModel( Rim3dView*       
                                                                const caf::DisplayCoordTransform* transform,
                                                                const cvf::BoundingBox&           boundingBox )
 {
-    if ( m_meshPartMgr.isNull() ) m_meshPartMgr = new RivPolylinePartMgr( view, m_frm->modelPlane().p(), m_frm.p() );
+    auto model2d = m_frm->modelPlane();
+    if ( model2d.notNull() && model2d->isValid() && m_frm->isChecked() && m_frm->showModelPlane() )
+    {
+        for ( auto modelpart : m_frm->modelPlane()->allParts() )
+        {
+            auto& lines = m_frm->modelPlane()->meshLines( modelpart );
 
-    m_meshPartMgr->appendDynamicGeometryPartsToModel( model, transform, boundingBox );
+            std::vector<std::vector<cvf::Vec3d>> displayPoints;
+            for ( const auto& pts : lines )
+            {
+                displayPoints.push_back( transform->transformToDisplayCoords( pts ) );
+            }
+
+            cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createSetOfLines( displayPoints );
+            cvf::ref<cvf::Part>        part        = new cvf::Part;
+            part->setName( "FaultReactMeshLines" );
+            part->setDrawable( drawableGeo.p() );
+
+            caf::MeshEffectGenerator effgen( cvf::Color3::LIGHT_GRAY );
+            effgen.setLineWidth( 1.5 );
+            effgen.setLineStipple( false );
+            cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
+
+            part->setEffect( eff.p() );
+            part->setPriority( RivPartPriority::PartType::MeshLines );
+
+            model->addPart( part.p() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

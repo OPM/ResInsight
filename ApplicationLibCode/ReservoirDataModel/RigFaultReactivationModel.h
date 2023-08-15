@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RimPolylinesDataInterface.h"
-
 #include "cvfArray.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
@@ -51,7 +49,7 @@ public:
 ///
 ///
 //==================================================================================================
-class RigFaultReactivationModel : public cvf::Object, public RimPolylinesDataInterface
+class RigFaultReactivationModel : public cvf::Object
 
 {
 public:
@@ -88,9 +86,6 @@ public:
     cvf::ref<cvf::TextureImage> texture( ModelParts part ) const;
 
     const std::vector<std::vector<cvf::Vec3d>>& meshLines( ModelParts part ) const;
-
-    // polyline data interface
-    cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
 protected:
     void generateGrids( cvf::Vec3dArray points );

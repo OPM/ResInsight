@@ -304,27 +304,3 @@ void RigFaultReactivationModel::generateGrids( cvf::Vec3dArray points )
         m_gridParts[part]->generateGeometry( m_parts[part].rect, cellsHorz, cellsVert );
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigPolyLinesData> RigFaultReactivationModel::polyLinesData() const
-{
-    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData();
-
-    std::vector<cvf::Vec3d> line;
-
-    for ( auto part : allParts() )
-    {
-        for ( auto line : meshLines( part ) )
-        {
-            pld->addPolyLine( line );
-        }
-    }
-
-    pld->setLineAppearance( 1, cvf::Color3::LIGHT_GRAY, false );
-    pld->setZPlaneLock( false, 0.0 );
-    pld->setVisibility( true, false );
-
-    return pld;
-}

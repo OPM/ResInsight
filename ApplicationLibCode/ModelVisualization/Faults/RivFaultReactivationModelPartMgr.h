@@ -64,5 +64,4 @@ private:
     caf::PdmPointer<RimFaultReactivationModel> m_frm;
 
     cvf::ref<RivPolylinePartMgr> m_polylinePartMgr;
-    cvf::ref<RivPolylinePartMgr> m_meshPartMgr;
 };
