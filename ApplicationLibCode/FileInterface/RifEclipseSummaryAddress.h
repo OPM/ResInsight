@@ -79,19 +79,19 @@ public:
 
     RifEclipseSummaryAddress( SummaryVarCategory category,
                               const std::string& vectorName,
-                              int16_t            regionNumber,
-                              int16_t            regionNumber2,
+                              int                regionNumber,
+                              int                regionNumber2,
                               const std::string& groupName,
                               const std::string& networkName,
                               const std::string& wellName,
-                              int16_t            wellSegmentNumber,
+                              int                wellSegmentNumber,
                               const std::string& lgrName,
-                              int32_t            cellI,
-                              int32_t            cellJ,
-                              int32_t            cellK,
-                              int16_t            aquiferNumber,
+                              int                cellI,
+                              int                cellJ,
+                              int                cellK,
+                              int                aquiferNumber,
                               bool               isErrorResult,
-                              int32_t            id );
+                              int                id );
 
     RifEclipseSummaryAddress( SummaryVarCategory category, std::map<SummaryIdentifierType, std::string>& identifiers );
 
@@ -137,23 +137,23 @@ public:
     // Access methods
 
     SummaryVarCategory category() const { return m_variableCategory; }
-    const std::string& vectorName() const { return m_vectorName; }
+    const std::string  vectorName() const { return m_vectorName; }
     bool               isHistoryVector() const;
 
-    int regionNumber() const { return m_regionNumber; }
-    int regionNumber2() const { return m_regionNumber2; }
+    int regionNumber() const { return m_number0; }
+    int regionNumber2() const { return m_number1; }
 
-    const std::string& groupName() const { return m_groupName; }
-    const std::string& networkName() const { return m_networkName; }
-    const std::string& wellName() const { return m_wellName; }
-    int                wellSegmentNumber() const { return m_wellSegmentNumber; }
-    const std::string& lgrName() const { return m_lgrName; }
-    int                cellI() const { return m_cellI; }
-    int                cellJ() const { return m_cellJ; }
-    int                cellK() const { return m_cellK; }
-    int                aquiferNumber() const { return m_aquiferNumber; }
-    int                id() const { return m_id; }
-    std::string        blockAsString() const;
+    const std::string groupName() const { return ( m_variableCategory == SUMMARY_GROUP ) ? m_name : std::string(); }
+    const std::string networkName() const { return ( m_variableCategory == SUMMARY_NETWORK ) ? m_name : std::string(); }
+    const std::string wellName() const { return isDependentOnWellName( m_variableCategory ) ? m_name : std::string(); }
+    int                    wellSegmentNumber() const { return m_number0; }
+    const std::string lgrName() const { return m_lgrName; }
+    int                    cellI() const { return m_number2; }
+    int                    cellJ() const { return m_number1; }
+    int                    cellK() const { return m_number0; }
+    int                    aquiferNumber() const { return m_number0; }
+    int                    id() const { return m_id; }
+    std::string            blockAsString() const;
 
     const std::string ensembleStatisticsVectorName() const;
 
@@ -166,14 +166,14 @@ public:
 
     bool isValid() const;
     void setVectorName( const std::string& vectorName ) { m_vectorName = vectorName; }
-    void setWellName( const std::string& wellName ) { m_wellName = wellName; }
-    void setGroupName( const std::string& groupName ) { m_groupName = groupName; }
-    void setNetworkName( const std::string& networkName ) { m_networkName = networkName; }
-    void setRegion( int region ) { m_regionNumber = (int16_t)region; }
-    void setRegion2( int region2 ) { m_regionNumber2 = (int16_t)region2; }
-    void setAquiferNumber( int aquiferNumber ) { m_aquiferNumber = (int16_t)aquiferNumber; }
+    void setWellName( const std::string& wellName ) { m_name = wellName; }
+    void setGroupName( const std::string& groupName ) { m_name = groupName; }
+    void setNetworkName( const std::string& networkName ) { m_name = networkName; }
+    void setRegion( int region ) { m_number0 = region; }
+    void setRegion2( int region2 ) { m_number1 = region2; }
+    void setAquiferNumber( int aquiferNumber ) { m_number0 = aquiferNumber; }
     void setCellIjk( const std::string& uiText );
-    void setWellSegmentNumber( int segment ) { m_wellSegmentNumber = (int16_t)segment; }
+    void setWellSegmentNumber( int segment ) { m_number0 = segment; }
 
     void setAsErrorResult() { m_isErrorResult = true; }
     bool isErrorResult() const { return m_isErrorResult; }
@@ -188,14 +188,16 @@ public:
 
     bool isCalculated() const;
 
-    std::string                        formatUiTextRegionToRegion() const;
-    static std::pair<int16_t, int16_t> regionToRegionPairFromUiText( const std::string& s );
+    std::string                formatUiTextRegionToRegion() const;
+    static std::pair<int, int> regionToRegionPairFromUiText( const std::string& s );
 
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 
-    bool                                         isValidEclipseCategory() const;
-    static std::tuple<int32_t, int32_t, int32_t> ijkTupleFromUiText( const std::string& s );
+    bool                             isValidEclipseCategory() const;
+    static std::tuple<int, int, int> ijkTupleFromUiText( const std::string& s );
+    void                             setCellIjk( std::tuple<int, int, int> ijk );
+    void                             setCellIjk( int i, int j, int k );
 
 private:
     // The ordering the variables are defined in defines how the objects get sorted. Members defined first will be
@@ -203,19 +205,13 @@ private:
 
     SummaryVarCategory m_variableCategory;
     std::string        m_vectorName;
-    std::string        m_wellName;
-    std::string        m_groupName;
-    std::string        m_networkName;
+    std::string        m_name;
     std::string        m_lgrName;
-    int32_t            m_cellK;
-    int32_t            m_cellJ;
-    int32_t            m_cellI;
-    int16_t            m_regionNumber;
-    int16_t            m_regionNumber2;
-    int16_t            m_wellSegmentNumber;
-    int16_t            m_aquiferNumber;
+    int                m_number0;
+    int                m_number1;
+    int                m_number2;
     bool               m_isErrorResult;
-    int32_t            m_id;
+    int                m_id;
 };
 
 QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj );

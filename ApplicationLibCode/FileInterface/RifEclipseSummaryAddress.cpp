@@ -33,75 +33,59 @@
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category, std::map<SummaryIdentifierType, std::string>& identifiers )
     : m_variableCategory( category )
-    , m_regionNumber( -1 )
-    , m_regionNumber2( -1 )
-    , m_wellSegmentNumber( -1 )
-    , m_cellI( -1 )
-    , m_cellJ( -1 )
-    , m_cellK( -1 )
-    , m_aquiferNumber( -1 )
+    , m_number0( -1 )
+    , m_number1( -1 )
+    , m_number2( -1 )
     , m_isErrorResult( false )
     , m_id( -1 )
 {
-    std::tuple<int32_t, int32_t, int32_t> ijkTuple;
-    std::pair<int16_t, int16_t>           reg2regPair;
+    std::tuple<int, int, int> ijkTuple;
+    std::pair<int, int>       reg2regPair;
     switch ( category )
     {
         case SUMMARY_REGION:
-            m_regionNumber = RiaStdStringTools::toInt16( identifiers[INPUT_REGION_NUMBER] );
+            m_number0 = RiaStdStringTools::toInt16( identifiers[INPUT_REGION_NUMBER] );
             break;
         case SUMMARY_REGION_2_REGION:
-            reg2regPair     = regionToRegionPairFromUiText( identifiers[INPUT_REGION_2_REGION] );
-            m_regionNumber  = reg2regPair.first;
-            m_regionNumber2 = reg2regPair.second;
+            reg2regPair = regionToRegionPairFromUiText( identifiers[INPUT_REGION_2_REGION] );
+            m_number0   = reg2regPair.first;
+            m_number1   = reg2regPair.second;
             break;
         case SUMMARY_GROUP:
-            m_groupName = identifiers[INPUT_GROUP_NAME];
+            m_name = identifiers[INPUT_GROUP_NAME];
             break;
         case SUMMARY_NETWORK:
-            m_networkName = identifiers[INPUT_NETWORK_NAME];
+            m_name = identifiers[INPUT_NETWORK_NAME];
             break;
         case SUMMARY_WELL:
-            m_wellName = identifiers[INPUT_WELL_NAME];
+            m_name = identifiers[INPUT_WELL_NAME];
             break;
         case SUMMARY_WELL_COMPLETION:
-            m_wellName = identifiers[INPUT_WELL_NAME];
-            ijkTuple   = ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] );
-            m_cellI    = std::get<0>( ijkTuple );
-            m_cellJ    = std::get<1>( ijkTuple );
-            m_cellK    = std::get<2>( ijkTuple );
+            m_name = identifiers[INPUT_WELL_NAME];
+            setCellIjk( ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] ) );
             break;
         case SUMMARY_WELL_LGR:
-            m_lgrName  = identifiers[INPUT_LGR_NAME];
-            m_wellName = identifiers[INPUT_WELL_NAME];
+            m_lgrName = identifiers[INPUT_LGR_NAME];
+            m_name    = identifiers[INPUT_WELL_NAME];
             break;
         case SUMMARY_WELL_COMPLETION_LGR:
-            m_lgrName  = identifiers[INPUT_LGR_NAME];
-            m_wellName = identifiers[INPUT_WELL_NAME];
-            ijkTuple   = ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] );
-            m_cellI    = std::get<0>( ijkTuple );
-            m_cellJ    = std::get<1>( ijkTuple );
-            m_cellK    = std::get<2>( ijkTuple );
+            m_lgrName = identifiers[INPUT_LGR_NAME];
+            m_name    = identifiers[INPUT_WELL_NAME];
+            setCellIjk( ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] ) );
             break;
         case SUMMARY_WELL_SEGMENT:
-            m_wellName          = identifiers[INPUT_WELL_NAME];
-            m_wellSegmentNumber = RiaStdStringTools::toInt( identifiers[INPUT_SEGMENT_NUMBER] );
+            m_name    = identifiers[INPUT_WELL_NAME];
+            m_number0 = RiaStdStringTools::toInt( identifiers[INPUT_SEGMENT_NUMBER] );
             break;
         case SUMMARY_BLOCK:
-            ijkTuple = ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] );
-            m_cellI  = std::get<0>( ijkTuple );
-            m_cellJ  = std::get<1>( ijkTuple );
-            m_cellK  = std::get<2>( ijkTuple );
+            setCellIjk( ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] ) );
             break;
         case SUMMARY_BLOCK_LGR:
             m_lgrName = identifiers[INPUT_LGR_NAME];
-            ijkTuple  = ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] );
-            m_cellI   = std::get<0>( ijkTuple );
-            m_cellJ   = std::get<1>( ijkTuple );
-            m_cellK   = std::get<2>( ijkTuple );
+            setCellIjk( ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] ) );
             break;
         case SUMMARY_AQUIFER:
-            m_aquiferNumber = RiaStdStringTools::toInt( identifiers[INPUT_AQUIFER_NUMBER] );
+            m_number0 = RiaStdStringTools::toInt( identifiers[INPUT_AQUIFER_NUMBER] );
             break;
     }
 
@@ -114,35 +98,71 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
                                                     const std::string& vectorName,
-                                                    int16_t            regionNumber,
-                                                    int16_t            regionNumber2,
+                                                    int                regionNumber,
+                                                    int                regionNumber2,
                                                     const std::string& groupName,
                                                     const std::string& networkName,
                                                     const std::string& wellName,
-                                                    int16_t            wellSegmentNumber,
+                                                    int                wellSegmentNumber,
                                                     const std::string& lgrName,
-                                                    int32_t            cellI,
-                                                    int32_t            cellJ,
-                                                    int32_t            cellK,
-                                                    int16_t            aquiferNumber,
+                                                    int                cellI,
+                                                    int                cellJ,
+                                                    int                cellK,
+                                                    int                aquiferNumber,
                                                     bool               isErrorResult,
-                                                    int32_t            id )
+                                                    int                id )
     : m_variableCategory( category )
     , m_vectorName( vectorName )
-    , m_regionNumber( regionNumber )
-    , m_regionNumber2( regionNumber2 )
-    , m_groupName( groupName )
-    , m_networkName( networkName )
-    , m_wellName( wellName )
-    , m_wellSegmentNumber( wellSegmentNumber )
     , m_lgrName( lgrName )
-    , m_cellI( cellI )
-    , m_cellJ( cellJ )
-    , m_cellK( cellK )
-    , m_aquiferNumber( aquiferNumber )
+    , m_number0( -1 )
+    , m_number1( -1 )
+    , m_number2( -1 )
     , m_isErrorResult( isErrorResult )
     , m_id( id )
 {
+    switch ( category )
+    {
+        case SUMMARY_REGION:
+            m_number0 = regionNumber;
+            break;
+        case SUMMARY_REGION_2_REGION:
+            m_number0 = regionNumber;
+            m_number1 = regionNumber2;
+            break;
+        case SUMMARY_GROUP:
+            m_name = groupName;
+            break;
+        case SUMMARY_NETWORK:
+            m_name = networkName;
+            break;
+        case SUMMARY_WELL:
+            m_name = wellName;
+            break;
+        case SUMMARY_WELL_COMPLETION:
+            m_name = wellName;
+            setCellIjk( cellI, cellJ, cellK );
+            break;
+        case SUMMARY_WELL_LGR:
+            m_name = wellName;
+            break;
+        case SUMMARY_WELL_COMPLETION_LGR:
+            m_name = wellName;
+            setCellIjk( cellI, cellJ, cellK );
+            break;
+        case SUMMARY_WELL_SEGMENT:
+            m_name    = wellName;
+            m_number0 = wellSegmentNumber;
+            break;
+        case SUMMARY_BLOCK:
+            setCellIjk( cellI, cellJ, cellK );
+            break;
+        case SUMMARY_BLOCK_LGR:
+            setCellIjk( cellI, cellJ, cellK );
+            break;
+        case SUMMARY_AQUIFER:
+            m_number0 = aquiferNumber;
+            break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,13 +170,9 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::RifEclipseSummaryAddress()
     : m_variableCategory( RifEclipseSummaryAddress::SUMMARY_INVALID )
-    , m_regionNumber( -1 )
-    , m_regionNumber2( -1 )
-    , m_wellSegmentNumber( -1 )
-    , m_cellI( -1 )
-    , m_cellJ( -1 )
-    , m_cellK( -1 )
-    , m_aquiferNumber( -1 )
+    , m_number0( -1 )
+    , m_number1( -1 )
+    , m_number2( -1 )
     , m_isErrorResult( false )
     , m_id( -1 )
 {
@@ -226,7 +242,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::aquiferAddress( const std::st
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_AQUIFER;
     addr.m_vectorName       = vectorName;
-    addr.m_aquiferNumber    = aquiferNumber;
+    addr.m_number0          = aquiferNumber;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -240,7 +256,7 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_NETWORK;
     addr.m_vectorName       = vectorName;
-    addr.m_networkName      = networkName;
+    addr.m_name             = networkName;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -265,7 +281,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::regionAddress( const std::str
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_REGION;
     addr.m_vectorName       = vectorName;
-    addr.m_regionNumber     = regionNumber;
+    addr.m_number0          = regionNumber;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -279,8 +295,8 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_REGION_2_REGION;
     addr.m_vectorName       = vectorName;
-    addr.m_regionNumber     = regionNumber;
-    addr.m_regionNumber2    = region2Number;
+    addr.m_number0          = regionNumber;
+    addr.m_number1          = region2Number;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -293,7 +309,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::groupAddress( const std::stri
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_GROUP;
     addr.m_vectorName       = vectorName;
-    addr.m_groupName        = groupName;
+    addr.m_name             = groupName;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -306,7 +322,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellAddress( const std::strin
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_WELL;
     addr.m_vectorName       = vectorName;
-    addr.m_wellName         = wellName;
+    addr.m_name             = wellName;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -320,11 +336,9 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_WELL_COMPLETION;
     addr.m_vectorName       = vectorName;
-    addr.m_wellName         = wellName;
-    addr.m_cellI            = i;
-    addr.m_cellJ            = j;
-    addr.m_cellK            = k;
-    addr.m_id               = calculationId;
+    addr.m_name             = wellName;
+    addr.setCellIjk( i, j, k );
+    addr.m_id = calculationId;
     return addr;
 }
 
@@ -340,7 +354,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellLgrAddress( const std::st
     addr.m_variableCategory = SUMMARY_WELL_LGR;
     addr.m_vectorName       = vectorName;
     addr.m_lgrName          = lgrName;
-    addr.m_wellName         = wellName;
+    addr.m_name             = wellName;
     addr.m_id               = calculationId;
     return addr;
 }
@@ -360,11 +374,9 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellCompletionLgrAddress( con
     addr.m_variableCategory = SUMMARY_WELL_COMPLETION_LGR;
     addr.m_vectorName       = vectorName;
     addr.m_lgrName          = lgrName;
-    addr.m_wellName         = wellName;
-    addr.m_cellI            = i;
-    addr.m_cellJ            = j;
-    addr.m_cellK            = k;
-    addr.m_id               = calculationId;
+    addr.m_name             = wellName;
+    addr.setCellIjk( i, j, k );
+    addr.m_id = calculationId;
     return addr;
 }
 
@@ -375,11 +387,11 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress::wellSegmentAddress( const std::string& vectorName, const std::string& wellName, int segmentNumber, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_variableCategory  = SUMMARY_WELL_SEGMENT;
-    addr.m_vectorName        = vectorName;
-    addr.m_wellName          = wellName;
-    addr.m_wellSegmentNumber = segmentNumber;
-    addr.m_id                = calculationId;
+    addr.m_variableCategory = SUMMARY_WELL_SEGMENT;
+    addr.m_vectorName       = vectorName;
+    addr.m_name             = wellName;
+    addr.m_number0          = segmentNumber;
+    addr.m_id               = calculationId;
     return addr;
 }
 
@@ -391,10 +403,8 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::blockAddress( const std::stri
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_BLOCK;
     addr.m_vectorName       = vectorName;
-    addr.m_cellI            = i;
-    addr.m_cellJ            = j;
-    addr.m_cellK            = k;
-    addr.m_id               = calculationId;
+    addr.setCellIjk( i, j, k );
+    addr.m_id = calculationId;
     return addr;
 }
 
@@ -408,10 +418,8 @@ RifEclipseSummaryAddress
     addr.m_variableCategory = SUMMARY_BLOCK_LGR;
     addr.m_vectorName       = vectorName;
     addr.m_lgrName          = lgrName;
-    addr.m_cellI            = i;
-    addr.m_cellJ            = j;
-    addr.m_cellK            = k;
-    addr.m_id               = calculationId;
+    addr.setCellIjk( i, j, k );
+    addr.m_id = calculationId;
     return addr;
 }
 
@@ -466,17 +474,11 @@ std::string RifEclipseSummaryAddress::generateStringFromAddresses( const std::ve
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::isDependentOnWellName( SummaryVarCategory category )
 {
-    // clang-format off
-    if (category == SUMMARY_WELL ||
-        category == SUMMARY_WELL_COMPLETION ||
-        category == SUMMARY_WELL_COMPLETION_LGR ||
-        category == SUMMARY_WELL_LGR ||
-        category == SUMMARY_WELL_SEGMENT)
+    if ( category == SUMMARY_WELL || category == SUMMARY_WELL_COMPLETION || category == SUMMARY_WELL_COMPLETION_LGR ||
+         category == SUMMARY_WELL_LGR || category == SUMMARY_WELL_SEGMENT )
     {
         return true;
     }
-
-    // clang-format on
 
     return false;
 }
@@ -563,20 +565,24 @@ std::string RifEclipseSummaryAddress::itemUiText() const
         case SUMMARY_WELL_LGR:
         {
             text += lgrName();
-            text += ":" + wellName();
+            text += ":";
+            text += wellName();
         }
         break;
         case SUMMARY_WELL_COMPLETION_LGR:
         {
             text += lgrName();
-            text += ":" + wellName();
-            text += ":" + blockAsString();
+            text += ":";
+            text += wellName();
+            text += ":";
+            text += blockAsString();
         }
         break;
         case SUMMARY_WELL_SEGMENT:
         {
             text += wellName();
-            text += ":" + std::to_string( wellSegmentNumber() );
+            text += ":";
+            text += std::to_string( wellSegmentNumber() );
         }
         break;
         case SUMMARY_BLOCK:
@@ -587,7 +593,8 @@ std::string RifEclipseSummaryAddress::itemUiText() const
         case SUMMARY_BLOCK_LGR:
         {
             text += lgrName();
-            text += ":" + blockAsString();
+            text += ":";
+            text += blockAsString();
         }
         break;
         case SUMMARY_AQUIFER:
@@ -617,21 +624,21 @@ std::string RifEclipseSummaryAddress::addressComponentUiText( RifEclipseSummaryA
         case INPUT_REGION_2_REGION:
             return formatUiTextRegionToRegion();
         case INPUT_WELL_NAME:
-            return wellName();
+            return m_name;
         case INPUT_GROUP_NAME:
-            return groupName();
+            return m_name;
         case INPUT_NETWORK_NAME:
-            return networkName();
+            return m_name;
         case INPUT_CELL_IJK:
             return blockAsString();
         case INPUT_LGR_NAME:
-            return lgrName();
+            return m_lgrName;
         case INPUT_SEGMENT_NUMBER:
             return std::to_string( wellSegmentNumber() );
         case INPUT_AQUIFER_NUMBER:
             return std::to_string( aquiferNumber() );
         case INPUT_VECTOR_NAME:
-            return vectorName();
+            return m_vectorName;
         case INPUT_ID:
             return std::to_string( id() );
     }
@@ -671,62 +678,62 @@ bool RifEclipseSummaryAddress::isValid() const
             return false;
 
         case SUMMARY_REGION:
-            if ( m_regionNumber == -1 ) return false;
+            if ( m_number0 == -1 ) return false;
             return true;
 
         case SUMMARY_REGION_2_REGION:
-            if ( m_regionNumber == -1 ) return false;
-            if ( m_regionNumber2 == -1 ) return false;
+            if ( m_number0 == -1 ) return false;
+            if ( m_number1 == -1 ) return false;
             return true;
 
         case SUMMARY_GROUP:
-            if ( m_groupName.size() == 0 ) return false;
+            if ( m_name.size() == 0 ) return false;
             return true;
 
         case SUMMARY_WELL:
-            if ( m_wellName.size() == 0 ) return false;
+            if ( m_name.size() == 0 ) return false;
             return true;
 
         case SUMMARY_WELL_COMPLETION:
-            if ( m_wellName.size() == 0 ) return false;
-            if ( m_cellI == -1 ) return false;
-            if ( m_cellJ == -1 ) return false;
-            if ( m_cellK == -1 ) return false;
+            if ( m_name.size() == 0 ) return false;
+            if ( m_number0 == -1 ) return false;
+            if ( m_number1 == -1 ) return false;
+            if ( m_number2 == -1 ) return false;
             return true;
 
         case SUMMARY_WELL_LGR:
             if ( m_lgrName.size() == 0 ) return false;
-            if ( m_wellName.size() == 0 ) return false;
+            if ( m_name.size() == 0 ) return false;
             return true;
 
         case SUMMARY_WELL_COMPLETION_LGR:
             if ( m_lgrName.size() == 0 ) return false;
-            if ( m_wellName.size() == 0 ) return false;
-            if ( m_cellI == -1 ) return false;
-            if ( m_cellJ == -1 ) return false;
-            if ( m_cellK == -1 ) return false;
+            if ( m_name.size() == 0 ) return false;
+            if ( m_number0 == -1 ) return false;
+            if ( m_number1 == -1 ) return false;
+            if ( m_number2 == -1 ) return false;
             return true;
 
         case SUMMARY_WELL_SEGMENT:
-            if ( m_wellName.size() == 0 ) return false;
-            if ( m_wellSegmentNumber == -1 ) return false;
+            if ( m_name.size() == 0 ) return false;
+            if ( m_number0 == -1 ) return false;
             return true;
 
         case SUMMARY_BLOCK:
-            if ( m_cellI == -1 ) return false;
-            if ( m_cellJ == -1 ) return false;
-            if ( m_cellK == -1 ) return false;
+            if ( m_number0 == -1 ) return false;
+            if ( m_number1 == -1 ) return false;
+            if ( m_number2 == -1 ) return false;
             return true;
 
         case SUMMARY_BLOCK_LGR:
             if ( m_lgrName.size() == 0 ) return false;
-            if ( m_cellI == -1 ) return false;
-            if ( m_cellJ == -1 ) return false;
-            if ( m_cellK == -1 ) return false;
+            if ( m_number0 == -1 ) return false;
+            if ( m_number1 == -1 ) return false;
+            if ( m_number2 == -1 ) return false;
             return true;
 
         case SUMMARY_AQUIFER:
-            if ( m_aquiferNumber == -1 ) return false;
+            if ( m_number0 == -1 ) return false;
             return true;
     }
 
@@ -740,9 +747,26 @@ void RifEclipseSummaryAddress::setCellIjk( const std::string& uiText )
 {
     auto vec = RifEclipseSummaryAddress::ijkTupleFromUiText( uiText );
 
-    m_cellI = std::get<0>( vec );
-    m_cellJ = std::get<1>( vec );
-    m_cellK = std::get<2>( vec );
+    setCellIjk( std::get<0>( vec ), std::get<1>( vec ), std::get<2>( vec ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setCellIjk( int i, int j, int k )
+{
+    // NB! Order is reversed to be able to sort on K first
+    m_number0 = k;
+    m_number1 = j;
+    m_number2 = i;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setCellIjk( std::tuple<int, int, int> ijk )
+{
+    setCellIjk( std::get<0>( ijk ), std::get<1>( ijk ), std::get<2>( ijk ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1010,11 +1034,11 @@ std::string RifEclipseSummaryAddress::formatUiTextRegionToRegion() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int16_t, int16_t> RifEclipseSummaryAddress::regionToRegionPairFromUiText( const std::string& s )
+std::pair<int, int> RifEclipseSummaryAddress::regionToRegionPairFromUiText( const std::string& s )
 {
     QStringList r2r = QString().fromStdString( s ).trimmed().split( QRegExp( "[-]" ) );
 
-    if ( r2r.size() != 2 ) return std::make_pair( (int16_t)-1, (int16_t)-1 );
+    if ( r2r.size() != 2 ) return std::make_pair( -1, -1 );
 
     return std::make_pair( RiaStdStringTools::toInt16( r2r[0].trimmed().toStdString() ),
                            RiaStdStringTools::toInt16( r2r[1].trimmed().toStdString() ) );
