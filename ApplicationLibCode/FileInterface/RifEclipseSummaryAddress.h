@@ -77,21 +77,21 @@ public:
 public:
     RifEclipseSummaryAddress();
 
-    RifEclipseSummaryAddress( SummaryVarCategory category,
-                              const std::string& vectorName,
-                              int                regionNumber,
-                              int                regionNumber2,
-                              const std::string& groupName,
-                              const std::string& networkName,
-                              const std::string& wellName,
-                              int                wellSegmentNumber,
-                              const std::string& lgrName,
-                              int                cellI,
-                              int                cellJ,
-                              int                cellK,
-                              int                aquiferNumber,
-                              bool               isErrorResult,
-                              int                id );
+    RifEclipseSummaryAddress( SummaryVarCategory     category,
+                              const std::string_view vectorName,
+                              int                    regionNumber,
+                              int                    regionNumber2,
+                              const std::string_view groupName,
+                              const std::string_view networkName,
+                              const std::string_view wellName,
+                              int                    wellSegmentNumber,
+                              const std::string_view lgrName,
+                              int                    cellI,
+                              int                    cellJ,
+                              int                    cellK,
+                              int                    aquiferNumber,
+                              bool                   isErrorResult,
+                              int                    id );
 
     RifEclipseSummaryAddress( SummaryVarCategory category, std::map<SummaryIdentifierType, std::string>& identifiers );
 
@@ -100,34 +100,37 @@ public:
     static RifEclipseSummaryAddress fromEclipseTextAddress( const std::string& textAddress );
     static RifEclipseSummaryAddress fromEclipseTextAddressParseErrorTokens( const std::string& textAddress );
 
-    static RifEclipseSummaryAddress fieldAddress( const std::string& vectorName, int calculationId = -1 );
-    static RifEclipseSummaryAddress aquiferAddress( const std::string& vectorName, int aquiferNumber, int calculationId = -1 );
-    static RifEclipseSummaryAddress networkAddress( const std::string& vectorName, const std::string& networkName, int calculationId = -1 );
-    static RifEclipseSummaryAddress miscAddress( const std::string& vectorName, int calculationId = -1 );
-    static RifEclipseSummaryAddress regionAddress( const std::string& vectorName, int regionNumber, int calculationId = -1 );
+    static RifEclipseSummaryAddress fieldAddress( const std::string_view vectorName, int calculationId = -1 );
+    static RifEclipseSummaryAddress aquiferAddress( const std::string_view vectorName, int aquiferNumber, int calculationId = -1 );
     static RifEclipseSummaryAddress
-        regionToRegionAddress( const std::string& vectorName, int regionNumber, int region2Number, int calculationId = -1 );
-    static RifEclipseSummaryAddress groupAddress( const std::string& vectorName, const std::string& groupName, int calculationId = -1 );
-    static RifEclipseSummaryAddress wellAddress( const std::string& vectorName, const std::string& wellName, int calculationId = -1 );
+        networkAddress( const std::string_view vectorName, const std::string_view networkName, int calculationId = -1 );
+    static RifEclipseSummaryAddress miscAddress( const std::string_view vectorName, int calculationId = -1 );
+    static RifEclipseSummaryAddress regionAddress( const std::string_view vectorName, int regionNumber, int calculationId = -1 );
+    static RifEclipseSummaryAddress
+        regionToRegionAddress( const std::string_view vectorName, int regionNumber, int region2Number, int calculationId = -1 );
+    static RifEclipseSummaryAddress groupAddress( const std::string_view vectorName, const std::string_view groupName, int calculationId = -1 );
+    static RifEclipseSummaryAddress wellAddress( const std::string_view vectorName, const std::string_view wellName, int calculationId = -1 );
 
     static RifEclipseSummaryAddress
-        wellCompletionAddress( const std::string& vectorName, const std::string& wellName, int i, int j, int k, int calculationId = -1 );
+        wellCompletionAddress( const std::string_view vectorName, const std::string_view wellName, int i, int j, int k, int calculationId = -1 );
+    static RifEclipseSummaryAddress wellLgrAddress( const std::string_view vectorName,
+                                                    const std::string_view lgrName,
+                                                    const std::string_view wellName,
+                                                    int                    calculationId = -1 );
+    static RifEclipseSummaryAddress wellCompletionLgrAddress( const std::string_view vectorName,
+                                                              const std::string_view lgrName,
+                                                              const std::string_view wellName,
+                                                              int                    i,
+                                                              int                    j,
+                                                              int                    k,
+                                                              int                    calculationId = -1 );
     static RifEclipseSummaryAddress
-        wellLgrAddress( const std::string& vectorName, const std::string& lgrName, const std::string& wellName, int calculationId = -1 );
-    static RifEclipseSummaryAddress wellCompletionLgrAddress( const std::string& vectorName,
-                                                              const std::string& lgrName,
-                                                              const std::string& wellName,
-                                                              int                i,
-                                                              int                j,
-                                                              int                k,
-                                                              int                calculationId = -1 );
+        wellSegmentAddress( const std::string_view vectorName, const std::string_view wellName, int segmentNumber, int calculationId = -1 );
+    static RifEclipseSummaryAddress blockAddress( const std::string_view vectorName, int i, int j, int k, int calculationId = -1 );
     static RifEclipseSummaryAddress
-        wellSegmentAddress( const std::string& vectorName, const std::string& wellName, int segmentNumber, int calculationId = -1 );
-    static RifEclipseSummaryAddress blockAddress( const std::string& vectorName, int i, int j, int k, int calculationId = -1 );
-    static RifEclipseSummaryAddress
-        blockLgrAddress( const std::string& vectorName, const std::string& lgrName, int i, int j, int k, int calculationId = -1 );
-    static RifEclipseSummaryAddress importedAddress( const std::string& vectorName, int calculationId = -1 );
-    static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& vectorName, const std::string& datavectorName );
+        blockLgrAddress( const std::string_view vectorName, const std::string_view lgrName, int i, int j, int k, int calculationId = -1 );
+    static RifEclipseSummaryAddress importedAddress( const std::string_view vectorName, int calculationId = -1 );
+    static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string_view vectorName, const std::string_view datavectorName );
 
     static std::string generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,
                                                     const std::string                            jointString = "; " );
@@ -146,14 +149,14 @@ public:
     const std::string groupName() const { return ( m_variableCategory == SUMMARY_GROUP ) ? m_name : std::string(); }
     const std::string networkName() const { return ( m_variableCategory == SUMMARY_NETWORK ) ? m_name : std::string(); }
     const std::string wellName() const { return isDependentOnWellName( m_variableCategory ) ? m_name : std::string(); }
-    int                    wellSegmentNumber() const { return m_number0; }
+    int               wellSegmentNumber() const { return m_number0; }
     const std::string lgrName() const { return m_lgrName; }
-    int                    cellI() const { return m_number2; }
-    int                    cellJ() const { return m_number1; }
-    int                    cellK() const { return m_number0; }
-    int                    aquiferNumber() const { return m_number0; }
-    int                    id() const { return m_id; }
-    std::string            blockAsString() const;
+    int               cellI() const { return m_number2; }
+    int               cellJ() const { return m_number1; }
+    int               cellK() const { return m_number0; }
+    int               aquiferNumber() const { return m_number0; }
+    int               id() const { return m_id; }
+    std::string       blockAsString() const;
 
     const std::string ensembleStatisticsVectorName() const;
 
@@ -165,14 +168,14 @@ public:
     bool        isUiTextMatchingFilterText( const QString& filterString ) const;
 
     bool isValid() const;
-    void setVectorName( const std::string& vectorName ) { m_vectorName = vectorName; }
-    void setWellName( const std::string& wellName ) { m_name = wellName; }
-    void setGroupName( const std::string& groupName ) { m_name = groupName; }
-    void setNetworkName( const std::string& networkName ) { m_name = networkName; }
+    void setVectorName( const std::string_view vectorName ) { m_vectorName = vectorName; }
+    void setWellName( const std::string_view wellName ) { m_name = wellName; }
+    void setGroupName( const std::string_view groupName ) { m_name = groupName; }
+    void setNetworkName( const std::string_view networkName ) { m_name = networkName; }
     void setRegion( int region ) { m_number0 = region; }
     void setRegion2( int region2 ) { m_number1 = region2; }
     void setAquiferNumber( int aquiferNumber ) { m_number0 = aquiferNumber; }
-    void setCellIjk( const std::string& uiText );
+    void setCellIjk( const std::string_view uiText );
     void setWellSegmentNumber( int segment ) { m_number0 = segment; }
 
     void setAsErrorResult() { m_isErrorResult = true; }
@@ -182,20 +185,20 @@ public:
 
     bool hasAccumulatedData() const;
 
-    static std::string baseVectorName( const std::string& vectorName );
+    static std::string baseVectorName( const std::string_view vectorName );
 
     auto operator<=>( const RifEclipseSummaryAddress& rhs ) const = default;
 
     bool isCalculated() const;
 
     std::string                formatUiTextRegionToRegion() const;
-    static std::pair<int, int> regionToRegionPairFromUiText( const std::string& s );
+    static std::pair<int, int> regionToRegionPairFromUiText( const std::string_view s );
 
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 
     bool                             isValidEclipseCategory() const;
-    static std::tuple<int, int, int> ijkTupleFromUiText( const std::string& s );
+    static std::tuple<int, int, int> ijkTupleFromUiText( const std::string_view s );
     void                             setCellIjk( std::tuple<int, int, int> ijk );
     void                             setCellIjk( int i, int j, int k );
 
