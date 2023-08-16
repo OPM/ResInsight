@@ -254,7 +254,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
         else
         {
             RifEclipseSummaryAddressDefines::SummaryVarCategory category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID;
-            std::string                                  secondaryIdentifier;
+            std::string secondaryIdentifier;
 
             if ( fieldNeedingOptions == &m_wellName )
             {
@@ -443,7 +443,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField != &m_vectorName )
     {
-        RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID;
+        RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategoryToModify =
+            RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID;
         if ( changedField == &m_wellName )
         {
             summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL;

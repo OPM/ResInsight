@@ -43,7 +43,8 @@ RimObservedSummaryData::RimObservedSummaryData()
     m_useCustomIdentifier.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_summaryCategory,
                        "SummaryType",
-                       caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ),
+                       caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>(
+                           RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ),
                        "Summary Type" );
     m_summaryCategory.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_identifierName, "IdentifierName", "Identifier Name" );

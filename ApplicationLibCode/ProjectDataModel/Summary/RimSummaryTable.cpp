@@ -150,9 +150,9 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
+void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*                                     summaryCase,
                                                            RifEclipseSummaryAddressDefines::SummaryVarCategory category,
-                                                           const QString&                               vectorName )
+                                                           const QString&                                      vectorName )
 {
     m_case      = summaryCase;
     m_category  = category;
@@ -622,7 +622,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReade
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
+std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*                    summaryReader,
                                                                        RifEclipseSummaryAddressDefines::SummaryVarCategory category ) const
 {
     if ( !summaryReader ) return {};

@@ -1669,7 +1669,8 @@ void RimEnsembleCurveSet::updateCurveColors()
     std::vector<RimSummaryCase*>  summaryCases;
     for ( auto& curve : m_curves )
     {
-        if ( curve->summaryAddressY().category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS ) continue;
+        if ( curve->summaryAddressY().category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS )
+            continue;
 
         curvesToColor.push_back( curve );
         summaryCases.push_back( curve->summaryCaseY() );
@@ -1854,7 +1855,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
     RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
     RimSummaryAddress*        addr  = m_yValuesSummaryAddress();
 
-    if ( !isCurvesVisible() || m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+    if ( !isCurvesVisible() || m_disableStatisticCurves || !group ||
+         addr->address().category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
         return;
 
     // Calculate

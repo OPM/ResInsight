@@ -45,8 +45,8 @@ RifReaderObservedData::~RifReaderObservedData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderObservedData::open( const QString&                               headerFileName,
-                                  const QString&                               identifierName,
+bool RifReaderObservedData::open( const QString&                                      headerFileName,
+                                  const QString&                                      identifierName,
                                   RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory )
 {
     AsciiDataParseOptions parseOptions;
@@ -154,8 +154,8 @@ std::vector<time_t> RifReaderObservedData::timeSteps( const RifEclipseSummaryAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifReaderObservedData::address( const QString&                               vectorName,
-                                                         const QString&                               identifierName,
+RifEclipseSummaryAddress RifReaderObservedData::address( const QString&                                      vectorName,
+                                                         const QString&                                      identifierName,
                                                          RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory )
 {
     std::string stdVectorName = vectorName.toStdString();

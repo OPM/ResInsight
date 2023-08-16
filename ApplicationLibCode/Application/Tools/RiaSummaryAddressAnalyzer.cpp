@@ -237,7 +237,7 @@ std::vector<std::vector<RifEclipseSummaryAddress>> RiaSummaryAddressAnalyzer::ad
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSummaryAddressDefines::SummaryVarCategory category,
-                                                                 const std::string&                           secondaryIdentifier ) const
+                                                                 const std::string& secondaryIdentifier ) const
 {
     std::vector<QString> identifierStrings;
 
@@ -312,8 +312,9 @@ std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress> RiaSummaryAddressAnalyzer::addressesForCategory( const std::set<RifEclipseSummaryAddress>& addresses,
-                                                                                       RifEclipseSummaryAddressDefines::SummaryVarCategory category )
+std::vector<RifEclipseSummaryAddress>
+    RiaSummaryAddressAnalyzer::addressesForCategory( const std::set<RifEclipseSummaryAddress>&           addresses,
+                                                     RifEclipseSummaryAddressDefines::SummaryVarCategory category )
 {
     std::vector<RifEclipseSummaryAddress> filteredAddresses;
 
@@ -474,7 +475,8 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
     {
         m_aquifers.insert( { address.aquiferNumber(), address } );
     }
-    else if ( address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD || address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC )
+    else if ( address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD ||
+              address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC )
     {
         m_otherCategory.push_back( address );
     }
