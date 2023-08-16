@@ -96,23 +96,23 @@ public:
 
     // Access methods
 
-    SummaryVarCategory category() const { return m_variableCategory; }
-    const std::string  vectorName() const { return m_vectorName; }
+    SummaryVarCategory category() const;
+    const std::string  vectorName() const;
     bool               isHistoryVector() const;
 
-    int regionNumber() const { return m_number0; }
-    int regionNumber2() const { return m_number1; }
+    int regionNumber() const;
+    int regionNumber2() const;
 
-    const std::string groupName() const { return ( m_variableCategory == SummaryVarCategory::SUMMARY_GROUP ) ? m_name : std::string(); }
-    const std::string networkName() const { return ( m_variableCategory == SummaryVarCategory::SUMMARY_NETWORK ) ? m_name : std::string(); }
-    const std::string wellName() const { return isDependentOnWellName( m_variableCategory ) ? m_name : std::string(); }
-    int               wellSegmentNumber() const { return m_number0; }
-    const std::string lgrName() const { return m_lgrName; }
-    int               cellI() const { return m_number2; }
-    int               cellJ() const { return m_number1; }
-    int               cellK() const { return m_number0; }
-    int               aquiferNumber() const { return m_number0; }
-    int               id() const { return m_id; }
+    const std::string groupName() const;
+    const std::string networkName() const;
+    const std::string wellName() const;
+    int               wellSegmentNumber() const;
+    const std::string lgrName() const;
+    int               cellI() const;
+    int               cellJ() const;
+    int               cellK() const;
+    int               aquiferNumber() const;
+    int               id() const;
     std::string       blockAsString() const;
 
     const std::string ensembleStatisticsVectorName() const;
@@ -125,20 +125,20 @@ public:
     bool        isUiTextMatchingFilterText( const QString& filterString ) const;
 
     bool isValid() const;
-    void setVectorName( const std::string& vectorName ) { m_vectorName = vectorName; }
-    void setWellName( const std::string& wellName ) { m_name = wellName; }
-    void setGroupName( const std::string& groupName ) { m_name = groupName; }
-    void setNetworkName( const std::string& networkName ) { m_name = networkName; }
-    void setRegion( int region ) { m_number0 = region; }
-    void setRegion2( int region2 ) { m_number1 = region2; }
-    void setAquiferNumber( int aquiferNumber ) { m_number0 = aquiferNumber; }
+    void setVectorName( const std::string& vectorName );
+    void setWellName( const std::string& wellName );
+    void setGroupName( const std::string& groupName );
+    void setNetworkName( const std::string& networkName );
+    void setRegion( int region );
+    void setRegion2( int region2 );
+    void setAquiferNumber( int aquiferNumber );
     void setCellIjk( const std::string& uiText );
-    void setWellSegmentNumber( int segment ) { m_number0 = segment; }
+    void setWellSegmentNumber( int segment );
 
-    void setAsErrorResult() { m_isErrorResult = true; }
-    bool isErrorResult() const { return m_isErrorResult; }
+    void setAsErrorResult();
+    bool isErrorResult() const;
 
-    void setId( int id ) { m_id = id; }
+    void setId( int id );
 
     bool hasAccumulatedData() const;
 
@@ -175,5 +175,4 @@ private:
 };
 
 QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj );
-
 QTextStream& operator>>( QTextStream& str, RifEclipseSummaryAddress& sobj );

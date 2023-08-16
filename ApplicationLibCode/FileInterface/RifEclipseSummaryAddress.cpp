@@ -452,7 +452,7 @@ std::string RifEclipseSummaryAddress::generateStringFromAddresses( const std::ve
                                                                    const std::string                            jointString )
 {
     std::string addrString;
-    for ( RifEclipseSummaryAddress address : addressVector )
+    for ( const RifEclipseSummaryAddress& address : addressVector )
     {
         if ( addrString.length() > 0 )
         {
@@ -486,11 +486,126 @@ bool RifEclipseSummaryAddress::isDependentOnWellName( SummaryVarCategory categor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddressDefines::SummaryVarCategory RifEclipseSummaryAddress::category() const
+{
+    return m_variableCategory;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::string RifEclipseSummaryAddress::vectorName() const
+{
+    return m_vectorName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::isHistoryVector() const
 {
     const std::string historyIdentifier = "H";
 
     return RiaStdStringTools::endsWith( m_vectorName, historyIdentifier );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseSummaryAddress::regionNumber() const
+{
+    return m_number0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseSummaryAddress::regionNumber2() const
+{
+    return m_number1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::string RifEclipseSummaryAddress::groupName() const
+{
+    return ( m_variableCategory == SummaryVarCategory::SUMMARY_GROUP ) ? m_name : std::string();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::string RifEclipseSummaryAddress::networkName() const
+{
+    return ( m_variableCategory == SummaryVarCategory::SUMMARY_NETWORK ) ? m_name : std::string();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::string RifEclipseSummaryAddress::wellName() const
+{
+    return isDependentOnWellName( m_variableCategory ) ? m_name : std::string();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseSummaryAddress::wellSegmentNumber() const
+{
+    return m_number0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::string RifEclipseSummaryAddress::lgrName() const
+{
+    return m_lgrName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseSummaryAddress::cellI() const
+{
+    // IJK is stored in the order KJI to be able to sort the addresses by KJI
+    return m_number2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseSummaryAddress::cellJ() const
+{
+    // IJK is stored in the order KJI to be able to sort the addresses by KJI
+    return m_number1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseSummaryAddress::cellK() const
+{
+    // IJK is stored in the order KJI to be able to sort the addresses by KJI
+    return m_number0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseSummaryAddress::aquiferNumber() const
+{
+    return m_number0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseSummaryAddress::id() const
+{
+    return m_id;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -654,10 +769,9 @@ bool RifEclipseSummaryAddress::isUiTextMatchingFilterText( const QString& filter
     if ( filterString.isEmpty() ) return true;
     if ( filterString.trimmed() == "*" )
     {
-        if ( !value.empty() )
-            return true;
-        else
-            return false;
+        if ( !value.empty() ) return true;
+
+        return false;
     }
 
     QRegExp searcher( filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
@@ -687,35 +801,35 @@ bool RifEclipseSummaryAddress::isValid() const
             return true;
 
         case SummaryVarCategory::SUMMARY_GROUP:
-            if ( m_name.size() == 0 ) return false;
+            if ( m_name.empty() ) return false;
             return true;
 
         case SummaryVarCategory::SUMMARY_WELL:
-            if ( m_name.size() == 0 ) return false;
+            if ( m_name.empty() ) return false;
             return true;
 
         case SummaryVarCategory::SUMMARY_WELL_COMPLETION:
-            if ( m_name.size() == 0 ) return false;
+            if ( m_name.empty() ) return false;
             if ( m_number0 == -1 ) return false;
             if ( m_number1 == -1 ) return false;
             if ( m_number2 == -1 ) return false;
             return true;
 
         case SummaryVarCategory::SUMMARY_WELL_LGR:
-            if ( m_lgrName.size() == 0 ) return false;
-            if ( m_name.size() == 0 ) return false;
+            if ( m_lgrName.empty() ) return false;
+            if ( m_name.empty() ) return false;
             return true;
 
         case SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR:
-            if ( m_lgrName.size() == 0 ) return false;
-            if ( m_name.size() == 0 ) return false;
+            if ( m_lgrName.empty() ) return false;
+            if ( m_name.empty() ) return false;
             if ( m_number0 == -1 ) return false;
             if ( m_number1 == -1 ) return false;
             if ( m_number2 == -1 ) return false;
             return true;
 
         case SummaryVarCategory::SUMMARY_WELL_SEGMENT:
-            if ( m_name.size() == 0 ) return false;
+            if ( m_name.empty() ) return false;
             if ( m_number0 == -1 ) return false;
             return true;
 
@@ -726,7 +840,7 @@ bool RifEclipseSummaryAddress::isValid() const
             return true;
 
         case SummaryVarCategory::SUMMARY_BLOCK_LGR:
-            if ( m_lgrName.size() == 0 ) return false;
+            if ( m_lgrName.empty() ) return false;
             if ( m_number0 == -1 ) return false;
             if ( m_number1 == -1 ) return false;
             if ( m_number2 == -1 ) return false;
@@ -738,6 +852,62 @@ bool RifEclipseSummaryAddress::isValid() const
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setVectorName( const std::string& vectorName )
+{
+    m_vectorName = vectorName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setWellName( const std::string& wellName )
+{
+    m_name = wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setGroupName( const std::string& groupName )
+{
+    m_name = groupName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setNetworkName( const std::string& networkName )
+{
+    m_name = networkName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setRegion( int region )
+{
+    m_number0 = region;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setRegion2( int region2 )
+{
+    m_number1 = region2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setAquiferNumber( int aquiferNumber )
+{
+    m_number0 = aquiferNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -772,6 +942,38 @@ void RifEclipseSummaryAddress::setCellIjk( std::tuple<int, int, int> ijk )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setWellSegmentNumber( int segment )
+{
+    m_number0 = segment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setAsErrorResult()
+{
+    m_isErrorResult = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isErrorResult() const
+{
+    return m_isErrorResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseSummaryAddress::setId( int id )
+{
+    m_id = id;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::hasAccumulatedData() const
 {
     if ( !isValidEclipseCategory() ) return false;
@@ -799,10 +1001,7 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector<std::string>& tokens )
 {
-    if ( tokens.empty() )
-    {
-        return RifEclipseSummaryAddress();
-    }
+    if ( tokens.empty() ) return {};
 
     std::string vectorName;
     std::string token1;
