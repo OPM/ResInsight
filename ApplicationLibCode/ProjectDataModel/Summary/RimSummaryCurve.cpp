@@ -798,7 +798,7 @@ double RimSummaryCurve::computeCurveZValue()
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED );
         }
-        else if ( sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
+        else if ( sumAddr.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS )
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE );
         }

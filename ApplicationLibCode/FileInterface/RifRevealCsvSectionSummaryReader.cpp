@@ -52,7 +52,7 @@ RifRevealCsvSectionSummaryReader::~RifRevealCsvSectionSummaryReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifRevealCsvSectionSummaryReader::parse( const QString& text, RifEclipseSummaryAddress::SummaryVarCategory defaultCategory, QString* errorText )
+bool RifRevealCsvSectionSummaryReader::parse( const QString& text, RifEclipseSummaryAddressDefines::SummaryVarCategory defaultCategory, QString* errorText )
 {
     m_allResultAddresses.clear();
     m_mapFromAddressToResultIndex.clear();
@@ -80,7 +80,7 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString& text, RifEclipseSum
                                                                   { "1000Sm3/d", { "SM3/DAY", 1000.0 } },
                                                                   { "MSm3", { "SM3", 1000000.0 } } };
 
-    QString prefix = defaultCategory == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD ? "F" : "W";
+    QString prefix = defaultCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD ? "F" : "W";
 
     std::map<QString, QString> nameMapping = { { "WaterCut", prefix + "WCT" },           { "GOR", prefix + "GOR" },
                                                { "BottomHolePressure", prefix + "BHP" }, { "CumLiquidInjected", prefix + "LIT" },

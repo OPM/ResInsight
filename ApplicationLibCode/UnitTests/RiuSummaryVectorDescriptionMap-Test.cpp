@@ -11,7 +11,7 @@ TEST( RiuSummaryQuantityNameInfoProvider, TestInit )
     {
         std::string s( "SRSFC" );
         auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
-        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT );
 
         auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( s );
         EXPECT_TRUE( longName == "Reach brine concentration" );
@@ -27,7 +27,7 @@ TEST( RiuSummaryQuantityNameInfoProvider, TestInit )
     {
         std::string s( "does not exist" );
         auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
-        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_INVALID );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID );
 
         auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( s );
 
@@ -57,7 +57,7 @@ TEST( RiuSummaryQuantityNameInfoProvider, TestCustomNaming )
     {
         std::string s( "SRSFCABC" );
         auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
-        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT );
 
         auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( s );
         EXPECT_TRUE( longName == "Reach brine concentration" );
@@ -79,13 +79,13 @@ TEST( RiuSummaryQuantityNameInfoProvider, Test6x )
     {
         std::string s( "GLIT" );
         auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
-        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_GROUP );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP );
     }
 
     {
         std::string s( "WSBVPROP" );
         auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
-        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL );
     }
 }
 

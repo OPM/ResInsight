@@ -516,7 +516,7 @@ QList<caf::PdmOptionItemInfo> RimSimWellInViewCollection::calculateValueOptions(
                 auto addresses = summaryCase->summaryReader()->allResultAddresses();
                 for ( auto addr : addresses )
                 {
-                    if ( addr.category() == RifEclipseSummaryAddress::SUMMARY_WELL )
+                    if ( addr.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL )
                     {
                         summaries.insert( addr.vectorName() );
                     }

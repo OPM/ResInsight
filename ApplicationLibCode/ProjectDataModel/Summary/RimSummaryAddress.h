@@ -60,7 +60,7 @@ public:
 
     RiaDefines::PhaseType addressPhaseType() const;
 
-    QString keywordForCategory( RifEclipseSummaryAddress::SummaryVarCategory category ) const;
+    QString keywordForCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory category ) const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -68,7 +68,7 @@ protected:
     QString iconResourceText() const;
 
 private:
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>> m_category;
 
     caf::PdmField<QString> m_vectorName;
     caf::PdmField<int>     m_regionNumber;

@@ -27,7 +27,7 @@ TEST( RifRevealCsvSectionSummaryReaderTest, ExpectedText )
     QString                          errorMessage;
     RifRevealCsvSectionSummaryReader reader;
 
-    bool isOk = reader.parse( fileContents, RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL, &errorMessage );
+    bool isOk = reader.parse( fileContents, RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL, &errorMessage );
     ASSERT_TRUE( isOk );
 
     EXPECT_TRUE( errorMessage.isEmpty() );
@@ -46,6 +46,6 @@ TEST( RifRevealCsvSectionSummaryReaderTest, EmptyText )
     QString fileContents = "";
     QString errorMessage;
 
-    bool isOk = reader.parse( fileContents, RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC, &errorMessage );
+    bool isOk = reader.parse( fileContents, RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC, &errorMessage );
     ASSERT_FALSE( isOk );
 }

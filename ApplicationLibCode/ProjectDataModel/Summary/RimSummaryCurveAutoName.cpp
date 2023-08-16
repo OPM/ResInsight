@@ -215,7 +215,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
             }
         }
 
-        if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
+        if ( summaryAddress.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS )
         {
             text = summaryAddress.vectorName();
         }
@@ -265,7 +265,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
 {
     switch ( summaryAddress.category() )
     {
-        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER:
         {
             if ( m_aquiferNumber )
             {
@@ -274,7 +274,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION:
         {
             if ( m_regionNumber )
             {
@@ -287,7 +287,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION:
         {
             if ( m_regionNumber )
             {
@@ -297,7 +297,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_GROUP:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP:
         {
             if ( m_groupName )
             {
@@ -310,7 +310,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_NETWORK:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK:
         {
             bool skipSubString = nameHelper && nameHelper->isNetworkInTitle();
             if ( !skipSubString )
@@ -320,12 +320,12 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL:
         {
             appendWellName( text, summaryAddress, nameHelper );
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION:
         {
             appendWellName( text, summaryAddress, nameHelper );
 
@@ -341,13 +341,13 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR:
         {
             appendLgrName( text, summaryAddress );
             appendWellName( text, summaryAddress, nameHelper );
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR:
         {
             appendLgrName( text, summaryAddress );
             appendWellName( text, summaryAddress, nameHelper );
@@ -364,7 +364,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT:
         {
             appendWellName( text, summaryAddress, nameHelper );
 
@@ -379,7 +379,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK:
         {
             if ( m_completion )
             {
@@ -393,7 +393,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR:
         {
             appendLgrName( text, summaryAddress );
 

@@ -55,9 +55,9 @@ void RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( QList<caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmOptionItemInfo RiaOptionItemFactory::optionItemFromSummaryType( RifEclipseSummaryAddress::SummaryVarCategory summaryType )
+caf::PdmOptionItemInfo RiaOptionItemFactory::optionItemFromSummaryType( RifEclipseSummaryAddressDefines::SummaryVarCategory summaryType )
 {
-    auto uiText = caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText( summaryType );
+    auto uiText = caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>::uiText( summaryType );
 
     // Use icons from https://github.com/equinor/webviz-subsurface-components
 
@@ -65,55 +65,55 @@ caf::PdmOptionItemInfo RiaOptionItemFactory::optionItemFromSummaryType( RifEclip
 
     switch ( summaryType )
     {
-        case RifEclipseSummaryAddress::SUMMARY_INVALID:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID:
             iconText = ":/summary/components/images/invalid.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_FIELD:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD:
             iconText = ":/summary/components/images/field.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER:
             iconText = ":/summary/components/images/aquifer.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_NETWORK:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK:
             iconText = ":/summary/components/images/network.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_MISC:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC:
             iconText = ":/summary/components/images/misc.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION:
             iconText = ":/summary/components/images/region.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION:
             iconText = ":/summary/components/images/region-region.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_GROUP:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP:
             iconText = ":/summary/components/images/group.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL:
             iconText = ":/summary/components/images/well.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION:
             iconText = ":/summary/components/images/well-completion.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR:
             iconText = ":/summary/components/images/well.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR:
             iconText = ":/summary/components/images/well-completion.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT:
             iconText = ":/summary/components/images/segment.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK:
             iconText = ":/summary/components/images/block.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR:
             iconText = ":/summary/components/images/block.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_IMPORTED:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_IMPORTED:
             iconText = ":/summary/components/images/others.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS:
             break;
     }
 

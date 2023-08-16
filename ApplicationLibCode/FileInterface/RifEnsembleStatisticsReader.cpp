@@ -111,5 +111,5 @@ RiaDefines::EclipseUnitSystem RifEnsembleStatisticsReader::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 bool RifEnsembleStatisticsReader::validateAddress( const RifEclipseSummaryAddress& address ) const
 {
-    return address.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS && !address.vectorName().empty();
+    return address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS && !address.vectorName().empty();
 }

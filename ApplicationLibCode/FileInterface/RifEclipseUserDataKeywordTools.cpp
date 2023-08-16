@@ -166,9 +166,9 @@ bool RifEclipseUserDataKeywordTools::isYearX( const std::string& identifier )
 RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( const std::string               quantityName,
                                                                              const std::vector<std::string>& columnHeaderText )
 {
-    RifEclipseSummaryAddress::SummaryVarCategory category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( quantityName );
+    RifEclipseSummaryAddressDefines::SummaryVarCategory category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( quantityName );
 
-    if ( category == RifEclipseSummaryAddress::SUMMARY_INVALID )
+    if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
     {
         return RifEclipseSummaryAddress::importedAddress( quantityName );
     }
@@ -189,9 +189,9 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
 
     switch ( category )
     {
-        case RifEclipseSummaryAddress::SUMMARY_FIELD:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD:
             break;
-        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER:
         {
             if ( columnHeaderText.size() > 0 )
             {
@@ -199,11 +199,11 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             }
             break;
         }
-        case RifEclipseSummaryAddress::SUMMARY_NETWORK:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK:
             break;
-        case RifEclipseSummaryAddress::SUMMARY_MISC:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC:
             break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION:
         {
             if ( columnHeaderText.size() > 0 )
             {
@@ -211,9 +211,9 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             }
             break;
         }
-        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION:
             break;
-        case RifEclipseSummaryAddress::SUMMARY_GROUP:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP:
         {
             if ( columnHeaderText.size() > 0 )
             {
@@ -221,7 +221,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             }
             break;
         }
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL:
         {
             if ( columnHeaderText.size() > 0 )
             {
@@ -229,7 +229,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             }
             break;
         }
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION:
         {
             if ( columnHeaderText.size() > 1 )
             {
@@ -240,14 +240,14 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             break;
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR:
             if ( columnHeaderText.size() > 1 )
             {
                 wellName = columnHeaderText[0];
                 lgrName  = columnHeaderText[1];
             }
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR:
             if ( columnHeaderText.size() > 2 )
             {
                 wellName = columnHeaderText[0];
@@ -256,20 +256,20 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                 RifEclipseUserDataKeywordTools::extractThreeInts( &cellI, &cellJ, &cellK, columnHeaderText[2] );
             }
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT:
             if ( columnHeaderText.size() > 1 )
             {
                 wellName          = columnHeaderText[0];
                 wellSegmentNumber = RiaStdStringTools::toInt( columnHeaderText[1] );
             }
             break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK:
             if ( columnHeaderText.size() > 0 )
             {
                 RifEclipseUserDataKeywordTools::extractThreeInts( &cellI, &cellJ, &cellK, columnHeaderText[0] );
             }
             break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR:
             if ( columnHeaderText.size() > 1 )
             {
                 lgrName = columnHeaderText[0];

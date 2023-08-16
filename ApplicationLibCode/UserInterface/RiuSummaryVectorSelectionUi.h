@@ -94,9 +94,9 @@ private:
                                                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const;
 
     std::set<RifEclipseSummaryAddress> buildAddressListFromSelections() const;
-    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddress::SummaryVarCategory            category,
+    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddressDefines::SummaryVarCategory     category,
                                                                                std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
-                                                                               std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
+                                                                               std::vector<std::pair<RifEclipseSummaryAddressDefines::SummaryIdentifierType, QString>>& identifierPath,
                                                                                std::set<RifEclipseSummaryAddress>& addressSet ) const;
 
     void resetAllFields();
@@ -112,10 +112,10 @@ private:
 private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
 
-    caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>> m_selectedSummaryCategories;
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>              m_currentSummaryCategory;
+    caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>>> m_selectedSummaryCategories;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>>              m_currentSummaryCategory;
 
-    std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>> m_identifierFieldsMap;
+    std::map<RifEclipseSummaryAddressDefines::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>> m_identifierFieldsMap;
 
     bool m_multiSelectionMode;
 

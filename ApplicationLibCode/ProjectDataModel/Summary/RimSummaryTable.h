@@ -58,9 +58,9 @@ public:
     ~RimSummaryTable() override;
 
     void    setDefaultCaseAndCategoryAndVectorName();
-    void    setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
-                                                 RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                 const QString&                               vectorName );
+    void    setFromCaseAndCategoryAndVectorName( RimSummaryCase*                                     summaryCase,
+                                                 RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                                 const QString&                                      vectorName );
     void    setDescription( const QString& description );
     QString description() const override;
 
@@ -97,11 +97,11 @@ private:
     std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
     QString                   dateFormatString() const;
 
-    std::set<RifEclipseSummaryAddress> getSummaryAddressesFromReader( const RifSummaryReaderInterface*             summaryReader,
-                                                                      RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                                      const QString&                               vector ) const;
-    std::set<QString>                  getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
-                                                                           RifEclipseSummaryAddress::SummaryVarCategory category ) const;
+    std::set<RifEclipseSummaryAddress> getSummaryAddressesFromReader( const RifSummaryReaderInterface*                    summaryReader,
+                                                                      RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                                                      const QString&                                      vector ) const;
+    std::set<QString>                  getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*                    summaryReader,
+                                                                           RifEclipseSummaryAddressDefines::SummaryVarCategory category ) const;
     QString                            getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const;
 
     std::vector<RimSummaryCase*> getToplevelSummaryCases() const;
@@ -114,10 +114,10 @@ private:
     caf::PdmField<bool>               m_isAutomaticName;
     caf::PdmPtrField<RimSummaryCase*> m_case;
 
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;
-    caf::PdmField<QString>                                                    m_vector;
-    caf::PdmField<caf::AppEnum<RiaDefines::DateTimePeriod>>                   m_resamplingSelection;
-    caf::PdmField<double>                                                     m_thresholdValue;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>> m_category;
+    caf::PdmField<QString>                                                           m_vector;
+    caf::PdmField<caf::AppEnum<RiaDefines::DateTimePeriod>>                          m_resamplingSelection;
+    caf::PdmField<double>                                                            m_thresholdValue;
 
     caf::PdmField<std::vector<QString>> m_excludedRowsUiField;
 

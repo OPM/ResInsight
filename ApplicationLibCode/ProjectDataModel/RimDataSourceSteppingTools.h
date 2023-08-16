@@ -18,10 +18,12 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include "cafPdmUiItem.h"
 #include "cafPdmValueField.h"
+
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
@@ -34,10 +36,10 @@ public:
                                     int                                  indexOffset,
                                     bool                                 notifyChange = true );
 
-    static bool updateAddressIfMatching( const QVariant&                              oldValue,
-                                         const QVariant&                              newValue,
-                                         RifEclipseSummaryAddress::SummaryVarCategory category,
-                                         RifEclipseSummaryAddress*                    adr );
+    static bool updateAddressIfMatching( const QVariant&                                     oldValue,
+                                         const QVariant&                                     newValue,
+                                         RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                         RifEclipseSummaryAddress*                           adr );
 
     static bool updateHistoryAndSummaryQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr );
 
