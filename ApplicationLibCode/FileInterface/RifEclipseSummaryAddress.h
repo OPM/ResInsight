@@ -22,13 +22,11 @@
 #include <string>
 #include <vector>
 
+#include "RifEclipseSummaryAddressDefines.h"
+using namespace RifEclipseSummaryAddressDefines;
+
 class QTextStream;
 class QString;
-
-#define ENSEMBLE_STAT_P10_QUANTITY_NAME "P10"
-#define ENSEMBLE_STAT_P50_QUANTITY_NAME "P50"
-#define ENSEMBLE_STAT_P90_QUANTITY_NAME "P90"
-#define ENSEMBLE_STAT_MEAN_QUANTITY_NAME "MEAN"
 
 //==================================================================================================
 //
@@ -36,44 +34,6 @@ class QString;
 //==================================================================================================
 class RifEclipseSummaryAddress
 {
-public:
-    // Based on list in ecl_smspec.c and list of types taken from Eclipse Reference Manual ecl_rm_2011.1.pdf
-    enum SummaryVarCategory : int8_t
-    {
-        SUMMARY_INVALID,
-        SUMMARY_FIELD,
-        SUMMARY_AQUIFER,
-        SUMMARY_NETWORK,
-        SUMMARY_MISC,
-        SUMMARY_REGION,
-        SUMMARY_REGION_2_REGION,
-        SUMMARY_GROUP,
-        SUMMARY_WELL,
-        SUMMARY_WELL_COMPLETION,
-        SUMMARY_WELL_LGR,
-        SUMMARY_WELL_COMPLETION_LGR,
-        SUMMARY_WELL_SEGMENT,
-        SUMMARY_BLOCK,
-        SUMMARY_BLOCK_LGR,
-        SUMMARY_IMPORTED,
-        SUMMARY_ENSEMBLE_STATISTICS
-    };
-
-    enum SummaryIdentifierType
-    {
-        INPUT_REGION_NUMBER,
-        INPUT_REGION_2_REGION,
-        INPUT_WELL_NAME,
-        INPUT_GROUP_NAME,
-        INPUT_NETWORK_NAME,
-        INPUT_CELL_IJK,
-        INPUT_LGR_NAME,
-        INPUT_SEGMENT_NUMBER,
-        INPUT_AQUIFER_NUMBER,
-        INPUT_VECTOR_NAME,
-        INPUT_ID
-    };
-
 public:
     RifEclipseSummaryAddress();
 
@@ -132,7 +92,7 @@ public:
     static std::string generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,
                                                     const std::string                            jointString = "; " );
 
-    static bool isDependentOnWellName( SummaryVarCategory category );
+    static bool isDependentOnWellName( RifEclipseSummaryAddressDefines::SummaryVarCategory category );
 
     // Access methods
 
@@ -143,17 +103,17 @@ public:
     int regionNumber() const { return m_number0; }
     int regionNumber2() const { return m_number1; }
 
-    const std::string groupName() const { return ( m_variableCategory == SUMMARY_GROUP ) ? m_name : std::string(); }
-    const std::string networkName() const { return ( m_variableCategory == SUMMARY_NETWORK ) ? m_name : std::string(); }
+    const std::string groupName() const { return ( m_variableCategory == SummaryVarCategory::SUMMARY_GROUP ) ? m_name : std::string(); }
+    const std::string networkName() const { return ( m_variableCategory == SummaryVarCategory::SUMMARY_NETWORK ) ? m_name : std::string(); }
     const std::string wellName() const { return isDependentOnWellName( m_variableCategory ) ? m_name : std::string(); }
-    int                    wellSegmentNumber() const { return m_number0; }
+    int               wellSegmentNumber() const { return m_number0; }
     const std::string lgrName() const { return m_lgrName; }
-    int                    cellI() const { return m_number2; }
-    int                    cellJ() const { return m_number1; }
-    int                    cellK() const { return m_number0; }
-    int                    aquiferNumber() const { return m_number0; }
-    int                    id() const { return m_id; }
-    std::string            blockAsString() const;
+    int               cellI() const { return m_number2; }
+    int               cellJ() const { return m_number1; }
+    int               cellK() const { return m_number0; }
+    int               aquiferNumber() const { return m_number0; }
+    int               id() const { return m_id; }
+    std::string       blockAsString() const;
 
     const std::string ensembleStatisticsVectorName() const;
 
@@ -161,7 +121,7 @@ public:
 
     std::string uiText() const;
     std::string itemUiText() const;
-    std::string addressComponentUiText( RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput ) const;
+    std::string addressComponentUiText( SummaryIdentifierType itemTypeInput ) const;
     bool        isUiTextMatchingFilterText( const QString& filterString ) const;
 
     bool isValid() const;
