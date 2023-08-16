@@ -39,8 +39,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
     , m_isErrorResult( false )
     , m_id( -1 )
 {
-    std::tuple<int, int, int> ijkTuple;
-    std::pair<int, int>       reg2regPair;
+    std::pair<int, int> reg2regPair;
     switch ( category )
     {
         case SUMMARY_REGION:
