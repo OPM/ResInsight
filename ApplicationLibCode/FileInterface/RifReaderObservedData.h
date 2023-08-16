@@ -52,8 +52,9 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
-    RifEclipseSummaryAddress
-        address( const QString& vectorName, const QString& identifierName, RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory );
+    RifEclipseSummaryAddress address( const QString&                                      vectorName,
+                                      const QString&                                      identifierName,
+                                      RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory );
 
 private:
     std::unique_ptr<RifCsvUserDataParser> m_asciiParser;

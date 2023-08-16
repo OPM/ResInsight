@@ -263,13 +263,15 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         newValue                 = address.aquiferNumber();
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION || category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION ||
+              category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.blockAsString() );
         newValue                 = QString::fromStdString( address.blockAsString() );
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC || category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD ||
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC ||
+              category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD ||
               category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_IMPORTED )
     {
         // No need to do anything for these types
@@ -492,7 +494,7 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculationAddress>
     RimSummaryCalculation::allAddressesForCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory category,
-                                                    const std::set<RifEclipseSummaryAddress>&    allResultAddresses ) const
+                                                    const std::set<RifEclipseSummaryAddress>&           allResultAddresses ) const
 {
     std::vector<RimSummaryCalculationAddress> addresses;
 

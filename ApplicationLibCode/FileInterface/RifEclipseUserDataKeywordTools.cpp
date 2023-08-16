@@ -166,7 +166,8 @@ bool RifEclipseUserDataKeywordTools::isYearX( const std::string& identifier )
 RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( const std::string               quantityName,
                                                                              const std::vector<std::string>& columnHeaderText )
 {
-    RifEclipseSummaryAddressDefines::SummaryVarCategory category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( quantityName );
+    RifEclipseSummaryAddressDefines::SummaryVarCategory category =
+        RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( quantityName );
 
     if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
     {

@@ -74,10 +74,10 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                              oldValue,
-                                                          const QVariant&                              newValue,
+bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                                     oldValue,
+                                                          const QVariant&                                     newValue,
                                                           RifEclipseSummaryAddressDefines::SummaryVarCategory category,
-                                                          RifEclipseSummaryAddress*                    adr )
+                                                          RifEclipseSummaryAddress*                           adr )
 {
     if ( !adr ) return false;
 
@@ -141,7 +141,8 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK || category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK ||
+              category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();

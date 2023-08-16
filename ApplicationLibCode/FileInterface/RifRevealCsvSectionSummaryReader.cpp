@@ -52,7 +52,9 @@ RifRevealCsvSectionSummaryReader::~RifRevealCsvSectionSummaryReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifRevealCsvSectionSummaryReader::parse( const QString& text, RifEclipseSummaryAddressDefines::SummaryVarCategory defaultCategory, QString* errorText )
+bool RifRevealCsvSectionSummaryReader::parse( const QString&                                      text,
+                                              RifEclipseSummaryAddressDefines::SummaryVarCategory defaultCategory,
+                                              QString*                                            errorText )
 {
     m_allResultAddresses.clear();
     m_mapFromAddressToResultIndex.clear();

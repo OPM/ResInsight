@@ -108,20 +108,20 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
     }
 
     RifEclipseSummaryAddressDefines::SummaryVarCategory sumCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID );
-    std::string                                  quantityName;
-    int                                          regionNumber( -1 );
-    int                                          regionNumber2( -1 );
-    std::string                                  groupName;
-    std::string                                  networkName;
-    std::string                                  wellName;
-    int                                          wellSegmentNumber( -1 );
-    std::string                                  lgrName;
-    int                                          cellI( -1 );
-    int                                          cellJ( -1 );
-    int                                          cellK( -1 );
-    int                                          aquiferNumber( -1 );
-    bool                                         isErrorResult( false );
-    int                                          id( -1 );
+    std::string                                         quantityName;
+    int                                                 regionNumber( -1 );
+    int                                                 regionNumber2( -1 );
+    std::string                                         groupName;
+    std::string                                         networkName;
+    std::string                                         wellName;
+    int                                                 wellSegmentNumber( -1 );
+    std::string                                         lgrName;
+    int                                                 cellI( -1 );
+    int                                                 cellJ( -1 );
+    int                                                 cellK( -1 );
+    int                                                 aquiferNumber( -1 );
+    bool                                                isErrorResult( false );
+    int                                                 id( -1 );
 
     quantityName = stringFromPointer( ertSumVarNode.get_keyword() );
 
