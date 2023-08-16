@@ -27,7 +27,7 @@
 #include <QString>
 
 class RimSeismicView;
-class RimSeismicData;
+class RimSeismicDataInterface;
 
 class RimSeismicViewCollection : public caf::PdmObject
 {
@@ -39,7 +39,7 @@ public:
 
     bool isEmpty();
 
-    RimSeismicView* addView( RimSeismicData* data, RiaDefines::SeismicSectionType defaultSection );
+    RimSeismicView* addView( RimSeismicDataInterface* data, RiaDefines::SeismicSectionType defaultSection );
 
     std::vector<RimSeismicView*> views() const;
 

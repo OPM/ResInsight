@@ -27,7 +27,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
-#include "RimSeismicData.h"
+#include "RimSeismicDataInterface.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSurfaceCollection.h"
@@ -93,7 +93,7 @@ RimSeismicView::~RimSeismicView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicView::setSeismicData( RimSeismicData* data )
+void RimSeismicView::setSeismicData( RimSeismicDataInterface* data )
 {
     m_seismicData = data;
 }
@@ -101,7 +101,7 @@ void RimSeismicView::setSeismicData( RimSeismicData* data )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicData* RimSeismicView::seismicData() const
+RimSeismicDataInterface* RimSeismicView::seismicData() const
 {
     return m_seismicData;
 }

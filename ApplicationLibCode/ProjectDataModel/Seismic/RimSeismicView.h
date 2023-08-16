@@ -27,7 +27,7 @@
 #include "cafPdmObject.h"
 
 class RimCase;
-class RimSeismicData;
+class RimSeismicDataInterface;
 class RimSurfaceInViewCollection;
 class RimSeismicSectionCollection;
 class Rim3dOverlayInfoConfig;
@@ -43,8 +43,8 @@ public:
     RimSeismicView();
     ~RimSeismicView() override;
 
-    void            setSeismicData( RimSeismicData* data );
-    RimSeismicData* seismicData() const;
+    void                     setSeismicData( RimSeismicDataInterface* data );
+    RimSeismicDataInterface* seismicData() const;
 
     void addSlice( RiaDefines::SeismicSectionType sectionType );
 
@@ -98,7 +98,7 @@ private:
 
     caf::PdmChildField<Rim3dOverlayInfoConfig*> m_overlayInfoConfig;
 
-    caf::PdmPtrField<RimSeismicData*> m_seismicData;
+    caf::PdmPtrField<RimSeismicDataInterface*> m_seismicData;
 
     cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
     cvf::ref<RivPolylinePartMgr>  m_polylinePartMgr;

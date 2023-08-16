@@ -18,6 +18,8 @@
 
 #include "RicImportSeismicFeature.h"
 
+#include "RicNewSeismicViewFeature.h"
+
 #include "RiaApplication.h"
 
 #include "RimOilField.h"
@@ -75,6 +77,8 @@ void RicImportSeismicFeature::onActionTriggered( bool isChecked )
     if ( newData )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( newData );
+
+        RicNewSeismicViewFeature::createInitialViewIfNeeded( newData );
     }
 }
 

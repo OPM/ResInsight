@@ -66,7 +66,7 @@ bool RimSeismicViewCollection::isEmpty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicView* RimSeismicViewCollection::addView( RimSeismicData* data, RiaDefines::SeismicSectionType defaultSection )
+RimSeismicView* RimSeismicViewCollection::addView( RimSeismicDataInterface* data, RiaDefines::SeismicSectionType defaultSection )
 {
     RimSeismicView* view = new RimSeismicView();
 
