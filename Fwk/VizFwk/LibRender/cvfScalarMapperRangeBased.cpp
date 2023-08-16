@@ -213,7 +213,6 @@ static double adjust(double domainValue, double decadeValue, unsigned int decade
 void ScalarMapperRangeBased::majorTickValues( std::vector<double>* domainValues) const
 {
     CVF_ASSERT(domainValues != NULL);
-    CVF_ASSERT(m_rangeMin != cvf::UNDEFINED_DOUBLE && m_rangeMax != cvf::UNDEFINED_DOUBLE);
 
     if (m_userDefinedLevelValues.empty())
     {

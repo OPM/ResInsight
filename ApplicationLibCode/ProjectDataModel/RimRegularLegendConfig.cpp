@@ -381,6 +381,21 @@ void RimRegularLegendConfig::sendChangedSignal( const caf::PdmFieldHandle* chang
     }
 }
 
+auto computeAdjustedMinMax = []( double minimum, double maximum, double precision ) -> std::pair<double, double>
+{
+    const double threshold = 1e-9;
+
+    if ( std::fabs( maximum - minimum ) < threshold )
+    {
+        return std::make_pair( minimum, maximum );
+    }
+
+    auto adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( minimum, precision );
+    auto adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( maximum, precision );
+
+    return std::make_pair( adjustedMin, adjustedMax );
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -403,24 +418,21 @@ void RimRegularLegendConfig::updateLegend()
 
     if ( m_rangeMode == RangeModeType::AUTOMATIC_ALLTIMESTEPS )
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( m_globalAutoMin, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( m_globalAutoMax, m_precision );
+        std::tie( adjustedMin, adjustedMax ) = computeAdjustedMinMax( m_globalAutoMin, m_globalAutoMax, m_precision );
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
     }
     else if ( m_rangeMode == RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( m_localAutoMin, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( m_localAutoMax, m_precision );
+        std::tie( adjustedMin, adjustedMax ) = computeAdjustedMinMax( m_localAutoMin, m_localAutoMax, m_precision );
 
         posClosestToZero = m_localAutoPosClosestToZero;
         negClosestToZero = m_localAutoNegClosestToZero;
     }
     else
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( m_userDefinedMinValue, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( m_userDefinedMaxValue, m_precision );
+        std::tie( adjustedMin, adjustedMax ) = computeAdjustedMinMax( m_userDefinedMinValue, m_userDefinedMaxValue, m_precision );
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
@@ -626,17 +638,8 @@ void RimRegularLegendConfig::disableAllTimeStepsRange( bool doDisable )
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setAutomaticRanges( double globalMin, double globalMax, double localMin, double localMax )
 {
-    double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( globalMin, m_precision );
-    double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( globalMax, m_precision );
-
-    double candidateLocalAutoMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( localMin, m_precision );
-    double candidateLocalAutoMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( localMax, m_precision );
-
-    m_globalAutoMin = candidateGlobalAutoMin;
-    m_globalAutoMax = candidateGlobalAutoMax;
-
-    m_localAutoMin = candidateLocalAutoMin;
-    m_localAutoMax = candidateLocalAutoMax;
+    std::tie( m_globalAutoMin, m_globalAutoMax ) = computeAdjustedMinMax( globalMin, globalMax, m_precision );
+    std::tie( m_localAutoMin, m_localAutoMax )   = computeAdjustedMinMax( localMin, localMax, m_precision );
 
     updateLegend();
 }
