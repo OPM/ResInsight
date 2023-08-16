@@ -96,6 +96,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCalculatedCurve-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumericalTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
