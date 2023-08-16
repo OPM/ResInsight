@@ -21,8 +21,6 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "RimPlot.h"
 #include "RimSummaryDataSourceStepping.h"
 
@@ -62,6 +60,7 @@ class RimPlotTemplateFileItem;
 class RimSummaryPlotSourceStepping;
 class RimTimeAxisAnnotation;
 class RiaSummaryCurveDefinition;
+class RifEclipseSummaryAddress;
 
 class QwtInterval;
 class QwtPlotCurve;

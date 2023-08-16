@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -38,6 +38,7 @@ class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
 class RiaCurveSetDefinition;
 class SummaryIdentifierAndField;
+class RifEclipseSummaryAddress;
 
 using SummarySource = caf::PdmObject;
 

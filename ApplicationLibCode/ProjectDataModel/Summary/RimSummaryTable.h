@@ -22,7 +22,7 @@
 
 #include "RiaDateTimeDefines.h"
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryTableTools.h"

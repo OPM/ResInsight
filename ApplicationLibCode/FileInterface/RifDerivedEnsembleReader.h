@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
 class RimDerivedSummaryCase;
 class RimSummaryCase;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
