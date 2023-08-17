@@ -174,11 +174,6 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
-    if ( m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject() )
-    {
-        m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
-    }
-
     auto sumPlotManager = dynamic_cast<RimSummaryPlotManager*>( m_summaryPlotManager.get() );
     if ( sumPlotManager )
     {
