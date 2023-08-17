@@ -18,10 +18,10 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
 #include "RimPlotCurve.h"
 
 #include "RifCsvUserDataParser.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"

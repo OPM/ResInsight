@@ -17,12 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-
 #include <QString>
 
 #include <set>
 #include <vector>
+
+class RifEclipseSummaryAddress;
 
 namespace caf
 {
@@ -49,7 +49,6 @@ public:
     };
 
     static std::vector<RimSummaryCurve*> addDefaultCurvesToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
-    static caf::PdmObject*               createDefaultSummaryPlot( RimSummaryCase* summaryCase );
 
     static void createSummaryPlotsFromArgumentLine( const QStringList& arguments );
 

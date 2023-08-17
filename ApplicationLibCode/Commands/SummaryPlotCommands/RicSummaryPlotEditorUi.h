@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RiuSummaryVectorSelectionWidgetCreator.h"
 

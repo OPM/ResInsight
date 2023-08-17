@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include <set>
 
