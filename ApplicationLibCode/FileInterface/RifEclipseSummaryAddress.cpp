@@ -570,7 +570,7 @@ const std::string RifEclipseSummaryAddress::lgrName() const
 //--------------------------------------------------------------------------------------------------
 int RifEclipseSummaryAddress::cellI() const
 {
-    // IJK is stored in the order KJI to be able to sort the addresses by KJI
+    // IJK is stored in the order KJI to be able to sort the addresses by K first
     return m_number2;
 }
 
@@ -579,7 +579,7 @@ int RifEclipseSummaryAddress::cellI() const
 //--------------------------------------------------------------------------------------------------
 int RifEclipseSummaryAddress::cellJ() const
 {
-    // IJK is stored in the order KJI to be able to sort the addresses by KJI
+    // IJK is stored in the order KJI to be able to sort the addresses by K first
     return m_number1;
 }
 
@@ -588,7 +588,7 @@ int RifEclipseSummaryAddress::cellJ() const
 //--------------------------------------------------------------------------------------------------
 int RifEclipseSummaryAddress::cellK() const
 {
-    // IJK is stored in the order KJI to be able to sort the addresses by KJI
+    // IJK is stored in the order KJI to be able to sort the addresses by K first
     return m_number0;
 }
 
