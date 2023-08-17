@@ -241,9 +241,9 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
         max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
     }
 
-    int ecl_nx = static_cast<int>( ( max.x() - min.x() ) * refinement.x() + 1 );
-    int ecl_ny = static_cast<int>( ( max.y() - min.y() ) * refinement.y() + 1 );
-    int ecl_nz = static_cast<int>( ( max.z() - min.z() ) * refinement.z() + 1 );
+    int ecl_nx = static_cast<int>( ( max.x() - min.x() + 1 ) * refinement.x() );
+    int ecl_ny = static_cast<int>( ( max.y() - min.y() + 1 ) * refinement.y() );
+    int ecl_nz = static_cast<int>( ( max.z() - min.z() + 1 ) * refinement.z() );
 
     CVF_ASSERT( ecl_nx > 0 && ecl_ny > 0 && ecl_nz > 0 );
 
@@ -273,36 +273,21 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
 
     const size_t* cellMappingECLRi = RifReaderEclipseOutput::eclipseCellIndexMapping();
 
-    int incrementalIndex = 0;
-    for ( size_t k = min.z() * refinement.z(); k <= max.z() * refinement.z(); ++k )
-    {
-        size_t mainK = k / refinement.z();
-        size_t k0    = k - min.z() * refinement.z();
-        for ( size_t j = min.y() * refinement.y(); j <= max.y() * refinement.y(); ++j )
-        {
-            size_t mainJ = j / refinement.y();
-            size_t j0    = j - min.y() * refinement.y();
-            for ( size_t i = min.x() * refinement.x(); i <= max.x() * refinement.x(); ++i )
-            {
-                size_t mainI = i / refinement.x();
-                size_t i0    = i - min.x() * refinement.x();
+    int outputCellIndex = 0;
 
-                size_t mainIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
+    for ( size_t k = 0; k <= max.z() - min.z(); ++k )
+    {
+        for ( size_t j = 0; j <= max.y() - min.y(); ++j )
+        {
+            for ( size_t i = 0; i <= max.x() - min.x(); ++i )
+            {
+                size_t mainIndex = mainGrid->cellIndexFromIJK( min.x() + i, min.y() + j, min.z() + k );
 
                 int active = activeCellInfo->isActive( mainIndex ) ? 1 : 0;
                 if ( active && cellVisibilityOverrideForActnum )
                 {
                     active = ( *cellVisibilityOverrideForActnum )[mainIndex];
                 }
-
-                int* ecl_cell_coords = new int[5];
-                ecl_cell_coords[0]   = (int)( i0 + 1 );
-                ecl_cell_coords[1]   = (int)( j0 + 1 );
-                ecl_cell_coords[2]   = (int)( k0 + 1 );
-                ecl_cell_coords[3]   = incrementalIndex++;
-                ecl_cell_coords[4]   = active;
-                ecl_coords.push_back( ecl_cell_coords );
-
                 std::array<cvf::Vec3d, 8> cellCorners;
                 mainGrid->cellCornerVertices( mainIndex, cellCorners.data() );
 
@@ -316,25 +301,40 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
 
                 auto refinedCoords = RiaCellDividingTools::createHexCornerCoords( cellCorners, refinement.x(), refinement.y(), refinement.z() );
 
-                size_t subI     = i % refinement.x();
-                size_t subJ     = j % refinement.y();
-                size_t subK     = k % refinement.z();
-                size_t subIndex = subI + subJ * refinement.x() + subK * refinement.x() * refinement.y();
-
-                float* ecl_cell_corners = new float[24];
-                for ( size_t cIdx = 0; cIdx < 8; ++cIdx )
+                for ( size_t subK = 0; subK < refinement.z(); ++subK )
                 {
-                    cvf::Vec3d cellCorner                            = refinedCoords[subIndex * 8 + cIdx];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3]     = cellCorner[0];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 1] = cellCorner[1];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 2] = -cellCorner[2];
+                    for ( size_t subJ = 0; subJ < refinement.y(); ++subJ )
+                    {
+                        for ( size_t subI = 0; subI < refinement.x(); ++subI )
+                        {
+                            int* ecl_cell_coords = new int[5];
+                            ecl_cell_coords[0]   = (int)( i * refinement.x() + subI + 1 );
+                            ecl_cell_coords[1]   = (int)( j * refinement.y() + subJ + 1 );
+                            ecl_cell_coords[2]   = (int)( k * refinement.z() + subK + 1 );
+                            ecl_cell_coords[3]   = outputCellIndex++;
+                            ecl_cell_coords[4]   = active;
+                            ecl_coords.push_back( ecl_cell_coords );
+
+                            size_t subIndex = subI + subJ * refinement.x() + subK * refinement.x() * refinement.y();
+
+                            float* ecl_cell_corners = new float[24];
+                            for ( size_t cIdx = 0; cIdx < 8; ++cIdx )
+                            {
+                                const auto cellCorner                            = refinedCoords[subIndex * 8 + cIdx];
+                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3]     = cellCorner[0];
+                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 1] = cellCorner[1];
+                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 2] = -cellCorner[2];
+                            }
+                            ecl_corners.push_back( ecl_cell_corners );
+                        }
+                    }
                 }
-                ecl_corners.push_back( ecl_cell_corners );
             }
         }
-        if ( incrementalIndex % cellProgressInterval == 0 )
+
+        if ( outputCellIndex % cellProgressInterval == 0 )
         {
-            progress.setProgress( incrementalIndex / cellsPerOriginal );
+            progress.setProgress( outputCellIndex / cellsPerOriginal );
         }
     }
 
