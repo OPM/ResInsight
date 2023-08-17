@@ -19,6 +19,7 @@
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
 #include "RifEclipseSummaryAddress.h"
+
 #include <regex>
 #include <sstream>
 

@@ -52,6 +52,8 @@
 #include <algorithm>
 #include <vector>
 
+using namespace RifEclipseSummaryAddressDefines;
+
 CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModifier" );
 
 //--------------------------------------------------------------------------------------------------
@@ -253,47 +255,47 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
         }
         else
         {
-            RifEclipseSummaryAddressDefines::SummaryVarCategory category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID;
-            std::string secondaryIdentifier;
+            SummaryVarCategory category = SummaryVarCategory::SUMMARY_INVALID;
+            std::string        secondaryIdentifier;
 
             if ( fieldNeedingOptions == &m_wellName )
             {
-                category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL;
+                category = SummaryVarCategory::SUMMARY_WELL;
             }
             else if ( fieldNeedingOptions == &m_region )
             {
-                category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION;
+                category = SummaryVarCategory::SUMMARY_REGION;
             }
             else if ( fieldNeedingOptions == &m_groupName )
             {
-                category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP;
+                category = SummaryVarCategory::SUMMARY_GROUP;
             }
             else if ( fieldNeedingOptions == &m_networkName )
             {
-                category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK;
+                category = SummaryVarCategory::SUMMARY_NETWORK;
             }
             else if ( fieldNeedingOptions == &m_cellBlock )
             {
-                category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK;
+                category = SummaryVarCategory::SUMMARY_BLOCK;
             }
             else if ( fieldNeedingOptions == &m_wellSegment )
             {
                 secondaryIdentifier = m_wellName().toStdString();
-                category            = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT;
+                category            = SummaryVarCategory::SUMMARY_WELL_SEGMENT;
             }
             else if ( fieldNeedingOptions == &m_completion )
             {
                 secondaryIdentifier = m_wellName().toStdString();
-                category            = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION;
+                category            = SummaryVarCategory::SUMMARY_WELL_COMPLETION;
             }
             else if ( fieldNeedingOptions == &m_aquifer )
             {
-                category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER;
+                category = SummaryVarCategory::SUMMARY_AQUIFER;
             }
 
             std::vector<QString> identifierTexts;
 
-            if ( category != RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+            if ( category != SummaryVarCategory::SUMMARY_INVALID )
             {
                 identifierTexts = analyzer->identifierTexts( category, secondaryIdentifier );
             }
@@ -443,42 +445,41 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField != &m_vectorName )
     {
-        RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategoryToModify =
-            RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID;
+        SummaryVarCategory summaryCategoryToModify = SummaryVarCategory::SUMMARY_INVALID;
         if ( changedField == &m_wellName )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL;
+            summaryCategoryToModify = SummaryVarCategory::SUMMARY_WELL;
         }
         else if ( changedField == &m_region )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION;
+            summaryCategoryToModify = SummaryVarCategory::SUMMARY_REGION;
         }
         else if ( changedField == &m_groupName )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP;
+            summaryCategoryToModify = SummaryVarCategory::SUMMARY_GROUP;
         }
         else if ( changedField == &m_networkName )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK;
+            summaryCategoryToModify = SummaryVarCategory::SUMMARY_NETWORK;
         }
         else if ( changedField == &m_cellBlock )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK;
+            summaryCategoryToModify = SummaryVarCategory::SUMMARY_BLOCK;
         }
         else if ( changedField == &m_wellSegment )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT;
+            summaryCategoryToModify = SummaryVarCategory::SUMMARY_WELL_SEGMENT;
         }
         else if ( changedField == &m_completion )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION;
+            summaryCategoryToModify = SummaryVarCategory::SUMMARY_WELL_COMPLETION;
         }
         else if ( changedField == &m_aquifer )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER;
+            summaryCategoryToModify = SummaryVarCategory::SUMMARY_AQUIFER;
         }
 
-        if ( summaryCategoryToModify != RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+        if ( summaryCategoryToModify != SummaryVarCategory::SUMMARY_INVALID )
         {
             for ( auto curve : curves )
             {
@@ -744,7 +745,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
         RiaSummaryAddressAnalyzer analyzer;
         analyzer.appendAddresses( addressesForCurvesInPlot() );
 
-        RifEclipseSummaryAddressDefines::SummaryVarCategory category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID;
+        SummaryVarCategory category = SummaryVarCategory::SUMMARY_INVALID;
 
         if ( !analyzer.categories().empty() )
         {
@@ -765,12 +766,12 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
 
                 if ( allCategoriesAreDependingOnWellName )
                 {
-                    category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL;
+                    category = SummaryVarCategory::SUMMARY_WELL;
                 }
             }
         }
 
-        if ( category != RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+        if ( category != SummaryVarCategory::SUMMARY_INVALID )
         {
             if ( analyzer.wellNames().size() == 1 )
             {
@@ -1019,7 +1020,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
     {
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
         {
-            auto ids          = analyzer.identifierTexts( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL, "" );
+            auto ids          = analyzer.identifierTexts( SummaryVarCategory::SUMMARY_WELL, "" );
             auto searchString = QString::fromStdString( addr.wellName() );
             auto found        = getIdIterator( ids, searchString );
             if ( found != ids.end() ) addr.setWellName( ( *found ).toStdString() );
@@ -1028,7 +1029,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
         {
-            auto ids          = analyzer.identifierTexts( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP, "" );
+            auto ids          = analyzer.identifierTexts( SummaryVarCategory::SUMMARY_GROUP, "" );
             auto searchString = QString::fromStdString( addr.groupName() );
             auto found        = getIdIterator( ids, searchString );
             if ( found != ids.end() ) addr.setGroupName( ( *found ).toStdString() );
@@ -1037,7 +1038,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK:
         {
-            auto ids          = analyzer.identifierTexts( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK, "" );
+            auto ids          = analyzer.identifierTexts( SummaryVarCategory::SUMMARY_NETWORK, "" );
             auto searchString = QString::fromStdString( addr.networkName() );
             auto found        = getIdIterator( ids, searchString );
             if ( found != ids.end() ) addr.setNetworkName( ( *found ).toStdString() );
@@ -1046,7 +1047,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
         {
-            auto ids          = analyzer.identifierTexts( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION, "" );
+            auto ids          = analyzer.identifierTexts( SummaryVarCategory::SUMMARY_REGION, "" );
             auto searchString = QString::number( addr.regionNumber() );
             auto found        = getIdIterator( ids, searchString );
             if ( found != ids.end() ) addr.setRegion( ( *found ).toInt() );
@@ -1071,7 +1072,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
         {
-            auto ids          = analyzer.identifierTexts( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK, "" );
+            auto ids          = analyzer.identifierTexts( SummaryVarCategory::SUMMARY_BLOCK, "" );
             auto searchString = QString::fromStdString( addr.blockAsString() );
             auto found        = getIdIterator( ids, searchString );
             if ( found != ids.end() ) addr.setCellIjk( ( *found ).toStdString() );
@@ -1080,7 +1081,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
         {
-            auto ids          = analyzer.identifierTexts( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER, "" );
+            auto ids          = analyzer.identifierTexts( SummaryVarCategory::SUMMARY_AQUIFER, "" );
             auto searchString = QString::number( addr.aquiferNumber() );
             auto found        = getIdIterator( ids, searchString );
             if ( found != ids.end() ) addr.setAquiferNumber( ( *found ).toInt() );
@@ -1189,7 +1190,7 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
 //--------------------------------------------------------------------------------------------------
 std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std::set<RifEclipseSummaryAddress> addresses )
 {
-    RifEclipseSummaryAddressDefines::SummaryVarCategory category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD;
+    SummaryVarCategory category = SummaryVarCategory::SUMMARY_FIELD;
 
     auto visibleCurveAddresses = addressesForCurvesInPlot();
     if ( !visibleCurveAddresses.empty() )
@@ -1222,7 +1223,7 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
 //--------------------------------------------------------------------------------------------------
 std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( RiaSummaryAddressAnalyzer* analyzser )
 {
-    RifEclipseSummaryAddressDefines::SummaryVarCategory category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD;
+    SummaryVarCategory category = SummaryVarCategory::SUMMARY_FIELD;
 
     auto visibleCurveAddresses = addressesForCurvesInPlot();
     if ( !visibleCurveAddresses.empty() )

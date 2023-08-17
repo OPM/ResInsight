@@ -49,6 +49,8 @@
 
 #include <algorithm>
 
+using namespace RifEclipseSummaryAddressDefines;
+
 CAF_PDM_SOURCE_INIT( RiuSummaryVectorSelectionUi, "RicSummaryAddressSelection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -58,14 +60,14 @@ class SummaryIdentifierAndField
 {
 public:
     SummaryIdentifierAndField()
-        : m_summaryIdentifier( (RifEclipseSummaryAddressDefines::SummaryIdentifierType)0 )
+        : m_summaryIdentifier( (SummaryIdentifierType)0 )
         , m_pdmField( nullptr )
     {
     }
 
     SummaryIdentifierAndField( const SummaryIdentifierAndField& ) = delete;
 
-    SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType summaryIdentifier )
+    SummaryIdentifierAndField( SummaryIdentifierType summaryIdentifier )
         : m_summaryIdentifier( summaryIdentifier )
         , m_pdmField( new caf::PdmField<std::vector<QString>>() )
     {
@@ -73,12 +75,12 @@ public:
 
     virtual ~SummaryIdentifierAndField();
 
-    RifEclipseSummaryAddressDefines::SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
-    caf::PdmField<std::vector<QString>>*                   pdmField() { return m_pdmField; }
+    SummaryIdentifierType                summaryIdentifier() const { return m_summaryIdentifier; }
+    caf::PdmField<std::vector<QString>>* pdmField() { return m_pdmField; }
 
 private:
-    RifEclipseSummaryAddressDefines::SummaryIdentifierType m_summaryIdentifier;
-    caf::PdmField<std::vector<QString>>*                   m_pdmField;
+    SummaryIdentifierType                m_summaryIdentifier;
+    caf::PdmField<std::vector<QString>>* m_pdmField;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -94,69 +96,69 @@ SummaryIdentifierAndField::~SummaryIdentifierAndField()
 //--------------------------------------------------------------------------------------------------
 RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     : m_identifierFieldsMap( {
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_AQUIFER_NUMBER ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_NETWORK_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_REGION_NUMBER ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_REGION_2_REGION ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_GROUP_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_WELL_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_WELL_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_CELL_IJK ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_LGR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_WELL_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_CELL_IJK ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_LGR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_WELL_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_WELL_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_SEGMENT_NUMBER ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_CELL_IJK ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_LGR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_CELL_IJK ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
-          { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_IMPORTED,
-            { new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME ),
-              new SummaryIdentifierAndField( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_FIELD,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_AQUIFER,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_AQUIFER_NUMBER ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_NETWORK,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_NETWORK_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_MISC,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_REGION,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_REGION_NUMBER ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_REGION_2_REGION,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_REGION_2_REGION ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_GROUP,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_GROUP_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_WELL,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_WELL_COMPLETION,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_CELL_IJK ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_LGR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_CELL_IJK ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_WELL_LGR,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_LGR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_WELL_SEGMENT,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_WELL_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_SEGMENT_NUMBER ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_BLOCK,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_CELL_IJK ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_BLOCK_LGR,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_LGR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_CELL_IJK ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
+          { SummaryVarCategory::SUMMARY_IMPORTED,
+            { new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_VECTOR_NAME ),
+              new SummaryIdentifierAndField( SummaryIdentifierType::INPUT_ID ) } },
 
       } )
     , m_showIndividualEnsembleCases( true )
@@ -167,162 +169,114 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( &m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category" );
     CAF_PDM_InitFieldNoDefault( &m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD][0]->pdmField(),
-                                "FieldVectors",
-                                "Field vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_FIELD][0]->pdmField(), "FieldVectors", "Field vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_FIELD][1]->pdmField(),
                                 "FieldCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER][0]->pdmField(),
-                                "Aquifers",
-                                "Aquifers" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER][1]->pdmField(),
-                                "AquiferVectors",
-                                "Aquifer Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_AQUIFER][0]->pdmField(), "Aquifers", "Aquifers" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_AQUIFER][1]->pdmField(), "AquiferVectors", "Aquifer Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_AQUIFER][2]->pdmField(),
                                 "AquifierCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK][0]->pdmField(),
-                                "NetworkNames",
-                                "Networks" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK][1]->pdmField(),
-                                "NetworkVectors",
-                                "Network Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_NETWORK][0]->pdmField(), "NetworkNames", "Networks" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_NETWORK][1]->pdmField(), "NetworkVectors", "Network Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_NETWORK][2]->pdmField(),
                                 "NetworkCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC][0]->pdmField(),
-                                "MiscVectors",
-                                "Misc Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC][1]->pdmField(),
-                                "MiscCalculationIds",
-                                "Calculation Ids" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_MISC][0]->pdmField(), "MiscVectors", "Misc Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_MISC][1]->pdmField(), "MiscCalculationIds", "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION][0]->pdmField(),
-                                "Regions",
-                                "Regions" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION][1]->pdmField(),
-                                "RegionsVectors",
-                                "Regions Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION][0]->pdmField(), "Regions", "Regions" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION][1]->pdmField(), "RegionsVectors", "Regions Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION][2]->pdmField(),
                                 "RegionCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION][0]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION_2_REGION][0]->pdmField(),
                                 "Region2RegionRegions",
                                 "Regions" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION_2_REGION][1]->pdmField(),
                                 "Region2RegionVectors",
                                 "Region2s Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION_2_REGION][2]->pdmField(),
                                 "Region2RegionCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP][0]->pdmField(),
-                                "WellGroupWellGroupNames",
-                                "Groups" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_GROUP][0]->pdmField(), "WellGroupWellGroupNames", "Groups" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_GROUP][1]->pdmField(),
                                 "WellGroupVectors",
                                 "Well Group Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_GROUP][2]->pdmField(),
                                 "WellGroupCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL][0]->pdmField(),
-                                "WellWellName",
-                                "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL][1]->pdmField(),
-                                "WellVectors",
-                                "Well Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL][2]->pdmField(),
-                                "WellCalculationIds",
-                                "Calculation Ids" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL][0]->pdmField(), "WellWellName", "Wells" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL][1]->pdmField(), "WellVectors", "Well Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL][2]->pdmField(), "WellCalculationIds", "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION][0]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION][0]->pdmField(),
                                 "WellCompletionWellName",
                                 "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION][1]->pdmField(),
                                 "WellCompletionIjk",
                                 "Cell IJK" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION][2]->pdmField(),
                                 "WellCompletionVectors",
                                 "Well Completion Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION][3]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION][3]->pdmField(),
                                 "WellCompletionCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(),
                                 "WellCompletionLgrLgrName",
                                 "LGR Names" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField(),
                                 "WellCompletionLgrWellName",
                                 "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField(),
                                 "WellCompletionLgrIjk",
                                 "Cell IJK" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(),
                                 "WellCompletionLgrVectors",
                                 "Well Completion Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][4]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][4]->pdmField(),
                                 "WellCompletionLgrCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR][0]->pdmField(),
-                                "WellLgrLgrName",
-                                "LGR Names" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR][1]->pdmField(),
-                                "WellLgrWellName",
-                                "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR][2]->pdmField(),
-                                "WellLgrVectors",
-                                "Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR][3]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_LGR][0]->pdmField(), "WellLgrLgrName", "LGR Names" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_LGR][1]->pdmField(), "WellLgrWellName", "Wells" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_LGR][2]->pdmField(), "WellLgrVectors", "Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_LGR][3]->pdmField(),
                                 "WellLgrCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT][0]->pdmField(),
-                                "WellSegmentWellName",
-                                "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT][1]->pdmField(),
-                                "WellSegmentNumber",
-                                "Segments" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT][2]->pdmField(),
-                                "WellSegmentVectors",
-                                "Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT][3]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_SEGMENT][0]->pdmField(), "WellSegmentWellName", "Wells" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_SEGMENT][1]->pdmField(), "WellSegmentNumber", "Segments" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_SEGMENT][2]->pdmField(), "WellSegmentVectors", "Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_SEGMENT][3]->pdmField(),
                                 "WellSegmentCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK][0]->pdmField(),
-                                "BlockIjk",
-                                "Cell IJK" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK][1]->pdmField(),
-                                "BlockVectors",
-                                "Block Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK][2]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK][0]->pdmField(), "BlockIjk", "Cell IJK" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK][1]->pdmField(), "BlockVectors", "Block Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK][2]->pdmField(),
                                 "BlockCalculationIds",
                                 "Calculation Ids" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR][0]->pdmField(),
-                                "BlockLgrLgrName",
-                                "LGR Names" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR][1]->pdmField(),
-                                "BlockLgrIjk",
-                                "Cell IJK" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR][2]->pdmField(),
-                                "BlockLgrVectors",
-                                "Block Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR][3]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK_LGR][0]->pdmField(), "BlockLgrLgrName", "LGR Names" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK_LGR][3]->pdmField(),
                                 "BlockLgrCalculationIds",
                                 "CalculationIds" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_IMPORTED][0]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_IMPORTED][0]->pdmField(),
                                 "ImportedVectors",
                                 "Imported vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_IMPORTED][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_IMPORTED][1]->pdmField(),
                                 "ImportedCalculationIds",
                                 "Calculation Ids" );
 
@@ -694,7 +648,7 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
 {
     resetAllFields();
 
-    std::set<RifEclipseSummaryAddressDefines::SummaryVarCategory> categories;
+    std::set<SummaryVarCategory> categories;
     for ( const auto& curveDef : curveDefinitions )
     {
         if ( !( curveDef.summaryCase() || curveDef.isEnsembleCurve() ) ) continue;
@@ -704,14 +658,14 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         RifEclipseSummaryAddress summaryAddress = curveDef.summaryAddress();
 
         // Ignore ensemble statistics curves
-        if ( summaryAddress.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS ) continue;
+        if ( summaryAddress.category() == SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS ) continue;
 
         // Select summary category if not already selected
         auto& selectedCategories = m_selectedSummaryCategories();
 
         if ( std::find( selectedCategories.begin(), selectedCategories.end(), summaryAddress.category() ) == selectedCategories.end() )
         {
-            if ( summaryAddress.category() != RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+            if ( summaryAddress.category() != SummaryVarCategory::SUMMARY_INVALID )
             {
                 m_selectedSummaryCategories.v().push_back( summaryAddress.category() );
             }
@@ -749,8 +703,7 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         auto identifierAndFieldList = m_identifierFieldsMap[summaryAddress.category()];
         for ( const auto& identifierAndField : identifierAndFieldList )
         {
-            bool isVectorField = identifierAndField->summaryIdentifier() ==
-                                 RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME;
+            bool    isVectorField = identifierAndField->summaryIdentifier() == SummaryIdentifierType::INPUT_VECTOR_NAME;
             QString avalue = QString::fromStdString( summaryAddress.addressComponentUiText( identifierAndField->summaryIdentifier() ) );
             if ( isVectorField && isObservedDataCase )
             {
@@ -777,7 +730,7 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
 
     if ( !categories.empty() )
     {
-        RifEclipseSummaryAddressDefines::SummaryVarCategory cat = *( categories.begin() );
+        SummaryVarCategory cat = *( categories.begin() );
         m_currentSummaryCategory.setValue( cat );
     }
 
@@ -792,8 +745,8 @@ void RiuSummaryVectorSelectionUi::fieldChangedByUi( const caf::PdmFieldHandle* c
 {
     if ( changedField != &m_selectedSources && changedField != &m_selectedSummaryCategories && changedField != &m_currentSummaryCategory )
     {
-        RifEclipseSummaryAddressDefines::SummaryVarCategory currentCategory = m_currentSummaryCategory();
-        if ( currentCategory != RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+        SummaryVarCategory currentCategory = m_currentSummaryCategory();
+        if ( currentCategory != SummaryVarCategory::SUMMARY_INVALID )
         {
             // When a summary vector is selected, make sure the summary category for the summary vector is in the
             // selection Note that we use the size of the variant to avoid this operation when an item in unchecked
@@ -812,8 +765,7 @@ void RiuSummaryVectorSelectionUi::fieldChangedByUi( const caf::PdmFieldHandle* c
                 auto identifierAndFieldList = m_identifierFieldsMap[currentCategory];
                 for ( const auto identifierAndField : identifierAndFieldList )
                 {
-                    if ( identifierAndField->summaryIdentifier() == RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME )
-                        continue;
+                    if ( identifierAndField->summaryIdentifier() == SummaryIdentifierType::INPUT_VECTOR_NAME ) continue;
 
                     auto v = identifierAndField->pdmField()->value();
                     if ( v.empty() )
@@ -894,141 +846,137 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
 
     caf::PdmField<std::vector<QString>>* summaryiesField = nullptr;
 
-    RifEclipseSummaryAddressDefines::SummaryVarCategory sumCategory = m_currentSummaryCategory();
-    if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+    SummaryVarCategory sumCategory = m_currentSummaryCategory();
+    if ( sumCategory == SummaryVarCategory::SUMMARY_INVALID )
     {
-        sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD;
+        sumCategory = SummaryVarCategory::SUMMARY_FIELD;
     }
 
-    if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD )
+    if ( sumCategory == SummaryVarCategory::SUMMARY_FIELD )
     {
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD][0]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_FIELD][0]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_AQUIFER )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryAquifer() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_AQUIFER][0]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_AQUIFER][1]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_NETWORK )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryNetwork() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_NETWORK][0]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_NETWORK][1]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_MISC )
     {
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC][0]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_MISC][0]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_REGION )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryRegion() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION][0]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION][1]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_REGION_2_REGION )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Regions" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION_2_REGION][0]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_REGION_2_REGION][1]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_GROUP )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWellGroup() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_GROUP][0]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_GROUP][1]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_WELL )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWell() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL][0]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL][1]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_WELL_COMPLETION )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryCompletion() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION][0]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION][1]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION][1]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION][2]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION][2]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrCompletion() + "s" );
-            myGroup->add(
-                m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField() );
-            myGroup->add(
-                m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField() );
-            myGroup->add(
-                m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField() );
         }
 
-        summaryiesField =
-            m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_WELL_LGR )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrWell() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR][0]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR][1]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_LGR][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_LGR][1]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR][2]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_LGR][2]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_WELL_SEGMENT )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWellSegment() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT][0]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT][1]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_SEGMENT][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_SEGMENT][1]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT][2]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_WELL_SEGMENT][2]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_BLOCK )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryBlock() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK][0]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK][1]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_BLOCK_LGR )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrBlock() + "s" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR][0]->pdmField() );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR][1]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK_LGR][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK_LGR][1]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR][2]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_BLOCK_LGR][2]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_IMPORTED )
+    else if ( sumCategory == SummaryVarCategory::SUMMARY_IMPORTED )
     {
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_IMPORTED][0]->pdmField();
+        summaryiesField = m_identifierFieldsMap[SummaryVarCategory::SUMMARY_IMPORTED][0]->pdmField();
     }
 
     caf::PdmUiGroup* summariesGroup = uiOrdering.addNewGroupWithKeyword( "Summaries", RiuSummaryCurveDefinitionKeywords::summaries() );
@@ -1095,8 +1043,7 @@ std::set<RifEclipseSummaryAddress>
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
 
-    auto isVectorField = identifierAndField != nullptr && identifierAndField->summaryIdentifier() ==
-                                                              RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME;
+    auto isVectorField = identifierAndField != nullptr && identifierAndField->summaryIdentifier() == SummaryIdentifierType::INPUT_VECTOR_NAME;
     auto controllingIdentifierAndField = identifierAndField != nullptr ? lookupControllingField( identifierAndField ) : nullptr;
     if ( !isVectorField && controllingIdentifierAndField != nullptr && controllingIdentifierAndField->pdmField()->v().size() == 0 )
     {
@@ -1273,12 +1220,10 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::buildAddressList
     std::set<RifEclipseSummaryAddress> addressSet;
     for ( const auto& category : m_selectedSummaryCategories() )
     {
-        if ( m_identifierFieldsMap.at( category ).size() == 0 ||
-             category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
-            continue;
+        if ( m_identifierFieldsMap.at( category ).size() == 0 || category == SummaryVarCategory::SUMMARY_INVALID ) continue;
 
-        const auto& identifierAndFieldList = m_identifierFieldsMap.at( category );
-        std::vector<std::pair<RifEclipseSummaryAddressDefines::SummaryIdentifierType, QString>> selectionStack;
+        const auto&                                            identifierAndFieldList = m_identifierFieldsMap.at( category );
+        std::vector<std::pair<SummaryIdentifierType, QString>> selectionStack;
         buildAddressListForCategoryRecursively( category, identifierAndFieldList.begin(), selectionStack, addressSet );
     }
     return addressSet;
@@ -1288,10 +1233,10 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::buildAddressList
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
-    RifEclipseSummaryAddressDefines::SummaryVarCategory                                      category,
-    std::vector<SummaryIdentifierAndField*>::const_iterator                                  identifierAndFieldItr,
-    std::vector<std::pair<RifEclipseSummaryAddressDefines::SummaryIdentifierType, QString>>& identifierPath,
-    std::set<RifEclipseSummaryAddress>&                                                      addressSet ) const
+    SummaryVarCategory                                      category,
+    std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
+    std::vector<std::pair<SummaryIdentifierType, QString>>& identifierPath,
+    std::set<RifEclipseSummaryAddress>&                     addressSet ) const
 
 {
     for ( const auto& identifierText : ( *identifierAndFieldItr )->pdmField()->v() )
@@ -1299,7 +1244,7 @@ void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
         auto idText = identifierText;
 
         // Calculated results have a id appended. E.g. "Calculation_3 ( NORNE_ATW2013, WOPR:B-4H ):3"
-        if ( ( *identifierAndFieldItr )->summaryIdentifier() == RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME )
+        if ( ( *identifierAndFieldItr )->summaryIdentifier() == SummaryIdentifierType::INPUT_VECTOR_NAME )
         {
             // Extract the calculation id
             QStringList tokens = idText.split( ":" );
@@ -1311,20 +1256,20 @@ void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
                 tokens.pop_back();
                 idText = tokens.join( ":" );
 
-                identifierPath.push_back( std::make_pair( RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_ID, calculationId ) );
+                identifierPath.push_back( std::make_pair( SummaryIdentifierType::INPUT_ID, calculationId ) );
             }
         }
 
         idText.remove( OBSERVED_DATA_AVALUE_POSTFIX );
         identifierPath.push_back( std::make_pair( ( *identifierAndFieldItr )->summaryIdentifier(), idText ) );
 
-        if ( ( *identifierAndFieldItr )->summaryIdentifier() != RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME )
+        if ( ( *identifierAndFieldItr )->summaryIdentifier() != SummaryIdentifierType::INPUT_VECTOR_NAME )
         {
             buildAddressListForCategoryRecursively( category, std::next( identifierAndFieldItr, 1 ), identifierPath, addressSet );
         }
         else
         {
-            std::map<RifEclipseSummaryAddressDefines::SummaryIdentifierType, std::string> selectedIdentifiers;
+            std::map<SummaryIdentifierType, std::string> selectedIdentifiers;
             for ( const auto& identifier : identifierPath )
             {
                 selectedIdentifiers.insert( std::make_pair( identifier.first, identifier.second.toStdString() ) );
@@ -1369,7 +1314,7 @@ void RiuSummaryVectorSelectionUi::defineEditorAttribute( const caf::PdmFieldHand
 void RiuSummaryVectorSelectionUi::resetAllFields()
 {
     m_selectedSources.clearWithoutDelete();
-    m_selectedSummaryCategories = std::vector<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>>();
+    m_selectedSummaryCategories = std::vector<caf::AppEnum<SummaryVarCategory>>();
 
     // clear all state in fields
     for ( auto& identifierAndFieldList : m_identifierFieldsMap )
@@ -1425,31 +1370,31 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSources( QList<caf::PdmOpt
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::PdmOptionItemInfo>& options ) const
 {
-    std::vector<RifEclipseSummaryAddressDefines::SummaryVarCategory> sortedCategoriesForUi;
+    std::vector<SummaryVarCategory> sortedCategoriesForUi;
 
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_FIELD );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_AQUIFER );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_NETWORK );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_MISC );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_REGION );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_REGION_2_REGION );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_GROUP );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_WELL );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_WELL_COMPLETION );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_BLOCK );
 
     if ( !m_hideCalculationIncompatibleCategories )
     {
-        sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT );
-        sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR );
-        sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR );
-        sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR );
+        sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_WELL_SEGMENT );
+        sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_WELL_LGR );
+        sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR );
+        sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_BLOCK_LGR );
     }
 
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_IMPORTED );
+    sortedCategoriesForUi.push_back( SummaryVarCategory::SUMMARY_IMPORTED );
 
     // NB SUMMARY_ENSEMBLE_STATISTICS is intentionally excluded
-    // categoriesForUiDisplay.push_back(RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS);
+    // categoriesForUiDisplay.push_back(SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS);
 
     for ( auto category : sortedCategoriesForUi )
     {
@@ -1479,7 +1424,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
     addrUnion[SUM_CASES] = findPossibleSummaryAddressesFromSelectedCases( identifierAndField );
     addrUnion[OBS_DATA]  = findPossibleSummaryAddressesFromSelectedObservedData( identifierAndField );
 
-    bool isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_VECTOR_NAME;
+    bool isVectorField = identifierAndField->summaryIdentifier() == SummaryIdentifierType::INPUT_VECTOR_NAME;
 
     std::set<std::string> itemNames[itemCount];
     for ( int i = 0; i < itemCount; i++ )
@@ -1537,9 +1482,9 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
         {
             switch ( identifierAndField->summaryIdentifier() )
             {
-                case RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_REGION_NUMBER:
-                case RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_SEGMENT_NUMBER:
-                case RifEclipseSummaryAddressDefines::SummaryIdentifierType::INPUT_AQUIFER_NUMBER:
+                case SummaryIdentifierType::INPUT_REGION_NUMBER:
+                case SummaryIdentifierType::INPUT_SEGMENT_NUMBER:
+                case SummaryIdentifierType::INPUT_AQUIFER_NUMBER:
                 {
                     std::set<int> values;
                     for ( const std::string& itemName : itemNames[i] )
