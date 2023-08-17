@@ -29,6 +29,9 @@
 
 #include "opm/io/eclipse/EGrid.hpp"
 
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
+
 #include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
@@ -96,6 +99,39 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
         RiaLogging::warning(
             QString( "Failed to open grid case for import of radial coordinates : %1" ).arg( QString::fromStdString( gridFilePath ) ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifOpmGridTools::cellCount( const std::string& gridFilePath )
+{
+    Opm::EclIO::EGrid opmGrid( gridFilePath );
+
+    auto dims = opmGrid.dimension();
+    return dims[0] * dims[1] * dims[2];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmGridTools::importGrid( const std::string& gridFilePath, RigMainGrid* mainGrid, RigEclipseCaseData* caseData )
+{
+    Opm::EclIO::EGrid opmGrid( gridFilePath );
+
+    auto dims      = opmGrid.dimension();
+    auto cellCount = dims[0] * dims[1] * dims[2];
+
+    mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
+
+    RigCell defaultCell;
+    defaultCell.setHostGrid( mainGrid );
+    mainGrid->globalCellArray().resize( cellCount, defaultCell );
+    mainGrid->nodes().resize( 8 * cellCount );
+
+    transferCoordinatesCartesian( opmGrid, opmGrid, mainGrid, mainGrid, caseData );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,6 +285,79 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainGrid,
+                                                    Opm::EclIO::EGrid&  opmGrid,
+                                                    RigMainGrid*        riMainGrid,
+                                                    RigGridBase*        riGrid,
+                                                    RigEclipseCaseData* caseData )
+{
+    // Prefix OPM structures with _opm_and ResInsight structures with _ri_
+
+    const auto    hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
+    const size_t* cellMappingECLRi      = RifReaderEclipseOutput::eclipseCellIndexMapping();
+    const auto    gridDimension         = opmGrid.dimension();
+    auto&         riNodes               = riMainGrid->nodes();
+
+    opmGrid.loadData();
+    opmGrid.load_grid_data();
+
+    auto riActiveCells = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    riActiveCells->setReservoirCellCount( riMainGrid->cellCount() );
+
+#pragma omp parallel for
+    for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( riMainGrid->cellCount() ); opmCellIndex++ )
+    {
+        std::array<int, 3> adjustedIJK;
+        {
+            auto opmIJK = opmGrid.ijk_from_global_index( opmCellIndex );
+            adjustedIJK = opmIJK;
+
+            // The ordering of J indexing is flipped between OPM and ResInsight
+            adjustedIJK[1] = gridDimension[1] - opmIJK[1] - 1;
+        }
+
+        auto     riReservoirIndex = riGrid->cellIndexFromIJK( adjustedIJK[0], adjustedIJK[1], adjustedIJK[2] );
+        RigCell& cell             = riMainGrid->globalCellArray()[riReservoirIndex];
+        cell.setGridLocalCellIndex( riReservoirIndex );
+
+        std::array<double, 8> opmX{};
+        std::array<double, 8> opmY{};
+        std::array<double, 8> opmZ{};
+        opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
+
+        // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
+        auto         riNodeStartIndex    = riReservoirIndex * 8;
+        const size_t cellMappingECLRi[8] = { 3, 2, 0, 1, 7, 6, 4, 5 };
+
+        for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
+        {
+            auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
+            size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
+
+            auto& riNode = riNodes[riNodeIndex];
+            riNode.x()   = opmX[opmNodeIndex];
+            riNode.y()   = opmY[opmNodeIndex];
+            riNode.z()   = -opmZ[opmNodeIndex];
+
+            cell.cornerIndices()[riCornerIndex] = riNodeIndex;
+        }
+
+        if ( riActiveCells )
+        {
+            auto activeIndex = opmGrid.active_index( adjustedIJK[0], adjustedIJK[1], adjustedIJK[2] );
+            if ( activeIndex > -1 )
+            {
+                riActiveCells->setCellResultIndex( riReservoirIndex, activeIndex );
+            }
+        }
+    }
+
+    riMainGrid->initAllSubGridsParentGridPointer();
 }
 
 //--------------------------------------------------------------------------------------------------
