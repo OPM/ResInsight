@@ -38,6 +38,7 @@ class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimRegularLegendConfig;
 class RiuMatrixPlotWidget;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
