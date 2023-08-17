@@ -27,6 +27,7 @@ class RimSummaryCase;
 class RimSummaryAddress;
 class RimSummaryCaseCollection;
 class RiaSummaryCurveDefinition;
+class RifEclipseSummaryAddress;
 
 class RimAnalysisPlotDataEntry : public caf::PdmObject
 {
