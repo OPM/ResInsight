@@ -38,6 +38,7 @@
 #include "RigEclipseResultAddress.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
+#include "RigResultAccessorFactory.h"
 
 #include "cafProgressInfo.h"
 
@@ -411,19 +412,30 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
 
     caf::ProgressInfo progress( keywords.size(), "Saving Keywords" );
 
+    auto allResultAddresses = cellResultsData->existingResults();
+
+    auto findResultAddress = [&allResultAddresses]( const QString& keyword ) -> RigEclipseResultAddress
+    {
+        for ( const auto& adr : allResultAddresses )
+        {
+            if ( adr.resultName() == keyword )
+            {
+                return adr;
+            }
+        }
+
+        return {};
+    };
+
     for ( const QString& keyword : keywords )
     {
-        std::vector<double> resultValues;
-
-        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, keyword );
+        RigEclipseResultAddress resAddr = findResultAddress( keyword );
         if ( !cellResultsData->hasResultEntry( resAddr ) ) continue;
 
         cellResultsData->ensureKnownResultLoaded( resAddr );
-
         CVF_ASSERT( !cellResultsData->cellScalarResults( resAddr ).empty() );
 
-        resultValues = cellResultsData->cellScalarResults( resAddr )[0];
-        CVF_ASSERT( !resultValues.empty() );
+        std::vector<double> resultValues = cellResultsData->cellScalarResults( resAddr )[0];
         if ( resultValues.empty() ) continue;
 
         double defaultExportValue = 0.0;
@@ -431,6 +443,11 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         {
             defaultExportValue = 1.0;
         }
+
+        RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+
+        // Create result accessor object for main grid at time step zero (static result date is always at first time step
+        auto resultAcc = RigResultAccessorFactory::createFromResultAddress( eclipseCase, 0, porosityModel, 0, resAddr );
 
         std::vector<double> filteredResults;
         filteredResults.reserve( resultValues.size() );
@@ -445,12 +462,13 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
                 {
                     size_t mainI = i / refinement.x();
 
-                    size_t mainIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
+                    size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
 
-                    size_t resIndex = activeCells->cellResultIndex( mainIndex );
+                    size_t resIndex = activeCells->cellResultIndex( reservoirCellIndex );
                     if ( resIndex != cvf::UNDEFINED_SIZE_T )
                     {
-                        filteredResults.push_back( resultValues[resIndex] );
+                        auto value = resultAcc->cellScalarGlobIdx( reservoirCellIndex );
+                        filteredResults.push_back( value );
                     }
                     else
                     {
