@@ -850,7 +850,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
 {
     for ( const auto& calculator : m_resultCalculators )
     {
-        if ( calculator->isMatching( resVarAddr ) ) return calculator->calculate( partIndex, resVarAddr );
+        if ( calculator->isMatching( resVarAddr ) )
+        {
+            return calculator->calculate( partIndex, resVarAddr );
+        }
     }
 
     if ( resVarAddr.fieldName == "ST" && resVarAddr.componentName.empty() )

@@ -52,6 +52,16 @@ RigFemPartResultCalculatorBarConverted::~RigFemPartResultCalculatorBarConverted(
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorBarConverted::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
+    if ( resVarAddr.normalizeByHydrostaticPressure() )
+    {
+        // Normalize by hydrostatic pressure is done in RigFemPartResultCalculatorNormalized
+        // Return false here to avoid double normalization
+        //
+        // https: // github.com/OPM/ResInsight/issues/9507
+
+        return false;
+    }
+
     // TODO: split in multiple classes??
     if ( m_fieldName == "POR-Bar" )
     {
