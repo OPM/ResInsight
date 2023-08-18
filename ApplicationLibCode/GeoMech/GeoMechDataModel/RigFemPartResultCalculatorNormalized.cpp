@@ -115,7 +115,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int p
             size_t resultCount = srcFrameData.size();
             dstFrameData.resize( resultCount );
 
-            if ( unscaledResult.resultPosType == RIG_ELEMENT_NODAL )
+            if ( unscaledResult.resultPosType == RIG_ELEMENT_NODAL || unscaledResult.resultPosType == RIG_NODAL )
             {
 #pragma omp parallel for schedule( dynamic )
                 for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
