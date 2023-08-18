@@ -308,9 +308,9 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
                         for ( size_t subI = 0; subI < refinement.x(); ++subI )
                         {
                             int* ecl_cell_coords = new int[5];
-                            ecl_cell_coords[0]   = (int)( i * refinement.x() + subI + 1 );
-                            ecl_cell_coords[1]   = (int)( j * refinement.y() + subJ + 1 );
-                            ecl_cell_coords[2]   = (int)( k * refinement.z() + subK + 1 );
+                            ecl_cell_coords[0]   = static_cast<int>( i * refinement.x() + subI + 1 );
+                            ecl_cell_coords[1]   = static_cast<int>( j * refinement.y() + subJ + 1 );
+                            ecl_cell_coords[2]   = static_cast<int>( k * refinement.z() + subK + 1 );
                             ecl_cell_coords[3]   = outputCellIndex++;
                             ecl_cell_coords[4]   = active;
                             ecl_coords.push_back( ecl_cell_coords );
