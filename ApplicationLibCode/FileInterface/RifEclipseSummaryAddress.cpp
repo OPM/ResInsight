@@ -473,14 +473,9 @@ std::string RifEclipseSummaryAddress::generateStringFromAddresses( const std::ve
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::isDependentOnWellName( SummaryVarCategory category )
 {
-    if ( category == SummaryVarCategory::SUMMARY_WELL || category == SummaryVarCategory::SUMMARY_WELL_COMPLETION ||
-         category == SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR || category == SummaryVarCategory::SUMMARY_WELL_LGR ||
-         category == SummaryVarCategory::SUMMARY_WELL_SEGMENT )
-    {
-        return true;
-    }
-
-    return false;
+    return ( category == SummaryVarCategory::SUMMARY_WELL || category == SummaryVarCategory::SUMMARY_WELL_COMPLETION ||
+             category == SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR || category == SummaryVarCategory::SUMMARY_WELL_LGR ||
+             category == SummaryVarCategory::SUMMARY_WELL_SEGMENT );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -494,7 +489,7 @@ RifEclipseSummaryAddressDefines::SummaryVarCategory RifEclipseSummaryAddress::ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::string RifEclipseSummaryAddress::vectorName() const
+std::string RifEclipseSummaryAddress::vectorName() const
 {
     return m_vectorName;
 }
@@ -528,7 +523,7 @@ int RifEclipseSummaryAddress::regionNumber2() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::string RifEclipseSummaryAddress::groupName() const
+std::string RifEclipseSummaryAddress::groupName() const
 {
     return ( m_variableCategory == SummaryVarCategory::SUMMARY_GROUP ) ? m_name : std::string();
 }
@@ -536,7 +531,7 @@ const std::string RifEclipseSummaryAddress::groupName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::string RifEclipseSummaryAddress::networkName() const
+std::string RifEclipseSummaryAddress::networkName() const
 {
     return ( m_variableCategory == SummaryVarCategory::SUMMARY_NETWORK ) ? m_name : std::string();
 }
@@ -544,7 +539,7 @@ const std::string RifEclipseSummaryAddress::networkName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::string RifEclipseSummaryAddress::wellName() const
+std::string RifEclipseSummaryAddress::wellName() const
 {
     return isDependentOnWellName( m_variableCategory ) ? m_name : std::string();
 }
@@ -560,7 +555,7 @@ int RifEclipseSummaryAddress::wellSegmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::string RifEclipseSummaryAddress::lgrName() const
+std::string RifEclipseSummaryAddress::lgrName() const
 {
     return m_lgrName;
 }
@@ -611,7 +606,7 @@ int RifEclipseSummaryAddress::id() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::string RifEclipseSummaryAddress::ensembleStatisticsVectorName() const
+std::string RifEclipseSummaryAddress::ensembleStatisticsVectorName() const
 {
     QString qName = QString::fromStdString( m_vectorName );
     return qName.split( ":" )[0].toStdString();
@@ -767,12 +762,7 @@ bool RifEclipseSummaryAddress::isUiTextMatchingFilterText( const QString& filter
 {
     std::string value = uiText();
     if ( filterString.isEmpty() ) return true;
-    if ( filterString.trimmed() == "*" )
-    {
-        if ( !value.empty() ) return true;
-
-        return false;
-    }
+    if ( filterString.trimmed() == "*" ) return !value.empty();
 
     QRegExp searcher( filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
     QString qstrValue = QString::fromStdString( value );

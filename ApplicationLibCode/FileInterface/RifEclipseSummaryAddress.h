@@ -97,25 +97,25 @@ public:
     // Access methods
 
     SummaryVarCategory category() const;
-    const std::string  vectorName() const;
+    std::string        vectorName() const;
     bool               isHistoryVector() const;
 
     int regionNumber() const;
     int regionNumber2() const;
 
-    const std::string groupName() const;
-    const std::string networkName() const;
-    const std::string wellName() const;
-    int               wellSegmentNumber() const;
-    const std::string lgrName() const;
-    int               cellI() const;
-    int               cellJ() const;
-    int               cellK() const;
-    int               aquiferNumber() const;
-    int               id() const;
-    std::string       blockAsString() const;
+    std::string groupName() const;
+    std::string networkName() const;
+    std::string wellName() const;
+    int         wellSegmentNumber() const;
+    std::string lgrName() const;
+    int         cellI() const;
+    int         cellJ() const;
+    int         cellK() const;
+    int         aquiferNumber() const;
+    int         id() const;
+    std::string blockAsString() const;
 
-    const std::string ensembleStatisticsVectorName() const;
+    std::string ensembleStatisticsVectorName() const;
 
     // Derived properties
 
