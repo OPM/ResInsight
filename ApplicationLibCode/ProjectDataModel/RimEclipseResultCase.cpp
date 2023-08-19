@@ -34,6 +34,7 @@
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderMockModel.h"
+#include "RifReaderOpmCommon.h"
 #include "RifReaderOpmRft.h"
 #include "RifReaderSettings.h"
 
@@ -133,60 +134,70 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             return false;
         }
 
-        cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
-        readerEclipseOutput->setFilenamesWithFaults( filesContainingFaults() );
-        readerEclipseOutput->setReaderSettings( m_readerSettings );
-
-        cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess( gridFileName() );
-
+        if ( RiaPreferences::current()->gridModelReader() == RiaDefines::GridModelReader::LIBECL )
         {
-            std::vector<QDateTime> timeSteps;
-            std::vector<double>    daysSinceSimulationStart;
+            auto readerEclipseOutput = new RifReaderEclipseOutput();
 
-            if ( restartDataAccess.notNull() )
+            cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess( gridFileName() );
+
             {
-                restartDataAccess->timeSteps( &timeSteps, &daysSinceSimulationStart );
+                std::vector<QDateTime> timeSteps;
+                std::vector<double>    daysSinceSimulationStart;
+
+                if ( restartDataAccess.notNull() )
+                {
+                    restartDataAccess->timeSteps( &timeSteps, &daysSinceSimulationStart );
+                }
+                m_timeStepFilter->setTimeStepsFromFile( timeSteps );
             }
-            m_timeStepFilter->setTimeStepsFromFile( timeSteps );
+
+            if ( showTimeStepFilter )
+            {
+                caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
+                                                             m_timeStepFilter,
+                                                             "Time Step Filter",
+                                                             "",
+                                                             QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
+                propertyDialog.resize( QSize( 400, 400 ) );
+
+                // Push arrow cursor onto the cursor stack so it takes over from the wait cursor.
+                QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );
+                // Show GUI to select time steps
+                int dialogReturnValue = propertyDialog.exec();
+                // Pop arrow cursor off the cursor stack so that the previous (wait) cursor takes over.
+                QApplication::restoreOverrideCursor();
+
+                if ( dialogReturnValue != QDialog::Accepted )
+                {
+                    return false;
+                }
+                m_timeStepFilter->updateFilteredTimeStepsFromUi();
+            }
+
+            readerEclipseOutput->setFileDataAccess( restartDataAccess.p() );
+            readerEclipseOutput->setTimeStepFilter( m_timeStepFilter->filteredTimeSteps() );
+
+            readerInterface = readerEclipseOutput;
+        }
+        else
+        {
+            readerInterface = new RifReaderOpmCommon;
         }
 
-        if ( showTimeStepFilter )
-        {
-            caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
-                                                         m_timeStepFilter,
-                                                         "Time Step Filter",
-                                                         "",
-                                                         QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
-            propertyDialog.resize( QSize( 400, 400 ) );
-
-            // Push arrow cursor onto the cursor stack so it takes over from the wait cursor.
-            QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );
-            // Show GUI to select time steps
-            int dialogReturnValue = propertyDialog.exec();
-            // Pop arrow cursor off the cursor stack so that the previous (wait) cursor takes over.
-            QApplication::restoreOverrideCursor();
-
-            if ( dialogReturnValue != QDialog::Accepted )
-            {
-                return false;
-            }
-            m_timeStepFilter->updateFilteredTimeStepsFromUi();
-        }
-
-        readerEclipseOutput->setFileDataAccess( restartDataAccess.p() );
-        readerEclipseOutput->setTimeStepFilter( m_timeStepFilter->filteredTimeSteps() );
+        readerInterface->setFilenamesWithFaults( filesContainingFaults() );
+        readerInterface->setReaderSettings( m_readerSettings );
 
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData( this );
-        if ( !readerEclipseOutput->open( gridFileName(), eclipseCase.p() ) )
+        if ( !readerInterface->open( gridFileName(), eclipseCase.p() ) )
         {
             return false;
         }
 
-        setFilesContainingFaults( readerEclipseOutput->filenamesWithFaults() );
+        setFilesContainingFaults( readerInterface->filenamesWithFaults() );
 
         setReservoirData( eclipseCase.p() );
 
-        readerInterface = readerEclipseOutput;
+        readerInterface = readerInterface;
     }
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );

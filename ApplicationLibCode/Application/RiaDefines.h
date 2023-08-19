@@ -167,6 +167,12 @@ enum class GridCaseAxis
     UNDEFINED_AXIS
 };
 
+enum class GridModelReader
+{
+    LIBECL,
+    OPM_COMMON
+};
+
 enum class ThemeEnum
 {
     DEFAULT,

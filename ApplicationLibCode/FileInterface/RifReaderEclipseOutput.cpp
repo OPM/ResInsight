@@ -390,17 +390,6 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
         openInitFile();
 
-        auto   cellCount = RifOpmGridTools::cellCount( fileName.toStdString() );
-        size_t threshold = 50;
-        // size_t threshold = 50000000;
-
-        if ( cellCount > threshold )
-        {
-            RifOpmGridTools::importGrid( fileName.toStdString(), eclipseCase->mainGrid(), eclipseCase );
-
-            return true;
-        }
-
         // Read geometry
         // Todo: Needs to check existence of file before calling ert, else it will abort
         mainEclGrid = loadAllGrids();
