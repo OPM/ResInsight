@@ -2109,7 +2109,7 @@ std::vector<RifKeywordValueCount>
                                                            const RigActiveCellInfo*                 matrixActiveCellInfo,
                                                            const RigActiveCellInfo*                 fractureActiveCellInfo,
                                                            RiaDefines::PorosityModelType            porosityModel,
-                                                           size_t                                   timeStepCount ) const
+                                                           size_t                                   timeStepCount )
 {
     CVF_ASSERT( matrixActiveCellInfo );
 

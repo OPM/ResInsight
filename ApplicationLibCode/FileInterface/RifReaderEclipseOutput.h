@@ -114,11 +114,11 @@ private:
 
     void ensureDynamicResultAccessIsPresent();
 
-    std::vector<RifKeywordValueCount> validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
-                                                                     const RigActiveCellInfo*                 activeCellInfo,
-                                                                     const RigActiveCellInfo*                 fractureActiveCellInfo,
-                                                                     RiaDefines::PorosityModelType            matrixOrFracture,
-                                                                     size_t                                   timeStepCount ) const;
+    static std::vector<RifKeywordValueCount> validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
+                                                                            const RigActiveCellInfo*                 activeCellInfo,
+                                                                            const RigActiveCellInfo*                 fractureActiveCellInfo,
+                                                                            RiaDefines::PorosityModelType            matrixOrFracture,
+                                                                            size_t                                   timeStepCount );
 
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 

@@ -35,6 +35,8 @@
 using ecl_file_type = struct ecl_file_struct;
 
 class RifEclipseRestartDataAccess;
+class RigEclipseTimeStepInfo;
+class RigActiveCellInfo;
 class QByteArray;
 
 //==================================================================================================
@@ -49,6 +51,10 @@ public:
     virtual ~RifEclipseOutputFileTools();
 
     static std::vector<RifKeywordValueCount> keywordValueCounts( const std::vector<ecl_file_type*>& ecl_files );
+
+    static void createResultEntries( const std::vector<RifKeywordValueCount>&   fileKeywordInfo,
+                                     const std::vector<RigEclipseTimeStepInfo>& timeStepInfo,
+                                     RigEclipseCaseData*                        eclipseCaseData );
 
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values );
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values );
@@ -86,5 +92,10 @@ public:
     static FILE* fopen( const QString& filePath, const QString& mode );
 
 private:
-    static RifRestartReportKeywords createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files );
+    static RifRestartReportKeywords          createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files );
+    static std::vector<RifKeywordValueCount> validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
+                                                                            const RigActiveCellInfo*                 activeCellInfo,
+                                                                            const RigActiveCellInfo*                 fractureActiveCellInfo,
+                                                                            RiaDefines::PorosityModelType            matrixOrFracture,
+                                                                            size_t                                   timeStepCount );
 };

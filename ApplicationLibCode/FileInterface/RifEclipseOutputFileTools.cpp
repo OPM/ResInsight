@@ -39,6 +39,10 @@
 #include <QDebug>
 #include <QFileInfo>
 
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include <algorithm>
 #include <cassert>
 
@@ -63,6 +67,53 @@ std::vector<RifKeywordValueCount> RifEclipseOutputFileTools::keywordValueCounts(
 {
     auto reportstepMetaData = RifEclipseOutputFileTools::createReportStepsMetaData( ecl_files );
     return reportstepMetaData.keywordValueCounts();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifKeywordValueCount>&   fileKeywordInfo,
+                                                     const std::vector<RigEclipseTimeStepInfo>& timeStepInfo,
+                                                     RigEclipseCaseData*                        eclipseCaseData )
+{
+    if ( !eclipseCaseData ) return;
+
+    RigCaseCellResultsData* matrixModelResults   = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData* fractureModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+    {
+        auto validKeywords = validKeywordsForPorosityModel( fileKeywordInfo,
+                                                            eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                            eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
+                                                            RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                            timeStepInfo.size() );
+
+        for ( const auto& keywordData : validKeywords )
+        {
+            RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                             RifKeywordValueCount::mapType( keywordData.dataType() ),
+                                             QString::fromStdString( keywordData.keyword() ) );
+            matrixModelResults->createResultEntry( resAddr, false );
+            matrixModelResults->setTimeStepInfos( resAddr, timeStepInfo );
+        }
+    }
+
+    {
+        auto validKeywords = validKeywordsForPorosityModel( fileKeywordInfo,
+                                                            eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                            eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
+                                                            RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                            timeStepInfo.size() );
+
+        for ( const auto& keywordData : validKeywords )
+        {
+            RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                             RifKeywordValueCount::mapType( keywordData.dataType() ),
+                                             QString::fromStdString( keywordData.keyword() ) );
+            fractureModelResults->createResultEntry( resAddr, false );
+            fractureModelResults->setTimeStepInfos( resAddr, timeStepInfo );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -663,4 +714,104 @@ RifRestartReportKeywords RifEclipseOutputFileTools::createReportStepsMetaData( c
     }
 
     return reportSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifKeywordValueCount>
+    RifEclipseOutputFileTools::validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
+                                                              const RigActiveCellInfo*                 matrixActiveCellInfo,
+                                                              const RigActiveCellInfo*                 fractureActiveCellInfo,
+                                                              RiaDefines::PorosityModelType            porosityModel,
+                                                              size_t                                   timeStepCount )
+{
+    if ( !matrixActiveCellInfo ) return {};
+
+    if ( porosityModel == RiaDefines::PorosityModelType::FRACTURE_MODEL )
+    {
+        if ( fractureActiveCellInfo->reservoirActiveCellCount() == 0 )
+        {
+            return {};
+        }
+    }
+
+    std::vector<RifKeywordValueCount> keywordsWithCorrectNumberOfDataItems;
+
+    for ( const auto& keywordValueCount : keywordItemCounts )
+    {
+        QString keyword    = QString::fromStdString( keywordValueCount.keyword() );
+        size_t  valueCount = keywordValueCount.valueCount();
+
+        bool validKeyword = false;
+
+        size_t timeStepsAllCellsRest = valueCount % matrixActiveCellInfo->reservoirCellCount();
+        if ( timeStepsAllCellsRest == 0 && valueCount <= timeStepCount * matrixActiveCellInfo->reservoirCellCount() )
+        {
+            // Found result for all cells for N time steps, usually a static dataset for one time step
+            validKeyword = true;
+        }
+        else
+        {
+            size_t timeStepsMatrixRest = valueCount % matrixActiveCellInfo->reservoirActiveCellCount();
+
+            size_t timeStepsFractureRest = 0;
+            if ( fractureActiveCellInfo->reservoirActiveCellCount() > 0 )
+            {
+                timeStepsFractureRest = valueCount % fractureActiveCellInfo->reservoirActiveCellCount();
+            }
+
+            size_t sumFractureMatrixActiveCellCount = matrixActiveCellInfo->reservoirActiveCellCount() +
+                                                      fractureActiveCellInfo->reservoirActiveCellCount();
+            size_t timeStepsMatrixAndFractureRest = valueCount % sumFractureMatrixActiveCellCount;
+
+            if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL && timeStepsMatrixRest == 0 )
+            {
+                if ( valueCount <=
+                     timeStepCount * std::max( matrixActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount ) )
+                {
+                    validKeyword = true;
+                }
+            }
+            else if ( porosityModel == RiaDefines::PorosityModelType::FRACTURE_MODEL &&
+                      fractureActiveCellInfo->reservoirActiveCellCount() > 0 && timeStepsFractureRest == 0 )
+            {
+                if ( valueCount <=
+                     timeStepCount * std::max( fractureActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount ) )
+                {
+                    validKeyword = true;
+                }
+            }
+            else if ( timeStepsMatrixAndFractureRest == 0 )
+            {
+                if ( valueCount <= timeStepCount * sumFractureMatrixActiveCellCount )
+                {
+                    validKeyword = true;
+                }
+            }
+        }
+
+        // Check for INIT values that has only values for main grid active cells
+        if ( !validKeyword )
+        {
+            if ( timeStepCount == 1 )
+            {
+                size_t mainGridMatrixActiveCellCount   = matrixActiveCellInfo->gridActiveCellCounts( 0 );
+                size_t mainGridFractureActiveCellCount = fractureActiveCellInfo->gridActiveCellCounts( 0 );
+
+                if ( valueCount == mainGridMatrixActiveCellCount || valueCount == mainGridFractureActiveCellCount ||
+                     valueCount == mainGridMatrixActiveCellCount + mainGridFractureActiveCellCount )
+                {
+                    validKeyword = true;
+                }
+            }
+        }
+
+        if ( validKeyword )
+        {
+            keywordsWithCorrectNumberOfDataItems.push_back( keywordValueCount );
+        }
+    }
+
+    return keywordsWithCorrectNumberOfDataItems;
 }
