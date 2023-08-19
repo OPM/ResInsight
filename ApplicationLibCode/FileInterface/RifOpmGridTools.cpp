@@ -312,16 +312,9 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
 #pragma omp parallel for
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( riMainGrid->cellCount() ); opmCellIndex++ )
     {
-        std::array<int, 3> adjustedIJK;
-        {
-            auto opmIJK = opmGrid.ijk_from_global_index( opmCellIndex );
-            adjustedIJK = opmIJK;
+        auto opmIJK = opmGrid.ijk_from_global_index( opmCellIndex );
 
-            // The ordering of J indexing is flipped between OPM and ResInsight
-            adjustedIJK[1] = gridDimension[1] - opmIJK[1] - 1;
-        }
-
-        auto     riReservoirIndex = riGrid->cellIndexFromIJK( adjustedIJK[0], adjustedIJK[1], adjustedIJK[2] );
+        auto     riReservoirIndex = riGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
         RigCell& cell             = riMainGrid->globalCellArray()[riReservoirIndex];
         cell.setGridLocalCellIndex( riReservoirIndex );
 
@@ -331,8 +324,10 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
         opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
         // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
-        auto         riNodeStartIndex    = riReservoirIndex * 8;
-        const size_t cellMappingECLRi[8] = { 3, 2, 0, 1, 7, 6, 4, 5 };
+        auto riNodeStartIndex = riReservoirIndex * 8;
+
+        // same mapping as libecl
+        const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {
@@ -349,7 +344,7 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
 
         if ( riActiveCells )
         {
-            auto activeIndex = opmGrid.active_index( adjustedIJK[0], adjustedIJK[1], adjustedIJK[2] );
+            auto activeIndex = opmGrid.active_index( opmIJK[0], opmIJK[1], opmIJK[2] );
             if ( activeIndex > -1 )
             {
                 riActiveCells->setCellResultIndex( riReservoirIndex, activeIndex );

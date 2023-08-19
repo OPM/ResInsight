@@ -78,6 +78,9 @@ RimEclipseResultCase::RimEclipseResultCase()
 {
     CAF_PDM_InitScriptableObject( "Eclipse Case", ":/Case48x48.png", "", "The Regular Eclipse Results Case" );
 
+    auto defaultReader = RiaPreferences::current()->gridModelReader();
+    CAF_PDM_InitField( &m_gridModelReader, "gridModelReader", caf::AppEnum<RiaDefines::GridModelReader>( defaultReader ), "Grid Model Reader" );
+
     CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System" );
     m_unitSystem.registerGetMethod( RimProject::current(), &RimProject::commonUnitSystemForAllCases );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
@@ -134,7 +137,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             return false;
         }
 
-        if ( RiaPreferences::current()->gridModelReader() == RiaDefines::GridModelReader::LIBECL )
+        if ( m_gridModelReader == RiaDefines::GridModelReader::LIBECL )
         {
             auto readerEclipseOutput = new RifReaderEclipseOutput();
 
@@ -592,6 +595,7 @@ bool RimEclipseResultCase::hasSourSimFile()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_gridModelReader );
     uiOrdering.add( &m_caseUserDescription );
     uiOrdering.add( &m_displayNameOption );
     uiOrdering.add( &m_caseId );
