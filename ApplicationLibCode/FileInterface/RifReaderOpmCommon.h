@@ -24,7 +24,7 @@
 
 namespace Opm::EclIO
 {
-class EclFile;
+class EInit;
 class ERst;
 } // namespace Opm::EclIO
 
@@ -45,11 +45,11 @@ public:
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
 private:
-    void buildMetaData();
+    void buildMetaData( RigEclipseCaseData* eclipseCase );
 
 private:
     std::string m_gridFileName;
 
-    std::unique_ptr<Opm::EclIO::ERst>    m_restartFile;
-    std::unique_ptr<Opm::EclIO::EclFile> m_initFile;
+    std::unique_ptr<Opm::EclIO::ERst>  m_restartFile;
+    std::unique_ptr<Opm::EclIO::EInit> m_initFile;
 };

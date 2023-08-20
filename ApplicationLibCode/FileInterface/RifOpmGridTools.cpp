@@ -306,7 +306,11 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
     opmGrid.loadData();
     opmGrid.load_grid_data();
 
-    auto riActiveCells = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    auto riActiveCells     = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    auto riActiveCellsFrac = caseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    riActiveCellsFrac->setGridCount( 1 );
+    riActiveCellsFrac->setGridActiveCellCounts( 0, 0 );
+
     riActiveCells->setReservoirCellCount( riMainGrid->cellCount() );
 
 #pragma omp parallel for
@@ -351,6 +355,10 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
             }
         }
     }
+
+    riActiveCells->setGridCount( 1 );
+    riActiveCells->setGridActiveCellCounts( 0, opmGrid.activeCells() );
+    riActiveCells->computeDerivedData();
 
     riMainGrid->initAllSubGridsParentGridPointer();
 }

@@ -22,9 +22,11 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifOpmGridTools.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultInfo.h"
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/EclipseState/Runspec.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/io/eclipse/EInit.hpp"
 #include "opm/io/eclipse/ERst.hpp"
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +66,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
             return false;
         }
 
-        buildMetaData();
+        buildMetaData( eclipseCase );
 
         return true;
     }
@@ -82,7 +84,32 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 //--------------------------------------------------------------------------------------------------
 bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
 {
-    throw std::logic_error( "The method or operation is not implemented." );
+    if ( m_initFile )
+    {
+        auto resultName = result.toStdString();
+
+        auto resultEntries = m_initFile->getList();
+        for ( const auto& entry : resultEntries )
+        {
+            const auto& [keyword, kwType, size] = entry;
+            if ( keyword == resultName )
+            {
+                if ( kwType == Opm::EclIO::eclArrType::DOUB || kwType == Opm::EclIO::eclArrType::REAL )
+                {
+                    auto fileValues = m_initFile->getInitData<double>( resultName );
+                    values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                }
+                else if ( kwType == Opm::EclIO::eclArrType::INTE )
+                {
+                    auto fileValues = m_initFile->getInitData<int>( resultName );
+                    values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                }
+            }
+        }
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,13 +120,71 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                                         size_t                        stepIndex,
                                         std::vector<double>*          values )
 {
-    throw std::logic_error( "The method or operation is not implemented." );
+    if ( m_restartFile )
+    {
+        auto resultName = result.toStdString();
+
+        auto stepNumbers = m_restartFile->listOfReportStepNumbers();
+        auto stepNumber  = stepNumbers[stepIndex];
+
+        auto resultEntries = m_restartFile->getList();
+        for ( const auto& entry : resultEntries )
+        {
+            const auto& [keyword, kwType, size] = entry;
+            if ( keyword == resultName )
+            {
+                if ( kwType == Opm::EclIO::eclArrType::DOUB || kwType == Opm::EclIO::eclArrType::REAL )
+                {
+                    auto fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
+                    values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                }
+                else if ( kwType == Opm::EclIO::eclArrType::INTE )
+                {
+                    auto fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
+                    values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                }
+            }
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmCommon::buildMetaData()
+std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<Opm::EclIO::EclFile::EclEntry> entries )
+{
+    std::vector<RifKeywordValueCount> fileKeywordInfo;
+
+    for ( const auto& entry : entries )
+    {
+        const auto& [keyword, kwType, size] = entry;
+
+        RifKeywordValueCount::KeywordDataType dataType = RifKeywordValueCount::KeywordDataType::UNKNOWN;
+
+        if ( kwType == Opm::EclIO::eclArrType::INTE )
+            dataType = RifKeywordValueCount::KeywordDataType::INTEGER;
+        else if ( kwType == Opm::EclIO::eclArrType::REAL )
+            dataType = RifKeywordValueCount::KeywordDataType::FLOAT;
+        else if ( kwType == Opm::EclIO::eclArrType::DOUB )
+            dataType = RifKeywordValueCount::KeywordDataType::DOUBLE;
+
+        if ( dataType != RifKeywordValueCount::KeywordDataType::UNKNOWN )
+        {
+            fileKeywordInfo.emplace_back( RifKeywordValueCount( keyword, static_cast<size_t>( size ), dataType ) );
+        }
+    }
+
+    return fileKeywordInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 {
     Opm::Deck deck;
 
@@ -129,10 +214,44 @@ void RifReaderOpmCommon::buildMetaData()
 
     if ( !initFileName.empty() )
     {
-        m_initFile = std::make_unique<Opm::EclIO::EclFile>( initFileName );
+        m_initFile = std::make_unique<Opm::EclIO::EInit>( initFileName );
+
+        auto                              entries     = m_initFile->list_arrays();
+        std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
+
+        std::vector<RigEclipseTimeStepInfo> timeStepInfo;
+        QDateTime                           dateTime;
+        double                              daysSinceSimStart = 0.0;
+        timeStepInfo.push_back( { dateTime, 0, 0.0 } );
+
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, eclipseCase );
     }
+
     if ( !restartFileName.empty() )
     {
         m_restartFile = std::make_unique<Opm::EclIO::ERst>( restartFileName );
+
+        std::vector<Opm::EclIO::EclFile::EclEntry> entries;
+        for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
+        {
+            auto reportEntries = m_restartFile->listOfRstArrays( reportNumber );
+            entries.insert( entries.end(), reportEntries.begin(), reportEntries.end() );
+        }
+
+        std::vector<RigEclipseTimeStepInfo> timeStepInfo;
+        for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
+        {
+            QDateTime dateTime;
+            double    daysSinceSimStart = 0.0;
+            dateTime                    = dateTime.addDays( reportNumber );
+            timeStepInfo.push_back( { dateTime, reportNumber, 0.0 } );
+        }
+
+        auto last = std::unique( entries.begin(), entries.end() );
+        entries.erase( last, entries.end() );
+
+        std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
+
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, eclipseCase );
     }
 }
