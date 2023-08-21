@@ -39,8 +39,14 @@ else()
 endif(MSVC)
 
 add_library(
-  ${PROJECT_NAME} RifOdbReader.h RifOdbReader.cpp RifInpReader.h RifInpReader.cpp RifGeoMechReaderInterface.h
-                  RifGeoMechReaderInterface.cpp OdbSetup.cmake
+  ${PROJECT_NAME}
+  RifOdbReader.h
+  RifOdbReader.cpp
+  RifInpReader.h
+  RifInpReader.cpp
+  RifGeoMechReaderInterface.h
+  RifGeoMechReaderInterface.cpp
+  OdbSetup.cmake
 )
 
 target_include_directories(
