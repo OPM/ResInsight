@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "RimPlotCurveAppearance.h"
 
 #include "RiaCurveDataTools.h"
@@ -41,6 +39,7 @@
 class RiuPlotCurve;
 class RiuPlotWidget;
 class RimPlotRectAnnotation;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
@@ -97,7 +96,7 @@ public:
 
     void            setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod );
     QString         curveName() const;
-    virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
+    virtual QString curveExportDescription( const RifEclipseSummaryAddress& address ) const;
     virtual QString createCurveNameFromTemplate( const QString& templateText );
 
     void setCustomName( const QString& customName );

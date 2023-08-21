@@ -41,7 +41,7 @@ public:
     RifReaderObservedData();
     ~RifReaderObservedData() override;
 
-    bool open( const QString& headerFileName, const QString& identifierName, RifEclipseSummaryAddress::SummaryVarCategory summaryCategory );
+    bool open( const QString& headerFileName, const QString& identifierName, RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory );
 
     std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
@@ -52,8 +52,9 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
-    RifEclipseSummaryAddress
-        address( const QString& vectorName, const QString& identifierName, RifEclipseSummaryAddress::SummaryVarCategory summaryCategory );
+    RifEclipseSummaryAddress address( const QString&                                      vectorName,
+                                      const QString&                                      identifierName,
+                                      RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory );
 
 private:
     std::unique_ptr<RifCsvUserDataParser> m_asciiParser;

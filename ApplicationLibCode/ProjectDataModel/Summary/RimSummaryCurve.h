@@ -90,7 +90,7 @@ public:
     void updatePlotAxis();
     void applyCurveAutoNameSettings( const RimSummaryCurveAutoName& autoNameSettings );
 
-    QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const override;
+    QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
     void    setCurveAppearanceFromCaseType();
     void    setDefaultCurveAppearance();
 

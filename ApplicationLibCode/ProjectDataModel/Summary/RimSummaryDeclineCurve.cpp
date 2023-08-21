@@ -409,7 +409,7 @@ QString RimSummaryDeclineCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryDeclineCurve::curveExportDescription( const RifEclipseSummaryAddress& address ) const
 {
-    return RimSummaryCurve::curveExportDescription() + "." + m_declineCurveType().uiText() + "_Decline";
+    return RimSummaryCurve::curveExportDescription( {} ) + "." + m_declineCurveType().uiText() + "_Decline";
 }
 
 //--------------------------------------------------------------------------------------------------

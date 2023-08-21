@@ -107,21 +107,21 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         return RifEclipseSummaryAddress();
     }
 
-    RifEclipseSummaryAddress::SummaryVarCategory sumCategory( RifEclipseSummaryAddress::SUMMARY_INVALID );
-    std::string                                  quantityName;
-    int                                          regionNumber( -1 );
-    int                                          regionNumber2( -1 );
-    std::string                                  groupName;
-    std::string                                  networkName;
-    std::string                                  wellName;
-    int                                          wellSegmentNumber( -1 );
-    std::string                                  lgrName;
-    int                                          cellI( -1 );
-    int                                          cellJ( -1 );
-    int                                          cellK( -1 );
-    int                                          aquiferNumber( -1 );
-    bool                                         isErrorResult( false );
-    int                                          id( -1 );
+    RifEclipseSummaryAddressDefines::SummaryVarCategory sumCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID );
+    std::string                                         quantityName;
+    int                                                 regionNumber( -1 );
+    int                                                 regionNumber2( -1 );
+    std::string                                         groupName;
+    std::string                                         networkName;
+    std::string                                         wellName;
+    int                                                 wellSegmentNumber( -1 );
+    std::string                                         lgrName;
+    int                                                 cellI( -1 );
+    int                                                 cellJ( -1 );
+    int                                                 cellK( -1 );
+    int                                                 aquiferNumber( -1 );
+    bool                                                isErrorResult( false );
+    int                                                 id( -1 );
 
     quantityName = stringFromPointer( ertSumVarNode.get_keyword() );
 
@@ -129,36 +129,36 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
     {
         case ECL_SMSPEC_AQUIFER_VAR:
         {
-            sumCategory   = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
+            sumCategory   = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER;
             aquiferNumber = ertSumVarNode.get_num();
         }
         break;
         case ECL_SMSPEC_WELL_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL;
             wellName    = stringFromPointer( ertSumVarNode.get_wgname() );
         }
         break;
         case ECL_SMSPEC_REGION_VAR:
         {
-            sumCategory  = RifEclipseSummaryAddress::SUMMARY_REGION;
+            sumCategory  = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION;
             regionNumber = ertSumVarNode.get_num();
         }
         break;
         case ECL_SMSPEC_FIELD_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_FIELD;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD;
         }
         break;
         case ECL_SMSPEC_GROUP_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_GROUP;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP;
             groupName   = stringFromPointer( ertSumVarNode.get_wgname() );
         }
         break;
         case ECL_SMSPEC_BLOCK_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_BLOCK;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK;
 
             auto ijk = ertSumVarNode.get_ijk();
             cellI    = ijk[0];
@@ -168,7 +168,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_COMPLETION_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION;
             wellName    = stringFromPointer( ertSumVarNode.get_wgname() );
 
             auto ijk = ertSumVarNode.get_ijk();
@@ -179,7 +179,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_LOCAL_BLOCK_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK_LGR;
             lgrName     = stringFromPointer( ertSumVarNode.get_lgr_name() );
 
             auto ijk = ertSumVarNode.get_lgr_ijk();
@@ -190,7 +190,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_LOCAL_COMPLETION_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR;
             wellName    = stringFromPointer( ertSumVarNode.get_wgname() );
             lgrName     = stringFromPointer( ertSumVarNode.get_lgr_name() );
 
@@ -202,33 +202,33 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_LOCAL_WELL_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_LGR;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR;
             wellName    = stringFromPointer( ertSumVarNode.get_wgname() );
             lgrName     = stringFromPointer( ertSumVarNode.get_lgr_name() );
         }
         break;
         case ECL_SMSPEC_NETWORK_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_NETWORK;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK;
         }
         break;
         case ECL_SMSPEC_REGION_2_REGION_VAR:
         {
-            sumCategory   = RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION;
+            sumCategory   = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION;
             regionNumber  = ertSumVarNode.get_R1();
             regionNumber2 = ertSumVarNode.get_R2();
         }
         break;
         case ECL_SMSPEC_SEGMENT_VAR:
         {
-            sumCategory       = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
+            sumCategory       = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT;
             wellName          = stringFromPointer( ertSumVarNode.get_wgname() );
             wellSegmentNumber = ertSumVarNode.get_num();
         }
         break;
         case ECL_SMSPEC_MISC_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_MISC;
+            sumCategory = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_MISC;
         }
         break;
         default:

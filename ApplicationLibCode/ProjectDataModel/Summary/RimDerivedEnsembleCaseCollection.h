@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "RimDerivedSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 

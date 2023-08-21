@@ -21,12 +21,11 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "RimSummaryCase.h"
 
 class RifEnsembleStatisticsReader;
 class RimEnsembleCurveSet;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///

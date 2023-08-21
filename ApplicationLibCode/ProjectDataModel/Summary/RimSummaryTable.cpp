@@ -74,7 +74,7 @@ RimSummaryTable::RimSummaryTable()
     m_vector.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_category, "Categories", "Category" );
     m_category.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    m_category = RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL;
+    m_category = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL;
 
     CAF_PDM_InitFieldNoDefault( &m_resamplingSelection, "ResamplingSelection", "Date Resampling" );
     m_resamplingSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -128,7 +128,7 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
 {
     const auto summaryCases = getToplevelSummaryCases();
     m_case                  = nullptr;
-    m_category              = RifEclipseSummaryAddress::SUMMARY_WELL;
+    m_category              = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL;
     m_vector                = "";
 
     m_tableName = createTableName();
@@ -150,9 +150,9 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
-                                                           RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                           const QString&                               vectorName )
+void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*                                     summaryCase,
+                                                           RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                                           const QString&                                      vectorName )
 {
     m_case      = summaryCase;
     m_category  = category;
@@ -354,15 +354,15 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_category )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(
-                                                       RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL ),
-                                                   RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(
-                                                       RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP ),
-                                                   RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(
-                                                       RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION ),
-                                                   RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>::uiText(
+                                                       RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ),
+                                                   RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>::uiText(
+                                                       RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP ),
+                                                   RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>::uiText(
+                                                       RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION ),
+                                                   RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION ) );
     }
     else if ( fieldNeedingOptions == &m_vector && m_case )
     {
@@ -603,7 +603,7 @@ QString RimSummaryTable::dateFormatString() const
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReader( const RifSummaryReaderInterface* summaryReader,
-                                                                                   RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                                                   RifEclipseSummaryAddressDefines::SummaryVarCategory category,
                                                                                    const QString& vector ) const
 {
     if ( !summaryReader ) return {};
@@ -622,13 +622,13 @@ std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReade
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
-                                                                       RifEclipseSummaryAddress::SummaryVarCategory category ) const
+std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*                    summaryReader,
+                                                                       RifEclipseSummaryAddressDefines::SummaryVarCategory category ) const
 {
     if ( !summaryReader ) return {};
-    if ( category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL &&
-         category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP &&
-         category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
+    if ( category != RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL &&
+         category != RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP &&
+         category != RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION )
     {
         return {};
     }
@@ -649,15 +649,15 @@ std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const Rif
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryTable::getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const
 {
-    if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL )
+    if ( address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL )
     {
         return QString::fromStdString( address.wellName() );
     }
-    else if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP )
+    else if ( address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP )
     {
         return QString::fromStdString( address.groupName() );
     }
-    else if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
+    else if ( address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION )
     {
         return QString( "Region %1" ).arg( address.regionNumber() );
     }

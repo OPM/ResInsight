@@ -20,8 +20,6 @@
 
 #include "RimSummaryNameHelper.h"
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "cafPdmPointer.h"
 
 #include <QString>
@@ -34,6 +32,7 @@ class RimSummaryCurve;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RiaSummaryAddressAnalyzer;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 //
