@@ -295,6 +295,14 @@ bool RigSimWellData::isMultiSegmentWell() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigSimWellData::setWellName( const QString& wellName )
+{
+    m_wellName = wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::WellProductionType RigSimWellData::wellProductionType( size_t resultTimeStepIndex ) const
 {
     if ( hasWellResult( resultTimeStepIndex ) )

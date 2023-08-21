@@ -302,20 +302,42 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restar
 
     try
     {
-        auto reportStepCount = restartFile->numberOfReportSteps();
+        std::vector<Opm::RestartIO::RstState> states;
+
+        std::set<std::string> wellNames;
 
         for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
         {
             auto fileView = std::make_shared<Opm::EclIO::RestartFileView>( restartFile, seqNumber );
 
             auto state = Opm::RestartIO::RstState::load( fileView, runspec, parser );
+            states.emplace_back( state );
 
             for ( const auto& w : state.wells )
             {
-                auto name = w.name;
-
-                std::cout << name << std::endl;
+                wellNames.insert( w.name );
             }
+        }
+
+        for ( const auto& wellName : wellNames )
+        {
+            cvf::ref<RigSimWellData> simWellData = new RigSimWellData;
+            simWellData->setWellName( QString::fromStdString( wellName ) );
+
+            /*
+                        for ( const auto& s : states )
+                        {
+                            auto it = std::find_if( s.wells.begin(),
+                                                    s.wells.end(),
+                                                    [&wellName]( const Opm::RestartIO::RstWell& well ) { return well.name == wellName; } );
+                            if ( it != s.wells.end() )
+                            {
+                                wellData.cells.push_back( it->cells );
+                            }
+                        }
+            */
+
+            wells.push_back( simWellData.p() );
         }
     }
     catch ( std::exception& e )
