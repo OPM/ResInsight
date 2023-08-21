@@ -243,24 +243,10 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         if ( s.endsWith( restartExt, Qt::CaseInsensitive ) ) restartFileName = s.toStdString();
     }
 
-    if ( !initFileName.empty() )
-    {
-        m_initFile = std::make_unique<Opm::EclIO::EInit>( initFileName );
-
-        auto                              entries     = m_initFile->list_arrays();
-        std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
-
-        std::vector<RigEclipseTimeStepInfo> timeStepInfo;
-        QDateTime                           dateTime;
-        double                              daysSinceSimStart = 0.0;
-        timeStepInfo.push_back( { dateTime, 0, 0.0 } );
-
-        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, RiaDefines::ResultCatType::STATIC_NATIVE, eclipseCase );
-    }
-
+    RigEclipseTimeStepInfo firstTimeStepInfo{ QDateTime(), 0, 0.0 };
     if ( !restartFileName.empty() )
     {
-        m_restartFile = std::make_unique<Opm::EclIO::ERst>( restartFileName );
+        m_restartFile = std::make_shared<Opm::EclIO::ERst>( restartFileName );
 
         std::vector<Opm::EclIO::EclFile::EclEntry> entries;
         for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
@@ -269,13 +255,14 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
             entries.insert( entries.end(), reportEntries.begin(), reportEntries.end() );
         }
 
-        std::vector<RigEclipseTimeStepInfo> timeStepInfo;
-        for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
+        auto timeStepsFromFile = readTimeSteps( m_restartFile );
+
+        std::vector<RigEclipseTimeStepInfo> timeStepInfos;
+        for ( const auto& timeStep : timeStepsFromFile )
         {
-            QDateTime dateTime;
-            double    daysSinceSimStart = 0.0;
-            dateTime                    = dateTime.addDays( reportNumber );
-            timeStepInfo.push_back( { dateTime, reportNumber, 0.0 } );
+            QDate     date( timeStep.year, timeStep.month, timeStep.day );
+            QDateTime dateTime( date.startOfDay() );
+            timeStepInfos.push_back( { dateTime, timeStep.sequenceNumber, 0.0 } );
         }
 
         auto last = std::unique( entries.begin(), entries.end() );
@@ -283,7 +270,19 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
         std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
 
-        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCase );
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCase );
+
+        firstTimeStepInfo = timeStepInfos.front();
+    }
+
+    if ( !initFileName.empty() )
+    {
+        m_initFile = std::make_unique<Opm::EclIO::EInit>( initFileName );
+
+        auto                              entries     = m_initFile->list_arrays();
+        std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
+
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, { firstTimeStepInfo }, RiaDefines::ResultCatType::STATIC_NATIVE, eclipseCase );
     }
 }
 
@@ -325,4 +324,49 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restar
     }
 
     eclipseCase->setSimWellData( wells );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile )
+{
+    Opm::Deck deck;
+
+    // It is required to create a deck as the input parameter to runspec. The = default() initialization of the runspec keyword does not
+    // initialize the object as expected.
+    Opm::Runspec runspec( deck );
+    Opm::Parser  parser( false );
+
+    std::vector<RifReaderOpmCommon::TimeDataFile> reportTimeData;
+    try
+    {
+        auto reportStepCount = restartFile->numberOfReportSteps();
+
+        for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
+        {
+            auto fileView = std::make_shared<Opm::EclIO::RestartFileView>( restartFile, seqNumber );
+
+            auto state  = Opm::RestartIO::RstState::load( fileView, runspec, parser );
+            auto header = state.header;
+
+            int year        = header.year;
+            int month       = header.month;
+            int day         = header.mday;
+            int hour        = header.hour;
+            int minute      = header.minute;
+            int microsecond = header.microsecond;
+
+            double daySinceSimStart = header.next_timestep1;
+
+            reportTimeData.emplace_back(
+                TimeDataFile{ .sequenceNumber = seqNumber, .year = year, .month = month, .day = day, .simulationTimeFromStart = daySinceSimStart } );
+        }
+    }
+    catch ( std::exception& e )
+    {
+        std::cout << "Exception: " << e.what() << std::endl;
+    }
+
+    return reportTimeData;
 }

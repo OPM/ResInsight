@@ -35,6 +35,15 @@ class ERst;
 class RifReaderOpmCommon : public RifReaderInterface
 {
 public:
+    struct TimeDataFile
+    {
+        int    sequenceNumber;
+        int    year;
+        int    month;
+        int    day;
+        double simulationTimeFromStart;
+    };
+
     RifReaderOpmCommon();
     ~RifReaderOpmCommon() override;
 
@@ -45,12 +54,14 @@ public:
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
 private:
-    void        buildMetaData( RigEclipseCaseData* eclipseCase );
-    static void readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile, RigEclipseCaseData* eclipseCase );
+    void buildMetaData( RigEclipseCaseData* eclipseCase );
+
+    static std::vector<TimeDataFile> readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile );
+    static void                      readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile, RigEclipseCaseData* eclipseCase );
 
 private:
     std::string m_gridFileName;
 
-    std::unique_ptr<Opm::EclIO::ERst>  m_restartFile;
-    std::unique_ptr<Opm::EclIO::EInit> m_initFile;
+    std::shared_ptr<Opm::EclIO::ERst>  m_restartFile;
+    std::shared_ptr<Opm::EclIO::EInit> m_initFile;
 };
