@@ -37,7 +37,6 @@ public:
         LowerSurface
     };
 
-
 public:
     RigGriddedPart3d();
     ~RigGriddedPart3d() override;
@@ -48,15 +47,15 @@ public:
                            int                     numVertCellsMiddle,
                            int                     numVertCellsUpper );
 
-    const std::vector<cvf::Vec3d>&   vertices() const;
-    const std::vector<unsigned int>& elementIndices() const;
+    const std::vector<cvf::Vec3d>&                            vertices() const;
+    const std::vector<unsigned int>&                          elementIndices() const;
     const std::map<BorderSurface, std::vector<unsigned int>>& borderSurfaces() const;
 
 protected:
     cvf::Vec3d stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
 
 private:
-    std::vector<cvf::Vec3d>   m_vertices;
-    std::vector<unsigned int> m_elementIndices;
+    std::vector<cvf::Vec3d>                            m_vertices;
+    std::vector<unsigned int>                          m_elementIndices;
     std::map<BorderSurface, std::vector<unsigned int>> m_borderSurfaces;
 };
