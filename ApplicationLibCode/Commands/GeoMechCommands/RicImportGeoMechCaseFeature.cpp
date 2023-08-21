@@ -35,8 +35,10 @@ void RicImportGeoMechCaseFeature::onActionTriggered( bool isChecked )
     RiaApplication* app = RiaApplication::instance();
 
     QString     defaultDir = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
-    QStringList fileNames =
-        RiuFileDialogTools::getOpenFileNames( nullptr, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)" );
+    QStringList fileNames  = RiuFileDialogTools::getOpenFileNames( nullptr,
+                                                                  "Import Geo-Mechanical Model",
+                                                                  defaultDir,
+                                                                  "Abaqus results (*.odb);;Abaqus input file (*.inp)" );
     if ( fileNames.size() ) defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     app->setLastUsedDialogDirectory( "GEOMECH_MODEL", defaultDir );
 
