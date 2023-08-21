@@ -20,6 +20,7 @@
 
 #include <map>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
@@ -35,4 +36,7 @@ public:
     static std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& filename );
 
     static std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
+
+    using AicdTemplateValues = std::map<std::string, std::variant<std::string, double>>;
+    static std::vector<AicdTemplateValues> extractWsegaicd( const std::string& filename );
 };

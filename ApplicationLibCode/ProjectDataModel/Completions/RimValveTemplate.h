@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaOpmParserTools.h"
 
 #include "RimCheckableNamedObject.h"
 
@@ -47,6 +48,8 @@ public:
     QString                                     typeLabel() const;
     QString                                     fullLabel() const;
     void                                        setUserLabel( const QString& userLabel );
+
+    static RimValveTemplate* createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

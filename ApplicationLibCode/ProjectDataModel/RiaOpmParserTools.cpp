@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaOpmParserTools.h"
+#include "RiaLogging.h"
 
 #include "cafPdmUiItem.h"
 #include "cafUtils.h"
@@ -192,4 +193,74 @@ std::map<std::string, std::vector<std::pair<int, int>>> RiaOpmParserTools::extra
     }
 
     return wseglink;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWsegaicd( const std::string& filename )
+{
+    if ( !std::filesystem::exists( filename ) ) return {};
+
+    try
+    {
+        Opm::Parser parser( false );
+
+        const Opm::ParserKeywords::WSEGAICD kw1;
+        const Opm::ParserKeywords::INCLUDE  kw2;
+        const Opm::ParserKeywords::PATHS    kw3;
+
+        parser.addParserKeyword( kw1 );
+        parser.addParserKeyword( kw2 );
+        parser.addParserKeyword( kw3 );
+
+        std::stringstream ss;
+        Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
+        auto              deck = parser.parseFile( filename, parseContext );
+
+        std::string keyword     = "WSEGAICD";
+        auto        keywordList = deck.getKeywordList( keyword );
+        if ( keywordList.empty() ) return {};
+
+        std::vector<RiaOpmParserTools::AicdTemplateValues> aicdData;
+        for ( auto kw : keywordList )
+        {
+            auto name = kw->name();
+
+            for ( size_t i = 0; i < kw->size(); i++ )
+            {
+                RiaOpmParserTools::AicdTemplateValues aicdTemplate;
+
+                auto deckRecord = kw->getRecord( i );
+                auto numItems   = deckRecord.size();
+                for ( size_t i = 0; i < numItems; i++ )
+                {
+                    auto deckItem = deckRecord.getItem( i );
+                    if ( !deckItem.hasValue( 0 ) ) continue;
+
+                    auto typeTag = deckItem.getType();
+                    if ( typeTag == Opm::type_tag::string )
+                    {
+                        auto stringValue              = deckItem.getTrimmedString( 0 );
+                        aicdTemplate[deckItem.name()] = stringValue;
+                    }
+                    else if ( typeTag == Opm::type_tag::fdouble )
+                    {
+                        double doubleValue            = deckItem.get<double>( 0 );
+                        aicdTemplate[deckItem.name()] = doubleValue;
+                    }
+                }
+
+                aicdData.push_back( aicdTemplate );
+            }
+        }
+
+        return aicdData;
+    }
+    catch ( std::exception& e )
+    {
+        RiaLogging::error( e.what() );
+    }
+
+    return {};
 }

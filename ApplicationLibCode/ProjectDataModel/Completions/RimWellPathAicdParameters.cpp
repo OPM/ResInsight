@@ -117,6 +117,14 @@ bool RimWellPathAicdParameters::isValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathAicdParameters::setValue( AICDParameters parameter, double value )
+{
+    m_aicdParameterFields[parameter].setValue( QString::number( value ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellPathAicdParameters::isOpen() const
 {
     return m_deviceOpen;

@@ -954,6 +954,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimValveTemplateCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewValveTemplateFeature";
+            menuBuilder << "RicImportValveTemplatesFeature";
         }
         else if ( dynamic_cast<RimValveTemplate*>( firstUiItem ) )
         {
