@@ -837,62 +837,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
         }
     }
 
-    size_t reservoirCellCount = 0;
-    for ( const auto& actnumValues : actnumValuesPerGrid )
-    {
-        reservoirCellCount += actnumValues.size();
-    }
-
-    // Check if number of cells is matching
-    if ( m_eclipseCase->mainGrid()->globalCellArray().size() != reservoirCellCount )
-    {
-        return false;
-    }
-
-    RigActiveCellInfo* activeCellInfo         = m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-
-    activeCellInfo->setReservoirCellCount( reservoirCellCount );
-    fractureActiveCellInfo->setReservoirCellCount( reservoirCellCount );
-    activeCellInfo->setGridCount( actnumValuesPerGrid.size() );
-    fractureActiveCellInfo->setGridCount( actnumValuesPerGrid.size() );
-
-    size_t cellIdx                   = 0;
-    size_t globalActiveMatrixIndex   = 0;
-    size_t globalActiveFractureIndex = 0;
-
-    for ( size_t gridIndex = 0; gridIndex < actnumValuesPerGrid.size(); gridIndex++ )
-    {
-        size_t activeMatrixIndex   = 0;
-        size_t activeFractureIndex = 0;
-
-        std::vector<int>& actnumValues = actnumValuesPerGrid[gridIndex];
-
-        for ( int actnumValue : actnumValues )
-        {
-            if ( actnumValue == 1 || actnumValue == 3 )
-            {
-                activeCellInfo->setCellResultIndex( cellIdx, globalActiveMatrixIndex++ );
-                activeMatrixIndex++;
-            }
-
-            if ( actnumValue == 2 || actnumValue == 3 )
-            {
-                fractureActiveCellInfo->setCellResultIndex( cellIdx, globalActiveFractureIndex++ );
-                activeFractureIndex++;
-            }
-
-            cellIdx++;
-        }
-
-        activeCellInfo->setGridActiveCellCounts( gridIndex, activeMatrixIndex );
-        fractureActiveCellInfo->setGridActiveCellCounts( gridIndex, activeFractureIndex );
-    }
-
-    activeCellInfo->computeDerivedData();
-    fractureActiveCellInfo->computeDerivedData();
-
-    return true;
+    return RifEclipseOutputFileTools::assignActiveCellData( actnumValuesPerGrid, m_eclipseCase );
 }
 
 //--------------------------------------------------------------------------------------------------

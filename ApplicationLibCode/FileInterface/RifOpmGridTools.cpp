@@ -135,6 +135,52 @@ bool RifOpmGridTools::importGrid( const std::string& gridFilePath, RigMainGrid* 
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm::EclIO::EGrid& grid )
+{
+    auto arrayNames         = grid.arrayNames();
+    int  actnum_array_index = 0;
+
+    for ( int i = 0; i < arrayNames.size(); i++ )
+    {
+        if ( arrayNames[i] == "ACTNUM" )
+        {
+            actnum_array_index = i;
+            break;
+        }
+    }
+
+    if ( actnum_array_index < 0 ) return {};
+
+    auto dims = grid.dimension();
+    auto lgrs = grid.list_of_lgrs();
+
+    auto actnum = grid.get<int>( actnum_array_index );
+
+    auto             totalNumberOfCellsMainGrid = grid.totalNumberOfCells();
+    std::vector<int> mainGridActiveCells;
+    mainGridActiveCells.insert( mainGridActiveCells.end(), actnum.begin(), actnum.begin() + totalNumberOfCellsMainGrid );
+
+    return { mainGridActiveCells };
+
+    /*
+        for ( auto k = 0; k < dims[2]; k++ )
+        {
+            for ( auto j = 0; j < dims[1]; j++ )
+            {
+                for ( auto i = 0; i < dims[0]; i++ )
+                {
+                    auto actnumValue = grid->active_index( i, j, k );
+                }
+            }
+        }
+    */
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
 //
 // A radial grid is defined by a center point and a set of cylindrical coordinates. The coordinates at the
 // outer edge of the grid are defined as a circle, and nodes do not match the geometry of the host cell.

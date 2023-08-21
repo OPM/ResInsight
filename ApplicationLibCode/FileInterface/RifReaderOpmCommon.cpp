@@ -86,27 +86,39 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
 {
     if ( m_initFile )
     {
-        auto resultName = result.toStdString();
-
-        auto resultEntries = m_initFile->getList();
-        for ( const auto& entry : resultEntries )
+        try
         {
-            const auto& [keyword, kwType, size] = entry;
-            if ( keyword == resultName )
+            auto resultName = result.toStdString();
+
+            auto resultEntries = m_initFile->getList();
+            for ( const auto& entry : resultEntries )
             {
-                if ( kwType == Opm::EclIO::eclArrType::DOUB || kwType == Opm::EclIO::eclArrType::REAL )
+                const auto& [keyword, kwType, size] = entry;
+                if ( keyword == resultName )
                 {
-                    auto fileValues = m_initFile->getInitData<double>( resultName );
-                    values->insert( values->end(), fileValues.begin(), fileValues.end() );
-                }
-                else if ( kwType == Opm::EclIO::eclArrType::INTE )
-                {
-                    auto fileValues = m_initFile->getInitData<int>( resultName );
-                    values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                    if ( kwType == Opm::EclIO::eclArrType::REAL )
+                    {
+                        auto fileValues = m_initFile->getInitData<float>( resultName );
+                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                    }
+                    else if ( kwType == Opm::EclIO::eclArrType::DOUB )
+                    {
+                        auto fileValues = m_initFile->getInitData<double>( resultName );
+                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                    }
+                    else if ( kwType == Opm::EclIO::eclArrType::INTE )
+                    {
+                        auto fileValues = m_initFile->getInitData<int>( resultName );
+                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                    }
                 }
             }
+            return true;
         }
-        return true;
+        catch ( std::exception* e )
+        {
+            RiaLogging::error( e->what() );
+        }
     }
 
     return false;
@@ -122,31 +134,43 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
 {
     if ( m_restartFile )
     {
-        auto resultName = result.toStdString();
-
-        auto stepNumbers = m_restartFile->listOfReportStepNumbers();
-        auto stepNumber  = stepNumbers[stepIndex];
-
-        auto resultEntries = m_restartFile->getList();
-        for ( const auto& entry : resultEntries )
+        try
         {
-            const auto& [keyword, kwType, size] = entry;
-            if ( keyword == resultName )
+            auto resultName = result.toStdString();
+
+            auto stepNumbers = m_restartFile->listOfReportStepNumbers();
+            auto stepNumber  = stepNumbers[stepIndex];
+
+            auto resultEntries = m_restartFile->getList();
+            for ( const auto& entry : resultEntries )
             {
-                if ( kwType == Opm::EclIO::eclArrType::DOUB || kwType == Opm::EclIO::eclArrType::REAL )
+                const auto& [keyword, kwType, size] = entry;
+                if ( keyword == resultName )
                 {
-                    auto fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
-                    values->insert( values->end(), fileValues.begin(), fileValues.end() );
-                }
-                else if ( kwType == Opm::EclIO::eclArrType::INTE )
-                {
-                    auto fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
-                    values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                    if ( kwType == Opm::EclIO::eclArrType::DOUB )
+                    {
+                        auto fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
+                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                    }
+                    if ( kwType == Opm::EclIO::eclArrType::REAL )
+                    {
+                        auto fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber );
+                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                    }
+                    else if ( kwType == Opm::EclIO::eclArrType::INTE )
+                    {
+                        auto fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
+                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                    }
                 }
             }
-        }
 
-        return true;
+            return true;
+        }
+        catch ( std::exception* e )
+        {
+            RiaLogging::error( e->what() );
+        }
     }
 
     return false;
@@ -224,7 +248,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         double                              daysSinceSimStart = 0.0;
         timeStepInfo.push_back( { dateTime, 0, 0.0 } );
 
-        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, eclipseCase );
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, RiaDefines::ResultCatType::STATIC_NATIVE, eclipseCase );
     }
 
     if ( !restartFileName.empty() )
@@ -252,6 +276,6 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
         std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
 
-        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, eclipseCase );
+        RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCase );
     }
 }

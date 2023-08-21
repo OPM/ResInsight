@@ -43,6 +43,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigMainGrid.h"
 #include <algorithm>
 #include <cassert>
 
@@ -74,6 +75,7 @@ std::vector<RifKeywordValueCount> RifEclipseOutputFileTools::keywordValueCounts(
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifKeywordValueCount>&   fileKeywordInfo,
                                                      const std::vector<RigEclipseTimeStepInfo>& timeStepInfo,
+                                                     RiaDefines::ResultCatType                  resultCategory,
                                                      RigEclipseCaseData*                        eclipseCaseData )
 {
     if ( !eclipseCaseData ) return;
@@ -90,7 +92,7 @@ void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifKeywor
 
         for ( const auto& keywordData : validKeywords )
         {
-            RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+            RigEclipseResultAddress resAddr( resultCategory,
                                              RifKeywordValueCount::mapType( keywordData.dataType() ),
                                              QString::fromStdString( keywordData.keyword() ) );
             matrixModelResults->createResultEntry( resAddr, false );
@@ -107,7 +109,7 @@ void RifEclipseOutputFileTools::createResultEntries( const std::vector<RifKeywor
 
         for ( const auto& keywordData : validKeywords )
         {
-            RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+            RigEclipseResultAddress resAddr( resultCategory,
                                              RifKeywordValueCount::mapType( keywordData.dataType() ),
                                              QString::fromStdString( keywordData.keyword() ) );
             fractureModelResults->createResultEntry( resAddr, false );
@@ -642,6 +644,69 @@ FILE* RifEclipseOutputFileTools::fopen( const QString& filePath, const QString& 
 #endif
 
     return filePtr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::assignActiveCellData( std::vector<std::vector<int>>& actnumValuesPerGrid, RigEclipseCaseData* eclipseCaseData )
+{
+    size_t reservoirCellCount = 0;
+    for ( const auto& actnumValues : actnumValuesPerGrid )
+    {
+        reservoirCellCount += actnumValues.size();
+    }
+
+    // Check if number of cells is matching
+    if ( eclipseCaseData->mainGrid()->globalCellArray().size() != reservoirCellCount )
+    {
+        return false;
+    }
+
+    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+    activeCellInfo->setReservoirCellCount( reservoirCellCount );
+    fractureActiveCellInfo->setReservoirCellCount( reservoirCellCount );
+    activeCellInfo->setGridCount( actnumValuesPerGrid.size() );
+    fractureActiveCellInfo->setGridCount( actnumValuesPerGrid.size() );
+
+    size_t cellIdx                   = 0;
+    size_t globalActiveMatrixIndex   = 0;
+    size_t globalActiveFractureIndex = 0;
+
+    for ( size_t gridIndex = 0; gridIndex < actnumValuesPerGrid.size(); gridIndex++ )
+    {
+        size_t activeMatrixIndex   = 0;
+        size_t activeFractureIndex = 0;
+
+        std::vector<int>& actnumValues = actnumValuesPerGrid[gridIndex];
+
+        for ( int actnumValue : actnumValues )
+        {
+            if ( actnumValue == 1 || actnumValue == 3 )
+            {
+                activeCellInfo->setCellResultIndex( cellIdx, globalActiveMatrixIndex++ );
+                activeMatrixIndex++;
+            }
+
+            if ( actnumValue == 2 || actnumValue == 3 )
+            {
+                fractureActiveCellInfo->setCellResultIndex( cellIdx, globalActiveFractureIndex++ );
+                activeFractureIndex++;
+            }
+
+            cellIdx++;
+        }
+
+        activeCellInfo->setGridActiveCellCounts( gridIndex, activeMatrixIndex );
+        fractureActiveCellInfo->setGridActiveCellCounts( gridIndex, activeFractureIndex );
+    }
+
+    activeCellInfo->computeDerivedData();
+    fractureActiveCellInfo->computeDerivedData();
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

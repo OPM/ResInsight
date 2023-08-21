@@ -90,6 +90,7 @@ public:
 
 private:
     bool readActiveCellInfo();
+
     void buildMetaData( ecl_grid_type* grid );
     void readWellCells( const ecl_grid_type* mainEclGrid, bool importCompleteMswData );
 

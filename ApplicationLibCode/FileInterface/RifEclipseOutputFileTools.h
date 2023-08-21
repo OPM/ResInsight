@@ -54,6 +54,7 @@ public:
 
     static void createResultEntries( const std::vector<RifKeywordValueCount>&   fileKeywordInfo,
                                      const std::vector<RigEclipseTimeStepInfo>& timeStepInfo,
+                                     RiaDefines::ResultCatType                  resultCategory,
                                      RigEclipseCaseData*                        eclipseCaseData );
 
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values );
@@ -90,6 +91,8 @@ public:
     static bool isExportedFromIntersect( const ecl_file_type* ecl_file );
 
     static FILE* fopen( const QString& filePath, const QString& mode );
+
+    static bool assignActiveCellData( std::vector<std::vector<int>>& actnumValuesPerGrid, RigEclipseCaseData* eclipseCaseData );
 
 private:
     static RifRestartReportKeywords          createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files );
