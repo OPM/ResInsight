@@ -26,6 +26,7 @@
 #include "RigGeoMechCaseData.h"
 
 #ifdef USE_ODB_API
+#include "RifInpReader.h"
 #include "RifOdbReader.h"
 #endif
 
@@ -91,7 +92,14 @@ RigFemPartResultsCollection* RigGeoMechCaseData::femPartResults()
 bool RigGeoMechCaseData::open( std::string* errorMessage )
 {
 #ifdef USE_ODB_API
-    m_readerInterface = new RifOdbReader;
+    if ( m_geoMechCaseFileName.ends_with( ".odb" ) )
+    {
+        m_readerInterface = new RifOdbReader;
+    }
+    else
+    {
+        m_readerInterface = new RifInpReader;
+    }
 #endif
 
     return m_readerInterface.notNull() && m_readerInterface->openFile( m_geoMechCaseFileName, errorMessage );

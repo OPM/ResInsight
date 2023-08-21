@@ -39,7 +39,7 @@ else()
 endif(MSVC)
 
 add_library(
-  ${PROJECT_NAME} RifOdbReader.h RifOdbReader.cpp RifGeoMechReaderInterface.h
+  ${PROJECT_NAME} RifOdbReader.h RifOdbReader.cpp RifInpReader.h RifInpReader.cpp RifGeoMechReaderInterface.h
                   RifGeoMechReaderInterface.cpp OdbSetup.cmake
 )
 
