@@ -37,26 +37,23 @@ public:
         LowerSurface
     };
 
-
 public:
     RigGriddedPart3d();
     ~RigGriddedPart3d() override;
 
-    void generateGeometry( std::vector<cvf::Vec3d> cornerPoints,
-                           int                     numHorzCells,
-                           int                     numVertCellsLower,
-                           int                     numVertCellsMiddle,
-                           int                     numVertCellsUpper );
+    void generateGeometry( std::vector<cvf::Vec3d> inputPoints, int nHorzCells, int nVertCellsLower, int nVertCellsMiddle, int nVertCellsUpper );
 
-    const std::vector<cvf::Vec3d>&   vertices() const;
-    const std::vector<unsigned int>& elementIndices() const;
-    const std::map<BorderSurface, std::vector<unsigned int>>& borderSurfaces() const;
+    const std::vector<cvf::Vec3d>&                            vertices() const;
+    const std::vector<unsigned int>&                          elementIndices() const;
+    const std::map<BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
 
 protected:
     cvf::Vec3d stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
 
 private:
-    std::vector<cvf::Vec3d>   m_vertices;
-    std::vector<unsigned int> m_elementIndices;
-    std::map<BorderSurface, std::vector<unsigned int>> m_borderSurfaces;
+    std::vector<cvf::Vec3d>                            m_vertices;
+    std::vector<unsigned int>                          m_elementIndices;
+    std::map<BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
+
+    double m_thickness;
 };

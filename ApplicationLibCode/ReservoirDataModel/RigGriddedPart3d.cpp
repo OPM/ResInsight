@@ -24,6 +24,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigGriddedPart3d::RigGriddedPart3d()
+    : m_thickness( 10.0 )
 {
 }
 
@@ -65,39 +66,95 @@ cvf::Vec3d RigGriddedPart3d::stepVector( cvf::Vec3d start, cvf::Vec3d stop, int 
 /// Assumes 0->4, 1->5, 2->6 and 3->7 is parallel
 ///
 ///
-/// Output elements will be of type HEX8
-///
-///     3---------2
-///    /|        /|
-///   / |       / |
-///  0---------1  |
-///  |  7------|--6
-///  | /       | /
-///  |/        |/
-///  4---------5
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> cornerPoints,
-                                         int                     numHorzCells,
-                                         int                     numVertCellsLower,
-                                         int                     numVertCellsMiddle,
-                                         int                     numVertCellsUpper )
+void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints, int nHorzCells, int nVertCellsLower, int nVertCellsMiddle, int nVertCellsUpper )
 {
-    // cvf::Vec3d step0to1 = stepVector( cornerPoints[0], cornerPoints[1], numVertCells );
-    // cvf::Vec3d step0to3 = stepVector( cornerPoints[0], cornerPoints[3], numHorzCells );
-    // cvf::Vec3d step1to2 = stepVector( cornerPoints[1], cornerPoints[2], numHorzCells );
-    // cvf::Vec3d step3to2 = stepVector( cornerPoints[3], cornerPoints[2], numVertCells );
+    m_borderSurfaceElements.clear();
+    m_vertices.clear();
+    m_elementIndices.clear();
+
+    cvf::Vec3d step0to1 = stepVector( inputPoints[0], inputPoints[1], nVertCellsLower );
+    cvf::Vec3d step1to2 = stepVector( inputPoints[1], inputPoints[2], nVertCellsMiddle );
+    cvf::Vec3d step2to3 = stepVector( inputPoints[2], inputPoints[3], nVertCellsUpper );
+
+    cvf::Vec3d step4to5 = stepVector( inputPoints[4], inputPoints[5], nVertCellsLower );
+    cvf::Vec3d step5to6 = stepVector( inputPoints[5], inputPoints[6], nVertCellsMiddle );
+    cvf::Vec3d step6to7 = stepVector( inputPoints[6], inputPoints[7], nVertCellsUpper );
+
+    cvf::Vec3d step0to4 = stepVector( inputPoints[0], inputPoints[4], nHorzCells );
+    cvf::Vec3d step1to5 = stepVector( inputPoints[1], inputPoints[5], nHorzCells );
+    cvf::Vec3d step2to6 = stepVector( inputPoints[2], inputPoints[6], nHorzCells );
+    cvf::Vec3d step3to7 = stepVector( inputPoints[3], inputPoints[7], nHorzCells );
+
+    cvf::Vec3d tVec = step0to4 ^ step0to1;
+    tVec.normalize();
+    tVec *= m_thickness;
+    const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
+    const int                 nThicknessCells    = 2;
+    const int                 nVertCells         = nVertCellsLower + nVertCellsMiddle + nVertCellsUpper;
+
+    const std::vector<int>        vertCells  = { nVertCellsLower, nVertCellsMiddle, nVertCellsUpper + 1 };
+    const std::vector<cvf::Vec3d> firstSteps = { step0to1, step1to2, step2to3 };
+    const std::vector<cvf::Vec3d> lastSteps  = { step4to5, step5to6, step6to7 };
 
     // ** generate vertices
 
-    m_vertices.clear();
-    // m_vertices.reserve( (size_t)( ( numVertCells + 1 ) * ( numHorzCells + 1 ) ) );
+    m_vertices.reserve( (size_t)( ( nVertCells + 1 ) * ( nHorzCells + 1 ) ) );
+
+    cvf::Vec3d p     = inputPoints[0];
+    cvf::Vec3d pLast = inputPoints[4];
+
+    for ( int i = 0; i < (int)sizeof( vertCells ); i++ )
+    {
+        for ( int v = 0; v < vertCells[i]; v++ )
+        {
+            cvf::Vec3d stepHorz = stepVector( p, pLast, nHorzCells );
+            cvf::Vec3d p2       = p;
+            for ( int h = 0; h <= nHorzCells; h++ )
+            {
+                for ( int t = 0; t <= (int)m_thicknessFactors.size(); t++ )
+                {
+                    m_vertices.push_back( p2 + m_thicknessFactors[t] * tVec );
+                }
+
+                p2 += stepHorz;
+                pLast = p2;
+            }
+            p += firstSteps[i];
+            pLast += lastSteps[i];
+        }
+    }
+
+    // ** generate elements of type hex8
+
+    m_elementIndices.reserve( (size_t)( ( nVertCellsLower + nVertCellsMiddle + nVertCellsUpper ) * nHorzCells * 8 ) );
+
+    int index = 0;
+
+    const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
+
+    for ( int v = 0; v < nVertCells; v++ )
+    {
+        int i = index;
+        for ( int h = 0; h < nHorzCells; h++, i++ )
+        {
+            for ( int t = 0; t < nThicknessCells; t++ )
+            {
+                m_elementIndices.push_back( i + nHorzCells );
+                m_elementIndices.push_back( i + nHorzCells + 1 );
+                m_elementIndices.push_back( i + 1 );
+                m_elementIndices.push_back( i );
+
+                m_elementIndices.push_back( i + nHorzCells + ( nThicknessCells + 1 ) * nHorzCells );
+                m_elementIndices.push_back( i + nHorzCells + ( nThicknessCells + 1 ) * nHorzCells + 1 );
+            }
+        }
+        index += nHorzCells + 1;
+    }
 
     // ** generate indices
 
-    m_elementIndices.clear();
     // m_elementIndices.reserve( (size_t)( numVertCells * numHorzCells * 4 ) );
-
-    m_borderSurfaces.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,6 +166,16 @@ const std::vector<cvf::Vec3d>& RigGriddedPart3d::vertices() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Output elements will be of type HEX8
+///
+///     7---------6
+///    /|        /|
+///   / |       / |
+///  4---------5  |     z
+///  |  3------|--2       |   y
+///  | /       | /        | /
+///  |/        |/         |/
+///  0---------1           ----- x
 ///
 //--------------------------------------------------------------------------------------------------
 const std::vector<unsigned int>& RigGriddedPart3d::elementIndices() const
@@ -119,7 +186,7 @@ const std::vector<unsigned int>& RigGriddedPart3d::elementIndices() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<RigGriddedPart3d::BorderSurface, std::vector<unsigned int>>& RigGriddedPart3d::borderSurfaces() const
+const std::map<RigGriddedPart3d::BorderSurface, std::vector<unsigned int>>& RigGriddedPart3d::borderSurfaceElements() const
 {
-    return m_borderSurfaces;
+    return m_borderSurfaceElements;
 }
