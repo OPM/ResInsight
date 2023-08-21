@@ -17,17 +17,24 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifReaderOpmCommon.h"
+
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
+
 #include "RifEclipseOutputFileTools.h"
 #include "RifOpmGridTools.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
+#include "RigSimWellData.h"
+
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/EclipseState/Runspec.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/io/eclipse/EInit.hpp"
 #include "opm/io/eclipse/ERst.hpp"
+#include "opm/io/eclipse/RestartFileView.hpp"
+#include "opm/io/eclipse/rst/state.hpp"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -278,4 +285,44 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
         RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfo, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCase );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile, RigEclipseCaseData* eclipseCase )
+{
+    Opm::Deck deck;
+
+    // It is required to create a deck as the input parameter to runspec. The = default() initialization of the runspec keyword does not
+    // initialize the object as expected.
+    Opm::Runspec runspec( deck );
+    Opm::Parser  parser( false );
+
+    cvf::Collection<RigSimWellData> wells;
+
+    try
+    {
+        auto reportStepCount = restartFile->numberOfReportSteps();
+
+        for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
+        {
+            auto fileView = std::make_shared<Opm::EclIO::RestartFileView>( restartFile, seqNumber );
+
+            auto state = Opm::RestartIO::RstState::load( fileView, runspec, parser );
+
+            for ( const auto& w : state.wells )
+            {
+                auto name = w.name;
+
+                std::cout << name << std::endl;
+            }
+        }
+    }
+    catch ( std::exception& e )
+    {
+        std::cout << "Exception: " << e.what() << std::endl;
+    }
+
+    eclipseCase->setSimWellData( wells );
 }

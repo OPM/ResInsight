@@ -45,7 +45,8 @@ public:
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
 private:
-    void buildMetaData( RigEclipseCaseData* eclipseCase );
+    void        buildMetaData( RigEclipseCaseData* eclipseCase );
+    static void readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile, RigEclipseCaseData* eclipseCase );
 
 private:
     std::string m_gridFileName;
