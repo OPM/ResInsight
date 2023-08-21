@@ -55,6 +55,16 @@ std::string RiaStdStringTools::trimString( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::removeWhitespace( const std::string& line )
+{
+    std::string s = line;
+    s.erase( std::remove_if( s.begin(), s.end(), isspace ), s.end() );
+    return s;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::isNumber( const std::string& s, char decimalPoint )
 {
     if ( s.empty() ) return false;
