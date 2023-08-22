@@ -101,7 +101,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     {
         auto task = stepCountProgress.task( "Loading POR-Bar.", m_resultCollection->timeStepCount() );
         porePressureDataFrames =
-            m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
+            m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "" ) );
     }
 
     // Stress (ST.S3)

@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorNodalGradients.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -49,7 +50,7 @@ RigFemPartResultCalculatorNodalGradients::~RigFemPartResultCalculatorNodalGradie
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorNodalGradients::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( ( resVarAddr.fieldName == "POR-Bar" ) && ( resVarAddr.resultPosType == RIG_NODAL ) &&
+    return ( ( resVarAddr.fieldName == RigFemAddressDefines::porBar() ) && ( resVarAddr.resultPosType == RIG_NODAL ) &&
              ( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" ) );
 }
 
@@ -58,7 +59,7 @@ bool RigFemPartResultCalculatorNodalGradients::isMatching( const RigFemResultAdd
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "POR-Bar" );
+    CVF_ASSERT( resVarAddr.fieldName == RigFemAddressDefines::porBar() );
     CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 5, "" );
@@ -81,7 +82,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
-    RigFemResultAddress       porResultAddr( RIG_NODAL, "POR-Bar", "" );
+    RigFemResultAddress       porResultAddr( RIG_NODAL, RigFemAddressDefines::porBar(), "" );
     RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, porResultAddr );
 
     stepCountProgress.incrementProgress();

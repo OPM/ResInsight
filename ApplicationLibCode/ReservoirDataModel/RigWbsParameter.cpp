@@ -18,6 +18,7 @@
 #include "RigWbsParameter.h"
 
 #include "RiaWellLogUnitTools.h"
+#include "RigFemAddressDefines.h"
 
 #include "cafAssert.h"
 
@@ -234,7 +235,10 @@ bool RigWbsParameter::operator<( const RigWbsParameter& rhs ) const
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::PP_Reservoir()
 {
-    SourceVector sources = { { GRID, SourceAddress( "POR-Bar", "", RiaWellLogUnitTools<double>::barUnitString() ) },
+    SourceVector sources = { { GRID,
+                               SourceAddress( QString::fromStdString( RigFemAddressDefines::porBar() ),
+                                              "",
+                                              RiaWellLogUnitTools<double>::barUnitString() ) },
                              { LAS_FILE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
                              { LAS_FILE, SourceAddress( "PP_RES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
                              { LAS_FILE, SourceAddress( "POR_RES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) },

@@ -94,7 +94,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
     RigFemResultAddress shAddr( RIG_ELEMENT_NODAL, "ST", "S3" );
-    RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, "POR-Bar", "" );
+    RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "" );
 
     const std::vector<float>& unscaledShValues = resultCollection->resultValues( shAddr, m_partId, timeStepIndex, frameIndex );
     const std::vector<float>& porePressures    = resultCollection->resultValues( porBarResAddr, m_partId, timeStepIndex, frameIndex );
@@ -587,7 +587,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
 
     // The result addresses needed
     RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, "ST", "" );
-    RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, "POR-Bar", "" );
+    RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "" );
 
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 

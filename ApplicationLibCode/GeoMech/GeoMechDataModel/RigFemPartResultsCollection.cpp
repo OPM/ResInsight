@@ -26,6 +26,7 @@
 #include "RifElementPropertyReader.h"
 #include "RifGeoMechReaderInterface.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultCalculatorBarConverted.h"
@@ -163,8 +164,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorBarConverted( *this, "S-Bar", "S" ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorBarConverted( *this, "POR-Bar", "POR" ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorBarConverted( *this, RigFemAddressDefines::porBar(), "POR" ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEnIpPorBar( *this ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNodalGradients( *this ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorCompaction( *this ) ) );
@@ -573,7 +574,7 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         {
             fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
             if ( fieldCompNames.contains( "U" ) ) fieldCompNames["U"].push_back( "U_LENGTH" );
-            fieldCompNames["POR-Bar"];
+            fieldCompNames[RigFemAddressDefines::porBar()];
             fieldCompNames[FIELD_NAME_COMPACTION];
         }
         else if ( resPos == RIG_ELEMENT_NODAL )
@@ -823,10 +824,10 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         }
         else if ( resPos == RIG_DIFFERENTIALS )
         {
-            fieldCompNames["POR-Bar"];
-            fieldCompNames["POR-Bar"].push_back( "X" );
-            fieldCompNames["POR-Bar"].push_back( "Y" );
-            fieldCompNames["POR-Bar"].push_back( "Z" );
+            fieldCompNames[RigFemAddressDefines::porBar()];
+            fieldCompNames[RigFemAddressDefines::porBar()].push_back( "X" );
+            fieldCompNames[RigFemAddressDefines::porBar()].push_back( "Y" );
+            fieldCompNames[RigFemAddressDefines::porBar()].push_back( "Z" );
 
             for ( auto& s : stressGradientComponentNames )
             {
@@ -1367,8 +1368,10 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
     }
     results.insert( RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "Q", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
 
-    results.insert( RigFemResultAddress( RIG_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
-    results.insert( RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert(
+        RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
 
     return results;
 }

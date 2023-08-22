@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorNormalST.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -69,7 +70,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int par
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcPORDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                    RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "" ) );
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
     const RigFemPart*         femPart       = m_resultCollection->parts()->part( partIndex );

@@ -22,7 +22,7 @@ class RigFemResultAddress;
 
 namespace RigFemAddressDefines
 {
-const std::string propertyNamePorBar();
+const std::string porBar();
 
 RigFemResultAddress getResultLookupAddress( const RigFemResultAddress& sourceAddress );
 

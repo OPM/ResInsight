@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::string RigFemAddressDefines::propertyNamePorBar()
+const std::string RigFemAddressDefines::porBar()
 {
     return "POR-Bar";
 }
@@ -32,7 +32,7 @@ const std::string RigFemAddressDefines::propertyNamePorBar()
 //--------------------------------------------------------------------------------------------------
 RigFemResultAddress RigFemAddressDefines::getResultLookupAddress( const RigFemResultAddress& sourceAddress )
 {
-    if ( sourceAddress.resultPosType == RIG_NODAL && sourceAddress.fieldName == RigFemAddressDefines::propertyNamePorBar() )
+    if ( sourceAddress.resultPosType == RIG_NODAL && sourceAddress.fieldName == RigFemAddressDefines::porBar() )
     {
         RigFemResultAddress lookupAddressForPOR = sourceAddress;
 

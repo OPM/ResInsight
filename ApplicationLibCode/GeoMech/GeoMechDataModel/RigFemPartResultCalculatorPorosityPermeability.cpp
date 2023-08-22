@@ -20,6 +20,7 @@
 
 #include "RiaEclipseUnitTools.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -67,7 +68,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPorosityPermeability::calcul
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcPorePressureDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                    RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "" ) );
     stepCountProgress.incrementProgress();
 
     // Volumetric Strain

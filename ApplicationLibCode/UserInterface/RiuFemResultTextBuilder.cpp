@@ -19,6 +19,7 @@
 
 #include "RiuFemResultTextBuilder.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemClosestResultIndexCalculator.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -289,8 +290,9 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
                 {
                     float scalarValue = std::numeric_limits<float>::infinity();
                     int   nodeIdx     = elementConn[lNodeIdx];
-                    if ( resultDefinition->resultPositionType() == RIG_NODAL || ( resultDefinition->resultPositionType() == RIG_DIFFERENTIALS &&
-                                                                                  resultDefinition->resultFieldName() == "POR-Bar" ) )
+                    if ( resultDefinition->resultPositionType() == RIG_NODAL ||
+                         ( resultDefinition->resultPositionType() == RIG_DIFFERENTIALS &&
+                           resultDefinition->resultFieldName() == QString::fromStdString( RigFemAddressDefines::porBar() ) ) )
                     {
                         scalarValue = scalarResults[nodeIdx];
                     }
