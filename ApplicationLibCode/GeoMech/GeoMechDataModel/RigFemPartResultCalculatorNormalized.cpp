@@ -86,8 +86,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int p
         if ( !srcDataFrames ) return nullptr;
     }
     {
-        auto task     = stepCountProgress.task( "Creating Space for Normalized Result", m_resultCollection->timeStepCount() );
-        dstDataFrames = m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr ) );
+        auto task = stepCountProgress.task( "Creating Space for Normalized Result", m_resultCollection->timeStepCount() );
+
+        RigFemResultAddress destResultAddr = resVarAddr;
+        if ( destResultAddr.resultPosType == RIG_NODAL && destResultAddr.fieldName == "POR-Bar" )
+            destResultAddr.resultPosType = RIG_ELEMENT_NODAL;
+
+        dstDataFrames = m_resultCollection->createScalarResult( partIndex, destResultAddr );
         if ( !dstDataFrames ) return nullptr;
     }
 
