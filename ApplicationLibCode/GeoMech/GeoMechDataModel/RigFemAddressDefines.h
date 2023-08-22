@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 class RigFemResultAddress;
 
 namespace RigFemAddressDefines
