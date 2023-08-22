@@ -235,15 +235,13 @@ bool RigWbsParameter::operator<( const RigWbsParameter& rhs ) const
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::PP_Reservoir()
 {
-    SourceVector sources = { { GRID,
-                               SourceAddress( QString::fromStdString( RigFemAddressDefines::porBar() ),
-                                              "",
-                                              RiaWellLogUnitTools<double>::barUnitString() ) },
-                             { LAS_FILE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
-                             { LAS_FILE, SourceAddress( "PP_RES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
-                             { LAS_FILE, SourceAddress( "POR_RES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) },
-                             { ELEMENT_PROPERTY_TABLE, SourceAddress( "POR_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() ) },
-                             { ELEMENT_PROPERTY_TABLE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) } };
+    SourceVector sources =
+        { { GRID, SourceAddress( QString::fromStdString( RigFemAddressDefines::porBar() ), "", RiaWellLogUnitTools<double>::barUnitString() ) },
+          { LAS_FILE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
+          { LAS_FILE, SourceAddress( "PP_RES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
+          { LAS_FILE, SourceAddress( "POR_RES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) },
+          { ELEMENT_PROPERTY_TABLE, SourceAddress( "POR_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() ) },
+          { ELEMENT_PROPERTY_TABLE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) } };
     return RigWbsParameter( "PP_Reservoir", true, sources );
 }
 
