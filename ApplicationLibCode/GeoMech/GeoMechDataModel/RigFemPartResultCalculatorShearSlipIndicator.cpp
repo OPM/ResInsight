@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorShearSlipIndicator.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
