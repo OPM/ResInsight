@@ -20,6 +20,7 @@
 #include "RivFemElmVisibilityCalculator.h"
 
 #include "RigCaseToCaseCellMapper.h"
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
@@ -118,11 +119,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
 
         RigGeoMechCaseData* caseData = propFilterColl->reservoirView()->geoMechCase()->geoMechData();
 
-        RigFemResultAddress resVarAddress = propertyFilter->resultDefinition->resultAddress();
-
-        // Do a "Hack" to use elm nodal and not nodal POR results
-        if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" )
-            resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+        RigFemResultAddress resVarAddress = RigFemAddressDefines::getResultLookupAddress( propertyFilter->resultDefinition->resultAddress() );
 
         const std::vector<float>& resVals =
             caseData->femPartResults()->resultValues( resVarAddress, part->elementPartId(), timeStepIndex, frameIndex );

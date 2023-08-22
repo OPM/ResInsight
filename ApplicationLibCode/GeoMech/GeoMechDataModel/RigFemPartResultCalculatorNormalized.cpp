@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorNormalized.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -61,9 +62,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int p
 {
     CVF_ASSERT( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) );
 
-    RigFemResultAddress unscaledResult = resVarAddr;
-    if ( unscaledResult.resultPosType == RIG_NODAL && unscaledResult.fieldName == "POR-Bar" )
-        unscaledResult.resultPosType = RIG_ELEMENT_NODAL;
+    RigFemResultAddress unscaledResult             = RigFemAddressDefines::getResultLookupAddress( resVarAddr );
     unscaledResult.normalizedByHydrostaticPressure = false;
 
     CAF_ASSERT( unscaledResult.resultPosType == RIG_ELEMENT_NODAL );
@@ -88,9 +87,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int p
     {
         auto task = stepCountProgress.task( "Creating Space for Normalized Result", m_resultCollection->timeStepCount() );
 
-        RigFemResultAddress destResultAddr = resVarAddr;
-        if ( destResultAddr.resultPosType == RIG_NODAL && destResultAddr.fieldName == "POR-Bar" )
-            destResultAddr.resultPosType = RIG_ELEMENT_NODAL;
+        RigFemResultAddress destResultAddr = RigFemAddressDefines::getResultLookupAddress( resVarAddr );
 
         dstDataFrames = m_resultCollection->createScalarResult( partIndex, destResultAddr );
         if ( !dstDataFrames ) return nullptr;

@@ -26,6 +26,7 @@
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
+#include "RiaWellLogUnitTools.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -34,7 +35,7 @@
 #include "RigGeoMechBoreHoleStressCalculator.h"
 #include "RigGeoMechCaseData.h"
 
-#include "RiaWellLogUnitTools.h"
+#include "RigFemAddressDefines.h"
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
 #include "RigWellPathGeometryTools.h"
@@ -206,12 +207,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
     }
     else if ( resAddr.isValid() )
     {
-        RigFemResultAddress convResAddr = resAddr;
-
-        // When showing POR results, always use the element nodal result,
-        // to get correct handling of elements without POR results
-
-        if ( convResAddr.fieldName == "POR-Bar" ) convResAddr.resultPosType = RIG_ELEMENT_NODAL;
+        RigFemResultAddress convResAddr = RigFemAddressDefines::getResultLookupAddress( resAddr );
 
         CVF_ASSERT( resAddr.resultPosType != RIG_WELLPATH_DERIVED );
 
