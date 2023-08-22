@@ -807,6 +807,11 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
             return "Deg";
         }
 
+        if ( rigFemResultAddress.normalizeByHydrostaticPressure() )
+        {
+            return "sg";
+        }
+
         return "Bar";
     }
     else if ( resultFieldName() == "MODULUS" )
