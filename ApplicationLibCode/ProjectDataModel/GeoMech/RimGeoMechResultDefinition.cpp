@@ -571,7 +571,7 @@ void RimGeoMechResultDefinition::loadResult()
              resultAddress().fieldName == RiaResultNames::wbsSFGResult().toStdString() )
         {
             RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, std::string( "ST" ), "" );
-            RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, std::string( RigFemAddressDefines::porBar() ), "" );
+            RigFemResultAddress porBarResAddr = RigFemAddressDefines::elementNodalPorBarAddress();
             m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( stressResAddr );
             m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( porBarResAddr );
         }

@@ -68,8 +68,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPorosityPermeability::calcul
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcPorePressureDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemAddressDefines::nodalPorBarAddress() );
     stepCountProgress.incrementProgress();
 
     // Volumetric Strain

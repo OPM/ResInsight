@@ -70,8 +70,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int par
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcPORDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemAddressDefines::nodalPorBarAddress() );
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
     const RigFemPart*         femPart       = m_resultCollection->parts()->part( partIndex );

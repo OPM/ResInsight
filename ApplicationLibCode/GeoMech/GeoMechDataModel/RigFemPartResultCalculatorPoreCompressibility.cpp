@@ -79,8 +79,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
         return result;
     };
 
-    RigFemScalarResultFrames* srcPORDataFrames =
-        loadFrameLambda( RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "" ) );
+    RigFemScalarResultFrames* srcPORDataFrames = loadFrameLambda( RigFemAddressDefines::nodalPorBarAddress() );
 
     // Volumetric Strain
     RigFemScalarResultFrames* srcEVDataFrames = loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "NE", "EV" ) );

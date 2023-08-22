@@ -82,8 +82,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
-    RigFemResultAddress       porResultAddr( RIG_NODAL, RigFemAddressDefines::porBar(), "" );
-    RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, porResultAddr );
+    RigFemScalarResultFrames* srcDataFrames =
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemAddressDefines::nodalPorBarAddress() );
 
     stepCountProgress.incrementProgress();
 

@@ -43,3 +43,19 @@ RigFemResultAddress RigFemAddressDefines::getResultLookupAddress( const RigFemRe
 
     return sourceAddress;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemResultAddress RigFemAddressDefines::elementNodalPorBarAddress()
+{
+    return RigFemResultAddress( RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemResultAddress RigFemAddressDefines::nodalPorBarAddress()
+{
+    return RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "" );
+}

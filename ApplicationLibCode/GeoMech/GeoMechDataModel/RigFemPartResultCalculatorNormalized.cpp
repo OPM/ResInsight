@@ -75,7 +75,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int p
 
     {
         auto task     = stepCountProgress.task( "Loading POR Result", m_resultCollection->timeStepCount() );
-        porDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "" ) );
+        porDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemAddressDefines::elementNodalPorBarAddress() );
         if ( !porDataFrames ) return nullptr;
     }
 

@@ -25,5 +25,7 @@ namespace RigFemAddressDefines
 const std::string porBar();
 
 RigFemResultAddress getResultLookupAddress( const RigFemResultAddress& sourceAddress );
+RigFemResultAddress elementNodalPorBarAddress();
+RigFemResultAddress nodalPorBarAddress();
 
 }; // namespace RigFemAddressDefines

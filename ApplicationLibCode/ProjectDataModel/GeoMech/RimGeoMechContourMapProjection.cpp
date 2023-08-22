@@ -275,7 +275,7 @@ std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
 
     if ( m_limitToPorePressureRegions )
     {
-        resAddr = RigFemResultAddress( RigFemResultPosEnum::RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "" );
+        resAddr = RigFemAddressDefines::elementNodalPorBarAddress();
     }
 
     std::vector<double> cellResults = generateResultsFromAddress( resAddr, mapCellVisibility, view()->currentTimeStep() );
@@ -362,7 +362,7 @@ std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( 
     if ( !resultAddress.isValid() )
     {
         wasInvalid    = true;
-        resultAddress = RigFemResultAddress( RigFemResultPosEnum::RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "" );
+        resultAddress = RigFemAddressDefines::elementNodalPorBarAddress();
     }
 
     if ( resultAddress.fieldName == "PP" )
