@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorMudWeightWindow.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -26,7 +27,6 @@
 #include "RigFemScalarResultFrames.h"
 #include "RigGeoMechBoreHoleStressCalculator.h"
 #include "RigGeoMechWellLogExtractor.h"
-#include "RigFemAddressDefines.h"
 
 #include "RiaOffshoreSphericalCoords.h"
 
