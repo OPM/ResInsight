@@ -57,11 +57,15 @@ private:
     void buildMetaData( RigEclipseCaseData* eclipseCase );
 
     static std::vector<TimeDataFile> readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile );
-    static void                      readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile, RigEclipseCaseData* eclipseCase );
+    static void                      readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile,
+                                                    RigEclipseCaseData*               eclipseCase,
+                                                    const std::vector<QDateTime>&     timeSteps );
 
 private:
     std::string m_gridFileName;
 
     std::shared_ptr<Opm::EclIO::ERst>  m_restartFile;
     std::shared_ptr<Opm::EclIO::EInit> m_initFile;
+
+    std::vector<QDateTime> m_timeSteps;
 };

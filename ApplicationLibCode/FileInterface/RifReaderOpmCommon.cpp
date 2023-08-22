@@ -26,15 +26,21 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
+#include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
 
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/EclipseState/Runspec.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Schedule/Well/Connection.hpp"
+#include "opm/input/eclipse/Schedule/Well/Well.hpp"
 #include "opm/io/eclipse/EInit.hpp"
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/io/eclipse/RestartFileView.hpp"
 #include "opm/io/eclipse/rst/state.hpp"
+#include "opm/output/eclipse/VectorItems/group.hpp"
+#include "opm/output/eclipse/VectorItems/well.hpp"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -258,12 +264,15 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         auto timeStepsFromFile = readTimeSteps( m_restartFile );
 
         std::vector<RigEclipseTimeStepInfo> timeStepInfos;
+        std::vector<QDateTime>              dateTimes;
         for ( const auto& timeStep : timeStepsFromFile )
         {
             QDate     date( timeStep.year, timeStep.month, timeStep.day );
             QDateTime dateTime( date.startOfDay() );
+            dateTimes.push_back( dateTime );
             timeStepInfos.push_back( { dateTime, timeStep.sequenceNumber, 0.0 } );
         }
+        m_timeSteps = dateTimes;
 
         auto last = std::unique( entries.begin(), entries.end() );
         entries.erase( last, entries.end() );
@@ -284,12 +293,16 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
         RifEclipseOutputFileTools::createResultEntries( keywordInfo, { firstTimeStepInfo }, RiaDefines::ResultCatType::STATIC_NATIVE, eclipseCase );
     }
+
+    readWellCells( m_restartFile, eclipseCase, m_timeSteps );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile, RigEclipseCaseData* eclipseCase )
+void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile,
+                                        RigEclipseCaseData*               eclipseCase,
+                                        const std::vector<QDateTime>&     timeSteps )
 {
     Opm::Deck deck;
 
@@ -302,6 +315,12 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restar
 
     try
     {
+        if ( restartFile->numberOfReportSteps() != timeSteps.size() )
+        {
+            RiaLogging::error( "Number of time steps is not matching number of report steps" );
+            return;
+        }
+
         std::vector<Opm::RestartIO::RstState> states;
 
         std::set<std::string> wellNames;
@@ -323,20 +342,79 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restar
         {
             cvf::ref<RigSimWellData> simWellData = new RigSimWellData;
             simWellData->setWellName( QString::fromStdString( wellName ) );
+            simWellData->m_wellCellsTimeSteps.resize( timeSteps.size() );
 
-            /*
-                        for ( const auto& s : states )
+            for ( size_t timeIdx = 0; timeIdx < timeSteps.size(); ++timeIdx )
+            {
+                auto state = states[timeIdx];
+                auto it    = std::find_if( state.wells.begin(),
+                                        state.wells.end(),
+                                        [&wellName]( const Opm::RestartIO::RstWell& well ) { return well.name == wellName; } );
+                if ( it != state.wells.end() )
+                {
+                    auto simWellOnFile = *it;
+
+                    RigWellResultFrame& wellResFrame = simWellData->m_wellCellsTimeSteps[timeIdx];
+                    wellResFrame.setTimestamp( timeSteps[timeIdx] );
+
+                    if ( simWellOnFile.wtype.producer() )
+                    {
+                        wellResFrame.setProductionType( RiaDefines::WellProductionType::PRODUCER );
+                    }
+                    else
+                    {
+                        if ( simWellOnFile.wtype.injector_type() == Opm::InjectorType::WATER )
                         {
-                            auto it = std::find_if( s.wells.begin(),
-                                                    s.wells.end(),
-                                                    [&wellName]( const Opm::RestartIO::RstWell& well ) { return well.name == wellName; } );
-                            if ( it != s.wells.end() )
-                            {
-                                wellData.cells.push_back( it->cells );
-                            }
+                            wellResFrame.setProductionType( RiaDefines::WellProductionType::WATER_INJECTOR );
                         }
-            */
+                        else if ( simWellOnFile.wtype.injector_type() == Opm::InjectorType::GAS )
+                        {
+                            wellResFrame.setProductionType( RiaDefines::WellProductionType::GAS_INJECTOR );
+                        }
+                        else if ( simWellOnFile.wtype.injector_type() == Opm::InjectorType::OIL )
+                        {
+                            wellResFrame.setProductionType( RiaDefines::WellProductionType::OIL_INJECTOR );
+                        }
+                    }
 
+                    wellResFrame.setIsOpen( simWellOnFile.well_status == Opm::RestartIO::Helpers::VectorItems::IWell::Value::Status::Open );
+
+                    // Well head
+                    RigWellResultPoint wellHead;
+                    wellHead.setGridIndex( 0 );
+                    auto cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( simWellOnFile.ij[0], simWellOnFile.ij[1], 0 );
+                    wellHead.setGridCellIndex( cellIndex );
+
+                    wellResFrame.setWellHead( wellHead );
+
+                    // Grid cells
+                    if ( !simWellOnFile.connections.empty() )
+                    {
+                        RigWellResultBranch wellResultBranch;
+                        wellResultBranch.setErtBranchId( 0 ); // Normal wells have only one branch
+
+                        std::vector<RigWellResultPoint> branchResultPoints = wellResultBranch.branchResultPoints();
+                        const size_t                    existingCellCount  = branchResultPoints.size();
+                        branchResultPoints.reserve( existingCellCount + simWellOnFile.connections.size() );
+
+                        for ( const auto& conn : simWellOnFile.connections )
+                        {
+                            RigWellResultPoint wellRp;
+                            wellRp.setGridIndex( 0 );
+                            auto cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( conn.ijk[0], conn.ijk[1], conn.ijk[2] );
+                            wellRp.setGridCellIndex( cellIndex );
+
+                            wellRp.setIsOpen( conn.state == Opm::Connection::State::OPEN );
+
+                            branchResultPoints.push_back( wellRp );
+                        }
+                        wellResultBranch.setBranchResultPoints( branchResultPoints );
+                        wellResFrame.addWellResultBranch( wellResultBranch );
+                    }
+                }
+            }
+
+            simWellData->computeMappingFromResultTimeIndicesToWellTimeIndices( timeSteps );
             wells.push_back( simWellData.p() );
         }
     }
