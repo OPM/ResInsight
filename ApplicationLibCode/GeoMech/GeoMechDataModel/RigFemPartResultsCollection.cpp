@@ -1368,8 +1368,7 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
     }
     results.insert( RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "Q", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
 
-    results.insert(
-        RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert( RigFemResultAddress( RIG_NODAL, RigFemAddressDefines::porBar(), "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
     results.insert(
         RigFemResultAddress( RIG_ELEMENT_NODAL, RigFemAddressDefines::porBar(), "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
 
