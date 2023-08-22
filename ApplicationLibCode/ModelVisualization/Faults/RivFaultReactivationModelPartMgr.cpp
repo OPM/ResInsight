@@ -53,29 +53,29 @@ RivFaultReactivationModelPartMgr::RivFaultReactivationModelPartMgr( RimFaultReac
 ///
 //--------------------------------------------------------------------------------------------------
 void RivFaultReactivationModelPartMgr::appendPolylinePartsToModel( Rim3dView*                        view,
-                                                                   cvf::ModelBasicList*              model,
+                                                                   cvf::ModelBasicList*              vizModel,
                                                                    const caf::DisplayCoordTransform* transform,
                                                                    const cvf::BoundingBox&           boundingBox )
 {
     if ( m_polylinePartMgr.isNull() ) m_polylinePartMgr = new RivPolylinePartMgr( view, m_frm.p(), m_frm.p() );
 
-    m_polylinePartMgr->appendDynamicGeometryPartsToModel( model, transform, boundingBox );
+    m_polylinePartMgr->appendDynamicGeometryPartsToModel( vizModel, transform, boundingBox );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RivFaultReactivationModelPartMgr::appendMeshPartsToModel( Rim3dView*                        view,
-                                                               cvf::ModelBasicList*              model,
+                                                               cvf::ModelBasicList*              vizModel,
                                                                const caf::DisplayCoordTransform* transform,
                                                                const cvf::BoundingBox&           boundingBox )
 {
-    auto model2d = m_frm->modelPlane();
-    if ( model2d.notNull() && model2d->isValid() && m_frm->isChecked() && m_frm->showModelPlane() )
+    auto model2d = m_frm->model();
+    if ( model2d.notNull() && model2d->isValid() && m_frm->isChecked() && m_frm->showModel() )
     {
-        for ( auto modelpart : m_frm->modelPlane()->allParts() )
+        for ( auto gridPart : m_frm->model()->allGridParts() )
         {
-            auto& lines = m_frm->modelPlane()->meshLines( modelpart );
+            auto& lines = m_frm->model()->meshLines( gridPart );
 
             std::vector<std::vector<cvf::Vec3d>> displayPoints;
             for ( const auto& pts : lines )
@@ -96,7 +96,7 @@ void RivFaultReactivationModelPartMgr::appendMeshPartsToModel( Rim3dView*       
             part->setEffect( eff.p() );
             part->setPriority( RivPartPriority::PartType::MeshLines );
 
-            model->addPart( part.p() );
+            vizModel->addPart( part.p() );
         }
     }
 }
@@ -104,7 +104,7 @@ void RivFaultReactivationModelPartMgr::appendMeshPartsToModel( Rim3dView*       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*              model,
+void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*              vizModel,
                                                                    const caf::DisplayCoordTransform* displayCoordTransform,
                                                                    const cvf::BoundingBox&           boundingBox )
 {
@@ -123,25 +123,25 @@ void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBas
 
         cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, plane->texture(), false );
 
-        model->addPart( quadPart.p() );
+        vizModel->addPart( quadPart.p() );
     }
 
-    auto modelPlane = m_frm->modelPlane();
-    if ( modelPlane->isValid() && m_frm->showModelPlane() )
+    auto theModel = m_frm->model();
+    if ( theModel->isValid() && m_frm->showModel() )
     {
-        for ( auto part : modelPlane->allParts() )
+        for ( auto part : theModel->allModelParts() )
         {
             cvf::Vec3dArray displayPoints;
-            displayPoints.reserve( modelPlane->rect( part ).size() );
+            displayPoints.reserve( theModel->rect( part ).size() );
 
-            for ( auto& vOrg : modelPlane->rect( part ) )
+            for ( auto& vOrg : theModel->rect( part ) )
             {
                 displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
             }
 
-            cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, modelPlane->texture( part ), false );
+            cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, theModel->texture( part ), false );
 
-            model->addPart( quadPart.p() );
+            vizModel->addPart( quadPart.p() );
         }
     }
 }

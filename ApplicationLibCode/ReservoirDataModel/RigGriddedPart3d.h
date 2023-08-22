@@ -21,6 +21,7 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+#include <map>
 #include <vector>
 
 //==================================================================================================
@@ -41,19 +42,24 @@ public:
     RigGriddedPart3d();
     ~RigGriddedPart3d() override;
 
+    void reset();
+
     void generateGeometry( std::vector<cvf::Vec3d> inputPoints, int nHorzCells, int nVertCellsLower, int nVertCellsMiddle, int nVertCellsUpper );
 
     const std::vector<cvf::Vec3d>&                            vertices() const;
-    const std::vector<unsigned int>&                          elementIndices() const;
+    const std::vector<std::vector<unsigned int>>&             elementIndices() const;
     const std::map<BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
+    const std::vector<std::vector<cvf::Vec3d>>&               meshLines() const;
 
 protected:
     cvf::Vec3d stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
+    void       generateMeshlines( std::vector<cvf::Vec3d> cornerPoints, int numHorzCells, int numVertCells );
 
 private:
     std::vector<cvf::Vec3d>                            m_vertices;
-    std::vector<unsigned int>                          m_elementIndices;
+    std::vector<std::vector<unsigned int>>             m_elementIndices;
     std::map<BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
+    std::vector<std::vector<cvf::Vec3d>>               m_meshLines;
 
     double m_thickness;
 };

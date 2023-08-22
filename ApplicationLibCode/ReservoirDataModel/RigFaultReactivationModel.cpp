@@ -18,7 +18,7 @@
 
 #include "RigFaultReactivationModel.h"
 
-#include "RigGriddedPlane.h"
+#include "RigGriddedPart3d.h"
 #include "RigPolyLinesData.h"
 
 #include "cvfTextureImage.h"
@@ -38,7 +38,7 @@ RigFaultReactivationModel::RigFaultReactivationModel()
     , m_cellCountVertLower( 1 )
 
 {
-    for ( auto part : allParts() )
+    for ( auto part : allModelParts() )
     {
         m_parts[part]         = RigFRModelPart();
         m_parts[part].texture = new cvf::TextureImage();
@@ -54,6 +54,11 @@ RigFaultReactivationModel::RigFaultReactivationModel()
     m_cornerIndexes[ModelParts::HiPart2]  = { 6, 7, 11, 10 };
     m_cornerIndexes[ModelParts::MidPart2] = { 5, 6, 10, 9 };
     m_cornerIndexes[ModelParts::LowPart2] = { 4, 5, 9, 8 };
+
+    for ( auto part : allGridParts() )
+    {
+        m_3dparts[part] = std::make_shared<RigGriddedPart3d>();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,9 +71,14 @@ RigFaultReactivationModel::~RigFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::allParts() const
+std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::allModelParts() const
 {
     return { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 };
+}
+
+std::vector<RigFaultReactivationModel::GridPart> RigFaultReactivationModel::allGridParts() const
+{
+    return { GridPart::PART1, GridPart::PART2 };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,10 +87,15 @@ std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::al
 void RigFaultReactivationModel::reset()
 {
     m_isValid = false;
-    for ( auto part : allParts() )
+    for ( auto part : allModelParts() )
     {
         m_parts[part].rect.clear();
         m_parts[part].rect.reserve( 4 );
+    }
+
+    for ( auto part : allGridParts() )
+    {
+        m_3dparts[part]->reset();
     }
 }
 
@@ -150,6 +165,8 @@ void RigFaultReactivationModel::setCellCounts( int horzPart1, int horzPart2, int
     m_cellCountVertUpper  = vertUpper;
     m_cellCountVertMiddle = vertMiddle;
     m_cellCountVertLower  = vertLower;
+
+    reset();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,7 +245,7 @@ void RigFaultReactivationModel::updateRects()
     points[11]     = mr;
     points[11].z() = -m_minZ;
 
-    for ( auto part : allParts() )
+    for ( auto part : allModelParts() )
     {
         for ( auto i : m_cornerIndexes[part] )
         {
@@ -260,35 +277,9 @@ cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( ModelParts part 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<cvf::Vec3d>>& RigFaultReactivationModel::meshLines( ModelParts part ) const
+const std::vector<std::vector<cvf::Vec3d>>& RigFaultReactivationModel::meshLines( GridPart part ) const
 {
-    return m_gridParts.at( part )->meshLines();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<int, int> RigFaultReactivationModel::cellCountHorzVert( ModelParts part ) const
-{
-    switch ( part )
-    {
-        case RigFaultReactivationModel::ModelParts::HiPart1:
-            return std::make_pair( m_cellCountHorzPart1, m_cellCountVertUpper );
-        case RigFaultReactivationModel::ModelParts::MidPart1:
-            return std::make_pair( m_cellCountHorzPart1, m_cellCountVertMiddle );
-        case RigFaultReactivationModel::ModelParts::LowPart1:
-            return std::make_pair( m_cellCountHorzPart1, m_cellCountVertLower );
-
-        case RigFaultReactivationModel::ModelParts::HiPart2:
-            return std::make_pair( m_cellCountHorzPart2, m_cellCountVertUpper );
-        case RigFaultReactivationModel::ModelParts::MidPart2:
-            return std::make_pair( m_cellCountHorzPart2, m_cellCountVertMiddle );
-        case RigFaultReactivationModel::ModelParts::LowPart2:
-            return std::make_pair( m_cellCountHorzPart2, m_cellCountVertLower );
-        default:
-            break;
-    }
-    return std::make_pair( 1, 1 );
+    return m_3dparts.at( part )->meshLines();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,11 +287,22 @@ std::pair<int, int> RigFaultReactivationModel::cellCountHorzVert( ModelParts par
 //--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModel::generateGrids( cvf::Vec3dArray points )
 {
-    for ( auto part : allParts() )
-    {
-        auto [cellsHorz, cellsVert] = cellCountHorzVert( part );
+    m_3dparts[GridPart::PART1]->generateGeometry( { points[0], points[1], points[2], points[3], points[4], points[5], points[6], points[7] },
+                                                  m_cellCountHorzPart1,
+                                                  m_cellCountVertLower,
+                                                  m_cellCountVertMiddle,
+                                                  m_cellCountVertUpper );
+    m_3dparts[GridPart::PART2]->generateGeometry( { points[8], points[9], points[10], points[11], points[4], points[5], points[6], points[7] },
+                                                  m_cellCountHorzPart2,
+                                                  m_cellCountVertLower,
+                                                  m_cellCountVertMiddle,
+                                                  m_cellCountVertUpper );
+}
 
-        m_gridParts[part] = std::make_unique<RigGriddedPlane>();
-        m_gridParts[part]->generateGeometry( m_parts[part].rect, cellsHorz, cellsVert );
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( GridPart part ) const
+{
+    return m_3dparts.at( part );
 }

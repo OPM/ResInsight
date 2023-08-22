@@ -146,7 +146,7 @@ bool RigFemPart::fillElementCoordinates( size_t elementIdx, std::array<cvf::Vec3
 
     // Fill coordinates for each node
     const auto& partNodes = nodes();
-    for ( int i = 0; i < nodeIndices.size(); ++i )
+    for ( int i = 0; i < (int)nodeIndices.size(); ++i )
     {
         coordinates[i].set( partNodes.coordinates[nodeIndices[i]] );
     }

@@ -83,8 +83,8 @@ public:
     cvf::ref<RigBasicPlane> faultPlane() const;
     bool                    showFaultPlane() const;
 
-    cvf::ref<RigFaultReactivationModel> modelPlane() const;
-    bool                                showModelPlane() const;
+    cvf::ref<RigFaultReactivationModel> model() const;
+    bool                                showModel() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;

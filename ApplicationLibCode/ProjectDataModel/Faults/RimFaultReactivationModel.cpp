@@ -320,7 +320,7 @@ cvf::ref<RigBasicPlane> RimFaultReactivationModel::faultPlane() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFaultReactivationModel> RimFaultReactivationModel::modelPlane() const
+cvf::ref<RigFaultReactivationModel> RimFaultReactivationModel::model() const
 {
     return m_modelPlane;
 }
@@ -336,7 +336,7 @@ bool RimFaultReactivationModel::showFaultPlane() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::showModelPlane() const
+bool RimFaultReactivationModel::showModel() const
 {
     return m_showModelPlane;
 }

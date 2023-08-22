@@ -33,7 +33,7 @@ namespace cvf
 class TextureImage;
 }
 
-class RigGriddedPlane;
+class RigGriddedPart3d;
 
 class RigFRModelPart
 {
@@ -63,11 +63,18 @@ public:
         LowPart2
     };
 
+    enum class GridPart
+    {
+        PART1,
+        PART2
+    };
+
 public:
     RigFaultReactivationModel();
     ~RigFaultReactivationModel() override;
 
-    std::vector<ModelParts> allParts() const;
+    std::vector<ModelParts> allModelParts() const;
+    std::vector<GridPart>   allGridParts() const;
 
     bool isValid() const;
     void reset();
@@ -80,17 +87,16 @@ public:
 
     void updateRects();
 
-    void setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color );
-
+    void                        setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color );
     std::vector<cvf::Vec3d>     rect( ModelParts part ) const;
     cvf::ref<cvf::TextureImage> texture( ModelParts part ) const;
 
-    const std::vector<std::vector<cvf::Vec3d>>& meshLines( ModelParts part ) const;
+    const std::vector<std::vector<cvf::Vec3d>>& meshLines( GridPart part ) const;
+
+    std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
 
 protected:
     void generateGrids( cvf::Vec3dArray points );
-
-    std::pair<int, int> cellCountHorzVert( ModelParts part ) const;
 
 private:
     cvf::Vec3d m_planeNormal;
@@ -114,5 +120,5 @@ private:
     std::map<ModelParts, RigFRModelPart> m_parts;
     bool                                 m_isValid;
 
-    std::map<ModelParts, std::unique_ptr<RigGriddedPlane>> m_gridParts;
+    std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
 };

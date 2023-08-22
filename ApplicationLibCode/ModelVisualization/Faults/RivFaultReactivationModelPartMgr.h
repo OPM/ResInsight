@@ -46,17 +46,17 @@ class RivFaultReactivationModelPartMgr : public RivTexturePartMgr
 public:
     explicit RivFaultReactivationModelPartMgr( RimFaultReactivationModel* frm );
 
-    void appendGeometryPartsToModel( cvf::ModelBasicList*              model,
+    void appendGeometryPartsToModel( cvf::ModelBasicList*              vizModel,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
     void appendPolylinePartsToModel( Rim3dView*                        view,
-                                     cvf::ModelBasicList*              model,
+                                     cvf::ModelBasicList*              vizModel,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
     void appendMeshPartsToModel( Rim3dView*                        view,
-                                 cvf::ModelBasicList*              model,
+                                 cvf::ModelBasicList*              vizModel,
                                  const caf::DisplayCoordTransform* displayCoordTransform,
                                  const cvf::BoundingBox&           boundingBox );
 
