@@ -34,9 +34,14 @@ RigFemResultAddress RigFemAddressDefines::getResultLookupAddress( const RigFemRe
 {
     if ( sourceAddress.resultPosType == RIG_NODAL && sourceAddress.fieldName == RigFemAddressDefines::porBar() )
     {
-        RigFemResultAddress lookupAddressForPOR = sourceAddress;
+        // Use element nodal results when using POR-Bar. If nodal results are used, the resulting display will bleed into neighboring
+        // cells.
+        //
+        // https://github.com/OPM/ResInsight/issues/331
+        // https://github.com/OPM/ResInsight/issues/10488
 
-        lookupAddressForPOR.resultPosType = RIG_ELEMENT_NODAL;
+        RigFemResultAddress lookupAddressForPOR = sourceAddress;
+        lookupAddressForPOR.resultPosType       = RIG_ELEMENT_NODAL;
 
         return lookupAddressForPOR;
     }
