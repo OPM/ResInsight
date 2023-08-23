@@ -19,5 +19,6 @@ setup(
     license=license,
     packages=['rips'],
     package_data={'rips': ['py.typed', '*.py', 'generated/*.py', 'PythonExamples/*.py', 'tests/*.py']},
-    install_requires=['grpcio', 'protobuf', 'wheel']
+    install_requires=['grpcio', 'protobuf', 'wheel'],
+    python_requires='>=3.8',
 )
