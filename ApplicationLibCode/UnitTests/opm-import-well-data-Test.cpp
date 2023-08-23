@@ -14,7 +14,7 @@
 
 const std::string drogonPath = "e:/gitroot/resinsight-tutorials/model-data/drogon/DROGON-0.UNRST";
 
-TEST( opm_well_data_test, TestImport )
+TEST( DISABLED_opm_well_data_test, TestImport )
 {
     Opm::Deck deck;
 

@@ -34,6 +34,7 @@ namespace EclIO
 
 class RigMainGrid;
 class RigGridBase;
+class RigEclipseCaseData;
 
 //==================================================================================================
 ///

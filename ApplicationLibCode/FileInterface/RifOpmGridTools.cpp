@@ -23,14 +23,13 @@
 
 #include "RifReaderEclipseOutput.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
 #include "cvfGeometryTools.h"
 
 #include "opm/io/eclipse/EGrid.hpp"
-
-#include "RigActiveCellInfo.h"
-#include "RigEclipseCaseData.h"
 
 #include <algorithm>
 
@@ -156,28 +155,9 @@ std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm
     auto dims = grid.dimension();
     auto lgrs = grid.list_of_lgrs();
 
-    auto actnum = grid.get<int>( actnum_array_index );
+    auto actnumMainGrid = grid.get<int>( actnum_array_index );
 
-    auto             totalNumberOfCellsMainGrid = grid.totalNumberOfCells();
-    std::vector<int> mainGridActiveCells;
-    mainGridActiveCells.insert( mainGridActiveCells.end(), actnum.begin(), actnum.begin() + totalNumberOfCellsMainGrid );
-
-    return { mainGridActiveCells };
-
-    /*
-        for ( auto k = 0; k < dims[2]; k++ )
-        {
-            for ( auto j = 0; j < dims[1]; j++ )
-            {
-                for ( auto i = 0; i < dims[0]; i++ )
-                {
-                    auto actnumValue = grid->active_index( i, j, k );
-                }
-            }
-        }
-    */
-
-    return {};
+    return { actnumMainGrid };
 }
 
 //--------------------------------------------------------------------------------------------------
