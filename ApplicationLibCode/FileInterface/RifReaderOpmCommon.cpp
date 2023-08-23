@@ -42,6 +42,8 @@
 #include "opm/output/eclipse/VectorItems/group.hpp"
 #include "opm/output/eclipse/VectorItems/well.hpp"
 
+using namespace Opm;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -109,17 +111,17 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
                 const auto& [keyword, kwType, size] = entry;
                 if ( keyword == resultName )
                 {
-                    if ( kwType == Opm::EclIO::eclArrType::REAL )
+                    if ( kwType == EclIO::eclArrType::REAL )
                     {
                         auto fileValues = m_initFile->getInitData<float>( resultName );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
-                    else if ( kwType == Opm::EclIO::eclArrType::DOUB )
+                    else if ( kwType == EclIO::eclArrType::DOUB )
                     {
                         auto fileValues = m_initFile->getInitData<double>( resultName );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
-                    else if ( kwType == Opm::EclIO::eclArrType::INTE )
+                    else if ( kwType == EclIO::eclArrType::INTE )
                     {
                         auto fileValues = m_initFile->getInitData<int>( resultName );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
@@ -160,17 +162,17 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                 const auto& [keyword, kwType, size] = entry;
                 if ( keyword == resultName )
                 {
-                    if ( kwType == Opm::EclIO::eclArrType::DOUB )
+                    if ( kwType == EclIO::eclArrType::DOUB )
                     {
                         auto fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
-                    if ( kwType == Opm::EclIO::eclArrType::REAL )
+                    if ( kwType == EclIO::eclArrType::REAL )
                     {
                         auto fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
-                    else if ( kwType == Opm::EclIO::eclArrType::INTE )
+                    else if ( kwType == EclIO::eclArrType::INTE )
                     {
                         auto fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
@@ -192,7 +194,7 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<Opm::EclIO::EclFile::EclEntry> entries )
+std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<EclIO::EclFile::EclEntry> entries )
 {
     std::vector<RifKeywordValueCount> fileKeywordInfo;
 
@@ -202,11 +204,11 @@ std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<Opm::EclIO::Ecl
 
         RifKeywordValueCount::KeywordDataType dataType = RifKeywordValueCount::KeywordDataType::UNKNOWN;
 
-        if ( kwType == Opm::EclIO::eclArrType::INTE )
+        if ( kwType == EclIO::eclArrType::INTE )
             dataType = RifKeywordValueCount::KeywordDataType::INTEGER;
-        else if ( kwType == Opm::EclIO::eclArrType::REAL )
+        else if ( kwType == EclIO::eclArrType::REAL )
             dataType = RifKeywordValueCount::KeywordDataType::FLOAT;
-        else if ( kwType == Opm::EclIO::eclArrType::DOUB )
+        else if ( kwType == EclIO::eclArrType::DOUB )
             dataType = RifKeywordValueCount::KeywordDataType::DOUBLE;
 
         if ( dataType != RifKeywordValueCount::KeywordDataType::UNKNOWN )
@@ -221,16 +223,23 @@ std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<Opm::EclIO::Ecl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+auto runspecAndParser = []() -> std::tuple<Runspec, Parser, Deck>
+{
+    // It is required to create a deck as the input parameter to runspec. The default() initialization of the runspec keyword does not
+    // initialize the object as expected.
+
+    Deck    deck;
+    Runspec runspec( deck );
+    Parser  parser( false );
+
+    return std::make_tuple( runspec, parser, deck );
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 {
-    Opm::Deck deck;
-
-    // It is required to create a deck as the input parameter to runspec. The = default() initialization of the runspec keyword does not
-    // initialize the object as expected.
-    Opm::Runspec runspec( deck );
-    Opm::Parser  parser( false );
-
-    // Get set of files
     QStringList fileSet;
     RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( QString::fromStdString( m_gridFileName ), &fileSet );
 
@@ -252,9 +261,9 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
     RigEclipseTimeStepInfo firstTimeStepInfo{ QDateTime(), 0, 0.0 };
     if ( !restartFileName.empty() )
     {
-        m_restartFile = std::make_shared<Opm::EclIO::ERst>( restartFileName );
+        m_restartFile = std::make_shared<EclIO::ERst>( restartFileName );
 
-        std::vector<Opm::EclIO::EclFile::EclEntry> entries;
+        std::vector<EclIO::EclFile::EclEntry> entries;
         for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
         {
             auto reportEntries = m_restartFile->listOfRstArrays( reportNumber );
@@ -270,7 +279,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
             QDate     date( timeStep.year, timeStep.month, timeStep.day );
             QDateTime dateTime( date.startOfDay() );
             dateTimes.push_back( dateTime );
-            timeStepInfos.push_back( { dateTime, timeStep.sequenceNumber, 0.0 } );
+            timeStepInfos.emplace_back( dateTime, timeStep.sequenceNumber, 0.0 );
         }
         m_timeSteps = dateTimes;
 
@@ -286,7 +295,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
     if ( !initFileName.empty() )
     {
-        m_initFile = std::make_unique<Opm::EclIO::EInit>( initFileName );
+        m_initFile = std::make_unique<EclIO::EInit>( initFileName );
 
         auto                              entries     = m_initFile->list_arrays();
         std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
@@ -300,16 +309,11 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile,
-                                        RigEclipseCaseData*               eclipseCase,
-                                        const std::vector<QDateTime>&     timeSteps )
+void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFile,
+                                        RigEclipseCaseData*           eclipseCase,
+                                        const std::vector<QDateTime>& timeSteps )
 {
-    Opm::Deck deck;
-
-    // It is required to create a deck as the input parameter to runspec. The = default() initialization of the runspec keyword does not
-    // initialize the object as expected.
-    Opm::Runspec runspec( deck );
-    Opm::Parser  parser( false );
+    auto [runspec, parser, deck] = runspecAndParser();
 
     cvf::Collection<RigSimWellData> wells;
 
@@ -321,22 +325,28 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restar
             return;
         }
 
-        std::vector<Opm::RestartIO::RstState> states;
-
-        std::set<std::string> wellNames;
-
-        for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
+        auto getWellStateAndNames = [&]() -> std::pair<std::vector<RestartIO::RstState>, std::set<std::string>>
         {
-            auto fileView = std::make_shared<Opm::EclIO::RestartFileView>( restartFile, seqNumber );
+            std::vector<RestartIO::RstState> states;
+            std::set<std::string>            wellNames;
 
-            auto state = Opm::RestartIO::RstState::load( fileView, runspec, parser );
-            states.emplace_back( state );
-
-            for ( const auto& w : state.wells )
+            for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
             {
-                wellNames.insert( w.name );
+                auto fileView = std::make_shared<EclIO::RestartFileView>( restartFile, seqNumber );
+
+                auto state = RestartIO::RstState::load( fileView, runspec, parser );
+                states.emplace_back( state );
+
+                for ( const auto& w : state.wells )
+                {
+                    wellNames.insert( w.name );
+                }
             }
-        }
+
+            return std::make_pair( states, wellNames );
+        };
+
+        auto [states, wellNames] = getWellStateAndNames();
 
         for ( const auto& wellName : wellNames )
         {
@@ -347,70 +357,73 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restar
             for ( size_t timeIdx = 0; timeIdx < timeSteps.size(); ++timeIdx )
             {
                 auto state = states[timeIdx];
-                auto it    = std::find_if( state.wells.begin(),
+
+                auto it = std::find_if( state.wells.begin(),
                                         state.wells.end(),
-                                        [&wellName]( const Opm::RestartIO::RstWell& well ) { return well.name == wellName; } );
-                if ( it != state.wells.end() )
+                                        [&wellName]( const RestartIO::RstWell& well ) { return well.name == wellName; } );
+                if ( it == state.wells.end() ) continue;
+
+                RestartIO::RstWell rstWell = *it;
+
+                RigWellResultFrame& wellResFrame = simWellData->m_wellCellsTimeSteps[timeIdx];
+                wellResFrame.setTimestamp( timeSteps[timeIdx] );
+
+                auto wellType = [&rstWell]() -> RiaDefines::WellProductionType
                 {
-                    auto simWellOnFile = *it;
+                    if ( rstWell.wtype.producer() ) return RiaDefines::WellProductionType::PRODUCER;
 
-                    RigWellResultFrame& wellResFrame = simWellData->m_wellCellsTimeSteps[timeIdx];
-                    wellResFrame.setTimestamp( timeSteps[timeIdx] );
+                    if ( rstWell.wtype.injector_type() == InjectorType::WATER ) return RiaDefines::WellProductionType::WATER_INJECTOR;
+                    if ( rstWell.wtype.injector_type() == InjectorType::GAS ) return RiaDefines::WellProductionType::GAS_INJECTOR;
+                    if ( rstWell.wtype.injector_type() == InjectorType::OIL ) return RiaDefines::WellProductionType::OIL_INJECTOR;
 
-                    if ( simWellOnFile.wtype.producer() )
+                    return RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
+                };
+
+                wellResFrame.setProductionType( wellType() );
+
+                wellResFrame.setIsOpen( rstWell.well_status == RestartIO::Helpers::VectorItems::IWell::Value::Status::Open );
+
+                // Well head
+                RigWellResultPoint wellHead;
+                wellHead.setGridIndex( 0 );
+                auto cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( rstWell.ij[0], rstWell.ij[1], 0 );
+                wellHead.setGridCellIndex( cellIndex );
+
+                wellResFrame.setWellHead( wellHead );
+
+                // Grid cells
+                if ( !rstWell.connections.empty() )
+                {
+                    RigWellResultBranch wellResultBranch;
+                    wellResultBranch.setErtBranchId( 0 ); // Normal wells have only one branch
+
+                    std::vector<RigWellResultPoint> branchResultPoints = wellResultBranch.branchResultPoints();
+                    const size_t                    existingCellCount  = branchResultPoints.size();
+                    branchResultPoints.reserve( existingCellCount + rstWell.connections.size() );
+
+                    for ( const auto& conn : rstWell.connections )
                     {
-                        wellResFrame.setProductionType( RiaDefines::WellProductionType::PRODUCER );
+                        RigWellResultPoint wellResPoint;
+                        wellResPoint.setGridIndex( 0 );
+                        auto cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( conn.ijk[0], conn.ijk[1], conn.ijk[2] );
+                        wellResPoint.setGridCellIndex( cellIndex );
+
+                        wellResPoint.setIsOpen( conn.state == Connection::State::OPEN );
+
+                        // All units for a Connection is given in SI units
+                        // Convert back to the original units
+                        // See RestartIO::RstConnection::RstConnection
+                        auto us = state.unit_system;
+                        wellResPoint.setFlowData( us.from_si( UnitSystem::measure::rate, conn.resv_rate ),
+                                                  us.from_si( UnitSystem::measure::liquid_surface_rate, conn.oil_rate ),
+                                                  us.from_si( UnitSystem::measure::gas_surface_rate, conn.gas_rate ),
+                                                  us.from_si( UnitSystem::measure::liquid_surface_rate, conn.water_rate ) );
+                        wellResPoint.setConnectionFactor( us.from_si( UnitSystem::measure::transmissibility, conn.cf ) );
+
+                        branchResultPoints.push_back( wellResPoint );
                     }
-                    else
-                    {
-                        if ( simWellOnFile.wtype.injector_type() == Opm::InjectorType::WATER )
-                        {
-                            wellResFrame.setProductionType( RiaDefines::WellProductionType::WATER_INJECTOR );
-                        }
-                        else if ( simWellOnFile.wtype.injector_type() == Opm::InjectorType::GAS )
-                        {
-                            wellResFrame.setProductionType( RiaDefines::WellProductionType::GAS_INJECTOR );
-                        }
-                        else if ( simWellOnFile.wtype.injector_type() == Opm::InjectorType::OIL )
-                        {
-                            wellResFrame.setProductionType( RiaDefines::WellProductionType::OIL_INJECTOR );
-                        }
-                    }
-
-                    wellResFrame.setIsOpen( simWellOnFile.well_status == Opm::RestartIO::Helpers::VectorItems::IWell::Value::Status::Open );
-
-                    // Well head
-                    RigWellResultPoint wellHead;
-                    wellHead.setGridIndex( 0 );
-                    auto cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( simWellOnFile.ij[0], simWellOnFile.ij[1], 0 );
-                    wellHead.setGridCellIndex( cellIndex );
-
-                    wellResFrame.setWellHead( wellHead );
-
-                    // Grid cells
-                    if ( !simWellOnFile.connections.empty() )
-                    {
-                        RigWellResultBranch wellResultBranch;
-                        wellResultBranch.setErtBranchId( 0 ); // Normal wells have only one branch
-
-                        std::vector<RigWellResultPoint> branchResultPoints = wellResultBranch.branchResultPoints();
-                        const size_t                    existingCellCount  = branchResultPoints.size();
-                        branchResultPoints.reserve( existingCellCount + simWellOnFile.connections.size() );
-
-                        for ( const auto& conn : simWellOnFile.connections )
-                        {
-                            RigWellResultPoint wellRp;
-                            wellRp.setGridIndex( 0 );
-                            auto cellIndex = eclipseCase->mainGrid()->cellIndexFromIJK( conn.ijk[0], conn.ijk[1], conn.ijk[2] );
-                            wellRp.setGridCellIndex( cellIndex );
-
-                            wellRp.setIsOpen( conn.state == Opm::Connection::State::OPEN );
-
-                            branchResultPoints.push_back( wellRp );
-                        }
-                        wellResultBranch.setBranchResultPoints( branchResultPoints );
-                        wellResFrame.addWellResultBranch( wellResultBranch );
-                    }
+                    wellResultBranch.setBranchResultPoints( branchResultPoints );
+                    wellResFrame.addWellResultBranch( wellResultBranch );
                 }
             }
 
@@ -429,14 +442,9 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<Opm::EclIO::ERst> restar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile )
+std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps( std::shared_ptr<EclIO::ERst> restartFile )
 {
-    Opm::Deck deck;
-
-    // It is required to create a deck as the input parameter to runspec. The = default() initialization of the runspec keyword does not
-    // initialize the object as expected.
-    Opm::Runspec runspec( deck );
-    Opm::Parser  parser( false );
+    auto [runspec, parser, deck] = runspecAndParser();
 
     std::vector<RifReaderOpmCommon::TimeDataFile> reportTimeData;
     try
@@ -445,9 +453,9 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
 
         for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
         {
-            auto fileView = std::make_shared<Opm::EclIO::RestartFileView>( restartFile, seqNumber );
+            auto fileView = std::make_shared<EclIO::RestartFileView>( restartFile, seqNumber );
 
-            auto state  = Opm::RestartIO::RstState::load( fileView, runspec, parser );
+            auto state  = RestartIO::RstState::load( fileView, runspec, parser );
             auto header = state.header;
 
             int year        = header.year;
