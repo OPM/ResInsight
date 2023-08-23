@@ -24,7 +24,6 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigGriddedPart3d::RigGriddedPart3d()
-    : m_thickness( 10.0 )
 {
 }
 
@@ -78,7 +77,12 @@ cvf::Vec3d RigGriddedPart3d::stepVector( cvf::Vec3d start, cvf::Vec3d stop, int 
 ///
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints, int nHorzCells, int nVertCellsLower, int nVertCellsMiddle, int nVertCellsUpper )
+void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
+                                         int                     nHorzCells,
+                                         int                     nVertCellsLower,
+                                         int                     nVertCellsMiddle,
+                                         int                     nVertCellsUpper,
+                                         double                  thickness )
 {
     reset();
 
@@ -94,12 +98,13 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints, in
 
     cvf::Vec3d tVec = step0to4 ^ step0to1;
     tVec.normalize();
-    tVec *= m_thickness;
+    tVec *= thickness;
+
     const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
     const int                 nThicknessCells    = 2;
     const int                 nVertCells         = nVertCellsLower + nVertCellsMiddle + nVertCellsUpper;
 
-    const std::vector<int>        vertCells  = { nVertCellsLower, nVertCellsMiddle, nVertCellsUpper + 1 };
+    const std::vector<int>        vertLines  = { nVertCellsLower, nVertCellsMiddle, nVertCellsUpper + 1 };
     const std::vector<cvf::Vec3d> firstSteps = { step0to1, step1to2, step2to3 };
     const std::vector<cvf::Vec3d> lastSteps  = { step4to5, step5to6, step6to7 };
 
@@ -107,27 +112,26 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints, in
 
     m_vertices.reserve( (size_t)( ( nVertCells + 1 ) * ( nHorzCells + 1 ) ) );
 
-    cvf::Vec3d p     = inputPoints[0];
-    cvf::Vec3d pLast = inputPoints[4];
+    cvf::Vec3d pFrom = inputPoints[0];
+    cvf::Vec3d pTo   = inputPoints[4];
 
-    for ( int i = 0; i < (int)vertCells.size(); i++ )
+    for ( int i = 0; i < (int)vertLines.size(); i++ )
     {
-        for ( int v = 0; v < vertCells[i]; v++ )
+        for ( int v = 0; v < vertLines[i]; v++ )
         {
-            cvf::Vec3d stepHorz = stepVector( p, pLast, nHorzCells );
-            cvf::Vec3d p2       = p;
+            cvf::Vec3d stepHorz = stepVector( pFrom, pTo, nHorzCells );
+            cvf::Vec3d p        = pFrom;
             for ( int h = 0; h <= nHorzCells; h++ )
             {
                 for ( int t = 0; t < (int)m_thicknessFactors.size(); t++ )
                 {
-                    m_vertices.push_back( p2 + m_thicknessFactors[t] * tVec );
+                    m_vertices.push_back( p + m_thicknessFactors[t] * tVec );
                 }
 
-                p2 += stepHorz;
-                pLast = p2;
+                p += stepHorz;
             }
-            p += firstSteps[i];
-            pLast += lastSteps[i];
+            pFrom += firstSteps[i];
+            pTo += lastSteps[i];
         }
     }
 

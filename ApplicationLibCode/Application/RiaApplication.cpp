@@ -353,7 +353,7 @@ bool RiaApplication::openFile( const QString& fileName )
     {
         loadingSucceded = loadProject( fileName );
     }
-    else if ( fileType == RiaDefines::ImportFileType::GEOMECH_ODB_FILE )
+    else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_GEOMECH_FILE ) )
     {
         loadingSucceded   = openOdbCaseFromFile( fileName );
         lastUsedDialogTag = "GEOMECH_MODEL";
