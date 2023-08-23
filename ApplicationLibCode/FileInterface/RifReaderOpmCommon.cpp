@@ -224,21 +224,6 @@ std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<EclIO::EclFile:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-auto runspecAndParser = []() -> std::tuple<Runspec, Parser, Deck>
-{
-    // It is required to create a deck as the input parameter to runspec. The default() initialization of the runspec keyword does not
-    // initialize the object as expected.
-
-    Deck    deck;
-    Runspec runspec( deck );
-    Parser  parser( false );
-
-    return std::make_tuple( runspec, parser, deck );
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 {
     QStringList fileSet;
@@ -314,7 +299,12 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFil
                                         RigEclipseCaseData*           eclipseCase,
                                         const std::vector<QDateTime>& timeSteps )
 {
-    auto [runspec, parser, deck] = runspecAndParser();
+    // It is required to create a deck as the input parameter to runspec. The default() initialization of the runspec keyword does not
+    // initialize the object as expected.
+
+    Deck    deck;
+    Runspec runspec( deck );
+    Parser  parser( false );
 
     cvf::Collection<RigSimWellData> wells;
 
@@ -445,7 +435,12 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFil
 //--------------------------------------------------------------------------------------------------
 std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps( std::shared_ptr<EclIO::ERst> restartFile )
 {
-    auto [runspec, parser, deck] = runspecAndParser();
+    // It is required to create a deck as the input parameter to runspec. The default() initialization of the runspec keyword does not
+    // initialize the object as expected.
+
+    Deck    deck;
+    Runspec runspec( deck );
+    Parser  parser( false );
 
     std::vector<RifReaderOpmCommon::TimeDataFile> reportTimeData;
     try
@@ -459,12 +454,12 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
             auto state  = RestartIO::RstState::load( fileView, runspec, parser );
             auto header = state.header;
 
-            int year        = header.year;
-            int month       = header.month;
-            int day         = header.mday;
-            int hour        = header.hour;
-            int minute      = header.minute;
-            int microsecond = header.microsecond;
+            int year  = header.year;
+            int month = header.month;
+            int day   = header.mday;
+            // int hour        = header.hour;
+            // int minute      = header.minute;
+            // int microsecond = header.microsecond;
 
             double daySinceSimStart = header.next_timestep1;
 
