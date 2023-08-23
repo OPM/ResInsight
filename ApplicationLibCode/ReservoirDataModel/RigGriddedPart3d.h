@@ -44,7 +44,12 @@ public:
 
     void reset();
 
-    void generateGeometry( std::vector<cvf::Vec3d> inputPoints, int nHorzCells, int nVertCellsLower, int nVertCellsMiddle, int nVertCellsUpper );
+    void generateGeometry( std::vector<cvf::Vec3d> inputPoints,
+                           int                     nHorzCells,
+                           int                     nVertCellsLower,
+                           int                     nVertCellsMiddle,
+                           int                     nVertCellsUpper,
+                           double                  thickness );
 
     const std::vector<cvf::Vec3d>&                            vertices() const;
     const std::vector<std::vector<unsigned int>>&             elementIndices() const;
@@ -60,6 +65,4 @@ private:
     std::vector<std::vector<unsigned int>>             m_elementIndices;
     std::map<BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
     std::vector<std::vector<cvf::Vec3d>>               m_meshLines;
-
-    double m_thickness;
 };

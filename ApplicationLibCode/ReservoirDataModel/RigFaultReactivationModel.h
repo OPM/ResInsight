@@ -80,6 +80,7 @@ public:
     void setMaxExtentFromAnchor( double maxExtentHorz, double minZ, double maxZ );
 
     void setCellCounts( int horzPart1, int horzPart2, int vertUpper, int vertMiddle, int vertLower );
+    void setThickness( double thickness );
 
     void updateRects();
 
@@ -104,6 +105,8 @@ private:
     double m_maxHorzExtent;
     double m_minZ;
     double m_maxZ;
+
+    double m_thickness;
 
     int m_cellCountHorzPart1;
     int m_cellCountHorzPart2;

@@ -50,7 +50,7 @@ public:
     RimFaultReactivationModelCollection();
     ~RimFaultReactivationModelCollection() override;
 
-    RimFaultReactivationModel* addNewModel( RimFaultInView* fault, cvf::Vec3d target1, cvf::Vec3d target2 );
+    RimFaultReactivationModel* addNewModel( RimFaultInView* fault, cvf::Vec3d target1, cvf::Vec3d target2, QString baseDir );
 
     bool empty();
     int  size();
