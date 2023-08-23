@@ -138,8 +138,8 @@ bool RifOpmGridTools::importGrid( const std::string& gridFilePath, RigMainGrid* 
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm::EclIO::EGrid& grid )
 {
-    auto   arrayNames         = grid.arrayNames();
-    int actnum_array_index = -1;
+    auto arrayNames         = grid.arrayNames();
+    int  actnum_array_index = -1;
 
     for ( size_t i = 0; i < arrayNames.size(); i++ )
     {
@@ -152,7 +152,7 @@ std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm
 
     if ( actnum_array_index < 0 ) return {};
 
-    auto actnumMainGrid = grid.get<int>(  actnum_array_index  );
+    auto actnumMainGrid = grid.get<int>( actnum_array_index );
 
     return { actnumMainGrid };
 }
