@@ -22,8 +22,16 @@
 
 #include "RiaQDateTimeTools.h"
 #include "RiaStringEncodingTools.h"
+
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
+
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
+#include "RigEclipseResultInfo.h"
+#include "RigMainGrid.h"
 
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_grid.h"
@@ -39,11 +47,6 @@
 #include <QDebug>
 #include <QFileInfo>
 
-#include "RigActiveCellInfo.h"
-#include "RigCaseCellResultsData.h"
-#include "RigEclipseCaseData.h"
-#include "RigEclipseResultAddress.h"
-#include "RigMainGrid.h"
 #include <algorithm>
 #include <cassert>
 
