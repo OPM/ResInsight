@@ -445,8 +445,6 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
     std::vector<RifReaderOpmCommon::TimeDataFile> reportTimeData;
     try
     {
-        auto reportStepCount = restartFile->numberOfReportSteps();
-
         for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
         {
             auto fileView = std::make_shared<EclIO::RestartFileView>( restartFile, seqNumber );

@@ -139,20 +139,20 @@ bool RifOpmGridTools::importGrid( const std::string& gridFilePath, RigMainGrid* 
 std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm::EclIO::EGrid& grid )
 {
     auto   arrayNames         = grid.arrayNames();
-    size_t actnum_array_index = 0;
+    int actnum_array_index = -1;
 
     for ( size_t i = 0; i < arrayNames.size(); i++ )
     {
         if ( arrayNames[i] == "ACTNUM" )
         {
-            actnum_array_index = i;
+            actnum_array_index = static_cast<int>( i );
             break;
         }
     }
 
     if ( actnum_array_index < 0 ) return {};
 
-    auto actnumMainGrid = grid.get<int>( static_cast<int>( actnum_array_index ) );
+    auto actnumMainGrid = grid.get<int>(  actnum_array_index  );
 
     return { actnumMainGrid };
 }

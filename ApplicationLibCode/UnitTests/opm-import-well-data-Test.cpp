@@ -34,9 +34,6 @@ TEST( DISABLED_opm_well_data_test, TestImport )
         auto stdFilename = baseFolder.absoluteFilePath( filename ).toStdString();
 
         auto rstFile = std::make_shared<Opm::EclIO::ERst>( drogonPath );
-        // rstFile->loadData();
-        auto reportStepCount = rstFile->numberOfReportSteps();
-
         for ( auto seqNumber : rstFile->listOfReportStepNumbers() )
         {
             auto fileView = std::make_shared<Opm::EclIO::RestartFileView>( rstFile, seqNumber );
