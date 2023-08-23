@@ -22,6 +22,7 @@
 #include "RiaPreferencesGeoMech.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 #include "RiuViewer.h"
 
 #include "Rim3dView.h"
@@ -102,8 +103,14 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
                 if ( camPos.pointDistance( candidate2 ) < camPos.pointDistance( candidate1 ) ) target2 = candidate2;
 
-                RimFaultReactivationModel* model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2 );
+                // get base directory for our work, should be a new, empty folder somewhere
+                QString defaultDir =
+                    RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULT_REACTIVATION_MODELING" );
 
+                QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
+                if ( baseDir.isNull() || baseDir.isEmpty() ) return;
+
+                auto model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2, baseDir );
                 if ( model != nullptr )
                 {
                     view->updateAllRequiredEditors();

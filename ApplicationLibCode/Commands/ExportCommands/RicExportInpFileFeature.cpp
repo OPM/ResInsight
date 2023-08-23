@@ -27,6 +27,7 @@
 
 #include <QAction>
 #include <QFile>
+#include <QString>
 
 CAF_CMD_SOURCE_INIT( RicExportInpFileFeature, "RicExportInpFileFeature" );
 
@@ -46,8 +47,8 @@ void RicExportInpFileFeature::onActionTriggered( bool isChecked )
     auto faultReactivationModel = caf::SelectionManager::instance()->selectedItemOfType<RimFaultReactivationModel>();
     if ( faultReactivationModel )
     {
-        std::string exportFile = "/tmp/faultreactivation.inp";
-        RifFaultReactivationModelExporter::exportToFile( exportFile, *faultReactivationModel->model() );
+        QString exportFile = faultReactivationModel->baseDir() + "/faultreactivation.inp ";
+        RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *faultReactivationModel->model() );
     }
 }
 

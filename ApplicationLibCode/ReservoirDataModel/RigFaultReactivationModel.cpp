@@ -34,6 +34,7 @@ RigFaultReactivationModel::RigFaultReactivationModel()
     , m_cellCountVertUpper( 1 )
     , m_cellCountVertMiddle( 1 )
     , m_cellCountVertLower( 1 )
+    , m_thickness( 1.0 )
 
 {
     for ( auto part : allModelParts() )
@@ -168,6 +169,16 @@ void RigFaultReactivationModel::setCellCounts( int horzPart1, int horzPart2, int
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::setThickness( double thickness )
+{
+    m_thickness = thickness;
+
+    reset();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///                  7
 ///       3----------|----------- 11
 ///        |         |          |
@@ -289,12 +300,14 @@ void RigFaultReactivationModel::generateGrids( cvf::Vec3dArray points )
                                                   m_cellCountHorzPart1,
                                                   m_cellCountVertLower,
                                                   m_cellCountVertMiddle,
-                                                  m_cellCountVertUpper );
+                                                  m_cellCountVertUpper,
+                                                  m_thickness );
     m_3dparts[GridPart::PART2]->generateGeometry( { points[8], points[9], points[10], points[11], points[4], points[5], points[6], points[7] },
                                                   m_cellCountHorzPart2,
                                                   m_cellCountVertLower,
                                                   m_cellCountVertMiddle,
-                                                  m_cellCountVertUpper );
+                                                  m_cellCountVertUpper,
+                                                  m_thickness );
 }
 
 //--------------------------------------------------------------------------------------------------

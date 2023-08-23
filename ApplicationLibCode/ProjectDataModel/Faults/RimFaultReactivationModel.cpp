@@ -58,6 +58,10 @@ RimFaultReactivationModel::RimFaultReactivationModel()
 
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Model" ), "Name" );
 
+    CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working folder" );
+
+    CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
+
     CAF_PDM_InitField( &m_extentHorizontal, "HorizontalExtent", 1000.0, "Horizontal Extent" );
     CAF_PDM_InitField( &m_extentVerticalAbove, "VerticalExtentAbove", 200.0, "Vertical Extent Above Anchor" );
     m_extentVerticalAbove.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -249,6 +253,8 @@ void RimFaultReactivationModel::updateVisualization()
                                  m_numberOfCellsVertUp,
                                  m_numberOfCellsVertMid,
                                  m_numberOfCellsVertLow );
+    m_modelPlane->setThickness( m_modelThickness );
+
     m_modelPlane->updateRects();
 
     view->scheduleCreateDisplayModelAndRedraw();
@@ -349,6 +355,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( &m_userDescription );
     genGrp->add( &m_fault );
+    genGrp->add( &m_baseDir );
 
     auto faultGrp = uiOrdering.addNewGroup( "Fault Plane" );
 
@@ -368,6 +375,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
 
     auto gridModelGrp = modelGrp->addNewGroup( "Grid" );
 
+    gridModelGrp->add( &m_modelThickness );
     gridModelGrp->add( &m_numberOfCellsHorzPart1 );
     gridModelGrp->add( &m_numberOfCellsHorzPart2 );
     gridModelGrp->add( &m_numberOfCellsVertUp );
@@ -447,4 +455,20 @@ RimEclipseCase* RimFaultReactivationModel::eclipseCase()
         return activeView->eclipseCase();
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::setBaseDir( QString path )
+{
+    m_baseDir = path;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::baseDir() const
+{
+    return m_baseDir().path();
 }

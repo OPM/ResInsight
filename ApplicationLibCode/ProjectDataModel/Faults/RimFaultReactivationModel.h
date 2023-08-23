@@ -86,6 +86,9 @@ public:
     cvf::ref<RigFaultReactivationModel> model() const;
     bool                                showModel() const;
 
+    QString baseDir() const;
+    void    setBaseDir( QString path );
+
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -102,6 +105,9 @@ private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
     cvf::ref<RivFaultReactivationModelPartMgr> m_partMgr;
+
+    caf::PdmField<caf::FilePath> m_baseDir;
+    caf::PdmField<double>        m_modelThickness;
 
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmPtrField<RimFaultInView*>           m_fault;

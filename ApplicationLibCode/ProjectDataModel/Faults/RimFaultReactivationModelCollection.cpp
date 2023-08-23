@@ -60,10 +60,12 @@ RimFaultReactivationModelCollection::~RimFaultReactivationModelCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationModel* RimFaultReactivationModelCollection::addNewModel( RimFaultInView* fault, cvf::Vec3d target1, cvf::Vec3d target2 )
+RimFaultReactivationModel*
+    RimFaultReactivationModelCollection::addNewModel( RimFaultInView* fault, cvf::Vec3d target1, cvf::Vec3d target2, QString baseDir )
 {
     auto newModel = new RimFaultReactivationModel();
     newModel->setFault( fault );
+    newModel->setBaseDir( baseDir );
     newModel->setUserDescription( fault->name() );
     newModel->setTargets( target1, target2 );
 
