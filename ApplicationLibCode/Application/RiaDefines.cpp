@@ -63,6 +63,15 @@ void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 }
 
 template <>
+void caf::AppEnum<RiaDefines::GridModelReader>::setUp()
+{
+    addItem( RiaDefines::GridModelReader::LIBECL, "LIBECL", "libecl" );
+    addItem( RiaDefines::GridModelReader::OPM_COMMON, "OPM_COMMON", "opm-common (beta)" );
+
+    setDefault( RiaDefines::GridModelReader::LIBECL );
+}
+
+template <>
 void caf::AppEnum<RiaDefines::EclipseUnitSystem>::setUp()
 {
     addItem( RiaDefines::EclipseUnitSystem::UNITS_METRIC, "UNITS_METRIC", "Metric" );

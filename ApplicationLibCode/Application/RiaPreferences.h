@@ -55,6 +55,7 @@ public:
     using FontSizeEnum        = RiaFontCache::FontSizeEnum;
     using PageSizeEnum        = caf::AppEnum<QPageSize::PageSizeId>;
     using PageOrientationEnum = caf::AppEnum<QPageLayout::Orientation>;
+    using GridModelEnum       = caf::AppEnum<RiaDefines::GridModelReader>;
 
     bool enableFaultsByDefault() const;
 
@@ -66,7 +67,8 @@ public:
 
     QStringList tabNames();
 
-    const RifReaderSettings* readerSettings() const;
+    const RifReaderSettings*    readerSettings() const;
+    RiaDefines::GridModelReader gridModelReader() const;
 
     bool useUndoRedo() const;
 
@@ -165,6 +167,7 @@ private:
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
 private:
+    caf::PdmField<GridModelEnum>           m_gridModelReader;
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
 
     caf::PdmField<QString> m_dateFormat;
