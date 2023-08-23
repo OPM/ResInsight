@@ -22,16 +22,12 @@
 #include "cvfColor3.h"
 #include "cvfObject.h"
 #include "cvfPlane.h"
+#include "cvfTextureImage.h"
 #include "cvfVector3.h"
 
 #include <map>
 #include <memory>
 #include <vector>
-
-namespace cvf
-{
-class TextureImage;
-}
 
 class RigGriddedPart3d;
 
