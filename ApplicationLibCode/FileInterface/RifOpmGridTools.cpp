@@ -138,10 +138,10 @@ bool RifOpmGridTools::importGrid( const std::string& gridFilePath, RigMainGrid* 
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm::EclIO::EGrid& grid )
 {
-    auto arrayNames         = grid.arrayNames();
-    int  actnum_array_index = 0;
+    auto   arrayNames         = grid.arrayNames();
+    size_t actnum_array_index = 0;
 
-    for ( int i = 0; i < arrayNames.size(); i++ )
+    for ( size_t i = 0; i < arrayNames.size(); i++ )
     {
         if ( arrayNames[i] == "ACTNUM" )
         {
@@ -152,10 +152,7 @@ std::vector<std::vector<int>> RifOpmGridTools::activeCellsFromActnumKeyword( Opm
 
     if ( actnum_array_index < 0 ) return {};
 
-    auto dims = grid.dimension();
-    auto lgrs = grid.list_of_lgrs();
-
-    auto actnumMainGrid = grid.get<int>( actnum_array_index );
+    auto actnumMainGrid = grid.get<int>( static_cast<int>( actnum_array_index ) );
 
     return { actnumMainGrid };
 }
@@ -324,10 +321,7 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
 {
     // Prefix OPM structures with _opm_and ResInsight structures with _ri_
 
-    const auto    hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
-    const size_t* cellMappingECLRi      = RifReaderEclipseOutput::eclipseCellIndexMapping();
-    const auto    gridDimension         = opmGrid.dimension();
-    auto&         riNodes               = riMainGrid->nodes();
+    auto& riNodes = riMainGrid->nodes();
 
     opmGrid.loadData();
     opmGrid.load_grid_data();
@@ -338,6 +332,9 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
     riActiveCellsFrac->setGridActiveCellCounts( 0, 0 );
 
     riActiveCells->setReservoirCellCount( riMainGrid->cellCount() );
+
+    // same mapping as libecl
+    const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
 #pragma omp parallel for
     for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( riMainGrid->cellCount() ); opmCellIndex++ )
@@ -355,9 +352,6 @@ void RifOpmGridTools::transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainG
 
         // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
         auto riNodeStartIndex = riReservoirIndex * 8;
-
-        // same mapping as libecl
-        const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
         for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
         {

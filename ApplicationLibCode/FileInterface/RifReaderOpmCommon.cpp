@@ -20,6 +20,7 @@
 
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifOpmGridTools.h"
@@ -277,7 +278,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         for ( const auto& timeStep : timeStepsFromFile )
         {
             QDate     date( timeStep.year, timeStep.month, timeStep.day );
-            QDateTime dateTime( date.startOfDay() );
+            QDateTime dateTime = RiaQDateTimeTools::createDateTime( date );
             dateTimes.push_back( dateTime );
             timeStepInfos.emplace_back( dateTime, timeStep.sequenceNumber, 0.0 );
         }
@@ -291,6 +292,8 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCase );
 
         firstTimeStepInfo = timeStepInfos.front();
+
+        readWellCells( m_restartFile, eclipseCase, m_timeSteps );
     }
 
     if ( !initFileName.empty() )
@@ -302,8 +305,6 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
 
         RifEclipseOutputFileTools::createResultEntries( keywordInfo, { firstTimeStepInfo }, RiaDefines::ResultCatType::STATIC_NATIVE, eclipseCase );
     }
-
-    readWellCells( m_restartFile, eclipseCase, m_timeSteps );
 }
 
 //--------------------------------------------------------------------------------------------------
