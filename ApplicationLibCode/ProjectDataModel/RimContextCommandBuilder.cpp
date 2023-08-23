@@ -69,6 +69,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultReactivationModel.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -470,6 +471,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewStimPlanModelFeature";
             menuBuilder << "RicNewStimPlanModelPlotFeature";
             menuBuilder << "RicExportStimPlanModelToFileFeature";
+        }
+        else if ( dynamic_cast<RimFaultReactivationModel*>( firstUiItem ) )
+        {
+            menuBuilder << "RicExportInpFileFeature";
         }
         else if ( dynamic_cast<RimPressureTable*>( firstUiItem ) )
         {
