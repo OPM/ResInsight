@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorBarConverted.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -63,9 +64,9 @@ bool RigFemPartResultCalculatorBarConverted::isMatching( const RigFemResultAddre
     }
 
     // TODO: split in multiple classes??
-    if ( m_fieldName == "POR-Bar" )
+    if ( m_fieldName == RigFemAddressDefines::porBar() )
     {
-        return ( ( resVarAddr.fieldName == "POR-Bar" ) && ( resVarAddr.resultPosType == RIG_NODAL ) &&
+        return ( ( resVarAddr.fieldName == RigFemAddressDefines::porBar() ) && ( resVarAddr.resultPosType == RIG_NODAL ) &&
                  !( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" ) );
     }
     else

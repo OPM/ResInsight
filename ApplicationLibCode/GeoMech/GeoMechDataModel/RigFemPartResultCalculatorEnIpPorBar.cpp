@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorEnIpPorBar.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -48,7 +49,7 @@ RigFemPartResultCalculatorEnIpPorBar::~RigFemPartResultCalculatorEnIpPorBar()
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorEnIpPorBar::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "POR-Bar" && resVarAddr.resultPosType != RIG_NODAL );
+    return ( resVarAddr.fieldName == RigFemAddressDefines::porBar() && resVarAddr.resultPosType != RIG_NODAL );
 }
 
 //--------------------------------------------------------------------------------------------------

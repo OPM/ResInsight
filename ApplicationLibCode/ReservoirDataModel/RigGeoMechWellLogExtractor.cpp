@@ -26,6 +26,7 @@
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
+#include "RiaWellLogUnitTools.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -34,7 +35,7 @@
 #include "RigGeoMechBoreHoleStressCalculator.h"
 #include "RigGeoMechCaseData.h"
 
-#include "RiaWellLogUnitTools.h"
+#include "RigFemAddressDefines.h"
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
 #include "RigWellPathGeometryTools.h"
@@ -93,7 +94,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
     RigFemResultAddress shAddr( RIG_ELEMENT_NODAL, "ST", "S3" );
-    RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, "POR-Bar", "" );
+    RigFemResultAddress porBarResAddr = RigFemAddressDefines::elementNodalPorBarAddress();
 
     const std::vector<float>& unscaledShValues = resultCollection->resultValues( shAddr, m_partId, timeStepIndex, frameIndex );
     const std::vector<float>& porePressures    = resultCollection->resultValues( porBarResAddr, m_partId, timeStepIndex, frameIndex );
@@ -206,12 +207,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
     }
     else if ( resAddr.isValid() )
     {
-        RigFemResultAddress convResAddr = resAddr;
-
-        // When showing POR results, always use the element nodal result,
-        // to get correct handling of elements without POR results
-
-        if ( convResAddr.fieldName == "POR-Bar" ) convResAddr.resultPosType = RIG_ELEMENT_NODAL;
+        RigFemResultAddress convResAddr = RigFemAddressDefines::getResultLookupAddress( resAddr );
 
         CVF_ASSERT( resAddr.resultPosType != RIG_WELLPATH_DERIVED );
 
@@ -591,7 +587,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
 
     // The result addresses needed
     RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, "ST", "" );
-    RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, "POR-Bar", "" );
+    RigFemResultAddress porBarResAddr = RigFemAddressDefines::elementNodalPorBarAddress();
 
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 

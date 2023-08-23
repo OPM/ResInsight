@@ -26,6 +26,7 @@
 #include "RicfCommandObject.h"
 #include "RifOdbReader.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -503,8 +504,8 @@ cvf::BoundingBox RimGeoMechCase::reservoirBoundingBox()
             RigFemPart*           femPart     = rigCaseData->femParts()->part( p );
             const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
 
-            RigFemResultAddress       porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
-            const std::vector<float>& resultValues = rigCaseData->femPartResults()->resultValues( porBarAddr, p, 0, 0 );
+            const std::vector<float>& resultValues =
+                rigCaseData->femPartResults()->resultValues( RigFemAddressDefines::elementNodalPorBarAddress(), p, 0, 0 );
 
             for ( int i = 0; i < femPart->elementCount(); ++i )
             {

@@ -25,6 +25,7 @@
 
 #include "RifGeoMechReaderInterface.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultCalculatorStressAnisotropy.h"
@@ -570,7 +571,7 @@ void RimGeoMechResultDefinition::loadResult()
              resultAddress().fieldName == RiaResultNames::wbsSFGResult().toStdString() )
         {
             RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, std::string( "ST" ), "" );
-            RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, std::string( "POR-Bar" ), "" );
+            RigFemResultAddress porBarResAddr = RigFemAddressDefines::elementNodalPorBarAddress();
             m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( stressResAddr );
             m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( porBarResAddr );
         }
@@ -598,7 +599,7 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
     if ( resultPositionType() == RIG_DIFFERENTIALS )
     {
         RigFemResultPosEnum resultPositionType = RIG_ELEMENT_NODAL;
-        if ( resultFieldName().toStdString() == "POR-Bar" )
+        if ( resultFieldName().toStdString() == RigFemAddressDefines::porBar() )
         {
             resultPositionType = RIG_NODAL;
         }
@@ -796,13 +797,19 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
         return RiaWellLogUnitTools<double>::noUnitString();
     }
 
-    if ( resultFieldName() == "SE" || resultFieldName() == "ST" || resultFieldName() == "POR-Bar" || resultFieldName() == "SM" ||
+    if ( resultFieldName() == "SE" || resultFieldName() == "ST" ||
+         resultFieldName() == QString::fromStdString( RigFemAddressDefines::porBar() ) || resultFieldName() == "SM" ||
          resultFieldName() == "SEM" || resultFieldName() == "Q" )
     {
         auto componentName = resultComponentName();
         if ( componentName.endsWith( "azi" ) || componentName.endsWith( "inc" ) )
         {
             return "Deg";
+        }
+
+        if ( rigFemResultAddress.normalizeByHydrostaticPressure() )
+        {
+            return "sg";
         }
 
         return "Bar";
@@ -875,7 +882,7 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName( QString resultFi
     if ( resultFieldName == "E" ) newName = "NativeAbaqus Strain";
     if ( resultFieldName == "S" ) newName = "NativeAbaqus Stress";
     if ( resultFieldName == "NE" ) newName = "E"; // Make NE and NS appear as E and SE
-    if ( resultFieldName == "POR-Bar" ) newName = "POR"; // POR-Bar appear as POR
+    if ( resultFieldName == QString::fromStdString( RigFemAddressDefines::porBar() ) ) newName = "POR"; // POR-Bar appear as POR
     if ( resultFieldName == "MODULUS" ) newName = "Young's Modulus";
     if ( resultFieldName == "RATIO" ) newName = "Poisson's Ratio";
     if ( resultFieldName == "UCS" ) newName = "UCS bar/ 100";
