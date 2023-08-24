@@ -1924,8 +1924,6 @@ void RimSummaryPlot::updateZoomFromParentPlot()
 
         axisProperties->setVisibleRangeMax( axisMax );
         axisProperties->setVisibleRangeMin( axisMin );
-
-        axisProperties->updateConnectedEditors();
     }
 }
 
