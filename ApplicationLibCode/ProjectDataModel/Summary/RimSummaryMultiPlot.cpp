@@ -1279,6 +1279,8 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
         bool canShowOneAxisTitlePerRow = analyzer.isSingleQuantityIgnoreHistory() && ( m_axisRangeAggregation() != AxisRangeAggregation::NONE );
 
+        const bool notifyFieldChanged = false;
+
         for ( auto p : summaryPlots() )
         {
             auto timeAxisProp = p->timeAxisProperties();
@@ -1286,7 +1288,7 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
             auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
                                                        : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
 
-            timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount );
+            timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
 
             for ( auto* axisProp : p->plotYAxes() )
             {
@@ -1295,7 +1297,7 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
                 auto tickMarkCount = ( rowsPerPage() == 1 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
                                                             : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
 
-                axisProp->setAutoValueForMajorTickmarkCount( tickMarkCount );
+                axisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
 
                 axisProp->computeAndSetAutoValueForScaleFactor();
 
