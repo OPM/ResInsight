@@ -210,6 +210,16 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotManager::calculateValueOptions( cons
 
         updateSelectionFromUiChange();
     }
+    else if ( fieldNeedingOptions == &m_addressCandidates )
+    {
+        auto addresses = filteredAddresses();
+
+        for ( const auto& adr : addresses )
+        {
+            QString text = QString::fromStdString( adr.uiText() );
+            options.push_back( caf::PdmOptionItemInfo( text, text ) );
+        }
+    }
 
     return options;
 }
@@ -384,7 +394,19 @@ void RimSummaryPlotManager::createNewPlot()
     std::vector<RimSummaryCaseCollection*> ensembles;
     findFilteredSummaryCasesAndEnsembles( summaryCases, ensembles );
 
-    std::set<RifEclipseSummaryAddress> filteredAddressesFromSource = filteredAddresses();
+    std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
+
+    for ( const auto& adr : filteredAddresses() )
+    {
+        for ( const auto& textSelection : m_addressCandidates() )
+        {
+            if ( adr.uiText() == textSelection.toStdString() )
+            {
+                filteredAddressesFromSource.insert( adr );
+                continue;
+            }
+        }
+    }
 
     RicSummaryPlotBuilder plotBuilder;
     plotBuilder.setAddresses( filteredAddressesFromSource );
