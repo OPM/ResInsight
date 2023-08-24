@@ -202,8 +202,6 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         setFilesContainingFaults( readerInterface->filenamesWithFaults() );
 
         setReservoirData( eclipseCase.p() );
-
-        readerInterface = readerInterface;
     }
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
