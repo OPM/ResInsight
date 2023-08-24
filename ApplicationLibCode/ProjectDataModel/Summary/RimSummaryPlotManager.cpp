@@ -390,10 +390,10 @@ void RimSummaryPlotManager::createNewPlot()
     plotBuilder.setAddresses( filteredAddressesFromSource );
     plotBuilder.setDataSources( summaryCases, ensembles );
 
-    RicSummaryPlotBuilder::RicGraphCurveGrouping groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::NONE;
-    if ( m_individualPlotPerVector ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::SINGLE_CURVES;
-    if ( m_individualPlotPerObject ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::CURVES_FOR_OBJECT;
-    plotBuilder.setGrouping( groping );
+    RicSummaryPlotBuilder::RicGraphCurveGrouping grouping = RicSummaryPlotBuilder::RicGraphCurveGrouping::NONE;
+    if ( m_individualPlotPerVector ) grouping = RicSummaryPlotBuilder::RicGraphCurveGrouping::SINGLE_CURVES;
+    if ( m_individualPlotPerObject ) grouping = RicSummaryPlotBuilder::RicGraphCurveGrouping::CURVES_FOR_OBJECT;
+    plotBuilder.setGrouping( grouping );
 
     plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );
 

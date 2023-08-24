@@ -798,22 +798,6 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         analyzer.appendAddresses( addresses );
     }
 
-    auto rangeAggregation = AxisRangeAggregation::NONE;
-    if ( analyzer.quantities().size() == 1 && summaryPlots().size() > 1 )
-    {
-        // Many plots, single summary vector
-        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
-    }
-
-    if ( !analyzer.wellNames().empty() )
-    {
-        rangeAggregation = AxisRangeAggregation::WELLS;
-    }
-    else if ( !analyzer.regionNumbers().empty() )
-    {
-        rangeAggregation = AxisRangeAggregation::REGIONS;
-    }
-
     auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
     if ( analyzer.wellNames().size() == 1 )
     {
@@ -849,8 +833,14 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK;
     }
 
-    m_axisRangeAggregation = rangeAggregation;
     m_sourceStepping->setStepDimension( stepDimension );
+
+    // Previously, when the stepping dimension was set to 'well' for range aggregation, it was based on all wells. If one of the wells had
+    // extreme values and was not visible, it would set the y-range to match the extreme value, making some curves invisible. We have now
+    // changed the default setting to use visible subplots to determine the y-range aggregation.
+    // https://github.com/OPM/ResInsight/issues/10543
+
+    m_axisRangeAggregation = AxisRangeAggregation::SUB_PLOTS;
 
     setAutoValueStates();
 }
