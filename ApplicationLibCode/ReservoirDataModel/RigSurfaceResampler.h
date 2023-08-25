@@ -29,7 +29,12 @@ class RigSurfaceResampler
 public:
     static cvf::ref<RigSurface> resampleSurface( cvf::ref<RigSurface> targetSurface, cvf::ref<RigSurface> surface );
 
-    static bool resamplePoint( RigSurface* surface, const cvf::Vec3d& pointAbove, const cvf::Vec3d& pointBelow, cvf::Vec3d& intersectionPoint );
+    static bool resamplePoint( RigSurface* surface, const cvf::Vec3d& p1, const cvf::Vec3d& p2, cvf::Vec3d& intersectionPoint );
+    static bool resamplePointExpandBoundingBox( RigSurface* surface, const cvf::Vec3d& p1, const cvf::Vec3d& p2, cvf::Vec3d& intersectionPoint );
+
+    static std::vector<cvf::Vec3d> computeResampledPolyline( const std::vector<cvf::Vec3d>& polyline, double resamplingDistance );
+    static std::vector<std::pair<cvf::Vec3d, size_t>> computeResampledPolylineWithSegmentInfo( const std::vector<cvf::Vec3d>& polyline,
+                                                                                               double resamplingDistance );
 
 private:
     static bool findClosestPointXY( const cvf::Vec3d&                targetPoint,
@@ -40,4 +45,7 @@ private:
                                     cvf::Vec3d&                      intersectionPoint );
 
     static double computeMaxDistance( RigSurface* surface );
+
+    static std::pair<std::vector<cvf::Vec3d>, std::vector<size_t>>
+        computeResampledPolylineWithSegmentInfoImpl( const std::vector<cvf::Vec3d>& polyline, double resamplingDistance );
 };
