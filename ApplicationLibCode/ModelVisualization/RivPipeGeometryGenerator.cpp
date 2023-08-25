@@ -60,6 +60,14 @@ void RivPipeGeometryGenerator::setPipeCenterCoords( const cvf::Vec3dArray* coord
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivPipeGeometryGenerator::setPipeCenterCoords( const std::vector<cvf::Vec3d>& coords )
+{
+    m_originalPipeCenterCoords = new cvf::Vec3dArray( coords );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::cref<cvf::Vec3dArray> RivPipeGeometryGenerator::pipeCenterCoords() const
 {
     return m_originalPipeCenterCoords.p();

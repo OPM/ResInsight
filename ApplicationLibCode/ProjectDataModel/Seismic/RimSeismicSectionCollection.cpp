@@ -49,6 +49,16 @@ RimSeismicSectionCollection::RimSeismicSectionCollection()
     CAF_PDM_InitFieldNoDefault( &m_seismicSections, "SeismicSections", "SeismicSections" );
     m_seismicSections.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitField( &m_surfaceIntersectionLinesScaleFactor,
+                       "SurfaceIntersectionLinesScaleFactor",
+                       std::make_pair( false, 10.0 ),
+                       "Surface Intersection Lines Scale Factor" );
+
+    CAF_PDM_InitField( &m_intersectionLinesScaleFactor,
+                       "IntersectionLinesScaleFactor",
+                       std::make_pair( true, 5.0 ),
+                       "Intersection Lines Scale Factor" );
+
     setName( "Seismic Sections" );
 }
 
@@ -137,6 +147,8 @@ caf::PdmFieldHandle* RimSeismicSectionCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_surfaceIntersectionLinesScaleFactor );
+    uiOrdering.add( &m_intersectionLinesScaleFactor );
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -179,10 +191,7 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == objectToggleField() )
-    {
-        updateView();
-    }
+    updateView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,6 +248,22 @@ void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, double> RimSeismicSectionCollection::surfaceIntersectionLinesScaleFactor() const
+{
+    return m_surfaceIntersectionLinesScaleFactor.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, double> RimSeismicSectionCollection::linesScaleFactor() const
+{
+    return m_intersectionLinesScaleFactor.value();
 }
 
 //--------------------------------------------------------------------------------------------------

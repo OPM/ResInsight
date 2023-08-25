@@ -42,6 +42,7 @@ public:
     ~RivPipeGeometryGenerator() override;
 
     // Coordinates and orientations
+    void                       setPipeCenterCoords( const std::vector<cvf::Vec3d>& coords );
     void                       setPipeCenterCoords( const cvf::Vec3dArray* coords );
     cvf::cref<cvf::Vec3dArray> pipeCenterCoords() const;
 
