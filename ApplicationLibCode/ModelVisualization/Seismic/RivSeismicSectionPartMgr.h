@@ -62,7 +62,9 @@ public:
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
-protected:
+    void appendSurfaceIntersectionLines( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform );
+
+private:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
     cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image );
 

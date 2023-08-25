@@ -165,6 +165,7 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
             if ( section->seismicData() != nullptr )
             {
                 section->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
+                section->partMgr()->appendSurfaceIntersectionLines( model, transform );
             }
             section->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
         }

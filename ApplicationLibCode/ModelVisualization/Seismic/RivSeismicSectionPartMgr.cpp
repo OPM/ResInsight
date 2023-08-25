@@ -20,17 +20,23 @@
 
 #include "RiaGuiApplication.h"
 
-#include "RivPartPriority.h"
-#include "RivPolylinePartMgr.h"
-#include "RivSeismicSectionSourceInfo.h"
-
 #include "Rim3dView.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
+#include "RimSurface.h"
+#include "RimSurfaceCollection.h"
 
+#include "RigSurfaceResampler.h"
 #include "RigTexturedSection.h"
+
+#include "RivPartPriority.h"
+#include "RivPolylineGenerator.h"
+#include "RivPolylinePartMgr.h"
+#include "RivSeismicSectionSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -87,7 +93,7 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 
     auto texSection = m_section->texturedSection();
 
-    for ( int i = 0; i < (int)texSection->partsCount(); i++ )
+    for ( int i = 0; i < texSection->partsCount(); i++ )
     {
         auto& part = texSection->part( i );
 
@@ -235,4 +241,90 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
     }
 
     return textureImage;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
+                                                               const caf::DisplayCoordTransform* displayCoordTransform )
+{
+    RimProject*           proj     = RimProject::current();
+    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+
+    for ( RimSurface* surface : surfColl->surfaces() )
+    {
+        if ( !surface ) continue;
+
+        surface->loadDataIfRequired();
+
+        auto texSection = m_section->texturedSection();
+        for ( int i = 0; i < texSection->partsCount(); i++ )
+        {
+            const auto& texturePart = texSection->part( i );
+
+            std::vector<cvf::Vec3d> polyLine;
+
+            // Each part of the seismic section is a rectangle, use two corners of the rectangle to create a polyline
+            polyLine.push_back( texturePart.rect[0] );
+            polyLine.push_back( texturePart.rect[1] );
+
+            auto computePolyLinesDisplayCoords = [&]( std::vector<cvf::Vec3d> polyLine ) -> std::vector<std::vector<cvf::Vec3d>>
+            {
+                std::vector<std::vector<cvf::Vec3d>> displayPolygonCurves;
+                const double                         resamplingDistance = 5.0;
+                std::vector<cvf::Vec3d> resampledPolyline = RigSurfaceResampler::computeResampledPolyline( polyLine, resamplingDistance );
+
+                std::vector<cvf::Vec3d> domainCurvePoints;
+
+                for ( const auto& point : resampledPolyline )
+                {
+                    cvf::Vec3d pointAbove = cvf::Vec3d( point.x(), point.y(), 10000.0 );
+                    cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
+
+                    cvf::Vec3d intersectionPoint;
+                    bool foundMatch = RigSurfaceResampler::resamplePoint( surface->surfaceData(), pointAbove, pointBelow, intersectionPoint );
+                    if ( foundMatch )
+                    {
+                        domainCurvePoints.emplace_back( intersectionPoint );
+                    }
+                    else
+                    {
+                        if ( domainCurvePoints.size() > 1 )
+                        {
+                            // Add intersection curve in display coordinates
+                            auto displayCoords = displayCoordTransform->transformToDisplayCoords( domainCurvePoints );
+                            displayPolygonCurves.push_back( displayCoords );
+                        }
+
+                        // Start a new line
+                        domainCurvePoints.clear();
+                    }
+                }
+
+                return displayPolygonCurves;
+            };
+
+            auto polyLineDisplayCoords = computePolyLinesDisplayCoords( polyLine );
+            bool closePolyLine         = false;
+
+            cvf::ref<cvf::DrawableGeo> drawableGeo =
+                RivPolylineGenerator::createLineAlongPolylineDrawable( polyLineDisplayCoords, closePolyLine );
+            if ( drawableGeo.isNull() ) continue;
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName( "RivSeismicSectionPartMgr" );
+            part->setDrawable( drawableGeo.p() );
+
+            caf::MeshEffectGenerator effgen( surface->color() );
+            int                      lineThickness = 5;
+            effgen.setLineWidth( lineThickness );
+            cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
+
+            part->setEffect( eff.p() );
+            part->setPriority( RivPartPriority::PartType::MeshLines );
+
+            model->addPart( part.p() );
+        }
+    }
 }
