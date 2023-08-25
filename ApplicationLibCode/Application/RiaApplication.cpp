@@ -209,8 +209,14 @@ const char* RiaApplication::getVersionStringApp( bool includeCrtInfo )
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::enableDevelopmentFeatures()
 {
-    QString environmentVar = QProcessEnvironment::systemEnvironment().value( "RESINSIGHT_DEVEL", QString( "0" ) );
-    return environmentVar.toInt() == 1;
+    static int envValue = -999;
+    if ( envValue == -999 )
+    {
+        QString environmentVar = QProcessEnvironment::systemEnvironment().value( "RESINSIGHT_DEVEL", QString( "0" ) );
+        envValue               = environmentVar.toInt();
+    }
+
+    return envValue == 1;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -123,7 +123,7 @@ public:
 
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
-    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count );
+    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count, bool notifyFieldChanged );
     void                enableAutoValueForMajorTickmarkCount( bool enable );
 
     void enableAutoValueForAllFields( bool enable );

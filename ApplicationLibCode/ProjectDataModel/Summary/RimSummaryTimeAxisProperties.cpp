@@ -553,11 +553,11 @@ void RimSummaryTimeAxisProperties::setMajorTickmarkCount( LegendTickmarkCount co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setAutoValueForMajorTickmarkCount( LegendTickmarkCount count )
+void RimSummaryTimeAxisProperties::setAutoValueForMajorTickmarkCount( LegendTickmarkCount count, bool notifyFieldChanged )
 {
     auto enumValue = static_cast<std::underlying_type_t<LegendTickmarkCount>>( count );
 
-    m_majorTickmarkCount.uiCapability()->setAutoValue( enumValue );
+    m_majorTickmarkCount.uiCapability()->setAutoValue( enumValue, notifyFieldChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
