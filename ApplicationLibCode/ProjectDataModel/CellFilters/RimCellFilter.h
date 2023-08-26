@@ -24,6 +24,8 @@
 #include "cafPdmProxyValueField.h"
 #include "cafSignal.h"
 
+#include "cvfArray.h"
+
 namespace cvf
 {
 class StructGridInterface;
@@ -45,9 +47,16 @@ public:
         EXCLUDE
     };
 
+    enum FilterDefinitionType
+    {
+        RANGE,
+        INDEX,
+        PROPERTY
+    };
+
     caf::Signal<> filterChanged;
 
-    RimCellFilter();
+    RimCellFilter( FilterDefinitionType defType );
     ~RimCellFilter() override;
 
     QString name() const;
@@ -55,6 +64,9 @@ public:
 
     bool isActive() const;
     void setActive( bool active );
+
+    bool isRangeFilter() const;
+    bool isIndexFilter() const;
 
     virtual bool isFilterEnabled() const;
 
@@ -69,7 +81,8 @@ public:
     void updateIconState();
     void updateActiveState( bool isControlled );
 
-    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) = 0;
+    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ){};
+    virtual void    updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ){};
     virtual QString fullName() const;
 
 protected:
@@ -88,4 +101,7 @@ protected:
     caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
     caf::PdmField<int>                          m_gridIndex;
     caf::PdmField<bool>                         m_propagateToSubGrids;
+
+private:
+    FilterDefinitionType m_filterDefinitionType;
 };

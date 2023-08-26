@@ -26,6 +26,7 @@ CAF_PDM_SOURCE_INIT( RimPropertyFilter, "PropertyFilter" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPropertyFilter::RimPropertyFilter()
+    : RimCellFilter( RimCellFilter::PROPERTY )
 {
     CAF_PDM_InitObject( "Property Filter" );
 

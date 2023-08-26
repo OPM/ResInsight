@@ -42,8 +42,9 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCellFilter, "CellFilter", "CellFilter" ); /
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellFilter::RimCellFilter()
+RimCellFilter::RimCellFilter( FilterDefinitionType defType )
     : filterChanged( this )
+    , m_filterDefinitionType( defType )
 {
     CAF_PDM_InitObject( "Cell Filter" );
 
@@ -128,6 +129,22 @@ bool RimCellFilter::isActive() const
 bool RimCellFilter::isFilterEnabled() const
 {
     return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::isRangeFilter() const
+{
+    return m_filterDefinitionType == FilterDefinitionType::RANGE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::isIndexFilter() const
+{
+    return m_filterDefinitionType == FilterDefinitionType::INDEX;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -220,13 +220,28 @@ bool RimCellFilterCollection::hasActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCellFilterCollection::hasActiveIncludeFilters() const
+bool RimCellFilterCollection::hasActiveIncludeIndexFilters() const
 {
     if ( !isActive() ) return false;
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+        if ( filter->isFilterEnabled() && filter->isIndexFilter() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilterCollection::hasActiveIncludeRangeFilters() const
+{
+    if ( !isActive() ) return false;
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        if ( filter->isFilterEnabled() && filter->isRangeFilter() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
     }
 
     return false;
@@ -360,7 +375,7 @@ void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Populate the given view filter with info from our filters
+/// Populate the given view filter with info from our range filters
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const
 {
@@ -370,9 +385,36 @@ void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cel
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() )
+        if ( filter->isFilterEnabled() && filter->isRangeFilter() )
         {
             filter->updateCompundFilter( cellRangeFilter, gIndx );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Populate the given view filter with info from our cell index filters
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* cellsIncluded, cvf::UByteArray* cellsExcluded, size_t gridIndex ) const
+{
+    CVF_ASSERT( cellsIncluded );
+    CVF_ASSERT( cellsExcluded );
+
+    bool needIncludeVisibilityReset = true;
+
+    cellsExcluded->setAll( 1 );
+
+    for ( RimCellFilter* filter : m_cellFilters )
+    {
+        if ( filter->isFilterEnabled() && filter->isIndexFilter() )
+        {
+            if ( ( filter->filterMode() == RimCellFilter::INCLUDE ) && needIncludeVisibilityReset )
+            {
+                cellsIncluded->setAll( 0 );
+                needIncludeVisibilityReset = false;
+            }
+
+            filter->updateCellIndexFilter( cellsIncluded, cellsExcluded, (int)gridIndex );
         }
     }
 }

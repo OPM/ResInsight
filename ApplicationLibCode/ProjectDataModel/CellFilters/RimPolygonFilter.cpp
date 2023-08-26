@@ -119,7 +119,8 @@ CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolygonFilter::RimPolygonFilter()
-    : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
+    : RimCellFilter( RimCellFilter::INDEX )
+    , m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
     , m_intervalTool( true )
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png" );
@@ -431,6 +432,12 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         enableFilter( !m_enablePicking() );
         filterChanged.send();
     }
+    else if ( ( changedField == &m_showLines ) || ( changedField == &m_showSpheres ) || ( changedField == &m_sphereColor ) ||
+              ( changedField == &m_sphereRadiusFactor ) || ( changedField == &m_lineThickness ) || ( changedField == &m_lineColor ) ||
+              ( changedField == &m_lockPolygonToPlane ) || ( changedField == &m_polygonPlaneDepth ) )
+    {
+        filterChanged.send();
+    }
     else if ( changedField != &m_name )
     {
         updateCells();
@@ -467,10 +474,8 @@ caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex )
+void RimPolygonFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex )
 {
-    CVF_ASSERT( cellRangeFilter );
-
     if ( !m_enableFiltering ) return;
 
     const int noofgrids = static_cast<int>( m_cells.size() );
@@ -481,19 +486,18 @@ void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilte
 
     if ( gridIndex >= static_cast<int>( m_cells.size() ) ) return;
 
-    const auto grid = RigReservoirGridTools::gridByIndex( m_srcCase, gridIndex );
-    size_t     i, j, k;
-
-    for ( size_t cellidx : m_cells[gridIndex] )
+    if ( m_filterMode == FilterModeType::INCLUDE )
     {
-        grid->ijkFromCellIndex( cellidx, &i, &j, &k );
-        if ( filterMode() == RimCellFilter::INCLUDE )
+        for ( auto cellIdx : m_cells[gridIndex] )
         {
-            cellRangeFilter->addCellInclude( i, j, k, propagateToSubGrids() );
+            ( *includeVisibility )[cellIdx] = true;
         }
-        else
+    }
+    else
+    {
+        for ( auto cellIdx : m_cells[gridIndex] )
         {
-            cellRangeFilter->addCellExclude( i, j, k, propagateToSubGrids() );
+            ( *excludeVisibility )[cellIdx] = false;
         }
     }
 }
