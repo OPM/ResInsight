@@ -151,7 +151,17 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
     {
         cvf::CellRangeFilter cellRangeFilter;
         view()->cellFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, 0 );
-        RivFemElmVisibilityCalculator::computeRangeVisibility( cellGridIdxVisibility.p(), m_femPart.p(), cellRangeFilter );
+
+        cvf::UByteArray indexIncludeVis = ( *cellGridIdxVisibility.p() );
+        cvf::UByteArray indexExcludeVis = ( *cellGridIdxVisibility.p() );
+        view()->cellFilterCollection()->updateCellVisibilityByIndex( &indexIncludeVis, &indexExcludeVis, 0 );
+
+        RivFemElmVisibilityCalculator::computeRangeVisibility( cellGridIdxVisibility.p(),
+                                                               m_femPart.p(),
+                                                               cellRangeFilter,
+                                                               &indexIncludeVis,
+                                                               &indexExcludeVis,
+                                                               view()->cellFilterCollection()->hasActiveIncludeIndexFilters() );
     }
     if ( view()->propertyFilterCollection()->isActive() )
     {
