@@ -81,17 +81,16 @@ private:
     void loadAndUpdateSourSimData();
     void ensureRftDataIsImported();
 
-private:
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );
+    void                         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
+private:
     cvf::ref<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
 
     cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
     cvf::ref<RifReaderOpmRft>     m_readerOpmRft;
 
-    // Fields:
+    caf::PdmField<caf::AppEnum<RiaDefines::GridModelReader>>             m_gridModelReader;
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;
     caf::PdmField<caf::FilePath>                                         m_sourSimFileName;

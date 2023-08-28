@@ -92,10 +92,21 @@ add_library(${PROJECT_NAME}
     opm-common/src/opm/io/eclipse/rst/connection.cpp
 
     # Required for use of RstHeader::restart_info
+    opm-common/src/opm/io/eclipse/rst/action.cpp
+    opm-common/src/opm/io/eclipse/rst/aquifer.cpp
+    opm-common/src/opm/io/eclipse/rst/connection.cpp
+    opm-common/src/opm/io/eclipse/rst/group.cpp
     opm-common/src/opm/io/eclipse/rst/header.cpp
+    opm-common/src/opm/io/eclipse/rst/network.cpp
+    opm-common/src/opm/io/eclipse/rst/segment.cpp
+    opm-common/src/opm/io/eclipse/rst/state.cpp
+    opm-common/src/opm/io/eclipse/rst/udq.cpp
+    opm-common/src/opm/io/eclipse/rst/well.cpp
+    opm-common/src/opm/output/eclipse/InteHEAD.cpp 
+    opm-common/src/opm/output/eclipse/UDQDims.cpp
+    opm-common/src/opm/output/eclipse/CreateActionRSTDims.cpp 
 
 	# 2022.06 additional includes
-    opm-common/src/opm/io/eclipse/rst/aquifer.cpp
     opm-common/src/opm/io/eclipse/ERst.cpp
     opm-common/src/opm/io/eclipse/RestartFileView.cpp
     opm-common/cross-platform/windows/Substitutes.cpp 
