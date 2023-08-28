@@ -543,7 +543,8 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
     // we should look in depth using Z coordinate
     const int gIdx = static_cast<int>( grid->gridIndex() );
     // loop over all cells
-    for ( size_t n = 0; n < grid->cellCount(); n++ )
+#pragma omp parallel for
+    for ( int n = 0; n < (int)grid->cellCount(); n++ )
     {
         // valid cell?
         RigCell cell = grid->cell( n );
@@ -561,6 +562,7 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
         // check if the polygon includes the cell
         if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
         {
+#pragma omp critical
             m_cells[gIdx].push_back( n );
         }
     }
@@ -578,8 +580,9 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
 
     std::list<size_t> foundCells;
 
+#pragma omp parallel for
     // find all cells in the K layer that matches the polygon
-    for ( size_t i = 0; i < grid->cellCountI(); i++ )
+    for ( int i = 0; i < (int)grid->cellCountI(); i++ )
     {
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
         {
@@ -595,6 +598,7 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
             // check if the polygon includes the cell
             if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
             {
+#pragma omp critical
                 foundCells.push_back( cellIdx );
             }
         }
@@ -657,7 +661,8 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
 {
     // we should look in depth using Z coordinate
     // loop over all cells
-    for ( size_t i = 0; i < grid->cellCountI(); i++ )
+#pragma omp parallel for
+    for ( int i = 0; i < (int)grid->cellCountI(); i++ )
     {
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
         {
@@ -679,6 +684,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
                 // check if the polygon includes the cell
                 if ( cellInsidePolygon2D( center, corners, points ) )
                 {
+#pragma omp critical
                     m_cells[partId].push_back( cellIdx );
                 }
             }
@@ -744,7 +750,9 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
 
     // find all cells in this K layer that matches the polygon
     std::list<size_t> foundCells;
-    for ( size_t i = 0; i < grid->cellCountI(); i++ )
+
+#pragma omp parallel for
+    for ( int i = 0; i < (int)grid->cellCountI(); i++ )
     {
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
         {
@@ -759,6 +767,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
             // check if the polygon includes the cell
             if ( cellInsidePolygon2D( center, hexCorners, points ) )
             {
+#pragma omp critical
                 foundCells.push_back( cellIdx );
             }
         }

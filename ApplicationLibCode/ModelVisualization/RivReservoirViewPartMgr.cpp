@@ -793,12 +793,9 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                     nativeRangeVisibility = indexIncludeVis[cellIndex];
                 }
 
-                bool visible = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
-                               !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
-
-                visible = visible && indexExcludeVis[cellIndex];
-
-                ( *cellVisibility )[cellIndex] = visible;
+                ( *cellVisibility )[cellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
+                                                 !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea ) &&
+                                                 indexExcludeVis[cellIndex];
             }
         }
     }
