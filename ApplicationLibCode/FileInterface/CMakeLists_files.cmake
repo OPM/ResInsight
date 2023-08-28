@@ -85,6 +85,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealSummaryCsvReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -171,6 +172,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
