@@ -40,6 +40,8 @@ RigEclipseWellLogExtractor* findOrCreateWellLogExtractor( RimWellPath* wellPath,
 RigGeoMechWellLogExtractor* findOrCreateWellLogExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase, int partId = 0 );
 
 RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const RimSimWellInView* simWell, const RigWellPath* wellPathGeom );
+RigEclipseWellLogExtractor*
+    findOrCreateSimWellExtractor( RimEclipseCase* eclipseCase, const QString& simWellName, bool useBranchDetection, int branchIndex );
 
 RimWellLogPlotCollection* wellLogPlotCollection();
 

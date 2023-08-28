@@ -22,6 +22,7 @@
 #include "RiaColorTools.h"
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaExtractionTools.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaRftDefines.h"
@@ -44,7 +45,6 @@
 #include "RimDepthTrackPlot.h"
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
-#include "RimMainPlotCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
@@ -53,7 +53,6 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
 #include "RimWellLogPlot.h"
-#include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPlotTools.h"
@@ -1037,37 +1036,18 @@ RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
 //--------------------------------------------------------------------------------------------------
 RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 {
-    RifReaderRftInterface* reader = rftReader();
-    if ( !reader ) return nullptr;
-
-    auto mainPlotCollection = firstAncestorOrThisOfTypeAsserted<RimMainPlotCollection>();
-
-    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
-    if ( !wellLogCollection ) return nullptr;
-
-    RigEclipseWellLogExtractor* eclExtractor = nullptr;
-
     RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathFromSimWellName( m_wellName() );
-    eclExtractor          = wellLogCollection->findOrCreateExtractor( wellPath, m_eclipseResultCase );
 
-    if ( !eclExtractor && m_eclipseResultCase )
+    // The well path extractor has the best geometrical representation, so use this if found
+    if ( auto wellPathExtractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, m_eclipseResultCase ) )
     {
-        QString                         simWellName = RimWellPlotTools::simWellName( m_wellName );
-        std::vector<const RigWellPath*> wellPaths   = RiaSimWellBranchTools::simulationWellBranches( simWellName, m_branchDetection );
-        if ( wellPaths.empty() ) return nullptr;
-
-        m_branchIndex = RiaSimWellBranchTools::clampBranchIndex( simWellName, m_branchIndex, m_branchDetection );
-
-        auto wellPathBranch = wellPaths[m_branchIndex];
-
-        eclExtractor = wellLogCollection->findOrCreateSimWellExtractor( simWellName,
-                                                                        QString( "Find or create sim well extractor" ),
-                                                                        wellPathBranch,
-                                                                        m_eclipseResultCase->eclipseCaseData() );
+        return wellPathExtractor;
     }
 
-    return eclExtractor;
+    // Use sim well extractor as fallback
+    QString simWellName = RimWellPlotTools::simWellName( m_wellName );
+    return RiaExtractionTools::findOrCreateSimWellExtractor( m_eclipseResultCase(), simWellName, m_branchDetection(), m_branchIndex() );
 }
 
 //--------------------------------------------------------------------------------------------------
