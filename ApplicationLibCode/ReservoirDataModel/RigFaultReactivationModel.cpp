@@ -56,7 +56,7 @@ RigFaultReactivationModel::RigFaultReactivationModel()
 
     for ( auto part : allGridParts() )
     {
-        m_3dparts[part] = std::make_shared<RigGriddedPart3d>();
+        m_3dparts[part] = std::make_shared<RigGriddedPart3d>( part == GridPart::PART2 );
     }
 }
 
