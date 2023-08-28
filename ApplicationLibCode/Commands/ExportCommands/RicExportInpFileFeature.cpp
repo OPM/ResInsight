@@ -47,7 +47,7 @@ void RicExportInpFileFeature::onActionTriggered( bool isChecked )
     auto faultReactivationModel = caf::SelectionManager::instance()->selectedItemOfType<RimFaultReactivationModel>();
     if ( faultReactivationModel )
     {
-        QString exportFile = faultReactivationModel->baseDir() + "/faultreactivation.inp ";
+        QString exportFile = faultReactivationModel->baseDir() + "/faultreactivation.inp";
         RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *faultReactivationModel->model() );
     }
 }
