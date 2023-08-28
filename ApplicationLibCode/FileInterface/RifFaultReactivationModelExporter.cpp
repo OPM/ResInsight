@@ -55,7 +55,34 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         const std::vector<std::vector<unsigned int>>& elements = grid->elementIndices();
         RifInpExportTools::printElements( stream, elements );
 
-        RifInpExportTools::printHeading( stream, "," );
+        RifInpExportTools::printNodeSet( stream, partName, 1, nodes.size() );
+        RifInpExportTools::printElementSet( stream, partName, 1, elements.size() );
+
+        std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>> borders =
+            { { RigGriddedPart3d::BorderSurface::UpperSurface, "top" },
+              { RigGriddedPart3d::BorderSurface::FaultSurface, "fault" },
+              { RigGriddedPart3d::BorderSurface::LowerSurface, "base" } };
+
+        const std::map<RigGriddedPart3d::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements = grid->borderSurfaceElements();
+
+        for ( auto [border, borderName] : borders )
+        {
+            int elementSide = 4;
+
+            std::string sideName        = "S" + std::to_string( elementSide );
+            auto        surfaceElements = borderSurfaceElements.find( border );
+            if ( surfaceElements != borderSurfaceElements.end() )
+            {
+                std::string borderElementName = "_" + borderName + "_" + sideName;
+                RifInpExportTools::printElementSet( stream, borderElementName, surfaceElements->second );
+                RifInpExportTools::printSurface( stream, borderName, borderElementName, sideName );
+            }
+        }
+
+        RifInpExportTools::printComment( stream, "Section: sand" );
+        RifInpExportTools::printHeading( stream, "Solid Section, elset=" + partName + ", material=sand" );
+
+        RifInpExportTools::printLine( stream, "," );
         RifInpExportTools::printHeading( stream, "End Part" );
 
         partIndex++;

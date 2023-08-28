@@ -79,3 +79,65 @@ bool RifInpExportTools::printElements( std::ostream& stream, const std::vector<s
 
     return stream.good();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printNodeSet( std::ostream& stream, const std::string& partName, size_t start, size_t end )
+{
+    // Should look like this:
+    // *Nset, nset=part1, generate
+    //     1,  50433,
+    return printHeading( stream, "Nset, nset=" + partName + ", generate" ) &&
+           printLine( stream, std::to_string( start ) + ", " + std::to_string( end ) + "," );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printElementSet( std::ostream& stream, const std::string& partName, size_t start, size_t end )
+{
+    // Should look like this:
+    // *Elset, elset=part1, generate
+    //     1,  50433,
+    return printHeading( stream, "Elset, elset=" + partName + ", generate" ) &&
+           printLine( stream, std::to_string( start ) + ", " + std::to_string( end ) + "," );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printElementSet( std::ostream& stream, const std::string& elementName, const std::vector<unsigned int>& elements )
+{
+    int numItemsPerLine = 16;
+    if ( !printHeading( stream, "Elset, elset=" + elementName + ", internal" ) ) return false;
+
+    for ( size_t i = 0; i < elements.size(); i++ )
+    {
+        stream << elements[i];
+        if ( i != elements.size() - 1 ) stream << ", ";
+
+        // Break lines periodically
+        if ( i != 0 && i % numItemsPerLine == 0 )
+        {
+            stream << std::endl;
+        }
+    }
+    stream << std::endl;
+
+    return stream.good();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printSurface( std::ostream&      stream,
+                                      const std::string& surfaceName,
+                                      const std::string& surfaceElementName,
+                                      const std::string& sideName )
+{
+    // Sample surface element:
+    //*Surface, type=ELEMENT, name=top
+    //_top_S5, S5
+    return printHeading( stream, "Surface, type=ELEMENT, name=" + surfaceName ) && printLine( stream, surfaceElementName + ", " + sideName );
+}
