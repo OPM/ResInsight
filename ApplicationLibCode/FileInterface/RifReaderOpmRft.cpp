@@ -272,40 +272,44 @@ std::set<QString> RifReaderOpmRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
+std::vector<caf::VecIjk> RifReaderOpmRft::cellIndices( const QString& wellName, const QDateTime& timeStep )
 {
-    if ( !openFiles() ) return;
+    if ( !openFiles() ) return {};
 
-    auto wellName = rftAddress.wellName().toStdString();
+    auto stdWellName = wellName.toStdString();
 
-    auto date = rftAddress.timeStep().date();
+    auto date = timeStep.date();
     int  y    = date.year();
     int  m    = date.month();
     int  d    = date.day();
 
+    std::vector<caf::VecIjk> indices;
+
     try
     {
         auto resultNameI = "CONIPOS";
-        auto dataI       = m_opm_rft->getRft<int>( resultNameI, wellName, y, m, d );
+        auto dataI       = m_opm_rft->getRft<int>( resultNameI, stdWellName, y, m, d );
 
         auto resultNameJ = "CONJPOS";
-        auto dataJ       = m_opm_rft->getRft<int>( resultNameJ, wellName, y, m, d );
+        auto dataJ       = m_opm_rft->getRft<int>( resultNameJ, stdWellName, y, m, d );
 
         auto resultNameK = "CONKPOS";
-        auto dataK       = m_opm_rft->getRft<int>( resultNameK, wellName, y, m, d );
+        auto dataK       = m_opm_rft->getRft<int>( resultNameK, stdWellName, y, m, d );
 
         if ( !dataI.empty() && ( dataI.size() == dataJ.size() ) && ( dataI.size() == dataK.size() ) )
         {
             for ( size_t n = 0; n < dataI.size(); n++ )
             {
                 // NB: Transform to zero-based cell indices
-                indices->push_back( caf::VecIjk( dataI[n] - 1, dataJ[n] - 1, dataK[n] - 1 ) );
+                indices.push_back( caf::VecIjk( dataI[n] - 1, dataJ[n] - 1, dataK[n] - 1 ) );
             }
         }
     }
     catch ( ... )
     {
     }
+
+    return indices;
 }
 
 //--------------------------------------------------------------------------------------------------

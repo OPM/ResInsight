@@ -56,5 +56,5 @@ public:
     std::vector<double> getMd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor );
 
     // TODO: Move to protected or private
-    virtual void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices );
+    virtual std::vector<caf::VecIjk> cellIndices( const QString& wellName, const QDateTime& timeStep );
 };

@@ -158,6 +158,29 @@ void RigWellLogExtractor::resampleIntersections( double maxDistanceBetweenInters
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<double> RigWellLogExtractor::averageMdForCell( size_t cellIndex ) const
+{
+    std::vector<size_t> indicesForCell;
+
+    for ( size_t i = 0; i < m_intersectedCellsGlobIdx.size(); i++ )
+    {
+        if ( m_intersectedCellsGlobIdx[i] == cellIndex ) indicesForCell.emplace_back( i );
+    }
+
+    if ( indicesForCell.empty() ) return std::nullopt;
+
+    double sum = 0.0;
+    for ( const auto& i : indicesForCell )
+    {
+        sum += m_intersectionMeasuredDepths[i];
+    }
+
+    return sum / static_cast<double>( indicesForCell.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx() const
 {
     return m_intersectedCellsGlobIdx;

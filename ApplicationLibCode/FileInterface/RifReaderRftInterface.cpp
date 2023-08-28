@@ -15,7 +15,13 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RifReaderRftInterface.h"
+
+#include "RigEclipseCaseData.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RigMainGrid.h"
+#include "cafVecIjk.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -49,7 +55,8 @@ std::vector<double> RifReaderRftInterface::getTvd( const QString&               
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RifReaderRftInterface::getTvd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor )
 {
-    return getTvd( wellName, timeStep, std::vector<RigEclipseWellLogExtractor*>( 1, extractor ) );
+    // return getTvd( wellName, timeStep, std::vector<RigEclipseWellLogExtractor*>( 1, extractor ) );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,16 +70,42 @@ std::vector<double> RifReaderRftInterface::getMd( const QString&                
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+///  for all RFT cells
+//   if cell is intersected
+//   get measured depth for cell, compute average MD based on all intersections for cell
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifReaderRftInterface::getMd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor )
+std::vector<double> RifReaderRftInterface::getMd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* eclExtractor )
 {
-    return getMd( wellName, timeStep, std::vector<RigEclipseWellLogExtractor*>( 1, extractor ) );
+    if ( !eclExtractor ) return {};
+    if ( !eclExtractor->caseData() ) return {};
+
+    if ( eclExtractor->cellIntersectionMDs().empty() ) return {};
+
+    auto mainGrid = eclExtractor->caseData()->mainGrid();
+    if ( !mainGrid ) return {};
+
+    std::vector<double> avgMeasuredDepthForCells;
+
+    auto cellIjk = cellIndices( wellName, timeStep );
+    for ( const caf::VecIjk& ijk : cellIjk )
+    {
+        auto globalCellIndex = mainGrid->cellIndexFromIJK( ijk.i(), ijk.j(), ijk.k() );
+
+        auto avgMd = eclExtractor->averageMdForCell( globalCellIndex );
+        if ( avgMd.has_value() )
+        {
+            avgMeasuredDepthForCells.push_back( avgMd.value() );
+        }
+        avgMeasuredDepthForCells.push_back( std::numeric_limits<double>::infinity() );
+    }
+
+    return avgMeasuredDepthForCells;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderRftInterface::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
+std::vector<caf::VecIjk> RifReaderRftInterface::cellIndices( const QString& wellName, const QDateTime& timeStep )
 {
+    return {};
 }
