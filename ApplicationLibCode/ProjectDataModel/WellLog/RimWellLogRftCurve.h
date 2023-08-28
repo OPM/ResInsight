@@ -127,10 +127,7 @@ private:
 
     RigEclipseWellLogExtractor* extractor();
 
-    bool                createWellPathIdxToRftFileIdxMapping();
-    size_t              rftFileIndex( size_t wellPathIndex );
-    std::vector<size_t> sortedIndicesInRftFile();
-    void                updateWellChannelNameAndTimeStep();
+    void updateWellChannelNameAndTimeStep();
 
     std::map<QString, QString> createCurveNameKeyValueMap() const;
 
@@ -166,6 +163,5 @@ private:
     caf::PdmField<int>                                     m_segmentBranchIndex;
     caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_segmentBranchType;
 
-    std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
 };

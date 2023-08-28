@@ -21,6 +21,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
+#include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
+
 #include "cafVecIjk.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -41,38 +44,8 @@ std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses( const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RifReaderRftInterface::getTvd( const QString&                                  wellName,
-                                                   const QDateTime&                                timeStep,
-                                                   const std::vector<RigEclipseWellLogExtractor*>& extractor )
-{
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RifReaderRftInterface::getTvd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor )
-{
-    // return getTvd( wellName, timeStep, std::vector<RigEclipseWellLogExtractor*>( 1, extractor ) );
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RifReaderRftInterface::getMd( const QString&                                  wellName,
-                                                  const QDateTime&                                timeStep,
-                                                  const std::vector<RigEclipseWellLogExtractor*>& extractor )
-{
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///  for all RFT cells
-//   if cell is intersected
-//   get measured depth for cell, compute average MD based on all intersections for cell
+// Compute average measured depth for cell based on grid intersections for cells. If the well path geometry do not contain measured depth
+// for a grid cell, the measured depth is estimated based on existing geometry for the well path.
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RifReaderRftInterface::getMd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* eclExtractor )
 {
@@ -85,6 +58,7 @@ std::vector<double> RifReaderRftInterface::getMd( const QString& wellName, const
     if ( !mainGrid ) return {};
 
     std::vector<double> avgMeasuredDepthForCells;
+    std::vector<double> tvdValuesToEstimate;
 
     auto cellIjk = cellIndices( wellName, timeStep );
     for ( const caf::VecIjk& ijk : cellIjk )
@@ -96,7 +70,54 @@ std::vector<double> RifReaderRftInterface::getMd( const QString& wellName, const
         {
             avgMeasuredDepthForCells.push_back( avgMd.value() );
         }
-        avgMeasuredDepthForCells.push_back( std::numeric_limits<double>::infinity() );
+        else
+        {
+            // The RFT cell is not part of cells intersected by well path
+            // Use the TVD of cell center to estimate measured depth
+
+            avgMeasuredDepthForCells.push_back( std::numeric_limits<double>::infinity() );
+            auto center = mainGrid->cell( globalCellIndex ).center();
+            tvdValuesToEstimate.push_back( -center.z() );
+        }
+    }
+
+    if ( !tvdValuesToEstimate.empty() )
+    {
+        auto wellPathMd  = eclExtractor->wellPathGeometry()->measuredDepths();
+        auto wellPathTvd = eclExtractor->wellPathGeometry()->trueVerticalDepths();
+
+        auto estimatedMeasuredDepth = RigWellPathGeometryTools::interpolateMdFromTvd( wellPathMd, wellPathTvd, tvdValuesToEstimate );
+
+        double previousMd = std::numeric_limits<double>::infinity();
+
+        size_t estimatedIndex = 0;
+        for ( auto& measuredDepth : avgMeasuredDepthForCells )
+        {
+            if ( measuredDepth == std::numeric_limits<double>::infinity() )
+            {
+                if ( estimatedIndex < estimatedMeasuredDepth.size() )
+                {
+                    double candidateMd = estimatedMeasuredDepth[estimatedIndex++];
+                    if ( previousMd != std::numeric_limits<double>::infinity() )
+                    {
+                        if ( previousMd < candidateMd )
+                        {
+                            measuredDepth = candidateMd;
+                        }
+                        else
+                        {
+                            measuredDepth = previousMd + 1.0;
+                        }
+                    }
+                }
+                else
+                {
+                    measuredDepth = previousMd + 1.0;
+                }
+            }
+
+            previousMd = measuredDepth;
+        }
     }
 
     return avgMeasuredDepthForCells;

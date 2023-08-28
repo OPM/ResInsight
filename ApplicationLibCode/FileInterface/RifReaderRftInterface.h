@@ -49,10 +49,6 @@ public:
     virtual std::set<QString>                                     wellNames()                                         = 0;
 
     // To be moved into Rig structures
-    std::vector<double> getTvd( const QString& wellName, const QDateTime& timeStep, const std::vector<RigEclipseWellLogExtractor*>& extractor );
-    std::vector<double> getMd( const QString& wellName, const QDateTime& timeStep, const std::vector<RigEclipseWellLogExtractor*>& extractor );
-
-    std::vector<double> getTvd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor );
     std::vector<double> getMd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor );
 
     // TODO: Move to protected or private
