@@ -55,15 +55,6 @@ public:
         RFT_SEGMENT_DATA
     };
 
-private:
-    enum class DerivedMDSource
-    {
-        NO_SOURCE,
-        WELL_PATH,
-        SEGMENT,
-        OBSERVED_DATA
-    };
-
 public:
     RimWellLogRftCurve();
     ~RimWellLogRftCurve() override;
@@ -134,9 +125,8 @@ private:
     std::vector<double> xValues();
     std::vector<double> errorValues();
     std::vector<double> tvDepthValues();
-    std::vector<double> measuredDepthValues();
+    std::vector<double> measuredDepthValues( QString& prefixText );
 
-    bool deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues, std::vector<double>& derivedMDValues );
     bool deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues, std::vector<double>& derivedMDValues );
 
     int segmentBranchIndex() const;

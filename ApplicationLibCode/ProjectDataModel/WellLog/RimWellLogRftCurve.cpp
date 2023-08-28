@@ -649,7 +649,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    DerivedMDSource derivedMDSource = DerivedMDSource::NO_SOURCE;
+    QString axisPrefixText;
 
     if ( m_autoCheckStateBasedOnCurveData() || isChecked() )
     {
@@ -659,7 +659,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         bool  showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
         m_showErrorBars                   = showErrorBarsInObservedData;
 
-        std::vector<double>  measuredDepthVector = measuredDepthValues();
+        std::vector<double>  measuredDepthVector = measuredDepthValues( axisPrefixText );
         std::vector<double>  tvDepthVector       = tvDepthValues();
         std::vector<double>  values              = xValues();
         std::vector<double>  errors              = errorValues();
@@ -718,19 +718,14 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( tvDepthVector.size() != measuredDepthVector.size() )
         {
-            if ( deriveMeasuredDepthValuesFromWellPath( tvDepthVector, measuredDepthVector ) )
+            if ( deriveMeasuredDepthFromObservedData( tvDepthVector, measuredDepthVector ) )
             {
-                derivedMDSource = DerivedMDSource::WELL_PATH;
-            }
-            else if ( deriveMeasuredDepthFromObservedData( tvDepthVector, measuredDepthVector ) )
-            {
-                derivedMDSource = DerivedMDSource::OBSERVED_DATA;
+                axisPrefixText = "OBS/";
             }
         }
 
         if ( tvDepthVector.size() != measuredDepthVector.size() )
         {
-            derivedMDSource     = DerivedMDSource::NO_SOURCE;
             measuredDepthVector = tvDepthVector;
         }
 
@@ -783,23 +778,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
                 if ( viewer )
                 {
-                    QString text;
-
-                    if ( derivedMDSource != DerivedMDSource::NO_SOURCE )
-                    {
-                        if ( derivedMDSource == DerivedMDSource::WELL_PATH )
-                        {
-                            text = "WELL/" + wellLogPlot->depthAxisTitle();
-                        }
-                        else
-                        {
-                            text = "OBS/" + wellLogPlot->depthAxisTitle();
-                        }
-                    }
-                    else // Standard depth title set from plot
-                    {
-                        text = wellLogPlot->depthAxisTitle();
-                    }
+                    QString text = axisPrefixText + wellLogPlot->depthAxisTitle();
 
                     viewer->setAxisTitleText( wellLogPlot->depthAxis(), text );
                 }
@@ -1177,13 +1156,15 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::measuredDepthValues()
+std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText )
 {
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
         RifReaderRftInterface* reader = rftReader();
         if ( reader )
         {
+            prefixText = "SEGMENT/";
+
             return RimRftTools::seglenstValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
         }
         return {};
@@ -1199,6 +1180,8 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
         RifEclipseRftAddress depthAddress =
             RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
         reader->values( depthAddress, &values );
+
+        prefixText = "OBS/";
         return values;
     }
 
@@ -1211,29 +1194,14 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
     RigEclipseWellLogExtractor* eclExtractor = extractor();
     if ( !eclExtractor ) return {};
 
-    if ( rftReader() ) return rftReader()->getMd( m_wellName(), m_timeStep(), eclExtractor );
+    if ( rftReader() )
+    {
+        prefixText = "WELL/";
+
+        return rftReader()->getMd( m_wellName(), m_timeStep(), eclExtractor );
+    };
 
     return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimWellLogRftCurve::deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues, std::vector<double>& derivedMDValues )
-{
-    RimProject*  proj     = RimProject::current();
-    RimWellPath* wellPath = proj->wellPathByName( m_wellName );
-
-    if ( wellPath && wellPath->wellPathGeometry() )
-    {
-        const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measuredDepths();
-        const std::vector<double>& tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
-
-        derivedMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
-        CVF_ASSERT( derivedMDValues.size() == tvDepthValues.size() );
-        return true;
-    }
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
