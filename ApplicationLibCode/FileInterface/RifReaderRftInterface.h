@@ -31,6 +31,8 @@ namespace caf
 class VecIjk;
 };
 
+class RigEclipseWellLogExtractor;
+
 class RifReaderRftInterface
 {
 public:
@@ -46,5 +48,13 @@ public:
     virtual std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) = 0;
     virtual std::set<QString>                                     wellNames()                                         = 0;
 
+    // To be moved into Rig structures
+    std::vector<double> getTvd( const QString& wellName, const QDateTime& timeStep, const std::vector<RigEclipseWellLogExtractor*>& extractor );
+    std::vector<double> getMd( const QString& wellName, const QDateTime& timeStep, const std::vector<RigEclipseWellLogExtractor*>& extractor );
+
+    std::vector<double> getTvd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor );
+    std::vector<double> getMd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor );
+
+    // TODO: Move to protected or private
     virtual void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices );
 };

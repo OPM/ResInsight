@@ -37,6 +37,42 @@ std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RifReaderRftInterface::getTvd( const QString&                                  wellName,
+                                                   const QDateTime&                                timeStep,
+                                                   const std::vector<RigEclipseWellLogExtractor*>& extractor )
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RifReaderRftInterface::getTvd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor )
+{
+    return getTvd( wellName, timeStep, std::vector<RigEclipseWellLogExtractor*>( 1, extractor ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RifReaderRftInterface::getMd( const QString&                                  wellName,
+                                                  const QDateTime&                                timeStep,
+                                                  const std::vector<RigEclipseWellLogExtractor*>& extractor )
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RifReaderRftInterface::getMd( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* extractor )
+{
+    return getMd( wellName, timeStep, std::vector<RigEclipseWellLogExtractor*>( 1, extractor ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderRftInterface::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
 {
 }
