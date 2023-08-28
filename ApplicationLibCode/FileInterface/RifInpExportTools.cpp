@@ -47,6 +47,14 @@ bool RifInpExportTools::printComment( std::ostream& stream, const std::string& c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printSectionComment( std::ostream& stream, const std::string& comment )
+{
+    return printComment( stream, "" ) && printComment( stream, comment ) && printComment( stream, "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifInpExportTools::printNodes( std::ostream& stream, const std::vector<cvf::Vec3d>& nodes )
 {
     if ( !printHeading( stream, "Node" ) ) return false;
@@ -76,6 +84,124 @@ bool RifInpExportTools::printElements( std::ostream& stream, const std::vector<s
         }
         stream << std::endl;
     }
+
+    return stream.good();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printNodeSet( std::ostream& stream, const std::string& partName, size_t start, size_t end, bool internal )
+{
+    // Should look like this:
+    // *Nset, nset=part1, generate
+    //     1,  50433,
+    std::string internalStr = internal ? ", internal" : "";
+    return printHeading( stream, "Nset, nset=" + partName + internalStr + ", generate" ) &&
+           printLine( stream, std::to_string( start ) + ", " + std::to_string( end ) + ", " + std::to_string( 1 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printNodeSet( std::ostream&                    stream,
+                                      const std::string&               partName,
+                                      const std::string&               instanceName,
+                                      const std::vector<unsigned int>& nodes )
+{
+    return printHeading( stream, "Nset, nset=" + partName + ", instance=" + instanceName ) && printElements( stream, nodes );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printElementSet( std::ostream& stream, const std::string& partName, size_t start, size_t end )
+{
+    // Should look like this:
+    // *Elset, elset=part1, generate
+    //     1,  50433, 1
+    return printHeading( stream, "Elset, elset=" + partName + ", generate" ) &&
+           printLine( stream, std::to_string( start ) + ", " + std::to_string( end ) + ", " + std::to_string( 1 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printElementSet( std::ostream& stream, const std::string& elementName, const std::vector<unsigned int>& elements )
+{
+    return printHeading( stream, "Elset, elset=" + elementName + ", internal" ) && printElements( stream, elements );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printElementSet( std::ostream&                    stream,
+                                         const std::string&               partName,
+                                         const std::string&               instanceName,
+                                         const std::vector<unsigned int>& elements )
+{
+    return printHeading( stream, "Elset, elset=" + partName + ", instance=" + instanceName ) && printElements( stream, elements );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printElements( std::ostream& stream, const std::vector<unsigned int>& elements )
+{
+    int numItemsPerLine = 16;
+
+    for ( size_t i = 0; i < elements.size(); i++ )
+    {
+        stream << elements[i] + 1;
+        if ( i != elements.size() - 1 ) stream << ", ";
+
+        // Break lines periodically
+        bool isFirst = i == 0;
+        bool isLast  = i == ( elements.size() - 1 );
+        if ( !isFirst && !isLast && i % numItemsPerLine == 0 )
+        {
+            stream << std::endl;
+        }
+    }
+    stream << std::endl;
+
+    return stream.good();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printSurface( std::ostream&      stream,
+                                      const std::string& surfaceName,
+                                      const std::string& surfaceElementName,
+                                      const std::string& sideName )
+{
+    // Sample surface element:
+    //*Surface, type=ELEMENT, name=top
+    //_top_S5, S5
+    return printHeading( stream, "Surface, type=ELEMENT, name=" + surfaceName ) && printLine( stream, surfaceElementName + ", " + sideName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printNumber( std::ostream& stream, double value )
+{
+    stream << value << "," << std::endl;
+    return stream.good();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printNumbers( std::ostream& stream, const std::vector<double>& values )
+{
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        stream << values[i];
+        if ( i != values.size() - 1 ) stream << ", ";
+    }
+    stream << std::endl;
 
     return stream.good();
 }

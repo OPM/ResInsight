@@ -34,6 +34,27 @@ public:
     static bool printLine( std::ostream& stream, const std::string& line );
     static bool printHeading( std::ostream& stream, const std::string& heading );
     static bool printComment( std::ostream& stream, const std::string& comment );
+    static bool printSectionComment( std::ostream& stream, const std::string& comment );
     static bool printNodes( std::ostream& stream, const std::vector<cvf::Vec3d>& nodes );
     static bool printElements( std::ostream& stream, const std::vector<std::vector<unsigned int>>& elements );
+    static bool printNodeSet( std::ostream& stream, const std::string& partName, size_t start, size_t end, bool internal );
+    static bool printNodeSet( std::ostream&                    stream,
+                              const std::string&               partName,
+                              const std::string&               instanceName,
+                              const std::vector<unsigned int>& nodes );
+
+    static bool printElementSet( std::ostream& stream, const std::string& partName, size_t start, size_t end );
+    static bool printElementSet( std::ostream& stream, const std::string& elementName, const std::vector<unsigned int>& elements );
+    static bool printElementSet( std::ostream&                    stream,
+                                 const std::string&               partName,
+                                 const std::string&               instanceName,
+                                 const std::vector<unsigned int>& elements );
+
+    static bool
+        printSurface( std::ostream& stream, const std::string& surfaceName, const std::string& surfaceElementName, const std::string& sideName );
+    static bool printNumbers( std::ostream& stream, const std::vector<double>& values );
+    static bool printNumber( std::ostream& stream, double value );
+
+private:
+    static bool printElements( std::ostream& stream, const std::vector<unsigned int>& elements );
 };
