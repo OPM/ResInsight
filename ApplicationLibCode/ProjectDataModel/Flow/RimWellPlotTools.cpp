@@ -608,7 +608,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
 
     if ( rftCurve != nullptr )
     {
-        RimEclipseResultCase*     rftCase           = dynamic_cast<RimEclipseResultCase*>( rftCurve->eclipseResultCase() );
+        auto                      rftCase           = rftCurve->eclipseCase();
         RimSummaryCase*           rftSummaryCase    = rftCurve->summaryCase();
         RimSummaryCaseCollection* rftEnsemble       = rftCurve->ensemble();
         RimObservedFmuRftData*    rftFmuData        = rftCurve->observedFmuRftData();

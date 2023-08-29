@@ -1003,11 +1003,6 @@ std::vector<QString> RimWellLogRftCurve::perPointLabels() const
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
 {
-    if ( auto resultCase = dynamic_cast<RimEclipseResultCase*>( m_eclipseCase() ) )
-    {
-        return resultCase->rftReader();
-    }
-
     if ( m_summaryCase() ) // Summary RFT curves have both summary and ensemble set. Prioritize summary for reader.
     {
         return m_summaryCase()->rftReader();
@@ -1026,6 +1021,11 @@ RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
     if ( m_pressureDepthData() )
     {
         return m_pressureDepthData()->rftReader();
+    }
+
+    if ( auto resultCase = dynamic_cast<RimEclipseResultCase*>( m_eclipseCase() ) )
+    {
+        return resultCase->rftReader();
     }
 
     return nullptr;

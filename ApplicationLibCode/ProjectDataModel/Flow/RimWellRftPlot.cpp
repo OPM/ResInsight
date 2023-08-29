@@ -496,7 +496,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             plotTrack->addCurve( curve );
 
             auto rftCase = curveDefToAdd.address().eclCase();
-            curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( rftCase ) );
+            curve->setEclipseCase( rftCase );
 
             RifEclipseRftAddress address = RifEclipseRftAddress::createAddress( simWellName,
                                                                                 curveDefToAdd.timeStep(),
@@ -533,8 +533,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         {
             auto curve = new RimWellLogRftCurve();
             plotTrack->addCurve( curve );
-            auto rftCase = curveDefToAdd.address().summaryCase();
-            curve->setSummaryCase( rftCase );
+            auto summaryCase = curveDefToAdd.address().summaryCase();
+            curve->setSummaryCase( summaryCase );
             curve->setEnsemble( curveDefToAdd.address().ensemble() );
             curve->setObservedFmuRftData( findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
             RifEclipseRftAddress address = RifEclipseRftAddress::createAddress( m_wellPathNameOrSimWellName,
@@ -544,7 +544,13 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
             // A summary case address can optionally contain an Eclipse case used to compute the TVD/MD for a well path
             // https://github.com/OPM/ResInsight/issues/10501
-            curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( curveDefToAdd.address().eclCase() ) );
+            auto eclipeCase = curveDefToAdd.address().eclCase();
+            if ( curveDefToAdd.address().ensemble() )
+            {
+                auto curveSet = findEnsembleCurveSet( curveDefToAdd.address().ensemble() );
+                if ( curveSet ) eclipeCase = curveSet->eclipseCase();
+            }
+            curve->setEclipseCase( eclipeCase );
 
             double zValue = 1.0;
             if ( !curveDefToAdd.address().ensemble() )
