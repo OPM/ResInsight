@@ -87,7 +87,7 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( Ri
     if ( wellPaths.empty() ) return nullptr;
 
     branchIndex = RiaSimWellBranchTools::clampBranchIndex( simWellName, branchIndex, useBranchDetection );
-    if ( branchIndex >= wellPaths.size() ) return nullptr;
+    if ( branchIndex >= static_cast<int>( wellPaths.size() ) ) return nullptr;
 
     auto wellPathBranch = wellPaths[branchIndex];
 
