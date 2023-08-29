@@ -1010,6 +1010,13 @@ RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
 
     if ( m_ensemble() )
     {
+        auto wellLogPlot = firstAncestorOrThisOfType<RimWellRftPlot>();
+        auto curveSet    = wellLogPlot->findEnsembleCurveSet( m_ensemble );
+        if ( curveSet )
+        {
+            return curveSet->statisticsEclipseRftReader();
+        }
+
         return m_ensemble()->rftStatisticsReader();
     }
 

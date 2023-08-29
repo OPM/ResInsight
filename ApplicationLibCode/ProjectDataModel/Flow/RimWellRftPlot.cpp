@@ -59,6 +59,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 #include "RimWellPltPlot.h"
+#include "RimWellRftEnsembleCurveSet.h"
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuAbstractOverlayContentFrame.h"
@@ -570,9 +571,11 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
         else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
         {
-            RimSummaryCaseCollection*      ensemble = curveDefToAdd.address().ensemble();
+            RimSummaryCaseCollection* ensemble = curveDefToAdd.address().ensemble();
+            auto                      curveSet = findEnsembleCurveSet( ensemble );
+
             std::set<RifEclipseRftAddress> rftAddresses =
-                ensemble->rftStatisticsReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() );
+                curveSet->statisticsEclipseRftReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() );
             for ( const auto& rftAddress : rftAddresses )
             {
                 if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 )
@@ -589,6 +592,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     auto curve = new RimWellLogRftCurve();
                     plotTrack->addCurve( curve );
                     curve->setEnsemble( ensemble );
+                    curve->setEclipseCase( curveSet->eclipseCase() );
                     curve->setRftAddress( rftAddress );
                     curve->setObservedFmuRftData( findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
                     curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE ) );

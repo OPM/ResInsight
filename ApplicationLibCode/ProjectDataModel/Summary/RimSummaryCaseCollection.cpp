@@ -135,7 +135,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
 
-    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
+    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this, nullptr );
 
     m_commonAddressCount = 0;
 }

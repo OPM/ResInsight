@@ -92,6 +92,8 @@ public:
     bool showErrorBarsForObservedData() const;
     void onLegendDefinitionChanged();
 
+    RimWellRftEnsembleCurveSet* findEnsembleCurveSet( RimSummaryCaseCollection* ensemble ) const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
@@ -138,7 +140,6 @@ private:
 
     std::vector<RimSummaryCaseCollection*> selectedEnsembles() const;
     void                                   createEnsembleCurveSets();
-    RimWellRftEnsembleCurveSet*            findEnsembleCurveSet( RimSummaryCaseCollection* ensemble ) const;
 
 private:
     friend class RimWellRftEnsembleCurveSet;

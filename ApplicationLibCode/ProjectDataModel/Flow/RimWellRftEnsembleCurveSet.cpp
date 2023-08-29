@@ -18,6 +18,8 @@
 
 #include "RimWellRftEnsembleCurveSet.h"
 
+#include "RifReaderEnsembleStatisticsRft.h"
+
 #include "RimEclipseCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimRegularLegendConfig.h"
@@ -80,9 +82,14 @@ RimSummaryCaseCollection* RimWellRftEnsembleCurveSet::ensemble() const
     return m_ensemble;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftEnsembleCurveSet::setEnsemble( RimSummaryCaseCollection* ensemble )
 {
     m_ensemble = ensemble;
+
+    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( m_ensemble(), m_eclipseCase() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,6 +164,14 @@ std::vector<QString> RimWellRftEnsembleCurveSet::parametersWithVariation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftEnsembleCurveSet::initAfterRead()
+{
+    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( m_ensemble(), m_eclipseCase() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimWellRftEnsembleCurveSet::legendConfig()
 {
     return m_ensembleLegendConfig;
@@ -192,6 +207,14 @@ RimEclipseCase* RimWellRftEnsembleCurveSet::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifReaderRftInterface* RimWellRftEnsembleCurveSet::statisticsEclipseRftReader()
+{
+    return m_statisticsEclipseRftReader.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_ensembleColorMode || changedField == &m_ensembleParameter )
@@ -199,6 +222,10 @@ void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
         RimWellRftPlot* rftPlot = firstAncestorOrThisOfTypeAsserted<RimWellRftPlot>();
         rftPlot->syncCurvesFromUiSelection();
         rftPlot->updateConnectedEditors();
+    }
+    else if ( changedField == &m_eclipseCase )
+    {
+        m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( m_ensemble(), m_eclipseCase() );
     }
 }
 
