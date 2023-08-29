@@ -71,7 +71,7 @@ public:
     void setSegmentBranchIndex( int branchIndex );
     void setSegmentBranchType( RiaDefines::RftBranchType branchType );
 
-    void            setEclipseCase( RimEclipseCase* eclipseCase);
+    void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;
 
     void            setSummaryCase( RimSummaryCase* summaryCase );
