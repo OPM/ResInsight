@@ -38,6 +38,7 @@ CAF_PDM_SOURCE_INIT( RimCellRangeFilter, "CellRangeFilter" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilter::RimCellRangeFilter()
+    : RimCellFilter( RimCellFilter::RANGE )
 {
     CAF_PDM_InitObject( "Cell Range Filter", ":/CellFilter_Range.png" );
 

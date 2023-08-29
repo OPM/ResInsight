@@ -89,7 +89,7 @@ public:
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
 
-    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) override;
+    void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 

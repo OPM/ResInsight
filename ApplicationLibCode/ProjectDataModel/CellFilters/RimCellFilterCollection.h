@@ -23,6 +23,8 @@
 #include "cafPdmObject.h"
 #include "cafSignal.h"
 
+#include "cvfArray.h"
+
 class RimCellFilter;
 class RimCellRangeFilter;
 class RimPolygonFilter;
@@ -59,11 +61,13 @@ public:
     void setActive( bool bActive );
 
     void compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const;
+    void updateCellVisibilityByIndex( cvf::UByteArray* cellsIncluded, cvf::UByteArray* cellsExcluded, size_t gridIndex ) const;
 
     std::vector<RimCellFilter*> filters() const;
 
     bool hasActiveFilters() const;
-    bool hasActiveIncludeFilters() const;
+    bool hasActiveIncludeIndexFilters() const;
+    bool hasActiveIncludeRangeFilters() const;
 
     void updateIconState();
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;

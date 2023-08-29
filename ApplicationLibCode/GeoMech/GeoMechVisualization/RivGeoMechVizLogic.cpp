@@ -239,7 +239,19 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         {
             cvf::CellRangeFilter cellRangeFilter;
             m_geomechView->cellFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, femPartIdx );
-            RivFemElmVisibilityCalculator::computeRangeVisibility( elmVisibility.p(), caseData->femParts()->part( femPartIdx ), cellRangeFilter );
+
+            auto femPart = caseData->femParts()->part( femPartIdx );
+
+            cvf::UByteArray indexIncludeVisibility( femPart->elementCount() );
+            cvf::UByteArray indexExcludeVisibility( femPart->elementCount() );
+            m_geomechView->cellFilterCollection()->updateCellVisibilityByIndex( &indexIncludeVisibility, &indexExcludeVisibility, femPartIdx );
+
+            RivFemElmVisibilityCalculator::computeRangeVisibility( elmVisibility.p(),
+                                                                   femPart,
+                                                                   cellRangeFilter,
+                                                                   &indexIncludeVisibility,
+                                                                   &indexExcludeVisibility,
+                                                                   m_geomechView->cellFilterCollection()->hasActiveIncludeIndexFilters() );
         }
         else if ( pMgrKey.geometryType() == PROPERTY_FILTERED )
         {

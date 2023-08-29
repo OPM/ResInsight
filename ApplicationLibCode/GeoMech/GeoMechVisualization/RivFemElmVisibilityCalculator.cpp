@@ -54,34 +54,61 @@ void RivFemElmVisibilityCalculator::computeAllVisible( cvf::UByteArray* elmVisib
 //--------------------------------------------------------------------------------------------------
 void RivFemElmVisibilityCalculator::computeRangeVisibility( cvf::UByteArray*            elmVisibilities,
                                                             const RigFemPart*           femPart,
-                                                            const cvf::CellRangeFilter& rangeFilter )
+                                                            const cvf::CellRangeFilter& rangeFilter,
+                                                            const cvf::UByteArray*      indexIncludeVisibility,
+                                                            const cvf::UByteArray*      indexExcludeVisibility,
+                                                            bool                        useIndexInclude )
 {
     elmVisibilities->resize( femPart->elementCount() );
 
     const RigFemPartGrid* grid = femPart->getOrCreateStructGrid();
 
+    size_t mainGridI;
+    size_t mainGridJ;
+    size_t mainGridK;
+
     if ( rangeFilter.hasIncludeRanges() )
     {
-        for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+        if ( useIndexInclude )
         {
-            size_t mainGridI;
-            size_t mainGridJ;
-            size_t mainGridK;
-
-            grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
-            ( *elmVisibilities )[elmIdx] = rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false );
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
+                ( *elmVisibilities )[elmIdx] =
+                    ( ( *indexIncludeVisibility )[elmIdx] || rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false ) ) &&
+                    ( *indexExcludeVisibility )[elmIdx];
+            }
+        }
+        else
+        {
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
+                ( *elmVisibilities )[elmIdx] = rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false ) &&
+                                               ( *indexExcludeVisibility )[elmIdx];
+            }
         }
     }
     else
     {
-        for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+        if ( useIndexInclude )
         {
-            size_t mainGridI;
-            size_t mainGridJ;
-            size_t mainGridK;
-
-            grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
-            ( *elmVisibilities )[elmIdx] = !rangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, false );
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
+                ( *elmVisibilities )[elmIdx] = ( *indexIncludeVisibility )[elmIdx] &&
+                                               !rangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, false ) &&
+                                               ( *indexExcludeVisibility )[elmIdx];
+            }
+        }
+        else
+        {
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
+                ( *elmVisibilities )[elmIdx] = !rangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, false ) &&
+                                               ( *indexExcludeVisibility )[elmIdx];
+            }
         }
     }
 }
