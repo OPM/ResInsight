@@ -39,8 +39,8 @@ public:
     static void computeRangeVisibility( cvf::UByteArray*            elmVisibilities,
                                         const RigFemPart*           femPart,
                                         const cvf::CellRangeFilter& rangeFilter,
-                                        cvf::UByteArray*            indexIncludeVis,
-                                        cvf::UByteArray*            indexExcludeVis,
+                                        const cvf::UByteArray*      indexIncludeVisibility,
+                                        const cvf::UByteArray*      indexExcludeVisibility,
                                         bool                        useIndexInclude );
 
     static void computePropertyVisibility( cvf::UByteArray*                    cellVisibility,

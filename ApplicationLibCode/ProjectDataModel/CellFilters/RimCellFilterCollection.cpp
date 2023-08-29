@@ -394,15 +394,19 @@ void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cel
 
 //--------------------------------------------------------------------------------------------------
 /// Populate the given view filter with info from our cell index filters
+/// - includeCellVisibility is set to the visibility from the include filters,
+/// - excludeCellVisibility is set to the visibility from the exclude filters
 //--------------------------------------------------------------------------------------------------
-void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* cellsIncluded, cvf::UByteArray* cellsExcluded, size_t gridIndex ) const
+void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* includeCellVisibility,
+                                                           cvf::UByteArray* excludeCellVisibility,
+                                                           size_t           gridIndex ) const
 {
-    CVF_ASSERT( cellsIncluded );
-    CVF_ASSERT( cellsExcluded );
+    CVF_ASSERT( includeCellVisibility );
+    CVF_ASSERT( excludeCellVisibility );
 
     bool needIncludeVisibilityReset = true;
 
-    cellsExcluded->setAll( 1 );
+    excludeCellVisibility->setAll( 1 );
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
@@ -410,11 +414,11 @@ void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* cell
         {
             if ( ( filter->filterMode() == RimCellFilter::INCLUDE ) && needIncludeVisibilityReset )
             {
-                cellsIncluded->setAll( 0 );
+                includeCellVisibility->setAll( 0 );
                 needIncludeVisibilityReset = false;
             }
 
-            filter->updateCellIndexFilter( cellsIncluded, cellsExcluded, (int)gridIndex );
+            filter->updateCellIndexFilter( includeCellVisibility, excludeCellVisibility, (int)gridIndex );
         }
     }
 }

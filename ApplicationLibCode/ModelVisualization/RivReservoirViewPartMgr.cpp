@@ -720,13 +720,13 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
 
     if ( cellFilterColl->hasActiveFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells() )
     {
-        cvf::UByteArray indexIncludeVis = ( *cellVisibility );
-        cvf::UByteArray indexExcludeVis = ( *cellVisibility );
+        cvf::UByteArray indexIncludeVisibility = ( *cellVisibility );
+        cvf::UByteArray indexExcludeVisibility = ( *cellVisibility );
 
         // Build cell filter for current grid
         cvf::CellRangeFilter gridCellRangeFilter;
         cellFilterColl->compoundCellRangeFilter( &gridCellRangeFilter, grid->gridIndex() );
-        cellFilterColl->updateCellVisibilityByIndex( &indexIncludeVis, &indexExcludeVis, grid->gridIndex() );
+        cellFilterColl->updateCellVisibilityByIndex( &indexIncludeVisibility, &indexExcludeVisibility, grid->gridIndex() );
 
         const RigLocalGrid*       lgr = nullptr;
         cvf::ref<cvf::UByteArray> parentGridVisibilities;
@@ -780,7 +780,7 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                 {
                     if ( hasAdditiveIndexFilters )
                     {
-                        nativeRangeVisibility = indexIncludeVis[cellIndex] ||
+                        nativeRangeVisibility = indexIncludeVisibility[cellIndex] ||
                                                 gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
                     }
                     else
@@ -790,12 +790,12 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                 }
                 else
                 {
-                    nativeRangeVisibility = indexIncludeVis[cellIndex];
+                    nativeRangeVisibility = indexIncludeVisibility[cellIndex];
                 }
 
                 ( *cellVisibility )[cellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
                                                  !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea ) &&
-                                                 indexExcludeVis[cellIndex];
+                                                 indexExcludeVisibility[cellIndex];
             }
         }
     }
