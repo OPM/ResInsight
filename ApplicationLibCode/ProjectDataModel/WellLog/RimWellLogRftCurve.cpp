@@ -151,8 +151,8 @@ RimWellLogRftCurve::RimWellLogRftCurve()
 {
     CAF_PDM_InitObject( "Well Log RFT Curve", RimWellLogCurve::wellLogCurveIconName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultCase, "CurveEclipseResultCase", "Eclipse Result Case" );
-    m_eclipseResultCase.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "CurveEclipseResultCase", "Eclipse Result Case" );
+    m_eclipseCase.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveSummaryCase", "Summary Case" );
     m_summaryCase.uiCapability()->setUiTreeChildrenHidden( true );
@@ -264,17 +264,17 @@ void RimWellLogRftCurve::setSegmentBranchType( RiaDefines::RftBranchType branchT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogRftCurve::setEclipseResultCase( RimEclipseResultCase* eclipseResultCase )
+void RimWellLogRftCurve::setEclipseCase( RimEclipseCase* eclipseCase )
 {
-    m_eclipseResultCase = eclipseResultCase;
+    m_eclipseCase = eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RimWellLogRftCurve::eclipseResultCase() const
+RimEclipseCase* RimWellLogRftCurve::eclipseCase() const
 {
-    return m_eclipseResultCase;
+    return m_eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -526,9 +526,9 @@ std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() cons
     variableValueMap[RiaDefines::namingVariableResultType()] = "RFT";
 
     QString caseText;
-    if ( m_eclipseResultCase )
+    if ( m_eclipseCase )
     {
-        caseText = m_eclipseResultCase->caseUserDescription();
+        caseText = m_eclipseCase->caseUserDescription();
     }
     else if ( m_summaryCase && m_ensemble ) // Summary RFT curves have both ensemble and summary set
     {
@@ -681,13 +681,13 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
 
         RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-        if ( m_eclipseResultCase )
+        if ( m_eclipseCase )
         {
             // TODO: If no grid data, but only RFT data is loaded, we do not have any way to
             // detect unit
-            if ( m_eclipseResultCase->eclipseCaseData() )
+            if ( m_eclipseCase->eclipseCaseData() )
             {
-                unitSystem = m_eclipseResultCase->eclipseCaseData()->unitsType();
+                unitSystem = m_eclipseCase->eclipseCaseData()->unitsType();
             }
         }
         else if ( m_summaryCase )
@@ -830,7 +830,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
-    curveDataGroup->add( &m_eclipseResultCase );
+    curveDataGroup->add( &m_eclipseCase );
     curveDataGroup->add( &m_summaryCase );
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
@@ -872,7 +872,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     if ( !options.empty() ) return options;
 
     RifReaderRftInterface* reader = rftReader();
-    if ( fieldNeedingOptions == &m_eclipseResultCase )
+    if ( fieldNeedingOptions == &m_eclipseCase )
     {
         RimTools::caseOptionItems( &options );
 
@@ -935,7 +935,7 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     bool loadData = false;
 
     RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_eclipseResultCase )
+    if ( changedField == &m_eclipseCase )
     {
         m_timeStep           = QDateTime();
         m_wellName           = "";
@@ -1003,9 +1003,9 @@ std::vector<QString> RimWellLogRftCurve::perPointLabels() const
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
 {
-    if ( m_eclipseResultCase() )
+    if ( auto resultCase = dynamic_cast<RimEclipseResultCase*>( m_eclipseCase() ) )
     {
-        return m_eclipseResultCase()->rftReader();
+        return resultCase->rftReader();
     }
 
     if ( m_summaryCase() ) // Summary RFT curves have both summary and ensemble set. Prioritize summary for reader.
@@ -1040,14 +1040,14 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
     RimWellPath* wellPath = proj->wellPathFromSimWellName( m_wellName() );
 
     // The well path extractor has the best geometrical representation, so use this if found
-    if ( auto wellPathExtractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, m_eclipseResultCase ) )
+    if ( auto wellPathExtractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, m_eclipseCase ) )
     {
         return wellPathExtractor;
     }
 
     // Use sim well extractor as fallback
     QString simWellName = RimWellPlotTools::simWellName( m_wellName );
-    return RiaExtractionTools::findOrCreateSimWellExtractor( m_eclipseResultCase(), simWellName, m_branchDetection(), m_branchIndex() );
+    return RiaExtractionTools::findOrCreateSimWellExtractor( m_eclipseCase(), simWellName, m_branchDetection(), m_branchIndex() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,7 +33,7 @@
 
 class RifReaderRftInterface;
 class RigEclipseWellLogExtractor;
-class RimEclipseResultCase;
+class RimEclipseCase;
 class RimObservedFmuRftData;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
@@ -71,8 +71,8 @@ public:
     void setSegmentBranchIndex( int branchIndex );
     void setSegmentBranchType( RiaDefines::RftBranchType branchType );
 
-    void                  setEclipseResultCase( RimEclipseResultCase* eclipseResultCase );
-    RimEclipseResultCase* eclipseResultCase() const;
+    void            setEclipseCase( RimEclipseCase* eclipseCase);
+    RimEclipseCase* eclipseCase() const;
 
     void            setSummaryCase( RimSummaryCase* summaryCase );
     RimSummaryCase* summaryCase() const;
@@ -134,7 +134,7 @@ private:
     static bool isSegmentResult( const QString& resultName );
 
 private:
-    caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
+    caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
     caf::PdmPtrField<RimObservedFmuRftData*>    m_observedFmuRftData;
