@@ -31,7 +31,6 @@
 
 class RimWellLogFile;
 class RimEclipseCase;
-class RifReaderRftInterface;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimObservedFmuRftData;
@@ -64,8 +63,7 @@ public:
     RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData );
     RifDataSourceForRftPlt( RimPressureDepthData* pressureDepthData );
 
-    SourceType             sourceType() const;
-    RifReaderRftInterface* rftReader() const;
+    SourceType sourceType() const;
 
     RimEclipseCase*           eclCase() const;
     RimSummaryCase*           summaryCase() const;
