@@ -1017,7 +1017,7 @@ RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
             return curveSet->statisticsEclipseRftReader();
         }
 
-        return m_ensemble()->rftStatisticsReader();
+        return nullptr;
     }
 
     if ( m_observedFmuRftData() )

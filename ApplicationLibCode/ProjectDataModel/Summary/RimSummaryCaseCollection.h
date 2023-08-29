@@ -39,8 +39,6 @@
 #include <utility>
 #include <vector>
 
-class RifReaderRftInterface;
-class RifReaderEnsembleStatisticsRft;
 class RimSummaryCase;
 class RimSummaryAddressCollection;
 class RiaSummaryAddressAnalyzer;
@@ -74,12 +72,11 @@ public:
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
     virtual std::set<time_t>                   ensembleTimeSteps() const;
 
-    std::set<QString>      wellsWithRftData() const;
-    std::set<QDateTime>    rftTimeStepsForWell( const QString& wellName ) const;
-    RifReaderRftInterface* rftStatisticsReader();
-    void                   setEnsembleId( int ensembleId );
-    int                    ensembleId() const;
-    bool                   hasEnsembleParameters() const;
+    std::set<QString>   wellsWithRftData() const;
+    std::set<QDateTime> rftTimeStepsForWell( const QString& wellName ) const;
+    void                setEnsembleId( int ensembleId );
+    int                 ensembleId() const;
+    bool                hasEnsembleParameters() const;
 
     std::vector<RigEnsembleParameter> variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
     std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
@@ -147,8 +144,7 @@ private:
     caf::PdmField<bool>                              m_isEnsemble;
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
 
-    cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
-    caf::PdmField<int>                       m_ensembleId;
+    caf::PdmField<int> m_ensembleId;
 
     size_t m_commonAddressCount; // if different address count among cases, set to 0
 
