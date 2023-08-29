@@ -287,7 +287,7 @@ void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicLi
                     cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
 
                     cvf::Vec3d intersectionPoint;
-                    bool foundMatch = RigSurfaceResampler::resamplePoint( surface->surfaceData(), pointAbove, pointBelow, intersectionPoint );
+                    bool foundMatch = RigSurfaceResampler::computeIntersectionWithLine( surface->surfaceData(), pointAbove, pointBelow, intersectionPoint );
                     if ( foundMatch )
                     {
                         domainCurvePoints.emplace_back( intersectionPoint );

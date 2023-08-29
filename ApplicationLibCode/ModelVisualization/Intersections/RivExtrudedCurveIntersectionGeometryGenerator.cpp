@@ -195,7 +195,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
                 cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
 
                 cvf::Vec3d intersectionPoint;
-                bool foundMatch = RigSurfaceResampler::resamplePointExpandBoundingBox( surface, pointAbove, pointBelow, intersectionPoint );
+                bool foundMatch = RigSurfaceResampler::findClosestPointOnSurface( surface, pointAbove, pointBelow, intersectionPoint );
                 if ( foundMatch )
                 {
                     const size_t lineIndex = 0;

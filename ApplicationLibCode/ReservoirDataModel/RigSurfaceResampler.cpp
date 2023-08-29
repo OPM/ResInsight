@@ -45,7 +45,7 @@ cvf::ref<RigSurface> RigSurfaceResampler::resampleSurface( cvf::ref<RigSurface> 
         const cvf::Vec3d pointBelow = cvf::Vec3d( targetVert.x(), targetVert.y(), -10000.0 );
 
         cvf::Vec3d intersectionPoint;
-        bool       foundMatch = resamplePointExpandBoundingBox( surface.p(), pointAbove, pointBelow, intersectionPoint );
+        bool       foundMatch = findClosestPointOnSurface( surface.p(), pointAbove, pointBelow, intersectionPoint );
         if ( !foundMatch ) intersectionPoint = cvf::Vec3d( targetVert.x(), targetVert.y(), std::numeric_limits<double>::infinity() );
 
         resampledVerts.push_back( intersectionPoint );
@@ -57,10 +57,13 @@ cvf::ref<RigSurface> RigSurfaceResampler::resampleSurface( cvf::ref<RigSurface> 
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// If an intersection point is found, return true and set intersectionPoint to the intersection point.
+/// If no intersection point is found, return false.
 //--------------------------------------------------------------------------------------------------
-bool RigSurfaceResampler::resamplePoint( RigSurface* surface, const cvf::Vec3d& p1, const cvf::Vec3d& p2, cvf::Vec3d& intersectionPoint )
+bool RigSurfaceResampler::computeIntersectionWithLine( RigSurface* surface, const cvf::Vec3d& p1, const cvf::Vec3d& p2, cvf::Vec3d& intersectionPoint )
 {
+    if ( !surface ) return false;
+
     surface->ensureIntersectionSearchTreeIsBuilt();
 
     cvf::BoundingBox bb;
@@ -72,35 +75,31 @@ bool RigSurfaceResampler::resamplePoint( RigSurface* surface, const cvf::Vec3d& 
 
     bool dummy = false;
 
-    {
-        std::vector<size_t> triangleStartIndices;
-        surface->findIntersectingTriangles( bb, &triangleStartIndices );
+    std::vector<size_t> triangleStartIndices;
+    surface->findIntersectingTriangles( bb, &triangleStartIndices );
 
-        if ( !triangleStartIndices.empty() )
-        {
-            for ( auto triangleStartIndex : triangleStartIndices )
-            {
-                if ( cvf::GeometryTools::intersectLineSegmentTriangle( p1,
-                                                                       p2,
-                                                                       vertices[triIndices[triangleStartIndex + 0]],
-                                                                       vertices[triIndices[triangleStartIndex + 1]],
-                                                                       vertices[triIndices[triangleStartIndex + 2]],
-                                                                       &intersectionPoint,
-                                                                       &dummy ) == 1 )
-                    return true;
-            }
-        }
+    for ( auto startIndex : triangleStartIndices )
+    {
+        if ( cvf::GeometryTools::intersectLineSegmentTriangle( p1,
+                                                               p2,
+                                                               vertices[triIndices[startIndex + 0]],
+                                                               vertices[triIndices[startIndex + 1]],
+                                                               vertices[triIndices[startIndex + 2]],
+                                                               &intersectionPoint,
+                                                               &dummy ) == 1 )
+            return true;
     }
 
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Find the closest point on the surface to the line. The search is limited to a max distance from the line based on the resolution
+/// of the surface.
 //--------------------------------------------------------------------------------------------------
-bool RigSurfaceResampler::resamplePointExpandBoundingBox( RigSurface* surface, const cvf::Vec3d& p1, const cvf::Vec3d& p2, cvf::Vec3d& intersectionPoint )
+bool RigSurfaceResampler::findClosestPointOnSurface( RigSurface* surface, const cvf::Vec3d& p1, const cvf::Vec3d& p2, cvf::Vec3d& intersectionPoint )
 {
-    if ( resamplePoint( surface, p1, p2, intersectionPoint ) ) return true;
+    if ( computeIntersectionWithLine( surface, p1, p2, intersectionPoint ) ) return true;
 
     cvf::BoundingBox bb;
     bb.add( p1 );
@@ -111,7 +110,7 @@ bool RigSurfaceResampler::resamplePointExpandBoundingBox( RigSurface* surface, c
 
     double maxDistance = computeMaxDistance( surface );
 
-    // Expand the bounding box to cover a larger volume around the target point
+    // Expand the bounding box to cover a larger volume around bounding box of the line segment.
     bb.expand( maxDistance );
 
     std::vector<size_t> triangleStartIndices;
