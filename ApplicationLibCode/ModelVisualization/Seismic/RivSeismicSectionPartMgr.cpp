@@ -245,6 +245,48 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>>
+    RivSeismicSectionPartMgr::projectPolyLineOntoSurface( std::vector<cvf::Vec3d>           polyLine,
+                                                          RimSurface*                       surface,
+                                                          const caf::DisplayCoordTransform* displayCoordTransform )
+{
+    std::vector<std::vector<cvf::Vec3d>> displayPolygonCurves;
+    const double                         resamplingDistance = 5.0;
+    std::vector<cvf::Vec3d>              resampledPolyline  = RigSurfaceResampler::computeResampledPolyline( polyLine, resamplingDistance );
+
+    std::vector<cvf::Vec3d> domainCurvePoints;
+
+    for ( const auto& point : resampledPolyline )
+    {
+        cvf::Vec3d pointAbove = cvf::Vec3d( point.x(), point.y(), 10000.0 );
+        cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
+
+        cvf::Vec3d intersectionPoint;
+        bool foundMatch = RigSurfaceResampler::computeIntersectionWithLine( surface->surfaceData(), pointAbove, pointBelow, intersectionPoint );
+        if ( foundMatch )
+        {
+            domainCurvePoints.emplace_back( intersectionPoint );
+        }
+        else
+        {
+            if ( domainCurvePoints.size() > 1 )
+            {
+                // Add intersection curve in display coordinates
+                auto displayCoords = displayCoordTransform->transformToDisplayCoords( domainCurvePoints );
+                displayPolygonCurves.push_back( displayCoords );
+            }
+
+            // Start a new line
+            domainCurvePoints.clear();
+        }
+    }
+
+    return displayPolygonCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
                                                                const caf::DisplayCoordTransform* displayCoordTransform,
                                                                double                            lineThickness,
@@ -268,45 +310,8 @@ void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicLi
             polyLine.push_back( texturePart.rect[0] );
             polyLine.push_back( texturePart.rect[1] );
 
-            auto computePolyLinesDisplayCoords = [&]( std::vector<cvf::Vec3d> polyLine ) -> std::vector<std::vector<cvf::Vec3d>>
-            {
-                std::vector<std::vector<cvf::Vec3d>> displayPolygonCurves;
-                const double                         resamplingDistance = 5.0;
-                std::vector<cvf::Vec3d> resampledPolyline = RigSurfaceResampler::computeResampledPolyline( polyLine, resamplingDistance );
-
-                std::vector<cvf::Vec3d> domainCurvePoints;
-
-                for ( const auto& point : resampledPolyline )
-                {
-                    cvf::Vec3d pointAbove = cvf::Vec3d( point.x(), point.y(), 10000.0 );
-                    cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
-
-                    cvf::Vec3d intersectionPoint;
-                    bool       foundMatch =
-                        RigSurfaceResampler::computeIntersectionWithLine( surface->surfaceData(), pointAbove, pointBelow, intersectionPoint );
-                    if ( foundMatch )
-                    {
-                        domainCurvePoints.emplace_back( intersectionPoint );
-                    }
-                    else
-                    {
-                        if ( domainCurvePoints.size() > 1 )
-                        {
-                            // Add intersection curve in display coordinates
-                            auto displayCoords = displayCoordTransform->transformToDisplayCoords( domainCurvePoints );
-                            displayPolygonCurves.push_back( displayCoords );
-                        }
-
-                        // Start a new line
-                        domainCurvePoints.clear();
-                    }
-                }
-
-                return displayPolygonCurves;
-            };
-
             bool closePolyLine         = false;
-            auto polyLineDisplayCoords = computePolyLinesDisplayCoords( polyLine );
+            auto polyLineDisplayCoords = projectPolyLineOntoSurface( polyLine, surface, displayCoordTransform );
 
             cvf::ref<cvf::DrawableGeo> drawableGeo =
                 RivPolylineGenerator::createLineAlongPolylineDrawable( polyLineDisplayCoords, closePolyLine );
