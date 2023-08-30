@@ -141,3 +141,27 @@ bool RifInpExportTools::printSurface( std::ostream&      stream,
     //_top_S5, S5
     return printHeading( stream, "Surface, type=ELEMENT, name=" + surfaceName ) && printLine( stream, surfaceElementName + ", " + sideName );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printNumber( std::ostream& stream, double value )
+{
+    stream << value << "," << std::endl;
+    return stream.good();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifInpExportTools::printNumbers( std::ostream& stream, const std::vector<double>& values )
+{
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        stream << values[i];
+        if ( i != values.size() - 1 ) stream << ", ";
+    }
+    stream << std::endl;
+
+    return stream.good();
+}

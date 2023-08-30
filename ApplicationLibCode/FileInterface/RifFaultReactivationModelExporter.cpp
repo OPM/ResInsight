@@ -88,6 +88,54 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         partIndex++;
     }
 
+    RifInpExportTools::printHeading( stream, "Assembly, name=Assembly" );
+
+    // ASSEMBLY part
+    partIndex = 1;
+    for ( auto part : parts )
+    {
+        std::string partName     = "Part-" + std::to_string( partIndex );
+        std::string instanceName = partName + "-1";
+        RifInpExportTools::printHeading( stream, "Instance, name=" + instanceName + ", part=" + partName );
+
+        std::string nodeSetName = "part_" + std::to_string( partIndex ) + "_PP_";
+        auto        grid        = model.grid( part );
+
+        const std::vector<cvf::Vec3d>& nodes = grid->vertices();
+        RifInpExportTools::printNodeSet( stream, partName, 1, nodes.size() );
+
+        RifInpExportTools::printHeading( stream, "End Instance" );
+
+        // TODO: print boundary condition sets here
+    }
+
+    // MATERIALS PART
+    struct Material
+    {
+        std::string name;
+        double      density;
+        double      elastic1;
+        double      elastic2;
+        double      permeability1;
+        double      permeability2;
+    };
+
+    RifInpExportTools::printComment( stream, "MATERIALS" );
+
+    std::vector<Material> materials = {
+        Material{ .name = "sand", .density = 2000.0, .elastic1 = 5e+09, .elastic2 = 0.2, .permeability1 = 1e-09, .permeability2 = 0.3 } };
+    for ( Material mat : materials )
+    {
+        RifInpExportTools::printHeading( stream, "Material, name=" + mat.name );
+        RifInpExportTools::printHeading( stream, "Density" );
+        RifInpExportTools::printNumber( stream, mat.density );
+        RifInpExportTools::printHeading( stream, "Elastic" );
+        RifInpExportTools::printNumbers( stream, { mat.elastic1, mat.elastic2 } );
+
+        RifInpExportTools::printHeading( stream, "Permeability, specific=1." );
+        RifInpExportTools::printNumbers( stream, { mat.permeability1, mat.permeability2 } );
+    }
+
     return { false, "" };
 }
 

@@ -41,4 +41,6 @@ public:
     static bool printElementSet( std::ostream& stream, const std::string& elementName, const std::vector<unsigned int>& elements );
     static bool
         printSurface( std::ostream& stream, const std::string& surfaceName, const std::string& surfaceElementName, const std::string& sideName );
+    static bool printNumbers( std::ostream& stream, const std::vector<double>& values );
+    static bool printNumber( std::ostream& stream, double value );
 };
