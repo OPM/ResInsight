@@ -32,6 +32,9 @@
 
 class RiuCvfOverlayItemWidget;
 class RimSummaryCaseCollection;
+class RimEclipseCase;
+class RifReaderEnsembleStatisticsRft;
+class RifReaderRftInterface;
 
 class RimWellRftEnsembleCurveSet : public caf::PdmObject
 {
@@ -57,6 +60,10 @@ public:
     RimRegularLegendConfig*    legendConfig();
     RigEnsembleParameter::Type currentEnsembleParameterType() const;
 
+    RimEclipseCase* eclipseCase() const;
+
+    RifReaderRftInterface* statisticsEclipseRftReader();
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -71,9 +78,15 @@ private:
     std::vector<QString> parametersWithVariation() const;
 
 private:
+    caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
     caf::PdmProxyValueField<QString>            m_ensembleName;
     caf::PdmField<ColorModeEnum>                m_ensembleColorMode;
     caf::PdmField<QString>                      m_ensembleParameter;
     caf::PdmChildField<RimRegularLegendConfig*> m_ensembleLegendConfig;
+
+    cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
+
+protected:
+    void initAfterRead() override;
 };

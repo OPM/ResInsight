@@ -55,15 +55,6 @@ public:
         RFT_SEGMENT_DATA
     };
 
-private:
-    enum class DerivedMDSource
-    {
-        NO_SOURCE,
-        WELL_PATH,
-        SEGMENT,
-        OBSERVED_DATA
-    };
-
 public:
     RimWellLogRftCurve();
     ~RimWellLogRftCurve() override;
@@ -127,19 +118,15 @@ private:
 
     RigEclipseWellLogExtractor* extractor();
 
-    bool                createWellPathIdxToRftFileIdxMapping();
-    size_t              rftFileIndex( size_t wellPathIndex );
-    std::vector<size_t> sortedIndicesInRftFile();
-    void                updateWellChannelNameAndTimeStep();
+    void updateWellChannelNameAndTimeStep();
 
     std::map<QString, QString> createCurveNameKeyValueMap() const;
 
     std::vector<double> xValues();
     std::vector<double> errorValues();
     std::vector<double> tvDepthValues();
-    std::vector<double> measuredDepthValues();
+    std::vector<double> measuredDepthValues( QString& prefixText );
 
-    bool deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues, std::vector<double>& derivedMDValues );
     bool deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues, std::vector<double>& derivedMDValues );
 
     int segmentBranchIndex() const;
@@ -166,6 +153,5 @@ private:
     caf::PdmField<int>                                     m_segmentBranchIndex;
     caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_segmentBranchType;
 
-    std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;
 };

@@ -18,10 +18,14 @@
 
 #include "RimWellRftEnsembleCurveSet.h"
 
+#include "RifReaderEnsembleStatisticsRft.h"
+
+#include "RimEclipseCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimTools.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuQwtPlotWidget.h"
@@ -59,6 +63,8 @@ RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
     m_ensembleLegendConfig = new RimRegularLegendConfig();
     m_ensembleLegendConfig->setColorLegend(
         RimRegularLegendConfig::mapToColorLegend( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE ) );
+
+    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseResultCase", "Eclipse Result Case" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,9 +82,14 @@ RimSummaryCaseCollection* RimWellRftEnsembleCurveSet::ensemble() const
     return m_ensemble;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftEnsembleCurveSet::setEnsemble( RimSummaryCaseCollection* ensemble )
 {
     m_ensemble = ensemble;
+
+    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( m_ensemble(), m_eclipseCase() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,6 +164,14 @@ std::vector<QString> RimWellRftEnsembleCurveSet::parametersWithVariation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellRftEnsembleCurveSet::initAfterRead()
+{
+    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( m_ensemble(), m_eclipseCase() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimWellRftEnsembleCurveSet::legendConfig()
 {
     return m_ensembleLegendConfig;
@@ -180,6 +199,22 @@ RigEnsembleParameter::Type RimWellRftEnsembleCurveSet::currentEnsembleParameterT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimWellRftEnsembleCurveSet::eclipseCase() const
+{
+    return m_eclipseCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderRftInterface* RimWellRftEnsembleCurveSet::statisticsEclipseRftReader()
+{
+    return m_statisticsEclipseRftReader.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_ensembleColorMode || changedField == &m_ensembleParameter )
@@ -187,6 +222,10 @@ void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
         RimWellRftPlot* rftPlot = firstAncestorOrThisOfTypeAsserted<RimWellRftPlot>();
         rftPlot->syncCurvesFromUiSelection();
         rftPlot->updateConnectedEditors();
+    }
+    else if ( changedField == &m_eclipseCase )
+    {
+        m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( m_ensemble(), m_eclipseCase() );
     }
 }
 
@@ -203,6 +242,12 @@ QList<caf::PdmOptionItemInfo> RimWellRftEnsembleCurveSet::calculateValueOptions(
             options.push_back( caf::PdmOptionItemInfo( param, param ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_eclipseCase )
+    {
+        RimTools::caseOptionItems( &options );
+
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
     return options;
 }
 
@@ -218,6 +263,9 @@ void RimWellRftEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::Pd
     {
         colorsGroup->add( &m_ensembleParameter );
     }
+
+    uiOrdering.add( &m_eclipseCase );
+
     uiOrdering.skipRemainingFields( true );
 }
 

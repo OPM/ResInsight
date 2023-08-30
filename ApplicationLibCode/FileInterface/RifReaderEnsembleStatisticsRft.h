@@ -23,11 +23,12 @@
 #include "cvfObject.h"
 
 class RimSummaryCaseCollection;
+class RimEclipseCase;
 
 class RifReaderEnsembleStatisticsRft : public RifReaderRftInterface, public cvf::Object
 {
 public:
-    RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection );
+    RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection, RimEclipseCase* eclipseCase );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
@@ -46,6 +47,7 @@ private:
 
 private:
     const RimSummaryCaseCollection* m_summaryCaseCollection;
+    RimEclipseCase*                 m_eclipseCase;
 
     std::map<RifEclipseRftAddress, std::vector<double>> m_cachedValues;
 };
