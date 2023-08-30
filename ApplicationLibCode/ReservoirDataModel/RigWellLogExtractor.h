@@ -73,6 +73,8 @@ public:
 
     void resampleIntersections( double maxDistanceBetweenIntersections );
 
+    std::optional<double> averageMdForCell( size_t cellIndex ) const;
+
 protected:
     static void insertIntersectionsInMap( const std::vector<HexIntersectionInfo>&                   intersections,
                                           cvf::Vec3d                                                p1,
