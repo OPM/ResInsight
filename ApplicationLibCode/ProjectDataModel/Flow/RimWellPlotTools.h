@@ -43,6 +43,7 @@ class RimPressureDepthData;
 class RiuWellRftPlot;
 class RigEclipseCaseData;
 class RigEclipseResultAddress;
+class RifReaderRftInterface;
 
 //==================================================================================================
 ///
@@ -153,4 +154,6 @@ private:
     static std::set<QDateTime> findMatchingOrAdjacentTimeSteps( const std::set<QDateTime>& baseTimeLine,
                                                                 const std::set<QDateTime>& availableTimeSteps );
     static std::set<QDateTime> availableSimWellTimesteps( RimEclipseCase* eclCase, const QString& simWellName, bool addFirstReportTimeStep );
+
+    static RifReaderRftInterface* rftReaderInterface( RimEclipseCase* eclipseCase );
 };
