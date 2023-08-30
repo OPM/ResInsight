@@ -45,6 +45,7 @@ class SeismicSliceData;
 
 class RimSeismicSectionCollection;
 class RimSeismicSection;
+class RimSurface;
 class Rim3dView;
 class RivPolylinePartMgr;
 
@@ -64,7 +65,8 @@ public:
 
     void appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
                                          const caf::DisplayCoordTransform* displayCoordTransform,
-                                         double                            lineThickness );
+                                         double                            lineThickness,
+                                         const std::vector<RimSurface*>&   surfaces );
 
 private:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
@@ -77,5 +79,5 @@ private:
     cvf::ref<RivPolylinePartMgr>       m_polylinePartMgr;
     cvf::ref<cvf::ShaderProgram>       m_textureShaderProg;
 
-    bool   m_canUseShaders;
+    bool m_canUseShaders;
 };

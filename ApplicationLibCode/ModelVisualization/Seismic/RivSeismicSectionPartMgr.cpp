@@ -247,11 +247,10 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
 //--------------------------------------------------------------------------------------------------
 void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
                                                                const caf::DisplayCoordTransform* displayCoordTransform,
-                                                               double                            lineThickness )
+                                                               double                            lineThickness,
+                                                               const std::vector<RimSurface*>&   surfaces )
 {
-    RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
-
-    for ( RimSurface* surface : surfColl->surfaces() )
+    for ( auto surface : surfaces )
     {
         if ( !surface ) continue;
 

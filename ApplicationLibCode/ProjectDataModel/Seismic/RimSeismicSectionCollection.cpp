@@ -27,6 +27,9 @@
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicSection.h"
+#include "RimSurface.h"
+#include "RimSurfaceCollection.h"
+#include "RimTools.h"
 
 #include "RivSeismicSectionPartMgr.h"
 
@@ -34,6 +37,7 @@
 #include "cvfModelBasicList.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSeismicSectionCollection, "SeismicSectionCollection" );
 
@@ -49,12 +53,10 @@ RimSeismicSectionCollection::RimSeismicSectionCollection()
     CAF_PDM_InitFieldNoDefault( &m_seismicSections, "SeismicSections", "SeismicSections" );
     m_seismicSections.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_surfaceIntersectionLinesScaleFactor,
-                       "SurfaceIntersectionLinesScaleFactor",
-                       5.0,
-                       "Surface Intersection Lines Scale Factor" );
+    CAF_PDM_InitField( &m_surfaceIntersectionLinesScaleFactor, "SurfaceIntersectionLinesScaleFactor", 5.0, "Line Scale Factor ( >= 1.0 )" );
 
-    CAF_PDM_InitField( &m_showSurfaceIntersectionLines, "ShowSurfaceIntersectionLines", true, "Show Surface Intersection Lines" );
+    CAF_PDM_InitFieldNoDefault( &m_visibleSurfaceLines, "VisibleSurfaceLines", "Visible Surface Lines" );
+    m_visibleSurfaceLines.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     setName( "Seismic Sections" );
 }
@@ -144,8 +146,8 @@ caf::PdmFieldHandle* RimSeismicSectionCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_showSurfaceIntersectionLines );
     uiOrdering.add( &m_surfaceIntersectionLinesScaleFactor );
+    uiOrdering.add( &m_visibleSurfaceLines );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -176,10 +178,13 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
             {
                 section->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
 
-                if ( m_showSurfaceIntersectionLines )
+                std::vector<RimSurface*> surfaces;
+                for ( const auto& surf : m_visibleSurfaceLines.value() )
                 {
-                    section->partMgr()->appendSurfaceIntersectionLines( model, transform, m_surfaceIntersectionLinesScaleFactor() );
+                    surfaces.push_back( surf );
                 }
+
+                section->partMgr()->appendSurfaceIntersectionLines( model, transform, m_surfaceIntersectionLinesScaleFactor(), surfaces );
             }
             section->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
         }
@@ -193,6 +198,11 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( changedField == &m_surfaceIntersectionLinesScaleFactor )
+    {
+        m_surfaceIntersectionLinesScaleFactor = std::max( 1.0, m_surfaceIntersectionLinesScaleFactor() );
+    }
+
     updateView();
 }
 
@@ -250,6 +260,25 @@ void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimSeismicSectionCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_visibleSurfaceLines )
+    {
+        auto surfaceCollection = RimTools::surfaceCollection();
+        for ( auto surface : surfaceCollection->surfaces() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( surface->fullName(), surface ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
