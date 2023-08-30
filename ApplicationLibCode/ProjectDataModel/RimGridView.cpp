@@ -27,7 +27,6 @@
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSeismicSectionCollection.h"
@@ -468,8 +467,7 @@ void RimGridView::updateWellMeasurements()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::updateSurfacesInViewTreeItems()
 {
-    RimProject*           proj     = RimProject::current();
-    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+    RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
 
     if ( surfColl && surfColl->containsSurface() )
     {

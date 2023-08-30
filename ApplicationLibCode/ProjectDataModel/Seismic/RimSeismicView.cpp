@@ -24,8 +24,6 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimLegendConfig.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicDataInterface.h"
 #include "RimSeismicSection.h"
@@ -469,8 +467,7 @@ void RimSeismicView::updateGridBoxData()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicView::updateSurfacesInViewTreeItems()
 {
-    RimProject*           proj     = RimProject::current();
-    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+    RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
 
     if ( surfColl && surfColl->containsSurface() )
     {

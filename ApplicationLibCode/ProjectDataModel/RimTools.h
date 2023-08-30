@@ -37,6 +37,7 @@ class PdmOptionItemInfo;
 class RimWellPathCollection;
 class RimCase;
 class RimWellPath;
+class RimSurfaceCollection;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -65,6 +66,8 @@ public:
 
     static RimWellPathCollection* wellPathCollection();
     static RimWellPath*           firstWellPath();
+
+    static RimSurfaceCollection* surfaceCollection();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 
