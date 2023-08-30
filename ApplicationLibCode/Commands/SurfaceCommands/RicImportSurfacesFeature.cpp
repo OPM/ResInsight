@@ -20,10 +20,9 @@
 
 #include "RiaApplication.h"
 
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
+#include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -65,8 +64,7 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 
     if ( !surfColl )
     {
-        auto proj = RimProject::current();
-        surfColl  = proj->activeOilField()->surfaceCollection();
+        surfColl = RimTools::surfaceCollection();
     }
 
     if ( !surfColl ) return;

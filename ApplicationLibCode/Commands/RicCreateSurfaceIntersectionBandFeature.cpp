@@ -23,11 +23,10 @@
 #include "RimAnnotationLineAppearance.h"
 #include "RimEnsembleSurface.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceIntersectionBand.h"
+#include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -40,18 +39,9 @@ CAF_CMD_SOURCE_INIT( RicCreateSurfaceIntersectionBandFeature, "RicCreateSurfaceI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurfaceCollection* RicCreateSurfaceIntersectionBandFeature::surfaceCollection()
-{
-    RimProject* proj = RimProject::current();
-    return proj->activeOilField()->surfaceCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RicCreateSurfaceIntersectionBandFeature::isCommandEnabled() const
 {
-    auto* surfColl = RicCreateSurfaceIntersectionBandFeature::surfaceCollection();
+    auto* surfColl = RimTools::surfaceCollection();
     auto  surfaces = surfColl->ensembleSurfaces();
 
     return !surfaces.empty();
@@ -67,7 +57,7 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
     {
         RimEnsembleSurface* firstEnsembleSurface = nullptr;
         {
-            auto surfColl = RicCreateSurfaceIntersectionBandFeature::surfaceCollection();
+            auto surfColl = RimTools::surfaceCollection();
             auto surfaces = surfColl->ensembleSurfaces();
             if ( !surfaces.empty() ) firstEnsembleSurface = surfaces.front();
         }

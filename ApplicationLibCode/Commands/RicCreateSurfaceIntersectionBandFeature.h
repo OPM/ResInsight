@@ -29,9 +29,6 @@ class RicCreateSurfaceIntersectionBandFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static RimSurfaceCollection* surfaceCollection();
-
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
