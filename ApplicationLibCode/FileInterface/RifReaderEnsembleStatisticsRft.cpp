@@ -208,19 +208,17 @@ std::set<QString> RifReaderEnsembleStatisticsRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAddress& rftAddress )
 {
-    using ChannelType = RifEclipseRftAddress::RftWellLogChannelType;
-
     if ( !m_summaryCaseCollection ) return;
 
-    const QString&       wellName     = rftAddress.wellName();
-    const QDateTime&     timeStep     = rftAddress.timeStep();
-    RifEclipseRftAddress depthAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
-    RifEclipseRftAddress pressAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE );
+    const QString&   wellName = rftAddress.wellName();
+    const QDateTime& timeStep = rftAddress.timeStep();
 
-    RifEclipseRftAddress p10Address  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P10 );
-    RifEclipseRftAddress p50Address  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P50 );
-    RifEclipseRftAddress p90Address  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P90 );
-    RifEclipseRftAddress meanAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_MEAN );
+    using ChannelType                 = RifEclipseRftAddress::RftWellLogChannelType;
+    RifEclipseRftAddress pressAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE );
+    RifEclipseRftAddress p10Address   = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P10 );
+    RifEclipseRftAddress p50Address   = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P50 );
+    RifEclipseRftAddress p90Address   = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P90 );
+    RifEclipseRftAddress meanAddress  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_MEAN );
 
     RiaCurveMerger<double> curveMerger;
 
@@ -240,23 +238,35 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
         }
     }
 
+    RifEclipseRftAddress depthAddress = extractor != nullptr ? RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::MD )
+                                                             : RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
+
     for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
     {
         RifReaderRftInterface* reader = summaryCase->rftReader();
         if ( reader )
         {
             std::vector<double> pressures;
-
-            auto measuredDepths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
-
             reader->values( pressAddress, &pressures );
-            if ( !measuredDepths.empty() && !pressures.empty() )
+
+            std::vector<double> depths;
+            if ( extractor )
             {
-                dataSetSizeCalc.addValueAndWeight( measuredDepths.size(), 1.0 );
-                curveMerger.addCurveData( measuredDepths, pressures );
+                depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+            }
+            else
+            {
+                reader->values( depthAddress, &depths );
+            }
+
+            if ( !depths.empty() && !pressures.empty() )
+            {
+                dataSetSizeCalc.addValueAndWeight( depths.size(), 1.0 );
+                curveMerger.addCurveData( depths, pressures );
             }
         }
     }
+
     curveMerger.computeInterpolatedValues( false );
 
     clearData( wellName, timeStep );
