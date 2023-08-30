@@ -30,6 +30,7 @@
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicDifferenceData.h"
+#include "RimSurfaceCollection.h"
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -465,6 +466,15 @@ RimWellPath* RimTools::firstWellPath()
     if ( wellpaths.size() > 0 ) return wellpaths[0];
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceCollection* RimTools::surfaceCollection()
+{
+    RimProject* proj = RimProject::current();
+    return proj->activeOilField()->surfaceCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

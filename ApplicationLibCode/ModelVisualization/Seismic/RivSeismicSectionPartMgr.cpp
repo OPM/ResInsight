@@ -21,20 +21,18 @@
 #include "RiaGuiApplication.h"
 
 #include "Rim3dView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
+#include "RimTools.h"
 
 #include "RigSurfaceResampler.h"
 #include "RigTexturedSection.h"
 
 #include "RivPartPriority.h"
-#include "RivPipeGeometryGenerator.h"
 #include "RivPolylineGenerator.h"
 #include "RivPolylinePartMgr.h"
 #include "RivSeismicSectionSourceInfo.h"
@@ -248,12 +246,10 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
 ///
 //--------------------------------------------------------------------------------------------------
 void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
-                                                               const caf::DisplayCoordTransform* displayCoordTransform )
+                                                               const caf::DisplayCoordTransform* displayCoordTransform,
+                                                               double                            lineThickness )
 {
-    auto coll = m_section->firstAncestorOfType<RimSeismicSectionCollection>();
-
-    RimProject*           proj     = RimProject::current();
-    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+    RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
 
     for ( RimSurface* surface : surfColl->surfaces() )
     {
@@ -287,7 +283,8 @@ void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicLi
                     cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
 
                     cvf::Vec3d intersectionPoint;
-                    bool foundMatch = RigSurfaceResampler::computeIntersectionWithLine( surface->surfaceData(), pointAbove, pointBelow, intersectionPoint );
+                    bool       foundMatch =
+                        RigSurfaceResampler::computeIntersectionWithLine( surface->surfaceData(), pointAbove, pointBelow, intersectionPoint );
                     if ( foundMatch )
                     {
                         domainCurvePoints.emplace_back( intersectionPoint );
@@ -309,91 +306,33 @@ void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicLi
                 return displayPolygonCurves;
             };
 
+            bool closePolyLine         = false;
             auto polyLineDisplayCoords = computePolyLinesDisplayCoords( polyLine );
 
-            bool closePolyLine = false;
+            cvf::ref<cvf::DrawableGeo> drawableGeo =
+                RivPolylineGenerator::createLineAlongPolylineDrawable( polyLineDisplayCoords, closePolyLine );
+            if ( drawableGeo.isNull() ) continue;
 
-            auto [showLine, lineScaleFactor] = coll->linesScaleFactor();
-            if ( showLine )
-            {
-                cvf::ref<cvf::DrawableGeo> drawableGeo =
-                    RivPolylineGenerator::createLineAlongPolylineDrawable( polyLineDisplayCoords, closePolyLine );
-                if ( drawableGeo.isNull() ) continue;
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName( "RivSeismicSectionPartMgr::SurfaceIntersectionLine" );
+            part->setDrawable( drawableGeo.p() );
 
-                cvf::ref<cvf::Part> part = new cvf::Part;
-                part->setName( "RivSeismicSectionPartMgr" );
-                part->setDrawable( drawableGeo.p() );
+            caf::MeshEffectGenerator effgen( surface->color() );
+            effgen.setLineWidth( lineThickness );
+            cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
 
-                caf::MeshEffectGenerator effgen( surface->color() );
-                int                      lineThickness = lineScaleFactor;
-                effgen.setLineWidth( lineThickness );
-                cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
+            cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
+            polyOffset->enableFillMode( true );
+            polyOffset->setFactor( -5 );
+            const double maxOffsetFactor = -1000;
+            polyOffset->setUnits( maxOffsetFactor );
 
-                cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-                polyOffset->enableFillMode( true );
-                polyOffset->setFactor( -5 );
-                const double maxOffsetFactor = -1000;
-                polyOffset->setUnits( maxOffsetFactor );
+            eff->setRenderState( polyOffset.p() );
 
-                eff->setRenderState( polyOffset.p() );
+            part->setEffect( eff.p() );
+            part->setPriority( RivPartPriority::PartType::MeshLines );
 
-                part->setEffect( eff.p() );
-                part->setPriority( RivPartPriority::PartType::MeshLines );
-
-                model->addPart( part.p() );
-            }
-
-            auto [showPipe, scaleFactor] = coll->surfaceIntersectionLinesScaleFactor();
-
-            if ( showPipe )
-            {
-                for ( const auto& polyLine : polyLineDisplayCoords )
-                {
-                    RivPipeGeometryGenerator generator;
-                    generator.setRadius( scaleFactor );
-
-                    generator.setPipeCenterCoords( polyLine );
-
-                    auto m_surfaceDrawable    = generator.createPipeSurface();
-                    auto m_centerLineDrawable = generator.createCenterLine();
-
-                    if ( m_surfaceDrawable.notNull() )
-                    {
-                        auto m_surfacePart = cvf::make_ref<cvf::Part>();
-                        m_surfacePart->setName( "RivWellPathPartMgr::surface" );
-                        m_surfacePart->setDrawable( m_surfaceDrawable.p() );
-
-                        /*
-                                                RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo( m_rimWellPath,
-                           m_pipeGeomGenerator.p() ); m_surfacePart->setSourceInfo( sourceInfo );
-                        */
-
-                        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( surface->color() ), caf::PO_1 );
-                        cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
-
-                        m_surfacePart->setEffect( eff.p() );
-
-                        model->addPart( m_surfacePart.p() );
-                    }
-
-                    if ( m_centerLineDrawable.notNull() )
-                    {
-                        cvf::ref<cvf::Part> part = new cvf::Part;
-                        // part->setName( "RivWellHeadPartMgr: centerline " + cvfqt::Utils::toString( well->name() ) );
-                        part->setDrawable( m_centerLineDrawable.p() );
-
-                        caf::MeshEffectGenerator meshGen( surface->color() );
-                        cvf::ref<cvf::Effect>    eff = meshGen.generateCachedEffect();
-
-                        part->setEffect( eff.p() );
-                        // part->setSourceInfo( sourceInfo.p() );
-
-                        part->updateBoundingBox();
-
-                        model->addPart( part.p() );
-                    }
-                }
-            }
+            model->addPart( part.p() );
         }
     }
 }

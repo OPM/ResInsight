@@ -70,9 +70,6 @@ public:
     std::vector<RimRegularLegendConfig*> legendConfigs();
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
-    std::pair<bool, double> surfaceIntersectionLinesScaleFactor() const;
-    std::pair<bool, double> linesScaleFactor() const;
-
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
@@ -87,6 +84,6 @@ private:
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmChildArrayField<RimSeismicSection*> m_seismicSections;
 
-    caf::PdmField<std::pair<bool, double>> m_surfaceIntersectionLinesScaleFactor;
-    caf::PdmField<std::pair<bool, double>> m_intersectionLinesScaleFactor;
+    caf::PdmField<bool>   m_showSurfaceIntersectionLines;
+    caf::PdmField<double> m_surfaceIntersectionLinesScaleFactor;
 };

@@ -62,7 +62,9 @@ public:
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
-    void appendSurfaceIntersectionLines( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform );
+    void appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
+                                         const caf::DisplayCoordTransform* displayCoordTransform,
+                                         double                            lineThickness );
 
 private:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
@@ -75,5 +77,5 @@ private:
     cvf::ref<RivPolylinePartMgr>       m_polylinePartMgr;
     cvf::ref<cvf::ShaderProgram>       m_textureShaderProg;
 
-    bool m_canUseShaders;
+    bool   m_canUseShaders;
 };
