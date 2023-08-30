@@ -20,6 +20,7 @@
 #include "cafPdmPointer.h"
 #include "cvfArray.h"
 #include "cvfObject.h"
+#include "cvfVector3.h"
 
 namespace cvf
 {
@@ -45,6 +46,7 @@ class SeismicSliceData;
 
 class RimSeismicSectionCollection;
 class RimSeismicSection;
+class RimSurface;
 class Rim3dView;
 class RivPolylinePartMgr;
 
@@ -62,11 +64,20 @@ public:
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
-protected:
+    void appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
+                                         const caf::DisplayCoordTransform* displayCoordTransform,
+                                         double                            lineThickness,
+                                         const std::vector<RimSurface*>&   surfaces );
+
+private:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
     cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image );
 
     cvf::TextureImage* createImageFromData( ZGYAccess::SeismicSliceData* data );
+
+    static std::vector<std::vector<cvf::Vec3d>> projectPolyLineOntoSurface( std::vector<cvf::Vec3d>           polyLine,
+                                                                            RimSurface*                       surface,
+                                                                            const caf::DisplayCoordTransform* displayCoordTransform );
 
 private:
     caf::PdmPointer<RimSeismicSection> m_section;
