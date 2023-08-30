@@ -18,7 +18,10 @@
 
 #include "RiaExtractionTools.h"
 
+#include "RiaSimWellBranchTools.h"
+
 #include "RigWellPath.h"
+
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimSimWellInView.h"
@@ -69,6 +72,31 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( co
     QString caseUserDescription = eclipseCase->caseUserDescription();
 
     return wlPlotCollection->findOrCreateSimWellExtractor( simWell->name, caseUserDescription, wellPathGeom, eclipseCase->eclipseCaseData() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( RimEclipseCase* eclipseCase,
+                                                                              const QString&  simWellName,
+                                                                              bool            useBranchDetection,
+                                                                              int             branchIndex )
+{
+    auto wlPlotCollection = wellLogPlotCollection();
+    if ( !wlPlotCollection ) return nullptr;
+
+    std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches( simWellName, useBranchDetection );
+    if ( wellPaths.empty() ) return nullptr;
+
+    branchIndex = RiaSimWellBranchTools::clampBranchIndex( simWellName, branchIndex, useBranchDetection );
+    if ( branchIndex >= static_cast<int>( wellPaths.size() ) ) return nullptr;
+
+    auto wellPathBranch = wellPaths[branchIndex];
+
+    return wlPlotCollection->findOrCreateSimWellExtractor( simWellName,
+                                                           QString( "Find or create sim well extractor" ),
+                                                           wellPathBranch,
+                                                           eclipseCase->eclipseCaseData() );
 }
 
 //--------------------------------------------------------------------------------------------------
