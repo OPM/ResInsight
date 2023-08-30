@@ -23,7 +23,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGriddedPart3d::RigGriddedPart3d()
+RigGriddedPart3d::RigGriddedPart3d( bool flipFrontBack )
+    : m_flipFrontBack( flipFrontBack )
 {
 }
 
@@ -110,12 +111,15 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     const std::vector<cvf::Vec3d> firstSteps = { step0to1, step1to2, step2to3 };
     const std::vector<cvf::Vec3d> lastSteps  = { step4to5, step5to6, step6to7 };
 
+    const Boundary boundaryBack  = m_flipFrontBack ? Boundary::Front : Boundary::Back;
+    const Boundary boundaryFront = m_flipFrontBack ? Boundary::Back : Boundary::Front;
+
     // ** generate nodes
 
-    m_boundaryNodes[Boundary::Front]  = {};
-    m_boundaryNodes[Boundary::Back]   = {};
-    m_boundaryNodes[Boundary::Bottom] = {};
-    m_boundaryNodes[Boundary::Left]   = {};
+    m_boundaryNodes[boundaryFront]     = {};
+    m_boundaryNodes[boundaryBack]      = {};
+    m_boundaryNodes[Boundary::Bottom]  = {};
+    m_boundaryNodes[Boundary::FarSide] = {};
 
     m_nodes.reserve( (size_t)( ( nVertCells + 1 ) * ( nHorzCells + 1 ) ) );
 
@@ -142,15 +146,15 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
                     }
                     if ( h == 0 )
                     {
-                        m_boundaryNodes[Boundary::Left].push_back( nodeIndex );
+                        m_boundaryNodes[Boundary::FarSide].push_back( nodeIndex );
                     }
                     if ( t == 0 )
                     {
-                        m_boundaryNodes[Boundary::Front].push_back( nodeIndex );
+                        m_boundaryNodes[boundaryFront].push_back( nodeIndex );
                     }
                     else if ( t == nThicknessCells )
                     {
-                        m_boundaryNodes[Boundary::Back].push_back( nodeIndex );
+                        m_boundaryNodes[boundaryBack].push_back( nodeIndex );
                     }
                 }
 
@@ -169,10 +173,10 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     m_borderSurfaceElements[BorderSurface::FaultSurface] = {};
     m_borderSurfaceElements[BorderSurface::LowerSurface] = {};
 
-    m_boundaryElements[Boundary::Front]  = {};
-    m_boundaryElements[Boundary::Back]   = {};
-    m_boundaryElements[Boundary::Bottom] = {};
-    m_boundaryElements[Boundary::Left]   = {};
+    m_boundaryElements[boundaryFront]     = {};
+    m_boundaryElements[boundaryBack]      = {};
+    m_boundaryElements[Boundary::Bottom]  = {};
+    m_boundaryElements[Boundary::FarSide] = {};
 
     int layerIndexOffset = 0;
     int elementIdx       = 0;
@@ -210,15 +214,15 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
                 }
                 if ( h == 0 )
                 {
-                    m_boundaryElements[Boundary::Left].push_back( elementIdx );
+                    m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
                 }
                 if ( t == 0 )
                 {
-                    m_boundaryElements[Boundary::Front].push_back( elementIdx );
+                    m_boundaryElements[boundaryFront].push_back( elementIdx );
                 }
                 else if ( t == ( nThicknessCells - 1 ) )
                 {
-                    m_boundaryElements[Boundary::Back].push_back( elementIdx );
+                    m_boundaryElements[boundaryBack].push_back( elementIdx );
                 }
             }
             i += nThicknessOff;

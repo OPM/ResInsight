@@ -42,12 +42,12 @@ public:
     {
         Front = 0,
         Back,
-        Left,
+        FarSide,
         Bottom
     };
 
 public:
-    RigGriddedPart3d();
+    RigGriddedPart3d(bool flipFrontBack);
     ~RigGriddedPart3d() override;
 
     void reset();
@@ -72,6 +72,8 @@ protected:
     void       generateMeshlines( std::vector<cvf::Vec3d> cornerPoints, int numHorzCells, int numVertCells );
 
 private:
+    bool m_flipFrontBack;
+
     std::vector<cvf::Vec3d>                            m_nodes;
     std::vector<std::vector<unsigned int>>             m_elementIndices;
     std::map<BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
