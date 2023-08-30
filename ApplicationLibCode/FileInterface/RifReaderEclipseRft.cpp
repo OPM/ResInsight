@@ -246,19 +246,17 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
+std::vector<caf::VecIjk> RifReaderEclipseRft::cellIndices( const QString& wellName, const QDateTime& timeStep )
 {
-    CVF_ASSERT( indices );
-
     if ( !m_ecl_rft_file )
     {
         open();
     }
 
-    indices->clear();
+    std::vector<caf::VecIjk> indices;
 
-    int index = indexFromAddress( rftAddress );
-    if ( index < 0 ) return;
+    int index = indexFromAddress( wellName, timeStep );
+    if ( index < 0 ) return {};
 
     ecl_rft_node_type* node = ecl_rft_file_iget_node( m_ecl_rft_file, index );
 
@@ -268,8 +266,10 @@ void RifReaderEclipseRft::cellIndices( const RifEclipseRftAddress& rftAddress, s
         ecl_rft_node_iget_ijk( node, cellIdx, &i, &j, &k );
 
         caf::VecIjk ijk( (size_t)i, (size_t)j, (size_t)k );
-        indices->push_back( ijk );
+        indices.push_back( ijk );
     }
+
+    return indices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -449,6 +449,22 @@ int RifReaderEclipseRft::indexFromAddress( const RifEclipseRftAddress& rftAddres
     if ( it != m_rftAddressToLibeclNodeIdx.end() )
     {
         return it->second;
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifReaderEclipseRft::indexFromAddress( const QString& wellName, const QDateTime& timeStep ) const
+{
+    for ( const auto& [rftAddr, nodeIdx] : m_rftAddressToLibeclNodeIdx )
+    {
+        if ( rftAddr.wellName() == wellName && rftAddr.timeStep() == timeStep )
+        {
+            return nodeIdx;
+        }
     }
 
     return -1;

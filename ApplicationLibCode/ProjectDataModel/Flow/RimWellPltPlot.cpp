@@ -295,20 +295,16 @@ class RigRftResultPointCalculator : public RigResultPointCalculator
 public:
     RigRftResultPointCalculator( const QString& wellPathName, RimEclipseResultCase* eclCase, QDateTime m_timeStep )
     {
-        RifEclipseRftAddress gasRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                                                   m_timeStep,
-                                                                                   RifEclipseRftAddress::RftWellLogChannelType::GRAT );
-        RifEclipseRftAddress oilRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                                                   m_timeStep,
-                                                                                   RifEclipseRftAddress::RftWellLogChannelType::ORAT );
-        RifEclipseRftAddress watRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                                                   m_timeStep,
-                                                                                   RifEclipseRftAddress::RftWellLogChannelType::WRAT );
+        const auto wellNameForRft = RimWellPlotTools::simWellName( wellPathName );
 
-        std::vector<caf::VecIjk> rftIndices;
-        eclCase->rftReader()->cellIndices( gasRateAddress, &rftIndices );
-        if ( rftIndices.empty() ) eclCase->rftReader()->cellIndices( oilRateAddress, &rftIndices );
-        if ( rftIndices.empty() ) eclCase->rftReader()->cellIndices( watRateAddress, &rftIndices );
+        RifEclipseRftAddress gasRateAddress =
+            RifEclipseRftAddress::createAddress( wellNameForRft, m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::GRAT );
+        RifEclipseRftAddress oilRateAddress =
+            RifEclipseRftAddress::createAddress( wellNameForRft, m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::ORAT );
+        RifEclipseRftAddress watRateAddress =
+            RifEclipseRftAddress::createAddress( wellNameForRft, m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::WRAT );
+
+        std::vector<caf::VecIjk> rftIndices = eclCase->rftReader()->cellIndices( wellNameForRft, m_timeStep );
         if ( rftIndices.empty() ) return;
 
         std::vector<double> gasRates;
