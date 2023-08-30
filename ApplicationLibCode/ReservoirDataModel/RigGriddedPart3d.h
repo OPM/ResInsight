@@ -47,7 +47,7 @@ public:
     };
 
 public:
-    RigGriddedPart3d(bool flipFrontBack);
+    RigGriddedPart3d( bool flipFrontBack );
     ~RigGriddedPart3d() override;
 
     void reset();
