@@ -39,8 +39,10 @@ RigGriddedPart3d::~RigGriddedPart3d()
 //--------------------------------------------------------------------------------------------------
 void RigGriddedPart3d::reset()
 {
+    m_boundaryElements.clear();
+    m_boundaryNodes.clear();
     m_borderSurfaceElements.clear();
-    m_vertices.clear();
+    m_nodes.clear();
     m_elementIndices.clear();
     m_meshLines.clear();
 }
@@ -108,24 +110,48 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     const std::vector<cvf::Vec3d> firstSteps = { step0to1, step1to2, step2to3 };
     const std::vector<cvf::Vec3d> lastSteps  = { step4to5, step5to6, step6to7 };
 
-    // ** generate vertices
+    // ** generate nodes
 
-    m_vertices.reserve( (size_t)( ( nVertCells + 1 ) * ( nHorzCells + 1 ) ) );
+    m_boundaryNodes[Boundary::Front]  = {};
+    m_boundaryNodes[Boundary::Back]   = {};
+    m_boundaryNodes[Boundary::Bottom] = {};
+    m_boundaryNodes[Boundary::Left]   = {};
+
+    m_nodes.reserve( (size_t)( ( nVertCells + 1 ) * ( nHorzCells + 1 ) ) );
 
     cvf::Vec3d pFrom = inputPoints[0];
     cvf::Vec3d pTo   = inputPoints[4];
 
+    unsigned int layer     = 0;
+    unsigned int nodeIndex = 0;
+
     for ( int i = 0; i < (int)vertLines.size(); i++ )
     {
-        for ( int v = 0; v < vertLines[i]; v++ )
+        for ( int v = 0; v < vertLines[i]; v++, layer++ )
         {
             cvf::Vec3d stepHorz = stepVector( pFrom, pTo, nHorzCells );
             cvf::Vec3d p        = pFrom;
             for ( int h = 0; h <= nHorzCells; h++ )
             {
-                for ( int t = 0; t < (int)m_thicknessFactors.size(); t++ )
+                for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
                 {
-                    m_vertices.push_back( p + m_thicknessFactors[t] * tVec );
+                    m_nodes.push_back( p + m_thicknessFactors[t] * tVec );
+                    if ( layer == 0 )
+                    {
+                        m_boundaryNodes[Boundary::Bottom].push_back( nodeIndex );
+                    }
+                    if ( h == 0 )
+                    {
+                        m_boundaryNodes[Boundary::Left].push_back( nodeIndex );
+                    }
+                    if ( t == 0 )
+                    {
+                        m_boundaryNodes[Boundary::Front].push_back( nodeIndex );
+                    }
+                    else if ( t == nThicknessCells )
+                    {
+                        m_boundaryNodes[Boundary::Back].push_back( nodeIndex );
+                    }
                 }
 
                 p += stepHorz;
@@ -143,24 +169,30 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     m_borderSurfaceElements[BorderSurface::FaultSurface] = {};
     m_borderSurfaceElements[BorderSurface::LowerSurface] = {};
 
-    int layerIndex = 0;
-    int elementIdx = 0;
+    m_boundaryElements[Boundary::Front]  = {};
+    m_boundaryElements[Boundary::Back]   = {};
+    m_boundaryElements[Boundary::Bottom] = {};
+    m_boundaryElements[Boundary::Left]   = {};
 
-    BorderSurface currentRegion = BorderSurface::LowerSurface;
+    int layerIndexOffset = 0;
+    int elementIdx       = 0;
+    layer                = 0;
+
+    BorderSurface currentSurfaceRegion = BorderSurface::LowerSurface;
 
     const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
 
-    for ( int v = 0; v < nVertCells; v++ )
+    for ( int v = 0; v < nVertCells; v++, layer++ )
     {
-        if ( v >= nVertCellsLower ) currentRegion = BorderSurface::FaultSurface;
-        if ( v >= nVertCellsLower + nVertCellsMiddle ) currentRegion = BorderSurface::UpperSurface;
+        if ( v >= nVertCellsLower ) currentSurfaceRegion = BorderSurface::FaultSurface;
+        if ( v >= nVertCellsLower + nVertCellsMiddle ) currentSurfaceRegion = BorderSurface::UpperSurface;
 
-        int i = layerIndex;
+        int i = layerIndexOffset;
 
         for ( int h = 0; h < nHorzCells; h++ )
         {
-            for ( int t = 0; t < nThicknessCells; t++ )
+            for ( int t = 0; t < nThicknessCells; t++, elementIdx++ )
             {
                 m_elementIndices[elementIdx].push_back( t + i );
                 m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
@@ -172,16 +204,31 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
                 m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
                 m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
 
-                elementIdx++;
+                if ( layer == 0 )
+                {
+                    m_boundaryElements[Boundary::Bottom].push_back( elementIdx );
+                }
+                if ( h == 0 )
+                {
+                    m_boundaryElements[Boundary::Left].push_back( elementIdx );
+                }
+                if ( t == 0 )
+                {
+                    m_boundaryElements[Boundary::Front].push_back( elementIdx );
+                }
+                else if ( t == ( nThicknessCells - 1 ) )
+                {
+                    m_boundaryElements[Boundary::Back].push_back( elementIdx );
+                }
             }
             i += nThicknessOff;
         }
 
         // add elements to border surface in current region
-        m_borderSurfaceElements[currentRegion].push_back( elementIdx - 2 );
-        m_borderSurfaceElements[currentRegion].push_back( elementIdx - 1 );
+        m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 2 );
+        m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
 
-        layerIndex += nextLayerIdxOff;
+        layerIndexOffset += nextLayerIdxOff;
     }
 
     // generate meshlines for 2d viz
@@ -239,9 +286,9 @@ void RigGriddedPart3d::generateMeshlines( std::vector<cvf::Vec3d> cornerPoints, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3d>& RigGriddedPart3d::vertices() const
+const std::vector<cvf::Vec3d>& RigGriddedPart3d::nodes() const
 {
-    return m_vertices;
+    return m_nodes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,4 +323,20 @@ const std::map<RigGriddedPart3d::BorderSurface, std::vector<unsigned int>>& RigG
 const std::vector<std::vector<cvf::Vec3d>>& RigGriddedPart3d::meshLines() const
 {
     return m_meshLines;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::map<RigGriddedPart3d::Boundary, std::vector<unsigned int>>& RigGriddedPart3d::boundaryElements() const
+{
+    return m_boundaryElements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::map<RigGriddedPart3d::Boundary, std::vector<unsigned int>>& RigGriddedPart3d::boundaryNodes() const
+{
+    return m_boundaryNodes;
 }

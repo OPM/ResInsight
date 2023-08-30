@@ -49,7 +49,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
         auto grid = model.grid( part );
 
-        const std::vector<cvf::Vec3d>& nodes = grid->vertices();
+        const std::vector<cvf::Vec3d>& nodes = grid->nodes();
         RifInpExportTools::printNodes( stream, nodes );
 
         const std::vector<std::vector<unsigned int>>& elements = grid->elementIndices();
@@ -101,7 +101,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         std::string nodeSetName = "part_" + std::to_string( partIndex ) + "_PP_";
         auto        grid        = model.grid( part );
 
-        const std::vector<cvf::Vec3d>& nodes = grid->vertices();
+        const std::vector<cvf::Vec3d>& nodes = grid->nodes();
         RifInpExportTools::printNodeSet( stream, partName, 1, nodes.size() );
 
         RifInpExportTools::printHeading( stream, "End Instance" );
