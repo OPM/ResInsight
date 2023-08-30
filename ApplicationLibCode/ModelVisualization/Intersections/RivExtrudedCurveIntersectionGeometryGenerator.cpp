@@ -23,7 +23,6 @@
 #include "RigResultAccessor.h"
 #include "RigSurface.h"
 #include "RigSurfaceResampler.h"
-#include "RigWellPath.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -188,15 +187,15 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
 
             // Resample polyline to required resolution
             const double maxLineSegmentLength = 1.0;
-            auto         resampledPolyline    = computeResampledPolyline( firstPolyLine, maxLineSegmentLength );
+            const auto resampledPolyline = RigSurfaceResampler::computeResampledPolylineWithSegmentInfo( firstPolyLine, maxLineSegmentLength );
 
-            for ( auto [point, segmentIndex] : resampledPolyline )
+            for ( const auto& [point, segmentIndex] : resampledPolyline )
             {
                 cvf::Vec3d pointAbove = cvf::Vec3d( point.x(), point.y(), 10000.0 );
                 cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
 
                 cvf::Vec3d intersectionPoint;
-                bool       foundMatch = RigSurfaceResampler::resamplePoint( surface, pointAbove, pointBelow, intersectionPoint );
+                bool foundMatch = RigSurfaceResampler::findClosestPointOnSurface( surface, pointAbove, pointBelow, intersectionPoint );
                 if ( foundMatch )
                 {
                     const size_t lineIndex = 0;
@@ -807,58 +806,6 @@ cvf::Vec3d RivExtrudedCurveIntersectionGeometryGenerator::transformPointByPolyli
     // flat 2D. Return the transformed domain coord using the required transformation matrix
 
     return domainCoord.getTransformedPoint( m_lineSegmentTransforms[lineIndex][segmentIndex] );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::pair<cvf::Vec3d, size_t>>
-    RivExtrudedCurveIntersectionGeometryGenerator::computeResampledPolyline( const std::vector<cvf::Vec3d>& polyline, double resamplingDistance )
-{
-    // Segments along the original polyline must be provided to be able to find the associated transform matrix
-    std::vector<std::pair<cvf::Vec3d, size_t>> resampledPolyline;
-
-    if ( polyline.size() > 1 )
-    {
-        std::vector<double> measuredDepth;
-        {
-            double aggregatedLength = 0.0;
-
-            cvf::Vec3d previousPoint = polyline.front();
-            measuredDepth.push_back( aggregatedLength );
-
-            for ( size_t i = 1; i < polyline.size(); i++ )
-            {
-                aggregatedLength += ( previousPoint - polyline[i] ).length();
-                previousPoint = polyline[i];
-                measuredDepth.push_back( aggregatedLength );
-            }
-        }
-
-        // Use RigWellPath to perform the interpolation along a line based on measured depth
-        RigWellPath dummyWellPath( polyline, measuredDepth );
-
-        for ( size_t i = 1; i < polyline.size(); i++ )
-        {
-            const auto& lineSegmentStart = polyline[i - 1];
-            const auto& lineSegmentEnd   = polyline[i];
-
-            auto startMD = measuredDepth[i - 1];
-            auto endMD   = measuredDepth[i];
-
-            const size_t segmentIndex = i - 1;
-            resampledPolyline.emplace_back( lineSegmentStart, segmentIndex );
-
-            for ( auto md = startMD + resamplingDistance; md < endMD; md += resamplingDistance )
-            {
-                resampledPolyline.emplace_back( dummyWellPath.interpolatedPointAlongWellPath( md ), segmentIndex );
-            }
-
-            resampledPolyline.emplace_back( lineSegmentEnd, segmentIndex );
-        }
-    }
-
-    return resampledPolyline;
 }
 
 //--------------------------------------------------------------------------------------------------
