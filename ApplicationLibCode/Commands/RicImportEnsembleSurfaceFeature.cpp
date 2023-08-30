@@ -29,9 +29,8 @@
 
 #include "RimEnsembleSurface.h"
 #include "RimFileSurface.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimSurfaceCollection.h"
+#include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -90,6 +89,8 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
         auto layerName = fi.baseName();
         fileNamesForEachLayer[layerName].push_back( fileName );
     }
+
+    RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
 
     RimEnsembleSurface* ensembleToSelect = nullptr;
     for ( const auto& fileNamesForLayer : fileNamesForEachLayer )
@@ -153,12 +154,13 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
             ensemble->addFileSurface( surface );
 
         ensemble->loadDataAndUpdate();
-        RimProject::current()->activeOilField()->surfaceCollection->addEnsembleSurface( ensemble );
+
+        surfColl->addEnsembleSurface( ensemble );
 
         ensembleToSelect = ensemble;
     }
 
-    RimProject::current()->activeOilField()->surfaceCollection->updateConnectedEditors();
+    surfColl->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( ensembleToSelect );
 }
 
