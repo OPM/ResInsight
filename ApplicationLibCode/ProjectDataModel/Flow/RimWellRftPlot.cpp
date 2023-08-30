@@ -496,7 +496,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             plotTrack->addCurve( curve );
 
             auto rftCase = curveDefToAdd.address().eclCase();
-            curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( rftCase ) );
+            curve->setEclipseCase( dynamic_cast<RimEclipseResultCase*>( rftCase ) );
 
             RifEclipseRftAddress address = RifEclipseRftAddress::createAddress( simWellName,
                                                                                 curveDefToAdd.timeStep(),
@@ -544,7 +544,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
             // A summary case address can optionally contain an Eclipse case used to compute the TVD/MD for a well path
             // https://github.com/OPM/ResInsight/issues/10501
-            curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( curveDefToAdd.address().eclCase() ) );
+            curve->setEclipseCase( dynamic_cast<RimEclipseResultCase*>( curveDefToAdd.address().eclCase() ) );
 
             double zValue = 1.0;
             if ( !curveDefToAdd.address().ensemble() )
