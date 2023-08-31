@@ -20,6 +20,9 @@
 
 #include "RifReaderEclipseRft.h"
 
+#include "RiaCurveMerger.h"
+#include "RiaWeightedMeanCalculator.h"
+
 #include "cvfObject.h"
 
 class RimSummaryCaseCollection;
@@ -43,6 +46,13 @@ public:
 
 private:
     void calculateStatistics( const RifEclipseRftAddress& rftAddress );
+
+    void computeStatistics( const QString&                     wellName,
+                            const QDateTime&                   timeStep,
+                            RifEclipseRftAddress               depthAddress,
+                            RiaCurveMerger<double>&            curveMerger,
+                            RiaWeightedMeanCalculator<size_t>& dataSetSizeCalc );
+
     void clearData( const QString& wellName, const QDateTime& timeStep );
 
 private:
