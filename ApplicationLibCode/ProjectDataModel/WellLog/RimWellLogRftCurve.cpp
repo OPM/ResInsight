@@ -1181,9 +1181,16 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues( QString& prefixText
     RigEclipseWellLogExtractor* eclExtractor = extractor();
     if ( !eclExtractor ) return {};
 
-    if ( rftReader() )
+    if ( auto reader = rftReader() )
     {
         prefixText = "WELL/";
+
+        RifEclipseRftAddress depthAddress =
+            RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
+
+        std::vector<double> values;
+        reader->values( depthAddress, &values );
+        if ( !values.empty() ) return values;
 
         return rftReader()->computeMeasuredDepth( m_wellName(), m_timeStep(), eclExtractor );
     };
