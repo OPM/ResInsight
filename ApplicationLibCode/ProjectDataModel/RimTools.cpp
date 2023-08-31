@@ -417,7 +417,7 @@ void RimTools::geoMechElementSetOptionItems( QList<caf::PdmOptionItemInfo>* opti
     {
         auto names = part->elementSetNames();
 
-        for ( int i = 0; i < names.size(); i++ )
+        for ( int i = 0; i < (int)names.size(); i++ )
         {
             options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( names[i] ), i ) );
         }

@@ -20,6 +20,9 @@
 
 #include "RimCellFilter.h"
 
+#include "cafPdmField.h"
+#include "cafPdmPtrField.h"
+
 class RimCase;
 class RimGeoMechCase;
 
