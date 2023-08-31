@@ -100,6 +100,8 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( Ri
                                                                               bool            useBranchDetection,
                                                                               int             branchIndex )
 {
+    if ( !eclipseCase ) return nullptr;
+
     auto wlPlotCollection = wellLogPlotCollection();
     if ( !wlPlotCollection ) return nullptr;
 
