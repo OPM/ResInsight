@@ -47,7 +47,8 @@ std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses( const
 // Compute average measured depth for cell based on grid intersections for cells. If the well path geometry do not contain measured depth
 // for a grid cell, the measured depth is estimated based on existing geometry for the well path.
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifReaderRftInterface::computeMeasuredDepth( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* eclExtractor )
+std::vector<double>
+    RifReaderRftInterface::computeMeasuredDepth( const QString& wellName, const QDateTime& timeStep, RigEclipseWellLogExtractor* eclExtractor )
 {
     if ( !eclExtractor ) return {};
     if ( !eclExtractor->caseData() ) return {};
