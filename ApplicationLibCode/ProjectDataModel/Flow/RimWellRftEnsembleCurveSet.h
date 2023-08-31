@@ -60,6 +60,7 @@ public:
     RimRegularLegendConfig*    legendConfig();
     RigEnsembleParameter::Type currentEnsembleParameterType() const;
 
+    void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;
 
     RifReaderRftInterface* statisticsEclipseRftReader();
@@ -76,6 +77,7 @@ protected:
 private:
     QString              ensembleName() const;
     std::vector<QString> parametersWithVariation() const;
+    void                 clearEnsembleStatistics();
 
 private:
     caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;

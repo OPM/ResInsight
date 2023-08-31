@@ -124,6 +124,10 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetEclipseCase,
+                                "EclipseResultCase",
+                                "Grid Model For MD",
+                                "Grid model used to compute measured depth using well path geometry" );
 
     // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
     // It was developed for regular well log plots and requires some more work for RFT plots.
@@ -804,6 +808,13 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
 
         options = RiaSimWellBranchTools::valueOptionsForBranchIndexField( simulationWellBranches );
     }
+    else if ( fieldNeedingOptions == &m_ensembleCurveSetEclipseCase )
+    {
+        RimTools::caseOptionItems( &options );
+
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
+
     return options;
 }
 
@@ -977,6 +988,17 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
     }
+    else if ( changedField == &m_ensembleCurveSetEclipseCase )
+    {
+        for ( RimWellRftEnsembleCurveSet* curveSet : m_ensembleCurveSets() )
+        {
+            curveSet->setEclipseCase( m_ensembleCurveSetEclipseCase );
+        }
+
+        createEnsembleCurveSets();
+        updateFormationsOnPlot();
+        syncCurvesFromUiSelection();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1024,6 +1046,11 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword( "Sources", "Sources" );
     sourcesGroup->add( &m_selectedSources );
+
+    if ( !m_ensembleCurveSets.empty() )
+    {
+        uiOrdering.add( &m_ensembleCurveSetEclipseCase );
+    }
 
     caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroupWithKeyword( "Time Steps", "TimeSteps" );
     timeStepsGroup->add( &m_selectedTimeSteps );
