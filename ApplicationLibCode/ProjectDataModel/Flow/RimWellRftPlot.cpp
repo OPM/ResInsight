@@ -529,7 +529,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED ) );
             applyCurveAppearance( curve );
         }
-        else if ( m_showEnsembleCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
+        else if ( ( !curveDefToAdd.address().ensemble() || m_showEnsembleCurves ) &&
+                  curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
         {
             auto curve = new RimWellLogRftCurve();
             plotTrack->addCurve( curve );
