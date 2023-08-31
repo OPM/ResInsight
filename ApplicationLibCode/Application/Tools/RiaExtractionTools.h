@@ -36,13 +36,18 @@ class QString;
 //==================================================================================================
 namespace RiaExtractionTools
 {
+RimWellLogPlotCollection* wellLogPlotCollection();
+
+// Eclipse
+RigEclipseWellLogExtractor* findOrCreateWellLogExtractor( const QString& wellName, RimEclipseCase* eclipseCase );
 RigEclipseWellLogExtractor* findOrCreateWellLogExtractor( RimWellPath* wellPath, RimEclipseCase* eclipseCase );
+
+// GeoMech
 RigGeoMechWellLogExtractor* findOrCreateWellLogExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase, int partId = 0 );
 
+// Simulation wells
 RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const RimSimWellInView* simWell, const RigWellPath* wellPathGeom );
 RigEclipseWellLogExtractor*
     findOrCreateSimWellExtractor( RimEclipseCase* eclipseCase, const QString& simWellName, bool useBranchDetection, int branchIndex );
-
-RimWellLogPlotCollection* wellLogPlotCollection();
 
 }; // namespace RiaExtractionTools
