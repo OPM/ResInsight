@@ -27,8 +27,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
 
 #include "cafAssert.h"
 
@@ -89,7 +87,8 @@ void RifReaderEnsembleStatisticsRft::values( const RifEclipseRftAddress& rftAddr
 {
     if ( !m_summaryCaseCollection ) return;
 
-    CAF_ASSERT( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::TVD ||
+    CAF_ASSERT( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::MD ||
+                rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::TVD ||
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN ||
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10 ||
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 ||
@@ -220,82 +219,140 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
     RifEclipseRftAddress p90Address   = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P90 );
     RifEclipseRftAddress meanAddress  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_MEAN );
 
-    RiaCurveMerger<double> curveMerger;
-
-    RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
-
-    // Create a well log extractor if a well path and eclipse case is defined
-    // Use the extractor to compute measured depth for RFT cells
-
-    RigEclipseWellLogExtractor* extractor = nullptr;
-    if ( m_eclipseCase )
+    RigEclipseWellLogExtractor* extractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellName, m_eclipseCase );
+    if ( extractor )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
+        // Create a well log extractor if a well path and an Eclipse case is defined
+        // Use the extractor to compute measured depth for RFT cells
+        // The TVD values is extracted from the first summary case
+
+        RiaCurveMerger<double>            curveMerger;
+        RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
+
+        std::vector<double> tvdDepthsForFirstRftCase;
+
+        RifEclipseRftAddress mdAddress  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::MD );
+        RifEclipseRftAddress tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
+
+        for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
         {
-            auto wellPath = wellPathCollection->tryFindMatchingWellPath( wellName );
-            extractor     = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, m_eclipseCase );
-        }
-    }
-
-    RifEclipseRftAddress depthAddress = extractor != nullptr ? RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::MD )
-                                                             : RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
-
-    for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
-    {
-        RifReaderRftInterface* reader = summaryCase->rftReader();
-        if ( reader )
-        {
-            std::vector<double> pressures;
-            reader->values( pressAddress, &pressures );
-
-            std::vector<double> depths;
-            if ( extractor )
+            RifReaderRftInterface* reader = summaryCase->rftReader();
+            if ( reader )
             {
-                depths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
-            }
-            else
-            {
-                reader->values( depthAddress, &depths );
-            }
+                std::vector<double> pressures;
+                reader->values( pressAddress, &pressures );
 
-            if ( !depths.empty() && !pressures.empty() )
-            {
-                dataSetSizeCalc.addValueAndWeight( depths.size(), 1.0 );
-                curveMerger.addCurveData( depths, pressures );
+                if ( tvdDepthsForFirstRftCase.empty() )
+                {
+                    reader->values( tvdAddress, &tvdDepthsForFirstRftCase );
+                }
+
+                std::vector<double> measuredDepths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+
+                if ( !measuredDepths.empty() && !pressures.empty() )
+                {
+                    dataSetSizeCalc.addValueAndWeight( measuredDepths.size(), 1.0 );
+                    curveMerger.addCurveData( measuredDepths, pressures );
+                }
             }
         }
-    }
 
-    curveMerger.computeInterpolatedValues( false );
+        curveMerger.computeInterpolatedValues( false );
 
-    clearData( wellName, timeStep );
+        clearData( wellName, timeStep );
 
-    const std::vector<double>& allDepths = curveMerger.allXValues();
-    if ( !allDepths.empty() )
-    {
-        // Make sure we end up with approximately the same amount of points as originally
-        // Since allDepths contain *valid* values, it can potentially be smaller than the mean.
-        // Thus we need to ensure sizeMultiplier is at least 1.
-        size_t sizeMultiplier = std::max( (size_t)1, allDepths.size() / dataSetSizeCalc.weightedMean() );
-        for ( size_t depthIdx = 0; depthIdx < allDepths.size(); depthIdx += sizeMultiplier )
+        const std::vector<double>& measuredDepths = curveMerger.allXValues();
+        if ( !measuredDepths.empty() )
         {
-            std::vector<double> pressuresAtDepth;
-            pressuresAtDepth.reserve( curveMerger.curveCount() );
-            for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); ++curveIdx )
+            // Make sure we end up with approximately the same amount of points as originally
+            // Since allDepths contain *valid* values, it can potentially be smaller than the mean.
+            // Thus we need to ensure sizeMultiplier is at least 1.
+            size_t sizeMultiplier = std::max( (size_t)1, measuredDepths.size() / dataSetSizeCalc.weightedMean() );
+            for ( size_t depthIdx = 0; depthIdx < measuredDepths.size(); depthIdx += sizeMultiplier )
             {
-                const std::vector<double>& curvePressures = curveMerger.interpolatedYValuesForAllXValues( curveIdx );
-                pressuresAtDepth.push_back( curvePressures[depthIdx] );
+                std::vector<double> pressuresAtDepth;
+                pressuresAtDepth.reserve( curveMerger.curveCount() );
+                for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); ++curveIdx )
+                {
+                    const std::vector<double>& curvePressures = curveMerger.interpolatedYValuesForAllXValues( curveIdx );
+                    pressuresAtDepth.push_back( curvePressures[depthIdx] );
+                }
+                double p10, p50, p90, mean;
+                RigStatisticsMath::calculateStatisticsCurves( pressuresAtDepth, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+                m_cachedValues[mdAddress].push_back( measuredDepths[depthIdx] );
+
+                if ( p10 != HUGE_VAL ) m_cachedValues[p10Address].push_back( p10 );
+                if ( p50 != HUGE_VAL ) m_cachedValues[p50Address].push_back( p50 );
+                if ( p90 != HUGE_VAL ) m_cachedValues[p90Address].push_back( p90 );
+                if ( mean != HUGE_VAL ) m_cachedValues[meanAddress].push_back( mean );
             }
-            double p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( pressuresAtDepth, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+        }
 
-            m_cachedValues[depthAddress].push_back( allDepths[depthIdx] );
+        if ( measuredDepths.size() == tvdDepthsForFirstRftCase.size() )
+        {
+            m_cachedValues[tvdAddress] = tvdDepthsForFirstRftCase;
+        }
+    }
+    else
+    {
+        // Compute statistics based on TVD depths. No measured depth can be estimated.
+        // This concept works well for vertical wells, but does not work for horizontal wells.
 
-            if ( p10 != HUGE_VAL ) m_cachedValues[p10Address].push_back( p10 );
-            if ( p50 != HUGE_VAL ) m_cachedValues[p50Address].push_back( p50 );
-            if ( p90 != HUGE_VAL ) m_cachedValues[p90Address].push_back( p90 );
-            if ( mean != HUGE_VAL ) m_cachedValues[meanAddress].push_back( mean );
+        RiaCurveMerger<double>            curveMerger;
+        RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
+
+        RifEclipseRftAddress tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
+
+        for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
+        {
+            RifReaderRftInterface* reader = summaryCase->rftReader();
+            if ( reader )
+            {
+                std::vector<double> pressures;
+                reader->values( pressAddress, &pressures );
+
+                std::vector<double> tvdDepths;
+                reader->values( tvdAddress, &tvdDepths );
+
+                if ( !tvdDepths.empty() && !pressures.empty() )
+                {
+                    dataSetSizeCalc.addValueAndWeight( tvdDepths.size(), 1.0 );
+                    curveMerger.addCurveData( tvdDepths, pressures );
+                }
+            }
+        }
+
+        curveMerger.computeInterpolatedValues( false );
+
+        clearData( wellName, timeStep );
+
+        const std::vector<double>& allDepths = curveMerger.allXValues();
+        if ( !allDepths.empty() )
+        {
+            // Make sure we end up with approximately the same amount of points as originally
+            // Since allDepths contain *valid* values, it can potentially be smaller than the mean.
+            // Thus we need to ensure sizeMultiplier is at least 1.
+            size_t sizeMultiplier = std::max( (size_t)1, allDepths.size() / dataSetSizeCalc.weightedMean() );
+            for ( size_t depthIdx = 0; depthIdx < allDepths.size(); depthIdx += sizeMultiplier )
+            {
+                std::vector<double> pressuresAtDepth;
+                pressuresAtDepth.reserve( curveMerger.curveCount() );
+                for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); ++curveIdx )
+                {
+                    const std::vector<double>& curvePressures = curveMerger.interpolatedYValuesForAllXValues( curveIdx );
+                    pressuresAtDepth.push_back( curvePressures[depthIdx] );
+                }
+                double p10, p50, p90, mean;
+                RigStatisticsMath::calculateStatisticsCurves( pressuresAtDepth, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+                m_cachedValues[tvdAddress].push_back( allDepths[depthIdx] );
+
+                if ( p10 != HUGE_VAL ) m_cachedValues[p10Address].push_back( p10 );
+                if ( p50 != HUGE_VAL ) m_cachedValues[p50Address].push_back( p50 );
+                if ( p90 != HUGE_VAL ) m_cachedValues[p90Address].push_back( p90 );
+                if ( mean != HUGE_VAL ) m_cachedValues[meanAddress].push_back( mean );
+            }
         }
     }
 }
