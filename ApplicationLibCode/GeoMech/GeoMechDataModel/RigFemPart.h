@@ -28,6 +28,7 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include <array>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -102,6 +103,10 @@ public:
     void setEnabled( bool enable );
     bool enabled() const;
 
+    void                     addElementSet( std::string name, std::vector<size_t> elementIds );
+    std::vector<std::string> elementSetNames() const;
+    std::vector<size_t>      elementSet( int setIndex ) const;
+
 private:
     int         m_elementPartId;
     std::string m_name;
@@ -111,6 +116,9 @@ private:
     std::vector<RigElementType> m_elementTypes;
     std::vector<size_t>         m_elementConnectivityStartIndices;
     std::vector<int>            m_allElementConnectivities;
+
+    std::vector<std::string>         m_elementSetNames;
+    std::vector<std::vector<size_t>> m_elementIndexSets;
 
     RigFemPartNodes m_nodes;
 

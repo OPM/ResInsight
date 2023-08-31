@@ -21,6 +21,7 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"
+#include "RimCellIndexFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimPolygonFilter.h"
 #include "RimUserDefinedFilter.h"
@@ -95,7 +96,18 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
     for ( RimCellFilter* filter : m_cellFilters )
     {
         RimPolygonFilter* polyFilter = dynamic_cast<RimPolygonFilter*>( filter );
-        if ( polyFilter ) polyFilter->setCase( theCase );
+        if ( polyFilter )
+        {
+            polyFilter->setCase( theCase );
+            continue;
+        }
+
+        RimCellIndexFilter* idxFilter = dynamic_cast<RimCellIndexFilter*>( filter );
+        if ( idxFilter )
+        {
+            idxFilter->setCase( theCase );
+            continue;
+        }
     }
 }
 
@@ -287,6 +299,18 @@ RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* src
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCellIndexFilter* RimCellFilterCollection::addNewCellIndexFilter( RimCase* srcCase )
+{
+    RimCellIndexFilter* pFilter = new RimCellIndexFilter();
+    addFilter( pFilter );
+    pFilter->setCase( srcCase );
+    onFilterUpdated( pFilter );
+    return pFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::addFilter( RimCellFilter* pFilter )
 {
     setAutoName( pFilter );
@@ -303,12 +327,14 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
     int nPolyFilters  = 1;
     int nRangeFilters = 1;
     int nUserFilters  = 1;
+    int nIndexFilters = 1;
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
         if ( dynamic_cast<RimCellRangeFilter*>( filter ) ) nRangeFilters++;
         if ( dynamic_cast<RimUserDefinedFilter*>( filter ) ) nUserFilters++;
         if ( dynamic_cast<RimPolygonFilter*>( filter ) ) nPolyFilters++;
+        if ( dynamic_cast<RimCellIndexFilter*>( filter ) ) nIndexFilters++;
     }
     if ( dynamic_cast<RimCellRangeFilter*>( pFilter ) )
     {
@@ -321,6 +347,10 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
     else if ( dynamic_cast<RimPolygonFilter*>( pFilter ) )
     {
         pFilter->setName( QString( "Polygon Filter %1" ).arg( QString::number( nPolyFilters ) ) );
+    }
+    else if ( dynamic_cast<RimCellIndexFilter*>( pFilter ) )
+    {
+        pFilter->setName( QString( "Index Filter %1" ).arg( QString::number( nIndexFilters ) ) );
     }
 }
 

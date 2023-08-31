@@ -638,3 +638,29 @@ bool RigFemPart::enabled() const
 {
     return m_enabled;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::addElementSet( std::string name, std::vector<size_t> elementIds )
+{
+    m_elementSetNames.push_back( name );
+    m_elementIndexSets.push_back( elementIds );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPart::elementSetNames() const
+{
+    return m_elementSetNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigFemPart::elementSet( int setIndex ) const
+{
+    if ( ( setIndex < 0 ) || ( setIndex >= m_elementIndexSets.size() ) ) return {};
+    return m_elementIndexSets[setIndex];
+}

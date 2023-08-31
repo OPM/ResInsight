@@ -1003,15 +1003,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions( 
     }
     else if ( fieldNeedingOptions == &m_geomPartId && m_case )
     {
-        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
-        if ( !geomCase || !geomCase->geoMechData() || !geomCase->geoMechData()->femParts() ) return options;
-
-        const auto femParts = geomCase->geoMechData()->femParts();
-        for ( int i = 0; i < femParts->partCount(); ++i )
-        {
-            const auto name = femParts->part( i )->name();
-            options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( name ), i ) );
-        }
+        RimTools::geoMechPartOptionItems( &options, dynamic_cast<RimGeoMechCase*>( m_case.value() ) );
     }
     else if ( fieldNeedingOptions == &m_simWellName )
     {

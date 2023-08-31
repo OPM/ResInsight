@@ -37,6 +37,7 @@ class PdmOptionItemInfo;
 class RimWellPathCollection;
 class RimCase;
 class RimWellPath;
+class RimGeoMechCase;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -59,6 +60,8 @@ public:
     static void caseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void geoMechPartOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase );
+    static void geoMechElementSetOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase, int partId );
     static void colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly = false );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options );

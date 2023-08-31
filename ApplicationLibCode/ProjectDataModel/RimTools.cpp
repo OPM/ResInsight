@@ -20,6 +20,9 @@
 
 #include "RimTools.h"
 
+#include "RigFemPart.h"
+#include "RigFemPartCollection.h"
+#include "RigGeoMechCaseData.h"
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -40,6 +43,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
+#include <QVariant>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -370,6 +374,52 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
             {
                 options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::geoMechPartOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase )
+{
+    if ( !options ) return;
+
+    if ( !gCase || !gCase->geoMechData() || !gCase->geoMechData()->femParts() ) return;
+
+    const auto parts = gCase->geoMechData()->femParts();
+
+    for ( int i = 0; i < parts->partCount(); i++ )
+    {
+        auto part = parts->part( i );
+        if ( part != nullptr )
+        {
+            options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( part->name() ), i ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::geoMechElementSetOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase, int partId )
+{
+    if ( !options ) return;
+
+    if ( !gCase || !gCase->geoMechData() || !gCase->geoMechData()->femParts() ) return;
+
+    const auto parts = gCase->geoMechData()->femParts();
+
+    if ( partId >= parts->partCount() ) return;
+
+    auto part = parts->part( partId );
+    if ( part != nullptr )
+    {
+        auto names = part->elementSetNames();
+
+        for ( int i = 0; i < names.size(); i++ )
+        {
+            options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( names[i] ), i ) );
         }
     }
 }

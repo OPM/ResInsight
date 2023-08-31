@@ -8,6 +8,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceKFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSlice3dviewFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPolygonFilter3dviewFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewCellIndexFilterFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -20,6 +21,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceKFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSlice3dviewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPolygonFilter3dviewFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewCellIndexFilterFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

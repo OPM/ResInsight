@@ -20,10 +20,9 @@
 
 #include "RimCellFilter.h"
 
-//==================================================================================================
-///
-///
-//==================================================================================================
+class RimCase;
+class RimGeoMechCase;
+
 class RimCellIndexFilter : public RimCellFilter
 {
     CAF_PDM_HEADER_INIT;
@@ -32,13 +31,25 @@ public:
     RimCellIndexFilter();
     ~RimCellIndexFilter() override;
 
+    void setCase( RimCase* srcCase );
+
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
 
 protected:
-    void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
     QString fullName() const override;
 
+    RimGeoMechCase* geoMechCase() const;
+
+    void updateCells();
+
 private:
-    std::vector<std::vector<size_t>> m_cells;
+    std::vector<size_t> m_cells;
+
+    caf::PdmPtrField<RimCase*> m_case;
+    caf::PdmField<int>         m_partId;
+    caf::PdmField<int>         m_setId;
 };
