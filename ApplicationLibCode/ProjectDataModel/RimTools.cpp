@@ -23,6 +23,8 @@
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigReservoirGridTools.h"
+
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -375,6 +377,28 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
                 options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::eclipseGridOptionItems( QList<caf::PdmOptionItemInfo>* options, RimEclipseCase* eCase )
+{
+    if ( !options ) return;
+
+    for ( int gIdx = 0; gIdx < RigReservoirGridTools::gridCount( eCase ); gIdx++ )
+    {
+        QString gridName = RigReservoirGridTools::gridName( eCase, gIdx );
+        if ( gIdx == 0 )
+        {
+            if ( gridName.isEmpty() )
+                gridName += "Main Grid";
+            else
+                gridName += " (Main Grid)";
+        }
+
+        options->push_back( caf::PdmOptionItemInfo( gridName, gIdx ) );
     }
 }
 

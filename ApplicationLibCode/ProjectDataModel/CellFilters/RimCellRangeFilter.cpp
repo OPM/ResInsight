@@ -25,6 +25,7 @@
 #include "RigReservoirGridTools.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimTools.h"
 
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiSliderEditor.h"
@@ -178,9 +179,8 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice 
 
     auto rimView     = firstAncestorOrThisOfType<Rim3dView>();
     auto actCellInfo = RigReservoirGridTools::activeCellInfo( rimView );
-    auto rimCase     = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
-    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( rimCase );
+    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( m_srcCase );
 
     if ( grid == mainGrid && actCellInfo )
     {
@@ -271,12 +271,9 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
 
-    m_gridIndex.uiCapability()->setUiReadOnly( true );
-
     const cvf::StructGridInterface* grid = selectedGrid();
 
-    auto                            rimCase  = firstAncestorOrThisOfTypeAsserted<RimCase>();
-    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( rimCase );
+    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( m_srcCase );
 
     auto rimView     = firstAncestorOrThisOfType<Rim3dView>();
     auto actCellInfo = RigReservoirGridTools::activeCellInfo( rimView );

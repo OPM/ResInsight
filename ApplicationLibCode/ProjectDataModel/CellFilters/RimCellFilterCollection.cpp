@@ -95,19 +95,7 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
 {
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        RimPolygonFilter* polyFilter = dynamic_cast<RimPolygonFilter*>( filter );
-        if ( polyFilter )
-        {
-            polyFilter->setCase( theCase );
-            continue;
-        }
-
-        RimCellIndexFilter* idxFilter = dynamic_cast<RimCellIndexFilter*>( filter );
-        if ( idxFilter )
-        {
-            idxFilter->setCase( theCase );
-            continue;
-        }
+        filter->setCase( theCase );
     }
 }
 
@@ -137,8 +125,10 @@ void RimCellFilterCollection::initAfterRead()
         m_cellFilters.push_back( filter );
     }
 
+    auto rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
     for ( const auto& filter : m_cellFilters )
     {
+        filter->setCase( rimCase );
         filter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
     }
 }
@@ -278,6 +268,7 @@ RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase
 RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCase )
 {
     RimUserDefinedFilter* pFilter = new RimUserDefinedFilter();
+    pFilter->setCase( srcCase );
     addFilter( pFilter );
     onFilterUpdated( pFilter );
     return pFilter;
@@ -289,6 +280,7 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection, int defaultSlice )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
+    pFilter->setCase( srcCase );
     addFilter( pFilter );
     pFilter->setGridIndex( gridIndex );
     pFilter->setDefaultValues( sliceDirection, defaultSlice );
@@ -302,8 +294,8 @@ RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* src
 RimCellIndexFilter* RimCellFilterCollection::addNewCellIndexFilter( RimCase* srcCase )
 {
     RimCellIndexFilter* pFilter = new RimCellIndexFilter();
-    addFilter( pFilter );
     pFilter->setCase( srcCase );
+    addFilter( pFilter );
     onFilterUpdated( pFilter );
     return pFilter;
 }

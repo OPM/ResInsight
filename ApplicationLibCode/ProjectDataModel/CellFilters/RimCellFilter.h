@@ -32,6 +32,9 @@ class StructGridInterface;
 class CellRangeFilter;
 } // namespace cvf
 
+class RimGeoMechCase;
+class RimEclipseCase;
+
 //==================================================================================================
 ///
 ///
@@ -65,6 +68,8 @@ public:
     bool isActive() const;
     void setActive( bool active );
 
+    virtual void setCase( RimCase* srcCase );
+
     bool isRangeFilter() const;
     bool isIndexFilter() const;
 
@@ -91,6 +96,9 @@ protected:
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     bool                 isFilterControlled() const;
 
+    RimGeoMechCase* geoMechCase() const;
+    RimEclipseCase* eclipseCase() const;
+
     const cvf::StructGridInterface* selectedGrid() const;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -101,6 +109,7 @@ protected:
     caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
     caf::PdmField<int>                          m_gridIndex;
     caf::PdmField<bool>                         m_propagateToSubGrids;
+    caf::PdmPtrField<RimCase*>                  m_srcCase;
 
 private:
     FilterDefinitionType m_filterDefinitionType;

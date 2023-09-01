@@ -37,14 +37,8 @@ RimCellIndexFilter::RimCellIndexFilter()
 {
     CAF_PDM_InitObject( "Cell Index Filter", ":/CellFilter_UserDefined.png" );
 
-    CAF_PDM_InitField( &m_partId, "PartId", 0, "Part" );
-    m_partId.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-
     CAF_PDM_InitField( &m_setId, "ElementSetId", 0, "Element Set" );
     m_setId.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
-    m_case.uiCapability()->setUiHidden( true );
 
     m_propagateToSubGrids = true;
 
@@ -62,22 +56,6 @@ RimCellIndexFilter::~RimCellIndexFilter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellIndexFilter::setCase( RimCase* srcCase )
-{
-    m_case = srcCase;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RimCellIndexFilter::geoMechCase() const
-{
-    return dynamic_cast<RimGeoMechCase*>( m_case() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimCellIndexFilter::fullName() const
 {
     return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_cells.size() ) );
@@ -88,7 +66,7 @@ QString RimCellIndexFilter::fullName() const
 //--------------------------------------------------------------------------------------------------
 void RimCellIndexFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex )
 {
-    if ( gridIndex != m_partId() ) return;
+    if ( gridIndex != m_gridIndex() ) return;
 
     if ( m_cells.size() == 0 )
     {
@@ -116,7 +94,7 @@ void RimCellIndexFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibili
 //--------------------------------------------------------------------------------------------------
 void RimCellIndexFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_partId )
+    if ( changedField == &m_gridIndex )
     {
         m_setId = 0;
     }
@@ -136,8 +114,10 @@ void RimCellIndexFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     uiOrdering.add( &m_name );
 
+    m_gridIndex.uiCapability()->setUiName( "Part" );
+
     auto group = uiOrdering.addNewGroup( "General" );
-    group->add( &m_partId );
+    group->add( &m_gridIndex );
     group->add( &m_setId );
     group->add( &m_filterMode );
 
@@ -157,15 +137,11 @@ void RimCellIndexFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCellIndexFilter::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options;
+    QList<caf::PdmOptionItemInfo> options = RimCellFilter::calculateValueOptions( fieldNeedingOptions );
 
-    if ( fieldNeedingOptions == &m_partId )
+    if ( fieldNeedingOptions == &m_setId )
     {
-        RimTools::geoMechPartOptionItems( &options, geoMechCase() );
-    }
-    else if ( fieldNeedingOptions == &m_setId )
-    {
-        RimTools::geoMechElementSetOptionItems( &options, geoMechCase(), m_partId() );
+        RimTools::geoMechElementSetOptionItems( &options, geoMechCase(), m_gridIndex() );
     }
 
     return options;
@@ -184,7 +160,7 @@ void RimCellIndexFilter::updateCells()
     {
         auto parts = gCase->geoMechData()->femParts();
 
-        auto part = parts->part( m_partId() );
+        auto part = parts->part( m_gridIndex() );
 
         auto cells = part->elementSet( m_setId() );
 

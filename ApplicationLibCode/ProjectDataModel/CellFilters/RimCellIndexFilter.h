@@ -34,8 +34,6 @@ public:
     RimCellIndexFilter();
     ~RimCellIndexFilter() override;
 
-    void setCase( RimCase* srcCase );
-
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
 
 protected:
@@ -45,14 +43,10 @@ protected:
 
     QString fullName() const override;
 
-    RimGeoMechCase* geoMechCase() const;
-
     void updateCells();
 
 private:
     std::vector<size_t> m_cells;
 
-    caf::PdmPtrField<RimCase*> m_case;
-    caf::PdmField<int>         m_partId;
-    caf::PdmField<int>         m_setId;
+    caf::PdmField<int> m_setId;
 };

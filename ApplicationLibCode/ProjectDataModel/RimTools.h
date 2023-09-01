@@ -38,6 +38,7 @@ class RimWellPathCollection;
 class RimCase;
 class RimWellPath;
 class RimGeoMechCase;
+class RimEclipseCase;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -59,6 +60,7 @@ public:
     static void wellPathWithFormations( std::vector<RimWellPath*>* wellPaths );
     static void caseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void eclipseGridOptionItems( QList<caf::PdmOptionItemInfo>* options, RimEclipseCase* eCase );
     static void geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void geoMechPartOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase );
     static void geoMechElementSetOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase, int partId );
