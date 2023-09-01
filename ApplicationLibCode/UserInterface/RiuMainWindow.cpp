@@ -156,12 +156,16 @@ RiuMainWindow::RiuMainWindow()
 
     initializeGuiNewProjectLoaded();
 
+    QString versionText = RiaApplication::getVersionStringApp( false );
+
+    m_versionInfo           = new QLabel( versionText );
     m_memoryCriticalWarning = new QLabel( "" );
     m_memoryUsedButton      = new QToolButton( nullptr );
     m_memoryTotalStatus     = new QLabel( "" );
 
     m_memoryUsedButton->setDefaultAction( caf::CmdFeatureManager::instance()->action( "RicShowMemoryCleanupDialogFeature" ) );
 
+    statusBar()->addPermanentWidget( m_versionInfo );
     statusBar()->addPermanentWidget( m_memoryCriticalWarning );
     statusBar()->addPermanentWidget( m_memoryUsedButton );
     statusBar()->addPermanentWidget( m_memoryTotalStatus );
