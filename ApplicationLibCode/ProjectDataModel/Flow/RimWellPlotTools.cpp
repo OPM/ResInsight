@@ -1162,6 +1162,8 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
                 }
             }
         }
+
+        hasObservedData = !observedTimeStepsWithSources.empty();
     }
 
     if ( hasRftData )
@@ -1178,6 +1180,8 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
                 }
             }
         }
+
+        hasRftData = !rftTimeStepsWithSources.empty();
     }
 
     if ( hasGridData )
@@ -1195,6 +1199,8 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
                 }
             }
         }
+
+        hasGridData = !gridTimestepsWithSources.empty();
     }
 
     if ( hasSummaryRftData )
@@ -1212,6 +1218,8 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
                 }
             }
         }
+
+        hasSummaryRftData = !summaryRftTimeStepsWithSources.empty();
     }
 
     if ( hasEnsembleData )
@@ -1228,34 +1236,36 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
                 }
             }
         }
+
+        hasEnsembleData = !ensembleTimeStepsWithSources.empty();
     }
 
     // If we have a time baseline add the equal or adjacent grid timesteps
 
-    std::map<QDateTime, std::set<RifDataSourceForRftPlt>>  timestepsToShowWithSources;
-    std::map<QDateTime, std::set<RifDataSourceForRftPlt>>* timeBaseline = nullptr;
+    std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timestepsToShowWithSources;
+    std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeBaseline;
 
     if ( hasObservedData )
     {
-        timeBaseline = &observedTimeStepsWithSources;
+        timeBaseline = observedTimeStepsWithSources;
     }
     else if ( hasRftData )
     {
-        timeBaseline = &rftTimeStepsWithSources;
+        timeBaseline = rftTimeStepsWithSources;
     }
     else if ( hasSummaryRftData )
     {
-        timeBaseline = &summaryRftTimeStepsWithSources;
+        timeBaseline = summaryRftTimeStepsWithSources;
     }
     else if ( hasEnsembleData )
     {
-        timeBaseline = &ensembleTimeStepsWithSources;
+        timeBaseline = ensembleTimeStepsWithSources;
     }
 
-    if ( timeBaseline )
+    if ( !timeBaseline.empty() )
     {
         std::set<QDateTime> baseTimeSteps;
-        for ( const auto& dateSourceSetPair : *timeBaseline )
+        for ( const auto& dateSourceSetPair : timeBaseline )
             baseTimeSteps.insert( dateSourceSetPair.first );
 
         std::set<QDateTime> rftTimeSteps;
