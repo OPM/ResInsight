@@ -22,6 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 #include "cafSignal.h"
 
 #include "cvfArray.h"
@@ -34,6 +35,7 @@ class CellRangeFilter;
 
 class RimGeoMechCase;
 class RimEclipseCase;
+class RimCase;
 
 //==================================================================================================
 ///
