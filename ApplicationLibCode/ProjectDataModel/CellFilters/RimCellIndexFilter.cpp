@@ -112,8 +112,6 @@ void RimCellIndexFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimCellIndexFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_name );
-
     m_gridIndex.uiCapability()->setUiName( "Part" );
 
     auto group = uiOrdering.addNewGroup( "General" );
@@ -161,6 +159,16 @@ void RimCellIndexFilter::updateCells()
         auto parts = gCase->geoMechData()->femParts();
 
         auto part = parts->part( m_gridIndex() );
+
+        auto setNames = part->elementSetNames();
+        if ( m_setId() < (int)setNames.size() )
+        {
+            m_name = QString::fromStdString( part->elementSetNames()[m_setId] );
+        }
+        else
+        {
+            m_name = QString::fromStdString( part->name() );
+        }
 
         auto cells = part->elementSet( m_setId() );
 
