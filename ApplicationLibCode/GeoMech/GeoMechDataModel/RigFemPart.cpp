@@ -645,7 +645,23 @@ bool RigFemPart::enabled() const
 void RigFemPart::addElementSet( std::string name, std::vector<size_t> elementIds )
 {
     m_elementSetNames.push_back( name );
-    m_elementIndexSets.push_back( elementIds );
+
+    std::map<size_t, size_t> idToIndex;
+
+    for ( size_t i = 0; i < m_elementId.size(); i++ )
+    {
+        idToIndex[m_elementId[i]] = i;
+    }
+
+    std::vector<size_t> elementIndexes;
+    elementIndexes.resize( elementIds.size() );
+
+    for ( size_t i = 0; i < elementIds.size(); i++ )
+    {
+        elementIndexes[i] = idToIndex[elementIds[i] + 1];
+    }
+
+    m_elementIndexSets.push_back( elementIndexes );
 }
 
 //--------------------------------------------------------------------------------------------------
