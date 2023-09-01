@@ -34,11 +34,11 @@ namespace caf
 class PdmOptionItemInfo;
 }
 
+class RimGeoMechCase;
+class RimEclipseCase;
 class RimWellPathCollection;
 class RimCase;
 class RimWellPath;
-class RimGeoMechCase;
-class RimEclipseCase;
 
 //--------------------------------------------------------------------------------------------------
 ///
