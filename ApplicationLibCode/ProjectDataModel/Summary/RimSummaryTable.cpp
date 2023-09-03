@@ -682,11 +682,10 @@ void RimSummaryTable::createTableData()
     m_tableData                = TableData();
     m_tableData.thresholdValue = m_thresholdValue();
 
+    if ( !m_case ) return;
+
     const auto summaryReader = m_case->summaryReader();
-    if ( !summaryReader )
-    {
-        return;
-    }
+    if ( !summaryReader ) return;
 
     // Create time step value for vectors with no values above threshold
     const time_t invalidTimeStep = 0;
