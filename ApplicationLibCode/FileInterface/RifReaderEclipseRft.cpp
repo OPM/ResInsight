@@ -253,10 +253,10 @@ std::vector<caf::VecIjk> RifReaderEclipseRft::cellIndices( const QString& wellNa
         open();
     }
 
-    std::vector<caf::VecIjk> indices;
-
     int index = indexFromAddress( wellName, timeStep );
     if ( index < 0 ) return {};
+
+    std::vector<caf::VecIjk> indices;
 
     ecl_rft_node_type* node = ecl_rft_file_iget_node( m_ecl_rft_file, index );
 

@@ -249,7 +249,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const QString& wellNam
 
         if ( m_cachedValues[mdAddress].size() == tvdDepthsForFirstRftCase.size() )
         {
-            // The number of RFT cells can between realizations in some cases. TVD depth is only given if the number of RFT cells is
+            // The number of RFT cells can vary between realizations in some cases. TVD depth is only given if the number of RFT cells is
             // identical between realizations.
 
             m_cachedValues[tvdAddress] = tvdDepthsForFirstRftCase;

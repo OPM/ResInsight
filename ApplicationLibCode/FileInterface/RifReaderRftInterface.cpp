@@ -87,28 +87,40 @@ std::vector<double>
         auto wellPathMd  = eclExtractor->wellPathGeometry()->measuredDepths();
         auto wellPathTvd = eclExtractor->wellPathGeometry()->trueVerticalDepths();
 
+        // Estimate measured depth for cells that do not have  measured depth
         auto estimatedMeasuredDepth = RigWellPathGeometryTools::interpolateMdFromTvd( wellPathMd, wellPathTvd, tvdValuesToEstimate );
 
         double previousMd = std::numeric_limits<double>::infinity();
+
+        // Replace infinity MD values with estimated MD values based on well path geometry
+        // previousMd contains the last known measured depth value as we move along the well path
 
         size_t estimatedIndex = 0;
         for ( auto& measuredDepth : avgMeasuredDepthForCells )
         {
             if ( measuredDepth == std::numeric_limits<double>::infinity() )
             {
+                // No measured depth for cell is found, try to estimate MD based on MD for previous cell
                 if ( estimatedIndex < estimatedMeasuredDepth.size() )
                 {
-                    double candidateMd = estimatedMeasuredDepth[estimatedIndex++];
+                    double estimatedMd = estimatedMeasuredDepth[estimatedIndex++];
                     if ( previousMd != std::numeric_limits<double>::infinity() )
                     {
-                        if ( previousMd < candidateMd )
+                        if ( previousMd < estimatedMd )
                         {
-                            measuredDepth = candidateMd;
+                            // The estimated MD is larger than previous MD, use the estimated MD
+                            measuredDepth = estimatedMd;
                         }
                         else
                         {
+                            // The estimated MD is smaller than previous MD, use the previous MD + 1.0
                             measuredDepth = previousMd + 1.0;
                         }
+                    }
+                    else
+                    {
+                        // We do not have a valid previous MD, use the estimated MD
+                        measuredDepth = estimatedMd;
                     }
                 }
                 else
@@ -117,6 +129,7 @@ std::vector<double>
                 }
             }
 
+            // Assign the current MD as previous MD to be used for next estimated MD
             previousMd = measuredDepth;
         }
     }
