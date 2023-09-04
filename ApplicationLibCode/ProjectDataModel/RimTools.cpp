@@ -45,7 +45,6 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
-#include <QVariant>
 
 //--------------------------------------------------------------------------------------------------
 ///
