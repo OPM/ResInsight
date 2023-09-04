@@ -642,7 +642,7 @@ bool RigFemPart::enabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::addElementSet( std::string name, std::vector<size_t> elementIds )
+void RigFemPart::addElementSet( std::string name, const std::vector<size_t>& elementIds )
 {
     m_elementSetNames.push_back( name );
 

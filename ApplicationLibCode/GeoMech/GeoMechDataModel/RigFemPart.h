@@ -102,7 +102,7 @@ public:
     void setEnabled( bool enable );
     bool enabled() const;
 
-    void                     addElementSet( std::string name, std::vector<size_t> elementIds );
+    void                     addElementSet( std::string name, const std::vector<size_t>& elementIds );
     std::vector<std::string> elementSetNames() const;
     std::vector<size_t>      elementSet( int setIndex ) const;
 
