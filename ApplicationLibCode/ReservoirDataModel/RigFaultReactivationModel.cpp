@@ -75,6 +75,9 @@ std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::al
     return { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 };
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RigFaultReactivationModel::GridPart> RigFaultReactivationModel::allGridParts() const
 {
     return { GridPart::PART1, GridPart::PART2 };

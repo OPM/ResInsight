@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifFaultReactivationModelExporter.h"
+
 #include "RigFaultReactivationModel.h"
 #include "RigGriddedPart3d.h"
 

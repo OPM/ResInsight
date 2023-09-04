@@ -20,7 +20,6 @@
 
 #include "cvfVector3.h"
 
-// #include <map>
 #include <ostream>
 #include <string>
 #include <vector>
