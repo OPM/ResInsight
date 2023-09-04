@@ -70,7 +70,7 @@ void RiaPreferencesGeoMech::appendItems( caf::PdmUiOrdering& uiOrdering ) const
     wellIAGroup->add( &m_geomechWIACommand );
     wellIAGroup->add( &m_geomechWIADefaultXML );
 
-    caf::PdmUiGroup* faultRMGroup = uiOrdering.addNewGroup( "Fault Re-activation Modeling" );
+    caf::PdmUiGroup* faultRMGroup = uiOrdering.addNewGroup( "Fault Reactivation Modeling" );
     faultRMGroup->add( &m_geomechFRMCommand );
 
     caf::PdmUiGroup* commonGroup = uiOrdering.addNewGroup( "Common Settings" );
