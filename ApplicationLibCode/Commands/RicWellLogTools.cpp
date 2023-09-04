@@ -356,7 +356,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
 
     if ( simWell && resultCase )
     {
-        curve->setEclipseResultCase( resultCase );
+        curve->setEclipseCase( resultCase );
         curve->setDefaultAddress( simWell->name() );
 
         plotTrack->setFormationCase( resultCase );
@@ -364,7 +364,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
     }
     else if ( resultCase )
     {
-        curve->setEclipseResultCase( resultCase );
+        curve->setEclipseCase( resultCase );
 
         auto wellNames = resultCase->rftReader()->wellNames();
         if ( !wellNames.empty() )

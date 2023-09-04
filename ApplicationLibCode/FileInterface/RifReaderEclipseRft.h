@@ -45,7 +45,7 @@ public:
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
-    void                           cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
+    std::vector<caf::VecIjk>       cellIndices( const QString& wellName, const QDateTime& timeStep ) override;
 
     std::set<QDateTime> availableTimeSteps( const QString& wellName ) override;
     std::set<QDateTime> availableTimeSteps( const QString&                                               wellName,
@@ -60,6 +60,7 @@ public:
 private:
     void open();
     int  indexFromAddress( const RifEclipseRftAddress& rftAddress ) const;
+    int  indexFromAddress( const QString& wellName, const QDateTime& timeStep ) const;
 
 private:
     // NOLINTBEGIN(modernize-use-using)

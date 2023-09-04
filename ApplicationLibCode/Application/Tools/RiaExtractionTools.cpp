@@ -18,11 +18,16 @@
 
 #include "RiaExtractionTools.h"
 
+#include "RiaSimWellBranchTools.h"
+
 #include "RigWellPath.h"
+
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimSimWellInView.h"
+#include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPathCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,6 +40,22 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( Ri
     if ( !wlPlotCollection ) return nullptr;
 
     return wlPlotCollection->findOrCreateExtractor( wellPath, eclipseCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( const QString& wellName, RimEclipseCase* eclipseCase )
+{
+    if ( !eclipseCase ) return nullptr;
+
+    if ( auto wellPathCollection = RimTools::wellPathCollection() )
+    {
+        auto wellPath = wellPathCollection->tryFindMatchingWellPath( wellName );
+        return RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,6 +90,33 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( co
     QString caseUserDescription = eclipseCase->caseUserDescription();
 
     return wlPlotCollection->findOrCreateSimWellExtractor( simWell->name, caseUserDescription, wellPathGeom, eclipseCase->eclipseCaseData() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( RimEclipseCase* eclipseCase,
+                                                                              const QString&  simWellName,
+                                                                              bool            useBranchDetection,
+                                                                              int             branchIndex )
+{
+    if ( !eclipseCase ) return nullptr;
+
+    auto wlPlotCollection = wellLogPlotCollection();
+    if ( !wlPlotCollection ) return nullptr;
+
+    std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches( simWellName, useBranchDetection );
+    if ( wellPaths.empty() ) return nullptr;
+
+    branchIndex = RiaSimWellBranchTools::clampBranchIndex( simWellName, branchIndex, useBranchDetection );
+    if ( branchIndex >= static_cast<int>( wellPaths.size() ) ) return nullptr;
+
+    auto wellPathBranch = wellPaths[branchIndex];
+
+    return wlPlotCollection->findOrCreateSimWellExtractor( simWellName,
+                                                           QString( "Find or create sim well extractor" ),
+                                                           wellPathBranch,
+                                                           eclipseCase->eclipseCaseData() );
 }
 
 //--------------------------------------------------------------------------------------------------

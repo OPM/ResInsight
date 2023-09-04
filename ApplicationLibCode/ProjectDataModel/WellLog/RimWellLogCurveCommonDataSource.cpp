@@ -382,7 +382,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
         else if ( rftCurve )
         {
             if ( rftCurve->summaryCase() ) m_uniqueSummaryCases.insert( rftCurve->summaryCase() );
-            if ( rftCurve->eclipseResultCase() ) m_uniqueCases.insert( rftCurve->eclipseResultCase() );
+            if ( rftCurve->eclipseCase() ) m_uniqueCases.insert( rftCurve->eclipseCase() );
             m_uniqueWellNames.insert( rftCurve->wellName() );
 
             auto adr = rftCurve->rftAddress();

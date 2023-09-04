@@ -92,6 +92,8 @@ public:
     bool showErrorBarsForObservedData() const;
     void onLegendDefinitionChanged();
 
+    RimWellRftEnsembleCurveSet* findEnsembleCurveSet( RimSummaryCaseCollection* ensemble ) const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
@@ -138,7 +140,6 @@ private:
 
     std::vector<RimSummaryCaseCollection*> selectedEnsembles() const;
     void                                   createEnsembleCurveSets();
-    RimWellRftEnsembleCurveSet*            findEnsembleCurveSet( RimSummaryCaseCollection* ensemble ) const;
 
 private:
     friend class RimWellRftEnsembleCurveSet;
@@ -153,7 +154,9 @@ private:
     caf::PdmField<std::vector<RifDataSourceForRftPlt>> m_selectedSources;
     caf::PdmField<std::vector<QDateTime>>              m_selectedTimeSteps;
 
-    caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*>                      m_ensembleCurveSets;
+    caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*> m_ensembleCurveSets;
+    caf::PdmPtrField<RimEclipseCase*>                    m_ensembleCurveSetEclipseCase;
+
     std::map<RimWellRftEnsembleCurveSet*, QPointer<RiuDraggableOverlayFrame>> m_ensembleLegendFrames;
 
     std::map<RifDataSourceForRftPlt, cvf::Color3f>           m_dataSourceColors;

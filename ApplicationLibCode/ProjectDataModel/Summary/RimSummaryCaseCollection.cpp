@@ -28,6 +28,9 @@
 
 #include "RicfCommandObject.h"
 
+#include "RifReaderRftInterface.h"
+#include "RifSummaryReaderInterface.h"
+
 #include "RimAnalysisPlotDataEntry.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
@@ -35,10 +38,6 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-
-#include "RifReaderEclipseRft.h"
-#include "RifReaderEnsembleStatisticsRft.h"
-#include "RifSummaryReaderInterface.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -134,8 +133,6 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_dataVectorFolders.uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
-
-    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
 
     m_commonAddressCount = 0;
 }
@@ -404,14 +401,6 @@ std::set<QDateTime> RimSummaryCaseCollection::rftTimeStepsForWell( const QString
         }
     }
     return allTimeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
-{
-    return m_statisticsEclipseRftReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------
