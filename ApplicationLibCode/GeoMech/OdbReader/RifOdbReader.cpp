@@ -322,8 +322,8 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
 
     caf::ProgressInfo modelProgress( instanceRepository.size() * (size_t)( 2 + 4 ), "Reading Odb Parts" );
 
-    int instanceCount = 0;
-    for ( iter.first(); !iter.isDone(); iter.next(), instanceCount++ )
+    int partIdx = 0;
+    for ( iter.first(); !iter.isDone(); iter.next(), partIdx++ )
     {
         modelProgress.setProgressDescription( QString( iter.currentKey().cStr() ) + ": Reading Nodes" );
         m_nodeIdToIdxMaps.push_back( std::map<int, int>() );
@@ -404,7 +404,14 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
             }
         }
 
-        femPart->setElementPartId( femParts->partCount() );
+        // read element sets
+        auto setNames = elementSetNames( partIdx, femPart->name() );
+        for ( int setIndex = 0; setIndex < (int)setNames.size(); setIndex++ )
+        {
+            femPart->addElementSet( setNames[setIndex], elementSet( partIdx, femPart->name(), setIndex ) );
+        }
+
+        femPart->setElementPartId( partIdx );
         femParts->addFemPart( femPart );
 
         modelProgress.incrementProgress();
@@ -507,7 +514,7 @@ int RifOdbReader::frameCount( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifOdbReader::elementSetNames( int partIndex )
+std::vector<std::string> RifOdbReader::elementSetNames( int partIndex, std::string partInstanceName )
 {
     CVF_ASSERT( m_odb != NULL );
 
@@ -533,7 +540,16 @@ std::vector<std::string> RifOdbReader::elementSetNames( int partIndex )
                 for ( setIt.first(); !setIt.isDone(); setIt.next() )
                 {
                     const odb_Set& set = setIt.currentValue();
-                    setNames.push_back( set.name().CStr() );
+
+                    auto names = set.instanceNames();
+                    for ( int i = 0; i < names.size(); i++ )
+                    {
+                        if ( names[i].CStr() == partInstanceName )
+                        {
+                            setNames.push_back( set.name().CStr() );
+                            break;
+                        }
+                    }
                 }
 
                 break;
@@ -549,17 +565,14 @@ std::vector<std::string> RifOdbReader::elementSetNames( int partIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RifOdbReader::elementSet( int partIndex, int setIndex )
+std::vector<size_t> RifOdbReader::elementSet( int partIndex, std::string partName, int setIndex )
 {
     CVF_ASSERT( m_odb != NULL );
 
-    std::vector<std::string> setNames     = elementSetNames( partIndex );
-    const odb_Assembly&      rootAssembly = m_odb->constRootAssembly();
+    const odb_Assembly& rootAssembly = m_odb->constRootAssembly();
+    const odb_Set&      set          = rootAssembly.elementSets()[odb_String( m_partElementSetNames[partIndex][setIndex].c_str() )];
 
-    const odb_Set&     set           = rootAssembly.elementSets()[odb_String( setNames[setIndex].c_str() )];
-    odb_SequenceString instanceNames = set.instanceNames();
-
-    const odb_SequenceElement& setElements  = set.elements( instanceNames[partIndex] );
+    const odb_SequenceElement& setElements  = set.elements( partName.c_str() );
     int                        elementCount = setElements.size();
 
     std::vector<size_t> elementIndexes;

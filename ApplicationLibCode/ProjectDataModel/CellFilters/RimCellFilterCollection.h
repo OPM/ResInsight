@@ -26,6 +26,7 @@
 #include "cvfArray.h"
 
 class RimCellFilter;
+class RimCellIndexFilter;
 class RimCellRangeFilter;
 class RimPolygonFilter;
 class RimUserDefinedFilter;
@@ -53,6 +54,7 @@ public:
     RimPolygonFilter*     addNewPolygonFilter( RimCase* srcCase );
     RimUserDefinedFilter* addNewUserDefinedFilter( RimCase* srcCase );
     RimCellRangeFilter*   addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection = -1, int defaultSlice = -1 );
+    RimCellIndexFilter*   addNewCellIndexFilter( RimCase* srcCase );
 
     void removeFilter( RimCellFilter* filter );
 

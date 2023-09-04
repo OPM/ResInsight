@@ -20,6 +20,11 @@
 
 #include "RimTools.h"
 
+#include "RigFemPart.h"
+#include "RigFemPartCollection.h"
+#include "RigGeoMechCaseData.h"
+#include "RigReservoirGridTools.h"
+
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -371,6 +376,74 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
             {
                 options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::eclipseGridOptionItems( QList<caf::PdmOptionItemInfo>* options, RimEclipseCase* eCase )
+{
+    if ( !options ) return;
+
+    for ( int gIdx = 0; gIdx < RigReservoirGridTools::gridCount( eCase ); gIdx++ )
+    {
+        QString gridName = RigReservoirGridTools::gridName( eCase, gIdx );
+        if ( gIdx == 0 )
+        {
+            if ( gridName.isEmpty() )
+                gridName += "Main Grid";
+            else
+                gridName += " (Main Grid)";
+        }
+
+        options->push_back( caf::PdmOptionItemInfo( gridName, gIdx ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::geoMechPartOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase )
+{
+    if ( !options ) return;
+
+    if ( !gCase || !gCase->geoMechData() || !gCase->geoMechData()->femParts() ) return;
+
+    const auto parts = gCase->geoMechData()->femParts();
+
+    for ( int i = 0; i < parts->partCount(); i++ )
+    {
+        auto part = parts->part( i );
+        if ( part != nullptr )
+        {
+            options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( part->name() ), i ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::geoMechElementSetOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase, int partId )
+{
+    if ( !options ) return;
+
+    if ( !gCase || !gCase->geoMechData() || !gCase->geoMechData()->femParts() ) return;
+
+    const auto parts = gCase->geoMechData()->femParts();
+
+    if ( partId >= parts->partCount() ) return;
+
+    auto part = parts->part( partId );
+    if ( part != nullptr )
+    {
+        auto names = part->elementSetNames();
+
+        for ( int i = 0; i < (int)names.size(); i++ )
+        {
+            options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( names[i] ), i ) );
         }
     }
 }

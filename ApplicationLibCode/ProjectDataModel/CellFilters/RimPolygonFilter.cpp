@@ -139,9 +139,6 @@ RimPolygonFilter::RimPolygonFilter()
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case" );
-    m_srcCase.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines" );
     CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres" );
 
@@ -202,14 +199,6 @@ void RimPolygonFilter::updateEditorsAndVisualization()
 {
     updateConnectedEditors();
     updateVisualization();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::setCase( RimCase* srcCase )
-{
-    m_srcCase = srcCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -840,8 +829,8 @@ void RimPolygonFilter::updateCells()
     // make sure first and last point is the same (req. by polygon methods used later)
     points.push_back( points.front() );
 
-    RimEclipseCase* eCase = dynamic_cast<RimEclipseCase*>( m_srcCase() );
-    RimGeoMechCase* gCase = dynamic_cast<RimGeoMechCase*>( m_srcCase() );
+    RimEclipseCase* eCase = eclipseCase();
+    RimGeoMechCase* gCase = geoMechCase();
 
     if ( eCase )
     {

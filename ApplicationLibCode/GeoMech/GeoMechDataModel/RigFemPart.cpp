@@ -146,7 +146,7 @@ bool RigFemPart::fillElementCoordinates( size_t elementIdx, std::array<cvf::Vec3
 
     // Fill coordinates for each node
     const auto& partNodes = nodes();
-    for ( int i = 0; i < nodeIndices.size(); ++i )
+    for ( int i = 0; i < (int)nodeIndices.size(); ++i )
     {
         coordinates[i].set( partNodes.coordinates[nodeIndices[i]] );
     }
@@ -637,4 +637,46 @@ void RigFemPart::setEnabled( bool enable )
 bool RigFemPart::enabled() const
 {
     return m_enabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::addElementSet( std::string name, const std::vector<size_t>& elementIds )
+{
+    m_elementSetNames.push_back( name );
+
+    std::map<size_t, size_t> idToIndex;
+
+    for ( size_t i = 0; i < m_elementId.size(); i++ )
+    {
+        idToIndex[m_elementId[i]] = i;
+    }
+
+    std::vector<size_t> elementIndexes;
+    elementIndexes.resize( elementIds.size() );
+
+    for ( size_t i = 0; i < elementIds.size(); i++ )
+    {
+        elementIndexes[i] = idToIndex[elementIds[i] + 1];
+    }
+
+    m_elementIndexSets.push_back( elementIndexes );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPart::elementSetNames() const
+{
+    return m_elementSetNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigFemPart::elementSet( int setIndex ) const
+{
+    if ( ( setIndex < 0 ) || ( setIndex >= (int)m_elementIndexSets.size() ) ) return {};
+    return m_elementIndexSets[setIndex];
 }
