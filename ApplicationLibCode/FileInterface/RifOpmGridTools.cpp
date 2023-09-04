@@ -128,6 +128,32 @@ bool RifOpmGridTools::importGrid( const std::string& gridFilePath, RigMainGrid* 
 
     transferCoordinatesCartesian( opmGrid, opmGrid, mainGrid, mainGrid, caseData );
 
+    auto opmMapAxes = opmGrid.get_mapaxes();
+    if ( opmMapAxes.size() == 6 )
+    {
+        std::array<double, 6> mapAxes;
+        for ( size_t i = 0; i < opmMapAxes.size(); ++i )
+        {
+            mapAxes[i] = opmMapAxes[i];
+        }
+
+        // Set the map axes transformation matrix on the main grid
+        mainGrid->setMapAxes( mapAxes );
+        mainGrid->setUseMapAxes( true );
+
+        auto transform = mainGrid->mapAxisTransform();
+
+        // Invert the transformation matrix to convert from file coordinates to domain coordinates
+        transform.invert();
+
+#pragma omp parallel for
+        for ( long i = 0; i < static_cast<long>( mainGrid->nodes().size() ); i++ )
+        {
+            auto& n = mainGrid->nodes()[i];
+            n.transformPoint( transform );
+        }
+    }
+
     return true;
 }
 
