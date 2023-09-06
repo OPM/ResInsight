@@ -68,7 +68,11 @@ pressure_table.add_pressure(depth=3800.0, initial_pressure=276.0, pressure=280.0
 
 print("Pressure table ({} items)".format(len(pressure_table.items())))
 for item in pressure_table.items():
-    print("TDVMSL [m]: {} Initial Pressure: {} Pressure: {}".format(item.depth, item.initial_pressure, item.pressure))
+    print(
+        "TDVMSL [m]: {} Initial Pressure: {} Pressure: {}".format(
+            item.depth, item.initial_pressure, item.pressure
+        )
+    )
 
 # Add some scaling factors
 elastic_properties = stim_plan_model_template.elastic_properties()
