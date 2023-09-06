@@ -178,7 +178,19 @@ RimValveTemplate* RimValveTemplate::createAicdTemplate( const RiaOpmParserTools:
 {
     RimValveTemplate* aicdTemplate = new RimValveTemplate;
     aicdTemplate->setType( RiaDefines::WellPathComponentType::AICD );
-    aicdTemplate->setUserLabel( QString( "AICD" ) );
+
+    QString name;
+    if ( aicdParameters.contains( RiaOpmParserTools::aicdTemplateId() ) )
+    {
+        auto id = std::get<double>( aicdParameters.at( RiaOpmParserTools::aicdTemplateId() ) );
+        name    = QString::number( id );
+    }
+    else
+    {
+        name = "undefined";
+    }
+
+    aicdTemplate->setUserLabel( name );
 
     std::map<std::string, AICDParameters> parameterMap =
         { { Opm::ParserKeywords::WSEGAICD::LENGTH::itemName, AICD_STRENGTH },

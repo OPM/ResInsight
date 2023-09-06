@@ -39,4 +39,7 @@ public:
 
     using AicdTemplateValues = std::map<std::string, std::variant<std::string, double>>;
     static std::vector<AicdTemplateValues> extractWsegAicd( const std::string& filename );
+    static std::vector<AicdTemplateValues> extractWsegAicdCompletor( const std::string& filename );
+
+    static std::string aicdTemplateId();
 };

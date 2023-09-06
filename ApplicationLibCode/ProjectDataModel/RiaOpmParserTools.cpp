@@ -18,6 +18,9 @@
 
 #include "RiaOpmParserTools.h"
 #include "RiaLogging.h"
+#include "RiaTextStringTools.h"
+
+#include "RifEclipseInputFileTools.h"
 
 #include "cafPdmUiItem.h"
 #include "cafUtils.h"
@@ -29,6 +32,8 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/V.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+
+#include <QFile>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -263,4 +268,82 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWsegAicdCompletor( const std::string& filename )
+{
+    QFile data( QString::fromStdString( filename ) );
+    if ( !data.open( QFile::ReadOnly ) ) return {};
+
+    std::vector<RiaOpmParserTools::AicdTemplateValues> aicdTemplates;
+
+    const QString                            keyword( "WSEGAICD" );
+    const QString                            keywordToStopParsing;
+    const qint64                             startPositionInFile = 0;
+    std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+    QStringList                              keywordContent;
+    std::vector<QString>                     fileNamesContainingKeyword;
+    bool                                     isStopParsingKeywordDetected = false;
+    const QString                            includeStatementAbsolutePathPrefix;
+
+    RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
+                                                                               keywordToStopParsing,
+                                                                               data,
+                                                                               startPositionInFile,
+                                                                               pathAliasDefinitions,
+                                                                               &keywordContent,
+                                                                               &fileNamesContainingKeyword,
+                                                                               &isStopParsingKeywordDetected,
+                                                                               includeStatementAbsolutePathPrefix );
+
+    for ( const auto& s : keywordContent )
+    {
+        auto                wordsInLine = RiaTextStringTools::splitSkipEmptyParts( s );
+        std::vector<double> values;
+        for ( const auto& word : wordsInLine )
+        {
+            bool ok          = false;
+            auto doubleValue = word.toDouble( &ok );
+            if ( ok ) values.push_back( doubleValue );
+        }
+
+        // Completor exports the values in the following format, 12 values per row
+        // WSEGAICD
+        // --Number   Alpha           x        y        a     b     c     d        e        f        rhocal   viscal
+        // 1          0.000017253     3.05     0.67     1     1     1     2.43     1.18     10.0     1000     1
+        // 2          0.000027253     5.05     0.53     1     1     1     2.43     1.28     7.02     1000     1
+        //
+        if ( values.size() == 12 )
+        {
+            RiaOpmParserTools::AicdTemplateValues aicdValues;
+            aicdValues[aicdTemplateId()] = values[0];
+
+            aicdValues[Opm::ParserKeywords::WSEGAICD::LENGTH::itemName]              = values[1]; // Alpha
+            aicdValues[Opm::ParserKeywords::WSEGAICD::FLOW_RATE_EXPONENT::itemName]  = values[2]; // x
+            aicdValues[Opm::ParserKeywords::WSEGAICD::VISC_EXPONENT::itemName]       = values[3]; // y
+            aicdValues[Opm::ParserKeywords::WSEGAICD::OIL_FLOW_FRACTION::itemName]   = values[4]; // a
+            aicdValues[Opm::ParserKeywords::WSEGAICD::WATER_FLOW_FRACTION::itemName] = values[5]; // b
+            aicdValues[Opm::ParserKeywords::WSEGAICD::GAS_FLOW_FRACTION::itemName]   = values[6]; // c
+            aicdValues[Opm::ParserKeywords::WSEGAICD::OIL_VISC_FRACTION::itemName]   = values[7]; // d
+            aicdValues[Opm::ParserKeywords::WSEGAICD::WATER_VISC_FRACTION::itemName] = values[8]; // e
+            aicdValues[Opm::ParserKeywords::WSEGAICD::GAS_VISC_FRACTION::itemName]   = values[9]; // f
+            aicdValues[Opm::ParserKeywords::WSEGAICD::DENSITY_CALI::itemName]        = values[10]; // rhocal
+            aicdValues[Opm::ParserKeywords::WSEGAICD::VISCOSITY_CALI::itemName]      = values[11]; // viscal
+
+            aicdTemplates.push_back( aicdValues );
+        }
+    }
+
+    return aicdTemplates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaOpmParserTools::aicdTemplateId()
+{
+    return "ID_NUMBER";
 }

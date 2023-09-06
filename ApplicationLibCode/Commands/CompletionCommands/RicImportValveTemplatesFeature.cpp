@@ -51,15 +51,25 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
     QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
                                                                   "Import Valve Templates",
                                                                   defaultDir,
-                                                                  "Text Files (*.txt);;All Files (*.*)" );
+                                                                  "Valve Files (*.sch *.case);;All Files (*.*)" );
 
     RimValveTemplateCollection* templateColl = RimProject::current()->allValveTemplateCollections().front();
     for ( const auto& fileName : fileNames )
     {
-        auto values = RiaOpmParserTools::extractWsegAicd( fileName.toStdString() );
-        for ( const auto value : values )
+        std::vector<RiaOpmParserTools::AicdTemplateValues> aicdTemplates;
+
+        if ( fileName.contains( ".case" ) )
         {
-            auto newTemplate = RimValveTemplate::createAicdTemplate( value );
+            aicdTemplates = RiaOpmParserTools::extractWsegAicdCompletor( fileName.toStdString() );
+        }
+        else
+        {
+            aicdTemplates = RiaOpmParserTools::extractWsegAicd( fileName.toStdString() );
+        }
+
+        for ( const auto& aicdValue : aicdTemplates )
+        {
+            auto newTemplate = RimValveTemplate::createAicdTemplate( aicdValue );
             templateColl->addValveTemplate( newTemplate );
         }
     }
