@@ -45,8 +45,8 @@ public:
     std::vector<double>      frameTimes( int stepIndex ) const override;
     int                      frameCount( int stepIndex ) const override;
 
-    std::vector<std::string> elementSetNames( int partIndex ) override;
-    std::vector<size_t>      elementSet( int partIndex, int setIndex ) override;
+    std::vector<std::string> elementSetNames( int partIndex, std::string partName ) override;
+    std::vector<size_t>      elementSet( int partIndex, std::string partName, int setIndex ) override;
 
     std::map<std::string, std::vector<std::string>> scalarNodeFieldAndComponentNames() override;
     std::map<std::string, std::vector<std::string>> scalarElementNodeFieldAndComponentNames() override;
