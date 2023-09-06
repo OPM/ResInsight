@@ -59,6 +59,20 @@ non_net_layers.formation = "Not"
 non_net_layers.facies = "Shale"
 non_net_layers.update()
 
+# Add some pressure table items
+pressure_table = stim_plan_model_template.pressure_table()
+pressure_table.add_pressure(depth=2800.0, initial_pressure=260.0, pressure=261.0)
+pressure_table.add_pressure(depth=3000.0, initial_pressure=270.0, pressure=273.0)
+pressure_table.add_pressure(depth=3400.0, initial_pressure=274.0, pressure=276.0)
+pressure_table.add_pressure(depth=3800.0, initial_pressure=276.0, pressure=280.0)
+
+print("Pressure table ({} items)".format(len(pressure_table.items())))
+for item in pressure_table.items():
+    print(
+        "TDVMSL [m]: {} Initial Pressure: {} Pressure: {}".format(
+            item.depth, item.initial_pressure, item.pressure
+        )
+    )
 
 # Add some scaling factors
 elastic_properties = stim_plan_model_template.elastic_properties()
