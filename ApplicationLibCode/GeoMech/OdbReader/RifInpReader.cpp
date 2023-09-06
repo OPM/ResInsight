@@ -385,7 +385,7 @@ int RifInpReader::frameCount( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifInpReader::elementSetNames( int partIndex )
+std::vector<std::string> RifInpReader::elementSetNames( int partIndex, std::string partName )
 {
     // TODO: not implemented yet
     if ( partIndex >= m_partElementSetNames.size() ) return {};
@@ -396,7 +396,7 @@ std::vector<std::string> RifInpReader::elementSetNames( int partIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RifInpReader::elementSet( int partIndex, int setIndex )
+std::vector<size_t> RifInpReader::elementSet( int partIndex, std::string partName, int setIndex )
 {
     // TODO: not implemented yet
     std::vector<size_t> elementIndexes;
