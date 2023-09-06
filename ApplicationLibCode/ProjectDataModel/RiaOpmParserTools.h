@@ -38,5 +38,5 @@ public:
     static std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
 
     using AicdTemplateValues = std::map<std::string, std::variant<std::string, double>>;
-    static std::vector<AicdTemplateValues> extractWsegaicd( const std::string& filename );
+    static std::vector<AicdTemplateValues> extractWsegAicd( const std::string& filename );
 };

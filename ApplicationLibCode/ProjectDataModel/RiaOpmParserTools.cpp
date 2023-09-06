@@ -198,7 +198,7 @@ std::map<std::string, std::vector<std::pair<int, int>>> RiaOpmParserTools::extra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWsegaicd( const std::string& filename )
+std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWsegAicd( const std::string& filename )
 {
     if ( !std::filesystem::exists( filename ) ) return {};
 
@@ -218,12 +218,12 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
         Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
         auto              deck = parser.parseFile( filename, parseContext );
 
-        std::string keyword     = "WSEGAICD";
-        auto        keywordList = deck.getKeywordList( keyword );
+        const std::string keyword     = "WSEGAICD";
+        auto              keywordList = deck.getKeywordList( keyword );
         if ( keywordList.empty() ) return {};
 
         std::vector<RiaOpmParserTools::AicdTemplateValues> aicdData;
-        for ( auto kw : keywordList )
+        for ( const auto& kw : keywordList )
         {
             auto name = kw->name();
 

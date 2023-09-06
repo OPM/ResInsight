@@ -56,7 +56,7 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
     RimValveTemplateCollection* templateColl = RimProject::current()->allValveTemplateCollections().front();
     for ( const auto& fileName : fileNames )
     {
-        auto values = RiaOpmParserTools::extractWsegaicd( fileName.toStdString() );
+        auto values = RiaOpmParserTools::extractWsegAicd( fileName.toStdString() );
         for ( const auto value : values )
         {
             auto newTemplate = RimValveTemplate::createAicdTemplate( value );
