@@ -83,6 +83,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
+#include "RimGeoMechModels.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
@@ -270,6 +271,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseCasesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewStatisticsCaseFeature";
+        }
+        else if ( dynamic_cast<RimGeoMechModels*>( firstUiItem ) )
+        {
+            menuBuilder << "RicImportGeoMechCaseFeature";
+            menuBuilder << "Separator";
         }
         else if ( dynamic_cast<RimEclipseStatisticsCase*>( firstUiItem ) )
         {

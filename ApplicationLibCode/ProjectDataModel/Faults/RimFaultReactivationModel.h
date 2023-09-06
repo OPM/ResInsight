@@ -40,6 +40,7 @@ class RicPolylineTargetsPickEventHandler;
 class RimEclipseCase;
 class RimFaultInView;
 class RimPolylineTarget;
+class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
 class RigBasicPlane;
 class RigFaultReactivationModel;
@@ -89,6 +90,8 @@ public:
     QString baseDir() const;
     void    setBaseDir( QString path );
 
+    std::vector<QDateTime> selectedTimeSteps() const;
+
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -100,6 +103,8 @@ protected:
     RimEclipseCase* eclipseCase();
 
     void initAfterRead() override;
+
+    void updateTimeSteps();
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
@@ -133,4 +138,6 @@ private:
 
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;
+
+    caf::PdmChildField<RimTimeStepFilter*> m_timeStepFilter;
 };
