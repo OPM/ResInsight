@@ -321,7 +321,7 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
             RiaOpmParserTools::AicdTemplateValues aicdValues;
             aicdValues[aicdTemplateId()] = values[0];
 
-            aicdValues[Opm::ParserKeywords::WSEGAICD::LENGTH::itemName]              = values[1]; // Alpha
+            aicdValues[Opm::ParserKeywords::WSEGAICD::STRENGTH::itemName]            = values[1]; // Alpha
             aicdValues[Opm::ParserKeywords::WSEGAICD::FLOW_RATE_EXPONENT::itemName]  = values[2]; // x
             aicdValues[Opm::ParserKeywords::WSEGAICD::VISC_EXPONENT::itemName]       = values[3]; // y
             aicdValues[Opm::ParserKeywords::WSEGAICD::OIL_FLOW_FRACTION::itemName]   = values[4]; // a

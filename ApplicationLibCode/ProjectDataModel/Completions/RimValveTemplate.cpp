@@ -193,7 +193,7 @@ RimValveTemplate* RimValveTemplate::createAicdTemplate( const RiaOpmParserTools:
     aicdTemplate->setUserLabel( name );
 
     std::map<std::string, AICDParameters> parameterMap =
-        { { Opm::ParserKeywords::WSEGAICD::LENGTH::itemName, AICD_STRENGTH },
+        { { Opm::ParserKeywords::WSEGAICD::STRENGTH::itemName, AICD_STRENGTH },
           { Opm::ParserKeywords::WSEGAICD::DENSITY_CALI::itemName, AICD_DENSITY_CALIB_FLUID },
           { Opm::ParserKeywords::WSEGAICD::VISCOSITY_CALI::itemName, AICD_VISCOSITY_CALIB_FLUID },
           { Opm::ParserKeywords::WSEGAICD::FLOW_RATE_EXPONENT::itemName, AICD_VOL_FLOW_EXP },
