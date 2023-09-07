@@ -49,7 +49,7 @@ public:
     QString                                     fullLabel() const;
     void                                        setUserLabel( const QString& userLabel );
 
-    static RimValveTemplate* createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters );
+    static RimValveTemplate* createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters, int templateNumber );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

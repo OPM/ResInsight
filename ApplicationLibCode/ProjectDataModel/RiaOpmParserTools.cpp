@@ -35,6 +35,8 @@
 
 #include <QFile>
 
+#include <set>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -227,6 +229,21 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
         auto              keywordList = deck.getKeywordList( keyword );
         if ( keywordList.empty() ) return {};
 
+        using namespace Opm::ParserKeywords;
+        std::set<std::string> keywordsToExtract = { WSEGAICD::STRENGTH::itemName,
+                                                    WSEGAICD::DENSITY_CALI::itemName,
+                                                    WSEGAICD::VISCOSITY_CALI::itemName,
+                                                    WSEGAICD::FLOW_RATE_EXPONENT::itemName,
+                                                    WSEGAICD::VISC_EXPONENT::itemName,
+                                                    WSEGAICD::CRITICAL_VALUE::itemName,
+                                                    WSEGAICD::MAX_ABS_RATE::itemName,
+                                                    WSEGAICD::OIL_FLOW_FRACTION::itemName,
+                                                    WSEGAICD::WATER_FLOW_FRACTION::itemName,
+                                                    WSEGAICD::GAS_FLOW_FRACTION::itemName,
+                                                    WSEGAICD::OIL_VISC_FRACTION::itemName,
+                                                    WSEGAICD::WATER_VISC_FRACTION::itemName,
+                                                    WSEGAICD::GAS_VISC_FRACTION::itemName };
+
         std::vector<RiaOpmParserTools::AicdTemplateValues> aicdData;
         for ( const auto& kw : keywordList )
         {
@@ -242,14 +259,10 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
                 {
                     auto deckItem = deckRecord.getItem( i );
                     if ( !deckItem.hasValue( 0 ) ) continue;
+                    if (!keywordsToExtract.contains(deckItem.name())) continue;
 
                     auto typeTag = deckItem.getType();
-                    if ( typeTag == Opm::type_tag::string )
-                    {
-                        auto stringValue              = deckItem.getTrimmedString( 0 );
-                        aicdTemplate[deckItem.name()] = stringValue;
-                    }
-                    else if ( typeTag == Opm::type_tag::fdouble )
+                    if ( typeTag == Opm::type_tag::fdouble )
                     {
                         double doubleValue            = deckItem.get<double>( 0 );
                         aicdTemplate[deckItem.name()] = doubleValue;

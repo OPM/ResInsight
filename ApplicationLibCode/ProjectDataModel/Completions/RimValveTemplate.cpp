@@ -26,8 +26,6 @@
 #include "opm/input/eclipse/Parser/ParserKeyword.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
-#include <variant>
-
 CAF_PDM_SOURCE_INIT( RimValveTemplate, "ValveTemplate" );
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +172,7 @@ void RimValveTemplate::setUserLabel( const QString& userLabel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimValveTemplate* RimValveTemplate::createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters )
+RimValveTemplate* RimValveTemplate::createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters, int templateNumber )
 {
     RimValveTemplate* aicdTemplate = new RimValveTemplate;
     aicdTemplate->setType( RiaDefines::WellPathComponentType::AICD );
@@ -182,43 +180,37 @@ RimValveTemplate* RimValveTemplate::createAicdTemplate( const RiaOpmParserTools:
     QString name;
     if ( aicdParameters.contains( RiaOpmParserTools::aicdTemplateId() ) )
     {
-        auto id = std::get<double>( aicdParameters.at( RiaOpmParserTools::aicdTemplateId() ) );
+        auto id = aicdParameters.at( RiaOpmParserTools::aicdTemplateId() );
         name    = QString::number( id );
     }
     else
     {
-        name = "undefined";
+        name = QString::number( templateNumber );
     }
 
     aicdTemplate->setUserLabel( name );
 
-    std::map<std::string, AICDParameters> parameterMap =
-        { { Opm::ParserKeywords::WSEGAICD::STRENGTH::itemName, AICD_STRENGTH },
-          { Opm::ParserKeywords::WSEGAICD::DENSITY_CALI::itemName, AICD_DENSITY_CALIB_FLUID },
-          { Opm::ParserKeywords::WSEGAICD::VISCOSITY_CALI::itemName, AICD_VISCOSITY_CALIB_FLUID },
-          { Opm::ParserKeywords::WSEGAICD::FLOW_RATE_EXPONENT::itemName, AICD_VOL_FLOW_EXP },
-          { Opm::ParserKeywords::WSEGAICD::VISC_EXPONENT::itemName, AICD_VISOSITY_FUNC_EXP },
-          { Opm::ParserKeywords::WSEGAICD::CRITICAL_VALUE::itemName, AICD_CRITICAL_WATER_IN_LIQUID_FRAC },
-          //{ Opm::ParserKeywords::WSEGAICD::vis::itemName, AICD_EMULSION_VISC_TRANS_REGION },
-          //{ Opm::ParserKeywords::WSEGAICD::vis::itemName, AICD_MAX_RATIO_EMULSION_VISC },
-          { Opm::ParserKeywords::WSEGAICD::MAX_ABS_RATE::itemName, AICD_MAX_FLOW_RATE },
-          { Opm::ParserKeywords::WSEGAICD::OIL_FLOW_FRACTION::itemName, AICD_EXP_OIL_FRAC_DENSITY },
-          { Opm::ParserKeywords::WSEGAICD::WATER_FLOW_FRACTION::itemName, AICD_EXP_WATER_FRAC_DENSITY },
-          { Opm::ParserKeywords::WSEGAICD::GAS_FLOW_FRACTION::itemName, AICD_EXP_GAS_FRAC_DENSITY },
-          { Opm::ParserKeywords::WSEGAICD::OIL_VISC_FRACTION::itemName, AICD_EXP_OIL_FRAC_VISCOSITY },
-          { Opm::ParserKeywords::WSEGAICD::WATER_VISC_FRACTION::itemName, AICD_EXP_WATER_FRAC_VISCOSITY },
-          { Opm::ParserKeywords::WSEGAICD::GAS_VISC_FRACTION::itemName, AICD_EXP_GAS_FRAC_VISCOSITY } };
+    using namespace Opm::ParserKeywords;
+    std::map<std::string, AICDParameters> parameterMap = { { WSEGAICD::STRENGTH::itemName, AICD_STRENGTH },
+                                                           { WSEGAICD::DENSITY_CALI::itemName, AICD_DENSITY_CALIB_FLUID },
+                                                           { WSEGAICD::VISCOSITY_CALI::itemName, AICD_VISCOSITY_CALIB_FLUID },
+                                                           { WSEGAICD::FLOW_RATE_EXPONENT::itemName, AICD_VOL_FLOW_EXP },
+                                                           { WSEGAICD::VISC_EXPONENT::itemName, AICD_VISOSITY_FUNC_EXP },
+                                                           { WSEGAICD::CRITICAL_VALUE::itemName, AICD_CRITICAL_WATER_IN_LIQUID_FRAC },
+                                                           { WSEGAICD::MAX_ABS_RATE::itemName, AICD_MAX_FLOW_RATE },
+                                                           { WSEGAICD::OIL_FLOW_FRACTION::itemName, AICD_EXP_OIL_FRAC_DENSITY },
+                                                           { WSEGAICD::WATER_FLOW_FRACTION::itemName, AICD_EXP_WATER_FRAC_DENSITY },
+                                                           { WSEGAICD::GAS_FLOW_FRACTION::itemName, AICD_EXP_GAS_FRAC_DENSITY },
+                                                           { WSEGAICD::OIL_VISC_FRACTION::itemName, AICD_EXP_OIL_FRAC_VISCOSITY },
+                                                           { WSEGAICD::WATER_VISC_FRACTION::itemName, AICD_EXP_WATER_FRAC_VISCOSITY },
+                                                           { WSEGAICD::GAS_VISC_FRACTION::itemName, AICD_EXP_GAS_FRAC_VISCOSITY } };
 
     for ( const auto& parameter : parameterMap )
     {
         if ( aicdParameters.contains( parameter.first ) )
         {
             auto incomingValue = aicdParameters.at( parameter.first );
-            if ( std::holds_alternative<double>( incomingValue ) )
-            {
-                double doubleValue = std::get<double>( incomingValue );
-                aicdTemplate->m_aicdParameters()->setValue( parameter.second, doubleValue );
-            }
+            aicdTemplate->m_aicdParameters()->setValue( parameter.second, incomingValue );
         }
     }
 

@@ -67,9 +67,15 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
             aicdTemplates = RiaOpmParserTools::extractWsegAicd( fileName.toStdString() );
         }
 
+        // There can be multiple items of the same template, make sure we have unique templates
+        std::sort( aicdTemplates.begin(), aicdTemplates.end() );
+        auto it = std::unique( aicdTemplates.begin(), aicdTemplates.end() );
+        aicdTemplates.resize( std::distance( aicdTemplates.begin(), it ) );
+
         for ( const auto& aicdValue : aicdTemplates )
         {
-            auto newTemplate = RimValveTemplate::createAicdTemplate( aicdValue );
+            int  number      = static_cast<int>( templateColl->valveTemplates().size() );
+            auto newTemplate = RimValveTemplate::createAicdTemplate( aicdValue, number );
             templateColl->addValveTemplate( newTemplate );
         }
     }
