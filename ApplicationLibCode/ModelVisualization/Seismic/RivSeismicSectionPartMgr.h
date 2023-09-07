@@ -54,12 +54,12 @@ public:
 
     void appendGeometryPartsToModel( cvf::ModelBasicList*              model,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
-                                     const cvf::BoundingBox&           boundingBox );
+                                     const cvf::BoundingBox&           boundingBox ) override;
 
     void appendPolylinePartsToModel( Rim3dView*                        view,
                                      cvf::ModelBasicList*              model,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
-                                     const cvf::BoundingBox&           boundingBox );
+                                     const cvf::BoundingBox&           boundingBox ) override;
 
     void appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
                                          const caf::DisplayCoordTransform* displayCoordTransform,

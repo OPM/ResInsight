@@ -48,12 +48,12 @@ public:
 
     void appendGeometryPartsToModel( cvf::ModelBasicList*              vizModel,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
-                                     const cvf::BoundingBox&           boundingBox );
+                                     const cvf::BoundingBox&           boundingBox ) override;
 
     void appendPolylinePartsToModel( Rim3dView*                        view,
                                      cvf::ModelBasicList*              vizModel,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
-                                     const cvf::BoundingBox&           boundingBox );
+                                     const cvf::BoundingBox&           boundingBox ) override;
 
     void appendMeshPartsToModel( Rim3dView*                        view,
                                  cvf::ModelBasicList*              vizModel,
