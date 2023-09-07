@@ -42,7 +42,7 @@ class RivTexturePartMgr : public cvf::Object
 {
 public:
     RivTexturePartMgr();
-    virtual ~RivTexturePartMgr();
+    ~RivTexturePartMgr() override;
 
     virtual void appendGeometryPartsToModel( cvf::ModelBasicList*              model,
                                              const caf::DisplayCoordTransform* displayCoordTransform,
