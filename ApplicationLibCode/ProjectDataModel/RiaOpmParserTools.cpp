@@ -259,7 +259,7 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
                 {
                     auto deckItem = deckRecord.getItem( i );
                     if ( !deckItem.hasValue( 0 ) ) continue;
-                    if (!keywordsToExtract.contains(deckItem.name())) continue;
+                    if ( !keywordsToExtract.contains( deckItem.name() ) ) continue;
 
                     auto typeTag = deckItem.getType();
                     if ( typeTag == Opm::type_tag::fdouble )
