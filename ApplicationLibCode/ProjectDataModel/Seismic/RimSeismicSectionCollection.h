@@ -88,5 +88,5 @@ private:
     caf::PdmChildArrayField<RimSeismicSection*> m_seismicSections;
 
     caf::PdmField<double>              m_surfaceIntersectionLinesScaleFactor;
-    caf::PdmPtrArrayField<RimSurface*> m_visibleSurfaceLines;
+    caf::PdmPtrArrayField<RimSurface*> m_hiddenSurfaceLines;
 };
