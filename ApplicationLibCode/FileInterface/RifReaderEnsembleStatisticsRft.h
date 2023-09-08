@@ -27,6 +27,7 @@
 
 class RimSummaryCaseCollection;
 class RimEclipseCase;
+class RigWellPath;
 
 class RifReaderEnsembleStatisticsRft : public RifReaderRftInterface, public cvf::Object
 {
@@ -51,7 +52,8 @@ private:
                                            const QDateTime&                   timeStep,
                                            RifEclipseRftAddress               depthAddress,
                                            RiaCurveMerger<double>&            curveMerger,
-                                           RiaWeightedMeanCalculator<size_t>& dataSetSizeCalc );
+                                           RiaWeightedMeanCalculator<size_t>& dataSetSizeCalc,
+                                           const RigWellPath*                 wellPathGeometry );
 
     void clearCache( const QString& wellName, const QDateTime& timeStep );
 
