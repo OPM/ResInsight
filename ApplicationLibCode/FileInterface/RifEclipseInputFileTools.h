@@ -106,6 +106,9 @@ public:
 
     static void parseAndReadPathAliasKeyword( const QString& fileName, std::vector<std::pair<QString, QString>>* pathAliasDefinitions );
 
+    static QStringList readKeywordContentFromFile( const QString& keyword, const QString& keywordToStopParsing, QFile& file );
+
+    // Public for unit testing, use readKeywordContentFromFile()
     static bool readKeywordAndParseIncludeStatementsRecursively( const QString&                                  keyword,
                                                                  const QString&                                  keywordToStopParsing,
                                                                  QFile&                                          file,
@@ -114,9 +117,7 @@ public:
                                                                  QStringList*                                    keywordDataContent,
                                                                  std::vector<QString>*                           filenamesContainingKeyword,
                                                                  bool*                                           isEditKeywordDetected,
-                                                                 const QString& faultIncludeFileAbsolutePathPrefix // rename to
-                                                                                                                   // includeStatementAbsolutePathPrefix
-    );
+                                                                 const QString& includeStatementAbsolutePathPrefix );
 
     static RiaDefines::EclipseUnitSystem readUnitSystem( QFile& file, qint64 gridunitPos );
 
