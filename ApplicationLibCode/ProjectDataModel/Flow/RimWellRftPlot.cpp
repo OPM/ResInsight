@@ -613,6 +613,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     QString label  = uiText.replace( ": Pressure", "" );
                     curve->setSymbolLabel( label );
                     curve->setLineThickness( 3 );
+                    curve->setShowInLegend( !m_showEnsembleCurves );
                 }
             }
         }
