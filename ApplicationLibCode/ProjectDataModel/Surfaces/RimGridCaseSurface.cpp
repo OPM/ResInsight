@@ -312,7 +312,10 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                 const auto& cell             = grid->cell( currentCellIndex );
 
                 if ( cell.isInvalid() ) continue;
-                if ( !m_includeInactiveCells() && activeCells && !activeCells->isActive( currentCellIndex ) ) continue;
+
+                bool skipInactiveCells = !m_includeInactiveCells();
+                if ( m_watertight ) skipInactiveCells = false;
+                if ( skipInactiveCells && activeCells && !activeCells->isActive( currentCellIndex ) ) continue;
 
                 cvf::Vec3d currentCornerVerts[8];
 
