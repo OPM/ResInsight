@@ -20,7 +20,9 @@
 
 #include "RiaExtractionTools.h"
 
+#include "RigEclipseWellLogExtractor.h"
 #include "RigStatisticsMath.h"
+#include "RigWellPath.h"
 
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -221,7 +223,6 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const QString& wellNam
         RifEclipseRftAddress              mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::MD );
         RiaCurveMerger<double>            curveMerger;
         RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
-        std::vector<double>               tvdDepthsForFirstRftCase;
 
         for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
         {
@@ -230,11 +231,6 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const QString& wellNam
 
             std::vector<double> pressures;
             reader->values( pressAddress, &pressures );
-
-            if ( tvdDepthsForFirstRftCase.empty() )
-            {
-                reader->values( tvdAddress, &tvdDepthsForFirstRftCase );
-            }
 
             std::vector<double> measuredDepths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
 
@@ -245,15 +241,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const QString& wellNam
             }
         }
 
-        extractStatisticsFromCurveMerger( wellName, timeStep, mdAddress, curveMerger, dataSetSizeCalc );
-
-        if ( m_cachedValues[mdAddress].size() == tvdDepthsForFirstRftCase.size() )
-        {
-            // The number of RFT cells can vary between realizations in some cases. TVD depth is only given if the number of RFT cells is
-            // identical between realizations.
-
-            m_cachedValues[tvdAddress] = tvdDepthsForFirstRftCase;
-        }
+        extractStatisticsFromCurveMerger( wellName, timeStep, mdAddress, curveMerger, dataSetSizeCalc, extractor->wellPathGeometry() );
     }
     else
     {
@@ -282,7 +270,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const QString& wellNam
             }
         }
 
-        extractStatisticsFromCurveMerger( wellName, timeStep, tvdAddress, curveMerger, dataSetSizeCalc );
+        extractStatisticsFromCurveMerger( wellName, timeStep, tvdAddress, curveMerger, dataSetSizeCalc, nullptr );
     }
 }
 
@@ -293,7 +281,8 @@ void RifReaderEnsembleStatisticsRft::extractStatisticsFromCurveMerger( const QSt
                                                                        const QDateTime&                   timeStep,
                                                                        RifEclipseRftAddress               depthAddress,
                                                                        RiaCurveMerger<double>&            curveMerger,
-                                                                       RiaWeightedMeanCalculator<size_t>& dataSetSizeCalc )
+                                                                       RiaWeightedMeanCalculator<size_t>& dataSetSizeCalc,
+                                                                       const RigWellPath*                 wellPathGeometry )
 {
     using ChannelType = RifEclipseRftAddress::RftWellLogChannelType;
 
@@ -328,6 +317,14 @@ void RifReaderEnsembleStatisticsRft::extractStatisticsFromCurveMerger( const QSt
             RigStatisticsMath::calculateStatisticsCurves( pressuresAtDepth, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
             m_cachedValues[depthAddress].push_back( allDepths[depthIdx] );
+
+            if ( wellPathGeometry && ( depthAddress.wellLogChannel() == ChannelType::MD ) )
+            {
+                // Compute corresponding TVD for given MD
+                auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
+                auto tvdDepth   = wellPathGeometry->interpolatedPointAlongWellPath( allDepths[depthIdx] );
+                m_cachedValues[tvdAddress].push_back( -tvdDepth.z() );
+            }
 
             if ( p10 != HUGE_VAL ) m_cachedValues[p10Address].push_back( p10 );
             if ( p50 != HUGE_VAL ) m_cachedValues[p50Address].push_back( p50 );
