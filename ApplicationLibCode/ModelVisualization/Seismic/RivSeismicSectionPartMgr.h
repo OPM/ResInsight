@@ -66,9 +66,6 @@ public:
                                          double                            lineThickness,
                                          const std::vector<RimSurface*>&   surfaces );
 
-private:
-    cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
-
 protected:
     cvf::TextureImage* createImageFromData( ZGYAccess::SeismicSliceData* data );
 
