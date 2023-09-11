@@ -69,11 +69,10 @@ void RicfSetTimeStep::setTimeStepIndex( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSetTimeStep::execute()
 {
-    RimCase*              rimCase = nullptr;
-    std::vector<RimCase*> allCases;
+    RimCase* rimCase = nullptr;
 
     {
-        RimProject::current()->allCases( allCases );
+        std::vector<RimCase*> allCases = RimProject::current()->allGridCases();
 
         bool foundCase = false;
         for ( RimCase* c : allCases )

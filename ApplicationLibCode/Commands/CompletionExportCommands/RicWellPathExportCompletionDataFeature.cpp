@@ -72,8 +72,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     if ( !exportSettings->caseToApply() )
     {
-        std::vector<RimCase*> cases;
-        app->project()->allCases( cases );
+        std::vector<RimCase*> cases = app->project()->allGridCases();
         for ( auto c : cases )
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );

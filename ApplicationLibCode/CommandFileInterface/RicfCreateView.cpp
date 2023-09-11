@@ -42,10 +42,8 @@ RicfCreateView::RicfCreateView()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateView::execute()
 {
-    RimProject*           project = RimProject::current();
-    std::vector<RimCase*> allCases;
-    project->allCases( allCases );
-
+    RimProject*           project  = RimProject::current();
+    std::vector<RimCase*> allCases = project->allGridCases();
     for ( RimCase* rimCase : allCases )
     {
         if ( rimCase->caseId() == m_caseId() )

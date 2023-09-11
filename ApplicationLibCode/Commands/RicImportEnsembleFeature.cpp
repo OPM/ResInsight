@@ -131,9 +131,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
         RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
-    std::vector<RimCase*> allCases;
-    RiaApplication::instance()->project()->allCases( allCases );
-
+    std::vector<RimCase*> allCases = RiaApplication::instance()->project()->allGridCases();
     if ( allCases.empty() )
     {
         RiuMainWindow::closeIfOpen();

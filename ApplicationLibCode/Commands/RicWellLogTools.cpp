@@ -78,9 +78,7 @@ RimSimWellInView* RicWellLogTools::selectedSimulationWell( int* branchIndex )
 bool RicWellLogTools::hasRftData()
 {
     RimEclipseResultCase* resultCase;
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     for ( RimCase* rimCase : cases )
     {
         if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )
@@ -101,9 +99,7 @@ bool RicWellLogTools::hasRftData()
 bool RicWellLogTools::hasRftDataForWell( const QString& wellName )
 {
     RimEclipseResultCase* resultCase;
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     for ( RimCase* rimCase : cases )
     {
         if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )
@@ -236,8 +232,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
         }
         else
         {
-            std::vector<RimCase*> allCases;
-            RimProject::current()->allCases( allCases );
+            std::vector<RimCase*> allCases = RimProject::current()->allGridCases();
             if ( !allCases.empty() ) caseToApply = allCases.front();
         }
     }
@@ -343,9 +338,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
 
     RimEclipseResultCase* resultCase = nullptr;
 
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     for ( RimCase* rimCase : cases )
     {
         if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )

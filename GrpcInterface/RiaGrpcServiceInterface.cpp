@@ -44,9 +44,7 @@
 //--------------------------------------------------------------------------------------------------
 RimCase* RiaGrpcServiceInterface::findCase( int caseId )
 {
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     for ( RimCase* rimCase : cases )
     {
         if ( caseId == rimCase->caseId() )

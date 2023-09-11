@@ -289,9 +289,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
             RimProject* proj = RimProject::current();
             if ( proj )
             {
-                std::vector<RimCase*> cases;
-                proj->allCases( cases );
-
+                std::vector<RimCase*> cases = proj->allGridCases();
                 for ( RimCase* c : cases )
                 {
                     auto* eclipseCase = dynamic_cast<RimEclipseCase*>( c );

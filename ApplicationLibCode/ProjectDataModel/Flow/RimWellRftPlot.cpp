@@ -209,9 +209,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
             if ( !formationNamesCase )
             {
                 /// Set default case. Todo : Use the first of the selected cases in the plot
-                std::vector<RimCase*> cases;
-                proj->allCases( cases );
-
+                std::vector<RimCase*> cases = proj->allGridCases();
                 if ( !cases.empty() )
                 {
                     formationNamesCase = cases[0];

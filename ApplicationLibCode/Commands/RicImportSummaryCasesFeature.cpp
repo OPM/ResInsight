@@ -100,10 +100,8 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
         mainPlotWindow->updateMultiPlotToolBar();
     }
 
-    std::vector<RimCase*> allCases;
-    app->project()->allCases( allCases );
-
-    if ( allCases.size() == 0 )
+    std::vector<RimCase*> allCases = app->project()->allGridCases();
+    if ( allCases.empty() )
     {
         RiuMainWindow::closeIfOpen();
     }
@@ -152,10 +150,8 @@ std::pair<bool, std::vector<RimSummaryCase*>> RicImportSummaryCasesFeature::crea
             mainPlotWindow->updateMultiPlotToolBar();
 
             // Close main window if there are no eclipse cases imported
-            std::vector<RimCase*> allCases;
-            app->project()->allCases( allCases );
-
-            if ( allCases.size() == 0 )
+            std::vector<RimCase*> allCases = app->project()->allGridCases();
+            if ( allCases.empty() )
             {
                 RiuMainWindow::closeIfOpen();
             }

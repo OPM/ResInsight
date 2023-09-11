@@ -116,9 +116,8 @@ RimEclipseCase* RimGridSummaryCase_obsolete::associatedEclipseCase()
     {
         // Find a possible associated eclipse case
 
-        RimProject*           project = RimProject::current();
-        std::vector<RimCase*> allCases;
-        project->allCases( allCases );
+        RimProject*           project  = RimProject::current();
+        std::vector<RimCase*> allCases = project->allGridCases();
         for ( RimCase* someCase : allCases )
         {
             auto eclCase = dynamic_cast<RimEclipseCase*>( someCase );

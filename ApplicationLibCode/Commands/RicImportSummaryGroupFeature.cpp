@@ -67,10 +67,8 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
         mainPlotWindow->updateMultiPlotToolBar();
     }
 
-    std::vector<RimCase*> allCases;
-    app->project()->allCases( allCases );
-
-    if ( allCases.size() == 0 )
+    std::vector<RimCase*> allCases = app->project()->allGridCases();
+    if ( allCases.empty() )
     {
         RiuMainWindow::closeIfOpen();
     }

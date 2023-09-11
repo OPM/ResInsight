@@ -606,8 +606,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
     // Now load the ReservoirViews for the cases
     // Add all "native" cases in the project
-    std::vector<RimCase*> casesToLoad;
-    m_project->allCases( casesToLoad );
+    std::vector<RimCase*> casesToLoad = m_project->allGridCases();
     {
         caf::ProgressInfo caseProgress( casesToLoad.size(), "Reading Cases" );
 
