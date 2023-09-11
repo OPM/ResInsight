@@ -76,8 +76,17 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase, "InitialPressureEclipseCase", "Initial Pressure Case" );
-    CAF_PDM_InitField( &m_useTableForInitialPressure, "UseForInitialPressure", false, "Use Pressure Table For Initial Pressure" );
-    CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_useTableForInitialPressure,
+                                                  "UseForInitialPressure",
+                                                  "UsePressureTableForInitialPressure",
+                                                  false,
+                                                  "Use Pressure Table For Initial Pressure" );
+
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_useTableForPressure,
+                                                  "UseForPressure",
+                                                  "UsePressureTableForPressure",
+                                                  false,
+                                                  "Use Pressure Table For Pressure" );
     CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit" );
     m_editPressureTable.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editPressureTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
