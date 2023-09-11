@@ -54,7 +54,7 @@ public:
                                              const cvf::BoundingBox&           boundingBox ) = 0;
 
 protected:
-    cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
+    static cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
     cvf::ref<cvf::Part> createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image, bool transparent );
 
     cvf::ref<cvf::ShaderProgram> m_textureShaderProg;

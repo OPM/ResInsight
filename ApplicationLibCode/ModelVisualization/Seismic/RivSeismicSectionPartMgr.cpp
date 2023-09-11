@@ -179,7 +179,9 @@ std::vector<std::vector<cvf::Vec3d>>
         {
             domainCurvePoints.emplace_back( intersectionPoint );
         }
-        else
+
+        // Create a line segment if we did not find an intersection point or if we are at the end of the polyline
+        if ( !foundMatch || ( point == resampledPolyline.back() ) )
         {
             if ( domainCurvePoints.size() > 1 )
             {

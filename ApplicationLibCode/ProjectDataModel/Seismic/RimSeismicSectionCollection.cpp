@@ -55,8 +55,8 @@ RimSeismicSectionCollection::RimSeismicSectionCollection()
 
     CAF_PDM_InitField( &m_surfaceIntersectionLinesScaleFactor, "SurfaceIntersectionLinesScaleFactor", 5.0, "Line Scale Factor ( >= 1.0 )" );
 
-    CAF_PDM_InitFieldNoDefault( &m_visibleSurfaceLines, "VisibleSurfaceLines", "Visible Surface Lines" );
-    m_visibleSurfaceLines.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_hiddenSurfaceLines, "HiddenSurfaceLines", "Hidden Surface Lines" );
+    m_hiddenSurfaceLines.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     setName( "Seismic Sections" );
 }
@@ -147,7 +147,7 @@ caf::PdmFieldHandle* RimSeismicSectionCollection::userDescriptionField()
 void RimSeismicSectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_surfaceIntersectionLinesScaleFactor );
-    uiOrdering.add( &m_visibleSurfaceLines );
+    uiOrdering.add( &m_hiddenSurfaceLines );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -170,6 +170,24 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
 {
     if ( !isChecked() ) return;
 
+    auto computeVisibleSurface = [&]() -> std::vector<RimSurface*>
+    {
+        std::vector<RimSurface*> visibleSurfaces;
+        auto                     allSurfaces    = RimTools::surfaceCollection()->surfaces();
+        auto                     hiddenSurfaces = m_hiddenSurfaceLines.value();
+
+        for ( const auto& surf : allSurfaces )
+        {
+            if ( std::find( hiddenSurfaces.begin(), hiddenSurfaces.end(), surf ) != hiddenSurfaces.end() ) continue;
+
+            visibleSurfaces.push_back( surf );
+        }
+
+        return visibleSurfaces;
+    };
+
+    auto visibleSurfaces = computeVisibleSurface();
+
     for ( auto& section : m_seismicSections )
     {
         if ( section->isChecked() )
@@ -178,13 +196,7 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
             {
                 section->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
 
-                std::vector<RimSurface*> surfaces;
-                for ( const auto& surf : m_visibleSurfaceLines.value() )
-                {
-                    surfaces.push_back( surf );
-                }
-
-                section->partMgr()->appendSurfaceIntersectionLines( model, transform, m_surfaceIntersectionLinesScaleFactor(), surfaces );
+                section->partMgr()->appendSurfaceIntersectionLines( model, transform, m_surfaceIntersectionLinesScaleFactor(), visibleSurfaces );
             }
             section->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
         }
@@ -269,7 +281,7 @@ QList<caf::PdmOptionItemInfo> RimSeismicSectionCollection::calculateValueOptions
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_visibleSurfaceLines )
+    if ( fieldNeedingOptions == &m_hiddenSurfaceLines )
     {
         auto surfaceCollection = RimTools::surfaceCollection();
         for ( auto surface : surfaceCollection->surfaces() )
