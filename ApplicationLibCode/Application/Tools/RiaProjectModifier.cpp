@@ -193,9 +193,7 @@ void RiaProjectModifier::replaceSourceCases( RimProject* project )
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::replaceCase( RimProject* project )
 {
-    std::vector<RimCase*> allCases;
-    project->allCases( allCases );
-
+    std::vector<RimCase*> allCases = project->allGridCases();
     for ( RimCase* rimCase : allCases )
     {
         RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( rimCase );
@@ -234,9 +232,7 @@ void RiaProjectModifier::replaceCase( RimProject* project )
 //--------------------------------------------------------------------------------------------------
 void RiaProjectModifier::replacePropertiesFolder( RimProject* project )
 {
-    std::vector<RimCase*> allCases;
-    project->allCases( allCases );
-
+    std::vector<RimCase*> allCases = project->allGridCases();
     for ( RimCase* rimCase : allCases )
     {
         RimEclipseInputCase* inputCase = dynamic_cast<RimEclipseInputCase*>( rimCase );
@@ -289,9 +285,7 @@ QString RiaProjectModifier::caseNameFromGridFileName( const QString& fullGridFil
 //--------------------------------------------------------------------------------------------------
 int RiaProjectModifier::firstCaseId( RimProject* project )
 {
-    std::vector<RimCase*> allCases;
-    project->allCases( allCases );
-
+    std::vector<RimCase*> allCases = project->allGridCases();
     for ( RimCase* rimCase : allCases )
     {
         RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase );
@@ -330,8 +324,7 @@ int RiaProjectModifier::firstGroupId( RimProject* project )
 //--------------------------------------------------------------------------------------------------
 int RiaProjectModifier::firstInputCaseId( RimProject* project )
 {
-    std::vector<RimCase*> allCases;
-    project->allCases( allCases );
+    std::vector<RimCase*> allCases = project->allGridCases();
 
     for ( RimCase* rimCase : allCases )
     {

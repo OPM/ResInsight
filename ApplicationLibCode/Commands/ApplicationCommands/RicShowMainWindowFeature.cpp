@@ -58,9 +58,7 @@ void RicShowMainWindowFeature::showMainWindow()
 
         // When the main window is created, make sure all the views are loaded and displayed
 
-        std::vector<RimCase*> allGridModels;
-        RimProject::current()->allCases( allGridModels );
-
+        std::vector<RimCase*> allGridModels = RimProject::current()->allGridCases();
         for ( RimCase* gridModel : allGridModels )
         {
             if ( gridModel )

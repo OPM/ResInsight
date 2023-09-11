@@ -324,9 +324,7 @@ void RimTools::caseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<RimCase*> cases;
-        proj->allCases( cases );
-
+        std::vector<RimCase*> cases = proj->allGridCases();
         for ( RimCase* c : cases )
         {
             options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
@@ -344,9 +342,7 @@ void RimTools::eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<RimCase*> cases;
-        proj->allCases( cases );
-
+        std::vector<RimCase*> cases = proj->allGridCases();
         for ( RimCase* c : cases )
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
@@ -368,9 +364,7 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<RimCase*> cases;
-        proj->allCases( cases );
-
+        std::vector<RimCase*> cases = proj->allGridCases();
         for ( RimCase* c : cases )
         {
             RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( c );

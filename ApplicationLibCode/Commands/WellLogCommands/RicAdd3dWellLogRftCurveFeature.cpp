@@ -37,8 +37,7 @@ CAF_CMD_SOURCE_INIT( RicAdd3dWellLogRftCurveFeature, "RicAdd3dWellLogRftCurveFea
 //--------------------------------------------------------------------------------------------------
 bool RicAdd3dWellLogRftCurveFeature::isCommandEnabled() const
 {
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     if ( cases.empty() ) return false;
 
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();

@@ -133,8 +133,6 @@ void RicNewWellLogExtractionCurveFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogExtractionCurveFeature::caseAvailable()
 {
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     return !cases.empty();
 }

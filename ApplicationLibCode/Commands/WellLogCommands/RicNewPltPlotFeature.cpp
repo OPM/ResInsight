@@ -169,8 +169,6 @@ RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell( int* branchIndex
 //--------------------------------------------------------------------------------------------------
 bool RicNewPltPlotFeature::caseAvailable() const
 {
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
-    return cases.size() > 0;
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
+    return !cases.empty();
 }

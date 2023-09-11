@@ -160,9 +160,7 @@ RimEclipseCase* RiaSocketServer::findReservoir( int caseId )
         RimProject* project = RimProject::current();
         if ( !project ) return nullptr;
 
-        std::vector<RimCase*> cases;
-        project->allCases( cases );
-
+        std::vector<RimCase*> cases = project->allGridCases();
         for ( size_t i = 0; i < cases.size(); i++ )
         {
             if ( cases[i]->caseId() == currCaseId )

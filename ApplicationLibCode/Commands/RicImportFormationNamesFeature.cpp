@@ -127,8 +127,7 @@ void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
     {
         RimProject* proj = RimProject::current();
 
-        std::vector<RimCase*> cases;
-        proj->allCases( cases );
+        std::vector<RimCase*> cases = proj->allGridCases();
 
         // Legend name is base name of the one formation file, c.f. RicImportFormationNamesFeature::importFormationFiles()
         QString legendName = QFileInfo( fileNames.last() ).baseName();

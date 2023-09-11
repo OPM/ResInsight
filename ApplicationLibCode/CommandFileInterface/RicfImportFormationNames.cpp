@@ -64,8 +64,7 @@ caf::PdmScriptResponse RicfImportFormationNames::execute()
         if ( formationNames )
         {
             bool                  foundCase = false;
-            std::vector<RimCase*> cases;
-            RimProject::current()->allCases( cases );
+            std::vector<RimCase*> cases     = RimProject::current()->allGridCases();
             for ( RimCase* rimCase : cases )
             {
                 if ( m_applyToCaseId() == -1 || ( rimCase->caseId() == m_applyToCaseId() ) )

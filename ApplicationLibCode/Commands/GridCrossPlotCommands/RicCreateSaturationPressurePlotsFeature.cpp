@@ -116,9 +116,8 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
 
     std::vector<RimEclipseResultCase*> eclipseCases;
     {
-        RiaApplication*       app = RiaApplication::instance();
-        std::vector<RimCase*> cases;
-        app->project()->allCases( cases );
+        RiaApplication*       app   = RiaApplication::instance();
+        std::vector<RimCase*> cases = app->project()->allGridCases();
         for ( auto* rimCase : cases )
         {
             auto erc = dynamic_cast<RimEclipseResultCase*>( rimCase );

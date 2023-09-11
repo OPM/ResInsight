@@ -188,8 +188,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
     {
         RimProject* project = RimProject::current();
 
-        std::vector<RimCase*> cases;
-        project->allCases( cases );
+        std::vector<RimCase*> cases = project->allGridCases();
 
         if ( cases.empty() )
         {
