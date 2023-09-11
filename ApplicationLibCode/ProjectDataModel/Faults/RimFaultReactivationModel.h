@@ -32,6 +32,7 @@
 #include "cvfVector3.h"
 
 #include <QString>
+#include <QStringList>
 
 #include <memory>
 #include <utility>
@@ -91,6 +92,10 @@ public:
     void    setBaseDir( QString path );
 
     std::vector<QDateTime> selectedTimeSteps() const;
+
+    QStringList commandParameters() const;
+    QString     outputOdbFilename() const;
+    QString     inputFilename() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;

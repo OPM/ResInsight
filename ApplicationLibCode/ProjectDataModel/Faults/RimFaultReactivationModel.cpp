@@ -526,3 +526,27 @@ std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 
     return selectedSteps;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimFaultReactivationModel::commandParameters() const
+{
+    return QStringList();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::outputOdbFilename() const
+{
+    return baseDir() + "faultreactivation.odb";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::inputFilename() const
+{
+    return baseDir() + "faultreactivation.inp";
+}
