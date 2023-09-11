@@ -884,9 +884,13 @@ void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
         }
     }
 
-    for ( auto seisview : activeOilField()->seismicViewCollection()->views() )
+    auto seismicViewCollection = activeOilField()->seismicViewCollection();
+    if ( seismicViewCollection )
     {
-        seisview->scheduleCreateDisplayModelAndRedraw();
+        for ( auto seisview : seismicViewCollection->views() )
+        {
+            seisview->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }
 
