@@ -404,10 +404,11 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
                 if ( !exists )
                 {
                     RimFaciesInitialPressureConfig* fipConfig                   = new RimFaciesInitialPressureConfig;
-                    bool                            enableInitialPressureConfig = shouldProbablyUseInitialPressure( item->categoryName() );
+                    bool                            enableInitialPressureConfig = true;
                     fipConfig->setEnabled( enableInitialPressureConfig );
                     fipConfig->setFaciesName( item->categoryName() );
                     fipConfig->setFaciesValue( item->categoryValue() );
+                    fipConfig->setFraction( 1.0 );
                     m_faciesInitialPressureConfigs.push_back( fipConfig );
 
                     fipConfig->changed.connect( this, &RimStimPlanModelTemplate::faciesPropertiesChanged );
@@ -421,11 +422,6 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
 
         m_faciesProperties->setEclipseCase( eclipseCase );
     }
-}
-
-bool RimStimPlanModelTemplate::shouldProbablyUseInitialPressure( const QString& faciesName )
-{
-    return faciesName.compare( "Shale", Qt::CaseInsensitive ) == 0 || faciesName.compare( "Calcite", Qt::CaseInsensitive ) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------

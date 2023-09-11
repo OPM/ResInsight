@@ -48,7 +48,7 @@ RimFaciesInitialPressureConfig::RimFaciesInitialPressureConfig()
     QString deltaPressureFractionString = QString::fromUtf8( "\u0394 Pressure Fraction" );
 #endif
 
-    CAF_PDM_InitScriptableField( &m_fraction, "Fraction", 0.0, deltaPressureFractionString );
+    CAF_PDM_InitScriptableField( &m_fraction, "Fraction", 1.0, deltaPressureFractionString );
 }
 
 //--------------------------------------------------------------------------------------------------
