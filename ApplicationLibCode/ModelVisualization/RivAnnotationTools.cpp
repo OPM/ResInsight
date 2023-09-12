@@ -364,11 +364,11 @@ void RivAnnotationTools::addAnnotationLabels( const cvf::Collection<cvf::Part>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableText> RivAnnotationTools::createDrawableText( cvf::Font*         font,
-                                                                    cvf::Color3f       textColor,
-                                                                    cvf::Color3f       backgroundColor,
-                                                                    const std::string& text,
-                                                                    const cvf::Vec3f&  position )
+cvf::ref<cvf::DrawableText> RivAnnotationTools::createDrawableText( cvf::Font*          font,
+                                                                    const cvf::Color3f& textColor,
+                                                                    const cvf::Color3f& backgroundColor,
+                                                                    const std::string&  text,
+                                                                    const cvf::Vec3f&   position )
 {
     auto drawableText = new cvf::DrawableText;
 
@@ -380,6 +380,27 @@ cvf::ref<cvf::DrawableText> RivAnnotationTools::createDrawableText( cvf::Font*  
     drawableText->setVerticalAlignment( cvf::TextDrawer::BASELINE );
     drawableText->setBackgroundColor( backgroundColor );
     drawableText->setBorderColor( RiaColorTools::computeOffsetColor( backgroundColor, 0.5f ) );
+    drawableText->setTextColor( textColor );
+    drawableText->addText( cvf::String( text ), position );
+
+    return drawableText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableText> RivAnnotationTools::createDrawableTextNoBackground( cvf::Font*          font,
+                                                                                const cvf::Color3f& textColor,
+                                                                                const std::string&  text,
+                                                                                const cvf::Vec3f&   position )
+{
+    cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
+
+    drawableText->setFont( font );
+    drawableText->setCheckPosVisible( false );
+    drawableText->setDrawBorder( false );
+    drawableText->setDrawBackground( false );
+    drawableText->setVerticalAlignment( cvf::TextDrawer::CENTER );
     drawableText->setTextColor( textColor );
     drawableText->addText( cvf::String( text ), position );
 

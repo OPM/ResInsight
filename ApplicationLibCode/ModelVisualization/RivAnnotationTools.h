@@ -62,11 +62,14 @@ public:
 
     static cvf::ref<cvf::Part> createPartFromPolyline( const cvf::Color3f& color, const std::vector<cvf::Vec3d>& polyLine );
 
-    static cvf::ref<cvf::DrawableText> createDrawableText( cvf::Font*         font,
-                                                           cvf::Color3f       textColor,
-                                                           cvf::Color3f       backgroundColor,
-                                                           const std::string& text,
-                                                           const cvf::Vec3f&  position );
+    static cvf::ref<cvf::DrawableText> createDrawableText( cvf::Font*          font,
+                                                           const cvf::Color3f& textColor,
+                                                           const cvf::Color3f& backgroundColor,
+                                                           const std::string&  text,
+                                                           const cvf::Vec3f&   position );
+
+    static cvf::ref<cvf::DrawableText>
+        createDrawableTextNoBackground( cvf::Font* font, const cvf::Color3f& textColor, const std::string& text, const cvf::Vec3f& position );
 
     static cvf::ref<cvf::Part> createPart( cvf::DrawableText* drawableText );
 
