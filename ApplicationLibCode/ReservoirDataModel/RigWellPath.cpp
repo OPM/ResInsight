@@ -586,6 +586,7 @@ bool RigWellPath::isAnyPointInsideBoundingBox( const std::vector<cvf::Vec3d>& po
 std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ( const std::vector<cvf::Vec3d>& polyLine,
                                                               double                         maxZ,
                                                               double*                        horizontalLengthAlongWellToClipPoint,
+                                                              double*                        measuredDepthAtFirstClipPoint,
                                                               size_t*                        indexToFirstVisibleSegment )
 {
     CVF_ASSERT( horizontalLengthAlongWellToClipPoint );
@@ -605,7 +606,12 @@ std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ( const std::vector<
             if ( vxIdx > 0 )
             {
                 cvf::Vec3d segment = polyLine[vxIdx] - polyLine[vxIdx - 1];
-                segment[2]         = 0.0;
+                if ( measuredDepthAtFirstClipPoint )
+                {
+                    *measuredDepthAtFirstClipPoint += segment.length();
+                }
+
+                segment[2] = 0.0;
                 *horizontalLengthAlongWellToClipPoint += segment.length();
             }
         }
