@@ -156,18 +156,18 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_axisPropertiesArray, "AxisProperties", "Axes", ":/Axes16x16.png" );
 
-    if ( m_isCrossPlot )
-    {
-        addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
-    }
-    else
-    {
-        auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
-        timeAxisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
-        timeAxisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
-
-        m_axisPropertiesArray.push_back( timeAxisProperties );
-    }
+    //     if ( m_isCrossPlot )
+    //     {
+    //         addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
+    //     }
+    //     else
+    //     {
+    //         auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
+    //         timeAxisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
+    //         timeAxisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
+    //
+    //         m_axisPropertiesArray.push_back( timeAxisProperties );
+    //     }
     CAF_PDM_InitFieldNoDefault( &m_fieldIsCrossPlot, "FieldIsCrossPlot", "Is CrossPlot" );
     m_fieldIsCrossPlot = m_isCrossPlot;
 
@@ -181,14 +181,14 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
     m_sourceStepping = new RimSummaryPlotSourceStepping;
-    if ( m_isCrossPlot )
-    {
-        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
-    }
-    else
-    {
-        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
-    }
+    //     if ( m_isCrossPlot )
+    //     {
+    //         m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
+    //     }
+    //     else
+    //     {
+    //         m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+    //     }
 
     m_sourceStepping->setSourceSteppingObject( this );
     m_sourceStepping.uiCapability()->setUiTreeHidden( true );
@@ -222,6 +222,8 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     m_timeAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_timeAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_timeAxisProperties_OBSOLETE = new RimSummaryTimeAxisProperties;
+
+    updatePlotTypeHasChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1200,6 +1202,34 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updatePlotTypeHasChanged()
+{
+    if ( m_isCrossPlot )
+    {
+        addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
+    }
+    else
+    {
+        auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
+        timeAxisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
+        timeAxisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
+
+        m_axisPropertiesArray.push_back( timeAxisProperties );
+    }
+
+    if ( m_isCrossPlot )
+    {
+        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
+    }
+    else
+    {
+        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::scheduleReplotIfVisible()
 {
     if ( showWindow() && plotWidget() ) plotWidget()->scheduleReplot();
@@ -1624,6 +1654,8 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     if ( changedField == &m_fieldIsCrossPlot )
     {
         m_isCrossPlot = m_fieldIsCrossPlot();
+
+        updatePlotTypeHasChanged();
         loadDataAndUpdate();
     }
 
