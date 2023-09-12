@@ -114,6 +114,10 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField( &m_branchIndex, "SimBranchIndex", 0, "Branch" );
 
     CAF_PDM_InitField( &m_showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Label" );
+    CAF_PDM_InitField( &m_measuredDepthLabelInterval,
+                       "MeasuredDepthLabelInterval",
+                       std::make_pair( false, 50.0 ),
+                       "Enable Labels at Measured Depth Intervals" );
 
     CAF_PDM_InitField( &m_showWellPath, "ShowWellPath", true, "Show Well Path" );
     m_showWellPath.uiCapability()->setUiHidden( true );
@@ -650,6 +654,16 @@ void RimWellPath::setShowWellPath( bool showWellPath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<double> RimWellPath::measuredDepthLabelInterval() const
+{
+    if ( m_measuredDepthLabelInterval().first ) return m_measuredDepthLabelInterval().second;
+
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimWellPath::wellPathColor() const
 {
     return m_wellPathColor;
@@ -699,6 +713,7 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
     appGroup->add( &m_showWellPathLabel );
     appGroup->add( &m_wellPathColor );
     appGroup->add( &m_wellPathRadiusScaleFactor );
+    appGroup->add( &m_measuredDepthLabelInterval );
 
     caf::PdmUiGroup* simWellGroup = uiOrdering.addNewGroup( "Simulation Well" );
     simWellGroup->add( &m_simWellName );

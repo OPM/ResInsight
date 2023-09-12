@@ -141,6 +141,8 @@ public:
     bool showWellPath() const;
     void setShowWellPath( bool showWellPath );
 
+    std::optional<double> measuredDepthLabelInterval() const;
+
     cvf::Color3f wellPathColor() const;
     void         setWellPathColor( const cvf::Color3f& color );
 
@@ -199,8 +201,9 @@ private:
     caf::PdmField<caf::FilePath> m_wellPathFormationFilePath;
     caf::PdmField<QString>       m_formationKeyInFile;
 
-    caf::PdmField<bool> m_showWellPath;
-    caf::PdmField<bool> m_showWellPathLabel;
+    caf::PdmField<bool>                    m_showWellPath;
+    caf::PdmField<bool>                    m_showWellPathLabel;
+    caf::PdmField<std::pair<bool, double>> m_measuredDepthLabelInterval;
 
     caf::PdmField<double>       m_wellPathRadiusScaleFactor;
     caf::PdmField<cvf::Color3f> m_wellPathColor;
