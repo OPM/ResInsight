@@ -916,50 +916,49 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
         if ( riuPlotAxis.axis() == plotAxis )
         {
             auto* axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
-            if ( axisProps )
+            if ( !axisProps ) continue;
+
+            if ( axisProperties->isActive() && hasVisibleCurvesForAxis( riuPlotAxis ) )
             {
-                if ( axisProperties->isActive() && hasVisibleCurvesForAxis( riuPlotAxis ) )
+                plotWidget()->enableAxis( riuPlotAxis, true );
+            }
+            else
+            {
+                plotWidget()->enableAxis( riuPlotAxis, false );
+            }
+
+            if ( !hasVisibleCurvesForAxis( riuPlotAxis ) )
+            {
+                axisProps->setNameForUnusedAxis();
+            }
+            else
+            {
+                std::set<QString> timeHistoryQuantities;
+
+                for ( auto c : visibleTimeHistoryCurvesForAxis( riuPlotAxis ) )
                 {
-                    plotWidget()->enableAxis( riuPlotAxis, true );
+                    timeHistoryQuantities.insert( c->quantityName() );
                 }
-                else
+
+                std::vector<RiaSummaryCurveDefinition> curveDefs;
+                for ( auto summaryCurve : summaryCurves() )
                 {
-                    plotWidget()->enableAxis( riuPlotAxis, false );
+                    if ( summaryCurve->axisY() != riuPlotAxis ) continue;
+
+                    curveDefs.push_back( summaryCurve->curveDefinitionY() );
                 }
 
-                if ( !hasVisibleCurvesForAxis( riuPlotAxis ) )
+                for ( auto curveSet : ensembleCurveSetCollection()->curveSets() )
                 {
-                    axisProps->setNameForUnusedAxis();
+                    if ( curveSet->axisY() != riuPlotAxis ) continue;
+
+                    RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddress() );
+                    curveDefs.push_back( def );
                 }
-                else
-                {
-                    std::set<QString> timeHistoryQuantities;
 
-                    for ( auto c : visibleTimeHistoryCurvesForAxis( riuPlotAxis ) )
-                    {
-                        timeHistoryQuantities.insert( c->quantityName() );
-                    }
+                RimSummaryPlotAxisFormatter calc( axisProps, {}, curveDefs, visibleAsciiDataCurvesForAxis( riuPlotAxis ), timeHistoryQuantities );
 
-                    std::vector<RiaSummaryCurveDefinition> curveDefs;
-                    for ( auto summaryCurve : summaryCurves() )
-                    {
-                        if ( summaryCurve->axisY() != riuPlotAxis ) continue;
-
-                        curveDefs.push_back( summaryCurve->curveDefinitionY() );
-                    }
-
-                    for ( auto curveSet : ensembleCurveSetCollection()->curveSets() )
-                    {
-                        if ( curveSet->axisY() != riuPlotAxis ) continue;
-
-                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddress() );
-                        curveDefs.push_back( def );
-                    }
-
-                    RimSummaryPlotAxisFormatter calc( axisProps, {}, curveDefs, visibleAsciiDataCurvesForAxis( riuPlotAxis ), timeHistoryQuantities );
-
-                    calc.applyAxisPropertiesToPlot( plotWidget() );
-                }
+                calc.applyAxisPropertiesToPlot( plotWidget() );
             }
 
             plotWidget()->enableAxisNumberLabels( riuPlotAxis, axisProps->showNumbers() );
