@@ -620,6 +620,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     m_pipeGeomGenerator->setCrossSectionVertexCount( wellPathCollection->wellPathCrossSectionVertexCount() );
 
     double horizontalLengthAlongWellToClipPoint = 0.0;
+    double measuredDepthAtFirstClipPoint        = 0.0;
     size_t idxToFirstVisibleSegment             = 0;
     if ( wellPathCollection->wellPathClip )
     {
@@ -627,6 +628,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         clippedWellPathCenterLine = RigWellPath::clipPolylineStartAboveZ( wellpathCenterLine,
                                                                           maxZClipHeight,
                                                                           &horizontalLengthAlongWellToClipPoint,
+                                                                          &measuredDepthAtFirstClipPoint,
                                                                           &idxToFirstVisibleSegment );
     }
     else
