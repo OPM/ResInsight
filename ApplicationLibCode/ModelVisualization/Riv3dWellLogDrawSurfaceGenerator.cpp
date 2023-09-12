@@ -86,17 +86,17 @@ bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoor
     size_t indexToFirstVisibleSegment = 0u;
     if ( wellPathCollection->wellPathClip )
     {
-        double     clipZDistance                    = wellPathCollection->wellPathClipZDistance;
-        cvf::Vec3d clipLocation                     = wellPathClipBoundingBox.max() + clipZDistance * cvf::Vec3d( 0, 0, 1 );
-        clipLocation                                = displayCoordTransform->transformToDisplayCoord( clipLocation );
-        double horizontalLengthAlongWellToClipPoint = 0.0;
-        double measuredDepthAtFirstClipPoint        = 0.0;
+        double     clipZDistance                        = wellPathCollection->wellPathClipZDistance;
+        cvf::Vec3d clipLocation                         = wellPathClipBoundingBox.max() + clipZDistance * cvf::Vec3d::Z_AXIS;
+        auto       clipLocationDisplay                  = displayCoordTransform->transformToDisplayCoord( clipLocation );
+        double     horizontalLengthAlongWellToClipPoint = 0.0;
+        double     measuredDepthAtFirstClipPoint        = 0.0;
 
         wellPathDisplayCoords = RigWellPath::clipPolylineStartAboveZ( wellPathDisplayCoords,
-                                                                      clipLocation.z(),
-                                                                      &horizontalLengthAlongWellToClipPoint,
-                                                                      &measuredDepthAtFirstClipPoint,
-                                                                      &indexToFirstVisibleSegment );
+                                                                      clipLocationDisplay.z(),
+                                                                      horizontalLengthAlongWellToClipPoint,
+                                                                      measuredDepthAtFirstClipPoint,
+                                                                      indexToFirstVisibleSegment );
     }
 
     // Create curve normal vectors using the unclipped well path points and normals.

@@ -628,9 +628,9 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         double maxZClipHeight     = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
         clippedWellPathCenterLine = RigWellPath::clipPolylineStartAboveZ( wellpathCenterLine,
                                                                           maxZClipHeight,
-                                                                          &horizontalLengthAlongWellToClipPoint,
-                                                                          &measuredDepthAtFirstClipPoint,
-                                                                          &idxToFirstVisibleSegment );
+                                                                          horizontalLengthAlongWellToClipPoint,
+                                                                          measuredDepthAtFirstClipPoint,
+                                                                          idxToFirstVisibleSegment );
     }
     else
     {
@@ -703,7 +703,8 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
             const double distanceBetweenLabels = m_rimWellPath->measuredDepthLabelInterval().value();
 
             // Create a round number as start for measured depth label
-            const double startMeasuredDepth = ( int( measuredDepthAtFirstClipPoint / distanceBetweenLabels ) + 1 ) * distanceBetweenLabels;
+            const double startMeasuredDepth =
+                ( static_cast<int>( measuredDepthAtFirstClipPoint / distanceBetweenLabels ) + 1 ) * distanceBetweenLabels;
 
             std::vector<std::string> labelTexts;
             std::vector<cvf::Vec3d>  labelDisplayCoords;
