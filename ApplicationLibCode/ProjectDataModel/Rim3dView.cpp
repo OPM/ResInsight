@@ -153,6 +153,14 @@ Rim3dView::Rim3dView()
 
     CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size" );
 
+    CAF_PDM_InitFieldNoDefault( &m_annotationStrategy, "AnnotationStrategy", "Annotation Strategy" );
+    CAF_PDM_InitField( &m_annotationCountHint, "AnnotationCountHint", 5, "Annotation Count Hint" );
+    CAF_PDM_InitField( &m_useCustomAnnotationStrategy,
+                       "UseCustomAnnotationStrategy",
+                       false,
+                       "Use Custom Annotation Strategy",
+                       "Specify the strategy to be applied on all screen space annotations." );
+
     m_seismicVizModel = new cvf::ModelBasicList;
     m_seismicVizModel->setName( "SeismicSectionModel" );
 
@@ -509,6 +517,14 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
     gridGroup->add( &meshMode );
     gridGroup->add( &surfaceMode );
 
+    caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Annotations" );
+    annotationGroup->add( &m_useCustomAnnotationStrategy );
+    annotationGroup->add( &m_annotationStrategy );
+    annotationGroup->add( &m_annotationCountHint );
+    m_annotationStrategy.uiCapability()->setUiReadOnly( !m_useCustomAnnotationStrategy );
+    m_annotationCountHint.uiCapability()->setUiReadOnly(
+        !m_useCustomAnnotationStrategy || ( m_annotationStrategy() != RivAnnotationTools::LabelPositionStrategy::COUNT_HINT ) );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -678,6 +694,8 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
             restoreComparisonView();
         }
 
+        updateScreenSpaceModel();
+
         nativeOrOverrideViewer()->update();
     }
 
@@ -742,6 +760,8 @@ void Rim3dView::createDisplayModelAndRedraw()
             viewer()->setMainScene( nullptr, true );
             viewer()->removeAllFrames( true );
         }
+
+        updateScreenSpaceModel();
     }
 
     if ( RiuMainWindow::instance() )
@@ -902,6 +922,14 @@ bool Rim3dView::isLightingDisabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Rim3dView::onViewNavigationChanged()
+{
+    updateScreenSpaceModel();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dView::userDescriptionField()
 {
     return m_nameConfig->nameField();
@@ -1021,6 +1049,14 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     else if ( changedField == &m_comparisonView )
     {
         createDisplayModelAndRedraw();
+    }
+    else if ( changedField == &m_annotationCountHint || changedField == &m_annotationStrategy || changedField == &m_useCustomAnnotationStrategy )
+    {
+        if ( m_viewer )
+        {
+            updateScreenSpaceModel();
+            m_viewer->update();
+        }
     }
 }
 
@@ -1635,6 +1671,36 @@ void Rim3dView::appendAnnotationsToModel()
 
         frameScene->addModel( model.p() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateScreenSpaceModel()
+{
+    if ( !m_viewer || !m_viewer->mainCamera() ) return;
+
+    if ( m_screenSpaceModel.isNull() )
+    {
+        m_screenSpaceModel = new cvf::ModelBasicList;
+        m_screenSpaceModel->setName( "ScreenSpaceModel" );
+    }
+    m_screenSpaceModel->removeAllParts();
+
+    // Build annotation parts and put into screen space model
+    cvf::Collection<cvf::Part> partCollection;
+    m_viewer->currentScene()->allParts( &partCollection );
+
+    RivAnnotationTools annoTool;
+    if ( m_useCustomAnnotationStrategy )
+    {
+        annoTool.setOverrideLabelPositionStrategy( m_annotationStrategy() );
+        annoTool.setCountHint( m_annotationCountHint() );
+    }
+
+    annoTool.addAnnotationLabels( partCollection, m_viewer->mainCamera(), m_screenSpaceModel.p() );
+
+    nativeOrOverrideViewer()->addStaticModelOnce( m_screenSpaceModel.p(), isUsingOverrideViewer() );
 }
 
 //--------------------------------------------------------------------------------------------------

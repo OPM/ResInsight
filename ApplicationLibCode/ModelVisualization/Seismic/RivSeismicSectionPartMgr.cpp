@@ -32,6 +32,8 @@
 #include "RigSurfaceResampler.h"
 #include "RigTexturedSection.h"
 
+#include "RivAnnotationSourceInfo.h"
+#include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPolylineGenerator.h"
 #include "RivPolylinePartMgr.h"
@@ -213,19 +215,22 @@ void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicLi
         surface->loadDataIfRequired();
         if ( !surface->surfaceData() ) continue;
 
+        std::vector<cvf::Vec3d> completePolyLine;
+        cvf::Part*              firstPart = nullptr;
+
         auto texSection = m_section->texturedSection();
         for ( int i = 0; i < texSection->partsCount(); i++ )
         {
             const auto& texturePart = texSection->part( i );
 
-            std::vector<cvf::Vec3d> polyLine;
+            std::vector<cvf::Vec3d> polyLineForSection;
 
             // Each part of the seismic section is a rectangle, use two corners of the rectangle to create a polyline
-            polyLine.push_back( texturePart.rect[0] );
-            polyLine.push_back( texturePart.rect[1] );
+            polyLineForSection.push_back( texturePart.rect[0] );
+            polyLineForSection.push_back( texturePart.rect[1] );
 
             bool closePolyLine         = false;
-            auto polyLineDisplayCoords = projectPolyLineOntoSurface( polyLine, surface, displayCoordTransform );
+            auto polyLineDisplayCoords = projectPolyLineOntoSurface( polyLineForSection, surface, displayCoordTransform );
 
             cvf::ref<cvf::DrawableGeo> drawableGeo =
                 RivPolylineGenerator::createLineAlongPolylineDrawable( polyLineDisplayCoords, closePolyLine );
@@ -251,6 +256,24 @@ void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicLi
             part->setPriority( RivPartPriority::PartType::MeshLines );
 
             model->addPart( part.p() );
+
+            if ( !firstPart ) firstPart = part.p();
+            for ( const auto& coords : polyLineDisplayCoords )
+            {
+                completePolyLine.insert( completePolyLine.end(), coords.begin(), coords.end() );
+            }
+        }
+
+        if ( firstPart )
+        {
+            // Add annotation info to be used to display label in Rim3dView::onViewNavigationChanged()
+            // Set the source info on one part only, as this data is only used for display of labels
+            auto annoObj = new RivAnnotationSourceInfo( surface->fullName().toStdString(), completePolyLine );
+            annoObj->setLabelPositionStrategyHint( RivAnnotationTools::LabelPositionStrategy::RIGHT );
+            annoObj->setShowColor( true );
+            annoObj->setColor( surface->color() );
+
+            firstPart->setSourceInfo( annoObj );
         }
     }
 }
