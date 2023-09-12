@@ -648,26 +648,13 @@ void RifReaderEclipseOutput::importEquilData( const QString&      deckFileName,
                                               const QString&      includeStatementAbsolutePathPrefix,
                                               RigEclipseCaseData* eclipseCase )
 {
-    QFile data( deckFileName );
-    if ( data.open( QFile::ReadOnly ) )
+    QFile file( deckFileName );
+    if ( file.open( QFile::ReadOnly ) )
     {
-        const QString                            keyword( "EQUIL" );
-        const QString                            keywordToStopParsing( "SCHEDULE" );
-        const qint64                             startPositionInFile = 0;
-        std::vector<std::pair<QString, QString>> pathAliasDefinitions;
-        QStringList                              keywordContent;
-        std::vector<QString>                     fileNamesContainingKeyword;
-        bool                                     isStopParsingKeywordDetected = false;
+        const QString keyword( "EQUIL" );
+        const QString keywordToStopParsing( "SCHEDULE" );
+        auto          keywordContent = RifEclipseInputFileTools::readKeywordContentFromFile( keyword, keywordToStopParsing, file );
 
-        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
-                                                                                   keywordToStopParsing,
-                                                                                   data,
-                                                                                   startPositionInFile,
-                                                                                   pathAliasDefinitions,
-                                                                                   &keywordContent,
-                                                                                   &fileNamesContainingKeyword,
-                                                                                   &isStopParsingKeywordDetected,
-                                                                                   includeStatementAbsolutePathPrefix );
         std::vector<RigEquil> equilItems;
         for ( const auto& s : keywordContent )
         {

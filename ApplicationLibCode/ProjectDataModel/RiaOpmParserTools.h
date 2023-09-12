@@ -35,4 +35,10 @@ public:
     static std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& filename );
 
     static std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
+
+    using AicdTemplateValues = std::map<std::string, double>;
+    static std::vector<AicdTemplateValues> extractWsegAicd( const std::string& filename );
+    static std::vector<AicdTemplateValues> extractWsegAicdCompletor( const std::string& filename );
+
+    static std::string aicdTemplateId();
 };
