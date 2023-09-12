@@ -57,6 +57,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivCellFilterPartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.h
     ${CMAKE_CURRENT_LIST_DIR}/RivBoxGeometryGenerator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationSourceInfo.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -113,6 +115,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivCellFilterPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivBoxGeometryGenerator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationSourceInfo.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
