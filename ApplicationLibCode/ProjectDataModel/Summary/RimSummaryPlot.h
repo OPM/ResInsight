@@ -175,7 +175,7 @@ public:
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
 
-    virtual RimSummaryPlotSourceStepping* sourceSteppingObjectForKeyEventHandling() const;
+    RimSummaryPlotSourceStepping* sourceSteppingObjectForKeyEventHandling() const;
 
     void           setAutoScaleXEnabled( bool enabled ) override;
     void           setAutoScaleYEnabled( bool enabled ) override;
@@ -341,7 +341,8 @@ private:
     std::unique_ptr<RiuSummaryPlot>   m_summaryPlot;
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
 
-    bool m_isCrossPlot;
+    bool                m_isCrossPlot;
+    caf::PdmField<bool> m_fieldIsCrossPlot;
 
     std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;

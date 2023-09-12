@@ -168,6 +168,8 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
         m_axisPropertiesArray.push_back( timeAxisProperties );
     }
+    CAF_PDM_InitFieldNoDefault( &m_fieldIsCrossPlot, "FieldIsCrossPlot", "Is CrossPlot" );
+    m_fieldIsCrossPlot = m_isCrossPlot;
 
     auto leftAxis = addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
     leftAxis->setAlwaysRequired( true );
@@ -1619,6 +1621,12 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
+    if ( changedField == &m_fieldIsCrossPlot )
+    {
+        m_isCrossPlot = m_fieldIsCrossPlot();
+        loadDataAndUpdate();
+    }
+
     if ( changedField == &m_description )
     {
         m_useAutoPlotTitle = false;
@@ -2597,6 +2605,8 @@ void RimSummaryPlot::onPlotZoomed()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_fieldIsCrossPlot );
+
     {
         auto group = uiOrdering.addNewGroup( "Data Source" );
         m_sourceStepping()->uiOrdering( uiConfigName, *group );
@@ -2970,6 +2980,8 @@ void RimSummaryPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, 
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHandling() const
 {
+    if ( m_isCrossPlot ) return summaryCurveCollection()->sourceSteppingObject( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
+
     return m_sourceStepping;
 }
 
