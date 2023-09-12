@@ -60,8 +60,7 @@ public:
     // Create labels for the given collection of parts. The labels are added to the given model.
     void addAnnotationLabels( const cvf::Collection<cvf::Part>& partCollection, const cvf::Camera* camera, cvf::ModelBasicList* model );
 
-    static cvf::ref<cvf::Part>
-        createPartFromPolyline( const std::string& partName, const cvf::Color3f& color, const std::vector<cvf::Vec3d>& polyLine );
+    static cvf::ref<cvf::Part> createPartFromPolyline( const cvf::Color3f& color, const std::vector<cvf::Vec3d>& polyLine );
 
     static cvf::ref<cvf::DrawableText> createDrawableText( cvf::Font*         font,
                                                            cvf::Color3f       textColor,

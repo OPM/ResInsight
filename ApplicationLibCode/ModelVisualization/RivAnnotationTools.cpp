@@ -88,15 +88,12 @@ void RivAnnotationTools::setCountHint( int countHint )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivAnnotationTools::createPartFromPolyline( const std::string&             partName,
-                                                                const cvf::Color3f&            color,
-                                                                const std::vector<cvf::Vec3d>& polyLine )
+cvf::ref<cvf::Part> RivAnnotationTools::createPartFromPolyline( const cvf::Color3f& color, const std::vector<cvf::Vec3d>& polyLine )
 {
     cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( polyLine );
     if ( drawableGeo.isNull() ) return nullptr;
 
     cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setName( partName );
     part->setDrawable( drawableGeo.p() );
 
     caf::MeshEffectGenerator colorEffgen( color );
@@ -333,9 +330,11 @@ void RivAnnotationTools::addAnnotationLabels( const cvf::Collection<cvf::Part>& 
                     std::vector<cvf::Vec3d> points = { lineAnchorPosition, labelPosition };
 
                     auto anchorLineColor = cvf::Color3f::BLACK;
-                    auto part = RivAnnotationTools::createPartFromPolyline( "AnnotationObjectAnchorPoints", anchorLineColor, points );
+                    auto part            = RivAnnotationTools::createPartFromPolyline( anchorLineColor, points );
+
                     if ( part.notNull() )
                     {
+                        part->setName( "AnnotationObjectAnchorPoints" );
                         model->addPart( part.p() );
                     }
                 }
