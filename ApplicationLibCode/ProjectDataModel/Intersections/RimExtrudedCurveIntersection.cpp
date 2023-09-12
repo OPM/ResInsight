@@ -764,9 +764,9 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
                 double dummyDouble;
                 lines[0] = RigWellPath::clipPolylineStartAboveZ( lines[0],
                                                                  ownerCase->activeCellsBoundingBox().max().z(),
-                                                                 &horizontalProjectedLengthAlongWellPathToClipPoint,
-                                                                 &dummyDouble,
-                                                                 &dummy );
+                                                                 horizontalProjectedLengthAlongWellPathToClipPoint,
+                                                                 dummyDouble,
+                                                                 dummy );
             }
         }
     }
