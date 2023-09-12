@@ -42,6 +42,14 @@ CAF_CMD_SOURCE_INIT( RicRunFaultReactModelingFeature, "RicRunFaultReactModelingF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicRunFaultReactModelingFeature::isCommandEnabled() const
+{
+    return RiaPreferencesGeoMech::current()->validateFRMSettings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 {
     RimFaultReactivationModel* model = dynamic_cast<RimFaultReactivationModel*>( caf::SelectionManager::instance()->selectedItem() );
@@ -97,7 +105,7 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
     runProgress.incrementProgress();
     runProgress.setProgressDescription( "Running Abaqus modeling." );
 
-    QString     command    = RiaPreferencesGeoMech::current()->geomechWIACommand();
+    QString     command    = RiaPreferencesGeoMech::current()->geomechFRMCommand();
     QStringList parameters = model->commandParameters();
 
     RimProcess process;

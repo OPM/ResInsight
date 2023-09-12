@@ -1115,6 +1115,8 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
+    m_faultReactivationModelCollection->syncTimeSteps();
+
     scheduleCreateDisplayModelAndRedraw();
 }
 

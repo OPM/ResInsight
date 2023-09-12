@@ -65,6 +65,8 @@ public:
                              caf::DisplayCoordTransform* transform,
                              const cvf::BoundingBox&     boundingBox );
 
+    void syncTimeSteps();
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 

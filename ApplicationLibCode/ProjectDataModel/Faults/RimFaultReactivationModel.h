@@ -20,6 +20,7 @@
 #include "RimCheckableNamedObject.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
+#include "RimTimeStepFilter.h"
 
 #include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
@@ -31,6 +32,7 @@
 #include "cvfColor3.h"
 #include "cvfVector3.h"
 
+#include <QDateTime>
 #include <QString>
 #include <QStringList>
 
@@ -55,6 +57,8 @@ class Plane;
 class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
+
+    using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
 
 public:
     RimFaultReactivationModel();
@@ -97,6 +101,8 @@ public:
     QString     outputOdbFilename() const;
     QString     inputFilename() const;
 
+    void updateTimeSteps();
+
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -109,7 +115,7 @@ protected:
 
     void initAfterRead() override;
 
-    void updateTimeSteps();
+    QString baseFilename() const;
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
@@ -144,5 +150,6 @@ private:
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;
 
-    caf::PdmChildField<RimTimeStepFilter*> m_timeStepFilter;
+    caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
+    caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
 };

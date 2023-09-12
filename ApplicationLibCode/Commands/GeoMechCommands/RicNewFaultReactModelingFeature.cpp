@@ -113,6 +113,7 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 auto model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2, baseDir );
                 if ( model != nullptr )
                 {
+                    model->updateTimeSteps();
                     view->updateAllRequiredEditors();
                     Riu3DMainWindowTools::selectAsCurrentItem( model );
                 }

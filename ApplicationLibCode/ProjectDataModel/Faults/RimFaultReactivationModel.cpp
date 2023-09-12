@@ -48,6 +48,7 @@
 #include "cvfTextureImage.h"
 
 #include <QDateTime>
+#include <QDir>
 
 CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 
@@ -94,10 +95,10 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_numberOfCellsVertMid, "NumberOfCellsVertMid", 20, "Vertical Number of Cells, Middle Part" );
     CAF_PDM_InitField( &m_numberOfCellsVertLow, "NumberOfCellsVertLow", 20, "Vertical Number of Cells, Lower Part" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter" );
-    m_timeStepFilter.uiCapability()->setUiTreeHidden( true );
-    m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden( true );
-    m_timeStepFilter = new RimTimeStepFilter();
+    // CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter" );
+    // m_timeStepFilter.uiCapability()->setUiTreeHidden( true );
+    // m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden( true );
+    // m_timeStepFilter = new RimTimeStepFilter();
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -126,7 +127,6 @@ RimFaultReactivationModel::~RimFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::initAfterRead()
 {
-    updateTimeSteps();
     updateVisualization();
 }
 
@@ -234,8 +234,6 @@ caf::PickEventHandler* RimFaultReactivationModel::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::updateVisualization()
 {
-    // if ( m_timeStepFilter->filteredTimeSteps().size() == 0 ) updateTimeSteps();
-
     auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( !view ) return;
 
@@ -302,8 +300,6 @@ cvf::ref<RigPolyLinesData> RimFaultReactivationModel::polyLinesData() const
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimFaultReactivationModel::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    if ( m_timeStepFilter->filteredTimeSteps().size() == 0 ) updateTimeSteps();
-
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_fault )
@@ -365,7 +361,7 @@ bool RimFaultReactivationModel::showModel() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( m_timeStepFilter->filteredTimeSteps().size() == 0 ) updateTimeSteps();
+    // if ( m_timeStepFilter->filteredTimeSteps().size() == 0 ) updateTimeSteps();
 
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( &m_userDescription );
@@ -397,8 +393,8 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     gridModelGrp->add( &m_numberOfCellsVertMid );
     gridModelGrp->add( &m_numberOfCellsVertLow );
 
-    caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Steps" );
-    m_timeStepFilter->uiOrdering( uiConfigName, *timeStepFilterGroup );
+    //    caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Steps" );
+    //    m_timeStepFilter->uiOrdering( uiConfigName, *timeStepFilterGroup );
 
     auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
     appModelGrp->add( &m_modelPart1Color );
@@ -468,6 +464,12 @@ void RimFaultReactivationModel::defineEditorAttribute( const caf::PdmFieldHandle
 RimEclipseCase* RimFaultReactivationModel::eclipseCase()
 {
     auto eCase = firstAncestorOrThisOfType<RimEclipseCase>();
+
+    if ( eCase == nullptr )
+    {
+        eCase = dynamic_cast<RimEclipseCase*>( RiaApplication::instance()->activeGridView()->ownerCase() );
+    }
+
     return eCase;
 }
 
@@ -507,7 +509,9 @@ void RimFaultReactivationModel::updateTimeSteps()
         timeSteps.push_back( std::make_pair( timeStepStrings[i], timeStepDates[i] ) );
     }
 
-    m_timeStepFilter->setTimeStepsFromFile( timeSteps );
+    // auto selection = m_timeStepFilter->filteredTimeSteps();
+    // m_timeStepFilter->setTimeStepsFromFile( timeSteps );
+    // m_timeStepFilter->filteredTimeSteps() = selection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -515,14 +519,14 @@ void RimFaultReactivationModel::updateTimeSteps()
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 {
-    auto steps = m_timeStepFilter->filteredTimeSteps();
+    //    auto steps = m_timeStepFilter->filteredTimeSteps();
 
     std::vector<QDateTime> selectedSteps;
 
-    for ( const auto& step : m_timeStepFilter->allTimeSteps() )
-    {
-        selectedSteps.push_back( step.second );
-    }
+    // for ( const auto& step : m_timeStepFilter->allTimeSteps() )
+    //{
+    //     selectedSteps.push_back( step.second );
+    // }
 
     return selectedSteps;
 }
@@ -532,7 +536,13 @@ std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 QStringList RimFaultReactivationModel::commandParameters() const
 {
-    return QStringList();
+    QStringList retlist;
+
+    retlist << baseDir();
+    retlist << inputFilename();
+    retlist << outputOdbFilename();
+
+    return retlist;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -540,7 +550,8 @@ QStringList RimFaultReactivationModel::commandParameters() const
 //--------------------------------------------------------------------------------------------------
 QString RimFaultReactivationModel::outputOdbFilename() const
 {
-    return baseDir() + "faultreactivation.odb";
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( baseFilename() + ".odb" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -548,5 +559,23 @@ QString RimFaultReactivationModel::outputOdbFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimFaultReactivationModel::inputFilename() const
 {
-    return baseDir() + "faultreactivation.inp";
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( baseFilename() + ".inp" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::baseFilename() const
+{
+    QString tmp = m_userDescription();
+
+    if ( tmp.isEmpty() ) return "faultReactivation";
+
+    tmp.replace( ' ', '_' );
+    tmp.replace( '/', '_' );
+    tmp.replace( '\\', '_' );
+    tmp.replace( ':', '_' );
+
+    return tmp;
 }

@@ -186,3 +186,14 @@ void RimFaultReactivationModelCollection::appendPartsToModel( Rim3dView*        
 
     model->updateBoundingBoxesRecursive();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModelCollection::syncTimeSteps()
+{
+    for ( auto& frm : m_models )
+    {
+        frm->updateTimeSteps();
+    }
+}
