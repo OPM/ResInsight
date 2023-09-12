@@ -22,6 +22,7 @@
 #include "RiaOpmParserTools.h"
 
 #include "RimCheckableNamedObject.h"
+#include "RimWellPathAicdParameters.h"
 
 #include "cafPdmChildField.h"
 
@@ -48,6 +49,8 @@ public:
     QString                                     typeLabel() const;
     QString                                     fullLabel() const;
     void                                        setUserLabel( const QString& userLabel );
+
+    void setAicdParameter( AICDParameters parameter, double value );
 
     static RimValveTemplate* createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters, int templateNumber );
 

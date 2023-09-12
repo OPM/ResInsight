@@ -171,6 +171,17 @@ void RimValveTemplate::setUserLabel( const QString& userLabel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimValveTemplate::setAicdParameter( AICDParameters parameter, double value )
+{
+    if ( m_aicdParameters() )
+    {
+        m_aicdParameters()->setValue( parameter, value );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimValveTemplate* RimValveTemplate::createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters, int templateNumber )
 {
     RimValveTemplate* aicdTemplate = new RimValveTemplate;
@@ -209,7 +220,7 @@ RimValveTemplate* RimValveTemplate::createAicdTemplate( const RiaOpmParserTools:
         if ( aicdParameters.contains( parameter.first ) )
         {
             auto incomingValue = aicdParameters.at( parameter.first );
-            aicdTemplate->m_aicdParameters()->setValue( parameter.second, incomingValue );
+            aicdTemplate->setAicdParameter( parameter.second, incomingValue );
         }
     }
 

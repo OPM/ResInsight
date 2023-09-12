@@ -1183,13 +1183,13 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( Q
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( const QString& keyword,
                                                                                 const QString& keywordToStopParsing,
-                                                                                QFile&         file,
-                                                                                qint64         startPos,
                                                                                 const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
-                                                                                QStringList*          keywordDataContent,
-                                                                                std::vector<QString>* filenamesContainingKeyword,
-                                                                                bool*                 isStopParsingKeywordDetected,
-                                                                                const QString&        includeStatementAbsolutePathPrefix )
+                                                                                const QString&        includeStatementAbsolutePathPrefix,
+                                                                                QFile&                file,
+                                                                                qint64                startPos,
+                                                                                QStringList&          keywordDataContent,
+                                                                                std::vector<QString>& filenamesContainingKeyword,
+                                                                                bool&                 isStopParsingKeywordDetected )
 {
     QString line;
 
@@ -1212,10 +1212,7 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( 
 
         if ( !keywordToStopParsing.isEmpty() && line.startsWith( keywordToStopParsing, Qt::CaseInsensitive ) )
         {
-            if ( isStopParsingKeywordDetected )
-            {
-                *isStopParsingKeywordDetected = true;
-            }
+            isStopParsingKeywordDetected = true;
 
             return false;
         }
@@ -1266,17 +1263,15 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( 
                     QFile   includeFile( absoluteFilename );
                     if ( includeFile.open( QFile::ReadOnly ) )
                     {
-                        // qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
-
                         if ( !readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                keywordToStopParsing,
+                                                                               pathAliasDefinitions,
+                                                                               includeStatementAbsolutePathPrefix,
                                                                                includeFile,
                                                                                0,
-                                                                               pathAliasDefinitions,
                                                                                keywordDataContent,
                                                                                filenamesContainingKeyword,
-                                                                               isStopParsingKeywordDetected,
-                                                                               includeStatementAbsolutePathPrefix ) )
+                                                                               isStopParsingKeywordDetected ) )
                         {
                             qDebug() << "Error when parsing include file : " << absoluteFilename;
                         }
@@ -1289,11 +1284,11 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( 
             if ( !line.contains( "/" ) )
             {
                 readKeywordDataContent( file, file.pos(), keywordDataContent, isStopParsingKeywordDetected );
-                filenamesContainingKeyword->push_back( file.fileName() );
+                filenamesContainingKeyword.push_back( file.fileName() );
             }
         }
 
-        if ( isStopParsingKeywordDetected && *isStopParsingKeywordDetected )
+        if ( isStopParsingKeywordDetected )
         {
             continueParsing = false;
         }
@@ -1311,7 +1306,7 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected )
+void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 filePos, QStringList& textContent, bool& isStopParsingKeywordDetected )
 {
     if ( !data.seek( filePos ) )
     {
@@ -1339,11 +1334,7 @@ void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 fileP
         else if ( line.startsWith( editKeyword, Qt::CaseInsensitive ) )
         {
             // End parsing when edit keyword is detected
-
-            if ( isEditKeywordDetected )
-            {
-                *isEditKeywordDetected = true;
-            }
+            isStopParsingKeywordDetected = true;
 
             return;
         }
@@ -1355,7 +1346,7 @@ void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 fileP
 
         if ( !line.isEmpty() )
         {
-            textContent->push_back( line );
+            textContent.push_back( line );
         }
 
     } while ( !data.atEnd() );
@@ -1368,7 +1359,7 @@ RiaDefines::EclipseUnitSystem RifEclipseInputFileTools::readUnitSystem( QFile& f
 {
     bool        stopParsing = false;
     QStringList unitText;
-    readKeywordDataContent( file, gridunitPos, &unitText, &stopParsing );
+    readKeywordDataContent( file, gridunitPos, unitText, stopParsing );
     for ( QString unitString : unitText )
     {
         if ( unitString.contains( "FEET", Qt::CaseInsensitive ) )
@@ -1441,22 +1432,22 @@ bool RifEclipseInputFileTools::hasGridData( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 QStringList RifEclipseInputFileTools::readKeywordContentFromFile( const QString& keyword, const QString& keywordToStopParsing, QFile& file )
 {
-    const qint64                             startPositionInFile = 0;
     std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+    const QString                            includeStatementAbsolutePathPrefix;
+    const qint64                             startPositionInFile = 0;
     QStringList                              keywordContent;
     std::vector<QString>                     fileNamesContainingKeyword;
     bool                                     isStopParsingKeywordDetected = false;
-    const QString                            includeStatementAbsolutePathPrefix;
 
     RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                keywordToStopParsing,
+                                                                               pathAliasDefinitions,
+                                                                               includeStatementAbsolutePathPrefix,
                                                                                file,
                                                                                startPositionInFile,
-                                                                               pathAliasDefinitions,
-                                                                               &keywordContent,
-                                                                               &fileNamesContainingKeyword,
-                                                                               &isStopParsingKeywordDetected,
-                                                                               includeStatementAbsolutePathPrefix );
+                                                                               keywordContent,
+                                                                               fileNamesContainingKeyword,
+                                                                               isStopParsingKeywordDetected );
 
     return keywordContent;
 }

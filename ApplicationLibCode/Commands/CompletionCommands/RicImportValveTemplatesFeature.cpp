@@ -19,6 +19,7 @@
 #include "RicImportValveTemplatesFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaOpmParserTools.h"
 
 #include "RimProject.h"
@@ -52,6 +53,12 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
                                                                   "Import Valve Templates",
                                                                   defaultDir,
                                                                   "Valve Files (*.sch *.case);;All Files (*.*)" );
+
+    if ( RimProject::current()->allValveTemplateCollections().empty() )
+    {
+        RiaLogging::error( "No valve template collection found, failed to import valves." );
+        return;
+    }
 
     RimValveTemplateCollection* templateColl = RimProject::current()->allValveTemplateCollections().front();
     for ( const auto& fileName : fileNames )

@@ -192,13 +192,13 @@ TEST( RifEclipseInputFileToolsTest, EquilData )
 
         RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                    keywordToStopParsing,
+                                                                                   pathAliasDefinitions,
+                                                                                   includeStatementAbsolutePathPrefix,
                                                                                    data,
                                                                                    startPositionInFile,
-                                                                                   pathAliasDefinitions,
-                                                                                   &keywordContent,
-                                                                                   &fileNamesContainingKeyword,
-                                                                                   &isStopParsingKeywordDetected,
-                                                                                   includeStatementAbsolutePathPrefix );
+                                                                                   keywordContent,
+                                                                                   fileNamesContainingKeyword,
+                                                                                   isStopParsingKeywordDetected );
         EXPECT_EQ( (int)10, keywordContent.size() );
     }
 }
@@ -232,13 +232,13 @@ TEST( RifEclipseInputFileToolsTest, FaultData )
 
         RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                    keywordToStopParsing,
+                                                                                   pathAliasDefinitions,
+                                                                                   includeStatementAbsolutePathPrefix,
                                                                                    data,
                                                                                    startPositionInFile,
-                                                                                   pathAliasDefinitions,
-                                                                                   &keywordContent,
-                                                                                   &fileNamesContainingKeyword,
-                                                                                   &isStopParsingKeywordDetected,
-                                                                                   includeStatementAbsolutePathPrefix );
+                                                                                   keywordContent,
+                                                                                   fileNamesContainingKeyword,
+                                                                                   isStopParsingKeywordDetected );
 
         EXPECT_EQ( (int)977, keywordContent.size() );
 
@@ -277,13 +277,13 @@ TEST( RifEclipseInputFileToolsTest, StopAtKeyword )
 
         RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                    keywordToStopParsing,
+                                                                                   pathAliasDefinitions,
+                                                                                   includeStatementAbsolutePathPrefix,
                                                                                    data,
                                                                                    startPositionInFile,
-                                                                                   pathAliasDefinitions,
-                                                                                   &keywordContent,
-                                                                                   &fileNamesContainingKeyword,
-                                                                                   &isStopParsingKeywordDetected,
-                                                                                   includeStatementAbsolutePathPrefix );
+                                                                                   keywordContent,
+                                                                                   fileNamesContainingKeyword,
+                                                                                   isStopParsingKeywordDetected );
 
         EXPECT_TRUE( isStopParsingKeywordDetected );
         EXPECT_TRUE( keywordContent.isEmpty() );
@@ -301,13 +301,13 @@ TEST( RifEclipseInputFileToolsTest, StopAtKeyword )
 
         RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                    keywordToStopParsing,
+                                                                                   pathAliasDefinitions,
+                                                                                   includeStatementAbsolutePathPrefix,
                                                                                    data,
                                                                                    startPositionInFile,
-                                                                                   pathAliasDefinitions,
-                                                                                   &keywordContent,
-                                                                                   &fileNamesContainingKeyword,
-                                                                                   &isStopParsingKeywordDetected,
-                                                                                   includeStatementAbsolutePathPrefix );
+                                                                                   keywordContent,
+                                                                                   fileNamesContainingKeyword,
+                                                                                   isStopParsingKeywordDetected );
         EXPECT_TRUE( isStopParsingKeywordDetected );
         EXPECT_TRUE( keywordContent.isEmpty() );
     }
@@ -338,13 +338,13 @@ TEST( RifEclipseInputFileToolsTest, DISABLED_FindFilesWithVfp )
 
         RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                    keywordToStopParsing,
+                                                                                   pathAliasDefinitions,
+                                                                                   includeStatementAbsolutePathPrefix,
                                                                                    data,
                                                                                    startPositionInFile,
-                                                                                   pathAliasDefinitions,
-                                                                                   &keywordContent,
-                                                                                   &fileNamesContainingKeyword,
-                                                                                   &isStopParsingKeywordDetected,
-                                                                                   includeStatementAbsolutePathPrefix );
+                                                                                   keywordContent,
+                                                                                   fileNamesContainingKeyword,
+                                                                                   isStopParsingKeywordDetected );
 
         //        EXPECT_TRUE( isStopParsingKeywordDetected );
         //        EXPECT_TRUE( keywordContent.isEmpty() );
@@ -368,13 +368,13 @@ TEST( RifEclipseInputFileToolsTest, DISABLED_FindFilesWithVfp )
 
         RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                    keywordToStopParsing,
+                                                                                   pathAliasDefinitions,
+                                                                                   includeStatementAbsolutePathPrefix,
                                                                                    data,
                                                                                    startPositionInFile,
-                                                                                   pathAliasDefinitions,
-                                                                                   &keywordContent,
-                                                                                   &fileNamesContainingKeyword,
-                                                                                   &isStopParsingKeywordDetected,
-                                                                                   includeStatementAbsolutePathPrefix );
+                                                                                   keywordContent,
+                                                                                   fileNamesContainingKeyword,
+                                                                                   isStopParsingKeywordDetected );
 
         //      EXPECT_TRUE( isStopParsingKeywordDetected );
         //        EXPECT_TRUE( keywordContent.isEmpty() );

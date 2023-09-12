@@ -249,15 +249,15 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
         {
             auto name = kw->name();
 
-            for ( size_t i = 0; i < kw->size(); i++ )
+            for ( size_t kwIndex = 0; kwIndex < kw->size(); kwIndex++ )
             {
                 RiaOpmParserTools::AicdTemplateValues aicdTemplate;
 
-                auto deckRecord = kw->getRecord( i );
+                auto deckRecord = kw->getRecord( kwIndex );
                 auto numItems   = deckRecord.size();
-                for ( size_t i = 0; i < numItems; i++ )
+                for ( size_t deckIndex = 0; deckIndex < numItems; deckIndex++ )
                 {
-                    auto deckItem = deckRecord.getItem( i );
+                    auto deckItem = deckRecord.getItem( deckIndex );
                     if ( !deckItem.hasValue( 0 ) ) continue;
                     if ( !keywordsToExtract.contains( deckItem.name() ) ) continue;
 

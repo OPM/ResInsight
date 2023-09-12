@@ -111,13 +111,13 @@ public:
     // Public for unit testing, use readKeywordContentFromFile()
     static bool readKeywordAndParseIncludeStatementsRecursively( const QString&                                  keyword,
                                                                  const QString&                                  keywordToStopParsing,
-                                                                 QFile&                                          file,
-                                                                 qint64                                          startPos,
                                                                  const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
-                                                                 QStringList*                                    keywordDataContent,
-                                                                 std::vector<QString>*                           filenamesContainingKeyword,
-                                                                 bool*                                           isEditKeywordDetected,
-                                                                 const QString& includeStatementAbsolutePathPrefix );
+                                                                 const QString&        includeStatementAbsolutePathPrefix,
+                                                                 QFile&                file,
+                                                                 qint64                startPos,
+                                                                 QStringList&          keywordDataContent,
+                                                                 std::vector<QString>& filenamesContainingKeyword,
+                                                                 bool&                 isStopParsingKeywordDetected );
 
     static RiaDefines::EclipseUnitSystem readUnitSystem( QFile& file, qint64 gridunitPos );
 
@@ -137,7 +137,7 @@ private:
                                                                 bool*                                           isEditKeywordDetected,
                                                                 const QString& faultIncludeFileAbsolutePathPrefix );
 
-    static void readKeywordDataContent( QFile& data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected );
+    static void readKeywordDataContent( QFile& data, qint64 filePos, QStringList& textContent, bool& isStopParsingKeywordDetected );
 
     static void findGridKeywordPositions( const std::vector<RifKeywordAndFilePos>& keywords,
                                           qint64*                                  coordPos,
