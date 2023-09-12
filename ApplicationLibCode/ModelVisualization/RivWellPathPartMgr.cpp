@@ -55,6 +55,7 @@
 #include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
+#include "RivAnnotationSourceInfo.h"
 #include "RivBoxGeometryGenerator.h"
 #include "RivDrawableSpheres.h"
 #include "RivFishbonesSubsPartMgr.h"
@@ -696,6 +697,31 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         cvf::ref<cvf::Effect>    eff = gen.generateCachedEffect();
 
         m_centerLinePart->setEffect( eff.p() );
+
+        if ( m_rimWellPath->measuredDepthLabelInterval().has_value() && clippedWellPathCenterLine.size() > 2 )
+        {
+            const double distanceBetweenLabels = m_rimWellPath->measuredDepthLabelInterval().value();
+
+            // Create a round number as start for measured depth label
+            const double startMeasuredDepth = ( int( measuredDepthAtFirstClipPoint / distanceBetweenLabels ) + 1 ) * distanceBetweenLabels;
+
+            std::vector<std::string> labelTexts;
+            std::vector<cvf::Vec3d>  labelDisplayCoords;
+
+            double measuredDepth = startMeasuredDepth;
+            while ( measuredDepth < wellPathGeometry->measuredDepths().back() )
+            {
+                labelTexts.push_back( std::to_string( static_cast<int>( measuredDepth ) ) );
+                auto domainCoord = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
+
+                auto displayCoord = displayCoordTransform->transformToDisplayCoord( domainCoord );
+                labelDisplayCoords.push_back( displayCoord );
+
+                measuredDepth += distanceBetweenLabels;
+            }
+
+            m_centerLinePart->setSourceInfo( new RivAnnotationSourceInfo( labelTexts, labelDisplayCoords ) );
+        }
     }
 
     // Generate label with well-path name at a position that is slightly offset towards the end of the well path
