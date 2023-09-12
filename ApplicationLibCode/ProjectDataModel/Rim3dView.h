@@ -19,10 +19,13 @@
 #pragma once
 
 #include "RiaDefines.h"
+
 #include "RimNameConfig.h"
 #include "RimViewWindow.h"
+
 #include "RiuViewerToViewInterface.h"
 
+#include "RivAnnotationTools.h"
 #include "RivCellSetEnum.h"
 
 #include "cafAppEnum.h"
@@ -247,6 +250,8 @@ protected:
 
     virtual cvf::Transform* scaleTransform() = 0;
 
+    void onViewNavigationChanged() override;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* backgroundColorField();
@@ -272,6 +277,7 @@ protected:
     cvf::ref<cvf::ModelBasicList> m_seismicVizModel;
     cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
     cvf::ref<cvf::ModelBasicList> m_highlightVizModel;
+    cvf::ref<cvf::ModelBasicList> m_screenSpaceModel;
 
     caf::PdmField<double> m_scaleZ;
     caf::PdmField<double> m_customScaleZ;
@@ -306,6 +312,7 @@ private:
     void appendMeasurementToModel();
     void appendCellFiltersToModel();
     void appendAnnotationsToModel();
+    void updateScreenSpaceModel();
 
     // Pure private methods : Override viewer and comparison view
 
@@ -331,6 +338,10 @@ private:
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
+
+    caf::PdmField<bool>                                                    m_useCustomAnnotationStrategy;
+    caf::PdmField<caf::AppEnum<RivAnnotationTools::LabelPositionStrategy>> m_annotationStrategy;
+    caf::PdmField<int>                                                     m_annotationCountHint;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_fontSize;
 
