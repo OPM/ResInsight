@@ -158,7 +158,7 @@ bool RifInpExportTools::printElements( std::ostream& stream, const std::vector<u
         // Break lines periodically
         bool isFirst = i == 0;
         bool isLast  = i == ( elements.size() - 1 );
-        if ( !isFirst && !isLast && i % numItemsPerLine == 0 )
+        if ( !isFirst && !isLast && ( i + 1 ) % numItemsPerLine == 0 )
         {
             stream << std::endl;
         }
