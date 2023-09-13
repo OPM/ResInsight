@@ -198,15 +198,15 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
         {
             for ( int t = 0; t < nThicknessCells; t++, elementIdx++ )
             {
-                m_elementIndices[elementIdx].push_back( t + i );
-                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
-                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
-                m_elementIndices[elementIdx].push_back( t + i + 1 );
-
                 m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i );
                 m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff );
                 m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
                 m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
+
+                m_elementIndices[elementIdx].push_back( t + i );
+                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
+                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
+                m_elementIndices[elementIdx].push_back( t + i + 1 );
 
                 if ( layer == 0 )
                 {
