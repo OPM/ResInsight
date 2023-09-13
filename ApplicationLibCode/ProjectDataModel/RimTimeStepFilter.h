@@ -65,6 +65,12 @@ public:
 
     std::vector<std::pair<QString, QDateTime>> allTimeSteps() const;
 
+    static void timeStepOptions( QList<caf::PdmOptionItemInfo>& options,
+                                 const caf::PdmFieldHandle*     timestepField,
+                                 std::vector<QDateTime>         availableTimeSteps,
+                                 std::vector<QDateTime>         selectedTimeSteps,
+                                 TimeStepFilterTypeEnum         filterType );
+
 protected:
     void initAfterRead() override;
 
