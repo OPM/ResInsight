@@ -737,21 +737,13 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 
-        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont( font );
-        drawableText->setCheckPosVisible( false );
-        drawableText->setDrawBorder( false );
-        drawableText->setDrawBackground( false );
-        drawableText->setVerticalAlignment( cvf::TextDrawer::CENTER );
-        drawableText->setTextColor( wellPathCollection->wellPathLabelColor() );
-
-        cvf::String cvfString = cvfqt::Utils::toString( m_rimWellPath->name() );
-
-        cvf::Vec3f textCoord( textPosition );
-        drawableText->addText( cvfString, textCoord );
+        auto drawableText = RivAnnotationTools::createDrawableTextNoBackground( font,
+                                                                                wellPathCollection->wellPathLabelColor(),
+                                                                                m_rimWellPath->name().toStdString(),
+                                                                                cvf::Vec3f( textPosition ) );
 
         cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName( "RivWellHeadPartMgr: text " + cvfString );
+        part->setName( "RivWellHeadPartMgr: text " + m_rimWellPath->name().toStdString() );
         part->setDrawable( drawableText.p() );
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
@@ -759,7 +751,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         part->setEffect( eff.p() );
         part->setPriority( RivPartPriority::Text );
 
-        part->setSourceInfo( new RivTextLabelSourceInfo( m_rimWellPath, cvfString, textCoord ) );
+        part->setSourceInfo( new RivTextLabelSourceInfo( m_rimWellPath, m_rimWellPath->name().toStdString(), cvf::Vec3f( textPosition ) ) );
 
         m_wellLabelPart = part;
     }

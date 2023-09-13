@@ -581,36 +581,24 @@ void RivFaultPartMgr::createLabelWithAnchorLine( const cvf::Part* part )
 
         cvf::Font* font = app->defaultWellLabelFont();
 
-        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont( font );
-        drawableText->setCheckPosVisible( false );
-        drawableText->setDrawBorder( false );
-        drawableText->setDrawBackground( false );
-        drawableText->setVerticalAlignment( cvf::TextDrawer::CENTER );
-
         cvf::Color3f defWellLabelColor = app->preferences()->defaultWellLabelColor();
         {
+            auto parentObject = m_rimFault->firstAncestorOrThisOfType<RimFaultInViewCollection>();
+            if ( parentObject )
             {
-                auto parentObject = m_rimFault->firstAncestorOrThisOfType<RimFaultInViewCollection>();
-                if ( parentObject )
-                {
-                    defWellLabelColor = parentObject->faultLabelColor();
-                }
+                defWellLabelColor = parentObject->faultLabelColor();
             }
         }
-
-        drawableText->setTextColor( defWellLabelColor );
-
-        cvf::String cvfString = cvfqt::Utils::toString( m_rimFault->name() );
 
         cvf::Vec3f textCoord( labelPosition );
         double     characteristicCellSize = bb.extent().z() / 20;
         textCoord.z() += characteristicCellSize;
 
-        drawableText->addText( cvfString, textCoord );
+        auto drawableText =
+            RivAnnotationTools::createDrawableTextNoBackground( font, defWellLabelColor, m_rimFault->name().toStdString(), textCoord );
 
         cvf::ref<cvf::Part> labelPart = new cvf::Part;
-        labelPart->setName( "RivFaultPart : text " + cvfString );
+        labelPart->setName( "RivFaultPart : text " + m_rimFault->name().toStdString() );
         labelPart->setDrawable( drawableText.p() );
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
@@ -618,7 +606,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine( const cvf::Part* part )
         labelPart->setEffect( eff.p() );
         labelPart->setPriority( RivPartPriority::PartType::Text );
 
-        labelPart->setSourceInfo( new RivTextLabelSourceInfo( m_rimFault, cvfString, textCoord ) );
+        labelPart->setSourceInfo( new RivTextLabelSourceInfo( m_rimFault, m_rimFault->name().toStdString(), textCoord ) );
 
         m_faultLabelPart = labelPart;
     }
