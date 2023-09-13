@@ -12,6 +12,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRunWellIntegrityAnalysisFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewFaultReactModelingFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactModelingFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowFaultReactModelFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -28,6 +29,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRunWellIntegrityAnalysisFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewFaultReactModelingFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactModelingFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowFaultReactModelFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

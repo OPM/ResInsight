@@ -481,6 +481,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFaultReactivationModel*>( firstUiItem ) )
         {
             menuBuilder << "RicRunFaultReactModelingFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicShowFaultReactModelFeature";
             menuBuilder << "RicExportInpFileFeature";
         }
         else if ( dynamic_cast<RimPressureTable*>( firstUiItem ) )
