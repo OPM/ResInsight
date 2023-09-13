@@ -39,6 +39,7 @@
 #include "cvfObject.h"
 
 #include <functional>
+#include <optional>
 
 class RifWellPathImporter;
 class RifWellPathFormationsImporter;
