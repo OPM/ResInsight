@@ -28,7 +28,6 @@
 #include "RimProject.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "Riu3dSelectionManager.h"
 #include "RiuFileDialogTools.h"
 
 #include "cafProgressInfo.h"
@@ -53,12 +52,9 @@ bool RicRunFaultReactModelingFeature::isCommandEnabled() const
 void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 {
     RimFaultReactivationModel* model = dynamic_cast<RimFaultReactivationModel*>( caf::SelectionManager::instance()->selectedItem() );
-
     if ( model == nullptr ) return;
 
     const QString frmTitle( "Fault Reactivation Modeling" );
-
-    QString outErrorText;
 
     caf::ProgressInfo runProgress( 3, frmTitle + " running , please wait..." );
 
@@ -81,7 +77,8 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
     if ( !result )
     {
-        outErrorText = QString( "Failed to export INP model to file %1.\n\n%2" ).arg( exportFile ).arg( QString::fromStdString( errText ) );
+        QString outErrorText =
+            QString( "Failed to export INP model to file %1.\n\n%2" ).arg( exportFile ).arg( QString::fromStdString( errText ) );
         QMessageBox::critical( nullptr, frmTitle, outErrorText );
         return;
     }

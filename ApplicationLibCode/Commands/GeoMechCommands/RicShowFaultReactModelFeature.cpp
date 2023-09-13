@@ -26,14 +26,10 @@
 #include "RimFaultReactivationModel.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimProcess.h"
 #include "RimProject.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "Riu3dSelectionManager.h"
-#include "RiuFileDialogTools.h"
 
-#include "cafProgressInfo.h"
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
@@ -55,26 +51,23 @@ bool RicShowFaultReactModelFeature::isCommandEnabled() const
 void RicShowFaultReactModelFeature::onActionTriggered( bool isChecked )
 {
     RimFaultReactivationModel* model = dynamic_cast<RimFaultReactivationModel*>( caf::SelectionManager::instance()->selectedItem() );
-
     if ( model == nullptr ) return;
 
     const QString frmTitle( "Fault Reactivation Modeling" );
+    const QString exportFile = model->inputFilename();
 
-    QString outErrorText;
-
-    QString exportFile     = model->inputFilename();
     auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *model->model() );
-
     if ( !result )
     {
-        outErrorText = QString( "Failed to export INP model to file %1.\n\n%2" ).arg( exportFile ).arg( QString::fromStdString( errText ) );
+        QString outErrorText =
+            QString( "Failed to export INP model to file %1.\n\n%2" ).arg( exportFile ).arg( QString::fromStdString( errText ) );
         QMessageBox::critical( nullptr, frmTitle, outErrorText );
         return;
     }
 
     for ( auto gCase : RimProject::current()->geoMechCases() )
     {
-        if ( model->inputFilename() == gCase->gridFileName() )
+        if ( exportFile == gCase->gridFileName() )
         {
             gCase->reloadDataAndUpdate();
             auto& views = gCase->geoMechViews();
@@ -91,12 +84,11 @@ void RicShowFaultReactModelFeature::onActionTriggered( bool isChecked )
     }
 
     RiaApplication* app = RiaApplication::instance();
-    if ( !app->openOdbCaseFromFile( model->inputFilename() ) )
+    if ( !app->openOdbCaseFromFile( exportFile ) )
     {
         QMessageBox::critical( nullptr,
                                frmTitle,
-                               "Failed to load INP model from file \"" + model->inputFilename() +
-                                   "\". Check log window for additional information." );
+                               "Failed to load INP model from file \"" + exportFile + "\". Check log window for additional information." );
     }
 }
 
