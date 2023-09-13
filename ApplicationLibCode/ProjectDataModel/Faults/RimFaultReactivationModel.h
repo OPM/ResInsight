@@ -152,4 +152,6 @@ private:
 
     caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
+
+    std::vector<QDateTime> m_availableTimeSteps;
 };

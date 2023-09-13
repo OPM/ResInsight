@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferencesGeoMech.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RigBasicPlane.h"
 #include "RigFaultReactivationModel.h"
@@ -43,6 +44,7 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cvfPlane.h"
 #include "cvfTextureImage.h"
@@ -95,10 +97,11 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_numberOfCellsVertMid, "NumberOfCellsVertMid", 20, "Vertical Number of Cells, Middle Part" );
     CAF_PDM_InitField( &m_numberOfCellsVertLow, "NumberOfCellsVertLow", 20, "Vertical Number of Cells, Lower Part" );
 
-    // CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter" );
-    // m_timeStepFilter.uiCapability()->setUiTreeHidden( true );
-    // m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden( true );
-    // m_timeStepFilter = new RimTimeStepFilter();
+    // Time Step Selection
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -310,6 +313,60 @@ QList<caf::PdmOptionItemInfo> RimFaultReactivationModel::calculateValueOptions( 
             if ( coll != nullptr ) RimTools::faultOptionItems( &options, coll );
         }
     }
+    else if ( fieldNeedingOptions == &m_selectedTimeSteps )
+    {
+        if ( m_availableTimeSteps.empty() )
+        {
+            return options;
+        }
+
+        std::set<QDateTime>    currentlySelectedTimeSteps( m_selectedTimeSteps().begin(), m_selectedTimeSteps().end() );
+        std::set<int>          currentlySelectedTimeStepIndices;
+        std::vector<QDateTime> allDateTimes;
+        for ( auto& dateTime : m_availableTimeSteps )
+        {
+            if ( currentlySelectedTimeSteps.count( dateTime ) )
+            {
+                currentlySelectedTimeStepIndices.insert( (int)allDateTimes.size() );
+            }
+            allDateTimes.push_back( dateTime );
+        }
+
+        std::vector<int> filteredTimeStepIndices =
+            RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
+
+        // Add existing time steps to list of options to avoid removing them when changing filter.
+        filteredTimeStepIndices.insert( filteredTimeStepIndices.end(),
+                                        currentlySelectedTimeStepIndices.begin(),
+                                        currentlySelectedTimeStepIndices.end() );
+        std::sort( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() );
+        filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
+                                       filteredTimeStepIndices.end() );
+
+        QString dateFormatString     = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                        RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString timeFormatString     = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                                        RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+        QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+        bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL || m_timeStepFilter() == RimTimeStepFilter::TS_INTERVAL_DAYS;
+
+        for ( auto timeStepIndex : filteredTimeStepIndices )
+        {
+            QDateTime dateTime = allDateTimes[timeStepIndex];
+
+            if ( showTime && dateTime.time() != QTime( 0, 0, 0 ) )
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormatString ), dateTime ) );
+            }
+            else
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ), dateTime ) );
+            }
+        }
+    }
 
     return options;
 }
@@ -361,8 +418,6 @@ bool RimFaultReactivationModel::showModel() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    // if ( m_timeStepFilter->filteredTimeSteps().size() == 0 ) updateTimeSteps();
-
     auto genGrp = uiOrdering.addNewGroup( "General" );
     genGrp->add( &m_userDescription );
     genGrp->add( &m_fault );
@@ -393,8 +448,9 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     gridModelGrp->add( &m_numberOfCellsVertMid );
     gridModelGrp->add( &m_numberOfCellsVertLow );
 
-    //    caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Steps" );
-    //    m_timeStepFilter->uiOrdering( uiConfigName, *timeStepFilterGroup );
+    auto timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
+    timeStepGrp->add( &m_timeStepFilter );
+    timeStepGrp->add( &m_selectedTimeSteps );
 
     auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
     appModelGrp->add( &m_modelPart1Color );
@@ -494,24 +550,11 @@ QString RimFaultReactivationModel::baseDir() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::updateTimeSteps()
 {
+    m_availableTimeSteps.clear();
     const auto eCase = eclipseCase();
     if ( eCase == nullptr ) return;
 
-    auto timeStepStrings = eCase->timeStepStrings();
-    auto timeStepDates   = eCase->timeStepDates();
-
-    CVF_ASSERT( timeStepStrings.size() == timeStepDates.size() );
-
-    std::vector<std::pair<QString, QDateTime>> timeSteps;
-
-    for ( int i = 0; i < (int)timeStepStrings.size(); i++ )
-    {
-        timeSteps.push_back( std::make_pair( timeStepStrings[i], timeStepDates[i] ) );
-    }
-
-    // auto selection = m_timeStepFilter->filteredTimeSteps();
-    // m_timeStepFilter->setTimeStepsFromFile( timeSteps );
-    // m_timeStepFilter->filteredTimeSteps() = selection;
+    m_availableTimeSteps = eCase->timeStepDates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -519,16 +562,7 @@ void RimFaultReactivationModel::updateTimeSteps()
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 {
-    //    auto steps = m_timeStepFilter->filteredTimeSteps();
-
-    std::vector<QDateTime> selectedSteps;
-
-    // for ( const auto& step : m_timeStepFilter->allTimeSteps() )
-    //{
-    //     selectedSteps.push_back( step.second );
-    // }
-
-    return selectedSteps;
+    return m_selectedTimeSteps();
 }
 
 //--------------------------------------------------------------------------------------------------
