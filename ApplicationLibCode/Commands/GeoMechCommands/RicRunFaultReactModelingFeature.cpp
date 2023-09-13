@@ -70,14 +70,11 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    // if ( !modelSettings->extractModelData() )
-    //{
-    //     QMessageBox::critical( nullptr,
-    //                            frmTitle,
-    //                            "Unable to get necessary data from the defined model box. Is the model box center "
-    //                            "outside the reservoir?" );
-    //     return;
-    // }
+    if ( !model->extractModelData() )
+    {
+        QMessageBox::critical( nullptr, frmTitle, "Unable to get necessary data from the input model." );
+        return;
+    }
 
     QString exportFile     = model->inputFilename();
     auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *model->model() );

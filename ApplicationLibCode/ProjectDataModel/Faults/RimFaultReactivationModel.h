@@ -92,6 +92,8 @@ public:
     cvf::ref<RigFaultReactivationModel> model() const;
     bool                                showModel() const;
 
+    bool extractModelData();
+
     QString baseDir() const;
     void    setBaseDir( QString path );
 

@@ -564,3 +564,12 @@ QString RimFaultReactivationModel::baseFilename() const
 
     return tmp;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::extractModelData()
+{
+    // TODO - get values from eclipse and geomech models here
+    return true;
+}
