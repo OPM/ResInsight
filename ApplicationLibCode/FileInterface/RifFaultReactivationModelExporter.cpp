@@ -282,12 +282,11 @@ std::pair<bool, std::string>
                                                                 const std::map<RigGriddedPart3d::Boundary, std::string>& boundaries )
 {
     auto printBoundaryCondition =
-        []( std::ostream& stream, const std::string& boundaryConditionName, const std::string& boundaryName, const std::string& symmetryType )
+        []( std::ostream& stream, const std::string& boundaryName, const std::string& boundarySetName, const std::string& symmetryType )
     {
-        RifInpExportTools::printComment( stream, "Name: BC-" + boundaryConditionName + " Type: Symmetry/Antisymmetry/Encastre" );
+        RifInpExportTools::printComment( stream, "Name: BC-" + boundaryName + " Type: Symmetry/Antisymmetry/Encastre" );
         RifInpExportTools::printHeading( stream, "Boundary" );
-        std::string setName = "Set-" + boundaryName;
-        RifInpExportTools::printLine( stream, setName + ", " + symmetryType );
+        RifInpExportTools::printLine( stream, boundarySetName + ", " + symmetryType );
     };
 
     std::map<RigGriddedPart3d::Boundary, std::string> symmetryTypes = {
@@ -301,9 +300,9 @@ std::pair<bool, std::string>
     RifInpExportTools::printSectionComment( stream, "BOUNDARY CONDITIONS" );
     for ( auto [boundary, boundaryName] : boundaries )
     {
-        std::string boundaryConditionName = boundaryName;
-        std::string symmetryType          = symmetryTypes[boundary];
-        printBoundaryCondition( stream, boundaryName, boundaryName, symmetryType );
+        std::string boundarySetName = "Set-" + boundaryName;
+        std::string symmetryType    = symmetryTypes[boundary];
+        printBoundaryCondition( stream, boundaryName, boundarySetName, symmetryType );
     }
 
     std::string partSymmetry = "XSYMM";
@@ -376,10 +375,10 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
 
         RifInpExportTools::printSectionComment( stream, "BOUNDARY CONDITIONS" );
         RifInpExportTools::printHeading( stream, "Boundary" );
-        RifInpExportTools::printHeading( stream, "Part-1-1.part1_PP_, 8, 8" );
+        RifInpExportTools::printLine( stream, "Part-1-1.part1_PP_, 8, 8" );
         RifInpExportTools::printHeading( stream, "Boundary" );
         std::string extra = i != 0 ? ", 1e+07" : "";
-        RifInpExportTools::printHeading( stream, "Part-2-1.part2_PP_, 8, 8" + extra );
+        RifInpExportTools::printLine( stream, "Part-2-1.part2_PP_, 8, 8" + extra );
 
         RifInpExportTools::printSectionComment( stream, "OUTPUT REQUESTS" );
         RifInpExportTools::printHeading( stream, "Restart, write, frequency=0" );
@@ -406,7 +405,7 @@ std::pair<bool, std::string>
     RifInpExportTools::printSectionComment( stream, "INTERACTIONS" );
     for ( const auto& [border, borderName] : borders )
     {
-        RifInpExportTools::printHeading( stream, "Interaction: " + borderName );
+        RifInpExportTools::printComment( stream, "Interaction: " + borderName );
 
         std::string interactionName = "non-fault";
         std::string extra;
@@ -417,10 +416,10 @@ std::pair<bool, std::string>
         }
 
         RifInpExportTools::printHeading( stream,
-                                         "Contact Pair, interation=" + interactionName + ", small sliding, type=SURFACE TO SURFACE" + extra );
+                                         "Contact Pair, interaction=" + interactionName + ", small sliding, type=SURFACE TO SURFACE" + extra );
 
-        std::string part1Name = "Part1-1";
-        std::string part2Name = "Part2-1";
+        std::string part1Name = "Part-1-1";
+        std::string part2Name = "Part-2-1";
         RifInpExportTools::printLine( stream, part1Name + "." + borderName + ", " + part2Name + "." + borderName );
     }
 
