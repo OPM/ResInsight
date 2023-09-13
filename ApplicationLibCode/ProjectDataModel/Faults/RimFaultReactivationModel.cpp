@@ -19,6 +19,7 @@
 #include "RimFaultReactivationModel.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaQDateTimeTools.h"
 
