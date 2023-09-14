@@ -1689,7 +1689,7 @@ void Rim3dView::updateScreenSpaceModel()
 
     // Build annotation parts and put into screen space model
     cvf::Collection<cvf::Part> partCollection;
-    m_viewer->currentScene()->allParts( &partCollection );
+    if ( m_viewer->currentScene() ) m_viewer->currentScene()->allParts( &partCollection );
 
     RivAnnotationTools annoTool;
     if ( m_useCustomAnnotationStrategy )
