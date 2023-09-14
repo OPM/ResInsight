@@ -20,6 +20,7 @@
 #include "RimCheckableNamedObject.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
+#include "RimTimeStepFilter.h"
 
 #include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
@@ -31,7 +32,9 @@
 #include "cvfColor3.h"
 #include "cvfVector3.h"
 
+#include <QDateTime>
 #include <QString>
+#include <QStringList>
 
 #include <memory>
 #include <utility>
@@ -40,6 +43,7 @@ class RicPolylineTargetsPickEventHandler;
 class RimEclipseCase;
 class RimFaultInView;
 class RimPolylineTarget;
+class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
 class RigBasicPlane;
 class RigFaultReactivationModel;
@@ -53,6 +57,8 @@ class Plane;
 class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
+
+    using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
 
 public:
     RimFaultReactivationModel();
@@ -86,8 +92,18 @@ public:
     cvf::ref<RigFaultReactivationModel> model() const;
     bool                                showModel() const;
 
+    bool extractModelData();
+
     QString baseDir() const;
     void    setBaseDir( QString path );
+
+    std::vector<QDateTime> selectedTimeSteps() const;
+
+    QStringList commandParameters() const;
+    QString     outputOdbFilename() const;
+    QString     inputFilename() const;
+
+    void updateTimeSteps();
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
@@ -100,6 +116,8 @@ protected:
     RimEclipseCase* eclipseCase();
 
     void initAfterRead() override;
+
+    QString baseFilename() const;
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
@@ -133,4 +151,9 @@ private:
 
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;
+
+    caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
+    caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
+
+    std::vector<QDateTime> m_availableTimeSteps;
 };

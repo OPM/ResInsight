@@ -19,7 +19,9 @@
 #include "RimFaultReactivationModel.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 #include "RiaPreferencesGeoMech.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RigBasicPlane.h"
 #include "RigFaultReactivationModel.h"
@@ -38,13 +40,18 @@
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimPolylineTarget.h"
+#include "RimTimeStepFilter.h"
 #include "RimTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cvfPlane.h"
 #include "cvfTextureImage.h"
+
+#include <QDateTime>
+#include <QDir>
 
 CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 
@@ -90,6 +97,12 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_numberOfCellsVertUp, "NumberOfCellsVertUp", 20, "Vertical Number of Cells, Upper Part" );
     CAF_PDM_InitField( &m_numberOfCellsVertMid, "NumberOfCellsVertMid", 20, "Vertical Number of Cells, Middle Part" );
     CAF_PDM_InitField( &m_numberOfCellsVertLow, "NumberOfCellsVertLow", 20, "Vertical Number of Cells, Lower Part" );
+
+    // Time Step Selection
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -301,6 +314,10 @@ QList<caf::PdmOptionItemInfo> RimFaultReactivationModel::calculateValueOptions( 
             if ( coll != nullptr ) RimTools::faultOptionItems( &options, coll );
         }
     }
+    else if ( fieldNeedingOptions == &m_selectedTimeSteps )
+    {
+        RimTimeStepFilter::timeStepOptions( options, &m_selectedTimeSteps, m_availableTimeSteps, m_selectedTimeSteps, m_timeStepFilter() );
+    }
 
     return options;
 }
@@ -382,6 +399,10 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     gridModelGrp->add( &m_numberOfCellsVertMid );
     gridModelGrp->add( &m_numberOfCellsVertLow );
 
+    auto timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
+    timeStepGrp->add( &m_timeStepFilter );
+    timeStepGrp->add( &m_selectedTimeSteps );
+
     auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
     appModelGrp->add( &m_modelPart1Color );
     appModelGrp->add( &m_modelPart2Color );
@@ -449,12 +470,14 @@ void RimFaultReactivationModel::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimFaultReactivationModel::eclipseCase()
 {
-    auto activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
-    if ( activeView )
+    auto eCase = firstAncestorOrThisOfType<RimEclipseCase>();
+
+    if ( eCase == nullptr )
     {
-        return activeView->eclipseCase();
+        eCase = dynamic_cast<RimEclipseCase*>( RiaApplication::instance()->activeGridView()->ownerCase() );
     }
-    return nullptr;
+
+    return eCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,4 +494,82 @@ void RimFaultReactivationModel::setBaseDir( QString path )
 QString RimFaultReactivationModel::baseDir() const
 {
     return m_baseDir().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::updateTimeSteps()
+{
+    m_availableTimeSteps.clear();
+    const auto eCase = eclipseCase();
+    if ( eCase == nullptr ) return;
+
+    m_availableTimeSteps = eCase->timeStepDates();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
+{
+    return m_selectedTimeSteps();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimFaultReactivationModel::commandParameters() const
+{
+    QStringList retlist;
+
+    retlist << baseDir();
+    retlist << inputFilename();
+    retlist << outputOdbFilename();
+
+    return retlist;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::outputOdbFilename() const
+{
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( baseFilename() + ".odb" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::inputFilename() const
+{
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( baseFilename() + ".inp" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::baseFilename() const
+{
+    QString tmp = m_userDescription();
+
+    if ( tmp.isEmpty() ) return "faultReactivation";
+
+    tmp.replace( ' ', '_' );
+    tmp.replace( '/', '_' );
+    tmp.replace( '\\', '_' );
+    tmp.replace( ':', '_' );
+
+    return tmp;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::extractModelData()
+{
+    // TODO - get values from eclipse and geomech models here
+    return true;
 }
