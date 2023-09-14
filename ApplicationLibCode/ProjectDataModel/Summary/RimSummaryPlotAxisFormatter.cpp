@@ -131,7 +131,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         }
 
         QString objectName = createAxisObjectName();
-        m_axisProperties->setNameAndAxis( objectName, axisTitle, axis.axis(), axis.index() );
+        m_axisProperties->setNameAndAxis( objectName + axisTitle, axisTitle, axis.axis(), axis.index() );
         plotWidget->setAxisTitleText( axis, axisTitle );
 
         bool titleBold = false;

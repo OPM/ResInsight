@@ -45,7 +45,7 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryCrossPlotCurveFeature, "RicNewSummaryCrossPlot
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryCrossPlotCurveFeature::isCommandEnabled() const
 {
-    return ( selectedCrossPlot() );
+    return ( selectedSummaryPlot() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,23 +55,27 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RimProject::current();
 
-    RimSummaryCrossPlot* plot = selectedCrossPlot();
+    auto plot = selectedSummaryPlot();
     if ( plot )
     {
         RimSummaryCurve* newCurve   = new RimSummaryCurve();
         cvf::Color3f     curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plot->curveCount() );
         newCurve->setColor( curveColor );
 
-        plot->addCurveAndUpdate( newCurve );
-
         RimSummaryCase* defaultCase = nullptr;
         if ( project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0 )
         {
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase( 0 );
             newCurve->setSummaryCaseY( defaultCase );
+            newCurve->setSummaryAddressY( RifEclipseSummaryAddress::fieldAddress( "FOPT" ) );
 
-            newCurve->loadDataAndUpdate( true );
+            newCurve->setSummaryCaseX( defaultCase );
+            newCurve->setSummaryAddressX( RifEclipseSummaryAddress::fieldAddress( "FGOR" ) );
         }
+
+        plot->addCurveAndUpdate( newCurve );
+
+        newCurve->loadDataAndUpdate( true );
 
         plot->updateConnectedEditors();
 
@@ -91,15 +95,8 @@ void RicNewSummaryCrossPlotCurveFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlot* RicNewSummaryCrossPlotCurveFeature::selectedCrossPlot() const
+RimSummaryPlot* RicNewSummaryCrossPlotCurveFeature::selectedSummaryPlot() const
 {
-    RimSummaryCrossPlot* crossPlot = nullptr;
-
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        crossPlot = RiaSummaryTools::parentCrossPlot( selObj );
-    }
-
-    return crossPlot;
+    return RiaSummaryTools::parentSummaryPlot( selObj );
 }

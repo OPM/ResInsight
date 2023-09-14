@@ -297,6 +297,8 @@ private:
     void timeAxisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter );
 
     void assignPlotAxis( RimSummaryCurve* curve );
+    void assignYPlotAxis( RimSummaryCurve* curve );
+    void assignXPlotAxis( RimSummaryCurve* curve );
 
     RimSummaryCurve*     addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
     RimEnsembleCurveSet* addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );

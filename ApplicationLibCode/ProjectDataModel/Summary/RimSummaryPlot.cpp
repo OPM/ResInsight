@@ -99,6 +99,8 @@
 #include <limits>
 #include <set>
 
+#pragma optimize( "", off )
+
 CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
 struct RimSummaryPlot::CurveInfo
@@ -262,14 +264,9 @@ void RimSummaryPlot::updateAxes()
         m_summaryPlot->updateAnnotationObjects( leftYAxisProperties );
     }
 
-    if ( m_isCrossPlot )
-    {
-        updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-    }
-    else
-    {
-        updateTimeAxis( timeAxisProperties() );
-    }
+    updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    updateNumericalAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
+    updateTimeAxis( timeAxisProperties() );
 
     updateZoomInParentPlot();
 }
@@ -1027,8 +1024,8 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
         {
             createAndSetCustomTimeAxisTickmarks( timeAxisProperties );
         }
-    }
 }
+    }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -3097,6 +3094,15 @@ std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotYAxes() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
 {
+    assignXPlotAxis( destinationCurve );
+    assignYPlotAxis( destinationCurve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* destinationCurve )
+{
     enum class AxisAssignmentStrategy
     {
         ALL_TO_LEFT,
@@ -3221,6 +3227,25 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
     }
 
     destinationCurve->setLeftOrRightAxisY( newPlotAxis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::assignXPlotAxis( RimSummaryCurve* curve )
+{
+    RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultBottom();
+
+    if ( curve->summaryCaseX() != nullptr && plotWidget() && plotWidget()->isMultiAxisSupported() )
+    {
+        QString axisObjectName = "New Axis";
+        if ( !curve->summaryAddressX().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressX().uiText() );
+
+        newPlotAxis = plotWidget()->createNextPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+        addNewAxisProperties( newPlotAxis, axisObjectName );
+    }
+
+    curve->setTopOrBottomAxisX( newPlotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
