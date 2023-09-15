@@ -65,15 +65,9 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     : RiuQwtPlotWidget( plot, parent )
 {
     // LeftButton for the zooming
-    m_zoomerLeft = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
-    m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->initMousePattern( 1 );
-
-    // Attach a zoomer for the right axis
-    m_zoomerRight = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
-    m_zoomerRight->setAxes( QwtAxis::XTop, QwtAxis::YRight );
-    m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerRight->initMousePattern( 1 );
+    m_plotZoomer = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
+    m_plotZoomer->setTrackerMode( QwtPicker::AlwaysOff );
+    m_plotZoomer->initMousePattern( 1 );
 
     // MidButton for the panning
     QwtPlotPanner* panner = new QwtPlotPanner( qwtPlot()->canvas() );
@@ -82,8 +76,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     auto wheelZoomer = new RiuQwtPlotWheelZoomer( qwtPlot() );
 
     connect( wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
-    connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
-    connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
+    connect( m_plotZoomer, SIGNAL( zoomed() ), SLOT( onZoomedSlot() ) );
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
     connect( this,
              SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
@@ -254,7 +247,7 @@ bool RiuGridCrossQwtPlot::curveText( const QwtPlotCurve* curve, QString* curveTi
 //--------------------------------------------------------------------------------------------------
 bool RiuGridCrossQwtPlot::isZoomerActive() const
 {
-    return m_zoomerLeft->isActiveAndValid() || m_zoomerRight->isActiveAndValid();
+    return m_plotZoomer->isActiveAndValid();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,8 +255,7 @@ bool RiuGridCrossQwtPlot::isZoomerActive() const
 //--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::endZoomOperations()
 {
-    m_zoomerLeft->endZoomOperation();
-    m_zoomerRight->endZoomOperation();
+    m_plotZoomer->endZoomOperation();
 }
 
 //--------------------------------------------------------------------------------------------------

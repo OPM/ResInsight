@@ -109,6 +109,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMenuBarBuildTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotRectAnnotation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomerMultiAxes.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -219,6 +220,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMenuBarBuildTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotRectAnnotation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomerMultiAxes.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
@@ -311,6 +313,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLegendOverlayContentFrame.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomerMultiAxes.h
 )
 
 list(APPEND QT_UI_FILES)

@@ -18,16 +18,17 @@
 #pragma once
 
 #include "RiuGuiTheme.h"
+#include "RiuQwtPlotZoomerMultiAxes.h"
 
 #include "qwt_plot_zoomer.h"
 
 #include <QMouseEvent>
 
-class RiuQwtPlotZoomer : public QwtPlotZoomer
+class RiuQwtPlotZoomer : public RiuQwtPlotZoomerMultiAxes
 {
 public:
     RiuQwtPlotZoomer( QWidget* canvas, bool doReplot = true )
-        : QwtPlotZoomer( canvas, doReplot )
+        : RiuQwtPlotZoomerMultiAxes( canvas, doReplot )
     {
         auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
 
@@ -46,8 +47,6 @@ public:
     void endZoomOperation() { reset(); }
 
 protected:
-    QSizeF minZoomSize() const override { return QwtPlotZoomer::minZoomSize() / 10.0e6; }
-
     bool accept( QPolygon& pa ) const override
     {
         if ( pa.count() < 2 ) return false;
@@ -59,6 +58,6 @@ protected:
         const int minSize = 10;
         if ( rect.width() < minSize && rect.height() < minSize ) return false;
 
-        return QwtPlotZoomer::accept( pa );
+        return RiuQwtPlotZoomerMultiAxes::accept( pa );
     }
 };
