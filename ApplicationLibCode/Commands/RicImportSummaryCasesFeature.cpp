@@ -72,13 +72,11 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     QStringList          fileNames     = result.files;
     RiaDefines::FileType fileType      = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
 
-    std::vector<RimSummaryCase*> cases;
+    if ( fileNames.isEmpty() ) return;
 
-    if ( !fileNames.isEmpty() )
-    {
-        CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
-        auto [isOk, cases] = createSummaryCasesFromFiles( fileNames, createConfig );
-    }
+    CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
+    auto [isOk, cases] = createSummaryCasesFromFiles( fileNames, createConfig );
+    if ( !isOk ) return;
 
     addSummaryCases( cases );
     if ( !cases.empty() )
