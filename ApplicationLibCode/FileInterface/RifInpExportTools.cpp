@@ -104,12 +104,10 @@ bool RifInpExportTools::printNodeSet( std::ostream& stream, const std::string& p
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifInpExportTools::printNodeSet( std::ostream&                    stream,
-                                      const std::string&               partName,
-                                      const std::string&               instanceName,
-                                      const std::vector<unsigned int>& nodes )
+bool RifInpExportTools::printNodeSet( std::ostream& stream, const std::string& partName, bool internal, const std::vector<unsigned int>& nodes )
 {
-    return printHeading( stream, "Nset, nset=" + partName + ", instance=" + instanceName ) && printElements( stream, nodes );
+    std::string internalStr = internal ? ", internal" : "";
+    return printHeading( stream, "Nset, nset=" + partName + internalStr ) && printElements( stream, nodes );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,20 +125,10 @@ bool RifInpExportTools::printElementSet( std::ostream& stream, const std::string
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifInpExportTools::printElementSet( std::ostream& stream, const std::string& elementName, const std::vector<unsigned int>& elements )
+bool RifInpExportTools::printElementSet( std::ostream& stream, const std::string& elementName, bool internal, const std::vector<unsigned int>& elements )
 {
-    return printHeading( stream, "Elset, elset=" + elementName + ", internal" ) && printElements( stream, elements );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifInpExportTools::printElementSet( std::ostream&                    stream,
-                                         const std::string&               partName,
-                                         const std::string&               instanceName,
-                                         const std::vector<unsigned int>& elements )
-{
-    return printHeading( stream, "Elset, elset=" + partName + ", instance=" + instanceName ) && printElements( stream, elements );
+    std::string internalStr = internal ? ", internal" : "";
+    return printHeading( stream, "Elset, elset=" + elementName + internalStr ) && printElements( stream, elements );
 }
 
 //--------------------------------------------------------------------------------------------------
