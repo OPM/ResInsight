@@ -49,6 +49,13 @@ class RimSummaryCurve : public RimStackablePlotCurve
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class HorizontalAxisType
+    {
+        TIME,
+        SUMMARY_VECTOR
+    };
+
+public:
     RimSummaryCurve();
     ~RimSummaryCurve() override;
 
@@ -146,10 +153,11 @@ private:
     caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_yValuesResampling;
 
     // X values
-    caf::PdmPtrField<RimSummaryCase*>       m_xValuesSummaryCase;
-    caf::PdmChildField<RimSummaryAddress*>  m_xValuesSummaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress> m_xValuesSummaryAddressUiField;
-    caf::PdmField<bool>                     m_xPushButtonSelectSummaryAddress;
+    caf::PdmField<caf::AppEnum<HorizontalAxisType>> m_horizontalAxisType;
+    caf::PdmPtrField<RimSummaryCase*>               m_xValuesSummaryCase;
+    caf::PdmChildField<RimSummaryAddress*>          m_xValuesSummaryAddress;
+    caf::PdmField<RifEclipseSummaryAddress>         m_xValuesSummaryAddressUiField;
+    caf::PdmField<bool>                             m_xPushButtonSelectSummaryAddress;
 
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_xPlotAxisProperties;
 
