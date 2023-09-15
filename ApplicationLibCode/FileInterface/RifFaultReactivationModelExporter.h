@@ -41,21 +41,29 @@ public:
 private:
     static std::pair<bool, std::string> printHeading( std::ostream& stream, const std::string& applicationNameAndVersion );
     static std::pair<bool, std::string>
-                                        printParts( std::ostream&                                                                                         stream,
-                                                    const RigFaultReactivationModel&                                                                      model,
-                                                    const std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>>&                           borders,
-                                                    const std::map<std::pair<RigFaultReactivationModel::GridPart, RigGriddedPart3d::BorderSurface>, int>& faces );
-    static std::pair<bool, std::string> printAssembly( std::ostream&                                            stream,
-                                                       const RigFaultReactivationModel&                         model,
-                                                       const std::map<RigGriddedPart3d::Boundary, std::string>& boundaries );
+        printParts( std::ostream&                                                                                         stream,
+                    const RigFaultReactivationModel&                                                                      model,
+                    const std::map<RigFaultReactivationModel::GridPart, std::string>&                                     partNames,
+                    const std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>>&                           borders,
+                    const std::map<std::pair<RigFaultReactivationModel::GridPart, RigGriddedPart3d::BorderSurface>, int>& faces,
+                    const std::map<RigGriddedPart3d::Boundary, std::string>&                                              boundaries );
+
+    static std::pair<bool, std::string> printAssembly( std::ostream&                                                     stream,
+                                                       const RigFaultReactivationModel&                                  model,
+                                                       const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames );
 
     static std::pair<bool, std::string> printMaterials( std::ostream& stream );
 
     static std::pair<bool, std::string> printInteractionProperties( std::ostream& stream, double faultFriction );
-    static std::pair<bool, std::string> printBoundaryConditions( std::ostream&                                            stream,
+    static std::pair<bool, std::string> printBoundaryConditions( std::ostream&                                                     stream,
+                                                                 const RigFaultReactivationModel&                                  model,
+                                                                 const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
                                                                  const std::map<RigGriddedPart3d::Boundary, std::string>& boundaries );
-    static std::pair<bool, std::string> printPredefinedFields( std::ostream& stream );
-    static std::pair<bool, std::string> printSteps( std::ostream& stream );
-    static std::pair<bool, std::string>
-        printInteractions( std::ostream& stream, const std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>>& borders );
+    static std::pair<bool, std::string> printPredefinedFields( std::ostream&                                                     stream,
+                                                               const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames );
+    static std::pair<bool, std::string> printSteps( std::ostream&                                                     stream,
+                                                    const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames );
+    static std::pair<bool, std::string> printInteractions( std::ostream&                                                     stream,
+                                                           const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
+                                                           const std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>>& borders );
 };
