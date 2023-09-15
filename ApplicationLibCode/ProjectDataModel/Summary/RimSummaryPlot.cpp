@@ -1024,8 +1024,8 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
         {
             createAndSetCustomTimeAxisTickmarks( timeAxisProperties );
         }
-}
     }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
