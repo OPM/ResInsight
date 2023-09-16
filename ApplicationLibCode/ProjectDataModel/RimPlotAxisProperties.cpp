@@ -318,7 +318,7 @@ const QString RimPlotAxisProperties::axisTitleText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotAxis RimPlotAxisProperties::plotAxisType() const
+RiuPlotAxis RimPlotAxisProperties::plotAxis() const
 {
     return RiuPlotAxis( m_plotAxis.value(), m_plotAxisIndex );
 }
@@ -703,7 +703,7 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
     else if ( changedField == &m_plotAxis )
     {
         RiuPlotAxis oldPlotAxis = RiuPlotAxis( (RiaDefines::PlotAxis)oldValue.toInt(), m_plotAxisIndex );
-        axisPositionChanged.send( this, oldPlotAxis, plotAxisType() );
+        axisPositionChanged.send( this, oldPlotAxis, plotAxis() );
     }
     else
     {

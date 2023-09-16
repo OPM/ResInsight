@@ -1084,7 +1084,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         {
             for ( auto curve : plot->summaryCurves() )
             {
-                if ( curve->axisY() == axis->plotAxisType() )
+                if ( curve->axisY() == axis->plotAxis() )
                 {
                     std::vector<RimSummaryCase*>          summaryCases = summaryCasesForCurve( curve, m_axisRangeAggregation() );
                     std::vector<RifEclipseSummaryAddress> addresses    = addressesForCurve( curve, m_axisRangeAggregation() );
@@ -1093,14 +1093,14 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
                     auto [minimum, maximum] = findMinMaxForAddressesInSummaryCases( addresses, summaryCases, onlyPositiveValues );
 
-                    if ( axisRanges.count( axis->plotAxisType() ) == 0 )
+                    if ( axisRanges.count( axis->plotAxis() ) == 0 )
                     {
-                        axisRanges[axis->plotAxisType()] = std::make_pair( minimum, maximum );
+                        axisRanges[axis->plotAxis()] = std::make_pair( minimum, maximum );
                     }
                     else
                     {
-                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
-                        axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
+                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxis()];
+                        axisRanges[axis->plotAxis()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
             }
@@ -1109,7 +1109,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
             {
                 if ( !curveSet->summaryCaseCollection() ) continue;
 
-                if ( curveSet->axisY() == axis->plotAxisType() )
+                if ( curveSet->axisY() == axis->plotAxis() )
                 {
                     double minimum( std::numeric_limits<double>::infinity() );
                     double maximum( -std::numeric_limits<double>::infinity() );
@@ -1132,14 +1132,14 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                         }
                     }
 
-                    if ( axisRanges.count( axis->plotAxisType() ) == 0 )
+                    if ( axisRanges.count( axis->plotAxis() ) == 0 )
                     {
-                        axisRanges[axis->plotAxisType()] = std::make_pair( minimum, maximum );
+                        axisRanges[axis->plotAxis()] = std::make_pair( minimum, maximum );
                     }
                     else
                     {
-                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
-                        axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
+                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxis()];
+                        axisRanges[axis->plotAxis()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
             }
@@ -1148,8 +1148,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         // set all plots to use the global min/max values for each category
         for ( auto axis : plot->plotYAxes() )
         {
-            auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
-            if ( RiaDefines::isVertical( axis->plotAxisType().axis() ) && !std::isinf( minVal ) && !std::isinf( maxVal ) )
+            auto [minVal, maxVal] = axisRanges[axis->plotAxis()];
+            if ( RiaDefines::isVertical( axis->plotAxis().axis() ) && !std::isinf( minVal ) && !std::isinf( maxVal ) )
             {
                 axis->setAutoZoom( false );
 

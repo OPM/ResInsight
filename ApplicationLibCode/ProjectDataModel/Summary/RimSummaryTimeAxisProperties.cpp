@@ -164,7 +164,7 @@ RimPlotAxisPropertiesInterface::AxisTitlePositionType RimSummaryTimeAxisProperti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotAxis RimSummaryTimeAxisProperties::plotAxisType() const
+RiuPlotAxis RimSummaryTimeAxisProperties::plotAxis() const
 {
     return RiuPlotAxis::defaultBottom();
 }

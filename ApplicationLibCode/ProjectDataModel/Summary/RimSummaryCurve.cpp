@@ -219,7 +219,7 @@ void RimSummaryCurve::setTopOrBottomAxisX( RiuPlotAxis plotAxis )
 RiuPlotAxis RimSummaryCurve::axisX() const
 {
     if ( m_xPlotAxisProperties )
-        return m_xPlotAxisProperties->plotAxisType();
+        return m_xPlotAxisProperties->plotAxis();
     else
         return RiuPlotAxis::defaultBottom();
 }
@@ -491,7 +491,7 @@ void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 RiuPlotAxis RimSummaryCurve::axisY() const
 {
     if ( m_yPlotAxisProperties )
-        return m_yPlotAxisProperties->plotAxisType();
+        return m_yPlotAxisProperties->plotAxis();
     else
         return RiuPlotAxis::defaultLeft();
 }
@@ -613,7 +613,7 @@ QString RimSummaryCurve::createCurveAutoName()
             curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), nullptr, nullptr );
         }
 
-        if ( !curveName.isEmpty() || !curveNameX.isEmpty() )
+        if ( !curveName.isEmpty() && !curveNameX.isEmpty() )
         {
             curveName += " | " + curveNameX;
         }
