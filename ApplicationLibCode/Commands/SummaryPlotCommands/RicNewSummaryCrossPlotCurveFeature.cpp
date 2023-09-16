@@ -69,6 +69,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered( bool isChecked )
             newCurve->setSummaryCaseY( defaultCase );
             newCurve->setSummaryAddressY( RifEclipseSummaryAddress::fieldAddress( "FOPT" ) );
 
+            newCurve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
             newCurve->setSummaryCaseX( defaultCase );
             newCurve->setSummaryAddressX( RifEclipseSummaryAddress::fieldAddress( "FGOR" ) );
         }

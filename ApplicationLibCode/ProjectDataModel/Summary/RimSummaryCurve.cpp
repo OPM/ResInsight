@@ -62,17 +62,6 @@
 
 CAF_PDM_SOURCE_INIT( RimSummaryCurve, "SummaryCurve" );
 
-namespace caf
-{
-template <>
-void caf::AppEnum<RimSummaryCurve::HorizontalAxisType>::setUp()
-{
-    addItem( RimSummaryCurve::HorizontalAxisType::TIME, "TIME", "Time" );
-    addItem( RimSummaryCurve::HorizontalAxisType::SUMMARY_VECTOR, "SUMMARY_VECTOR", "Summary Vector" );
-    setDefault( RimSummaryCurve::HorizontalAxisType::SUMMARY_VECTOR );
-}
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -104,10 +93,10 @@ RimSummaryCurve::RimSummaryCurve()
 
     // X Values
 
-    CAF_PDM_InitField( &m_horizontalAxisType,
+    CAF_PDM_InitField( &m_axisType,
                        "HorizontalAxisType",
-                       caf::AppEnum<RimSummaryCurve::HorizontalAxisType>( RimSummaryCurve::HorizontalAxisType::TIME ),
-                       "Horizontal Axis Type" );
+                       caf::AppEnum<RiaDefines::HorizontalAxisType>( RiaDefines::HorizontalAxisType::TIME ),
+                       "Axis Type" );
 
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryCase, "SummaryCaseX", "Case" );
     m_xValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden( true );
@@ -436,6 +425,22 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
 void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues )
 {
     setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setAxisTypeX( RiaDefines::HorizontalAxisType axisType )
+{
+    m_axisType = axisType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::HorizontalAxisType RimSummaryCurve::axisTypeX() const
+{
+    return m_axisType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -896,7 +901,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 {
     RimPlotCurve::updateFieldUiState();
 
-    bool isSummaryXHidden = ( m_horizontalAxisType() != RimSummaryCurve::HorizontalAxisType::SUMMARY_VECTOR );
+    bool isSummaryXHidden = ( m_axisType() != RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
 
     m_xValuesSummaryCase.uiCapability()->setUiHidden( isSummaryXHidden );
     m_xValuesSummaryAddress.uiCapability()->setUiHidden( isSummaryXHidden );
@@ -905,9 +910,8 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     m_xPlotAxisProperties.uiCapability()->setUiHidden( isSummaryXHidden );
 
     {
-        QString curveDataGroupName = "Summary Vector";
-        curveDataGroupName += " Y";
-        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "Summary Vector Y" );
+        QString          curveDataGroupName = "Summary Vector";
+        caf::PdmUiGroup* curveDataGroup     = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "curveDataGroupName" );
         curveDataGroup->add( &m_yValuesSummaryCase, { true, 3, 1 } );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { true, 2, 1 } );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
@@ -917,8 +921,8 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     }
 
     {
-        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X" );
-        curveDataGroup->add( &m_horizontalAxisType, { true, 3, 1 } );
+        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X Axis" );
+        curveDataGroup->add( &m_axisType, { true, 3, 1 } );
         curveDataGroup->add( &m_xValuesSummaryCase, { true, 3, 1 } );
         curveDataGroup->add( &m_xValuesSummaryAddressUiField, { true, 2, 1 } );
         curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, { false, 1, 0 } );
@@ -941,7 +945,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         m_curveNameConfig->uiOrdering( uiConfigName, *nameGroup );
     }
 
-    uiOrdering.skipRemainingFields(); // For now.
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1142,13 +1146,21 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         loadAndUpdate = true;
     }
-    else if ( &m_horizontalAxisType == changedField )
+    else if ( &m_axisType == changedField )
     {
-        if ( m_horizontalAxisType() == RimSummaryCurve::HorizontalAxisType::TIME )
+        if ( m_axisType() == RiaDefines::HorizontalAxisType::TIME )
         {
             m_xPlotAxisProperties = plot->timeAxisProperties();
-            loadAndUpdate         = true;
         }
+        else if ( m_axisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        {
+            if ( !m_xValuesSummaryCase() )
+            {
+                m_xValuesSummaryCase = m_yValuesSummaryCase();
+                m_xValuesSummaryAddress->setAddress( m_yValuesSummaryAddress()->address() );
+            }
+        }
+        loadAndUpdate = true;
     }
     else if ( &m_showCurve == changedField )
     {

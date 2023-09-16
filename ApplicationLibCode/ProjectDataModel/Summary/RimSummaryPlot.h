@@ -316,7 +316,7 @@ private:
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
 
-    void updatePlotTypeHasChanged();
+    void ensureRequiredAxisObjectsForCurves();
 
 private:
 #ifdef USE_QTCHARTS

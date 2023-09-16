@@ -17,6 +17,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaSummaryDefines.h"
+#include "cafAppEnum.h"
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RiaDefines::HorizontalAxisType>::setUp()
+{
+    addItem( RiaDefines::HorizontalAxisType::TIME, "TIME", "Time" );
+    addItem( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR, "SUMMARY_VECTOR", "Summary Vector" );
+    setDefault( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///

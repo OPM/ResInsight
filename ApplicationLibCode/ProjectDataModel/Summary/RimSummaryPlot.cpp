@@ -225,7 +225,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     m_timeAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_timeAxisProperties_OBSOLETE = new RimSummaryTimeAxisProperties;
 
-    updatePlotTypeHasChanged();
+    ensureRequiredAxisObjectsForCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1198,19 +1198,33 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updatePlotTypeHasChanged()
+void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
 {
     if ( m_isCrossPlot )
     {
-        addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
+        auto horizontalAxis = std::find_if( m_axisPropertiesArray.begin(),
+                                            m_axisPropertiesArray.end(),
+                                            []( RimPlotAxisPropertiesInterface* axisProperties )
+                                            {
+                                                return ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP ||
+                                                         axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+                                            } );
+
+        if ( horizontalAxis == m_axisPropertiesArray.end() )
+        {
+            addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
+        }
     }
     else
     {
-        auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
-        timeAxisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
-        timeAxisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
+        if ( !timeAxisProperties() )
+        {
+            auto* axisProperties = new RimSummaryTimeAxisProperties;
+            axisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
+            axisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
 
-        m_axisPropertiesArray.push_back( timeAxisProperties );
+            m_axisPropertiesArray.push_back( axisProperties );
+        }
     }
 
     if ( m_isCrossPlot )
@@ -1651,7 +1665,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     {
         m_isCrossPlot = m_fieldIsCrossPlot();
 
-        updatePlotTypeHasChanged();
+        ensureRequiredAxisObjectsForCurves();
         loadDataAndUpdate();
     }
 
@@ -3083,7 +3097,11 @@ std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotYAxes() const
     for ( const auto& ap : m_axisPropertiesArray )
     {
         auto plotAxisProp = dynamic_cast<RimPlotAxisProperties*>( ap.p() );
-        if ( plotAxisProp ) axisProps.push_back( plotAxisProp );
+        if ( plotAxisProp && ( plotAxisProp->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
+                               plotAxisProp->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) )
+        {
+            axisProps.push_back( plotAxisProp );
+        }
     }
 
     return axisProps;
