@@ -120,9 +120,8 @@ struct RimSummaryPlot::CurveInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
+RimSummaryPlot::RimSummaryPlot()
     : RimPlot()
-    , m_isCrossPlot( isCrossPlot )
     , curvesChanged( this )
     , axisChanged( this )
     , plotZoomedByUser( this )
@@ -158,21 +157,6 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_axisPropertiesArray, "AxisProperties", "Axes", ":/Axes16x16.png" );
 
-    //     if ( m_isCrossPlot )
-    //     {
-    //         addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
-    //     }
-    //     else
-    //     {
-    //         auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
-    //         timeAxisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
-    //         timeAxisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
-    //
-    //         m_axisPropertiesArray.push_back( timeAxisProperties );
-    //     }
-    CAF_PDM_InitFieldNoDefault( &m_fieldIsCrossPlot, "FieldIsCrossPlot", "Is CrossPlot" );
-    m_fieldIsCrossPlot = m_isCrossPlot;
-
     auto leftAxis = addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
     leftAxis->setAlwaysRequired( true );
 
@@ -183,14 +167,6 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
     m_sourceStepping = new RimSummaryPlotSourceStepping;
-    //     if ( m_isCrossPlot )
-    //     {
-    //         m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
-    //     }
-    //     else
-    //     {
-    //         m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
-    //     }
 
     m_sourceStepping->setSourceSteppingObject( this );
     m_sourceStepping.uiCapability()->setUiTreeHidden( true );
@@ -502,7 +478,12 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::allCurves( RimSummaryDataSourceSte
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryDataSourceStepping::Axis> RimSummaryPlot::availableAxes() const
 {
-    if ( m_isCrossPlot ) return { RimSummaryDataSourceStepping::Axis::X_AXIS, RimSummaryDataSourceStepping::Axis::Y_AXIS };
+    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
+
+    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
+    {
+        return { RimSummaryDataSourceStepping::Axis::X_AXIS, RimSummaryDataSourceStepping::Axis::Y_AXIS };
+    }
 
     return { RimSummaryDataSourceStepping::Axis::X_AXIS };
 }
@@ -972,7 +953,7 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties )
 {
-    if ( !plotWidget() ) return;
+    if ( !plotWidget() || !timeAxisProperties ) return;
 
     if ( !timeAxisProperties->isActive() )
     {
@@ -1200,7 +1181,9 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
 {
-    if ( m_isCrossPlot )
+    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
+
+    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
     {
         auto horizontalAxis = std::find_if( m_axisPropertiesArray.begin(),
                                             m_axisPropertiesArray.end(),
@@ -1215,19 +1198,17 @@ void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
             addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
         }
     }
-    else
-    {
-        if ( !timeAxisProperties() )
-        {
-            auto* axisProperties = new RimSummaryTimeAxisProperties;
-            axisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
-            axisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
 
-            m_axisPropertiesArray.push_back( axisProperties );
-        }
+    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::TIME ) && !timeAxisProperties() )
+    {
+        auto* axisProperties = new RimSummaryTimeAxisProperties;
+        axisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
+        axisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
+
+        m_axisPropertiesArray.push_back( axisProperties );
     }
 
-    if ( m_isCrossPlot )
+    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
     {
         m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
     }
@@ -1391,6 +1372,7 @@ void RimSummaryPlot::updateCaseNameHasChanged()
 RimTimeAxisAnnotation* RimSummaryPlot::addTimeAnnotation( time_t time )
 {
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
+    CAF_ASSERT( axisProps );
 
     auto* annotation = new RimTimeAxisAnnotation;
     annotation->setTime( time );
@@ -1406,6 +1388,7 @@ RimTimeAxisAnnotation* RimSummaryPlot::addTimeAnnotation( time_t time )
 RimTimeAxisAnnotation* RimSummaryPlot::addTimeRangeAnnotation( time_t startTime, time_t endTime )
 {
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
+    CAF_ASSERT( axisProps );
 
     auto* annotation = new RimTimeAxisAnnotation;
     annotation->setTimeRange( startTime, endTime );
@@ -1421,7 +1404,7 @@ RimTimeAxisAnnotation* RimSummaryPlot::addTimeRangeAnnotation( time_t startTime,
 void RimSummaryPlot::removeAllTimeAnnotations()
 {
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
-    axisProps->removeAllAnnotations();
+    if ( axisProps ) axisProps->removeAllAnnotations();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1430,6 +1413,8 @@ void RimSummaryPlot::removeAllTimeAnnotations()
 void RimSummaryPlot::removeTimeAnnotation( RimTimeAxisAnnotation* annotation )
 {
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
+    CAF_ASSERT( axisProps );
+
     axisProps->removeAnnotation( annotation );
 }
 
@@ -1661,14 +1646,6 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_fieldIsCrossPlot )
-    {
-        m_isCrossPlot = m_fieldIsCrossPlot();
-
-        ensureRequiredAxisObjectsForCurves();
-        loadDataAndUpdate();
-    }
-
     if ( changedField == &m_description )
     {
         m_useAutoPlotTitle = false;
@@ -1866,12 +1843,9 @@ void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         uiTreeOrdering.add( curve );
     }
 
-    if ( !m_isCrossPlot )
+    for ( auto& curveSet : m_ensembleCurveSetCollection->curveSets() )
     {
-        for ( auto& curveSet : m_ensembleCurveSetCollection->curveSets() )
-        {
-            uiTreeOrdering.add( curveSet );
-        }
+        uiTreeOrdering.add( curveSet );
     }
 
     if ( !isPlotEditor )
@@ -2647,8 +2621,6 @@ void RimSummaryPlot::onPlotZoomed()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_fieldIsCrossPlot );
-
     {
         auto group = uiOrdering.addNewGroup( "Data Source" );
         m_sourceStepping()->uiOrdering( uiConfigName, *group );
@@ -2795,11 +2767,8 @@ void RimSummaryPlot::initAfterRead()
 
         copyAxis( RiuPlotAxis::defaultLeft(), m_leftYAxisProperties_OBSOLETE.v() );
         copyAxis( RiuPlotAxis::defaultRight(), m_rightYAxisProperties_OBSOLETE.v() );
-
-        if ( m_isCrossPlot )
-            copyAxis( RiuPlotAxis::defaultBottom(), m_bottomAxisProperties_OBSOLETE.v() );
-        else
-            copyAxis( RiuPlotAxis::defaultBottom(), m_timeAxisProperties_OBSOLETE.v() );
+        copyAxis( RiuPlotAxis::defaultBottom(), m_bottomAxisProperties_OBSOLETE.v() );
+        copyAxis( RiuPlotAxis::defaultBottom(), m_timeAxisProperties_OBSOLETE.v() );
     }
 
     for ( const auto& axisProperties : m_axisPropertiesArray )
@@ -3022,7 +2991,12 @@ void RimSummaryPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, 
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHandling() const
 {
-    if ( m_isCrossPlot ) return summaryCurveCollection()->sourceSteppingObject( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
+    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
+
+    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
+    {
+        return summaryCurveCollection()->sourceSteppingObject( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
+    }
 
     return m_sourceStepping;
 }

@@ -693,7 +693,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
         else
         {
             std::vector<time_t> curveTimeStepsY = timeStepsY();
-            if ( curveTimeStepsY.size() > 0 && curveTimeStepsY.size() == curveValuesY.size() )
+            if ( plot->timeAxisProperties() && curveTimeStepsY.size() > 0 && curveTimeStepsY.size() == curveValuesY.size() )
             {
                 if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
                 {
