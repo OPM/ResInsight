@@ -205,8 +205,8 @@ public:
     std::vector<RimPlotAxisProperties*>          plotYAxes() const;
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
-
-    RimPlotAxisProperties* addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
+    RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
+    RimPlotAxisProperties*          ensureRequiredAxisObjectsForCurves();
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 
@@ -315,8 +315,6 @@ private:
     CurveInfo handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
-
-    void ensureRequiredAxisObjectsForCurves();
 
 private:
 #ifdef USE_QTCHARTS

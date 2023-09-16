@@ -1179,27 +1179,10 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
+RimPlotAxisProperties* RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
 {
-    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
-
-    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
-    {
-        auto horizontalAxis = std::find_if( m_axisPropertiesArray.begin(),
-                                            m_axisPropertiesArray.end(),
-                                            []( RimPlotAxisPropertiesInterface* axisProperties )
-                                            {
-                                                return ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP ||
-                                                         axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-                                            } );
-
-        if ( horizontalAxis == m_axisPropertiesArray.end() )
-        {
-            addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
-        }
-    }
-
-    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::TIME ) && !timeAxisProperties() )
+    // Always make sure time axis properties are present
+    if ( !timeAxisProperties() )
     {
         auto* axisProperties = new RimSummaryTimeAxisProperties;
         axisProperties->settingsChanged.connect( this, &RimSummaryPlot::timeAxisSettingsChanged );
@@ -1208,6 +1191,7 @@ void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
         m_axisPropertiesArray.push_back( axisProperties );
     }
 
+    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
     if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
     {
         m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
@@ -1216,6 +1200,24 @@ void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
     {
         m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     }
+
+    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
+    {
+        for ( auto ap : m_axisPropertiesArray )
+        {
+            if ( ap->plotAxisType().isHorizontal() )
+            {
+                if ( auto candidate = dynamic_cast<RimPlotAxisProperties*>( ap.p() ) )
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1233,42 +1235,26 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis( RiuPl
 {
     std::vector<RimSummaryCurve*> curves;
 
-    if ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+    if ( m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible() )
     {
-        if ( m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible() )
+        for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
         {
-            for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
+            if ( curve->isChecked() && ( curve->axisY() == plotAxis || curve->axisX() == plotAxis ) )
             {
-                if ( curve->isChecked() )
-                {
-                    curves.push_back( curve );
-                }
+                curves.push_back( curve );
             }
         }
     }
-    else
+
+    if ( m_ensembleCurveSetCollection && m_ensembleCurveSetCollection->isCurveSetsVisible() )
     {
-        if ( m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible() )
+        for ( RimEnsembleCurveSet* curveSet : m_ensembleCurveSetCollection->curveSets() )
         {
-            for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
+            for ( RimSummaryCurve* curve : curveSet->curves() )
             {
-                if ( curve->isChecked() && curve->axisY() == plotAxis )
+                if ( curve->isChecked() && ( curve->axisY() == plotAxis || curve->axisX() == plotAxis ) )
                 {
                     curves.push_back( curve );
-                }
-            }
-        }
-
-        if ( m_ensembleCurveSetCollection && m_ensembleCurveSetCollection->isCurveSetsVisible() )
-        {
-            for ( RimEnsembleCurveSet* curveSet : m_ensembleCurveSetCollection->curveSets() )
-            {
-                for ( RimSummaryCurve* curve : curveSet->curves() )
-                {
-                    if ( curve->isChecked() && curve->axisY() == plotAxis )
-                    {
-                        curves.push_back( curve );
-                    }
                 }
             }
         }

@@ -207,7 +207,7 @@ void RimSummaryCurve::setSummaryAddressX( const RifEclipseSummaryAddress& addres
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setTopOrBottomAxisX( RiuPlotAxis plotAxis )
 {
-    CAF_ASSERT( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP || plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    CAF_ASSERT( plotAxis.isHorizontal() );
 
     RimSummaryPlot* plot  = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     m_xPlotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
@@ -1158,6 +1158,12 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             {
                 m_xValuesSummaryCase = m_yValuesSummaryCase();
                 m_xValuesSummaryAddress->setAddress( m_yValuesSummaryAddress()->address() );
+            }
+
+            auto axis = plot->ensureRequiredAxisObjectsForCurves();
+            if ( axis )
+            {
+                m_xPlotAxisProperties = axis;
             }
         }
         loadAndUpdate = true;
