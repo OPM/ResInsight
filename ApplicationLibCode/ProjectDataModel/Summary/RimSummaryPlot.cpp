@@ -1179,7 +1179,7 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotAxisProperties* RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
+void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
 {
     // Always make sure time axis properties are present
     if ( !timeAxisProperties() )
@@ -1200,39 +1200,42 @@ RimPlotAxisProperties* RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
     {
         m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     }
+}
 
-    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::findOrAssignPlotAxisX( RimSummaryCurve* curve )
+{
+    for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
     {
-        for ( auto ap : m_axisPropertiesArray )
+        if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
-            if ( ap->plotAxis().isHorizontal() )
+            auto propertyAxis = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
+            if ( propertyAxis )
             {
-                if ( auto candidate = dynamic_cast<RimPlotAxisProperties*>( ap.p() ) )
-                {
-                    return candidate;
-                }
+                curve->setTopOrBottomAxisX( propertyAxis->plotAxis() );
+
+                return;
             }
         }
-
-        return addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
     }
-    else if ( axisTypes.contains( RiaDefines::HorizontalAxisType::TIME ) )
+
+    if ( curve->summaryCaseX() != nullptr && plotWidget() && plotWidget()->isMultiAxisSupported() )
     {
-        for ( auto ap : m_axisPropertiesArray )
+        QString axisObjectName = "New Axis";
+        if ( !curve->summaryAddressX().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressX().uiText() );
+
+        RiuPlotAxis newPlotAxis = plotWidget()->createNextPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+        addNewAxisProperties( newPlotAxis, axisObjectName );
+        if ( plotWidget() )
         {
-            if ( ap->plotAxis().isHorizontal() )
-            {
-                if ( auto candidate = dynamic_cast<RimPlotAxisProperties*>( ap.p() ) )
-                {
-                    return candidate;
-                }
-            }
+            plotWidget()->ensureAxisIsCreated( newPlotAxis );
         }
 
-        return addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
+        updateAxes();
+        curve->setTopOrBottomAxisX( newPlotAxis );
     }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3234,6 +3237,12 @@ void RimSummaryPlot::assignXPlotAxis( RimSummaryCurve* curve )
 
         newPlotAxis = plotWidget()->createNextPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
         addNewAxisProperties( newPlotAxis, axisObjectName );
+        if ( plotWidget() )
+        {
+            plotWidget()->ensureAxisIsCreated( newPlotAxis );
+        }
+
+        updateAxes();
     }
 
     curve->setTopOrBottomAxisX( newPlotAxis );

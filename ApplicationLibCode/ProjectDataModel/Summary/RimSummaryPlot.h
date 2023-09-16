@@ -206,7 +206,8 @@ public:
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
     RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
-    RimPlotAxisProperties*          ensureRequiredAxisObjectsForCurves();
+    void                            ensureRequiredAxisObjectsForCurves();
+    void                            findOrAssignPlotAxisX( RimSummaryCurve* curve );
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 

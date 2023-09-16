@@ -73,6 +73,8 @@
 #include <algorithm>
 #include <limits>
 
+#pragma optimize( "", off )
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -349,7 +351,8 @@ void RiuQwtPlotWidget::setAxisRange( RiuPlotAxis axis, double min, double max )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisInverted( RiuPlotAxis axis, bool isInverted )
 {
-    m_plot->axisScaleEngine( toQwtPlotAxis( axis ) )->setAttribute( QwtScaleEngine::Inverted, isInverted );
+    auto scaleEngine = m_plot->axisScaleEngine( toQwtPlotAxis( axis ) );
+    if ( scaleEngine ) scaleEngine->setAttribute( QwtScaleEngine::Inverted, isInverted );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1279,6 +1282,10 @@ void RiuQwtPlotWidget::ensureAxisIsCreated( RiuPlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::enableAxis( RiuPlotAxis axis, bool isEnabled )
 {
+    auto axisLocation = axis.axis();
+
+    bool isBottom = ( axisLocation == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+
     ensureAxisIsCreated( axis );
 
     m_plot->setAxisVisible( toQwtPlotAxis( axis ), isEnabled );

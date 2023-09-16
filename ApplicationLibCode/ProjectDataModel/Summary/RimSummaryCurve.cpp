@@ -1160,11 +1160,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 m_xValuesSummaryAddress->setAddress( m_yValuesSummaryAddress()->address() );
             }
 
-            auto axis = plot->ensureRequiredAxisObjectsForCurves();
-            if ( axis )
-            {
-                m_xPlotAxisProperties = axis;
-            }
+            plot->findOrAssignPlotAxisX( this );
+            plot->updateAxes();
+            plot->updateAll();
         }
         loadAndUpdate = true;
     }
