@@ -35,6 +35,9 @@ public:
 
     RiaDefines::PlotAxis axis() const;
 
+    bool isHorizontal() const;
+    bool isVertical() const;
+
     int index() const;
 
     bool operator<( const RiuPlotAxis& rhs ) const;
