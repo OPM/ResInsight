@@ -441,7 +441,7 @@ void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 RiuPlotAxis RimSummaryCurve::axisY() const
 {
     if ( m_plotAxisProperties )
-        return m_plotAxisProperties->plotAxisType();
+        return m_plotAxisProperties->plotAxis();
     else
         return RiuPlotAxis::defaultLeft();
 }

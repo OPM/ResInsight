@@ -73,7 +73,7 @@ public:
     const QString objectName() const override;
     const QString axisTitleText() const override;
 
-    RiuPlotAxis plotAxisType() const override;
+    RiuPlotAxis plotAxis() const override;
     bool        useAutoTitle() const;
 
     void setShowDescription( bool enable );

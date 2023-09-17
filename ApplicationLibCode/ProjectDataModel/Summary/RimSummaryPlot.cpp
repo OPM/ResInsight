@@ -643,7 +643,7 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
     {
         QString data = ap->writeObjectToXmlString();
 
-        auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxisType() );
+        auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxis() );
         if ( axisProperty )
         {
             axisProperty->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
@@ -658,11 +658,11 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisT
 {
     for ( auto ap : sourceSummaryPlot.plotAxes() )
     {
-        if ( ap->plotAxisType().axis() != plotAxisType ) continue;
+        if ( ap->plotAxis().axis() != plotAxisType ) continue;
 
         QString data = ap->writeObjectToXmlString();
 
-        axisPropertiesForPlotAxis( ap->plotAxisType() )->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        axisPropertiesForPlotAxis( ap->plotAxis() )->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
     }
 }
 
@@ -908,7 +908,7 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
 
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
     {
-        RiuPlotAxis riuPlotAxis = axisProperties->plotAxisType();
+        RiuPlotAxis riuPlotAxis = axisProperties->plotAxis();
         if ( riuPlotAxis.axis() == plotAxis )
         {
             auto* axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
@@ -1054,7 +1054,7 @@ void RimSummaryPlot::updateZoomForNumericalAxis( RimPlotAxisProperties* axisProp
 {
     if ( !axisProperties ) return;
 
-    const auto plotAxis = axisProperties->plotAxisType();
+    const auto plotAxis = axisProperties->plotAxis();
     if ( axisProperties->isAutoZoom() )
     {
         if ( axisProperties->isLogarithmicScaleEnabled() )
@@ -1086,16 +1086,16 @@ void RimSummaryPlot::updateZoomForNumericalAxis( RimPlotAxisProperties* axisProp
                 std::swap( min, max );
             }
 
-            plotWidget()->setAxisScale( axisProperties->plotAxisType(), min, max );
+            plotWidget()->setAxisScale( axisProperties->plotAxis(), min, max );
         }
         else if ( ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT || plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) &&
                   isOnlyWaterCutCurvesVisible( plotAxis ) )
         {
-            plotWidget()->setAxisScale( axisProperties->plotAxisType(), 0.0, 1.0 );
+            plotWidget()->setAxisScale( axisProperties->plotAxis(), 0.0, 1.0 );
         }
         else
         {
-            plotWidget()->setAxisAutoScale( axisProperties->plotAxisType(), true );
+            plotWidget()->setAxisAutoScale( axisProperties->plotAxis(), true );
         }
     }
     else
@@ -1103,10 +1103,10 @@ void RimSummaryPlot::updateZoomForNumericalAxis( RimPlotAxisProperties* axisProp
         double min = axisProperties->visibleRangeMin();
         double max = axisProperties->visibleRangeMax();
         if ( axisProperties->isAxisInverted() ) std::swap( min, max );
-        plotWidget()->setAxisScale( axisProperties->plotAxisType(), min, max );
+        plotWidget()->setAxisScale( axisProperties->plotAxis(), min, max );
     }
 
-    plotWidget()->setAxisInverted( axisProperties->plotAxisType(), axisProperties->isAxisInverted() );
+    plotWidget()->setAxisInverted( axisProperties->plotAxis(), axisProperties->isAxisInverted() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1118,13 +1118,13 @@ void RimSummaryPlot::updateZoomForTimeAxis( RimSummaryTimeAxisProperties* timeAx
 
     if ( timeAxisProperties->isAutoZoom() )
     {
-        plotWidget()->setAxisAutoScale( timeAxisProperties->plotAxisType(), true );
+        plotWidget()->setAxisAutoScale( timeAxisProperties->plotAxis(), true );
     }
     else
     {
         double min = timeAxisProperties->visibleRangeMin();
         double max = timeAxisProperties->visibleRangeMax();
-        plotWidget()->setAxisScale( timeAxisProperties->plotAxisType(), min, max );
+        plotWidget()->setAxisScale( timeAxisProperties->plotAxis(), min, max );
     }
 }
 
@@ -1284,7 +1284,7 @@ RimPlotAxisPropertiesInterface* RimSummaryPlot::axisPropertiesForPlotAxis( RiuPl
 {
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
     {
-        if ( axisProperties->plotAxisType() == plotAxis ) return axisProperties;
+        if ( axisProperties->plotAxis() == plotAxis ) return axisProperties;
     }
 
     return nullptr;
@@ -1708,10 +1708,10 @@ bool RimSummaryPlot::updateStackedCurveDataForRelevantAxes()
     bool anyStackedCurvesPresent = false;
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
     {
-        if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-             axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+        if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
+             axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
         {
-            anyStackedCurvesPresent |= updateStackedCurveDataForAxis( axisProperties->plotAxisType() );
+            anyStackedCurvesPresent |= updateStackedCurveDataForAxis( axisProperties->plotAxis() );
         }
     }
 
@@ -1913,7 +1913,7 @@ void RimSummaryPlot::updateZoomFromParentPlot()
     {
         if ( !axisProperties ) continue;
 
-        auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
+        auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxis() );
         if ( axisProperties->isAxisInverted() ) std::swap( axisMin, axisMax );
 
         if ( auto propertyAxis = dynamic_cast<RimPlotAxisProperties*>( axisProperties ) )
@@ -2672,7 +2672,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         for ( const auto& axisProperties : m_axisPropertiesArray )
         {
-            plotWidget()->ensureAxisIsCreated( axisProperties->plotAxisType() );
+            plotWidget()->ensureAxisIsCreated( axisProperties->plotAxis() );
         }
 
         for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
@@ -2980,8 +2980,8 @@ void RimSummaryPlot::setAutoScaleXEnabled( bool enabled )
 {
     for ( const auto& ap : m_axisPropertiesArray )
     {
-        if ( ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP ||
-             ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP ||
+             ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
             ap->setAutoZoom( enabled );
         }
@@ -2995,8 +2995,8 @@ void RimSummaryPlot::setAutoScaleYEnabled( bool enabled )
 {
     for ( const auto& ap : m_axisPropertiesArray )
     {
-        if ( ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-             ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+        if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
+             ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
         {
             ap->setAutoZoom( enabled );
         }
@@ -3115,8 +3115,8 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
             {
                 for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
                 {
-                    if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-                         axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+                    if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
+                         axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
                     {
                         destinationCurve->setLeftOrRightAxisY( c->axisY() );
 
@@ -3149,9 +3149,9 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
         size_t axisCountRight = 0;
         for ( const auto& ap : m_axisPropertiesArray )
         {
-            if ( ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+            if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
                 axisCountLeft++;
-            else if ( ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+            else if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
                 axisCountRight++;
         }
 
@@ -3206,7 +3206,7 @@ void RimSummaryPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, 
             std::set<RiuPlotAxis> usedPlotAxis;
             for ( const auto& axisProperties : m_axisPropertiesArray )
             {
-                usedPlotAxis.insert( axisProperties->plotAxisType() );
+                usedPlotAxis.insert( axisProperties->plotAxis() );
             }
 
             plotWidget()->pruneAxes( usedPlotAxis );

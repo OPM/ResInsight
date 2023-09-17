@@ -2211,7 +2211,7 @@ int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol )
 RiuPlotAxis RimEnsembleCurveSet::axisY() const
 {
     if ( m_plotAxisProperties )
-        return m_plotAxisProperties->plotAxisType();
+        return m_plotAxisProperties->plotAxis();
     else
         return RiuPlotAxis::defaultLeft();
 }
