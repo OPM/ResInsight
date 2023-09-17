@@ -1161,8 +1161,6 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             }
 
             plot->findOrAssignPlotAxisX( this );
-            plot->updateAxes();
-            plot->updateAll();
         }
         loadAndUpdate = true;
     }

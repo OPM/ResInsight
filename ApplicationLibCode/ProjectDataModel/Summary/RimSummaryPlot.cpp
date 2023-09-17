@@ -893,6 +893,9 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
         RiuPlotAxis riuPlotAxis = axisProperties->plotAxis();
         if ( riuPlotAxis.axis() == plotAxis )
         {
+            bool isBottom = plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
+            bool isTop    = plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_TOP;
+
             auto* axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
             if ( !axisProps ) continue;
 
@@ -921,9 +924,14 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 std::vector<RiaSummaryCurveDefinition> curveDefs;
                 for ( auto summaryCurve : summaryCurves() )
                 {
-                    if ( summaryCurve->axisY() != riuPlotAxis ) continue;
-
-                    curveDefs.push_back( summaryCurve->curveDefinitionY() );
+                    if ( summaryCurve->axisY() == riuPlotAxis )
+                    {
+                        curveDefs.push_back( summaryCurve->curveDefinitionY() );
+                    }
+                    else if ( summaryCurve->axisX() == riuPlotAxis )
+                    {
+                        curveDefs.push_back( summaryCurve->curveDefinitionX() );
+                    }
                 }
 
                 for ( auto curveSet : ensembleCurveSetCollection()->curveSets() )
