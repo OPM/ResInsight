@@ -317,6 +317,8 @@ private:
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
 
+    static RiuPlotAxis plotAxisForTime();
+
 private:
 #ifdef USE_QTCHARTS
     caf::PdmField<bool> m_useQtChartsPlot;

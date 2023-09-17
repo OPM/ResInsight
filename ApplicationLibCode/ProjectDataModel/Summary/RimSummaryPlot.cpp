@@ -30,6 +30,7 @@
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryDefines.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
@@ -963,9 +964,16 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
 {
     if ( !plotWidget() || !timeAxisProperties ) return;
 
-    if ( !timeAxisProperties->isActive() )
+    bool anyTimeHistoryCurvePresent = false;
     {
-        plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), false );
+        if ( !visibleTimeHistoryCurvesForAxis( RimSummaryPlot::plotAxisForTime() ).empty() ) anyTimeHistoryCurvePresent = true;
+        if ( !visibleAsciiDataCurvesForAxis( RimSummaryPlot::plotAxisForTime() ).empty() ) anyTimeHistoryCurvePresent = true;
+        if ( !visibleSummaryCurvesForAxis( RimSummaryPlot::plotAxisForTime() ).empty() ) anyTimeHistoryCurvePresent = true;
+    }
+
+    if ( !anyTimeHistoryCurvePresent || !timeAxisProperties->isActive() )
+    {
+        plotWidget()->enableAxis( RimSummaryPlot::plotAxisForTime(), false );
 
         return;
     }
@@ -985,7 +993,7 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
         m_summaryPlot->useTimeBasedTimeAxis();
     }
 
-    plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), true );
+    plotWidget()->enableAxis( RimSummaryPlot::plotAxisForTime(), true );
 
     {
         Qt::AlignmentFlag alignment = Qt::AlignCenter;
@@ -994,20 +1002,20 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
             alignment = Qt::AlignRight;
         }
 
-        plotWidget()->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
+        plotWidget()->setAxisFontsAndAlignment( RimSummaryPlot::plotAxisForTime(),
                                                 timeAxisProperties->titleFontSize(),
                                                 timeAxisProperties->valuesFontSize(),
                                                 true,
                                                 alignment );
-        plotWidget()->setAxisTitleText( RiuPlotAxis::defaultBottom(), timeAxisProperties->title() );
-        plotWidget()->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), timeAxisProperties->showTitle );
+        plotWidget()->setAxisTitleText( RimSummaryPlot::plotAxisForTime(), timeAxisProperties->title() );
+        plotWidget()->setAxisTitleEnabled( RimSummaryPlot::plotAxisForTime(), timeAxisProperties->showTitle );
 
         if ( timeAxisProperties->tickmarkType() == RimSummaryTimeAxisProperties::TickmarkType::TICKMARK_COUNT )
         {
             RimSummaryTimeAxisProperties::LegendTickmarkCount tickmarkCountEnum = timeAxisProperties->majorTickmarkCount();
             int maxTickmarkCount = RimPlotAxisPropertiesInterface::tickmarkCountFromEnum( tickmarkCountEnum );
 
-            plotWidget()->setAxisMaxMajor( RiuPlotAxis::defaultBottom(), maxTickmarkCount );
+            plotWidget()->setAxisMaxMajor( RimSummaryPlot::plotAxisForTime(), maxTickmarkCount );
         }
         else if ( timeAxisProperties->tickmarkType() == RimSummaryTimeAxisProperties::TickmarkType::TICKMARK_CUSTOM )
         {
@@ -1124,10 +1132,10 @@ void RimSummaryPlot::createAndSetCustomTimeAxisTickmarks( RimSummaryTimeAxisProp
 {
     if ( !timeAxisProperties || !plotWidget() ) return;
 
-    const auto [minValue, maxValue] = plotWidget()->axisRange( RiuPlotAxis::defaultBottom() );
+    const auto [minValue, maxValue] = plotWidget()->axisRange( RimSummaryPlot::plotAxisForTime() );
     const auto tickmarkList = timeAxisProperties->createTickmarkList( QwtDate::toDateTime( minValue ), QwtDate::toDateTime( maxValue ) );
 
-    plotWidget()->setMajorTicksList( RiuPlotAxis::defaultBottom(), tickmarkList, minValue, maxValue );
+    plotWidget()->setMajorTicksList( RimSummaryPlot::plotAxisForTime(), tickmarkList, minValue, maxValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1144,7 +1152,7 @@ void RimSummaryPlot::overrideTimeAxisSettingsIfTooManyCustomTickmarks( RimSummar
 
     // Prevent too large number of ticks by overriding time axis interval and step to
     // prevent large number of tickmarks by accident.
-    const auto [minValue, maxValue] = plotWidget()->axisRange( RiuPlotAxis::defaultBottom() );
+    const auto [minValue, maxValue] = plotWidget()->axisRange( RimSummaryPlot::plotAxisForTime() );
     const double ticksInterval      = timeAxisProperties->getTickmarkIntervalDouble();
     const uint   numTicks           = static_cast<uint>( std::ceil( ( maxValue - minValue ) / ticksInterval ) );
     if ( numTicks > MAX_NUM_TICKS )
@@ -1182,6 +1190,14 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
     }
 
     return ( waterCutCurveCount == curves.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimSummaryPlot::plotAxisForTime()
+{
+    return RiuPlotAxis::defaultBottom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2085,7 +2101,7 @@ void RimSummaryPlot::timeAxisSettingsChanged( const caf::SignalEmitter* emitter 
     if ( !timeAxisProps->isAutoZoom() && plotWidget() )
     {
         // If not auto zoom - the new date and time ranges must be set and axes updated
-        plotWidget()->setAxisScale( RiuPlotAxis::defaultBottom(), timeAxisProps->visibleRangeMin(), timeAxisProps->visibleRangeMax() );
+        plotWidget()->setAxisScale( RimSummaryPlot::plotAxisForTime(), timeAxisProps->visibleRangeMin(), timeAxisProps->visibleRangeMax() );
         plotWidget()->updateAxes();
     }
 
@@ -3236,7 +3252,7 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* destinationCurve )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::assignXPlotAxis( RimSummaryCurve* curve )
 {
-    RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultBottom();
+    RiuPlotAxis newPlotAxis = RimSummaryPlot::plotAxisForTime();
 
     if ( curve->summaryCaseX() != nullptr && plotWidget() && plotWidget()->isMultiAxisSupported() )
     {
