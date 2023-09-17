@@ -697,7 +697,7 @@ QString RimGridTimeHistoryCurve::geometrySelectionText() const
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::updateQwtPlotAxis()
 {
-    if ( m_plotCurve ) updateAxisInPlot( yAxis() );
+    if ( m_plotCurve ) updateYAxisInPlot( yAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

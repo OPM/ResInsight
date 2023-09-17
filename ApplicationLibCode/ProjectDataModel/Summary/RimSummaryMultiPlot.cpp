@@ -1273,12 +1273,13 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
         for ( auto p : summaryPlots() )
         {
-            auto timeAxisProp = p->timeAxisProperties();
+            if ( auto timeAxisProp = p->timeAxisProperties() )
+            {
+                auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
+                                                           : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
 
-            auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
-                                                       : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
-
-            timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
+                timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
+            }
 
             for ( auto* axisProp : p->plotYAxes() )
             {
