@@ -143,7 +143,7 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
 {
     RiaDefines::Orientation orientation = RiaDefines::Orientation::HORIZONTAL;
-    if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+    if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
         orientation = RiaDefines::Orientation::VERTICAL;
     }

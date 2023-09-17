@@ -119,7 +119,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
 {
     if ( !plotWidget ) return;
 
-    RiuPlotAxis axis = m_axisProperties->plotAxisType();
+    RiuPlotAxis axis = m_axisProperties->plotAxis();
     {
         QString axisTitle = m_axisProperties->customTitle();
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
@@ -254,12 +254,12 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         RifEclipseSummaryAddress sumAddress;
         std::string              unitText;
 
-        if ( m_axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( m_axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();
         }
-        else if ( rimCurve->axisY() == m_axisProperties->plotAxisType() )
+        else if ( rimCurve->axisY() == m_axisProperties->plotAxis() )
         {
             sumAddress = rimCurve->summaryAddressY();
             unitText   = rimCurve->unitNameY();
@@ -370,11 +370,11 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
     {
         RifEclipseSummaryAddress sumAddress;
 
-        if ( m_axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( m_axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
             sumAddress = rimCurve->summaryAddressX();
         }
-        else if ( rimCurve->axisY() == m_axisProperties->plotAxisType() )
+        else if ( rimCurve->axisY() == m_axisProperties->plotAxis() )
         {
             sumAddress = rimCurve->summaryAddressY();
         }
