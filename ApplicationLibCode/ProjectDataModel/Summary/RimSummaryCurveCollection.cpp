@@ -450,6 +450,21 @@ RimSummaryPlotSourceStepping* RimSummaryCurveCollection::sourceSteppingObject( R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::HorizontalAxisType> RimSummaryCurveCollection::horizontalAxisTypes() const
+{
+    std::set<RiaDefines::HorizontalAxisType> axisTypes;
+
+    for ( const auto& curve : m_curves )
+    {
+        axisTypes.insert( curve->axisTypeX() );
+    }
+
+    return axisTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showCurves )

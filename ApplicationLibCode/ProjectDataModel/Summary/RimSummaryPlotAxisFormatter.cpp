@@ -131,7 +131,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         }
 
         QString objectName = createAxisObjectName();
-        m_axisProperties->setNameAndAxis( objectName, axisTitle, axis.axis(), axis.index() );
+        m_axisProperties->setNameAndAxis( objectName + axisTitle, axisTitle, axis.axis(), axis.index() );
         plotWidget->setAxisTitleText( axis, axisTitle );
 
         bool titleBold = false;
@@ -370,13 +370,13 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
     {
         RifEclipseSummaryAddress sumAddress;
 
-        if ( m_axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
-        {
-            sumAddress = rimCurve->summaryAddressX();
-        }
-        else if ( rimCurve->axisY() == m_axisProperties->plotAxis() )
+        if ( rimCurve->axisY() == m_axisProperties->plotAxis() )
         {
             sumAddress = rimCurve->summaryAddressY();
+        }
+        else if ( rimCurve->axisX() == m_axisProperties->plotAxis() )
+        {
+            sumAddress = rimCurve->summaryAddressX();
         }
         else
         {

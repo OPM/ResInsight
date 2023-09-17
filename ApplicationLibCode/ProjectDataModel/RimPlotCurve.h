@@ -115,7 +115,6 @@ public:
     void         setErrorBarsVisible( bool isVisible );
 
     virtual void updateCurveAppearance();
-    bool         isCrossPlotCurve() const;
     virtual void updateUiIconFromPlotSymbol();
     virtual bool hasParentPlot() const;
 
@@ -186,7 +185,8 @@ protected:
     virtual void clearErrorBars();
     void         checkAndApplyDefaultFillColor();
 
-    virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
+    void updateYAxisInPlot( RiuPlotAxis plotAxis );
+    void updateXAxisInPlot( RiuPlotAxis plotAxis );
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 

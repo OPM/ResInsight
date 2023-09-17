@@ -578,14 +578,6 @@ void RimPlotCurve::checkAndApplyDefaultFillColor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::isCrossPlotCurve() const
-{
-    return firstAncestorOrThisOfType<RimSummaryCrossPlot>() != nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::loadDataAndUpdate( bool updateParentPlot )
 {
     onLoadDataAndUpdate( updateParentPlot );
@@ -875,9 +867,17 @@ void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateAxisInPlot( RiuPlotAxis plotAxis )
+void RimPlotCurve::updateYAxisInPlot( RiuPlotAxis plotAxis )
 {
     if ( m_plotCurve ) m_plotCurve->setYAxis( plotAxis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateXAxisInPlot( RiuPlotAxis plotAxis )
+{
+    if ( m_plotCurve ) m_plotCurve->setXAxis( plotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------

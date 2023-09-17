@@ -147,11 +147,14 @@ void RimPlotAxisProperties::setNameForUnusedAxis()
 {
     QString name = "Unused ";
 
-    if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        name += "Left";
-    else if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-        name += "Right";
+    /*
+        if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+            name += "Left";
+        else if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+            name += "Right";
+    */
 
+    name += m_plotAxis().text();
     m_objectName = name;
 }
 
@@ -183,18 +186,6 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions( cons
     else if ( fieldNeedingOptions == &m_titleFontSize || fieldNeedingOptions == &m_valuesFontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
-    else if ( fieldNeedingOptions == &m_plotAxis )
-    {
-        std::vector<RiaDefines::PlotAxis> plotAxes = { RiaDefines::PlotAxis::PLOT_AXIS_LEFT, RiaDefines::PlotAxis::PLOT_AXIS_RIGHT };
-
-        for ( auto plotAxis : plotAxes )
-        {
-            auto plotAxisEnum = caf::AppEnum<RiaDefines::PlotAxis>( plotAxis );
-
-            QString uiText = plotAxisEnum.uiText();
-            options.push_back( caf::PdmOptionItemInfo( uiText, plotAxisEnum.value() ) );
-        }
     }
 
     return options;
