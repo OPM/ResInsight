@@ -417,9 +417,8 @@ void RiuWellImportWizard::updateFieldsModel()
         QStringList fields;
         QStringList edmIds;
 
-        ResInsightInternalJson::JsonReader jsonReader;
-        QMap<QString, QVariant>            jsonMap     = jsonReader.decodeFile( fileName );
-        QVariantList                       variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
+        QMap<QString, QVariant> jsonMap     = ResInsightInternalJson::JsonReader::decodeFile( fileName );
+        QVariantList            variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
         for ( const auto& listItem : variantList )
         {
             QMap<QString, QVariant> fieldMap = listItem.toMap();
@@ -632,9 +631,8 @@ void RiuWellImportWizard::parseWellsResponse( RimOilFieldEntry* oilFieldEntry )
 
     if ( caf::Utils::fileExists( oilFieldEntry->wellsFilePath ) )
     {
-        ResInsightInternalJson::JsonReader jsonReader;
-        QMap<QString, QVariant>            jsonMap     = jsonReader.decodeFile( oilFieldEntry->wellsFilePath );
-        QVariantList                       variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
+        QMap<QString, QVariant> jsonMap     = ResInsightInternalJson::JsonReader::decodeFile( oilFieldEntry->wellsFilePath );
+        QVariantList            variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
         for ( const auto& listItem : variantList )
         {
             QMap<QString, QVariant> rootMap = listItem.toMap();

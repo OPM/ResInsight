@@ -92,7 +92,7 @@ public:
     cvf::ref<RigFaultReactivationModel> model() const;
     bool                                showModel() const;
 
-    bool extractModelData();
+    bool extractAndExportModelData();
 
     QString baseDir() const;
     void    setBaseDir( QString path );
@@ -100,8 +100,10 @@ public:
     std::vector<QDateTime> selectedTimeSteps() const;
 
     QStringList commandParameters() const;
-    QString     outputOdbFilename() const;
-    QString     inputFilename() const;
+
+    QString outputOdbFilename() const;
+    QString inputFilename() const;
+    QString settingsFilename() const;
 
     void updateTimeSteps();
 
@@ -118,6 +120,8 @@ protected:
     void initAfterRead() override;
 
     QString baseFilename() const;
+
+    bool exportModelSettings();
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;

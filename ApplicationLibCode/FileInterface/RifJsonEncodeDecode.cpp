@@ -30,10 +30,14 @@ QMap<QString, QVariant> JsonReader::decodeFile( QString filePath )
 {
     QFile file;
     file.setFileName( filePath );
-    file.open( QIODevice::ReadOnly );
-    QByteArray byteArray = file.readAll();
-    file.close();
-    return Json::decode( byteArray );
+    if ( file.open( QIODevice::ReadOnly ) )
+    {
+        QByteArray byteArray = file.readAll();
+        file.close();
+        return Json::decode( byteArray );
+    }
+
+    return QMap<QString, QVariant>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +55,25 @@ QVariantList JsonReader::getVariantList( const QMap<QString, QVariant>& map )
 QString JsonReader::rootKeyText()
 {
     return "root";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool JsonWriter::encodeFile( QString filePath, QMap<QString, QVariant> map )
+{
+    QFile file;
+    file.setFileName( filePath );
+    if ( file.open( QIODevice::ReadWrite | QIODevice::Text ) )
+    {
+        QString     content = Json::encode( map, true );
+        QTextStream out( &file );
+        out << content;
+        file.close();
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,6 +23,8 @@
 #include "RiaPreferencesGeoMech.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RifJsonEncodeDecode.h"
+
 #include "RigBasicPlane.h"
 #include "RigFaultReactivationModel.h"
 #include "RigPolyLinesData.h"
@@ -39,6 +41,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultReactivationTools.h"
 #include "RimPolylineTarget.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
@@ -52,6 +55,8 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QMap>
+#include <QVariant>
 
 CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 
@@ -551,6 +556,15 @@ QString RimFaultReactivationModel::inputFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::settingsFilename() const
+{
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( baseFilename() + ".settings.json" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimFaultReactivationModel::baseFilename() const
 {
     QString tmp = m_userDescription();
@@ -568,8 +582,28 @@ QString RimFaultReactivationModel::baseFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::extractModelData()
+bool RimFaultReactivationModel::exportModelSettings()
 {
+    if ( m_faultPlane.isNull() ) return false;
+
+    QMap<QString, QVariant> settings;
+
+    auto [topInt, bottomInt] = m_faultPlane->intersectTopBottomLine();
+    auto planeNormal         = m_faultPlane->normal();
+
+    RimFaultReactivationTools::addSettingsToMap( settings, planeNormal, topInt, bottomInt );
+
+    QDir directory( baseDir() );
+    return ResInsightInternalJson::JsonWriter::encodeFile( settingsFilename(), settings );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::extractAndExportModelData()
+{
+    exportModelSettings();
+
     // TODO - get values from eclipse and geomech models here
     return true;
 }

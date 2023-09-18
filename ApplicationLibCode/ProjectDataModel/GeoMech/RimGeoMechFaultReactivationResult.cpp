@@ -25,15 +25,17 @@
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
+#include "RifJsonEncodeDecode.h"
+
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
 #include "RigHexIntersectionTools.h"
 #include "RigReservoirGridTools.h"
 
+#include "RimFaultReactivationTools.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimWellLogCalculatedCurve.h"
@@ -55,26 +57,29 @@
 
 #include <array>
 
+#include <QDir>
+#include <QFileInfo>
+#include <QMap>
+#include <QVariant>
+
 CAF_PDM_SOURCE_INIT( RimGeoMechFaultReactivationResult, "RimGeoMechFaultReactivationResult" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
+    : m_bHaveValidData( false )
 {
-    // TODO: Update icon
     CAF_PDM_InitObject( "Fault Reactivation Result", ":/GeoMechCase24x24.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersection, "Intersection", "Intersection" );
+    CAF_PDM_InitField( &m_distanceFromFault, "DistanceFromFault", 1.0, "Distance From Fault" );
 
-    CAF_PDM_InitField( &m_distanceFromIntersection,
-                       "FaceDistanceFromIntersection",
-                       m_defaultDistanceFromIntersection,
-                       "Face Distance From Intersection" );
-    CAF_PDM_InitField( &m_widthOutsideIntersection, "FaceWidthOutsideIntersection", 0.0, "Face Width Outside Intersection" );
+    CAF_PDM_InitFieldNoDefault( &m_createFaultReactivationPlot, "CreateReactivationPlot", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_createFaultReactivationPlot );
 
-    CAF_PDM_InitFieldNoDefault( &m_createFaultReactivationResult, "CreateReactivationResult", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_createFaultReactivationResult );
+    CAF_PDM_InitFieldNoDefault( &m_faultNormal, "FaultNormal", "" );
+    CAF_PDM_InitFieldNoDefault( &m_faultTopPosition, "FaultTopPosition", "" );
+    CAF_PDM_InitFieldNoDefault( &m_faultBottomPosition, "FaultBottomPosition", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_faceAWellPath, "FaceAWellPath", "Face A Well Path" );
     m_faceAWellPath.uiCapability()->setUiHidden( true );
@@ -94,8 +99,8 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechFaultReactivationResult::~RimGeoMechFaultReactivationResult()
 {
-    delete m_faceAWellPath;
-    delete m_faceBWellPath;
+    // delete m_faceAWellPath;
+    // delete m_faceBWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,6 +108,26 @@ RimGeoMechFaultReactivationResult::~RimGeoMechFaultReactivationResult()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechFaultReactivationResult::onLoadDataAndUpdate()
 {
+    auto geomCase = geoMechCase();
+
+    auto      filename = geoMechCase()->gridFileName();
+    QFileInfo fi( filename );
+    auto      folder   = fi.path();
+    auto      basename = fi.baseName();
+
+    QDir workDir( folder );
+    auto modelSettingsFilename = workDir.absoluteFilePath( basename + ".settings.json" );
+
+    auto map = ResInsightInternalJson::JsonReader::decodeFile( modelSettingsFilename );
+    if ( !map.isEmpty() )
+    {
+        m_faultNormal         = RimFaultReactivationTools::normalVector( map );
+        m_faultTopPosition    = RimFaultReactivationTools::topFaultPosition( map );
+        m_faultBottomPosition = RimFaultReactivationTools::bottomFaultPosition( map );
+
+        m_bHaveValidData = true;
+    }
+
     createWellGeometry();
     createWellLogCurves();
 }
@@ -114,22 +139,6 @@ QList<caf::PdmOptionItemInfo> RimGeoMechFaultReactivationResult::calculateValueO
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_intersection )
-    {
-        RimGridView* activeView = RiaApplication::instance()->activeGridView();
-        if ( !activeView || !activeView->intersectionCollection() ) return options;
-
-        for ( auto* intersection : activeView->intersectionCollection()->intersections() )
-        {
-            // Only utilize polyline intersections with two points
-            if ( intersection && intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE &&
-                 !intersection->polyLines().empty() && intersection->polyLines()[0].size() == 2 )
-            {
-                options.push_back( caf::PdmOptionItemInfo( intersection->name(), intersection ) );
-            }
-        }
-    }
-
     return options;
 }
 
@@ -139,10 +148,8 @@ QList<caf::PdmOptionItemInfo> RimGeoMechFaultReactivationResult::calculateValueO
 void RimGeoMechFaultReactivationResult::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Fault Reactivation Result" );
-    group->add( &m_intersection );
-    group->add( &m_distanceFromIntersection );
-    group->add( &m_widthOutsideIntersection );
-    group->add( &m_createFaultReactivationResult );
+    group->add( &m_distanceFromFault );
+    group->add( &m_createFaultReactivationPlot );
     group->add( &m_faceAWellPath );
     group->add( &m_faceBWellPath );
     group->add( &m_faceAWellPathPartIndex );
@@ -156,11 +163,11 @@ void RimGeoMechFaultReactivationResult::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            oldValue,
                                                           const QVariant&            newValue )
 {
-    if ( changedField == &m_distanceFromIntersection || changedField == &m_widthOutsideIntersection )
+    if ( changedField == &m_distanceFromFault )
     {
         createWellGeometry();
     }
-    if ( changedField == &m_createFaultReactivationResult && m_intersection() )
+    if ( changedField == &m_createFaultReactivationPlot )
     {
         createWellGeometry();
         createWellLogCurves();
@@ -174,7 +181,7 @@ void RimGeoMechFaultReactivationResult::defineEditorAttribute( const caf::PdmFie
                                                                QString                    uiConfigName,
                                                                caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_createFaultReactivationResult )
+    if ( field == &m_createFaultReactivationPlot )
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( attrib )
@@ -189,14 +196,16 @@ void RimGeoMechFaultReactivationResult::defineEditorAttribute( const caf::PdmFie
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechFaultReactivationResult::createWellGeometry()
 {
-    RimGeoMechCase* geomCase = firstAncestorOrThisOfTypeAsserted<RimGeoMechCase>();
+    if ( !m_bHaveValidData ) return;
+
+    auto geomCase = geoMechCase();
     if ( !geomCase || !geomCase->geoMechData() ) return;
     RigFemPartCollection* geoMechPartCollection = geomCase->geoMechData()->femParts();
     if ( !geoMechPartCollection ) return;
     RimWellPathCollection* wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
     if ( !wellPathCollection ) return;
 
-    // Create well paths if not existing collection
+    // Create well paths if not existing in collection
     const auto allWellPaths = wellPathCollection->allWellPaths();
     if ( !m_faceAWellPath ||
          ( m_faceAWellPath && std::find( allWellPaths.begin(), allWellPaths.end(), m_faceAWellPath ) == allWellPaths.end() ) )
@@ -221,41 +230,14 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
     m_faceAWellPath->geometryDefinition()->deleteAllTargets();
     m_faceBWellPath->geometryDefinition()->deleteAllTargets();
 
-    // Using first two points from first polyline
-    const auto polyLines = m_intersection()->polyLines();
-    if ( polyLines.size() != 1 || polyLines[0].size() != 2 )
-    {
-        RiaLogging::error( "Polyline intersection for fault face must be defined with only 2 points!" );
-        return;
-    }
-    const std::vector<cvf::Vec3d> points = { polyLines[0][0], polyLines[0][1] };
-
-    // Create vector for well path defined by point a and b
-    const cvf::Vec3d a          = points[0];
-    const cvf::Vec3d b          = points[1];
-    const cvf::Vec3d wellVector = b - a;
-
-    // Cross product of well path vector and z-axis (New vector must be normalized)
-    const cvf::Vec3d normVector     = wellVector ^ cvf::Vector3<double>::Z_AXIS;
-    const cvf::Vec3d distanceVector = m_distanceFromIntersection() * normVector.getNormalized();
-
-    // Get normalized vector along well to adjust point a and b outside of defined intersection
-    const auto       normalizedWellVector = wellVector.getNormalized();
-    const cvf::Vec3d widthAdjustedA       = a - ( normalizedWellVector * m_widthOutsideIntersection() );
-    const cvf::Vec3d widthAdjustedB       = b + ( normalizedWellVector * m_widthOutsideIntersection() );
-
-    // Create well points for face A and B
-    const std::pair<cvf::Vec3d, cvf::Vec3d> faceAWellStartAndEnd = { widthAdjustedA + distanceVector, widthAdjustedB + distanceVector };
-    const std::pair<cvf::Vec3d, cvf::Vec3d> faceBWellStartAndEnd = { widthAdjustedA - distanceVector, widthAdjustedB - distanceVector };
-
-    // Get center point between face well points to detect which part fault faces are in
-    auto             centerpoint         = []( const cvf::Vec3d& a, const cvf::Vec3d& b ) -> cvf::Vec3d { return ( a + b ) / 2.0; };
-    const cvf::Vec3d faceAWellPathCenter = centerpoint( faceAWellStartAndEnd.first, faceAWellStartAndEnd.second );
-    const cvf::Vec3d faceBWellPathCenter = centerpoint( faceBWellStartAndEnd.first, faceBWellStartAndEnd.second );
+    cvf::Vec3d partATop    = m_faultTopPosition() + m_faultNormal() * m_distanceFromFault;
+    cvf::Vec3d partABottom = m_faultBottomPosition() + m_faultNormal() * m_distanceFromFault;
+    cvf::Vec3d partBTop    = m_faultTopPosition() - m_faultNormal() * m_distanceFromFault;
+    cvf::Vec3d partBBottom = m_faultBottomPosition() - m_faultNormal() * m_distanceFromFault;
 
     // Update the well path target values
-    const std::vector<cvf::Vec3d> faceAWellPoints = { faceAWellStartAndEnd.first, faceAWellPathCenter, faceAWellStartAndEnd.second };
-    const std::vector<cvf::Vec3d> faceBWellPoints = { faceBWellStartAndEnd.first, faceBWellPathCenter, faceBWellStartAndEnd.second };
+    const std::vector<cvf::Vec3d> faceAWellPoints = { partATop, partABottom };
+    const std::vector<cvf::Vec3d> faceBWellPoints = { partBTop, partBBottom };
     m_faceAWellPath->geometryDefinition()->createAndInsertTargets( faceAWellPoints );
     m_faceBWellPath->geometryDefinition()->createAndInsertTargets( faceBWellPoints );
     m_faceAWellPath->geometryDefinition()->setUseAutoGeneratedTargetAtSeaLevel( false );
@@ -264,8 +246,8 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
     m_faceBWellPath->createWellPathGeometry();
 
     // Detect which part well path centers are in
-    m_faceAWellPathPartIndex = getPartIndexFromPoint( geoMechPartCollection, faceAWellPathCenter );
-    m_faceBWellPathPartIndex = getPartIndexFromPoint( geoMechPartCollection, faceBWellPathCenter );
+    m_faceAWellPathPartIndex = getPartIndexFromPoint( geoMechPartCollection, partATop );
+    m_faceBWellPathPartIndex = getPartIndexFromPoint( geoMechPartCollection, partBTop );
 
     // Update UI
     wellPathCollection->uiCapability()->updateConnectedEditors();
@@ -277,7 +259,9 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechFaultReactivationResult::createWellLogCurves()
 {
-    RimGeoMechCase* geomCase = firstAncestorOrThisOfTypeAsserted<RimGeoMechCase>();
+    if ( !m_bHaveValidData ) return;
+
+    auto geomCase = geoMechCase();
     if ( !geomCase ) return;
     Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return;
@@ -375,8 +359,9 @@ RimWellLogExtractionCurve* RimGeoMechFaultReactivationResult::createWellLogExtra
                                                                                                          RimModeledWellPath* wellPath,
                                                                                                          int                 partId )
 {
-    RimGeoMechCase* geomCase = firstAncestorOrThisOfTypeAsserted<RimGeoMechCase>();
+    auto geomCase = geoMechCase();
     if ( !geomCase ) return nullptr;
+
     Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return nullptr;
 
@@ -411,4 +396,12 @@ QString RimGeoMechFaultReactivationResult::plotDescription() const
     }
 
     return count == 0 ? plotDescription : QString( "%1 %2" ).arg( plotDescription ).arg( count );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimGeoMechFaultReactivationResult::geoMechCase() const
+{
+    return firstAncestorOrThisOfTypeAsserted<RimGeoMechCase>();
 }

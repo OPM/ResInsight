@@ -53,6 +53,7 @@ public:
 
     double                            maxDepth();
     std::pair<cvf::Vec3d, cvf::Vec3d> intersectTopBottomLine();
+    cvf::Vec3d                        normal() const;
 
     cvf::Vec3dArray             rect() const;
     cvf::ref<cvf::TextureImage> texture() const;

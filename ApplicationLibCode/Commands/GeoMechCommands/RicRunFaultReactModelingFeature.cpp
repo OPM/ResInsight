@@ -24,6 +24,8 @@
 #include "RifFaultReactivationModelExporter.h"
 
 #include "RimFaultReactivationModel.h"
+#include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
 #include "RimProcess.h"
 #include "RimProject.h"
 
@@ -66,9 +68,9 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    if ( !model->extractModelData() )
+    if ( !model->extractAndExportModelData() )
     {
-        QMessageBox::critical( nullptr, frmTitle, "Unable to get necessary data from the input model." );
+        QMessageBox::critical( nullptr, frmTitle, "Unable to get necessary data from the input case." );
         return;
     }
 
@@ -114,6 +116,24 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
     runProgress.incrementProgress();
     runProgress.setProgressDescription( "Loading modeling results." );
+
+    for ( auto gCase : RimProject::current()->geoMechCases() )
+    {
+        if ( model->outputOdbFilename() == gCase->gridFileName() )
+        {
+            gCase->reloadDataAndUpdate();
+            auto& views = gCase->geoMechViews();
+            if ( views.size() > 0 )
+            {
+                Riu3DMainWindowTools::selectAsCurrentItem( views[0] );
+            }
+            else
+            {
+                Riu3DMainWindowTools::selectAsCurrentItem( gCase );
+            }
+            return;
+        }
+    }
 
     RiaApplication* app = RiaApplication::instance();
     if ( !app->openOdbCaseFromFile( model->outputOdbFilename() ) )
