@@ -2268,26 +2268,30 @@ bool RimSummaryPlot::autoPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase* summaryCase )
 {
-    int                           newCurves = 0;
-    std::vector<RimSummaryCurve*> curves;
-
-    std::map<RifEclipseSummaryAddress, std::set<RimSummaryCase*>> dataVectorMap;
+    std::map<std::pair<RifEclipseSummaryAddress, RifEclipseSummaryAddress>, std::set<RimSummaryCase*>> dataVectorMap;
 
     for ( auto& curve : summaryCurves() )
     {
-        const auto addr = curve->summaryAddressY();
-        dataVectorMap[addr].insert( curve->summaryCaseY() );
+        const auto addr  = curve->summaryAddressY();
+        const auto addrX = curve->summaryAddressX();
+
+        // NB! This concept is used to make it possible to avoid adding curves for a case that is already present
+        // To be complete, the summaryCaseX() should also be checked, but this is not done for now
+        dataVectorMap[std::make_pair( addr, addrX )].insert( curve->summaryCaseY() );
     }
 
-    for ( const auto& [addr, cases] : dataVectorMap )
+    std::vector<RimSummaryCurve*> curves;
+
+    for ( const auto& [addressPair, cases] : dataVectorMap )
     {
         if ( cases.count( summaryCase ) > 0 ) continue;
 
-        curves.push_back( addNewCurveY( addr, summaryCase ) );
-        newCurves++;
+        const auto& [addrY, addrX] = addressPair;
+
+        curves.push_back( addNewCurveY( addrY, summaryCase, addrX, summaryCase ) );
     }
 
-    return { newCurves, curves, {} };
+    return { .curveCount = static_cast<int>( curves.size() ), .curves = curves, .curveSets = {} };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2421,7 +2425,8 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
         {
             if ( curveDef.summaryCase()->summaryReader() && curveDef.summaryCase()->summaryReader()->hasAddress( curveDef.summaryAddress() ) )
             {
-                auto curve = addNewCurveY( curveDef.summaryAddress(), curveDef.summaryCase() );
+                auto curve =
+                    addNewCurveY( curveDef.summaryAddress(), curveDef.summaryCase(), curveDef.summaryAddressX(), curveDef.summaryCaseX() );
                 curves.push_back( curve );
                 if ( curveDef.summaryCaseX() )
                 {
@@ -2514,7 +2519,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
                 if ( !skipAddress )
                 {
-                    curves.push_back( addNewCurveY( droppedAddress, summaryCase ) );
+                    curves.push_back( addNewCurveY( droppedAddress, summaryCase, RifEclipseSummaryAddress::timeAddress(), nullptr ) );
                     newCurves++;
                 }
             }
@@ -2577,11 +2582,20 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase )
+RimSummaryCurve* RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address,
+                                               RimSummaryCase*                 summaryCase,
+                                               const RifEclipseSummaryAddress& addressX,
+                                               RimSummaryCase*                 summaryCaseX )
 {
     auto* newCurve = new RimSummaryCurve();
     newCurve->setSummaryCaseY( summaryCase );
     newCurve->setSummaryAddressYAndApplyInterpolation( address );
+
+    // This address is RifEclipseSummaryAddress::time() if the curve is a time plot. Otherwise it is the address of the summary vector used
+    // for the x-axis
+    newCurve->setSummaryAddressX( addressX );
+    newCurve->setSummaryCaseX( summaryCaseX );
+
     addCurveNoUpdate( newCurve );
 
     return newCurve;
