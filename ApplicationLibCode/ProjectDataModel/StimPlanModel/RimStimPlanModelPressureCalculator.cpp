@@ -763,8 +763,14 @@ bool RimStimPlanModelPressureCalculator::handleFaciesWithInitialPressure( const 
 
         for ( size_t i = 0; i < faciesValues.size(); i++ )
         {
-            // Use the values from initial pressure curve
-            int    faciesValue     = static_cast<int>( faciesValues[i] );
+            double rawFaciesValue = faciesValues[i];
+            if ( std::isinf( faciesValues[i] ) )
+            {
+                // Facies is only inf in the overburden: replace with default facies
+                rawFaciesValue = stimPlanModel->getDefaultForMissingOverburdenValue( RiaDefines::CurveProperty::FACIES );
+            }
+
+            int    faciesValue     = static_cast<int>( rawFaciesValue );
             double currentPressure = values[i];
             double initialPressure = initialPressureValues[i];
             auto   faciesConfig    = faciesWithInitialPressure.find( faciesValue );
