@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include <QString>
 
@@ -40,11 +41,20 @@ public:
     explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress, bool isEnsembleCurve );
     explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress );
 
+    // Y Axis
     RimSummaryCase*                 summaryCase() const;
     const RifEclipseSummaryAddress& summaryAddress() const;
     RimSummaryCaseCollection*       ensemble() const;
     bool                            isEnsembleCurve() const;
     void                            setSummaryAddress( const RifEclipseSummaryAddress& address );
+
+    // X Axis
+    void                     setSummaryCaseX( RimSummaryCase* summaryCase );
+    void                     setSummaryAddressX( const RifEclipseSummaryAddress& summaryAddress );
+    RimSummaryCase*          summaryCaseX() const;
+    RifEclipseSummaryAddress summaryAddressX() const;
+
+    void setIdentifierText( SummaryCategory category, const std::string& name );
 
     bool operator<( const RiaSummaryCurveDefinition& other ) const;
 
@@ -59,6 +69,8 @@ public:
 private:
     RimSummaryCase*           m_summaryCase;
     RifEclipseSummaryAddress  m_summaryAddress;
+    RimSummaryCase*           m_summaryCaseX;
+    RifEclipseSummaryAddress  m_summaryAddressX;
     RimSummaryCaseCollection* m_ensemble;
     bool                      m_isEnsembleCurve;
 };

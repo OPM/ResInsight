@@ -17,8 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaStdStringTools.h"
 
 #include "RifSummaryReaderInterface.h"
+
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
@@ -29,6 +31,8 @@
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
     : m_summaryCase( nullptr )
+    , m_summaryCaseX( nullptr )
+    , m_summaryAddressX( RifEclipseSummaryAddress::timeAddress() )
     , m_ensemble( nullptr )
     , m_isEnsembleCurve( false )
 {
@@ -42,6 +46,8 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*           
                                                       bool                            isEnsembleCurve )
     : m_summaryCase( summaryCase )
     , m_summaryAddress( summaryAddress )
+    , m_summaryCaseX( nullptr )
+    , m_summaryAddressX( RifEclipseSummaryAddress::timeAddress() )
     , m_ensemble( nullptr )
     , m_isEnsembleCurve( isEnsembleCurve )
 {
@@ -53,6 +59,8 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*           
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress )
     : m_summaryCase( nullptr )
     , m_summaryAddress( summaryAddress )
+    , m_summaryCaseX( nullptr )
+    , m_summaryAddressX( RifEclipseSummaryAddress::timeAddress() )
     , m_ensemble( ensemble )
     , m_isEnsembleCurve( true )
 {
@@ -96,6 +104,71 @@ bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 void RiaSummaryCurveDefinition::setSummaryAddress( const RifEclipseSummaryAddress& address )
 {
     m_summaryAddress = address;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefinition::setSummaryCaseX( RimSummaryCase* summaryCase )
+{
+    m_summaryCaseX = summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefinition::setSummaryAddressX( const RifEclipseSummaryAddress& summaryAddress )
+{
+    m_summaryAddressX = summaryAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RiaSummaryCurveDefinition::summaryCaseX() const
+{
+    return m_summaryCaseX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RiaSummaryCurveDefinition::summaryAddressX() const
+{
+    return m_summaryAddressX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, const std::string& name )
+{
+    if ( RifEclipseSummaryAddress::isDependentOnWellName( category ) )
+    {
+        m_summaryAddress.setWellName( name );
+        m_summaryAddressX.setWellName( name );
+    }
+
+    int id = RiaStdStringTools::toInt( name );
+
+    switch ( category )
+    {
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER:
+            m_summaryAddress.setAquiferNumber( id );
+            m_summaryAddressX.setAquiferNumber( id );
+            break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION:
+            m_summaryAddress.setRegion( id );
+            m_summaryAddressX.setRegion( id );
+            break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP:
+            m_summaryAddress.setGroupName( name );
+            m_summaryAddressX.setGroupName( name );
+            break;
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
