@@ -314,9 +314,8 @@ std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress>
-    RiaSummaryAddressAnalyzer::addressesForCategory( const std::set<RifEclipseSummaryAddress>&           addresses,
-                                                     RifEclipseSummaryAddressDefines::SummaryCategory category )
+std::vector<RifEclipseSummaryAddress> RiaSummaryAddressAnalyzer::addressesForCategory( const std::set<RifEclipseSummaryAddress>& addresses,
+                                                                                       RifEclipseSummaryAddressDefines::SummaryCategory category )
 {
     std::vector<RifEclipseSummaryAddress> filteredAddresses;
 

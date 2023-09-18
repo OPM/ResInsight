@@ -36,10 +36,10 @@ public:
                                     int                                  indexOffset,
                                     bool                                 notifyChange = true );
 
-    static bool updateAddressIfMatching( const QVariant&                                     oldValue,
-                                         const QVariant&                                     newValue,
+    static bool updateAddressIfMatching( const QVariant&                                  oldValue,
+                                         const QVariant&                                  newValue,
                                          RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                         RifEclipseSummaryAddress*                           adr );
+                                         RifEclipseSummaryAddress*                        adr );
 
     static bool updateHistoryAndSummaryQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr );
 
