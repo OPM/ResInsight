@@ -27,6 +27,7 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryDefines.h"
 #include "RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
@@ -196,6 +197,8 @@ RimSummaryCase* RimSummaryCurve::summaryCaseY() const
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddressX() const
 {
+    if ( m_axisType == RiaDefines::HorizontalAxisType::TIME ) return RifEclipseSummaryAddress::timeAddress();
+
     return m_xValuesSummaryAddress->address();
 }
 

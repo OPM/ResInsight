@@ -254,7 +254,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         RifEclipseSummaryAddress sumAddress;
         std::string              unitText;
 
-        if ( m_axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( m_axisProperties->plotAxis().isHorizontal() )
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();
@@ -264,28 +264,34 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
             sumAddress = rimCurve->summaryAddressY();
             unitText   = rimCurve->unitNameY();
         }
-        else
-        {
-            continue;
-        }
 
         addToUnitToQuantityMap( unitText, sumAddress );
     }
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
-        std::string                     unitText;
-        if ( curveDef.summaryCase() && curveDef.summaryCase()->summaryReader() )
-        {
-            unitText = curveDef.summaryCase()->summaryReader()->unitName( sumAddress );
-        }
-        else if ( curveDef.ensemble() )
+        std::string              unitText;
+        RifEclipseSummaryAddress sumAddress = curveDef.summaryAddress();
+        if ( curveDef.ensemble() )
         {
             std::vector<RimSummaryCase*> sumCases = curveDef.ensemble()->allSummaryCases();
             if ( !sumCases.empty() && sumCases[0] && sumCases[0]->summaryReader() )
             {
                 unitText = sumCases[0]->summaryReader()->unitName( sumAddress );
+            }
+        }
+        else
+        {
+            RimSummaryCase* sumCase = curveDef.summaryCase();
+            if ( m_axisProperties->plotAxis().isHorizontal() )
+            {
+                sumCase    = curveDef.summaryCaseX();
+                sumAddress = curveDef.summaryAddressX();
+            }
+
+            if ( sumCase && sumCase->summaryReader() )
+            {
+                unitText = sumCase->summaryReader()->unitName( sumAddress );
             }
         }
 
@@ -368,29 +374,26 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
 
     for ( RimSummaryCurve* rimCurve : m_summaryCurves )
     {
-        RifEclipseSummaryAddress sumAddress;
-
         if ( rimCurve->axisY() == m_axisProperties->plotAxis() )
         {
-            sumAddress = rimCurve->summaryAddressY();
+            addVectorNames( rimCurve->summaryAddressY() );
         }
         else if ( rimCurve->axisX() == m_axisProperties->plotAxis() )
         {
-            sumAddress = rimCurve->summaryAddressX();
+            addVectorNames( rimCurve->summaryAddressX() );
         }
-        else
-        {
-            continue;
-        }
-
-        addVectorNames( sumAddress );
     }
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
-
-        addVectorNames( sumAddress );
+        if ( m_axisProperties->plotAxis().isVertical() )
+        {
+            addVectorNames( curveDef.summaryAddress() );
+        }
+        else
+        {
+            addVectorNames( curveDef.summaryAddressX() );
+        }
     }
 
     QString assembledAxisObjectName;
