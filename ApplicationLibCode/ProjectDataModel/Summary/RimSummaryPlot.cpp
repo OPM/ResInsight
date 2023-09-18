@@ -34,6 +34,7 @@
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
+#include "RifEclipseSummaryAddressDefines.h"
 #include "RifReaderEclipseSummary.h"
 
 #include "RicfCommandObject.h"
@@ -2593,8 +2594,12 @@ RimSummaryCurve* RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& a
 
     // This address is RifEclipseSummaryAddress::time() if the curve is a time plot. Otherwise it is the address of the summary vector used
     // for the x-axis
-    newCurve->setSummaryAddressX( addressX );
-    newCurve->setSummaryCaseX( summaryCaseX );
+    if ( addressX.category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_TIME )
+    {
+        newCurve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+        newCurve->setSummaryAddressX( addressX );
+        newCurve->setSummaryCaseX( summaryCaseX );
+    }
 
     addCurveNoUpdate( newCurve );
 
