@@ -2841,7 +2841,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     if ( !nameHelper ) return;
 
     nameHelper->clear();
-    std::vector<RifEclipseSummaryAddress>  addresses;
+    std::vector<RiaSummaryCurveAddress>    addresses;
     std::vector<RimSummaryCase*>           sumCases;
     std::vector<RimSummaryCaseCollection*> ensembleCases;
 
@@ -2851,21 +2851,21 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
         {
             if ( curve->summaryAddressY().isCalculated() )
             {
-                RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(), sumCases, addresses );
+                std::vector<RifEclipseSummaryAddress> calcAddresses;
+                RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(), sumCases, calcAddresses );
+                for ( const auto& adr : calcAddresses )
+                {
+                    addresses.push_back( RiaSummaryCurveAddress( adr ) );
+                }
             }
             else
             {
-                addresses.push_back( curve->summaryAddressY() );
+                addresses.push_back( curve->curveAddress() );
                 sumCases.push_back( curve->summaryCaseY() );
 
                 if ( curve->summaryCaseX() )
                 {
                     sumCases.push_back( curve->summaryCaseX() );
-
-                    if ( curve->summaryAddressX().category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
-                    {
-                        addresses.push_back( curve->summaryAddressX() );
-                    }
                 }
             }
         }
@@ -2873,7 +2873,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
 
     for ( auto curveSet : m_ensembleCurveSetCollection->curveSets() )
     {
-        addresses.push_back( curveSet->summaryAddress() );
+        addresses.push_back( curveSet->curveAddress() );
         ensembleCases.push_back( curveSet->summaryCaseCollection() );
     }
 

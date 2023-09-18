@@ -44,7 +44,7 @@ public:
 
     void clear();
 
-    void appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses );
+    void appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses );
     void setSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
     void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases );
 

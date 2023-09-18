@@ -26,6 +26,7 @@
 class RiaSummaryCurveAddress
 {
 public:
+    explicit RiaSummaryCurveAddress( const RifEclipseSummaryAddress& summaryAddressY );
     explicit RiaSummaryCurveAddress( const RifEclipseSummaryAddress& summaryAddressX, const RifEclipseSummaryAddress& summaryAddressY );
 
     RifEclipseSummaryAddress summaryAddressX() const;

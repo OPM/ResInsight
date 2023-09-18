@@ -169,6 +169,14 @@ RiaSummaryCurveDefinition RimSummaryCurve::curveDefinition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaSummaryCurveAddress RimSummaryCurve::curveAddress() const
+{
+    return RiaSummaryCurveAddress( summaryAddressX(), summaryAddressY() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseY( RimSummaryCase* sumCase )
 {
     if ( m_yValuesSummaryCase != sumCase )

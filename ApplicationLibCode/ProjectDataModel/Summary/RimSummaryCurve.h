@@ -26,6 +26,7 @@
 
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
+#include "RiaSummaryCurveAddress.h"
 #include "RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
@@ -54,6 +55,7 @@ public:
     ~RimSummaryCurve() override;
 
     RiaSummaryCurveDefinition curveDefinition() const;
+    RiaSummaryCurveAddress    curveAddress() const;
 
     // Y Axis functions
     RimSummaryCase*             summaryCaseY() const;
