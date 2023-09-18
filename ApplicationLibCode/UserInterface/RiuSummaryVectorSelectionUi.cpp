@@ -170,9 +170,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( &m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_FIELD][0]->pdmField(), "FieldVectors", "Field vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_FIELD][1]->pdmField(),
-                                "FieldCalculationIds",
-                                "Calculation Ids" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_FIELD][1]->pdmField(), "FieldCalculationIds", "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_AQUIFER][0]->pdmField(), "Aquifers", "Aquifers" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_AQUIFER][1]->pdmField(), "AquiferVectors", "Aquifer Vectors" );
@@ -191,9 +189,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_REGION][0]->pdmField(), "Regions", "Regions" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_REGION][1]->pdmField(), "RegionsVectors", "Regions Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_REGION][2]->pdmField(),
-                                "RegionCalculationIds",
-                                "Calculation Ids" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_REGION][2]->pdmField(), "RegionCalculationIds", "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_REGION_2_REGION][0]->pdmField(),
                                 "Region2RegionRegions",
@@ -206,9 +202,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
                                 "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_GROUP][0]->pdmField(), "WellGroupWellGroupNames", "Groups" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_GROUP][1]->pdmField(),
-                                "WellGroupVectors",
-                                "Well Group Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_GROUP][1]->pdmField(), "WellGroupVectors", "Well Group Vectors" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_GROUP][2]->pdmField(),
                                 "WellGroupCalculationIds",
                                 "Calculation Ids" );
@@ -220,9 +214,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][0]->pdmField(),
                                 "WellCompletionWellName",
                                 "Wells" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][1]->pdmField(),
-                                "WellCompletionIjk",
-                                "Cell IJK" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][1]->pdmField(), "WellCompletionIjk", "Cell IJK" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_WELL_COMPLETION][2]->pdmField(),
                                 "WellCompletionVectors",
                                 "Well Completion Vectors" );
@@ -262,9 +254,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_BLOCK][0]->pdmField(), "BlockIjk", "Cell IJK" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_BLOCK][1]->pdmField(), "BlockVectors", "Block Vectors" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_BLOCK][2]->pdmField(),
-                                "BlockCalculationIds",
-                                "Calculation Ids" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_BLOCK][2]->pdmField(), "BlockCalculationIds", "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_BLOCK_LGR][0]->pdmField(), "BlockLgrLgrName", "LGR Names" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK" );
@@ -273,9 +263,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
                                 "BlockLgrCalculationIds",
                                 "CalculationIds" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_IMPORTED][0]->pdmField(),
-                                "ImportedVectors",
-                                "Imported vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_IMPORTED][0]->pdmField(), "ImportedVectors", "Imported vectors" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[SummaryCategory::SUMMARY_IMPORTED][1]->pdmField(),
                                 "ImportedCalculationIds",
                                 "Calculation Ids" );
@@ -1233,7 +1221,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::buildAddressList
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
-    SummaryCategory                                      category,
+    SummaryCategory                                         category,
     std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
     std::vector<std::pair<SummaryIdentifierType, QString>>& identifierPath,
     std::set<RifEclipseSummaryAddress>&                     addressSet ) const

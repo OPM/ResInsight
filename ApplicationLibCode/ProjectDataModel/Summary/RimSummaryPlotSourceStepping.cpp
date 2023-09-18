@@ -256,7 +256,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
         else
         {
             SummaryCategory category = SummaryCategory::SUMMARY_INVALID;
-            std::string        secondaryIdentifier;
+            std::string     secondaryIdentifier;
 
             if ( fieldNeedingOptions == &m_wellName )
             {

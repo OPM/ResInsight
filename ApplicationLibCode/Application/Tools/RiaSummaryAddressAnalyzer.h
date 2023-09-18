@@ -61,12 +61,12 @@ public:
     std::set<int>         aquifers() const;
 
     std::set<RifEclipseSummaryAddressDefines::SummaryCategory> categories() const;
-    std::vector<std::vector<RifEclipseSummaryAddress>>            addressesGroupedByObject() const;
+    std::vector<std::vector<RifEclipseSummaryAddress>>         addressesGroupedByObject() const;
 
     std::vector<QString> identifierTexts( RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                          const std::string&                                  secondaryIdentifier ) const;
+                                          const std::string&                               secondaryIdentifier ) const;
 
-    static std::vector<RifEclipseSummaryAddress> addressesForCategory( const std::set<RifEclipseSummaryAddress>&           addresses,
+    static std::vector<RifEclipseSummaryAddress> addressesForCategory( const std::set<RifEclipseSummaryAddress>&        addresses,
                                                                        RifEclipseSummaryAddressDefines::SummaryCategory category );
 
     static std::string correspondingHistorySummaryCurveName( const std::string& curveName );

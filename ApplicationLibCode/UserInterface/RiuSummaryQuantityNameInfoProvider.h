@@ -50,13 +50,13 @@ private:
         }
 
         RifEclipseSummaryAddressDefines::SummaryCategory category;
-        std::string                                         longName;
+        std::string                                      longName;
     };
 
 private:
     RiuSummaryQuantityNameInfoProvider();
 
-    RiuSummaryQuantityInfo quantityInfo( const std::string& vectorName, bool exactMatch = false ) const;
+    RiuSummaryQuantityInfo                           quantityInfo( const std::string& vectorName, bool exactMatch = false ) const;
     RifEclipseSummaryAddressDefines::SummaryCategory categoryFromVectorName( const std::string& vectorName, bool exactMatch = false ) const;
 
     static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoForEclipseKeywords();

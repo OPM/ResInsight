@@ -51,9 +51,9 @@ public:
     void                          removeTable( RimSummaryTable* table );
 
     RimSummaryTable* createDefaultSummaryTable();
-    RimSummaryTable* createSummaryTableFromCategoryAndVectorName( RimSummaryCase*                                     summaryCase,
+    RimSummaryTable* createSummaryTableFromCategoryAndVectorName( RimSummaryCase*                                  summaryCase,
                                                                   RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                                                  const QString&                                      vectorName );
+                                                                  const QString&                                   vectorName );
 
 private:
     caf::PdmChildArrayField<RimSummaryTable*> m_summaryTables;

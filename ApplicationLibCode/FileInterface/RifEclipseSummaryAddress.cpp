@@ -95,7 +95,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryCategory category, st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryCategory category,
+RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryCategory    category,
                                                     const std::string& vectorName,
                                                     int                regionNumber,
                                                     int                regionNumber2,
@@ -227,9 +227,9 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
 RifEclipseSummaryAddress RifEclipseSummaryAddress::fieldAddress( const std::string& vectorName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_FIELD;
-    addr.m_vectorName       = vectorName;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_FIELD;
+    addr.m_vectorName = vectorName;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -239,10 +239,10 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fieldAddress( const std::stri
 RifEclipseSummaryAddress RifEclipseSummaryAddress::aquiferAddress( const std::string& vectorName, int aquiferNumber, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_AQUIFER;
-    addr.m_vectorName       = vectorName;
-    addr.m_number0          = aquiferNumber;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_AQUIFER;
+    addr.m_vectorName = vectorName;
+    addr.m_number0    = aquiferNumber;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -253,10 +253,10 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress::networkAddress( const std::string& vectorName, const std::string& networkName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_NETWORK;
-    addr.m_vectorName       = vectorName;
-    addr.m_name             = networkName;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_NETWORK;
+    addr.m_vectorName = vectorName;
+    addr.m_name       = networkName;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -266,9 +266,9 @@ RifEclipseSummaryAddress
 RifEclipseSummaryAddress RifEclipseSummaryAddress::miscAddress( const std::string& vectorName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_MISC;
-    addr.m_vectorName       = vectorName;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_MISC;
+    addr.m_vectorName = vectorName;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -278,10 +278,10 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::miscAddress( const std::strin
 RifEclipseSummaryAddress RifEclipseSummaryAddress::regionAddress( const std::string& vectorName, int regionNumber, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_REGION;
-    addr.m_vectorName       = vectorName;
-    addr.m_number0          = regionNumber;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_REGION;
+    addr.m_vectorName = vectorName;
+    addr.m_number0    = regionNumber;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -292,11 +292,11 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress::regionToRegionAddress( const std::string& vectorName, int regionNumber, int region2Number, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_REGION_2_REGION;
-    addr.m_vectorName       = vectorName;
-    addr.m_number0          = regionNumber;
-    addr.m_number1          = region2Number;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_REGION_2_REGION;
+    addr.m_vectorName = vectorName;
+    addr.m_number0    = regionNumber;
+    addr.m_number1    = region2Number;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -306,10 +306,10 @@ RifEclipseSummaryAddress
 RifEclipseSummaryAddress RifEclipseSummaryAddress::groupAddress( const std::string& vectorName, const std::string& groupName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_GROUP;
-    addr.m_vectorName       = vectorName;
-    addr.m_name             = groupName;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_GROUP;
+    addr.m_vectorName = vectorName;
+    addr.m_name       = groupName;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -319,10 +319,10 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::groupAddress( const std::stri
 RifEclipseSummaryAddress RifEclipseSummaryAddress::wellAddress( const std::string& vectorName, const std::string& wellName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_WELL;
-    addr.m_vectorName       = vectorName;
-    addr.m_name             = wellName;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_WELL;
+    addr.m_vectorName = vectorName;
+    addr.m_name       = wellName;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -333,9 +333,9 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress::wellCompletionAddress( const std::string& vectorName, const std::string& wellName, int i, int j, int k, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_WELL_COMPLETION;
-    addr.m_vectorName       = vectorName;
-    addr.m_name             = wellName;
+    addr.m_category   = SummaryCategory::SUMMARY_WELL_COMPLETION;
+    addr.m_vectorName = vectorName;
+    addr.m_name       = wellName;
     addr.setCellIjk( i, j, k );
     addr.m_id = calculationId;
     return addr;
@@ -350,11 +350,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellLgrAddress( const std::st
                                                                    int                calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_WELL_LGR;
-    addr.m_vectorName       = vectorName;
-    addr.m_lgrName          = lgrName;
-    addr.m_name             = wellName;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_WELL_LGR;
+    addr.m_vectorName = vectorName;
+    addr.m_lgrName    = lgrName;
+    addr.m_name       = wellName;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -370,10 +370,10 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellCompletionLgrAddress( con
                                                                              int                calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
-    addr.m_vectorName       = vectorName;
-    addr.m_lgrName          = lgrName;
-    addr.m_name             = wellName;
+    addr.m_category   = SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
+    addr.m_vectorName = vectorName;
+    addr.m_lgrName    = lgrName;
+    addr.m_name       = wellName;
     addr.setCellIjk( i, j, k );
     addr.m_id = calculationId;
     return addr;
@@ -386,11 +386,11 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress::wellSegmentAddress( const std::string& vectorName, const std::string& wellName, int segmentNumber, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_WELL_SEGMENT;
-    addr.m_vectorName       = vectorName;
-    addr.m_name             = wellName;
-    addr.m_number0          = segmentNumber;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_WELL_SEGMENT;
+    addr.m_vectorName = vectorName;
+    addr.m_name       = wellName;
+    addr.m_number0    = segmentNumber;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -400,8 +400,8 @@ RifEclipseSummaryAddress
 RifEclipseSummaryAddress RifEclipseSummaryAddress::blockAddress( const std::string& vectorName, int i, int j, int k, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_BLOCK;
-    addr.m_vectorName       = vectorName;
+    addr.m_category   = SummaryCategory::SUMMARY_BLOCK;
+    addr.m_vectorName = vectorName;
     addr.setCellIjk( i, j, k );
     addr.m_id = calculationId;
     return addr;
@@ -414,9 +414,9 @@ RifEclipseSummaryAddress
     RifEclipseSummaryAddress::blockLgrAddress( const std::string& vectorName, const std::string& lgrName, int i, int j, int k, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_BLOCK_LGR;
-    addr.m_vectorName       = vectorName;
-    addr.m_lgrName          = lgrName;
+    addr.m_category   = SummaryCategory::SUMMARY_BLOCK_LGR;
+    addr.m_vectorName = vectorName;
+    addr.m_lgrName    = lgrName;
     addr.setCellIjk( i, j, k );
     addr.m_id = calculationId;
     return addr;
@@ -428,9 +428,9 @@ RifEclipseSummaryAddress
 RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress( const std::string& vectorName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_IMPORTED;
-    addr.m_vectorName       = vectorName;
-    addr.m_id               = calculationId;
+    addr.m_category   = SummaryCategory::SUMMARY_IMPORTED;
+    addr.m_vectorName = vectorName;
+    addr.m_id         = calculationId;
     return addr;
 }
 
@@ -440,8 +440,8 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress( const std::s
 RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress( const std::string& vectorName, const std::string& dataQuantityName )
 {
     RifEclipseSummaryAddress addr;
-    addr.m_category = SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS;
-    addr.m_vectorName       = vectorName + ":" + dataQuantityName;
+    addr.m_category   = SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS;
+    addr.m_vectorName = vectorName + ":" + dataQuantityName;
     return addr;
 }
 

@@ -119,8 +119,8 @@ RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddressDefines::SummaryCategory
-    RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName, bool exactMatch ) const
+RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName,
+                                                                                                             bool exactMatch ) const
 {
     auto info = quantityInfo( vectorName, exactMatch );
 
@@ -186,7 +186,7 @@ std::string RiuSummaryQuantityNameInfoProvider::longNameFromVectorName( const st
 {
     auto info = quantityInfo( vectorName );
     return info.category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID || !returnVectorNameIfNotFound ? info.longName
-                                                                                                                                : vectorName;
+                                                                                                                             : vectorName;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -494,7 +494,7 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculationAddress>
     RimSummaryCalculation::allAddressesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                                    const std::set<RifEclipseSummaryAddress>&           allResultAddresses ) const
+                                                    const std::set<RifEclipseSummaryAddress>&        allResultAddresses ) const
 {
     std::vector<RimSummaryCalculationAddress> addresses;
 

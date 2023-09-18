@@ -1100,7 +1100,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     else
                     {
                         auto& [currentMin, currentMax] = axisRanges[axis->plotAxis()];
-                        axisRanges[axis->plotAxis()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
+                        axisRanges[axis->plotAxis()]   = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
             }
@@ -1139,7 +1139,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     else
                     {
                         auto& [currentMin, currentMax] = axisRanges[axis->plotAxis()];
-                        axisRanges[axis->plotAxis()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
+                        axisRanges[axis->plotAxis()]   = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
             }

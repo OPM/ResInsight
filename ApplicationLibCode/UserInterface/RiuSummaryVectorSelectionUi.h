@@ -95,7 +95,7 @@ private:
                                                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const;
 
     std::set<RifEclipseSummaryAddress> buildAddressListFromSelections() const;
-    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddressDefines::SummaryCategory     category,
+    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddressDefines::SummaryCategory        category,
                                                                                std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
                                                                                std::vector<std::pair<RifEclipseSummaryAddressDefines::SummaryIdentifierType, QString>>& identifierPath,
                                                                                std::set<RifEclipseSummaryAddress>& addressSet ) const;

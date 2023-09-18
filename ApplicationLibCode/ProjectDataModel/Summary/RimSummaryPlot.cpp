@@ -2980,8 +2980,7 @@ void RimSummaryPlot::setAutoScaleXEnabled( bool enabled )
 {
     for ( const auto& ap : m_axisPropertiesArray )
     {
-        if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP ||
-             ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP || ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
             ap->setAutoZoom( enabled );
         }
@@ -2995,8 +2994,7 @@ void RimSummaryPlot::setAutoScaleYEnabled( bool enabled )
 {
     for ( const auto& ap : m_axisPropertiesArray )
     {
-        if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-             ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+        if ( ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT || ap->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
         {
             ap->setAutoZoom( enabled );
         }

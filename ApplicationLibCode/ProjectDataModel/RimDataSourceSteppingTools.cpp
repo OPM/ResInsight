@@ -74,10 +74,10 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                                     oldValue,
-                                                          const QVariant&                                     newValue,
+bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                                  oldValue,
+                                                          const QVariant&                                  newValue,
                                                           RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                                          RifEclipseSummaryAddress*                           adr )
+                                                          RifEclipseSummaryAddress*                        adr )
 {
     if ( !adr ) return false;
 
