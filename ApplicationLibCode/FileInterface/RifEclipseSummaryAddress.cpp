@@ -448,6 +448,16 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifEclipseSummaryAddress::timeAddress()
+{
+    RifEclipseSummaryAddress addr;
+    addr.m_variableCategory = SummaryVarCategory::SUMMARY_TIME;
+    return addr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,
                                                                    const std::string                            jointString )
 {
@@ -1239,6 +1249,14 @@ std::pair<int, int> RifEclipseSummaryAddress::regionToRegionPairFromUiText( cons
 bool RifEclipseSummaryAddress::isCalculated() const
 {
     return m_id != -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isTime() const
+{
+    return m_variableCategory == SummaryVarCategory::SUMMARY_TIME;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,7 +47,8 @@ enum class SummaryVarCategory
     SUMMARY_BLOCK,
     SUMMARY_BLOCK_LGR,
     SUMMARY_IMPORTED,
-    SUMMARY_ENSEMBLE_STATISTICS
+    SUMMARY_ENSEMBLE_STATISTICS,
+    SUMMARY_TIME // Used to represent time as along the x-axis
 };
 
 enum class SummaryIdentifierType
