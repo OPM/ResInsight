@@ -183,6 +183,28 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         {
+            std::set<QString> sourceStrings;
+
+            const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseXFieldKeyword();
+            for ( const auto& curve : summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+            {
+                if ( curve->axisTypeX() != RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) continue;
+
+                auto fieldHandle = curve->findField( summaryFieldKeyword );
+                if ( fieldHandle )
+                {
+                    auto reference = caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, curve->summaryCaseX() );
+
+                    sourceStrings.insert( reference );
+                }
+
+                addresses.push_back( curve->summaryAddressX() );
+            }
+
+            replaceStrings( sourceStrings, summaryFieldKeyword, RicSummaryPlotTemplateTools::placeholderTextForSummaryCaseX(), objectAsText );
+        }
+
+        {
             std::set<QString> ensembleReferenceStrings;
 
             const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldKeyword();
