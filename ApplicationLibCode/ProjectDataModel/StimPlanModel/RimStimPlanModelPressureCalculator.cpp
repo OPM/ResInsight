@@ -298,9 +298,10 @@ std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
         }
         else
         {
-            if ( !sourceValues.empty() )
+            // The last point is added without interpolation. But MD can be smaller than the source range which
+            // leads to startIndex equal to endIndex: leave these cases as inf.
+            if ( !sourceValues.empty() && md >= sourceMds[0] )
             {
-                // The last point is added without interpolation
                 value = sourceValues.back();
             }
         }
