@@ -469,7 +469,7 @@ RimSummaryCase* RimSummaryCurve::summaryCaseX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
-    CAF_ASSERT( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT || plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+    CAF_ASSERT( plotAxis.isVertical() );
 
     m_plotAxis_OBSOLETE = plotAxis.axis();
 
