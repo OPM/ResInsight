@@ -153,9 +153,15 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition RimSummaryCurve::curveDefinitionY() const
+RiaSummaryCurveDefinition RimSummaryCurve::curveDefinition() const
 {
-    return RiaSummaryCurveDefinition( summaryCaseY(), summaryAddressY(), isEnsembleCurve() );
+    RiaSummaryCurveDefinition curveDefinition( summaryCaseY(), summaryAddressY(), isEnsembleCurve() );
+    if ( m_axisType() == RiaDefines::HorizontalAxisType::TIME )
+    {
+        curveDefinition.setSummaryDataXAxis( summaryCaseX(), summaryAddressX() );
+    }
+
+    return curveDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,16 +320,6 @@ std::vector<double> RimSummaryCurve::valuesY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::applyCurveDefinitionY( const RiaSummaryCurveDefinition& curveDefinition )
-{
-    setSummaryCaseY( curveDefinition.summaryCase() );
-    setSummaryAddressY( curveDefinition.summaryAddress() );
-    setIsEnsembleCurve( curveDefinition.isEnsembleCurve() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::errorSummaryAddressY() const
 {
     auto addr = summaryAddressY();
@@ -441,14 +437,6 @@ void RimSummaryCurve::setAxisTypeX( RiaDefines::HorizontalAxisType axisType )
 RiaDefines::HorizontalAxisType RimSummaryCurve::axisTypeX() const
 {
     return m_axisType();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition RimSummaryCurve::curveDefinitionX() const
-{
-    return RiaSummaryCurveDefinition( summaryCaseX(), summaryAddressX(), isEnsembleCurve() );
 }
 
 //--------------------------------------------------------------------------------------------------

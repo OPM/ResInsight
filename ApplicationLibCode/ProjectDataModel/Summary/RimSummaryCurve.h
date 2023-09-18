@@ -53,14 +53,14 @@ public:
     RimSummaryCurve();
     ~RimSummaryCurve() override;
 
+    RiaSummaryCurveDefinition curveDefinition() const;
+
     // Y Axis functions
-    RiaSummaryCurveDefinition   curveDefinitionY() const;
     RimSummaryCase*             summaryCaseY() const;
     RifEclipseSummaryAddress    summaryAddressY() const;
     std::string                 unitNameY() const;
     virtual std::vector<double> valuesY() const;
 
-    void applyCurveDefinitionY( const RiaSummaryCurveDefinition& curveDefinition );
     void setSummaryCaseY( RimSummaryCase* sumCase );
     void setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address );
     void setSummaryAddressY( const RifEclipseSummaryAddress& address );
@@ -77,7 +77,6 @@ public:
     // X Axis functions
     void                           setAxisTypeX( RiaDefines::HorizontalAxisType axisType );
     RiaDefines::HorizontalAxisType axisTypeX() const;
-    RiaSummaryCurveDefinition      curveDefinitionX() const;
     RimSummaryCase*                summaryCaseX() const;
     RifEclipseSummaryAddress       summaryAddressX() const;
     std::string                    unitNameX() const;
