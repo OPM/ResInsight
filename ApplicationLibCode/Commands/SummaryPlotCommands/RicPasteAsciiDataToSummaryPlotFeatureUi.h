@@ -42,7 +42,7 @@ public:
         : useCustomDateTimeFormat( false )
         , assumeNumericDataColumns( false )
         , curveSymbolSkipDistance( 0.0f )
-        , defaultCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+        , defaultCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
     {
     }
 
@@ -62,7 +62,7 @@ public:
     QDateTime startDateTime;
     bool      assumeNumericDataColumns;
 
-    RifEclipseSummaryAddressDefines::SummaryVarCategory defaultCategory;
+    RifEclipseSummaryAddressDefines::SummaryCategory defaultCategory;
 
     RiuQwtPlotCurveDefines::LineStyleEnum curveLineStyle;
     RiuPlotCurveSymbol::PointSymbolEnum   curveSymbol;

@@ -77,7 +77,7 @@ protected:
 
     static void substituteVariables( std::vector<SummaryCalculationVariable>& vars, const RifEclipseSummaryAddress& address );
 
-    std::vector<RimSummaryCalculationAddress> allAddressesForCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+    std::vector<RimSummaryCalculationAddress> allAddressesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                                        const std::set<RifEclipseSummaryAddress>& allResultAddresses ) const;
 
     RimSummaryCalculationAddress singleAddressesForCategory( const RifEclipseSummaryAddress& address ) const;

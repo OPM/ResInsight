@@ -52,7 +52,7 @@ public:
 
     RimSummaryTable* createDefaultSummaryTable();
     RimSummaryTable* createSummaryTableFromCategoryAndVectorName( RimSummaryCase*                                     summaryCase,
-                                                                  RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                                                  RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                                   const QString&                                      vectorName );
 
 private:

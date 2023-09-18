@@ -696,7 +696,7 @@ std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryWellName
 
             for ( auto& address : allAddresses )
             {
-                if ( address.category() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL )
+                if ( address.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
                 {
                     summaryWellNames.insert( address.wellName() );
                 }

@@ -43,8 +43,8 @@ RimObservedSummaryData::RimObservedSummaryData()
     m_useCustomIdentifier.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_summaryCategory,
                        "SummaryType",
-                       caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>(
-                           RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ),
+                       caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>(
+                           RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ),
                        "Summary Type" );
     m_summaryCategory.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_identifierName, "IdentifierName", "Identifier Name" );
@@ -72,7 +72,7 @@ QString RimObservedSummaryData::identifierName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddressDefines::SummaryVarCategory RimObservedSummaryData::summaryCategory() const
+RifEclipseSummaryAddressDefines::SummaryCategory RimObservedSummaryData::summaryCategory() const
 {
     return m_summaryCategory();
 }
@@ -102,7 +102,7 @@ void RimObservedSummaryData::updateMetaData()
 //--------------------------------------------------------------------------------------------------
 QString RimObservedSummaryData::customWellName() const
 {
-    if ( m_useCustomIdentifier() && m_summaryCategory() == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL )
+    if ( m_useCustomIdentifier() && m_summaryCategory() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
         return m_identifierName();
     }
@@ -119,11 +119,11 @@ QList<caf::PdmOptionItemInfo> RimObservedSummaryData::calculateValueOptions( con
     {
         QList<caf::PdmOptionItemInfo> options;
 
-        using AddressAppEnum = caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>;
-        options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ),
-                                                   RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ) );
-        options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP ),
-                                                   RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP ) );
+        using AddressAppEnum = caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>;
+        options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ),
+                                                   RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ) );
+        options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ),
+                                                   RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ) );
 
         return options;
     }

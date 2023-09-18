@@ -76,12 +76,12 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
 //--------------------------------------------------------------------------------------------------
 bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                                     oldValue,
                                                           const QVariant&                                     newValue,
-                                                          RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                                          RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                           RifEclipseSummaryAddress*                           adr )
 {
     if ( !adr ) return false;
 
-    if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION )
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();
@@ -93,7 +93,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_AQUIFER )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER )
     {
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();
@@ -105,7 +105,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
@@ -117,7 +117,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
@@ -129,7 +129,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
@@ -141,8 +141,8 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_BLOCK ||
-              category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_COMPLETION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK ||
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
@@ -153,7 +153,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION_2_REGION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
@@ -166,7 +166,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_SEGMENT )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT )
     {
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();

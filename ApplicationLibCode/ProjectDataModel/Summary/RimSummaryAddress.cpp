@@ -29,9 +29,9 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>::setUp()
+void caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setUp()
 {
-    using RifAdr = RifEclipseSummaryAddressDefines::SummaryVarCategory;
+    using RifAdr = RifEclipseSummaryAddressDefines::SummaryCategory;
 
     addItem( RifAdr::SUMMARY_FIELD, "SUMMARY_FIELD", RiaDefines::summaryField() );
     addItem( RifAdr::SUMMARY_AQUIFER, "SUMMARY_AQUIFER", RiaDefines::summaryAquifer() );
@@ -82,7 +82,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
     CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
 
-    m_category          = RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID;
+    m_category          = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
     m_regionNumber      = -1;
     m_regionNumber2     = -1;
     m_wellSegmentNumber = -1;
@@ -186,14 +186,14 @@ RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory category ) const
+QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category ) const
 {
     // Return the keyword text for supported field replacement in plot templates
 
-    if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ) return m_wellName.keyword();
-    if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP ) return m_groupName.keyword();
-    if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION ) return m_regionNumber.keyword();
-    if ( category == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_NETWORK ) return m_networkName.keyword();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ) return m_wellName.keyword();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ) return m_groupName.keyword();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION ) return m_regionNumber.keyword();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK ) return m_networkName.keyword();
 
     return {};
 }

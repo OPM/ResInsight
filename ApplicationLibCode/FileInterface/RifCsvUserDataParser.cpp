@@ -419,9 +419,9 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
             RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
 
             // Create address of a give category if provided
-            if ( parseOptions.defaultCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL )
+            if ( parseOptions.defaultCategory == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
                 addr = RifEclipseSummaryAddress::wellAddress( colName.toStdString(), nameFromData.toStdString() );
-            else if ( parseOptions.defaultCategory == RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_FIELD )
+            else if ( parseOptions.defaultCategory == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD )
                 addr = RifEclipseSummaryAddress::fieldAddress( colName.toStdString() );
 
             double scaleFactor = 1.0;

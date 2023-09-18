@@ -31,7 +31,7 @@ class RiuSummaryQuantityNameInfoProvider
 public:
     static RiuSummaryQuantityNameInfoProvider* instance();
 
-    RifEclipseSummaryAddressDefines::SummaryVarCategory identifyCategory( const std::string& vectorName );
+    RifEclipseSummaryAddressDefines::SummaryCategory identifyCategory( const std::string& vectorName );
 
     std::string longNameFromVectorName( const std::string& vectorName, bool returnVectorNameIfNotFound = false ) const;
 
@@ -40,16 +40,16 @@ private:
     {
     public:
         RiuSummaryQuantityInfo()
-            : category( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_INVALID )
+            : category( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
         {
         }
-        RiuSummaryQuantityInfo( RifEclipseSummaryAddressDefines::SummaryVarCategory category, const std::string& longName )
+        RiuSummaryQuantityInfo( RifEclipseSummaryAddressDefines::SummaryCategory category, const std::string& longName )
             : category( category )
             , longName( longName )
         {
         }
 
-        RifEclipseSummaryAddressDefines::SummaryVarCategory category;
+        RifEclipseSummaryAddressDefines::SummaryCategory category;
         std::string                                         longName;
     };
 
@@ -57,7 +57,7 @@ private:
     RiuSummaryQuantityNameInfoProvider();
 
     RiuSummaryQuantityInfo quantityInfo( const std::string& vectorName, bool exactMatch = false ) const;
-    RifEclipseSummaryAddressDefines::SummaryVarCategory categoryFromVectorName( const std::string& vectorName, bool exactMatch = false ) const;
+    RifEclipseSummaryAddressDefines::SummaryCategory categoryFromVectorName( const std::string& vectorName, bool exactMatch = false ) const;
 
     static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoForEclipseKeywords();
     static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoFor6xKeywords();

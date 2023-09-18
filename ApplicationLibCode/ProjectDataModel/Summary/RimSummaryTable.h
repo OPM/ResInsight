@@ -60,7 +60,7 @@ public:
 
     void    setDefaultCaseAndCategoryAndVectorName();
     void    setFromCaseAndCategoryAndVectorName( RimSummaryCase*                                     summaryCase,
-                                                 RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                                 RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                  const QString&                                      vectorName );
     void    setDescription( const QString& description );
     QString description() const override;
@@ -99,10 +99,10 @@ private:
     QString                   dateFormatString() const;
 
     std::set<RifEclipseSummaryAddress> getSummaryAddressesFromReader( const RifSummaryReaderInterface*                    summaryReader,
-                                                                      RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                                                      RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                                       const QString&                                      vector ) const;
     std::set<QString>                  getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*                    summaryReader,
-                                                                           RifEclipseSummaryAddressDefines::SummaryVarCategory category ) const;
+                                                                           RifEclipseSummaryAddressDefines::SummaryCategory category ) const;
     QString                            getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const;
 
     std::vector<RimSummaryCase*> getToplevelSummaryCases() const;
@@ -115,7 +115,7 @@ private:
     caf::PdmField<bool>               m_isAutomaticName;
     caf::PdmPtrField<RimSummaryCase*> m_case;
 
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>> m_category;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
     caf::PdmField<QString>                                                           m_vector;
     caf::PdmField<caf::AppEnum<RiaDefines::DateTimePeriod>>                          m_resamplingSelection;
     caf::PdmField<double>                                                            m_thresholdValue;

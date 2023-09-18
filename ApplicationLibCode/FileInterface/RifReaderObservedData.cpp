@@ -47,7 +47,7 @@ RifReaderObservedData::~RifReaderObservedData()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderObservedData::open( const QString&                                      headerFileName,
                                   const QString&                                      identifierName,
-                                  RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory )
+                                  RifEclipseSummaryAddressDefines::SummaryCategory summaryCategory )
 {
     AsciiDataParseOptions parseOptions;
     parseOptions.dateFormat    = "yyyy-MM-dd";
@@ -156,7 +156,7 @@ std::vector<time_t> RifReaderObservedData::timeSteps( const RifEclipseSummaryAdd
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifReaderObservedData::address( const QString&                                      vectorName,
                                                          const QString&                                      identifierName,
-                                                         RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory )
+                                                         RifEclipseSummaryAddressDefines::SummaryCategory summaryCategory )
 {
     std::string stdVectorName = vectorName.toStdString();
     int         regionNumber( -1 );
@@ -175,13 +175,13 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
 
     switch ( summaryCategory )
     {
-        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP:
             groupName = identifierName.toStdString();
             break;
-        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL:
             wellName = identifierName.toStdString();
             break;
-        case RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_LGR:
             lgrName = identifierName.toStdString();
             break;
         default:

@@ -95,7 +95,7 @@ private:
                                                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const;
 
     std::set<RifEclipseSummaryAddress> buildAddressListFromSelections() const;
-    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddressDefines::SummaryVarCategory     category,
+    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddressDefines::SummaryCategory     category,
                                                                                std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
                                                                                std::vector<std::pair<RifEclipseSummaryAddressDefines::SummaryIdentifierType, QString>>& identifierPath,
                                                                                std::set<RifEclipseSummaryAddress>& addressSet ) const;
@@ -113,10 +113,10 @@ private:
 private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
 
-    caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>>> m_selectedSummaryCategories;
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>>              m_currentSummaryCategory;
+    caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>>> m_selectedSummaryCategories;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>>              m_currentSummaryCategory;
 
-    std::map<RifEclipseSummaryAddressDefines::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>> m_identifierFieldsMap;
+    std::map<RifEclipseSummaryAddressDefines::SummaryCategory, std::vector<SummaryIdentifierAndField*>> m_identifierFieldsMap;
 
     bool m_multiSelectionMode;
 

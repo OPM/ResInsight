@@ -37,8 +37,8 @@ private:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    const std::set<RifEclipseSummaryAddressDefines::SummaryVarCategory> m_enabledCategories =
-        { RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL,
-          RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION,
-          RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP };
+    const std::set<RifEclipseSummaryAddressDefines::SummaryCategory> m_enabledCategories =
+        { RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL,
+          RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION,
+          RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP };
 };
