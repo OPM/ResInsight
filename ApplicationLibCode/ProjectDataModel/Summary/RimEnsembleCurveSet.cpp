@@ -1403,7 +1403,7 @@ std::vector<RiaSummaryCurveDefinition> RimEnsembleCurveSet::curveDefinitions() c
     std::vector<RiaSummaryCurveDefinition> curveDefs;
     for ( auto dataEntry : m_curves() )
     {
-        curveDefs.push_back( dataEntry->curveDefinitionY() );
+        curveDefs.push_back( dataEntry->curveDefinition() );
     }
 
     return curveDefs;

@@ -925,13 +925,9 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 std::vector<RiaSummaryCurveDefinition> curveDefs;
                 for ( auto summaryCurve : summaryCurves() )
                 {
-                    if ( summaryCurve->axisY() == riuPlotAxis )
+                    if ( summaryCurve->axisY() == riuPlotAxis || summaryCurve->axisX() == riuPlotAxis )
                     {
-                        curveDefs.push_back( summaryCurve->curveDefinitionY() );
-                    }
-                    else if ( summaryCurve->axisX() == riuPlotAxis )
-                    {
-                        curveDefs.push_back( summaryCurve->curveDefinitionX() );
+                        curveDefs.push_back( summaryCurve->curveDefinition() );
                     }
                 }
 
@@ -2343,11 +2339,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
     {
         for ( auto& curve : summaryCurves() )
         {
-            RiaSummaryCurveDefinition curveDef = curve->curveDefinitionY();
-            if ( curve->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
-            {
-                curveDef.setSummaryDataXAxis( curve->summaryCaseX(), curve->summaryAddressX() );
-            }
+            RiaSummaryCurveDefinition curveDef = curve->curveDefinition();
             sourceCurveDefs.push_back( curveDef );
         }
 

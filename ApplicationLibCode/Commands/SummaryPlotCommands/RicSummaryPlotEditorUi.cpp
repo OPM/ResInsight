@@ -371,7 +371,7 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
         for ( const auto& curve : currentCurvesInPreviewPlot )
         {
-            currentCurveDefs.insert( curve->curveDefinitionY() );
+            currentCurveDefs.insert( curve->curveDefinition() );
         }
 
         {
@@ -385,7 +385,7 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
             for ( const auto& curve : currentCurvesInPreviewPlot )
             {
-                RiaSummaryCurveDefinition curveDef = curve->curveDefinitionY();
+                RiaSummaryCurveDefinition curveDef = curve->curveDefinition();
                 if ( deleteCurveDefs.count( curveDef ) > 0 ) curvesToDelete.insert( curve );
             }
         }
@@ -630,7 +630,7 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
 
     for ( const auto& curve : sourceSummaryPlot.summaryCurves() )
     {
-        curveDefs.push_back( curve->curveDefinitionY() );
+        curveDefs.push_back( curve->curveDefinition() );
 
         // Copy curve object to the preview plot
         copyCurveAndAddToPlot( curve, m_previewPlot.get(), true );
