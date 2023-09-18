@@ -38,7 +38,7 @@ public:
 
     QString aggregatedPlotTitle( const RimSummaryNameHelper& summaryMultiPlotNameHelper ) const;
 
-    virtual bool isPlotDisplayingSingleVectorName() const = 0;
+    virtual bool isPlotDisplayingSingleCurveType() const = 0;
     virtual bool isWellNameInTitle() const                = 0;
     virtual bool isGroupNameInTitle() const               = 0;
     virtual bool isNetworkInTitle() const                 = 0;

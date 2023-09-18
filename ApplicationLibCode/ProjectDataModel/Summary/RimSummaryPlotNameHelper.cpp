@@ -102,8 +102,14 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
+bool RimSummaryPlotNameHelper::isPlotDisplayingSingleCurveType() const
 {
+    if ( m_analyzer->quantities().size() == 2 && m_analyzer->onlyCrossPlotCurves() )
+    {
+        // We have cross plot curves, and two quantities. This means that we have one curve.
+        return true;
+    }
+
     if ( m_analyzer->quantities().size() == 2 )
     {
         std::vector<std::string> strings;
@@ -113,6 +119,7 @@ bool RimSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
         auto first  = RimObjectiveFunctionTools::nativeQuantityName( strings[0] );
         auto second = RimObjectiveFunctionTools::nativeQuantityName( strings[1] );
 
+        // We have two quantities, one history and one not.
         if ( first == second ) return true;
     }
 

@@ -68,6 +68,24 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCurveAutoName::curveName( const RiaSummaryCurveAddress& summaryCurveAddress,
+                                            const RimSummaryNameHelper*   currentNameHelper,
+                                            const RimSummaryNameHelper*   plotNameHelper ) const
+{
+    QString name;
+
+    name = curveNameY( summaryCurveAddress.summaryAddressY(), currentNameHelper, plotNameHelper );
+    if ( name.isEmpty() )
+    {
+        name = curveNameY( summaryCurveAddress.summaryAddressY(), nullptr, nullptr );
+    }
+
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& summaryAddress,
                                              const RimSummaryNameHelper*     currentNameHelper,
                                              const RimSummaryNameHelper*     plotNameHelper ) const
@@ -193,7 +211,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     if ( m_vectorName || m_longVectorName )
     {
-        bool skipSubString = currentNameHelper && currentNameHelper->vectorNames().size() == 1;
+        bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurveType();
         if ( !skipSubString )
         {
             if ( m_longVectorName() )

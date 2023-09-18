@@ -600,25 +600,8 @@ QString RimSummaryCurve::createCurveAutoName()
     }
 
     RimMultiSummaryPlotNameHelper multiNameHelper( plotNameHelpers );
-    QString curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
-    if ( curveName.isEmpty() )
-    {
-        curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), nullptr, nullptr );
-    }
 
-    {
-        QString curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
-        if ( curveNameX.isEmpty() )
-        {
-            curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), nullptr, nullptr );
-        }
-
-        if ( !curveName.isEmpty() && !curveNameX.isEmpty() )
-        {
-            curveName += " | " + curveNameX;
-        }
-    }
-
+    QString curveName = m_curveNameConfig->curveName( curveAddress(), currentPlotNameHelper, &multiNameHelper );
     if ( curveName.isEmpty() )
     {
         curveName = "Curve Name Placeholder";
