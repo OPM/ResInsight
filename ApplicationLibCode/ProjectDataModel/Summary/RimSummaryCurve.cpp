@@ -156,9 +156,10 @@ RimSummaryCurve::~RimSummaryCurve()
 RiaSummaryCurveDefinition RimSummaryCurve::curveDefinition() const
 {
     RiaSummaryCurveDefinition curveDefinition( summaryCaseY(), summaryAddressY(), isEnsembleCurve() );
-    if ( m_axisType() == RiaDefines::HorizontalAxisType::TIME )
+    if ( m_axisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
-        curveDefinition.setSummaryDataXAxis( summaryCaseX(), summaryAddressX() );
+        curveDefinition.setSummaryCaseX( summaryCaseX() );
+        curveDefinition.setSummaryAddressX( summaryAddressX() );
     }
 
     return curveDefinition;
