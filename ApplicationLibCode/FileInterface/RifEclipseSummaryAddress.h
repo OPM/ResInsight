@@ -89,6 +89,9 @@ public:
     static RifEclipseSummaryAddress importedAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& vectorName, const std::string& datavectorName );
 
+    // Special address when time is used as x-axis
+    static RifEclipseSummaryAddress timeAddress();
+
     static std::string generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,
                                                     const std::string                            jointString = "; " );
 
@@ -147,6 +150,7 @@ public:
     auto operator<=>( const RifEclipseSummaryAddress& rhs ) const = default;
 
     bool isCalculated() const;
+    bool isTime() const;
 
     std::string                formatUiTextRegionToRegion() const;
     static std::pair<int, int> regionToRegionPairFromUiText( const std::string& s );
