@@ -427,6 +427,14 @@ RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaSummaryCurveAddress RimEnsembleCurveSet::curveAddress() const
+{
+    return RiaSummaryCurveAddress( summaryAddress(), RifEclipseSummaryAddress::timeAddress() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 {
     return m_curves.childrenByType();
