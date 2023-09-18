@@ -219,7 +219,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         replaceStrings( sourceStrings,
-                        dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_WELL ),
+                        dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ),
                         RicSummaryPlotTemplateTools::placeholderTextForWell(),
                         objectAsText );
     }
@@ -233,7 +233,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         replaceStrings( sourceStrings,
-                        dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_GROUP ),
+                        dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ),
                         RicSummaryPlotTemplateTools::placeholderTextForGroup(),
                         objectAsText );
     }
@@ -251,7 +251,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             // Encode placeholder index. Use negative values below -1 to represent a placeholder index
             int index = -( i + 2 );
 
-            QString fieldKeyword = dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryVarCategory::SUMMARY_REGION );
+            QString fieldKeyword = dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION );
             QString sourceString = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( regionNumbers[i] );
             QString replacementTextWithIndex = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( index );
 

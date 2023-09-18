@@ -39,7 +39,7 @@ public:
     QString caseName() const override;
 
     QString                                             identifierName() const;
-    RifEclipseSummaryAddressDefines::SummaryVarCategory summaryCategory() const;
+    RifEclipseSummaryAddressDefines::SummaryCategory summaryCategory() const;
 
     void updateMetaData();
 
@@ -51,7 +51,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryVarCategory>> m_summaryCategory;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_summaryCategory;
     caf::PdmField<QString>                                                           m_identifierName;
     caf::PdmField<bool>                                                              m_useCustomIdentifier;
 

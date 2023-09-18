@@ -130,7 +130,7 @@ RimSummaryTable* RimSummaryTableCollection::createDefaultSummaryTable()
 //--------------------------------------------------------------------------------------------------
 RimSummaryTable*
     RimSummaryTableCollection::createSummaryTableFromCategoryAndVectorName( RimSummaryCase*                                     summaryCase,
-                                                                            RifEclipseSummaryAddressDefines::SummaryVarCategory category,
+                                                                            RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                                             const QString&                                      vectorName )
 {
     RimSummaryTable* table = new RimSummaryTable();
