@@ -51,9 +51,11 @@ public:
     static std::vector<QString> selectDefaultPlotTemplates( std::vector<QString> currentSelection );
 
     static QString summaryCaseFieldKeyword();
+    static QString summaryCaseXFieldKeyword();
     static QString summaryGroupFieldKeyword();
 
     static QString placeholderTextForSummaryCase();
+    static QString placeholderTextForSummaryCaseX();
     static QString placeholderTextForSummaryGroup();
     static QString placeholderTextForWell();
     static QString placeholderTextForGroup();
