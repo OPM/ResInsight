@@ -35,6 +35,7 @@ class RigFemResultAddress;
 class RimModeledWellPath;
 class RimWellLogTrack;
 class RimWellLogExtractionCurve;
+class RimGeoMechCase;
 
 class RimGeoMechFaultReactivationResult : public caf::PdmObject
 {
@@ -44,9 +45,9 @@ public:
     RimGeoMechFaultReactivationResult();
     ~RimGeoMechFaultReactivationResult() override;
 
-private:
     void onLoadDataAndUpdate();
 
+private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -64,13 +65,16 @@ private:
 
     QString plotDescription() const;
 
+    RimGeoMechCase* geoMechCase() const;
+
 private:
-    caf::PdmPtrField<RimExtrudedCurveIntersection*> m_intersection;
+    caf::PdmField<bool> m_createFaultReactivationPlot;
 
-    caf::PdmField<bool> m_createFaultReactivationResult;
+    caf::PdmField<double> m_distanceFromFault;
 
-    caf::PdmField<double> m_distanceFromIntersection; // To move wells to each side of intersection
-    caf::PdmField<double> m_widthOutsideIntersection; // To stretch well points outside intersection
+    caf::PdmField<cvf::Vec3d> m_faultNormal;
+    caf::PdmField<cvf::Vec3d> m_faultTopPosition;
+    caf::PdmField<cvf::Vec3d> m_faultBottomPosition;
 
     caf::PdmPtrField<RimModeledWellPath*> m_faceAWellPath;
     caf::PdmPtrField<RimModeledWellPath*> m_faceBWellPath;
@@ -78,5 +82,5 @@ private:
     caf::PdmField<int> m_faceAWellPathPartIndex;
     caf::PdmField<int> m_faceBWellPathPartIndex;
 
-    const double m_defaultDistanceFromIntersection = 1.0; // [m] Default value from intersection and into each part
+    bool m_bHaveValidData;
 };

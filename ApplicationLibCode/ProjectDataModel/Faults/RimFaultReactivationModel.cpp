@@ -23,6 +23,8 @@
 #include "RiaPreferencesGeoMech.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RifJsonEncodeDecode.h"
+
 #include "RigBasicPlane.h"
 #include "RigFaultReactivationModel.h"
 #include "RigPolyLinesData.h"
@@ -39,6 +41,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultReactivationTools.h"
 #include "RimPolylineTarget.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
@@ -52,6 +55,8 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QMap>
+#include <QVariant>
 
 CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 
@@ -367,6 +372,17 @@ bool RimFaultReactivationModel::showModel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3d, cvf::Vec3d> RimFaultReactivationModel::localCoordSysNormalsXY() const
+{
+    cvf::Vec3d yNormal = m_modelPlane->normal();
+    cvf::Vec3d xNormal = yNormal ^ cvf::Vec3d::Z_AXIS;
+
+    return std::make_pair( xNormal, yNormal );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto genGrp = uiOrdering.addNewGroup( "General" );
@@ -503,9 +519,7 @@ void RimFaultReactivationModel::updateTimeSteps()
 {
     m_availableTimeSteps.clear();
     const auto eCase = eclipseCase();
-    if ( eCase == nullptr ) return;
-
-    m_availableTimeSteps = eCase->timeStepDates();
+    if ( eCase != nullptr ) m_availableTimeSteps = eCase->timeStepDates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -551,6 +565,15 @@ QString RimFaultReactivationModel::inputFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimFaultReactivationModel::settingsFilename() const
+{
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( baseFilename() + ".settings.json" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimFaultReactivationModel::baseFilename() const
 {
     QString tmp = m_userDescription();
@@ -568,8 +591,32 @@ QString RimFaultReactivationModel::baseFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::extractModelData()
+bool RimFaultReactivationModel::exportModelSettings()
 {
+    if ( m_faultPlane.isNull() ) return false;
+
+    QMap<QString, QVariant> settings;
+
+    auto [topPosition, bottomPosition] = m_faultPlane->intersectTopBottomLine();
+    auto faultNormal                   = m_faultPlane->normal();
+
+    // make sure we move horizontally
+    faultNormal.z() = 0.0;
+    faultNormal.normalize();
+
+    RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
+
+    QDir directory( baseDir() );
+    return ResInsightInternalJson::JsonWriter::encodeFile( settingsFilename(), settings );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::extractAndExportModelData()
+{
+    exportModelSettings();
+
     // TODO - get values from eclipse and geomech models here
     return true;
 }

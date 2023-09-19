@@ -84,6 +84,8 @@ public:
 
     void updateRects();
 
+    cvf::Vec3d normal() const;
+
     void                        setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color );
     std::vector<cvf::Vec3d>     rect( ModelParts part ) const;
     cvf::ref<cvf::TextureImage> texture( ModelParts part ) const;

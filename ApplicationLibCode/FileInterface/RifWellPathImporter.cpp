@@ -124,9 +124,8 @@ bool RifWellPathImporter::isJsonFile( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellMetaData RifWellPathImporter::readJsonWellMetaData( const QString& filePath )
 {
-    ResInsightInternalJson::JsonReader jsonReader;
-    QMap<QString, QVariant>            jsonMap = jsonReader.decodeFile( filePath );
-    WellMetaData                       metadata;
+    QMap<QString, QVariant> jsonMap = ResInsightInternalJson::JsonReader::decodeFile( filePath );
+    WellMetaData            metadata;
 
     metadata.m_id           = jsonMap["id"].toString();
     metadata.m_name         = jsonMap["name"].toString();
@@ -151,8 +150,7 @@ RifWellPathImporter::WellMetaData RifWellPathImporter::readJsonWellMetaData( con
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellData RifWellPathImporter::readJsonWellData( const QString& filePath )
 {
-    ResInsightInternalJson::JsonReader jsonReader;
-    QMap<QString, QVariant>            jsonMap = jsonReader.decodeFile( filePath );
+    QMap<QString, QVariant> jsonMap = ResInsightInternalJson::JsonReader::decodeFile( filePath );
 
     double          datumElevation = jsonMap["datumElevation"].toDouble();
     QList<QVariant> pathList       = jsonMap["path"].toList();
