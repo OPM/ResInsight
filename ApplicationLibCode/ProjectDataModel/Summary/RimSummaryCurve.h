@@ -137,8 +137,6 @@ private:
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCase* summaryCase );
 
-    bool isCrossPlotCurve() const;
-
 private:
     // Y values
     caf::PdmPtrField<RimSummaryCase*>       m_yValuesSummaryCase;
