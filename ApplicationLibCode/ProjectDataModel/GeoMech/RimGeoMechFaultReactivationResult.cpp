@@ -107,8 +107,9 @@ RimGeoMechFaultReactivationResult::~RimGeoMechFaultReactivationResult()
 void RimGeoMechFaultReactivationResult::onLoadDataAndUpdate()
 {
     auto geomCase = geoMechCase();
+    if ( geomCase == nullptr ) return;
 
-    auto      filename = geoMechCase()->gridFileName();
+    auto      filename = geomCase->gridFileName();
     QFileInfo fi( filename );
     auto      folder   = fi.path();
     auto      basename = fi.baseName();
