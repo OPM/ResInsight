@@ -2806,7 +2806,7 @@ void RimSummaryPlot::initAfterRead()
 
         copyAxis( RiuPlotAxis::defaultLeft(), m_leftYAxisProperties_OBSOLETE.v() );
         copyAxis( RiuPlotAxis::defaultRight(), m_rightYAxisProperties_OBSOLETE.v() );
-        copyAxis( RiuPlotAxis::defaultBottom(), m_bottomAxisProperties_OBSOLETE.v() );
+        copyAxis( RiuPlotAxis::defaultBottomForSummaryVectors(), m_bottomAxisProperties_OBSOLETE.v() );
         copyAxis( RiuPlotAxis::defaultBottom(), m_timeAxisProperties_OBSOLETE.v() );
     }
 
