@@ -32,6 +32,7 @@ RiaSummaryCurveAddress::RiaSummaryCurveAddress( const RifEclipseSummaryAddress& 
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveAddress::RiaSummaryCurveAddress( const RifEclipseSummaryAddress& summaryAddressY )
     : m_summaryAddressX( RifEclipseSummaryAddress::timeAddress() )
+    , m_summaryAddressY( summaryAddressY )
 {
 }
 
