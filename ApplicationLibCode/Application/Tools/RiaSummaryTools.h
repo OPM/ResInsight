@@ -36,6 +36,7 @@ class RimSummaryCaseCollection;
 class RimSummaryTable;
 class RimSummaryTableCollection;
 class RimObservedDataCollection;
+class RimSummaryCurve;
 
 class RifEclipseSummaryAddress;
 
@@ -88,4 +89,7 @@ public:
 
     static QList<caf::PdmOptionItemInfo> optionsForAllSummaryCases();
     static QList<caf::PdmOptionItemInfo> optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases );
+
+    static void copyCurveDataSources( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
+    static void copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
 };
