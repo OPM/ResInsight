@@ -201,6 +201,8 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     if ( m_partsCollection ) m_partsCollection->syncWithCase( m_geomechCase );
 
+    if ( m_faultReactivationResult ) m_faultReactivationResult->onLoadDataAndUpdate();
+
     scheduleCreateDisplayModelAndRedraw();
 
     progress.incrementProgress();

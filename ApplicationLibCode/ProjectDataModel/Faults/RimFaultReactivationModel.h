@@ -92,6 +92,8 @@ public:
     cvf::ref<RigFaultReactivationModel> model() const;
     bool                                showModel() const;
 
+    std::pair<cvf::Vec3d, cvf::Vec3d> localCoordSysNormalsXY() const;
+
     bool extractAndExportModelData();
 
     QString baseDir() const;

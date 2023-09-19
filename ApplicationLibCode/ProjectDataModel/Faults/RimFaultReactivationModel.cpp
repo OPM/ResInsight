@@ -372,6 +372,17 @@ bool RimFaultReactivationModel::showModel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3d, cvf::Vec3d> RimFaultReactivationModel::localCoordSysNormalsXY() const
+{
+    cvf::Vec3d yNormal = m_modelPlane->normal();
+    cvf::Vec3d xNormal = yNormal ^ cvf::Vec3d::Z_AXIS;
+
+    return std::make_pair( xNormal, yNormal );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto genGrp = uiOrdering.addNewGroup( "General" );
@@ -508,9 +519,7 @@ void RimFaultReactivationModel::updateTimeSteps()
 {
     m_availableTimeSteps.clear();
     const auto eCase = eclipseCase();
-    if ( eCase == nullptr ) return;
-
-    m_availableTimeSteps = eCase->timeStepDates();
+    if ( eCase != nullptr ) m_availableTimeSteps = eCase->timeStepDates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -588,10 +597,14 @@ bool RimFaultReactivationModel::exportModelSettings()
 
     QMap<QString, QVariant> settings;
 
-    auto [topInt, bottomInt] = m_faultPlane->intersectTopBottomLine();
-    auto planeNormal         = m_faultPlane->normal();
+    auto [topPosition, bottomPosition] = m_faultPlane->intersectTopBottomLine();
+    auto faultNormal                   = m_faultPlane->normal();
 
-    RimFaultReactivationTools::addSettingsToMap( settings, planeNormal, topInt, bottomInt );
+    // make sure we move horizontally
+    faultNormal.z() = 0.0;
+    faultNormal.normalize();
+
+    RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
 
     QDir directory( baseDir() );
     return ResInsightInternalJson::JsonWriter::encodeFile( settingsFilename(), settings );

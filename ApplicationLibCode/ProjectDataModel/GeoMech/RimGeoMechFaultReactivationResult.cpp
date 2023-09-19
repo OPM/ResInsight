@@ -72,7 +72,7 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
 {
     CAF_PDM_InitObject( "Fault Reactivation Result", ":/GeoMechCase24x24.png" );
 
-    CAF_PDM_InitField( &m_distanceFromFault, "DistanceFromFault", 1.0, "Distance From Fault" );
+    CAF_PDM_InitField( &m_distanceFromFault, "DistanceFromFault", 5.0, "Distance From Fault" );
 
     CAF_PDM_InitFieldNoDefault( &m_createFaultReactivationPlot, "CreateReactivationPlot", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_createFaultReactivationPlot );
@@ -99,8 +99,6 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechFaultReactivationResult::~RimGeoMechFaultReactivationResult()
 {
-    // delete m_faceAWellPath;
-    // delete m_faceBWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,10 +148,8 @@ void RimGeoMechFaultReactivationResult::defineUiOrdering( QString uiConfigName, 
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Fault Reactivation Result" );
     group->add( &m_distanceFromFault );
     group->add( &m_createFaultReactivationPlot );
-    group->add( &m_faceAWellPath );
-    group->add( &m_faceBWellPath );
-    group->add( &m_faceAWellPathPartIndex );
-    group->add( &m_faceBWellPathPartIndex );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

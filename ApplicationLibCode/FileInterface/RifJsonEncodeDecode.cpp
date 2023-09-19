@@ -23,6 +23,7 @@
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QString>
+#include <QtCore/QTextStream>
 
 namespace ResInsightInternalJson
 {
