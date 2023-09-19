@@ -75,7 +75,28 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
         }
 
         // There can be multiple items of the same template, make sure we have unique templates
-        std::sort( aicdTemplates.begin(), aicdTemplates.end() );
+        std::sort( aicdTemplates.begin(),
+                   aicdTemplates.end(),
+                   []( RiaOpmParserTools::AicdTemplateValues& templateA, RiaOpmParserTools::AicdTemplateValues& templateB )
+                   {
+                       int idA = 0;
+                       int idB = 0;
+
+                       auto itA = templateA.find( RiaOpmParserTools::aicdTemplateId() );
+                       if ( itA != templateA.end() )
+                       {
+                           idA = itA->second;
+                       }
+
+                       auto itB = templateB.find( RiaOpmParserTools::aicdTemplateId() );
+                       if ( itB != templateB.end() )
+                       {
+                           idB = itB->second;
+                       }
+
+                       return idA < idB;
+                   } );
+
         auto it = std::unique( aicdTemplates.begin(), aicdTemplates.end() );
         aicdTemplates.resize( std::distance( aicdTemplates.begin(), it ) );
 
