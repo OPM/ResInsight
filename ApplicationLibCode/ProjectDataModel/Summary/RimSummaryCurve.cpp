@@ -643,7 +643,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         bool shouldPopulateViewWithEmptyData = false;
 
-        if ( isCrossPlotCurve() )
+        if ( m_axisType == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
             auto curveValuesX    = valuesX();
             auto curveTimeStepsX = timeStepsX();
@@ -956,17 +956,6 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
         options->push_front(
             caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryCurve::isCrossPlotCurve() const
-{
-    auto xPlotAxisProperties = m_xPlotAxisProperties();
-    if ( m_xPlotAxisProperties && dynamic_cast<RimSummaryTimeAxisProperties*>( xPlotAxisProperties ) ) return false;
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
