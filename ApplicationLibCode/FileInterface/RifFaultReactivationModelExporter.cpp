@@ -22,6 +22,7 @@
 #include "RigGriddedPart3d.h"
 
 #include "RiaApplication.h"
+#include "RiaBaseDefs.h"
 #include "RiaVersionInfo.h"
 
 #include "RifInpExportTools.h"
@@ -33,7 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( std::ostream& stream, const RigFaultReactivationModel& model )
 {
-    std::string applicationNameAndVersion = STRPRODUCTVER;
+    std::string applicationNameAndVersion = std::string( RI_APPLICATION_NAME ) + " " + std::string( STRPRODUCTVER );
 
     using PartBorderSurface                                        = RigGriddedPart3d::BorderSurface;
     std::vector<std::pair<PartBorderSurface, std::string>> borders = { { PartBorderSurface::UpperSurface, "TOP" },
