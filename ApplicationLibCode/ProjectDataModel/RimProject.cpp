@@ -1422,11 +1422,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 uiTreeOrdering.add( m_mainPlotCollection->correlationPlotCollection() );
             }
 
-            if ( m_mainPlotCollection->summaryCrossPlotCollection() )
-            {
-                uiTreeOrdering.add( m_mainPlotCollection->summaryCrossPlotCollection() );
-            }
-
             if ( m_mainPlotCollection->summaryTableCollection() )
             {
                 uiTreeOrdering.add( m_mainPlotCollection->summaryTableCollection() );
