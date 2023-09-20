@@ -207,7 +207,7 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
             if ( useEqlnumForPressureInterpolation &&
                  !interpolateInitialPressureByEquilibrationRegion( curveProperty, stimPlanModel, timeStep, measuredDepthValues, tvDepthValues, values ) )
             {
-                RiaLogging::error( "Pressure interpolation by equilibration region failed." );
+                RiaLogging::warning( "Pressure interpolation by equilibration region failed." );
             }
 
             // Fill in regions where it was not possible top interpolate with equilibration regions.
@@ -226,7 +226,7 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
                                                                                                        initialPressureValues,
                                                                                                        values ) )
         {
-            RiaLogging::error( "Pressure interpolation by equilibration region failed." );
+            RiaLogging::warning( "Pressure interpolation by equilibration region failed." );
         }
     }
     else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
