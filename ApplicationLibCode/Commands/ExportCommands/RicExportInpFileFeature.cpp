@@ -48,7 +48,7 @@ void RicExportInpFileFeature::onActionTriggered( bool isChecked )
     if ( faultReactivationModel )
     {
         QString exportFile = faultReactivationModel->baseDir() + "/faultreactivation.inp";
-        RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *faultReactivationModel->model() );
+        RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *faultReactivationModel );
     }
 }
 
