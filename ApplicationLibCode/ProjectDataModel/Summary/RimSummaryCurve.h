@@ -139,22 +139,20 @@ private:
 
 private:
     // Y values
-    caf::PdmPtrField<RimSummaryCase*>       m_yValuesSummaryCase;
-    caf::PdmChildField<RimSummaryAddress*>  m_yValuesSummaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress> m_yValuesSummaryAddressUiField;
-    caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
-
+    caf::PdmPtrField<RimSummaryCase*>                 m_yValuesSummaryCase;
+    caf::PdmChildField<RimSummaryAddress*>            m_yValuesSummaryAddress;
+    caf::PdmField<RifEclipseSummaryAddress>           m_yValuesSummaryAddressUiField;
+    caf::PdmField<bool>                               m_yPushButtonSelectSummaryAddress;
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;
     caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_yValuesResampling;
 
     // X values
-    caf::PdmField<caf::AppEnum<RiaDefines::HorizontalAxisType>> m_axisType;
+    caf::PdmField<caf::AppEnum<RiaDefines::HorizontalAxisType>> m_xAxisType;
     caf::PdmPtrField<RimSummaryCase*>                           m_xValuesSummaryCase;
     caf::PdmChildField<RimSummaryAddress*>                      m_xValuesSummaryAddress;
     caf::PdmField<RifEclipseSummaryAddress>                     m_xValuesSummaryAddressUiField;
     caf::PdmField<bool>                                         m_xPushButtonSelectSummaryAddress;
-
-    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_xPlotAxisProperties;
+    caf::PdmPtrField<RimPlotAxisPropertiesInterface*>           m_xPlotAxisProperties;
 
     // Other fields
     caf::PdmField<caf::Tristate> m_isEnsembleCurve;

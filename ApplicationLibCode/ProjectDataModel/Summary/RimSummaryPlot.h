@@ -206,7 +206,6 @@ public:
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
     RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
-    void                            ensureRequiredAxisObjectsForCurves();
     void                            findOrAssignPlotAxisX( RimSummaryCurve* curve );
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
@@ -297,11 +296,12 @@ private:
     void timeAxisSettingsChanged( const caf::SignalEmitter* emitter );
     void timeAxisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter );
 
+    void ensureRequiredAxisObjectsForCurves();
     void assignPlotAxis( RimSummaryCurve* curve );
     void assignYPlotAxis( RimSummaryCurve* curve );
     void assignXPlotAxis( RimSummaryCurve* curve );
 
-    RimSummaryCurve*     addNewCurveY( const RifEclipseSummaryAddress& address,
+    RimSummaryCurve*     addNewCurve( const RifEclipseSummaryAddress& address,
                                        RimSummaryCase*                 summaryCase,
                                        const RifEclipseSummaryAddress& addressX,
                                        RimSummaryCase*                 summaryCaseX );

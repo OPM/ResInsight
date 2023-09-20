@@ -59,8 +59,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#pragma optimize( "", off )
-
 CAF_PDM_SOURCE_INIT( RimSummaryCurve, "SummaryCurve" );
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +92,7 @@ RimSummaryCurve::RimSummaryCurve()
 
     // X Values
 
-    CAF_PDM_InitField( &m_axisType,
+    CAF_PDM_InitField( &m_xAxisType,
                        "HorizontalAxisType",
                        caf::AppEnum<RiaDefines::HorizontalAxisType>( RiaDefines::HorizontalAxisType::TIME ),
                        "Axis Type" );
@@ -157,7 +155,7 @@ RimSummaryCurve::~RimSummaryCurve()
 RiaSummaryCurveDefinition RimSummaryCurve::curveDefinition() const
 {
     RiaSummaryCurveDefinition curveDefinition( summaryCaseY(), summaryAddressY(), isEnsembleCurve() );
-    if ( m_axisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+    if ( m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
         curveDefinition.setSummaryCaseX( summaryCaseX() );
         curveDefinition.setSummaryAddressX( summaryAddressX() );
@@ -205,7 +203,7 @@ RimSummaryCase* RimSummaryCurve::summaryCaseY() const
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddressX() const
 {
-    if ( m_axisType == RiaDefines::HorizontalAxisType::TIME ) return RifEclipseSummaryAddress::timeAddress();
+    if ( m_xAxisType == RiaDefines::HorizontalAxisType::TIME ) return RifEclipseSummaryAddress::timeAddress();
 
     return m_xValuesSummaryAddress->address();
 }
@@ -440,7 +438,7 @@ void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTime
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setAxisTypeX( RiaDefines::HorizontalAxisType axisType )
 {
-    m_axisType = axisType;
+    m_xAxisType = axisType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,7 +446,7 @@ void RimSummaryCurve::setAxisTypeX( RiaDefines::HorizontalAxisType axisType )
 //--------------------------------------------------------------------------------------------------
 RiaDefines::HorizontalAxisType RimSummaryCurve::axisTypeX() const
 {
-    return m_axisType();
+    return m_xAxisType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -643,7 +641,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         bool shouldPopulateViewWithEmptyData = false;
 
-        if ( m_axisType == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        if ( m_xAxisType == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
             auto curveValuesX    = valuesX();
             auto curveTimeStepsX = timeStepsX();
@@ -884,7 +882,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 {
     RimPlotCurve::updateFieldUiState();
 
-    bool isSummaryXHidden = ( m_axisType() != RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+    bool isSummaryXHidden = ( m_xAxisType() != RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
 
     m_xValuesSummaryCase.uiCapability()->setUiHidden( isSummaryXHidden );
     m_xValuesSummaryAddress.uiCapability()->setUiHidden( isSummaryXHidden );
@@ -905,7 +903,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     {
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X Axis" );
-        curveDataGroup->add( &m_axisType, { true, 3, 1 } );
+        curveDataGroup->add( &m_xAxisType, { true, 3, 1 } );
         curveDataGroup->add( &m_xValuesSummaryCase, { true, 3, 1 } );
         curveDataGroup->add( &m_xValuesSummaryAddressUiField, { true, 2, 1 } );
         curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, { false, 1, 0 } );
@@ -1118,13 +1116,13 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         loadAndUpdate = true;
     }
-    else if ( &m_axisType == changedField )
+    else if ( &m_xAxisType == changedField )
     {
-        if ( m_axisType() == RiaDefines::HorizontalAxisType::TIME )
+        if ( m_xAxisType() == RiaDefines::HorizontalAxisType::TIME )
         {
             m_xPlotAxisProperties = plot->timeAxisProperties();
         }
-        else if ( m_axisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        else if ( m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
             if ( !m_xValuesSummaryCase() )
             {

@@ -73,8 +73,6 @@
 #include <algorithm>
 #include <limits>
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1282,10 +1280,6 @@ void RiuQwtPlotWidget::ensureAxisIsCreated( RiuPlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::enableAxis( RiuPlotAxis axis, bool isEnabled )
 {
-    auto axisLocation = axis.axis();
-
-    bool isBottom = ( axisLocation == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-
     ensureAxisIsCreated( axis );
 
     m_plot->setAxisVisible( toQwtPlotAxis( axis ), isEnabled );

@@ -38,11 +38,10 @@ public:
     void applySettings( const RimSummaryCurveAutoName& other );
 
 private:
-    // friend class RimSummaryCurve;
-
     QString curveNameY( const RifEclipseSummaryAddress& summaryAddress,
                         const RimSummaryNameHelper*     currentNameHelper,
                         const RimSummaryNameHelper*     plotNameHelper ) const;
+
     QString curveNameX( const RifEclipseSummaryAddress& summaryAddress,
                         const RimSummaryNameHelper*     currentNameHelper,
                         const RimSummaryNameHelper*     plotNameHelper ) const;

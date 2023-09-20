@@ -101,8 +101,6 @@
 #include <limits>
 #include <set>
 
-#pragma optimize( "", off )
-
 CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
 struct RimSummaryPlot::CurveInfo
@@ -2289,7 +2287,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase*
 
         const auto& [addrY, addrX] = addressPair;
 
-        curves.push_back( addNewCurveY( addrY, summaryCase, addrX, summaryCase ) );
+        curves.push_back( addNewCurve( addrY, summaryCase, addrX, summaryCase ) );
     }
 
     return { .curveCount = static_cast<int>( curves.size() ), .curves = curves, .curveSets = {} };
@@ -2344,8 +2342,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
     {
         for ( auto& curve : summaryCurves() )
         {
-            RiaSummaryCurveDefinition curveDef = curve->curveDefinition();
-            sourceCurveDefs.push_back( curveDef );
+            sourceCurveDefs.push_back( curve->curveDefinition() );
         }
 
         if ( ensembleCase )
@@ -2427,7 +2424,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             if ( curveDef.summaryCase()->summaryReader() && curveDef.summaryCase()->summaryReader()->hasAddress( curveDef.summaryAddress() ) )
             {
                 auto curve =
-                    addNewCurveY( curveDef.summaryAddress(), curveDef.summaryCase(), curveDef.summaryAddressX(), curveDef.summaryCaseX() );
+                    addNewCurve( curveDef.summaryAddress(), curveDef.summaryCase(), curveDef.summaryAddressX(), curveDef.summaryCaseX() );
                 curves.push_back( curve );
                 if ( curveDef.summaryCaseX() )
                 {
@@ -2520,7 +2517,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
                 if ( !skipAddress )
                 {
-                    curves.push_back( addNewCurveY( droppedAddress, summaryCase, RifEclipseSummaryAddress::timeAddress(), nullptr ) );
+                    curves.push_back( addNewCurve( droppedAddress, summaryCase, RifEclipseSummaryAddress::timeAddress(), nullptr ) );
                     newCurves++;
                 }
             }
@@ -2583,10 +2580,10 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address,
-                                               RimSummaryCase*                 summaryCase,
-                                               const RifEclipseSummaryAddress& addressX,
-                                               RimSummaryCase*                 summaryCaseX )
+RimSummaryCurve* RimSummaryPlot::addNewCurve( const RifEclipseSummaryAddress& address,
+                                              RimSummaryCase*                 summaryCase,
+                                              const RifEclipseSummaryAddress& addressX,
+                                              RimSummaryCase*                 summaryCaseX )
 {
     auto* newCurve = new RimSummaryCurve();
     newCurve->setSummaryCaseY( summaryCase );
@@ -3108,8 +3105,7 @@ std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotYAxes() const
     for ( const auto& ap : m_axisPropertiesArray )
     {
         auto plotAxisProp = dynamic_cast<RimPlotAxisProperties*>( ap.p() );
-        if ( plotAxisProp && ( plotAxisProp->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-                               plotAxisProp->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) )
+        if ( plotAxisProp && plotAxisProp->plotAxis().isVertical() )
         {
             axisProps.push_back( plotAxisProp );
         }
