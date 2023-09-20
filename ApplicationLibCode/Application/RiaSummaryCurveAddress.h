@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2023 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,24 +18,23 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-
-#include <vector>
-
-class RimSummaryPlot;
+#include "RifEclipseSummaryAddress.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewSummaryCrossPlotCurveFeature : public caf::CmdFeature
+class RiaSummaryCurveAddress
 {
-    CAF_CMD_HEADER_INIT;
+public:
+    explicit RiaSummaryCurveAddress( const RifEclipseSummaryAddress& summaryAddressY );
+    explicit RiaSummaryCurveAddress( const RifEclipseSummaryAddress& summaryAddressX, const RifEclipseSummaryAddress& summaryAddressY );
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    RifEclipseSummaryAddress summaryAddressX() const;
+    RifEclipseSummaryAddress summaryAddressY() const;
+
+    auto operator<=>( const RiaSummaryCurveAddress& rhs ) const = default;
 
 private:
-    RimSummaryPlot* selectedSummaryPlot() const;
+    RifEclipseSummaryAddress m_summaryAddressX;
+    RifEclipseSummaryAddress m_summaryAddressY;
 };

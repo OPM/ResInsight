@@ -374,19 +374,19 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
 {
     nameHelper->clear();
 
-    std::vector<RifEclipseSummaryAddress>  addresses;
+    std::vector<RiaSummaryCurveAddress>    addresses;
     std::vector<RimSummaryCase*>           sumCases;
     std::vector<RimSummaryCaseCollection*> ensembleCases;
 
     for ( RimSummaryCurve* curve : allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
     {
-        addresses.push_back( curve->summaryAddressY() );
+        addresses.push_back( curve->curveAddress() );
         sumCases.push_back( curve->summaryCaseY() );
     }
 
     for ( auto curveSet : curveSets() )
     {
-        addresses.push_back( curveSet->summaryAddress() );
+        addresses.push_back( curveSet->curveAddress() );
         ensembleCases.push_back( curveSet->summaryCaseCollection() );
     }
 
@@ -1273,12 +1273,13 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
         for ( auto p : summaryPlots() )
         {
-            auto timeAxisProp = p->timeAxisProperties();
+            if ( auto timeAxisProp = p->timeAxisProperties() )
+            {
+                auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
+                                                           : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
 
-            auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
-                                                       : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
-
-            timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
+                timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
+            }
 
             for ( auto* axisProp : p->plotYAxes() )
             {

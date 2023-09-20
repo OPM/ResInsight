@@ -197,7 +197,7 @@ void RimAsciiDataCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateQwtPlotAxis()
 {
-    if ( m_plotCurve ) updateAxisInPlot( yAxis() );
+    if ( m_plotCurve ) updateYAxisInPlot( yAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

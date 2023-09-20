@@ -354,3 +354,26 @@ QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForSummaryCases( const std
 
     return options;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::copyCurveDataSources( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve )
+{
+    curve.setSummaryAddressX( otherCurve.summaryAddressX() );
+    curve.setSummaryCaseX( otherCurve.summaryCaseX() );
+
+    curve.setSummaryAddressY( otherCurve.summaryAddressY() );
+    curve.setSummaryCaseY( otherCurve.summaryCaseY() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve )
+{
+    curve.setAxisTypeX( otherCurve.axisTypeX() );
+    curve.setTopOrBottomAxisX( otherCurve.axisX() );
+
+    curve.setLeftOrRightAxisY( otherCurve.axisY() );
+}

@@ -349,7 +349,8 @@ void RiuQwtPlotWidget::setAxisRange( RiuPlotAxis axis, double min, double max )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisInverted( RiuPlotAxis axis, bool isInverted )
 {
-    m_plot->axisScaleEngine( toQwtPlotAxis( axis ) )->setAttribute( QwtScaleEngine::Inverted, isInverted );
+    auto scaleEngine = m_plot->axisScaleEngine( toQwtPlotAxis( axis ) );
+    if ( scaleEngine ) scaleEngine->setAttribute( QwtScaleEngine::Inverted, isInverted );
 }
 
 //--------------------------------------------------------------------------------------------------
