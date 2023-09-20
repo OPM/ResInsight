@@ -49,12 +49,12 @@ QString RimMultiSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleCurveType() const
+bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleCurve() const
 {
     int plotCountWithSingleQuantity = 0;
     for ( auto nameHelper : m_nameHelpers )
     {
-        if ( nameHelper->isPlotDisplayingSingleCurveType() ) plotCountWithSingleQuantity++;
+        if ( nameHelper->isPlotDisplayingSingleCurve() ) plotCountWithSingleQuantity++;
     }
 
     return plotCountWithSingleQuantity == 1;
@@ -160,7 +160,7 @@ std::string RimMultiSummaryPlotNameHelper::titleVectorName() const
 {
     for ( auto nameHelper : m_nameHelpers )
     {
-        if ( nameHelper->isPlotDisplayingSingleCurveType() ) return nameHelper->titleVectorName();
+        if ( nameHelper->isPlotDisplayingSingleCurve() ) return nameHelper->titleVectorName();
     }
 
     return "";

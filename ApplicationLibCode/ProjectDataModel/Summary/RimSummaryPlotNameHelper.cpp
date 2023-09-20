@@ -102,7 +102,7 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isPlotDisplayingSingleCurveType() const
+bool RimSummaryPlotNameHelper::isPlotDisplayingSingleCurve() const
 {
     if ( m_analyzer->quantities().size() == 2 && m_analyzer->onlyCrossPlotCurves() )
     {

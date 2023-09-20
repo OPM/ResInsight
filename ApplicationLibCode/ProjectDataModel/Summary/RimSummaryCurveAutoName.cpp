@@ -211,7 +211,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     if ( m_vectorName || m_longVectorName )
     {
-        bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurveType();
+        bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurve();
         if ( !skipSubString )
         {
             if ( m_longVectorName() )

@@ -21,7 +21,6 @@
 #include "RiaSummaryCurveAddress.h"
 #include "RifEclipseSummaryAddress.h"
 
-#include <concepts>
 #include <set>
 #include <string>
 #include <tuple>

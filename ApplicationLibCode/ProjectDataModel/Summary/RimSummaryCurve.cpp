@@ -1152,7 +1152,6 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_xPlotAxisProperties )
     {
-        // TODO: Must find a concept to handle x axis properties
         updateXAxisInPlot( axisX() );
         plot->updateAxes();
         dataChanged.send();

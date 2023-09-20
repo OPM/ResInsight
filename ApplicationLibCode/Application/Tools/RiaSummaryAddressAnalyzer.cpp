@@ -64,6 +64,9 @@ void RiaSummaryAddressAnalyzer::appendAddresses( const std::set<RifEclipseSummar
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses )
 {
+    // RiaSummaryCurveAddress can be used to represent cross plot curves. Set the flag m_onlyCrossPlotCurves to true, and this will be set
+    // to false in analyzeSingleAddress if we detect a time curve
+
     m_onlyCrossPlotCurves = true;
 
     for ( const auto& adr : addresses )
@@ -139,10 +142,10 @@ std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
         // We have a cross plot with only one curve
 
         std::string title;
-        for ( const auto& q : quantities() )
+        for ( const auto& quantity : quantities() )
         {
             if ( !title.empty() ) title += " | ";
-            title += q;
+            title += quantity;
         }
 
         return title;
@@ -470,6 +473,8 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
     if ( address.category() == SummaryCategory::SUMMARY_TIME )
     {
         m_onlyCrossPlotCurves = false;
+
+        // A time address has no other information than SummaryCategory::SUMMARY_TIME
         return;
     }
 

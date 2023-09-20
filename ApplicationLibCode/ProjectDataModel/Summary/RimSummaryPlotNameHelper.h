@@ -50,7 +50,7 @@ public:
 
     QString plotTitle() const override;
 
-    bool isPlotDisplayingSingleCurveType() const override;
+    bool isPlotDisplayingSingleCurve() const override;
     bool isWellNameInTitle() const override;
     bool isGroupNameInTitle() const override;
     bool isNetworkInTitle() const override;

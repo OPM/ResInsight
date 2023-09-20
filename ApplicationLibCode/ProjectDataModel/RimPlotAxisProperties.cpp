@@ -145,16 +145,8 @@ void RimPlotAxisProperties::enableRangeSettings( bool enable )
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setNameForUnusedAxis()
 {
-    QString name = "Unused ";
+    QString name = "Unused " + m_plotAxis().text();
 
-    /*
-        if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-            name += "Left";
-        else if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-            name += "Right";
-    */
-
-    name += m_plotAxis().text();
     m_objectName = name;
 }
 

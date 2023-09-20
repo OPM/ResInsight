@@ -479,7 +479,7 @@ std::string RifEclipseSummaryAddress::generateStringFromAddresses( const std::ve
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TODO: Move to RifEclipseSummaryAddressDefines
+///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::isDependentOnWellName( SummaryCategory category )
 {
