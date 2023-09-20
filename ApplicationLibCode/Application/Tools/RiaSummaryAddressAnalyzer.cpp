@@ -38,6 +38,7 @@ RiaSummaryAddressAnalyzer::RiaSummaryAddressAnalyzer()
 
 //--------------------------------------------------------------------------------------------------
 ///
+//
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses )
 {
@@ -58,24 +59,10 @@ void RiaSummaryAddressAnalyzer::appendAddresses( const std::set<RifEclipseSummar
     }
 }
 
-/*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryAddressAnalyzer::appendAddresses_concept( input_range_of<RiaSummaryCurveAddress> auto&& addresses )
-{
-    for ( const auto& adr : addresses )
-    {
-        analyzeSingleAddress( adr.summaryAddressX() );
-        analyzeSingleAddress( adr.summaryAddressY() );
-    }
-}
-*/
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSummaryAddressAnalyzer::appendAddresses_concept( const std::vector<RiaSummaryCurveAddress>& addresses )
+void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses )
 {
     m_onlyCrossPlotCurves = true;
 

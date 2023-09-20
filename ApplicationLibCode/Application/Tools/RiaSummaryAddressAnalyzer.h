@@ -31,13 +31,6 @@ class RimSummaryCurveCollection;
 
 class QString;
 
-// Define a concept for an input range of a specific type. This allows any container type to be used as input argument, like std::vector<T>,
-// std::set<T>, ...
-// Inspired by https://www.reedbeta.com/blog/ranges-compatible-containers/
-//
-template <typename R, typename T>
-concept input_range_of = std::ranges::input_range<R> && std::convertible_to<std::ranges::range_value_t<R>, T>;
-
 //==================================================================================================
 //
 //==================================================================================================
@@ -48,9 +41,7 @@ public:
 
     void appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
     void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
-
-    // void appendAddresses_concept( input_range_of<RiaSummaryCurveAddress> auto&& addresses );
-    void appendAddresses_concept( const std::vector<RiaSummaryCurveAddress>& addresses );
+    void appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses );
 
     void clear();
 

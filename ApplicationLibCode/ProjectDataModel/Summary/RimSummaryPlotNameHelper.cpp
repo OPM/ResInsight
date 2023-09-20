@@ -50,7 +50,7 @@ void RimSummaryPlotNameHelper::clear()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses )
 {
-    m_analyzer->appendAddresses_concept( addresses );
+    m_analyzer->appendAddresses( addresses );
 
     extractPlotTitleSubStrings();
 }
@@ -119,7 +119,7 @@ bool RimSummaryPlotNameHelper::isPlotDisplayingSingleCurveType() const
         auto first  = RimObjectiveFunctionTools::nativeQuantityName( strings[0] );
         auto second = RimObjectiveFunctionTools::nativeQuantityName( strings[1] );
 
-        // We have two quantities, one history and one not.
+        // We have two quantities, one summary vector and one corresponding history vector.
         if ( first == second ) return true;
     }
 
