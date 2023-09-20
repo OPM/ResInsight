@@ -153,7 +153,10 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
 
     if ( stimPlanModel->stimPlanModelTemplate()->usePressureTableForProperty( pressureCurveProperty ) )
     {
-        if ( !extractPressureDataFromTable( pressureCurveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues ) )
+        CAF_ASSERT( !targetTvds.empty() );
+        double minTvd = targetTvds[0];
+        double maxTvd = targetTvds[targetTvds.size() - 1];
+        if ( !extractPressureDataFromTable( pressureCurveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues, minTvd, maxTvd ) )
         {
             RiaLogging::error( "Unable to extract pressure data from table" );
             return false;
@@ -321,7 +324,9 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
                                                                        const RimStimPlanModel*   stimPlanModel,
                                                                        std::vector<double>&      values,
                                                                        std::vector<double>&      measuredDepthValues,
-                                                                       std::vector<double>&      tvDepthValues ) const
+                                                                       std::vector<double>&      tvDepthValues,
+                                                                       double                    minimumTvd,
+                                                                       double                    maximumTvd ) const
 {
     RimStimPlanModelTemplate* stimPlanModelTemplate = stimPlanModel->stimPlanModelTemplate();
     if ( !stimPlanModelTemplate ) return false;
@@ -355,6 +360,27 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
         }
 
         tvDepthValues.push_back( item->depth() );
+    }
+
+    // Make sure the full range of the extraction is covered by the table
+    bool needsExtrapolation = false;
+    if ( minimumTvd < tvDepthValues.front() )
+    {
+        tvDepthValues.insert( tvDepthValues.begin(), minimumTvd );
+        values.insert( values.begin(), std::numeric_limits<double>::infinity() );
+        needsExtrapolation = true;
+    }
+
+    if ( maximumTvd > tvDepthValues.back() )
+    {
+        tvDepthValues.push_back( maximumTvd );
+        values.push_back( std::numeric_limits<double>::infinity() );
+        needsExtrapolation = true;
+    }
+
+    if ( needsExtrapolation )
+    {
+        RiaInterpolationTools::interpolateMissingValues( tvDepthValues, values );
     }
 
     // Interpolate MDs from the tvd data from the table and well path geometry

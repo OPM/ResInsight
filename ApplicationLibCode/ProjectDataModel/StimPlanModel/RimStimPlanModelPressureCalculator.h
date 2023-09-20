@@ -64,7 +64,9 @@ protected:
                                        const RimStimPlanModel*   stimPlanModel,
                                        std::vector<double>&      values,
                                        std::vector<double>&      measuredDepthValues,
-                                       std::vector<double>&      tvDepthValues ) const;
+                                       std::vector<double>&      tvDepthValues,
+                                       double                    minimumTvd,
+                                       double                    maximumTvd ) const;
 
     bool interpolateInitialPressureByEquilibrationRegion( RiaDefines::CurveProperty  curveProperty,
                                                           const RimStimPlanModel*    stimPlanModel,
