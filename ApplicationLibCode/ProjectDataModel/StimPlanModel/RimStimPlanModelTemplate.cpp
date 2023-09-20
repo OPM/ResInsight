@@ -93,7 +93,10 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
 
-    CAF_PDM_InitField( &m_useEqlnumForPressureInterpolation, "UseEqlNumForPressureInterpolation", true, "Use EQLNUM For Pressure Interpolation" );
+    CAF_PDM_InitScriptableField( &m_useEqlnumForPressureInterpolation,
+                                 "UseEqlNumForPressureInterpolation",
+                                 true,
+                                 "Use EQLNUM For Pressure Interpolation" );
 
     CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", RiaDefines::defaultPorosity(), "Default Porosity" );
     CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", RiaDefines::defaultPermeability(), "Default Permeability" );
