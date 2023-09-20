@@ -427,6 +427,14 @@ RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaSummaryCurveAddress RimEnsembleCurveSet::curveAddress() const
+{
+    return RiaSummaryCurveAddress( summaryAddress(), RifEclipseSummaryAddress::timeAddress() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 {
     return m_curves.childrenByType();
@@ -1403,7 +1411,7 @@ std::vector<RiaSummaryCurveDefinition> RimEnsembleCurveSet::curveDefinitions() c
     std::vector<RiaSummaryCurveDefinition> curveDefs;
     for ( auto dataEntry : m_curves() )
     {
-        curveDefs.push_back( dataEntry->curveDefinitionY() );
+        curveDefs.push_back( dataEntry->curveDefinition() );
     }
 
     return curveDefs;
@@ -2147,12 +2155,9 @@ QString RimEnsembleCurveSet::createAutoName() const
 {
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    QString curveSetName =
-        m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), plot->plotTitleHelper(), plot->plotTitleHelper() );
-    if ( curveSetName.isEmpty() )
-    {
-        curveSetName = m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), nullptr, nullptr );
-    }
+    QString curveSetName = m_summaryAddressNameTools->curveName( RiaSummaryCurveAddress( m_yValuesSummaryAddress->address() ),
+                                                                 plot->plotTitleHelper(),
+                                                                 plot->plotTitleHelper() );
 
     if ( curveSetName.isEmpty() )
     {

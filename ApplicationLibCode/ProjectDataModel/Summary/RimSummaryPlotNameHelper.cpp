@@ -48,7 +48,7 @@ void RimSummaryPlotNameHelper::clear()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotNameHelper::appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses )
+void RimSummaryPlotNameHelper::appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses )
 {
     m_analyzer->appendAddresses( addresses );
 
@@ -102,10 +102,16 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
+bool RimSummaryPlotNameHelper::isPlotDisplayingSingleCurve() const
 {
     if ( m_analyzer->quantities().size() == 2 )
     {
+        if ( m_analyzer->onlyCrossPlotCurves() )
+        {
+            // We have cross plot curves, and two quantities. This means that we have one curve.
+            return true;
+        }
+
         std::vector<std::string> strings;
         for ( const auto& q : m_analyzer->quantities() )
             strings.push_back( q );
@@ -113,6 +119,7 @@ bool RimSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
         auto first  = RimObjectiveFunctionTools::nativeQuantityName( strings[0] );
         auto second = RimObjectiveFunctionTools::nativeQuantityName( strings[1] );
 
+        // We have two quantities, one summary vector and one corresponding history vector.
         if ( first == second ) return true;
     }
 

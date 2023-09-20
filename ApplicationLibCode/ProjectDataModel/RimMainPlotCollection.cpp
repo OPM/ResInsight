@@ -98,8 +98,8 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_correlationPlotCollection, "CorrelationPlotCollection", "Correlation Plots" );
     m_correlationPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots" );
-    m_summaryCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection_OBSOLETE, "SummaryCrossPlotCollection", "Summary Cross Plots" );
+    m_summaryCrossPlotCollection_OBSOLETE.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryTableCollection, "SummaryTableCollection", "Summary Tables" );
     m_summaryTableCollection.uiCapability()->setUiTreeHidden( true );
@@ -129,20 +129,20 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_ensembleFractureStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 #endif
 
-    m_wellLogPlotCollection            = new RimWellLogPlotCollection();
-    m_rftPlotCollection                = new RimRftPlotCollection();
-    m_pltPlotCollection                = new RimPltPlotCollection();
-    m_summaryMultiPlotCollection       = new RimSummaryMultiPlotCollection();
-    m_summaryCrossPlotCollection       = new RimSummaryCrossPlotCollection();
-    m_summaryTableCollection           = new RimSummaryTableCollection();
-    m_flowPlotCollection               = new RimFlowPlotCollection();
-    m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
-    m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
-    m_multiPlotCollection              = new RimMultiPlotCollection;
-    m_analysisPlotCollection           = new RimAnalysisPlotCollection;
-    m_correlationPlotCollection        = new RimCorrelationPlotCollection;
-    m_stimPlanModelPlotCollection      = new RimStimPlanModelPlotCollection;
-    m_vfpPlotCollection                = new RimVfpPlotCollection();
+    m_wellLogPlotCollection               = new RimWellLogPlotCollection();
+    m_rftPlotCollection                   = new RimRftPlotCollection();
+    m_pltPlotCollection                   = new RimPltPlotCollection();
+    m_summaryMultiPlotCollection          = new RimSummaryMultiPlotCollection();
+    m_summaryCrossPlotCollection_OBSOLETE = new RimSummaryCrossPlotCollection();
+    m_summaryTableCollection              = new RimSummaryTableCollection();
+    m_flowPlotCollection                  = new RimFlowPlotCollection();
+    m_gridCrossPlotCollection             = new RimGridCrossPlotCollection;
+    m_saturationPressurePlotCollection    = new RimSaturationPressurePlotCollection;
+    m_multiPlotCollection                 = new RimMultiPlotCollection;
+    m_analysisPlotCollection              = new RimAnalysisPlotCollection;
+    m_correlationPlotCollection           = new RimCorrelationPlotCollection;
+    m_stimPlanModelPlotCollection         = new RimStimPlanModelPlotCollection;
+    m_vfpPlotCollection                   = new RimVfpPlotCollection();
 #ifdef USE_QTCHARTS
     m_gridStatisticsPlotCollection             = new RimGridStatisticsPlotCollection;
     m_ensembleFractureStatisticsPlotCollection = new RimEnsembleFractureStatisticsPlotCollection;
@@ -242,7 +242,7 @@ RimSummaryMultiPlotCollection* RimMainPlotCollection::summaryMultiPlotCollection
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection() const
 {
-    return m_summaryCrossPlotCollection();
+    return m_summaryCrossPlotCollection_OBSOLETE();
 }
 
 //--------------------------------------------------------------------------------------------------

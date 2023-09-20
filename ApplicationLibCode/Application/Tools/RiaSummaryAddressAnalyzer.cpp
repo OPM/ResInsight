@@ -32,6 +32,7 @@ using namespace RifEclipseSummaryAddressDefines;
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSummaryAddressAnalyzer::RiaSummaryAddressAnalyzer()
+    : m_onlyCrossPlotCurves( false )
 {
 }
 
@@ -54,6 +55,23 @@ void RiaSummaryAddressAnalyzer::appendAddresses( const std::set<RifEclipseSummar
     for ( const auto& adr : allAddresses )
     {
         analyzeSingleAddress( adr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses )
+{
+    // RiaSummaryCurveAddress can be used to represent cross plot curves. Set the flag m_onlyCrossPlotCurves to true, and this will be set
+    // to false in analyzeSingleAddress if we detect a time curve
+
+    m_onlyCrossPlotCurves = true;
+
+    for ( const auto& adr : addresses )
+    {
+        analyzeSingleAddress( adr.summaryAddressX() );
+        analyzeSingleAddress( adr.summaryAddressY() );
     }
 }
 
@@ -103,11 +121,33 @@ bool RiaSummaryAddressAnalyzer::isSingleQuantityIgnoreHistory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaSummaryAddressAnalyzer::onlyCrossPlotCurves() const
+{
+    return m_onlyCrossPlotCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
 {
     if ( quantities().size() == 1 )
     {
         return *quantities().begin();
+    }
+
+    if ( quantities().size() == 2 && m_onlyCrossPlotCurves )
+    {
+        // We have a cross plot with only one curve
+
+        std::string title;
+        for ( const auto& quantity : quantities() )
+        {
+            if ( !title.empty() ) title += " | ";
+            title += quantity;
+        }
+
+        return title;
     }
 
     if ( quantities().size() == 2 && quantityNamesWithHistory().size() == 1 )
@@ -429,6 +469,14 @@ void RiaSummaryAddressAnalyzer::computeQuantityNamesWithHistory() const
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddress& address )
 {
+    if ( address.category() == SummaryCategory::SUMMARY_TIME )
+    {
+        m_onlyCrossPlotCurves = false;
+
+        // A time address has no other information than SummaryCategory::SUMMARY_TIME
+        return;
+    }
+
     const std::string& wellName = address.wellName();
 
     if ( !wellName.empty() )

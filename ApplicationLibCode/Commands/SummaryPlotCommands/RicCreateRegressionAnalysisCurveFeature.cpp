@@ -78,17 +78,15 @@ RimSummaryRegressionAnalysisCurve*
     RimSummaryRegressionAnalysisCurve* newCurve = new RimSummaryRegressionAnalysisCurve();
     CVF_ASSERT( newCurve );
 
-    newCurve->setSummaryCaseX( sourceCurve->summaryCaseX() );
-    newCurve->setSummaryAddressX( sourceCurve->summaryAddressX() );
-
-    newCurve->setSummaryCaseY( sourceCurve->summaryCaseY() );
-    newCurve->setSummaryAddressY( sourceCurve->summaryAddressY() );
+    RiaSummaryTools::copyCurveDataSources( *newCurve, *sourceCurve );
 
     newCurve->setColor( sourceCurve->color() );
     newCurve->setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
     newCurve->setSymbolSkipDistance( 50 );
 
     summaryPlot->addCurveAndUpdate( newCurve );
+
+    RiaSummaryTools::copyCurveAxisData( *newCurve, *sourceCurve );
 
     newCurve->updateDefaultValues();
     newCurve->loadDataAndUpdate( true );

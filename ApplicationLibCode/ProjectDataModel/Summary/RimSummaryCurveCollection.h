@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaSummaryDefines.h"
 #include "RimSummaryPlotSourceStepping.h"
 
 #include "cafPdmChildArrayField.h"
@@ -54,8 +55,9 @@ public:
 
     RimSummaryPlotSourceStepping* sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const;
 
-    std::vector<RimSummaryCurve*> curves() const;
-    std::vector<RimSummaryCurve*> curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const;
+    std::set<RiaDefines::HorizontalAxisType> horizontalAxisTypes() const;
+    std::vector<RimSummaryCurve*>            curves() const;
+    std::vector<RimSummaryCurve*>            curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const;
 
     void setCurveAsTopZWithinCategory( RimSummaryCurve* curve );
 
