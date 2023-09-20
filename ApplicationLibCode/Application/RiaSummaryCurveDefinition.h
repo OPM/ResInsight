@@ -42,11 +42,11 @@ public:
     explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress );
 
     // Y Axis
-    RimSummaryCase*                 summaryCase() const;
-    const RifEclipseSummaryAddress& summaryAddress() const;
-    RimSummaryCaseCollection*       ensemble() const;
-    bool                            isEnsembleCurve() const;
-    void                            setSummaryAddress( const RifEclipseSummaryAddress& address );
+    RimSummaryCase*           summaryCaseY() const;
+    RifEclipseSummaryAddress  summaryAddressY() const;
+    RimSummaryCaseCollection* ensemble() const;
+    bool                      isEnsembleCurve() const;
+    void                      setSummaryAddressY( const RifEclipseSummaryAddress& address );
 
     // X Axis
     void                     setSummaryCaseX( RimSummaryCase* summaryCase );
@@ -67,8 +67,8 @@ public:
     static QString curveDefinitionText( const QString& caseName, const RifEclipseSummaryAddress& summaryAddress );
 
 private:
-    RimSummaryCase*           m_summaryCase;
-    RifEclipseSummaryAddress  m_summaryAddress;
+    RimSummaryCase*           m_summaryCaseY;
+    RifEclipseSummaryAddress  m_summaryAddressY;
     RimSummaryCase*           m_summaryCaseX;
     RifEclipseSummaryAddress  m_summaryAddressX;
     RimSummaryCaseCollection* m_ensemble;

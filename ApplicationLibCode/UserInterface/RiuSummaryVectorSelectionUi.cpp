@@ -639,11 +639,11 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
     std::set<SummaryCategory> categories;
     for ( const auto& curveDef : curveDefinitions )
     {
-        if ( !( curveDef.summaryCase() || curveDef.isEnsembleCurve() ) ) continue;
+        if ( !( curveDef.summaryCaseY() || curveDef.isEnsembleCurve() ) ) continue;
 
-        RimSummaryCase* summaryCase = curveDef.summaryCase();
+        RimSummaryCase* summaryCase = curveDef.summaryCaseY();
 
-        RifEclipseSummaryAddress summaryAddress = curveDef.summaryAddress();
+        RifEclipseSummaryAddress summaryAddress = curveDef.summaryAddressY();
 
         // Ignore ensemble statistics curves
         if ( summaryAddress.category() == SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS ) continue;
@@ -677,11 +677,11 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         }
         else
         {
-            if ( curveDef.summaryCase() && ( !curveDef.ensemble() || m_showIndividualEnsembleCases ) )
+            if ( curveDef.summaryCaseY() && ( !curveDef.ensemble() || m_showIndividualEnsembleCases ) )
             {
-                if ( std::find( m_selectedSources.begin(), m_selectedSources.end(), curveDef.summaryCase() ) == m_selectedSources.end() )
+                if ( std::find( m_selectedSources.begin(), m_selectedSources.end(), curveDef.summaryCaseY() ) == m_selectedSources.end() )
                 {
-                    m_selectedSources.push_back( curveDef.summaryCase() );
+                    m_selectedSources.push_back( curveDef.summaryCaseY() );
                 }
             }
         }
@@ -713,7 +713,7 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
             }
         }
 
-        categories.insert( curveDef.summaryAddress().category() );
+        categories.insert( curveDef.summaryAddressY().category() );
     }
 
     if ( !categories.empty() )

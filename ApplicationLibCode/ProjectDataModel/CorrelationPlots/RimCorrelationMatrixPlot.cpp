@@ -511,7 +511,7 @@ void RimCorrelationMatrixPlot::createMatrix()
         for ( auto curveDef : curveDefs )
         {
             auto ensemble = curveDef.ensemble();
-            auto address  = curveDef.summaryAddress();
+            auto address  = curveDef.summaryAddressY();
 
             if ( ensemble )
             {

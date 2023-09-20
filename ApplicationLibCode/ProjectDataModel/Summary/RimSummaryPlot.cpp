@@ -2307,28 +2307,28 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
     for ( auto& curveDef : sourceCurveDefs )
     {
         auto        newCurveDef = curveDef;
-        auto        curveAdr    = newCurveDef.summaryAddress();
+        auto        curveAdr    = newCurveDef.summaryAddressY();
         std::string objectIdentifierString;
         if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ) &&
              ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL ) )
         {
             objectIdentifierString = curveAdr.wellName();
             curveAdr.setWellName( droppedName );
-            newCurveDef.setSummaryAddress( curveAdr );
+            newCurveDef.setSummaryAddressY( curveAdr );
         }
         else if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ) &&
                   ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP ) )
         {
             objectIdentifierString = curveAdr.groupName();
             curveAdr.setGroupName( droppedName );
-            newCurveDef.setSummaryAddress( curveAdr );
+            newCurveDef.setSummaryAddressY( curveAdr );
         }
         else if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK ) &&
                   ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::NETWORK ) )
         {
             objectIdentifierString = curveAdr.networkName();
             curveAdr.setNetworkName( droppedName );
-            newCurveDef.setSummaryAddress( curveAdr );
+            newCurveDef.setSummaryAddressY( curveAdr );
         }
         else if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION ) &&
                   ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION ) )
@@ -2338,7 +2338,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             int droppedRegion = std::stoi( droppedName );
 
             curveAdr.setRegion( droppedRegion );
-            newCurveDef.setSummaryAddress( curveAdr );
+            newCurveDef.setSummaryAddressY( curveAdr );
         }
         else if ( ( curveAdr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT ) &&
                   ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_SEGMENT ) )
@@ -2348,20 +2348,20 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             int droppedWellSegmentNumber = std::stoi( droppedName );
 
             curveAdr.setWellSegmentNumber( droppedWellSegmentNumber );
-            newCurveDef.setSummaryAddress( curveAdr );
+            newCurveDef.setSummaryAddressY( curveAdr );
         }
 
         if ( !objectIdentifierString.empty() )
         {
             newCurveDefsWithObjectNames[newCurveDef].insert( objectIdentifierString );
-            const auto& addr = curveDef.summaryAddress();
+            const auto& addr = curveDef.summaryAddressY();
             if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectors() )
             {
                 auto historyAddr = addr;
                 historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
 
                 auto historyCurveDef = newCurveDef;
-                historyCurveDef.setSummaryAddress( historyAddr );
+                historyCurveDef.setSummaryAddressY( historyAddr );
                 newCurveDefsWithObjectNames[historyCurveDef].insert( objectIdentifierString );
             }
         }
@@ -2375,17 +2375,17 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
         if ( curveDef.ensemble() )
         {
             auto addresses = curveDef.ensemble()->ensembleSummaryAddresses();
-            if ( addresses.find( curveDef.summaryAddress() ) != addresses.end() )
+            if ( addresses.find( curveDef.summaryAddressY() ) != addresses.end() )
             {
-                curveSetsToUpdate.push_back( addNewEnsembleCurveY( curveDef.summaryAddress(), curveDef.ensemble() ) );
+                curveSetsToUpdate.push_back( addNewEnsembleCurveY( curveDef.summaryAddressY(), curveDef.ensemble() ) );
                 newCurves++;
             }
         }
-        else if ( curveDef.summaryCase() )
+        else if ( curveDef.summaryCaseY() )
         {
-            if ( curveDef.summaryCase()->summaryReader() && curveDef.summaryCase()->summaryReader()->hasAddress( curveDef.summaryAddress() ) )
+            if ( curveDef.summaryCaseY()->summaryReader() && curveDef.summaryCaseY()->summaryReader()->hasAddress( curveDef.summaryAddressY() ) )
             {
-                curves.push_back( addNewCurveY( curveDef.summaryAddress(), curveDef.summaryCase() ) );
+                curves.push_back( addNewCurveY( curveDef.summaryAddressY(), curveDef.summaryCaseY() ) );
                 newCurves++;
             }
         }

@@ -63,12 +63,12 @@ RimAnalysisPlotDataEntry::~RimAnalysisPlotDataEntry()
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlotDataEntry::setFromCurveDefinition( const RiaSummaryCurveDefinition& curveDef )
 {
-    m_summaryAddress->setAddress( curveDef.summaryAddress() );
+    m_summaryAddress->setAddress( curveDef.summaryAddressY() );
     if ( curveDef.ensemble() )
     {
         m_ensemble = curveDef.ensemble();
     }
-    m_summaryCase     = curveDef.summaryCase();
+    m_summaryCase     = curveDef.summaryCaseY();
     m_isEnsembleCurve = curveDef.isEnsembleCurve();
 }
 

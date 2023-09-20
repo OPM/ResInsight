@@ -481,7 +481,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
     std::map<RimSummaryCurve*, std::pair<bool, bool>> stashedErrorBarsAndLegendVisibility;
     for ( const auto& curveDef : curveDefsToAdd )
     {
-        RimSummaryCase* currentCase = curveDef.summaryCase();
+        RimSummaryCase* currentCase = curveDef.summaryCaseY();
 
         if ( curveDef.isEnsembleCurve() )
         {
@@ -489,7 +489,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
             RimEnsembleCurveSet* curveSet = nullptr;
             for ( const auto& cs : m_previewPlot->ensembleCurveSetCollection()->curveSets() )
             {
-                if ( cs->summaryCaseCollection() == curveDef.ensemble() && cs->summaryAddress() == curveDef.summaryAddress() )
+                if ( cs->summaryCaseCollection() == curveDef.ensemble() && cs->summaryAddress() == curveDef.summaryAddressY() )
                 {
                     curveSet = cs;
                     break;
@@ -503,7 +503,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
 
                 // Do not call setSummaryAddressAndStatisticsFlag() here, as the call to m_statistics->updateAllRequiredEditors(); causes a
                 // crash in updateUiOrdering. The statistics curves will be created when the curve set is added to the plot.
-                curveSet->setSummaryAddress( curveDef.summaryAddress() );
+                curveSet->setSummaryAddress( curveDef.summaryAddressY() );
 
                 // Set single curve set color
                 auto   allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();
@@ -543,7 +543,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
                 curve->setShowInLegend( false );
             }
             curve->setSummaryCaseY( currentCase );
-            curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress() );
+            curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddressY() );
             curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
             if ( currentCase && currentCase->isObservedData() ) curve->setSymbolSkipDistance( 0 );
 

@@ -323,7 +323,7 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToReport( Rim
 
         time_t timeStep = *( plot->matrixPlot()->allAvailableTimeSteps().rbegin() );
         auto   correlationSortedEnsembleParameters =
-            ensembles.front()->correlationSortedEnsembleParameters( curveDefsTornadoAndCrossPlot.front().summaryAddress(), timeStep );
+            ensembles.front()->correlationSortedEnsembleParameters( curveDefsTornadoAndCrossPlot.front().summaryAddressY(), timeStep );
         if ( !correlationSortedEnsembleParameters.empty() )
         {
             QString crossPlotEnsembleParameterName = correlationSortedEnsembleParameters.front().first.name;
@@ -369,7 +369,7 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToReport( RimCor
         plot->crossPlot()->setTimeStep( timeStep );
 
         auto correlationSortedEnsembleParameters =
-            ensemble->correlationSortedEnsembleParameters( curveDefsTornadoAndCrossPlot.front().summaryAddress(), timeStep );
+            ensemble->correlationSortedEnsembleParameters( curveDefsTornadoAndCrossPlot.front().summaryAddressY(), timeStep );
         QString crossPlotEnsembleParameterName = correlationSortedEnsembleParameters.front().first.name;
         plot->crossPlot()->setEnsembleParameter( crossPlotEnsembleParameterName );
     }

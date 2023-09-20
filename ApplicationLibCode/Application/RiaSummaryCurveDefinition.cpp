@@ -30,7 +30,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
-    : m_summaryCase( nullptr )
+    : m_summaryCaseY( nullptr )
     , m_summaryCaseX( nullptr )
     , m_summaryAddressX( RifEclipseSummaryAddress::timeAddress() )
     , m_ensemble( nullptr )
@@ -44,8 +44,8 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
                                                       const RifEclipseSummaryAddress& summaryAddress,
                                                       bool                            isEnsembleCurve )
-    : m_summaryCase( summaryCase )
-    , m_summaryAddress( summaryAddress )
+    : m_summaryCaseY( summaryCase )
+    , m_summaryAddressY( summaryAddress )
     , m_summaryCaseX( nullptr )
     , m_summaryAddressX( RifEclipseSummaryAddress::timeAddress() )
     , m_ensemble( nullptr )
@@ -57,8 +57,8 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*           
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress )
-    : m_summaryCase( nullptr )
-    , m_summaryAddress( summaryAddress )
+    : m_summaryCaseY( nullptr )
+    , m_summaryAddressY( summaryAddress )
     , m_summaryCaseX( nullptr )
     , m_summaryAddressX( RifEclipseSummaryAddress::timeAddress() )
     , m_ensemble( ensemble )
@@ -69,9 +69,9 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RiaSummaryCurveDefinition::summaryCase() const
+RimSummaryCase* RiaSummaryCurveDefinition::summaryCaseY() const
 {
-    return m_summaryCase;
+    return m_summaryCaseY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,9 +85,9 @@ RimSummaryCaseCollection* RiaSummaryCurveDefinition::ensemble() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() const
+RifEclipseSummaryAddress RiaSummaryCurveDefinition::summaryAddressY() const
 {
-    return m_summaryAddress;
+    return m_summaryAddressY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,9 +101,9 @@ bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveDefinition::setSummaryAddress( const RifEclipseSummaryAddress& address )
+void RiaSummaryCurveDefinition::setSummaryAddressY( const RifEclipseSummaryAddress& address )
 {
-    m_summaryAddress = address;
+    m_summaryAddressY = address;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, con
 {
     if ( RifEclipseSummaryAddress::isDependentOnWellName( category ) )
     {
-        m_summaryAddress.setWellName( name );
+        m_summaryAddressY.setWellName( name );
         m_summaryAddressX.setWellName( name );
     }
 
@@ -154,16 +154,16 @@ void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, con
     switch ( category )
     {
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER:
-            m_summaryAddress.setAquiferNumber( id );
+            m_summaryAddressY.setAquiferNumber( id );
             m_summaryAddressX.setAquiferNumber( id );
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION:
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION:
-            m_summaryAddress.setRegion( id );
+            m_summaryAddressY.setRegion( id );
             m_summaryAddressX.setRegion( id );
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP:
-            m_summaryAddress.setGroupName( name );
+            m_summaryAddressY.setGroupName( name );
             m_summaryAddressX.setGroupName( name );
             break;
         default:
@@ -176,13 +176,13 @@ void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, con
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition& curveDefinition, gsl::not_null<std::vector<double>*> values )
 {
-    if ( !curveDefinition.summaryAddress().isValid() ) return;
-    if ( !curveDefinition.summaryCase() ) return;
+    if ( !curveDefinition.summaryAddressY().isValid() ) return;
+    if ( !curveDefinition.summaryCaseY() ) return;
 
-    RifSummaryReaderInterface* reader = curveDefinition.summaryCase()->summaryReader();
+    RifSummaryReaderInterface* reader = curveDefinition.summaryCaseY()->summaryReader();
     if ( !reader ) return;
 
-    reader->values( curveDefinition.summaryAddress(), values );
+    reader->values( curveDefinition.summaryAddressY(), values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,13 +190,13 @@ void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition& c
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RiaSummaryCurveDefinition::timeSteps( const RiaSummaryCurveDefinition& curveDefinition )
 {
-    if ( !curveDefinition.summaryAddress().isValid() ) return {};
-    if ( !curveDefinition.summaryCase() ) return {};
+    if ( !curveDefinition.summaryAddressY().isValid() ) return {};
+    if ( !curveDefinition.summaryCaseY() ) return {};
 
-    RifSummaryReaderInterface* reader = curveDefinition.summaryCase()->summaryReader();
+    RifSummaryReaderInterface* reader = curveDefinition.summaryCaseY()->summaryReader();
     if ( !reader ) return {};
 
-    return reader->timeSteps( curveDefinition.summaryAddress() );
+    return reader->timeSteps( curveDefinition.summaryAddressY() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,12 +205,12 @@ std::vector<time_t> RiaSummaryCurveDefinition::timeSteps( const RiaSummaryCurveD
 QString RiaSummaryCurveDefinition::curveDefinitionText() const
 {
     QString caseName;
-    if ( summaryCase() )
-        caseName = summaryCase()->displayCaseName();
+    if ( summaryCaseY() )
+        caseName = summaryCaseY()->displayCaseName();
     else if ( ensemble() )
         caseName = ensemble()->name();
 
-    return RiaSummaryCurveDefinition::curveDefinitionText( caseName, summaryAddress() );
+    return RiaSummaryCurveDefinition::curveDefinitionText( caseName, summaryAddressY() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,18 +258,18 @@ bool RiaSummaryCurveDefinition::operator<( const RiaSummaryCurveDefinition& othe
         return m_ensemble < other.ensemble();
     }
 
-    if ( m_summaryCase != other.summaryCase() )
+    if ( m_summaryCaseY != other.summaryCaseY() )
     {
         QString summaryCaseName;
         QString otherSummaryCaseName;
 
-        if ( m_summaryCase )
+        if ( m_summaryCaseY )
         {
-            summaryCaseName = m_summaryCase->displayCaseName();
+            summaryCaseName = m_summaryCaseY->displayCaseName();
         }
-        if ( other.summaryCase() )
+        if ( other.summaryCaseY() )
         {
-            otherSummaryCaseName = other.summaryCase()->displayCaseName();
+            otherSummaryCaseName = other.summaryCaseY()->displayCaseName();
         }
 
         // First check if names are different to ensure stable alphabetic sort
@@ -279,12 +279,12 @@ bool RiaSummaryCurveDefinition::operator<( const RiaSummaryCurveDefinition& othe
         }
 
         // Use pointer address, sorting will be be unstable
-        return m_summaryCase < other.summaryCase();
+        return m_summaryCaseY < other.summaryCaseY();
     }
 
-    if ( m_summaryAddress != other.summaryAddress() )
+    if ( m_summaryAddressY != other.summaryAddressY() )
     {
-        return ( m_summaryAddress < other.summaryAddress() );
+        return ( m_summaryAddressY < other.summaryAddressY() );
     }
 
     return m_isEnsembleCurve < other.isEnsembleCurve();
@@ -308,20 +308,20 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
             m_ensembles.insert( curveDef.ensemble() );
             valid = true;
         }
-        else if ( curveDef.summaryCase() )
+        else if ( curveDef.summaryCaseY() )
         {
-            m_singleSummaryCases.insert( curveDef.summaryCase() );
+            m_singleSummaryCases.insert( curveDef.summaryCaseY() );
 
-            if ( curveDef.summaryCase()->ensemble() )
+            if ( curveDef.summaryCaseY()->ensemble() )
             {
-                m_ensembles.insert( curveDef.summaryCase()->ensemble() );
+                m_ensembles.insert( curveDef.summaryCaseY()->ensemble() );
             }
             valid = true;
         }
 
         if ( valid )
         {
-            const RifEclipseSummaryAddress& address = curveDef.summaryAddress();
+            const RifEclipseSummaryAddress& address = curveDef.summaryAddressY();
 
             m_vectorNames.insert( address.vectorName() );
             m_summaryAdresses.insert( address );
