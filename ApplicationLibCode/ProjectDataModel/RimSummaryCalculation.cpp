@@ -62,6 +62,7 @@ RimSummaryCalculation::RimSummaryCalculation()
     CAF_PDM_InitObject( "RimSummaryCalculation", ":/octave.png", "Calculation", "" );
 
     CAF_PDM_InitField( &m_distributeToOtherItems, "DistributeToOtherItems", true, "Distribute to other items (wells, groups, ..)" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_distributeToOtherItems );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,18 +201,15 @@ bool RimSummaryCalculation::detectCyclicCalculation( int id, std::set<int>& ids 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimSummaryCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimUserDefinedCalculation::defineEditorAttribute( field, uiConfigName, attribute );
+    RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
 
-    if ( field == &m_distributeToOtherItems )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->setWordWrap( true );
-        }
-    }
+    // Adjust the layout to avoid a lot of unused white space in dialog
+    m_description.uiCapability()->setUiHidden( true );
+    m_expression.uiCapability()->setUiName( "Expression" );
+    m_expression.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_unit.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -87,7 +87,7 @@ protected:
     bool checkVariables() const;
     bool detectCyclicCalculation( int id, std::set<int>& ids ) const;
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     caf::PdmField<bool> m_distributeToOtherItems;
