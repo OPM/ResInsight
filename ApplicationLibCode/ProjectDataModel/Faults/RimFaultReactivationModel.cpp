@@ -41,6 +41,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationTools.h"
 #include "RimPolylineTarget.h"
 #include "RimTimeStepFilter.h"
@@ -625,8 +626,29 @@ bool RimFaultReactivationModel::exportModelSettings()
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationModel::extractAndExportModelData()
 {
+    model()->clearModelData();
+
     exportModelSettings();
 
-    // TODO - get values from eclipse and geomech models here
+    auto eCase = eclipseCase();
+
+    // get the selected time step indexes
+    std::vector<size_t> selectedTimeStepIndexes;
+    for ( auto& timeStep : selectedTimeSteps() )
+    {
+        auto idx = std::find( m_availableTimeSteps.begin(), m_availableTimeSteps.end(), timeStep );
+        if ( idx == m_availableTimeSteps.end() ) return false;
+
+        selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
+    }
+
+    // extract data for each timestep
+    for ( auto timeStepIdx : selectedTimeStepIndexes )
+    {
+        RimFaultReactivationDataAccess dataAccess( eCase, timeStepIdx );
+
+        model()->extractModelData( &dataAccess );
+    }
+
     return true;
 }

@@ -24,6 +24,8 @@
 #include <map>
 #include <vector>
 
+class RimFaultReactivationDataAccess;
+
 //==================================================================================================
 ///
 ///
@@ -51,6 +53,7 @@ public:
     ~RigGriddedPart3d() override;
 
     void reset();
+    void clearModelData();
 
     void generateGeometry( std::vector<cvf::Vec3d> inputPoints,
                            int                     nHorzCells,
@@ -59,6 +62,8 @@ public:
                            int                     nVertCellsUpper,
                            double                  thickness );
 
+    void extractModelData( RimFaultReactivationDataAccess* dataAccess );
+
     const std::vector<cvf::Vec3d>&                            nodes() const;
     const std::vector<std::vector<unsigned int>>&             elementIndices() const;
     const std::map<BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
@@ -66,6 +71,8 @@ public:
 
     const std::map<Boundary, std::vector<unsigned int>>& boundaryElements() const;
     const std::map<Boundary, std::vector<unsigned int>>& boundaryNodes() const;
+
+    const std::vector<double>& nodePorePressure( size_t timeStepIndex ) const;
 
 protected:
     cvf::Vec3d stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
@@ -80,4 +87,7 @@ private:
     std::vector<std::vector<cvf::Vec3d>>               m_meshLines;
     std::map<Boundary, std::vector<unsigned int>>      m_boundaryElements;
     std::map<Boundary, std::vector<unsigned int>>      m_boundaryNodes;
+
+    std::vector<std::vector<double>> m_nodePorePressure;
+    const std::vector<double>        m_emptyData;
 };

@@ -104,6 +104,17 @@ void RigFaultReactivationModel::reset()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::clearModelData()
+{
+    for ( auto part : allGridParts() )
+    {
+        m_3dparts[part]->clearModelData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigFaultReactivationModel::isValid() const
 {
     return m_isValid;
@@ -327,4 +338,15 @@ void RigFaultReactivationModel::generateGrids( cvf::Vec3dArray points )
 std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( GridPart part ) const
 {
     return m_3dparts.at( part );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::extractModelData( RimFaultReactivationDataAccess* dataAccess )
+{
+    for ( auto part : allGridParts() )
+    {
+        m_3dparts[part]->extractModelData( dataAccess );
+    }
 }
