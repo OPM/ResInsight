@@ -38,15 +38,15 @@ public:
 
     QString aggregatedPlotTitle( const RimSummaryNameHelper& summaryMultiPlotNameHelper ) const;
 
-    virtual bool isPlotDisplayingSingleVectorName() const = 0;
-    virtual bool isWellNameInTitle() const                = 0;
-    virtual bool isGroupNameInTitle() const               = 0;
-    virtual bool isNetworkInTitle() const                 = 0;
-    virtual bool isRegionInTitle() const                  = 0;
-    virtual bool isCaseInTitle() const                    = 0;
-    virtual bool isBlockInTitle() const                   = 0;
-    virtual bool isSegmentInTitle() const                 = 0;
-    virtual bool isCompletionInTitle() const              = 0;
+    virtual bool isPlotDisplayingSingleCurve() const = 0;
+    virtual bool isWellNameInTitle() const           = 0;
+    virtual bool isGroupNameInTitle() const          = 0;
+    virtual bool isNetworkInTitle() const            = 0;
+    virtual bool isRegionInTitle() const             = 0;
+    virtual bool isCaseInTitle() const               = 0;
+    virtual bool isBlockInTitle() const              = 0;
+    virtual bool isSegmentInTitle() const            = 0;
+    virtual bool isCompletionInTitle() const         = 0;
 
     virtual std::set<std::string> vectorNames() const = 0;
     virtual QString               caseName() const    = 0;

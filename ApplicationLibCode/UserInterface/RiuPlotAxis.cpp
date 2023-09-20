@@ -87,6 +87,15 @@ RiuPlotAxis RiuPlotAxis::defaultBottom()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotAxis RiuPlotAxis::defaultBottomForSummaryVectors()
+{
+    // Time axis is using index 0, so we need to use index 1 for the bottom axis
+    return RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RiuPlotAxis::axis() const
 {
     return m_axis;

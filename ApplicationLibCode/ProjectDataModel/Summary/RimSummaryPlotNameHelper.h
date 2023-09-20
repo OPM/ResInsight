@@ -44,13 +44,13 @@ public:
 
     void clear();
 
-    void appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses );
+    void appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses );
     void setSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
     void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases );
 
     QString plotTitle() const override;
 
-    bool isPlotDisplayingSingleVectorName() const override;
+    bool isPlotDisplayingSingleCurve() const override;
     bool isWellNameInTitle() const override;
     bool isGroupNameInTitle() const override;
     bool isNetworkInTitle() const override;

@@ -68,6 +68,39 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCurveAutoName::curveName( const RiaSummaryCurveAddress& summaryCurveAddress,
+                                            const RimSummaryNameHelper*   currentNameHelper,
+                                            const RimSummaryNameHelper*   plotNameHelper ) const
+{
+    QString name;
+
+    {
+        auto nameForY = curveNameY( summaryCurveAddress.summaryAddressY(), currentNameHelper, plotNameHelper );
+        if ( nameForY.isEmpty() )
+        {
+            nameForY = curveNameY( summaryCurveAddress.summaryAddressY(), nullptr, nullptr );
+        }
+
+        name += nameForY;
+    }
+
+    if ( summaryCurveAddress.summaryAddressX().category() != SummaryCategory::SUMMARY_TIME )
+    {
+        auto nameForX = curveNameX( summaryCurveAddress.summaryAddressX(), currentNameHelper, plotNameHelper );
+        if ( nameForX.isEmpty() )
+        {
+            nameForX = curveNameX( summaryCurveAddress.summaryAddressX(), nullptr, nullptr );
+        }
+
+        if ( nameForX != name ) name += " | " + nameForX;
+    }
+
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& summaryAddress,
                                              const RimSummaryNameHelper*     currentNameHelper,
                                              const RimSummaryNameHelper*     plotNameHelper ) const
@@ -193,7 +226,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     if ( m_vectorName || m_longVectorName )
     {
-        bool skipSubString = currentNameHelper && currentNameHelper->vectorNames().size() == 1;
+        bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurve();
         if ( !skipSubString )
         {
             if ( m_longVectorName() )

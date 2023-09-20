@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaSummaryCurveAddress.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include <set>
@@ -39,6 +40,7 @@ public:
 
     void appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
     void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
+    void appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses );
 
     void clear();
 
@@ -47,6 +49,8 @@ public:
     std::set<std::string> quantityNamesNoHistory() const;
 
     bool isSingleQuantityIgnoreHistory() const;
+
+    bool onlyCrossPlotCurves() const;
 
     std::string quantityNameForTitle() const;
 
@@ -104,4 +108,6 @@ private:
     std::multimap<int, RifEclipseSummaryAddress>         m_aquifers;
 
     std::map<RifEclipseSummaryAddressDefines::SummaryCategory, std::set<std::string>> m_categories;
+
+    bool m_onlyCrossPlotCurves;
 };

@@ -31,17 +31,20 @@ class RimSummaryCurveAutoName : public caf::PdmObject
 public:
     RimSummaryCurveAutoName();
 
-    QString curveNameY( const RifEclipseSummaryAddress& summaryAddress,
-                        const RimSummaryNameHelper*     currentNameHelper,
-                        const RimSummaryNameHelper*     plotNameHelper ) const;
-    QString curveNameX( const RifEclipseSummaryAddress& summaryAddress,
-                        const RimSummaryNameHelper*     currentNameHelper,
-                        const RimSummaryNameHelper*     plotNameHelper ) const;
+    QString curveName( const RiaSummaryCurveAddress& summaryCurveAddress,
+                       const RimSummaryNameHelper*   currentNameHelper,
+                       const RimSummaryNameHelper*   plotNameHelper ) const;
 
     void applySettings( const RimSummaryCurveAutoName& other );
 
 private:
-    friend class RimSummaryCurve;
+    QString curveNameY( const RifEclipseSummaryAddress& summaryAddress,
+                        const RimSummaryNameHelper*     currentNameHelper,
+                        const RimSummaryNameHelper*     plotNameHelper ) const;
+
+    QString curveNameX( const RifEclipseSummaryAddress& summaryAddress,
+                        const RimSummaryNameHelper*     currentNameHelper,
+                        const RimSummaryNameHelper*     plotNameHelper ) const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

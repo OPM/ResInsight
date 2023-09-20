@@ -24,6 +24,7 @@
 
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
+#include "RiaSummaryCurveAddress.h"
 
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleCurveSetInterface.h"
@@ -112,6 +113,7 @@ public:
     void                          setSummaryAddress( RifEclipseSummaryAddress address );
     void                          setSummaryAddressAndStatisticsFlag( RifEclipseSummaryAddress address );
     RifEclipseSummaryAddress      summaryAddress() const;
+    RiaSummaryCurveAddress        curveAddress() const;
     std::vector<RimSummaryCurve*> curves() const;
 
     int ensembleId() const;

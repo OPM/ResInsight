@@ -92,11 +92,7 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
     RimSummaryDeclineCurve* newCurve = new RimSummaryDeclineCurve();
     CVF_ASSERT( newCurve );
 
-    newCurve->setSummaryCaseX( sourceCurve->summaryCaseX() );
-    newCurve->setSummaryAddressX( sourceCurve->summaryAddressX() );
-
-    newCurve->setSummaryCaseY( sourceCurve->summaryCaseY() );
-    newCurve->setSummaryAddressY( sourceCurve->summaryAddressY() );
+    RiaSummaryTools::copyCurveDataSources( *newCurve, *sourceCurve );
 
     newCurve->setDeclineCurveType( declineCurveType );
 
@@ -104,6 +100,8 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
     newCurve->setLineStyle( mapToLineStyle( declineCurveType ) );
 
     summaryPlot->addCurveAndUpdate( newCurve );
+
+    RiaSummaryTools::copyCurveAxisData( *newCurve, *sourceCurve );
 
     newCurve->updateDefaultValues();
     newCurve->loadDataAndUpdate( true );

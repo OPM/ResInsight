@@ -198,9 +198,9 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
 
         QString curveCaseName = curve->summaryCaseY()->displayCaseName();
         QString ensembleName;
-        if ( curve->curveDefinitionY().ensemble() )
+        if ( curve->curveDefinition().ensemble() )
         {
-            ensembleName = curve->curveDefinitionY().ensemble()->name();
+            ensembleName = curve->curveDefinition().ensemble()->name();
         }
 
         CurveData curveData = { curve->curveExportDescription( {} ), curve->summaryAddressY(), curve->valuesY() };
