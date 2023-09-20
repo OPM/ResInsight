@@ -316,15 +316,6 @@ std::pair<bool, std::string>
         }
     }
 
-    std::string partSymmetry = "XSYMM";
-    for ( const auto& part : parts )
-    {
-        auto partNameIt = partNames.find( part );
-        CAF_ASSERT( partNameIt != partNames.end() );
-        std::string partName = partNameIt->second;
-        printBoundaryCondition( stream, partName + "." + partName, partSymmetry );
-    }
-
     return { true, "" };
 }
 
