@@ -284,8 +284,8 @@ std::vector<double> RimSummaryCurve::valuesY() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::applyCurveDefinitionY( const RiaSummaryCurveDefinition& curveDefinition )
 {
-    setSummaryCaseY( curveDefinition.summaryCase() );
-    setSummaryAddressY( curveDefinition.summaryAddress() );
+    setSummaryCaseY( curveDefinition.summaryCaseY() );
+    setSummaryAddressY( curveDefinition.summaryAddressY() );
     setIsEnsembleCurve( curveDefinition.isEnsembleCurve() );
 }
 
@@ -1124,8 +1124,8 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             auto curveSelection = dlg.curveSelection();
             if ( curveSelection.size() > 0 )
             {
-                m_yValuesSummaryCase = curveSelection[0].summaryCase();
-                m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
+                m_yValuesSummaryCase = curveSelection[0].summaryCaseY();
+                m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
 
                 crossPlotTestForMatchingTimeSteps = true;
                 loadAndUpdate                     = true;
@@ -1158,8 +1158,8 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             auto curveSelection = dlg.curveSelection();
             if ( curveSelection.size() > 0 )
             {
-                m_xValuesSummaryCase = curveSelection[0].summaryCase();
-                m_xValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
+                m_xValuesSummaryCase = curveSelection[0].summaryCaseY();
+                m_xValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
 
                 crossPlotTestForMatchingTimeSteps = true;
                 loadAndUpdate                     = true;

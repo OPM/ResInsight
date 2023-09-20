@@ -808,7 +808,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             if ( !curveSelection.empty() )
             {
                 m_yValuesSummaryCaseCollection = curveSelection[0].ensemble();
-                m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
+                m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
 
                 loadDataAndUpdate( true );
 
@@ -846,7 +846,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-                    summaryAddress->setAddress( address.summaryAddress() );
+                    summaryAddress->setAddress( address.summaryAddressY() );
                     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
                 loadDataAndUpdate( true );

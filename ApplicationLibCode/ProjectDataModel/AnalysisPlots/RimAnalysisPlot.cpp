@@ -952,15 +952,15 @@ QString RimAnalysisPlot::assignGroupingText( RimAnalysisPlot::SortGroupType  sor
     {
         case RimAnalysisPlot::SUMMARY_ITEM:
         {
-            RifEclipseSummaryAddress addr = dataEntry.summaryAddress();
+            RifEclipseSummaryAddress addr = dataEntry.summaryAddressY();
             groupingText                  = QString::fromStdString( addr.itemUiText() );
         }
         break;
         case RimAnalysisPlot::CASE:
         {
-            if ( dataEntry.summaryCase() )
+            if ( dataEntry.summaryCaseY() )
             {
-                groupingText = dataEntry.summaryCase()->displayCaseName();
+                groupingText = dataEntry.summaryCaseY()->displayCaseName();
             }
         }
         break;
@@ -974,7 +974,7 @@ QString RimAnalysisPlot::assignGroupingText( RimAnalysisPlot::SortGroupType  sor
         break;
         case RimAnalysisPlot::VECTOR:
         {
-            RifEclipseSummaryAddress addr = dataEntry.summaryAddress();
+            RifEclipseSummaryAddress addr = dataEntry.summaryAddressY();
 
             groupingText = QString::fromStdString( addr.vectorName() );
         }
@@ -1030,11 +1030,11 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
     for ( const auto& curveDef : dataDefinitions )
     {
-        if ( curveDef.summaryCase() )
+        if ( curveDef.summaryCaseY() )
         {
-            filteredSumCases.insert( curveDef.summaryCase() );
+            filteredSumCases.insert( curveDef.summaryCaseY() );
 
-            RifEclipseSummaryAddress address = curveDef.summaryAddress();
+            RifEclipseSummaryAddress address = curveDef.summaryAddressY();
 
             address.setVectorName( "" ); // Vector name set to "" in order to store only unique summary items
             filteredSummaryItems.insert( address );
@@ -1054,8 +1054,8 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
     for ( const RiaSummaryCurveDefinition& curveDefCandidate : dataDefinitions )
     {
-        RimSummaryCase*          sumCase = curveDefCandidate.summaryCase();
-        RifEclipseSummaryAddress addr    = curveDefCandidate.summaryAddress();
+        RimSummaryCase*          sumCase = curveDefCandidate.summaryCaseY();
+        RifEclipseSummaryAddress addr    = curveDefCandidate.summaryAddressY();
         addr.setVectorName( "" );
 
         if ( filteredSumCases.count( sumCase ) && filteredSummaryItems.count( addr ) )
@@ -1421,8 +1421,8 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
     for ( const RiaSummaryCurveDefinition& curveDef : barDataDefinitions )
     {
-        if ( !curveDef.summaryCase() ) continue;
-        RifSummaryReaderInterface* reader = curveDef.summaryCase()->summaryReader();
+        if ( !curveDef.summaryCaseY() ) continue;
+        RifSummaryReaderInterface* reader = curveDef.summaryCaseY()->summaryReader();
 
         if ( !reader ) continue;
 
@@ -1437,15 +1437,15 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
                                                                referenceCaseReader,
                                                                -1,
                                                                DerivedSummaryOperator::DERIVED_OPERATOR_SUB,
-                                                               curveDef.summaryAddress() );
+                                                               curveDef.summaryAddressY() );
             timeSteps.swap( timeAndValues.first );
             values.swap( timeAndValues.second );
         }
         else
         {
-            timeSteps = reader->timeSteps( curveDef.summaryAddress() );
+            timeSteps = reader->timeSteps( curveDef.summaryAddressY() );
 
-            reader->values( curveDef.summaryAddress(), &values );
+            reader->values( curveDef.summaryAddressY(), &values );
         }
 
         if ( !( timeSteps.size() && values.size() ) ) continue;
@@ -1500,17 +1500,17 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
                 QStringList barTextComponents;
                 if ( m_useVectorNameInBarText )
                 {
-                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().vectorName() );
+                    barTextComponents += QString::fromStdString( curveDef.summaryAddressY().vectorName() );
                 }
 
                 if ( m_useSummaryItemInBarText )
                 {
-                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().itemUiText() );
+                    barTextComponents += QString::fromStdString( curveDef.summaryAddressY().itemUiText() );
                 }
 
-                if ( m_useCaseInBarText && curveDef.summaryCase() )
+                if ( m_useCaseInBarText && curveDef.summaryCaseY() )
                 {
-                    barTextComponents += curveDef.summaryCase()->displayCaseName();
+                    barTextComponents += curveDef.summaryCaseY()->displayCaseName();
                 }
 
                 if ( m_useEnsembleInBarText && curveDef.ensemble() )

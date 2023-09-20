@@ -391,7 +391,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-                    summaryAddress->setAddress( address.summaryAddress() );
+                    summaryAddress->setAddress( address.summaryAddressY() );
                     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
                 loadDataAndUpdate();

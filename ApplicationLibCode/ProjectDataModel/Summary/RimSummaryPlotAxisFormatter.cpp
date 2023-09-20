@@ -274,11 +274,11 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
+        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddressY();
         std::string                     unitText;
-        if ( curveDef.summaryCase() && curveDef.summaryCase()->summaryReader() )
+        if ( curveDef.summaryCaseY() && curveDef.summaryCaseY()->summaryReader() )
         {
-            unitText = curveDef.summaryCase()->summaryReader()->unitName( sumAddress );
+            unitText = curveDef.summaryCaseY()->summaryReader()->unitName( sumAddress );
         }
         else if ( curveDef.ensemble() )
         {
@@ -388,7 +388,7 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
+        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddressY();
 
         addVectorNames( sumAddress );
     }
