@@ -94,6 +94,14 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     m_expressionText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_expressionText.uiCapability()->setUiReadOnly( true );
     m_expressionText.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_filterValuesX, "FilterValuesX", false, "Filter X" );
+    CAF_PDM_InitField( &m_minValueX, "MinValueX", 0.0, "  Minimum Threshold X" );
+    CAF_PDM_InitField( &m_maxValueX, "MaxValueX", 1.0, "  Maximum Threshold X" );
+
+    CAF_PDM_InitField( &m_filterValuesY, "FilterValuesY", false, "Filter Y" );
+    CAF_PDM_InitField( &m_minValueY, "MinValueY", 0.0, "  Minimum Threshold Y" );
+    CAF_PDM_InitField( &m_maxValueY, "MaxValueY", 1.0, "  Maximum Threshold Y" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,6 +267,21 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
     timeSelectionGroup->add( &m_minTimeStep );
     timeSelectionGroup->add( &m_maxTimeStep );
     timeSelectionGroup->add( &m_showTimeSelectionInPlot );
+
+    if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+    {
+        timeSelectionGroup->add( &m_filterValuesX );
+        timeSelectionGroup->add( &m_minValueX );
+        timeSelectionGroup->add( &m_maxValueX );
+        m_minValueX.uiCapability()->setUiReadOnly( !m_filterValuesX() );
+        m_maxValueX.uiCapability()->setUiReadOnly( !m_filterValuesX() );
+
+        timeSelectionGroup->add( &m_filterValuesY );
+        timeSelectionGroup->add( &m_minValueY );
+        timeSelectionGroup->add( &m_maxValueY );
+        m_minValueY.uiCapability()->setUiReadOnly( !m_filterValuesY() );
+        m_maxValueY.uiCapability()->setUiReadOnly( !m_filterValuesY() );
+    }
 
     caf::PdmUiGroup* forecastingGroup = uiOrdering.addNewGroup( "Forecasting" );
     forecastingGroup->add( &m_forecastForward );

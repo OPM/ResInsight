@@ -125,6 +125,14 @@ private:
     caf::PdmField<int>                        m_forecastBackward;
     caf::PdmField<caf::AppEnum<ForecastUnit>> m_forecastUnit;
 
+    caf::PdmField<bool>   m_filterValuesX;
+    caf::PdmField<double> m_minValueX;
+    caf::PdmField<double> m_maxValueX;
+
+    caf::PdmField<bool>   m_filterValuesY;
+    caf::PdmField<double> m_minValueY;
+    caf::PdmField<double> m_maxValueY;
+
     caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;
     std::vector<double>                    m_valuesX;
     std::vector<time_t>                    m_timeStepsX;
