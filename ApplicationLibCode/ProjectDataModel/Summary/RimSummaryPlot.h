@@ -302,9 +302,9 @@ private:
     void assignXPlotAxis( RimSummaryCurve* curve );
 
     RimSummaryCurve*     addNewCurve( const RifEclipseSummaryAddress& address,
-                                       RimSummaryCase*                 summaryCase,
-                                       const RifEclipseSummaryAddress& addressX,
-                                       RimSummaryCase*                 summaryCaseX );
+                                      RimSummaryCase*                 summaryCase,
+                                      const RifEclipseSummaryAddress& addressX,
+                                      RimSummaryCase*                 summaryCaseX );
     RimEnsembleCurveSet* addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
 
     void updateStackedCurveData();
