@@ -74,10 +74,25 @@ QString RimSummaryCurveAutoName::curveName( const RiaSummaryCurveAddress& summar
 {
     QString name;
 
-    name = curveNameY( summaryCurveAddress.summaryAddressY(), currentNameHelper, plotNameHelper );
-    if ( name.isEmpty() )
     {
-        name = curveNameY( summaryCurveAddress.summaryAddressY(), nullptr, nullptr );
+        auto nameForY = curveNameY( summaryCurveAddress.summaryAddressY(), currentNameHelper, plotNameHelper );
+        if ( nameForY.isEmpty() )
+        {
+            nameForY = curveNameY( summaryCurveAddress.summaryAddressY(), nullptr, nullptr );
+        }
+
+        name += nameForY;
+    }
+
+    if ( summaryCurveAddress.summaryAddressX().category() != SummaryCategory::SUMMARY_TIME )
+    {
+        auto nameForX = curveNameX( summaryCurveAddress.summaryAddressX(), currentNameHelper, plotNameHelper );
+        if ( nameForX.isEmpty() )
+        {
+            nameForX = curveNameX( summaryCurveAddress.summaryAddressX(), nullptr, nullptr );
+        }
+
+        if ( nameForX != name ) name += " | " + nameForX;
     }
 
     return name;

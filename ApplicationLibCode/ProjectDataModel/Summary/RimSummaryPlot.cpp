@@ -2570,6 +2570,7 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         applyDefaultCurveAppearances( curveInfo.curveSets );
 
         loadDataAndUpdate();
+        zoomAll();
 
         curvesChanged.send();
     }
