@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( std::ostream& stream, const RigFaultReactivationModel& model )
+std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( std::ostream& stream, const RimFaultReactivationModel& rimModel )
 {
     std::string applicationNameAndVersion = std::string( RI_APPLICATION_NAME ) + " " + std::string( STRPRODUCTVER );
 
@@ -64,12 +64,14 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
     double faultFriction = 0.0;
 
+    auto model = rimModel.model();
+    CAF_ASSERT( !model.isNull() );
     printHeading( stream, applicationNameAndVersion );
-    printParts( stream, model, partNames, borders, faces, boundaries );
-    printAssembly( stream, model, partNames );
+    printParts( stream, *model, partNames, borders, faces, boundaries, rimModel.localCoordSysNormalsXY() );
+    printAssembly( stream, *model, partNames );
     printMaterials( stream );
     printInteractionProperties( stream, faultFriction );
-    printBoundaryConditions( stream, model, partNames, boundaries );
+    printBoundaryConditions( stream, *model, partNames, boundaries );
     printPredefinedFields( stream, partNames );
     printInteractions( stream, partNames, borders );
     printSteps( stream, partNames );
@@ -82,7 +84,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToFile( const std::string&               filePath,
-                                                                              const RigFaultReactivationModel& model )
+                                                                              const RimFaultReactivationModel& model )
 {
     std::ofstream stream( filePath );
     return exportToStream( stream, model );
@@ -112,9 +114,8 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
     const std::map<RigFaultReactivationModel::GridPart, std::string>&                                     partNames,
     const std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>>&                           borders,
     const std::map<std::pair<RigFaultReactivationModel::GridPart, RigGriddedPart3d::BorderSurface>, int>& faces,
-    const std::map<RigGriddedPart3d::Boundary, std::string>&                                              boundaries
-
-)
+    const std::map<RigGriddedPart3d::Boundary, std::string>&                                              boundaries,
+    const std::pair<cvf::Vec3d, cvf::Vec3d>&                                                              orientation )
 {
     RifInpExportTools::printSectionComment( stream, "PARTS" );
 
@@ -171,8 +172,15 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
             }
         }
 
+        // Print local orientation
+        std::string orientationName = "ori";
+        RifInpExportTools::printHeading( stream, "Orientation, name=" + orientationName );
+        auto [dir1, dir2] = orientation;
+        RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
+        RifInpExportTools::printLine( stream, "3, 0.0" );
+
         RifInpExportTools::printComment( stream, "Section: sand" );
-        RifInpExportTools::printHeading( stream, "Solid Section, elset=" + partName + ", material=sand" );
+        RifInpExportTools::printHeading( stream, "Solid Section, elset=" + partName + ", orientation=" + orientationName + ", material=sand" );
 
         RifInpExportTools::printLine( stream, "," );
         RifInpExportTools::printHeading( stream, "End Part" );

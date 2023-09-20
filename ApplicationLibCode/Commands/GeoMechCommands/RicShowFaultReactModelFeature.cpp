@@ -56,7 +56,7 @@ void RicShowFaultReactModelFeature::onActionTriggered( bool isChecked )
     const QString frmTitle( "Fault Reactivation Modeling" );
     const QString exportFile = model->inputFilename();
 
-    auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *model->model() );
+    auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *model );
     if ( !result )
     {
         QString outErrorText =
