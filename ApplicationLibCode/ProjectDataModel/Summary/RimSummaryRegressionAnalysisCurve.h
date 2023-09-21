@@ -114,6 +114,7 @@ private:
 
     static void appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps );
 
+private:
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
     caf::PdmField<time_t>                       m_minTimeStep;
     caf::PdmField<time_t>                       m_maxTimeStep;
@@ -124,6 +125,9 @@ private:
     caf::PdmField<int>                        m_forecastForward;
     caf::PdmField<int>                        m_forecastBackward;
     caf::PdmField<caf::AppEnum<ForecastUnit>> m_forecastUnit;
+
+    caf::PdmField<std::pair<double, double>> m_valueRangeX;
+    caf::PdmField<std::pair<double, double>> m_valueRangeY;
 
     caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;
     std::vector<double>                    m_valuesX;
