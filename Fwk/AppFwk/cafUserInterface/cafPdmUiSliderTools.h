@@ -37,51 +37,55 @@
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiSliderTools.h"
 
-#include <QLabel>
-#include <QLineEdit>
-#include <QPointer>
-#include <QSlider>
-#include <QString>
+#include <QValidator>
 
-class QWidget;
+class QSlider;
 
 namespace caf
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class PdmDoubleValidator : public QDoubleValidator
+{
+public:
+    explicit PdmDoubleValidator( QObject* parent = nullptr );
+    explicit PdmDoubleValidator( double bottom, double top, int decimals, QObject* parent );
+
+    void fixup( QString& stringValue ) const override;
+};
 
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
+class PdmUiDoubleSliderEditorAttribute : public PdmUiEditorAttribute
 {
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+public:
+    PdmUiDoubleSliderEditorAttribute()
+    {
+        m_minimum                       = 0;
+        m_maximum                       = 10;
+        m_decimals                      = 6;
+        m_sliderTickCount               = 2000;
+        m_delaySliderUpdateUntilRelease = false;
+    }
 
 public:
-    PdmUiDoubleSliderEditor();
-    ~PdmUiDoubleSliderEditor() override;
-
-protected:
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
-    QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
-
-protected slots:
-    void slotEditingFinished();
-    void slotSliderValueChanged( int value );
-    void slotSliderReleased();
-
-private:
-    void writeValueToField( double value );
-
-private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QSlider>         m_slider;
-    QPointer<QShortenedLabel> m_label;
-    double                    m_sliderValue;
-
-    PdmUiDoubleSliderEditorAttribute m_attributes;
+    double m_minimum;
+    double m_maximum;
+    int    m_decimals;
+    int    m_sliderTickCount;
+    bool   m_delaySliderUpdateUntilRelease;
 };
 
-} // end namespace caf
+class PdmUiSliderTools
+{
+public:
+    static void updateSliderPosition( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
+    static int convertToSliderValue( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
+    static double
+        convertFromSliderValue( QSlider* slider, int sliderValue, const PdmUiDoubleSliderEditorAttribute& attributes );
+};
+
+} //namespace caf
