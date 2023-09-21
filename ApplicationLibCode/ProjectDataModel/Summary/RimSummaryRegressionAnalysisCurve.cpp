@@ -118,11 +118,58 @@ RimSummaryRegressionAnalysisCurve::~RimSummaryRegressionAnalysisCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
+    // NB! Assume that time stamps for X and Y are the same
+    std::vector<size_t> indicesToRemove;
+
+    auto xValues    = RimSummaryCurve::valuesX();
+    auto timeStepsX = RimSummaryCurve::timeStepsX();
+    auto yValues    = RimSummaryCurve::valuesY();
+    auto timeStepsY = RimSummaryCurve::timeStepsY();
+
+    if ( m_filterValuesX )
+    {
+        auto values = xValues;
+        for ( size_t i = 0; i < values.size(); i++ )
+        {
+            if ( values[i] < m_minValueX || values[i] > m_maxValueX )
+            {
+                indicesToRemove.push_back( i );
+            }
+        }
+    }
+
+    if ( m_filterValuesY )
+    {
+        auto values = yValues;
+        for ( size_t i = 0; i < values.size(); i++ )
+        {
+            if ( values[i] < m_minValueY || values[i] > m_maxValueY )
+            {
+                indicesToRemove.push_back( i );
+            }
+        }
+    }
+
+    // Step 2: Sort indices in descending order
+    std::sort( indicesToRemove.rbegin(), indicesToRemove.rend() );
+
+    // Step 3: Remove elements at the specified indices
+    for ( auto index : indicesToRemove )
+    {
+        if ( index >= 0 && index < xValues.size() )
+        {
+            xValues.erase( xValues.begin() + index );
+            timeStepsX.erase( timeStepsX.begin() + index );
+            yValues.erase( yValues.begin() + index );
+            timeStepsY.erase( timeStepsY.begin() + index );
+        }
+    }
+
     QString descriptionX;
-    std::tie( m_timeStepsX, m_valuesX, descriptionX ) = computeRegressionCurve( RimSummaryCurve::timeStepsX(), RimSummaryCurve::valuesX() );
+    std::tie( m_timeStepsX, m_valuesX, descriptionX ) = computeRegressionCurve( timeStepsX, xValues );
 
     QString descriptionY;
-    std::tie( m_timeStepsY, m_valuesY, descriptionY ) = computeRegressionCurve( RimSummaryCurve::timeStepsY(), RimSummaryCurve::valuesY() );
+    std::tie( m_timeStepsY, m_valuesY, descriptionY ) = computeRegressionCurve( timeStepsY, yValues );
 
     m_expressionText = descriptionY;
 

@@ -114,6 +114,7 @@ private:
 
     static void appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps );
 
+private:
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
     caf::PdmField<time_t>                       m_minTimeStep;
     caf::PdmField<time_t>                       m_maxTimeStep;
