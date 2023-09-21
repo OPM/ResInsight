@@ -39,6 +39,8 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiSliderTools.h"
 
+class QLineEdit;
+
 namespace caf
 {
 //==================================================================================================

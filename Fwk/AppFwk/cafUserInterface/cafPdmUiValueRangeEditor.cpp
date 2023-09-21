@@ -46,7 +46,6 @@
 
 #include <QLabel>
 #include <QSlider>
-#include <QTextEdit>
 
 namespace caf
 {
@@ -71,7 +70,7 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
 
     // A pair is represented as a list of QVariant in PdmValueFieldSpecialization<std::pair<T, U>>
-    auto getTwoDoublesFromVariant = [=]() -> std::pair<double, double>
+    auto getTwoDoublesFromVariant = [this]() -> std::pair<double, double>
     {
         double firstValue  = 0.0;
         double secondValue = 0.0;

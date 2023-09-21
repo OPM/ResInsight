@@ -48,6 +48,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTimeEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiValueRangeEditor.h"
 
 #include <QGridLayout>
 
