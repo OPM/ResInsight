@@ -100,10 +100,7 @@ QWidget* PdmUiCheckBoxAndTextEditor::createEditorWidget( QWidget* parent )
 {
     auto* containerWidget = new QWidget( parent );
 
-    auto lineEditWidget = new PdmUiLineEdit( containerWidget );
-    lineEditWidget->setAvoidSendingEnterEventToParentWidget( true );
-
-    m_lineEdit = lineEditWidget;
+    m_lineEdit = new PdmUiLineEdit( containerWidget, true );
     connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
 
     m_checkBox = new QCheckBox( "", containerWidget );
