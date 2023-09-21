@@ -88,7 +88,7 @@ void PdmUiLineEditor::updateLineEditFromReadOnlyState( QLineEdit* lineEdit, bool
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 {
-    m_lineEdit = new PdmUiLineEdit( parent );
+    m_lineEdit = new PdmUiLineEdit( parent, false );
 
     connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
 
@@ -394,9 +394,9 @@ bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiLineEdit::PdmUiLineEdit( QWidget* parent )
+PdmUiLineEdit::PdmUiLineEdit( QWidget* parent, bool avoidSendingEnterEvent )
     : QLineEdit( parent )
-    , m_avoidSendingEnterEvent( false )
+    , m_avoidSendingEnterEvent( avoidSendingEnterEvent )
 {
 }
 
