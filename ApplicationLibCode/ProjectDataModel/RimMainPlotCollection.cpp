@@ -20,6 +20,7 @@
 #include "RimMainPlotCollection.h"
 
 #include "RiaPlotCollectionScheduler.h"
+#include "RiaSummaryDefines.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
@@ -42,6 +43,8 @@
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCrossPlotCollection.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryDataSourceStepping.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
@@ -176,17 +179,51 @@ RimMainPlotCollection* RimMainPlotCollection::current()
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::initAfterRead()
 {
-    std::vector<RimSummaryPlot*> plotsToMove;
-    for ( auto singlePlot : m_summaryPlotCollection_OBSOLETE()->plots() )
     {
-        plotsToMove.push_back( singlePlot );
+        std::vector<RimSummaryPlot*> plotsToMove;
+        for ( auto singlePlot : m_summaryPlotCollection_OBSOLETE()->plots() )
+        {
+            plotsToMove.push_back( singlePlot );
+        }
+
+        for ( auto singlePlot : plotsToMove )
+        {
+            m_summaryPlotCollection_OBSOLETE()->removePlot( singlePlot );
+
+            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( singlePlot );
+        }
     }
 
-    for ( auto singlePlot : plotsToMove )
+    // Move cross plots into summary plot collection
+    auto crossPlots = m_summaryCrossPlotCollection_OBSOLETE->plots();
+    if ( !crossPlots.empty() )
     {
-        m_summaryPlotCollection_OBSOLETE()->removePlot( singlePlot );
+        auto* summaryMultiPlot = new RimSummaryMultiPlot;
+        summaryMultiPlot->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( m_summaryMultiPlotCollection->multiPlots().size() + 1 ) );
+        summaryMultiPlot->setAsPlotMdiWindow();
+        m_summaryMultiPlotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
-        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( singlePlot );
+        for ( auto crossPlot : crossPlots )
+        {
+            m_summaryCrossPlotCollection_OBSOLETE->removePlot( crossPlot );
+            summaryMultiPlot->addPlot( crossPlot );
+
+            // We want to convert RimSummaryCrossPlot into a RimSummaryPlot. The cross plot is derived from RimSummaryPlot, but we need to
+            // create a new RimSummaryPlot to be able to store the PDM object as a RimSummaryPlot instead of RimSummaryCrossPlot
+            auto summaryPlot = new RimSummaryPlot;
+            summaryMultiPlot->addPlot( summaryPlot );
+
+            for ( auto curve : crossPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+            {
+                crossPlot->removeCurve( curve );
+
+                if ( curve->summaryCaseX() != nullptr ) curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+
+                summaryPlot->insertCurve( curve, size_t( 999 ) );
+            }
+
+            delete crossPlot;
+        }
     }
 }
 
