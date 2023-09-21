@@ -68,7 +68,7 @@ private slots:
 
 private:
     void clampAndWriteValues( double valueMin, double valueMax, bool isMinChanged );
-    void clampAndWriteValues( double valueMin, double valueMax );
+    void writeValues( double valueMin, double valueMax );
 
 private:
     QPointer<QLineEdit> m_lineEditMin;

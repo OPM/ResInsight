@@ -208,27 +208,27 @@ void PdmUiValueRangeEditor::slotMaxSliderReleased()
 //--------------------------------------------------------------------------------------------------
 void PdmUiValueRangeEditor::clampAndWriteValues( double valueMin, double valueMax, bool isMinChanged )
 {
-    if ( isMinChanged )
+    if ( isMinChanged && valueMin > valueMax )
     {
-        if ( valueMin > valueMax ) valueMax = valueMin;
+        valueMax = valueMin;
     }
-    else
+    else if ( valueMax < valueMin )
     {
-        if ( valueMax < valueMin ) valueMin = valueMax;
+        valueMin = valueMax;
     }
 
-    valueMin         = qBound( m_attributes.m_minimum, valueMin, valueMax );
-    valueMax         = qBound( valueMin, valueMax, m_attributes.m_maximum );
+    valueMin         = qBound( m_attributes.m_minimum, valueMin, m_attributes.m_maximum );
+    valueMax         = qBound( m_attributes.m_minimum, valueMax, m_attributes.m_maximum );
     m_sliderValueMin = valueMin;
     m_sliderValueMax = valueMax;
 
-    clampAndWriteValues( valueMin, valueMax );
+    writeValues( valueMin, valueMax );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiValueRangeEditor::clampAndWriteValues( double valueMin, double valueMax )
+void PdmUiValueRangeEditor::writeValues( double valueMin, double valueMax )
 {
     auto pairValue = std::make_pair( valueMin, valueMax );
 
