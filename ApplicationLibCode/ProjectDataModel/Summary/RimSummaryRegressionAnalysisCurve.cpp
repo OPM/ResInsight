@@ -27,7 +27,7 @@
 
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiSliderTools.h"
 #include "cafPdmUiTextEditor.h"
 
 #include "ExponentialRegression.hpp"
@@ -96,12 +96,11 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     m_expressionText.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_filterValuesX, "FilterValuesX", false, "Filter X" );
-    CAF_PDM_InitField( &m_minValueX, "MinValueX", 0.0, "  Minimum Threshold X" );
-    CAF_PDM_InitField( &m_maxValueX, "MaxValueX", 1.0, "  Maximum Threshold X" );
+    CAF_PDM_InitField( &m_valueRangeX, "ValueRangeX", std::make_pair( 0.0, 0.0 ), "Value Range X" );
+    m_valueRangeX.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_filterValuesY, "FilterValuesY", false, "Filter Y" );
-    CAF_PDM_InitField( &m_minValueY, "MinValueY", 0.0, "  Minimum Threshold Y" );
-    CAF_PDM_InitField( &m_maxValueY, "MaxValueY", 1.0, "  Maximum Threshold Y" );
+    CAF_PDM_InitField( &m_valueRangeY, "ValueRangeY", std::make_pair( 0.0, 0.0 ), "Value Range Y" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,7 +130,7 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
         auto values = xValues;
         for ( size_t i = 0; i < values.size(); i++ )
         {
-            if ( values[i] < m_minValueX || values[i] > m_maxValueX )
+            if ( values[i] < m_valueRangeX().first || values[i] > m_valueRangeX().second )
             {
                 indicesToRemove.push_back( i );
             }
@@ -143,7 +142,7 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
         auto values = yValues;
         for ( size_t i = 0; i < values.size(); i++ )
         {
-            if ( values[i] < m_minValueY || values[i] > m_maxValueY )
+            if ( values[i] < m_valueRangeY().first || values[i] > m_valueRangeY().second )
             {
                 indicesToRemove.push_back( i );
             }
@@ -156,7 +155,7 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
     // Step 3: Remove elements at the specified indices
     for ( auto index : indicesToRemove )
     {
-        if ( index >= 0 && index < xValues.size() )
+        if ( index < xValues.size() )
         {
             xValues.erase( xValues.begin() + index );
             timeStepsX.erase( timeStepsX.begin() + index );
@@ -318,16 +317,12 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
     if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
         timeSelectionGroup->add( &m_filterValuesX );
-        timeSelectionGroup->add( &m_minValueX );
-        timeSelectionGroup->add( &m_maxValueX );
-        m_minValueX.uiCapability()->setUiReadOnly( !m_filterValuesX() );
-        m_maxValueX.uiCapability()->setUiReadOnly( !m_filterValuesX() );
+        timeSelectionGroup->add( &m_valueRangeX );
+        m_valueRangeX.uiCapability()->setUiReadOnly( !m_filterValuesX() );
 
         timeSelectionGroup->add( &m_filterValuesY );
-        timeSelectionGroup->add( &m_minValueY );
-        timeSelectionGroup->add( &m_maxValueY );
-        m_minValueY.uiCapability()->setUiReadOnly( !m_filterValuesY() );
-        m_maxValueY.uiCapability()->setUiReadOnly( !m_filterValuesY() );
+        timeSelectionGroup->add( &m_valueRangeY );
+        m_valueRangeY.uiCapability()->setUiReadOnly( !m_filterValuesY() );
     }
 
     caf::PdmUiGroup* forecastingGroup = uiOrdering.addNewGroup( "Forecasting" );
@@ -358,7 +353,8 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
     RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_regressionType || changedField == &m_polynomialDegree || changedField == &m_forecastBackward ||
          changedField == &m_forecastForward || changedField == &m_forecastUnit || changedField == &m_minTimeStep ||
-         changedField == &m_maxTimeStep || changedField == &m_showTimeSelectionInPlot )
+         changedField == &m_maxTimeStep || changedField == &m_showTimeSelectionInPlot || changedField == &m_valueRangeX ||
+         changedField == &m_valueRangeY )
     {
         loadAndUpdateDataAndPlot();
 
@@ -417,6 +413,32 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
             auto  pointSize = font.pointSize();
             font.setPointSize( pointSize + 2 );
             myAttr->font = font;
+        }
+    }
+    else if ( field == &m_valueRangeX )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            auto values = RimSummaryCurve::valuesX();
+            if ( !values.empty() )
+            {
+                myAttr->m_minimum = *std::min_element( values.begin(), values.end() );
+                myAttr->m_maximum = *std::max_element( values.begin(), values.end() );
+            }
+        }
+    }
+    else if ( field == &m_valueRangeY )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            auto values = RimSummaryCurve::valuesY();
+            if ( !values.empty() )
+            {
+                myAttr->m_minimum = *std::min_element( values.begin(), values.end() );
+                myAttr->m_maximum = *std::max_element( values.begin(), values.end() );
+            }
         }
     }
 }

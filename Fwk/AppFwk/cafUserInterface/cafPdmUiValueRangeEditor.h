@@ -39,14 +39,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiSliderTools.h"
 
-#include <QCheckBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPointer>
-#include <QSlider>
-#include <QString>
-#include <QWidget>
-
 namespace caf
 {
 //==================================================================================================

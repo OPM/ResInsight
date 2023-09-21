@@ -44,39 +44,9 @@
 #include "cafPdmUiOrdering.h"
 #include "cafQShortenedLabel.h"
 
-#include <QHBoxLayout>
 #include <QLabel>
+#include <QSlider>
 #include <QTextEdit>
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class PdmDoubleValidator : public QDoubleValidator
-{
-public:
-    explicit PdmDoubleValidator( QObject* parent = nullptr )
-        : QDoubleValidator( parent )
-    {
-    }
-
-    PdmDoubleValidator( double bottom, double top, int decimals, QObject* parent )
-        : QDoubleValidator( bottom, top, decimals, parent )
-    {
-    }
-
-    ~PdmDoubleValidator() override {}
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void fixup( QString& stringValue ) const override
-    {
-        double doubleValue = stringValue.toDouble();
-        doubleValue        = qBound( bottom(), doubleValue, top() );
-
-        stringValue = QString::number( doubleValue, 'g', decimals() );
-    }
-};
 
 namespace caf
 {
@@ -100,10 +70,12 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
 
-    double firstValue  = 0.0;
-    double secondValue = 0.0;
+    // A pair is represented as a list of QVariant in PdmValueFieldSpecialization<std::pair<T, U>>
+    auto getTwoDoublesFromVariant = [=]() -> std::pair<double, double>
     {
-        // A pair is converted into a list of QVariant in PdmValueFieldSpecialization<std::pair<T, U>>
+        double firstValue  = 0.0;
+        double secondValue = 0.0;
+
         auto variantValue = uiField()->uiValue();
         if ( variantValue.canConvert<QList<QVariant>>() )
         {
@@ -114,43 +86,43 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
                 secondValue = lst[1].toDouble();
             }
         }
-    }
 
-    {
-        m_sliderMin->blockSignals( true );
-        m_sliderMin->setMaximum( m_attributes.m_sliderTickCount );
-        m_sliderMin->blockSignals( false );
+        return std::make_pair( firstValue, secondValue );
+    };
 
-        QString textValueMin = QString( "%1" ).arg( firstValue );
+    auto [minimum, maximum] = getTwoDoublesFromVariant();
 
-        PdmDoubleValidator* pdmValidator =
-            new PdmDoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
-        pdmValidator->fixup( textValueMin );
+    m_sliderMin->blockSignals( true );
+    m_sliderMin->setMaximum( m_attributes.m_sliderTickCount );
+    m_sliderMin->blockSignals( false );
 
-        m_lineEditMin->setValidator( pdmValidator );
-        m_lineEditMin->setText( textValueMin );
+    QString textValueMin = QString( "%1" ).arg( minimum );
 
-        m_sliderValueMin = firstValue;
-        PdmUiSliderTools::updateSliderPosition( m_sliderMin, firstValue, m_attributes );
-    }
+    PdmDoubleValidator* pdmValidator =
+        new PdmDoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
+    pdmValidator->fixup( textValueMin );
 
-    {
-        m_sliderMax->blockSignals( true );
-        m_sliderMax->setMaximum( m_attributes.m_sliderTickCount );
-        m_sliderMax->blockSignals( false );
+    m_lineEditMin->setValidator( pdmValidator );
+    m_lineEditMin->setText( textValueMin );
 
-        QString textValueMax = QString( "%1" ).arg( secondValue );
+    m_sliderValueMin = minimum;
+    PdmUiSliderTools::updateSliderPosition( m_sliderMin, minimum, m_attributes );
 
-        PdmDoubleValidator* pdmValidator =
-            new PdmDoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
-        pdmValidator->fixup( textValueMax );
+    m_sliderMax->blockSignals( true );
+    m_sliderMax->setMaximum( m_attributes.m_sliderTickCount );
+    m_sliderMax->blockSignals( false );
 
-        m_lineEditMax->setValidator( pdmValidator );
-        m_lineEditMax->setText( textValueMax );
+    QString textValueMax = QString( "%1" ).arg( maximum );
 
-        m_sliderValueMax = secondValue;
-        PdmUiSliderTools::updateSliderPosition( m_sliderMax, secondValue, m_attributes );
-    }
+    PdmDoubleValidator* pdmValidator =
+        new PdmDoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
+    pdmValidator->fixup( textValueMax );
+
+    m_lineEditMax->setValidator( pdmValidator );
+    m_lineEditMax->setText( textValueMax );
+
+    m_sliderValueMax = maximum;
+    PdmUiSliderTools::updateSliderPosition( m_sliderMax, maximum, m_attributes );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,39 +259,36 @@ PdmUiValueRangeEditor::~PdmUiValueRangeEditor()
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiValueRangeEditor::createEditorWidget( QWidget* parent )
 {
-    QWidget* containerWidget = new QWidget( parent );
+    auto containerWidget = new QWidget( parent );
 
     auto layout = new QGridLayout();
     layout->setMargin( 0 );
     containerWidget->setLayout( layout );
 
-    {
-        m_lineEditMin = new QLineEdit( containerWidget );
-        m_lineEditMin->setMaximumWidth( 100 );
-        connect( m_lineEditMin, SIGNAL( editingFinished() ), this, SLOT( slotMinEditingFinished() ) );
+    m_lineEditMin = new QLineEdit( containerWidget );
+    m_lineEditMin->setMaximumWidth( 100 );
+    connect( m_lineEditMin, SIGNAL( editingFinished() ), this, SLOT( slotMinEditingFinished() ) );
 
-        m_sliderMin = new QSlider( Qt::Horizontal, containerWidget );
+    m_sliderMin = new QSlider( Qt::Horizontal, containerWidget );
 
-        layout->addWidget( m_lineEditMin, 0, 0 );
-        layout->addWidget( m_sliderMin, 0, 1 );
+    layout->addWidget( m_lineEditMin, 0, 0 );
+    layout->addWidget( m_sliderMin, 0, 1 );
 
-        connect( m_sliderMin, SIGNAL( valueChanged( int ) ), this, SLOT( slotMinSliderValueChanged( int ) ) );
-        connect( m_sliderMin, SIGNAL( sliderReleased() ), this, SLOT( slotSliderReleasedMin() ) );
-    }
+    connect( m_sliderMin, SIGNAL( valueChanged( int ) ), this, SLOT( slotMinSliderValueChanged( int ) ) );
+    connect( m_sliderMin, SIGNAL( sliderReleased() ), this, SLOT( slotSliderReleasedMin() ) );
 
-    {
-        m_lineEditMax = new QLineEdit( containerWidget );
-        m_lineEditMax->setMaximumWidth( 100 );
-        connect( m_lineEditMax, SIGNAL( editingFinished() ), this, SLOT( slotMaxEditingFinished() ) );
+    m_lineEditMax = new QLineEdit( containerWidget );
+    m_lineEditMax->setMaximumWidth( 100 );
+    connect( m_lineEditMax, SIGNAL( editingFinished() ), this, SLOT( slotMaxEditingFinished() ) );
 
-        m_sliderMax = new QSlider( Qt::Horizontal, containerWidget );
+    m_sliderMax = new QSlider( Qt::Horizontal, containerWidget );
 
-        layout->addWidget( m_lineEditMax, 1, 0 );
-        layout->addWidget( m_sliderMax, 1, 1 );
+    layout->addWidget( m_lineEditMax, 1, 0 );
+    layout->addWidget( m_sliderMax, 1, 1 );
 
-        connect( m_sliderMax, SIGNAL( valueChanged( int ) ), this, SLOT( slotMaxSliderValueChanged( int ) ) );
-        connect( m_sliderMax, SIGNAL( sliderReleased() ), this, SLOT( slotSliderReleasedMax() ) );
-    }
+    connect( m_sliderMax, SIGNAL( valueChanged( int ) ), this, SLOT( slotMaxSliderValueChanged( int ) ) );
+    connect( m_sliderMax, SIGNAL( sliderReleased() ), this, SLOT( slotSliderReleasedMax() ) );
+
     return containerWidget;
 }
 
