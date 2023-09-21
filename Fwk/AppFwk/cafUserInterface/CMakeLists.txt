@@ -52,6 +52,7 @@ set(MOC_HEADER_FILES
     cafPdmUiPickableLineEditor.h
     cafPdmUiLabelEditor.h
     cafPdmUiCheckBoxAndTextEditor.h
+    cafPdmUiValueRangeEditor.h
 )
 
 find_package(
@@ -108,6 +109,8 @@ set(PROJECT_FILES
     cafPdmUiLabelEditor.cpp
     cafPdmUiCheckBoxAndTextEditor.h
     cafPdmUiCheckBoxAndTextEditor.cpp
+    cafPdmUiValueRangeEditor.h
+    cafPdmUiValueRangeEditor.cpp
     # object editors
     cafPdmUiDefaultObjectEditor.cpp
     cafPdmUiDefaultObjectEditor.h
