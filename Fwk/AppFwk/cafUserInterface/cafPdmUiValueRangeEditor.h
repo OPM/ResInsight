@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2023 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -39,47 +39,48 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiSliderTools.h"
 
-#include <QLabel>
-#include <QLineEdit>
-#include <QPointer>
-#include <QSlider>
-#include <QString>
-
-class QWidget;
+class QLineEdit;
 
 namespace caf
 {
-
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
+class PdmUiValueRangeEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiDoubleSliderEditor();
-    ~PdmUiDoubleSliderEditor() override;
+    PdmUiValueRangeEditor();
+    ~PdmUiValueRangeEditor() override;
 
 protected:
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
-protected slots:
-    void slotEditingFinished();
-    void slotSliderValueChanged( int value );
-    void slotSliderReleased();
+private slots:
+    void slotMinEditingFinished();
+    void slotMaxEditingFinished();
+    void slotMinSliderValueChanged( int value );
+    void slotMaxSliderValueChanged( int value );
+    void slotMinSliderReleased();
+    void slotMaxSliderReleased();
 
 private:
-    void writeValueToField( double value );
+    void clampAndWriteValues( double valueMin, double valueMax, bool isMinChanged );
+    void writeValues( double valueMin, double valueMax );
 
 private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QSlider>         m_slider;
+    QPointer<QLineEdit> m_lineEditMin;
+    QPointer<QSlider>   m_sliderMin;
+    QPointer<QLineEdit> m_lineEditMax;
+    QPointer<QSlider>   m_sliderMax;
+
     QPointer<QShortenedLabel> m_label;
-    double                    m_sliderValue;
+    double                    m_sliderValueMin;
+    double                    m_sliderValueMax;
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };
