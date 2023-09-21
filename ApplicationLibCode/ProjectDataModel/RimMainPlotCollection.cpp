@@ -219,7 +219,7 @@ void RimMainPlotCollection::initAfterRead()
 
                 if ( curve->summaryCaseX() != nullptr ) curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
 
-                summaryPlot->insertCurve( curve, size_t( 999 ) );
+                summaryPlot->insertCurve( curve, std::numeric_limits<size_t>::max() );
             }
 
             delete crossPlot;

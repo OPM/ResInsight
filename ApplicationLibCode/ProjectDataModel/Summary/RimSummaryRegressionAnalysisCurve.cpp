@@ -18,6 +18,7 @@
 
 #include "RimSummaryRegressionAnalysisCurve.h"
 
+#include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaRegressionTextTools.h"
 #include "RiaTimeTTools.h"
@@ -28,6 +29,7 @@
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiSliderTools.h"
 #include "cafPdmUiTextEditor.h"
 
 #include "ExponentialRegression.hpp"
@@ -94,6 +96,12 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     m_expressionText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_expressionText.uiCapability()->setUiReadOnly( true );
     m_expressionText.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_valueRangeX, "ValueRangeX", std::make_pair( 0.0, 0.0 ), "Value Range X" );
+    m_valueRangeX.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_valueRangeY, "ValueRangeY", std::make_pair( 0.0, 0.0 ), "Value Range Y" );
+    m_valueRangeY.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,11 +118,68 @@ RimSummaryRegressionAnalysisCurve::~RimSummaryRegressionAnalysisCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
+    auto xValues    = RimSummaryCurve::valuesX();
+    auto yValues    = RimSummaryCurve::valuesY();
+    auto timeStepsX = RimSummaryCurve::timeStepsX();
+    auto timeStepsY = RimSummaryCurve::timeStepsY();
+
+    if ( xValues.size() != yValues.size() ) return RiaLogging::error( "X value count and Y value count differs." );
+    if ( xValues.size() != timeStepsX.size() ) return RiaLogging::error( "X value count and X time step count differs." );
+    if ( xValues.size() != timeStepsY.size() ) return RiaLogging::error( "X value count and Y time step count differs." );
+
+    if ( timeStepsX != timeStepsY )
+    {
+        return RiaLogging::error(
+            "Differences in time steps for X and Y axis detected. This is currently not supported. Make sure that the same "
+            "case is used for both axis." );
+    }
+
+    if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+    {
+        // NB! Assume that time stamps for X and Y are the same
+        std::vector<size_t> indicesToRemove;
+
+        // Step 1: Find indices of values which are outside the specified range
+        for ( size_t i = 0; i < xValues.size(); i++ )
+        {
+            if ( xValues[i] < m_valueRangeX().first || xValues[i] > m_valueRangeX().second )
+            {
+                indicesToRemove.push_back( i );
+            }
+        }
+
+        for ( size_t i = 0; i < yValues.size(); i++ )
+        {
+            if ( yValues[i] < m_valueRangeY().first || yValues[i] > m_valueRangeY().second )
+            {
+                indicesToRemove.push_back( i );
+            }
+        }
+
+        // Step 2: Sort indices in descending order
+        std::sort( indicesToRemove.rbegin(), indicesToRemove.rend() );
+
+        // There might be duplicates, remove them
+        indicesToRemove.erase( std::unique( indicesToRemove.begin(), indicesToRemove.end() ), indicesToRemove.end() );
+
+        // Step 3: Remove elements at the specified indices
+        for ( auto index : indicesToRemove )
+        {
+            if ( index < xValues.size() )
+            {
+                xValues.erase( xValues.begin() + index );
+                yValues.erase( yValues.begin() + index );
+                timeStepsX.erase( timeStepsX.begin() + index );
+                timeStepsY.erase( timeStepsY.begin() + index );
+            }
+        }
+    }
+
     QString descriptionX;
-    std::tie( m_timeStepsX, m_valuesX, descriptionX ) = computeRegressionCurve( RimSummaryCurve::timeStepsX(), RimSummaryCurve::valuesX() );
+    std::tie( m_timeStepsX, m_valuesX, descriptionX ) = computeRegressionCurve( timeStepsX, xValues );
 
     QString descriptionY;
-    std::tie( m_timeStepsY, m_valuesY, descriptionY ) = computeRegressionCurve( RimSummaryCurve::timeStepsY(), RimSummaryCurve::valuesY() );
+    std::tie( m_timeStepsY, m_valuesY, descriptionY ) = computeRegressionCurve( timeStepsY, yValues );
 
     m_expressionText = descriptionY;
 
@@ -260,6 +325,15 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
     timeSelectionGroup->add( &m_maxTimeStep );
     timeSelectionGroup->add( &m_showTimeSelectionInPlot );
 
+    if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+    {
+        caf::PdmUiGroup* valueRangeXGroup = uiOrdering.addNewGroup( "Value Range X" );
+        valueRangeXGroup->add( &m_valueRangeX );
+
+        caf::PdmUiGroup* valueRangeYGroup = uiOrdering.addNewGroup( "Value Range Y" );
+        valueRangeYGroup->add( &m_valueRangeY );
+    }
+
     caf::PdmUiGroup* forecastingGroup = uiOrdering.addNewGroup( "Forecasting" );
     forecastingGroup->add( &m_forecastForward );
     forecastingGroup->add( &m_forecastBackward );
@@ -288,7 +362,8 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
     RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_regressionType || changedField == &m_polynomialDegree || changedField == &m_forecastBackward ||
          changedField == &m_forecastForward || changedField == &m_forecastUnit || changedField == &m_minTimeStep ||
-         changedField == &m_maxTimeStep || changedField == &m_showTimeSelectionInPlot )
+         changedField == &m_maxTimeStep || changedField == &m_showTimeSelectionInPlot || changedField == &m_valueRangeX ||
+         changedField == &m_valueRangeY )
     {
         loadAndUpdateDataAndPlot();
 
@@ -347,6 +422,36 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
             auto  pointSize = font.pointSize();
             font.setPointSize( pointSize + 2 );
             myAttr->font = font;
+        }
+    }
+    else if ( field == &m_valueRangeX )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            attr->m_decimals        = 2;
+            attr->m_sliderTickCount = 100;
+
+            auto values = RimSummaryCurve::valuesX();
+            if ( !values.empty() )
+            {
+                attr->m_minimum = *std::min_element( values.begin(), values.end() );
+                attr->m_maximum = *std::max_element( values.begin(), values.end() );
+            }
+        }
+    }
+    else if ( field == &m_valueRangeY )
+    {
+        if ( auto attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
+        {
+            attr->m_decimals        = 2;
+            attr->m_sliderTickCount = 100;
+
+            auto values = RimSummaryCurve::valuesY();
+            if ( !values.empty() )
+            {
+                attr->m_minimum = *std::min_element( values.begin(), values.end() );
+                attr->m_maximum = *std::max_element( values.begin(), values.end() );
+            }
         }
     }
 }
@@ -550,6 +655,20 @@ void RimSummaryRegressionAnalysisCurve::updateDefaultValues()
     {
         m_minTimeStep = timeSteps.front();
         m_maxTimeStep = timeSteps.back();
+    }
+
+    auto allValuesX = RimSummaryCurve::valuesX();
+    if ( !allValuesX.empty() )
+    {
+        m_valueRangeX = std::make_pair( *std::min_element( allValuesX.begin(), allValuesX.end() ),
+                                        *std::max_element( allValuesX.begin(), allValuesX.end() ) );
+    }
+
+    auto allValuesY = RimSummaryCurve::valuesY();
+    if ( !allValuesY.empty() )
+    {
+        m_valueRangeY = std::make_pair( *std::min_element( allValuesY.begin(), allValuesY.end() ),
+                                        *std::max_element( allValuesY.begin(), allValuesY.end() ) );
     }
 }
 
