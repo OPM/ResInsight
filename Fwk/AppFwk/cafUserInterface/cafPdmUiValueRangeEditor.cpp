@@ -131,7 +131,7 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_lineEditMin->setText( textValueMin );
 
         m_sliderValueMin = firstValue;
-        updateSliderPosition( m_sliderMin, firstValue );
+        updateSliderPosition( m_sliderMin, firstValue, m_attributes );
     }
 
     {
@@ -149,7 +149,7 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_lineEditMax->setText( textValueMax );
 
         m_sliderValueMax = secondValue;
-        updateSliderPosition( m_sliderMax, secondValue );
+        updateSliderPosition( m_sliderMax, secondValue, m_attributes );
     }
 }
 
@@ -186,7 +186,7 @@ void PdmUiValueRangeEditor::slotMaxEditingFinished()
 //--------------------------------------------------------------------------------------------------
 void PdmUiValueRangeEditor::slotMinSliderValueChanged( int value )
 {
-    double newDoubleValue = convertFromSliderValue( m_sliderMin, value );
+    double newDoubleValue = convertFromSliderValue( m_sliderMin, value, m_attributes );
     m_sliderValueMin      = newDoubleValue;
 
     if ( m_attributes.m_delaySliderUpdateUntilRelease )
@@ -204,7 +204,7 @@ void PdmUiValueRangeEditor::slotMinSliderValueChanged( int value )
 //--------------------------------------------------------------------------------------------------
 void PdmUiValueRangeEditor::slotMaxSliderValueChanged( int value )
 {
-    double newDoubleValue = convertFromSliderValue( m_sliderMax, value );
+    double newDoubleValue = convertFromSliderValue( m_sliderMax, value, m_attributes );
     m_sliderValueMax      = newDoubleValue;
 
     if ( m_attributes.m_delaySliderUpdateUntilRelease )
@@ -236,9 +236,13 @@ void PdmUiValueRangeEditor::slotSliderReleasedMax()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiValueRangeEditor::updateSliderPosition( QSlider* slider, double value )
+void PdmUiValueRangeEditor::updateSliderPosition( QSlider*                                slider,
+                                                  double                                  value,
+                                                  const PdmUiDoubleSliderEditorAttribute& attributes )
 {
-    int newSliderPosition = convertToSliderValue( slider, value );
+    if ( !slider ) return;
+
+    int newSliderPosition = convertToSliderValue( slider, value, attributes );
     if ( slider->value() != newSliderPosition )
     {
         slider->blockSignals( true );
@@ -283,10 +287,12 @@ void PdmUiValueRangeEditor::clampAndWriteValues( double valueMin, double valueMa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int PdmUiValueRangeEditor::convertToSliderValue( QSlider* slider, double value )
+int PdmUiValueRangeEditor::convertToSliderValue( QSlider*                                slider,
+                                                 double                                  value,
+                                                 const PdmUiDoubleSliderEditorAttribute& attributes )
 {
     double exactSliderValue =
-        slider->maximum() * ( value - m_attributes.m_minimum ) / ( m_attributes.m_maximum - m_attributes.m_minimum );
+        slider->maximum() * ( value - attributes.m_minimum ) / ( attributes.m_maximum - attributes.m_minimum );
 
     int sliderValue = static_cast<int>( exactSliderValue + 0.5 );
     sliderValue     = qBound( slider->minimum(), sliderValue, slider->maximum() );
@@ -297,13 +303,15 @@ int PdmUiValueRangeEditor::convertToSliderValue( QSlider* slider, double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double PdmUiValueRangeEditor::convertFromSliderValue( QSlider* slider, int sliderValue )
+double PdmUiValueRangeEditor::convertFromSliderValue( QSlider*                                slider,
+                                                      int                                     sliderValue,
+                                                      const PdmUiDoubleSliderEditorAttribute& attributes )
 {
-    double newDoubleValue = m_attributes.m_minimum +
-                            sliderValue * ( m_attributes.m_maximum - m_attributes.m_minimum ) / slider->maximum();
-    newDoubleValue = qBound( m_attributes.m_minimum, newDoubleValue, m_attributes.m_maximum );
+    double clampedValue = attributes.m_minimum +
+                          sliderValue * ( attributes.m_maximum - attributes.m_minimum ) / slider->maximum();
+    clampedValue = qBound( attributes.m_minimum, clampedValue, attributes.m_maximum );
 
-    return newDoubleValue;
+    return clampedValue;
 }
 
 //--------------------------------------------------------------------------------------------------

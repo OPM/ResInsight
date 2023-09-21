@@ -75,12 +75,13 @@ protected slots:
     void slotSliderReleasedMax();
 
 private:
-    void updateSliderPosition( QSlider* slider, double value );
     void clampAndWriteValues( double valueMin, double valueMax, bool isMinChanged );
     void clampAndWriteValues( double valueMin, double valueMax );
 
-    int    convertToSliderValue( QSlider* slider, double value );
-    double convertFromSliderValue( QSlider* slider, int sliderValue );
+    static void updateSliderPosition( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
+    static int convertToSliderValue( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
+    static double
+        convertFromSliderValue( QSlider* slider, int sliderValue, const PdmUiDoubleSliderEditorAttribute& attributes );
 
 private:
     QPointer<QLineEdit> m_lineEditMin;
