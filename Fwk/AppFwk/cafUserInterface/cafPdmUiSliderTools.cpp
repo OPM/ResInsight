@@ -36,6 +36,8 @@
 
 #include "cafPdmUiSliderTools.h"
 
+#include <QSlider>
+
 namespace caf
 {
 
@@ -64,6 +66,50 @@ void PdmDoubleValidator::fixup( QString& stringValue ) const
     doubleValue        = qBound( bottom(), doubleValue, top() );
 
     stringValue = QString::number( doubleValue, 'g', decimals() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiSliderTools::updateSliderPosition( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes )
+{
+    if ( !slider ) return;
+
+    int newSliderPosition = convertToSliderValue( slider, value, attributes );
+    if ( slider->value() != newSliderPosition )
+    {
+        slider->blockSignals( true );
+        slider->setValue( newSliderPosition );
+        slider->blockSignals( false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int PdmUiSliderTools::convertToSliderValue( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes )
+{
+    double exactSliderValue =
+        slider->maximum() * ( value - attributes.m_minimum ) / ( attributes.m_maximum - attributes.m_minimum );
+
+    int sliderValue = static_cast<int>( exactSliderValue + 0.5 );
+    sliderValue     = qBound( slider->minimum(), sliderValue, slider->maximum() );
+
+    return sliderValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double PdmUiSliderTools::convertFromSliderValue( QSlider*                                slider,
+                                                 int                                     sliderValue,
+                                                 const PdmUiDoubleSliderEditorAttribute& attributes )
+{
+    double clampedValue = attributes.m_minimum +
+                          sliderValue * ( attributes.m_maximum - attributes.m_minimum ) / slider->maximum();
+    clampedValue = qBound( attributes.m_minimum, clampedValue, attributes.m_maximum );
+
+    return clampedValue;
 }
 
 } //namespace caf

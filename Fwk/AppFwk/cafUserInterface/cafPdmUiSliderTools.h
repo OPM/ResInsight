@@ -40,6 +40,8 @@
 
 #include <QValidator>
 
+class QSlider;
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +77,15 @@ public:
     int    m_decimals;
     int    m_sliderTickCount;
     bool   m_delaySliderUpdateUntilRelease;
+};
+
+class PdmUiSliderTools
+{
+public:
+    static void updateSliderPosition( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
+    static int convertToSliderValue( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
+    static double
+        convertFromSliderValue( QSlider* slider, int sliderValue, const PdmUiDoubleSliderEditorAttribute& attributes );
 };
 
 } //namespace caf

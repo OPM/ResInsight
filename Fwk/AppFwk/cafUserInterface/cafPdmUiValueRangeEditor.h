@@ -78,11 +78,6 @@ private:
     void clampAndWriteValues( double valueMin, double valueMax, bool isMinChanged );
     void clampAndWriteValues( double valueMin, double valueMax );
 
-    static void updateSliderPosition( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
-    static int convertToSliderValue( QSlider* slider, double value, const PdmUiDoubleSliderEditorAttribute& attributes );
-    static double
-        convertFromSliderValue( QSlider* slider, int sliderValue, const PdmUiDoubleSliderEditorAttribute& attributes );
-
 private:
     QPointer<QLineEdit> m_lineEditMin;
     QPointer<QSlider>   m_sliderMin;
