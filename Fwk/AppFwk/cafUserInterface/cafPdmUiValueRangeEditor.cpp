@@ -114,8 +114,6 @@ void PdmUiValueRangeEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     QString textValueMax = QString( "%1" ).arg( maximum );
 
-    PdmDoubleValidator* pdmValidator =
-        new PdmDoubleValidator( m_attributes.m_minimum, m_attributes.m_maximum, m_attributes.m_decimals, this );
     pdmValidator->fixup( textValueMax );
 
     m_lineEditMax->setValidator( pdmValidator );
@@ -192,7 +190,7 @@ void PdmUiValueRangeEditor::slotMaxSliderValueChanged( int value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiValueRangeEditor::slotSliderReleasedMin()
+void PdmUiValueRangeEditor::slotMinSliderReleased()
 {
     clampAndWriteValues( m_sliderValueMin, m_sliderValueMax, true );
 }
@@ -200,7 +198,7 @@ void PdmUiValueRangeEditor::slotSliderReleasedMin()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiValueRangeEditor::slotSliderReleasedMax()
+void PdmUiValueRangeEditor::slotMaxSliderReleased()
 {
     clampAndWriteValues( m_sliderValueMin, m_sliderValueMax, false );
 }
@@ -275,7 +273,7 @@ QWidget* PdmUiValueRangeEditor::createEditorWidget( QWidget* parent )
     layout->addWidget( m_sliderMin, 0, 1 );
 
     connect( m_sliderMin, SIGNAL( valueChanged( int ) ), this, SLOT( slotMinSliderValueChanged( int ) ) );
-    connect( m_sliderMin, SIGNAL( sliderReleased() ), this, SLOT( slotSliderReleasedMin() ) );
+    connect( m_sliderMin, SIGNAL( sliderReleased() ), this, SLOT( slotMinSliderReleased() ) );
 
     m_lineEditMax = new QLineEdit( containerWidget );
     m_lineEditMax->setMaximumWidth( 100 );
@@ -287,7 +285,7 @@ QWidget* PdmUiValueRangeEditor::createEditorWidget( QWidget* parent )
     layout->addWidget( m_sliderMax, 1, 1 );
 
     connect( m_sliderMax, SIGNAL( valueChanged( int ) ), this, SLOT( slotMaxSliderValueChanged( int ) ) );
-    connect( m_sliderMax, SIGNAL( sliderReleased() ), this, SLOT( slotSliderReleasedMax() ) );
+    connect( m_sliderMax, SIGNAL( sliderReleased() ), this, SLOT( slotMaxSliderReleased() ) );
 
     return containerWidget;
 }

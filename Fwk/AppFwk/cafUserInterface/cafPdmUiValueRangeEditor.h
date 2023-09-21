@@ -58,13 +58,13 @@ protected:
     QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
-protected slots:
+private slots:
     void slotMinEditingFinished();
     void slotMaxEditingFinished();
     void slotMinSliderValueChanged( int value );
     void slotMaxSliderValueChanged( int value );
-    void slotSliderReleasedMin();
-    void slotSliderReleasedMax();
+    void slotMinSliderReleased();
+    void slotMaxSliderReleased();
 
 private:
     void clampAndWriteValues( double valueMin, double valueMax, bool isMinChanged );

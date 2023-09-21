@@ -27,6 +27,7 @@
 
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiSliderTools.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -95,12 +96,11 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     m_expressionText.uiCapability()->setUiReadOnly( true );
     m_expressionText.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_filterValuesX, "FilterValuesX", false, "Filter X" );
     CAF_PDM_InitField( &m_valueRangeX, "ValueRangeX", std::make_pair( 0.0, 0.0 ), "Value Range X" );
     m_valueRangeX.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_filterValuesY, "FilterValuesY", false, "Filter Y" );
     CAF_PDM_InitField( &m_valueRangeY, "ValueRangeY", std::make_pair( 0.0, 0.0 ), "Value Range Y" );
+    m_valueRangeY.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,7 +125,6 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
     auto yValues    = RimSummaryCurve::valuesY();
     auto timeStepsY = RimSummaryCurve::timeStepsY();
 
-    if ( m_filterValuesX )
     {
         auto values = xValues;
         for ( size_t i = 0; i < values.size(); i++ )
@@ -137,7 +136,6 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
         }
     }
 
-    if ( m_filterValuesY )
     {
         auto values = yValues;
         for ( size_t i = 0; i < values.size(); i++ )
@@ -316,13 +314,11 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
 
     if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
-        timeSelectionGroup->add( &m_filterValuesX );
-        timeSelectionGroup->add( &m_valueRangeX );
-        m_valueRangeX.uiCapability()->setUiReadOnly( !m_filterValuesX() );
+        caf::PdmUiGroup* valueRangeXGroup = uiOrdering.addNewGroup( "Value Range X" );
+        valueRangeXGroup->add( &m_valueRangeX );
 
-        timeSelectionGroup->add( &m_filterValuesY );
-        timeSelectionGroup->add( &m_valueRangeY );
-        m_valueRangeY.uiCapability()->setUiReadOnly( !m_filterValuesY() );
+        caf::PdmUiGroup* valueRangeYGroup = uiOrdering.addNewGroup( "Value Range Y" );
+        valueRangeYGroup->add( &m_valueRangeY );
     }
 
     caf::PdmUiGroup* forecastingGroup = uiOrdering.addNewGroup( "Forecasting" );
@@ -642,6 +638,18 @@ void RimSummaryRegressionAnalysisCurve::updateDefaultValues()
     {
         m_minTimeStep = timeSteps.front();
         m_maxTimeStep = timeSteps.back();
+    }
+
+    auto values = RimSummaryCurve::valuesX();
+    if ( !values.empty() )
+    {
+        m_valueRangeX = std::make_pair( *std::min_element( values.begin(), values.end() ), *std::max_element( values.begin(), values.end() ) );
+    }
+
+    values = RimSummaryCurve::valuesY();
+    if ( !values.empty() )
+    {
+        m_valueRangeY = std::make_pair( *std::min_element( values.begin(), values.end() ), *std::max_element( values.begin(), values.end() ) );
     }
 }
 
