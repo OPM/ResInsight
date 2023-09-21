@@ -75,14 +75,21 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiTreeSelectionEditor, std::vector<
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiFilePathEditor, FilePath );
 
-// As the macro CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR() is not working correctly for std::pair<bool, double> the
+// As the macro CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR() is not working correctly for std::pair<> the
 // registration of this type in the factory has to be written directly
-static bool myPdmUiCheckBoxAndTextEditor73 =
+static bool myPdmUiCheckBoxAndTextEditor =
     caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<PdmUiCheckBoxAndTextEditor>(
         QString( typeid( caf::PdmField<std::pair<bool, double>> ).name() ) );
-static bool my2PdmUiCheckBoxAndTextEditor73 =
+static bool myPdmUiCheckBoxAndTextEditor_proxy =
     caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<PdmUiCheckBoxAndTextEditor>(
         QString( typeid( caf::PdmProxyValueField<std::pair<bool, double>> ).name() ) );
+
+static bool myPdmUiValueRangeEditor =
+    caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<PdmUiValueRangeEditor>(
+        QString( typeid( caf::PdmField<std::pair<double, double>> ).name() ) );
+static bool myPdmUiValueRangeEditor_proxy =
+    caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<PdmUiValueRangeEditor>(
+        QString( typeid( caf::PdmProxyValueField<std::pair<double, double>> ).name() ) );
 
 //--------------------------------------------------------------------------------------------------
 ///
