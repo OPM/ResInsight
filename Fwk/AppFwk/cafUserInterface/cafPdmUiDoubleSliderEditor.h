@@ -44,7 +44,8 @@
 #include <QPointer>
 #include <QSlider>
 #include <QString>
-#include <QWidget>
+
+class QWidget;
 
 namespace caf
 {
@@ -72,11 +73,7 @@ protected slots:
     void slotSliderReleased();
 
 private:
-    void updateSliderPosition( double value );
     void writeValueToField( double value );
-
-    int    convertToSliderValue( double value );
-    double convertFromSliderValue( int sliderValue );
 
 private:
     QPointer<QLineEdit>       m_lineEdit;

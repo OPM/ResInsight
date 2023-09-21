@@ -44,36 +44,6 @@
 #include <QDoubleValidator>
 #include <QHBoxLayout>
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class PdmDoubleValidator : public QDoubleValidator
-{
-public:
-    explicit PdmDoubleValidator( QObject* parent = nullptr )
-        : QDoubleValidator( parent )
-    {
-    }
-
-    PdmDoubleValidator( double bottom, double top, int decimals, QObject* parent )
-        : QDoubleValidator( bottom, top, decimals, parent )
-    {
-    }
-
-    ~PdmDoubleValidator() override {}
-
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void fixup( QString& stringValue ) const override
-    {
-        double doubleValue = stringValue.toDouble();
-        doubleValue        = qBound( bottom(), doubleValue, top() );
-
-        stringValue = QString::number( doubleValue, 'g', decimals() );
-    }
-};
-
 namespace caf
 {
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiDoubleSliderEditor );
@@ -126,7 +96,7 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi( const QString& uiConfigName 
     m_lineEdit->setText( textValue );
 
     m_sliderValue = doubleValue;
-    updateSliderPosition( doubleValue );
+    PdmUiSliderTools::updateSliderPosition( m_slider, doubleValue, m_attributes );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,7 +152,7 @@ void PdmUiDoubleSliderEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 void PdmUiDoubleSliderEditor::slotSliderValueChanged( int value )
 {
-    double newDoubleValue = convertFromSliderValue( value );
+    double newDoubleValue = PdmUiSliderTools::convertFromSliderValue( m_slider, value, m_attributes );
     m_sliderValue         = newDoubleValue;
 
     if ( m_attributes.m_delaySliderUpdateUntilRelease )
@@ -206,50 +176,10 @@ void PdmUiDoubleSliderEditor::slotSliderReleased()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDoubleSliderEditor::updateSliderPosition( double value )
-{
-    int newSliderPosition = convertToSliderValue( value );
-    if ( m_slider->value() != newSliderPosition )
-    {
-        m_slider->blockSignals( true );
-        m_slider->setValue( newSliderPosition );
-        m_slider->blockSignals( false );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void PdmUiDoubleSliderEditor::writeValueToField( double value )
 {
     QVariant v = value;
     this->setValueToField( v );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int PdmUiDoubleSliderEditor::convertToSliderValue( double value )
-{
-    double exactSliderValue =
-        m_slider->maximum() * ( value - m_attributes.m_minimum ) / ( m_attributes.m_maximum - m_attributes.m_minimum );
-
-    int sliderValue = static_cast<int>( exactSliderValue + 0.5 );
-    sliderValue     = qBound( m_slider->minimum(), sliderValue, m_slider->maximum() );
-
-    return sliderValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double PdmUiDoubleSliderEditor::convertFromSliderValue( int sliderValue )
-{
-    double newDoubleValue = m_attributes.m_minimum +
-                            sliderValue * ( m_attributes.m_maximum - m_attributes.m_minimum ) / m_slider->maximum();
-    newDoubleValue = qBound( m_attributes.m_minimum, newDoubleValue, m_attributes.m_maximum );
-
-    return newDoubleValue;
 }
 
 } // end namespace caf
