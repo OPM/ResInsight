@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2023 Ceetron Solutions AS
+//   Copyright (C) 2011-2013 Ceetron AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -37,62 +37,44 @@
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiSliderTools.h"
 
-#include <QCheckBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPointer>
-#include <QSlider>
-#include <QString>
-#include <QWidget>
+#include <QValidator>
 
 namespace caf
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class PdmDoubleValidator : public QDoubleValidator
+{
+public:
+    explicit PdmDoubleValidator( QObject* parent = nullptr );
+    explicit PdmDoubleValidator( double bottom, double top, int decimals, QObject* parent );
+
+    void fixup( QString& stringValue ) const override;
+};
+
 //==================================================================================================
 ///
 //==================================================================================================
-class PdmUiValueRangeEditor : public PdmUiFieldEditorHandle
+class PdmUiDoubleSliderEditorAttribute : public PdmUiEditorAttribute
 {
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+public:
+    PdmUiDoubleSliderEditorAttribute()
+    {
+        m_minimum                       = 0;
+        m_maximum                       = 10;
+        m_decimals                      = 6;
+        m_sliderTickCount               = 2000;
+        m_delaySliderUpdateUntilRelease = false;
+    }
 
 public:
-    PdmUiValueRangeEditor();
-    ~PdmUiValueRangeEditor() override;
-
-protected:
-    QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
-
-protected slots:
-    void slotMinEditingFinished();
-    void slotMaxEditingFinished();
-    void slotMinSliderValueChanged( int value );
-    void slotMaxSliderValueChanged( int value );
-    void slotSliderReleasedMin();
-    void slotSliderReleasedMax();
-
-private:
-    void updateSliderPosition( QSlider* slider, double value );
-    void clampAndWriteValues( double valueMin, double valueMax, bool isMinChanged );
-    void clampAndWriteValues( double valueMin, double valueMax );
-
-    int    convertToSliderValue( QSlider* slider, double value );
-    double convertFromSliderValue( QSlider* slider, int sliderValue );
-
-private:
-    QPointer<QLineEdit> m_lineEditMin;
-    QPointer<QSlider>   m_sliderMin;
-    QPointer<QLineEdit> m_lineEditMax;
-    QPointer<QSlider>   m_sliderMax;
-
-    QPointer<QShortenedLabel> m_label;
-    double                    m_sliderValueMin;
-    double                    m_sliderValueMax;
-
-    PdmUiDoubleSliderEditorAttribute m_attributes;
+    double m_minimum;
+    double m_maximum;
+    int    m_decimals;
+    int    m_sliderTickCount;
+    bool   m_delaySliderUpdateUntilRelease;
 };
 
-} // end namespace caf
+} //namespace caf

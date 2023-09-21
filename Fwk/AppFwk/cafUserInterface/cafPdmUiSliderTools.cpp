@@ -34,57 +34,36 @@
 //
 //##################################################################################################
 
-#pragma once
-
-#include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiSliderTools.h"
-
-#include <QLabel>
-#include <QLineEdit>
-#include <QPointer>
-#include <QSlider>
-#include <QString>
-#include <QWidget>
 
 namespace caf
 {
 
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
+//--------------------------------------------------------------------------------------------------
+PdmDoubleValidator::PdmDoubleValidator( QObject* parent /*= nullptr */ )
+    : QDoubleValidator( parent )
 {
-    Q_OBJECT
-    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+}
 
-public:
-    PdmUiDoubleSliderEditor();
-    ~PdmUiDoubleSliderEditor() override;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmDoubleValidator::PdmDoubleValidator( double bottom, double top, int decimals, QObject* parent )
+    : QDoubleValidator( bottom, top, decimals, parent )
+{
+}
 
-protected:
-    void     configureAndUpdateUi( const QString& uiConfigName ) override;
-    QWidget* createEditorWidget( QWidget* parent ) override;
-    QWidget* createLabelWidget( QWidget* parent ) override;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmDoubleValidator::fixup( QString& stringValue ) const
+{
+    double doubleValue = stringValue.toDouble();
+    doubleValue        = qBound( bottom(), doubleValue, top() );
 
-protected slots:
-    void slotEditingFinished();
-    void slotSliderValueChanged( int value );
-    void slotSliderReleased();
+    stringValue = QString::number( doubleValue, 'g', decimals() );
+}
 
-private:
-    void updateSliderPosition( double value );
-    void writeValueToField( double value );
-
-    int    convertToSliderValue( double value );
-    double convertFromSliderValue( int sliderValue );
-
-private:
-    QPointer<QLineEdit>       m_lineEdit;
-    QPointer<QSlider>         m_slider;
-    QPointer<QShortenedLabel> m_label;
-    double                    m_sliderValue;
-
-    PdmUiDoubleSliderEditorAttribute m_attributes;
-};
-
-} // end namespace caf
+} //namespace caf

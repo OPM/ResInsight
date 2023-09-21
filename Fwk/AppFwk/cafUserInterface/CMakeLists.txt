@@ -174,6 +174,8 @@ set(PROJECT_FILES
     cafPdmUiTreeAttributes.h
     cafUiAppearanceSettings.cpp
     cafUiIconFactory.cpp
+    cafPdmUiSliderTools.h
+    cafPdmUiSliderTools.cpp
 )
 
 add_library(
