@@ -43,7 +43,7 @@ public:
     RimMeshFractureTemplate();
     ~RimMeshFractureTemplate() override;
 
-    int activeTimeStepIndex();
+    int activeTimeStepIndex() const;
 
     virtual void setDefaultsBasedOnFile() = 0;
 

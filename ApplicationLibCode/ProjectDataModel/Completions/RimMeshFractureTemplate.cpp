@@ -85,7 +85,7 @@ RimMeshFractureTemplate::~RimMeshFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimMeshFractureTemplate::activeTimeStepIndex()
+int RimMeshFractureTemplate::activeTimeStepIndex() const
 {
     return m_activeTimeStepIndex;
 }
