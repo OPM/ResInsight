@@ -316,7 +316,7 @@ std::pair<bool, std::string>
         }
     }
 
-    std::string partSymmetry = "XSYMM";
+    std::string partSymmetry = "YSYMM";
     for ( const auto& part : parts )
     {
         auto partNameIt = partNames.find( part );
