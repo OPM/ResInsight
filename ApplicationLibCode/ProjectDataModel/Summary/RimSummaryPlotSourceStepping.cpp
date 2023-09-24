@@ -329,6 +329,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( m_sourceSteppingType );
 
     bool isAutoZoomAllowed = false;
+    bool doZoomAll         = false;
 
     if ( changedField == &m_stepDimension )
     {
@@ -360,6 +361,25 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     }
 
     bool triggerLoadDataAndUpdate = false;
+
+    auto updateEnsembleAddresses = [&doZoomAll, &oldValue, &newValue]( const std::vector<RimEnsembleCurveSet*>& curveSets )
+    {
+        for ( auto curveSet : curveSets )
+        {
+            auto curveAdr = curveSet->curveAddress();
+
+            auto yAddressToModify = curveAdr.summaryAddressY();
+            RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, yAddressToModify );
+
+            auto xAddressToModify = curveAdr.summaryAddressX();
+            RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, xAddressToModify );
+
+            curveSet->setCurveAddress( RiaSummaryCurveAddress( xAddressToModify, yAddressToModify ) );
+            curveSet->updateConnectedEditors();
+
+            doZoomAll = true;
+        }
+    };
 
     if ( changedField == &m_summaryCase )
     {
@@ -431,11 +451,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         if ( dataSourceSteppingObject() )
         {
-            for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
-            {
-                auto adr = curveSet->summaryAddress();
-                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curveSet->setSummaryAddress( adr );
-            }
+            updateEnsembleAddresses( dataSourceSteppingObject()->curveSets() );
         }
 
         m_vectorName.uiCapability()->updateConnectedEditors();
@@ -486,26 +502,21 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
                 if ( isYAxisStepping() )
                 {
                     RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, &adr );
+                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, adr );
                     curve->setSummaryAddressY( adr );
                 }
 
                 if ( isXAxisStepping() )
                 {
                     RifEclipseSummaryAddress adr = curve->summaryAddressX();
-                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, &adr );
+                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, adr );
                     curve->setSummaryAddressX( adr );
                 }
             }
 
             if ( dataSourceSteppingObject() )
             {
-                for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
-                {
-                    auto adr = curveSet->summaryAddress();
-                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, &adr );
-                    curveSet->setSummaryAddress( adr );
-                }
+                updateEnsembleAddresses( dataSourceSteppingObject()->curveSets() );
             }
 
             triggerLoadDataAndUpdate = true;
@@ -522,7 +533,15 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             summaryMultiPlot->updatePlots();
             summaryMultiPlot->updatePlotTitles();
 
-            if ( isAutoZoomAllowed ) summaryMultiPlot->zoomAllYAxes();
+            if ( doZoomAll )
+            {
+                summaryMultiPlot->zoomAll();
+            }
+            else if ( isAutoZoomAllowed )
+            {
+                // The time axis can be zoomed and will be used for all plots. Do not zoom time axis in this case.
+                summaryMultiPlot->zoomAllYAxes();
+            }
 
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateMultiPlotToolBar();
@@ -1261,13 +1280,13 @@ void RimSummaryPlotSourceStepping::updateVectorNameInCurves( std::vector<RimSumm
         if ( isYAxisStepping() )
         {
             auto adr = curve->summaryAddressY();
-            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curve->setSummaryAddressY( adr );
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, adr ) ) curve->setSummaryAddressY( adr );
         }
 
         if ( isXAxisStepping() )
         {
             auto adr = curve->summaryAddressX();
-            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curve->setSummaryAddressX( adr );
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, adr ) ) curve->setSummaryAddressX( adr );
         }
 
         if ( m_autoUpdateAppearance )
