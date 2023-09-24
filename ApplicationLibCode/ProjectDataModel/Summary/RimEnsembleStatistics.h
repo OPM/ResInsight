@@ -52,6 +52,9 @@ public:
 
     bool includeIncompleteCurves() const { return m_includeIncompleteCurves; }
 
+    int crossPlotCurvesBinCount() const;
+    int crossPlotCurvesSampleCountThresholdPerBin() const;
+
     void disableP10Curve( bool disable );
     void disableP50Curve( bool disable );
     void disableP90Curve( bool disable );
@@ -75,6 +78,10 @@ private:
     caf::PdmField<bool> m_showMeanCurve;
     caf::PdmField<bool> m_showCurveLabels;
     caf::PdmField<bool> m_includeIncompleteCurves;
+
+    // Ensemble cross plot settings
+    caf::PdmField<int> m_crossPlotCurvesBinCount;
+    caf::PdmField<int> m_crossPlotCurvesStatisticsSampleCountThresholdPerBin;
 
     caf::PdmField<QString> m_warningLabel;
 

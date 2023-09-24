@@ -41,10 +41,12 @@
 #include "RimEnsembleStatisticsCase.h"
 #include "RimObjectiveFunction.h"
 #include "RimObjectiveFunctionTools.h"
+#include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressSelector.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -137,6 +139,19 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
 
+    // X Axis
+    CAF_PDM_InitField( &m_xAxisType,
+                       "HorizontalAxisType",
+                       caf::AppEnum<RiaDefines::HorizontalAxisType>( RiaDefines::HorizontalAxisType::TIME ),
+                       "Axis Type" );
+
+    CAF_PDM_InitFieldNoDefault( &m_xAddressSelector, "XAddressSelector", "" );
+    m_xAddressSelector = new RimSummaryAddressSelector;
+    m_xAddressSelector.uiCapability()->setUiTreeHidden( true );
+    m_xAddressSelector.uiCapability()->setUiTreeChildrenHidden( true );
+
+    m_xAddressSelector->addressChanged.connect( this, &RimEnsembleCurveSet::onXAxisAddressChanged );
+
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR_WITH_ALPHA ), "Coloring Mode" );
 
     CAF_PDM_InitField( &m_colorForRealizations, "Color", RiaColorTools::textColor3f(), "Color" );
@@ -226,9 +241,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
 
-    m_ensembleStatCase.reset( new RimEnsembleStatisticsCase() );
-    m_ensembleStatCase->createSummaryReaderInterface();
-    m_ensembleStatCase->createRftReaderInterface();
+    m_ensembleStatCaseY.reset( new RimEnsembleStatisticsCase() );
+    m_ensembleStatCaseXY.reset( new RimEnsembleCrossPlotStatisticsCase() );
 
     m_disableStatisticCurves = false;
     m_isCurveSetFiltered     = false;
@@ -407,6 +421,23 @@ void RimEnsembleCurveSet::setSummaryAddress( RifEclipseSummaryAddress address )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setCurveAddress( RiaSummaryCurveAddress address )
+{
+    setSummaryAddress( address.summaryAddressY() );
+    setSummaryAddressX( address.summaryAddressX() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setSummaryAddressX( RifEclipseSummaryAddress address )
+{
+    m_xAddressSelector->setAddress( address );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setSummaryAddressAndStatisticsFlag( RifEclipseSummaryAddress address )
 {
     setSummaryAddress( address );
@@ -427,7 +458,12 @@ RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveAddress RimEnsembleCurveSet::curveAddress() const
 {
-    return RiaSummaryCurveAddress( summaryAddress(), RifEclipseSummaryAddress::timeAddress() );
+    if ( m_xAxisType() == RiaDefines::HorizontalAxisType::TIME )
+    {
+        return RiaSummaryCurveAddress( RifEclipseSummaryAddress::timeAddress(), summaryAddress() );
+    }
+
+    return RiaSummaryCurveAddress( m_xAddressSelector->summaryAddress(), summaryAddress() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -676,6 +712,42 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateTextInPlot = true;
     }
+    else if ( &m_xAxisType == changedField )
+    {
+        if ( m_xAxisType() == RiaDefines::HorizontalAxisType::TIME )
+        {
+            // TODO: How to handle this?
+            // m_xPlotAxisProperties = plot->timeAxisProperties();
+        }
+        else if ( m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        {
+            if ( !m_xAddressSelector->ensemble() )
+            {
+                m_xAddressSelector->setEnsemble( summaryCaseCollection() );
+                m_xAddressSelector->setAddress( summaryAddress() );
+            }
+
+            if ( !m_xAddressSelector->plotAxisProperties() )
+            {
+                RiuPlotAxis plotAxis = RiuPlotAxis::defaultBottomForSummaryVectors();
+                if ( auto axis = plot->axisPropertiesForPlotAxis( plotAxis ) )
+                {
+                    m_xAddressSelector->setPlotAxisProperties( axis );
+                }
+                else
+                {
+                    RimPlotAxisProperties* newPlotAxisProperties =
+                        plot->addNewAxisProperties( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Bottom Axis" );
+                    plot->updateConnectedEditors();
+
+                    m_xAddressSelector->setPlotAxisProperties( newPlotAxisProperties );
+                }
+            }
+        }
+        plot->updateAxes();
+        plot->updatePlotTitle();
+        updateAllCurves();
+    }
     else if ( changedField == &m_resampling )
     {
         updateAllCurves();
@@ -912,13 +984,25 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
+
     {
-        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector Y" );
+        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_resampling );
         curveDataGroup->add( &m_plotAxisProperties );
+    }
+
+    {
+        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X Axis" );
+        curveDataGroup->add( &m_xAxisType );
+
+        if ( m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        {
+            m_xAddressSelector->uiOrdering( uiConfigName, *curveDataGroup );
+        }
     }
 
     appendColorGroup( uiOrdering );
@@ -982,6 +1066,14 @@ void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmi
     updateCurveColors();
     updateFilterLegend();
     updateObjectiveFunctionLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::onXAxisAddressChanged( const caf::SignalEmitter* emitter )
+{
+    updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1788,8 +1880,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
     if ( m_statistics->hideEnsembleCurves() ) return;
 
-    setLeftOrRightAxisY( axisY() );
-
     RimSummaryAddress* addr = m_yValuesSummaryAddress();
     if ( plot && addr->address().category() != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
     {
@@ -1815,6 +1905,14 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 addCurve( curve );
 
                 curve->setLeftOrRightAxisY( axisY() );
+                if ( m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+                {
+                    curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+                    curve->setSummaryCaseX( sumCase );
+                    curve->setSummaryAddressX( m_xAddressSelector->summaryAddress() );
+                    if ( m_xAddressSelector->plotAxisProperties() )
+                        curve->setTopOrBottomAxisX( m_xAddressSelector->plotAxisProperties()->plotAxis() );
+                }
 
                 newSummaryCurves.push_back( curve );
             }
@@ -1865,6 +1963,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
          addr->address().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
         return;
 
+    bool isCrossPlot = ( m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+
     // Calculate
     {
         std::vector<RimSummaryCase*> statCases = sumCases;
@@ -1875,22 +1975,70 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             else
                 statCases = group->allSummaryCases();
         }
-        m_ensembleStatCase->calculate( statCases, addr->address(), m_statistics->includeIncompleteCurves() );
+
+        if ( isCrossPlot )
+        {
+            m_ensembleStatCaseXY->calculate( statCases,
+                                             m_xAddressSelector->summaryAddress(),
+                                             summaryAddress(),
+                                             m_statistics->includeIncompleteCurves(),
+                                             m_statistics->crossPlotCurvesBinCount(),
+                                             m_statistics->crossPlotCurvesSampleCountThresholdPerBin() );
+        }
+        else
+        {
+            m_ensembleStatCaseY->calculate( statCases, summaryAddress(), m_statistics->includeIncompleteCurves() );
+        }
     }
 
-    std::vector<RifEclipseSummaryAddress> addresses;
+    std::vector<RiaSummaryCurveAddress> addresses;
     if ( m_statistics->isActive() )
     {
-        RifEclipseSummaryAddress dataAddress = m_yValuesSummaryAddress->address();
+        if ( isCrossPlot )
+        {
+            RifEclipseSummaryAddress dataAddressY = m_yValuesSummaryAddress->address();
+            RifEclipseSummaryAddress dataAddressX = m_xAddressSelector->summaryAddress();
 
-        if ( m_statistics->showP10Curve() && m_ensembleStatCase->hasP10Data() )
-            addresses.push_back( SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddress.vectorName() ) );
-        if ( m_statistics->showP50Curve() && m_ensembleStatCase->hasP50Data() )
-            addresses.push_back( SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.vectorName() ) );
-        if ( m_statistics->showP90Curve() && m_ensembleStatCase->hasP90Data() )
-            addresses.push_back( SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.vectorName() ) );
-        if ( m_statistics->showMeanCurve() && m_ensembleStatCase->hasMeanData() )
-            addresses.push_back( SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.vectorName() ) );
+            auto getStatisticsAddress = []( const std::string&              statisticsVectorName,
+                                            const RifEclipseSummaryAddress& addrX,
+                                            const RifEclipseSummaryAddress& addrY ) -> RiaSummaryCurveAddress
+            {
+                auto xStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrX.vectorName() );
+                auto yStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrY.vectorName() );
+
+                return RiaSummaryCurveAddress( xStatAddress, yStatAddress );
+            };
+
+            if ( m_statistics->showP10Curve() && m_ensembleStatCaseXY->hasP10Data() )
+                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddressX, dataAddressY ) );
+            if ( m_statistics->showP50Curve() && m_ensembleStatCaseXY->hasP50Data() )
+                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddressX, dataAddressY ) );
+            if ( m_statistics->showP90Curve() && m_ensembleStatCaseXY->hasP90Data() )
+                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddressX, dataAddressY ) );
+            if ( m_statistics->showMeanCurve() && m_ensembleStatCaseXY->hasMeanData() )
+                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddressX, dataAddressY ) );
+        }
+        else
+        {
+            RifEclipseSummaryAddress dataAddressY = m_yValuesSummaryAddress->address();
+
+            auto getStatisticsAddress = []( const std::string& statisticsVectorName, const RifEclipseSummaryAddress& addrY ) -> RiaSummaryCurveAddress
+            {
+                auto xStatAddress = RifEclipseSummaryAddress::timeAddress();
+                auto yStatAddress = SAddr::ensembleStatisticsAddress( statisticsVectorName, addrY.vectorName() );
+
+                return RiaSummaryCurveAddress( xStatAddress, yStatAddress );
+            };
+
+            if ( m_statistics->showP10Curve() && m_ensembleStatCaseY->hasP10Data() )
+                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddressY ) );
+            if ( m_statistics->showP50Curve() && m_ensembleStatCaseY->hasP50Data() )
+                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddressY ) );
+            if ( m_statistics->showP90Curve() && m_ensembleStatCaseY->hasP90Data() )
+                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddressY ) );
+            if ( m_statistics->showMeanCurve() && m_ensembleStatCaseY->hasMeanData() )
+                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddressY ) );
+        }
     }
 
     deleteStatisticsCurves();
@@ -1898,6 +2046,13 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
     auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot && plot->plotWidget() )
     {
+        RimSummaryCase* summaryCase = nullptr;
+
+        if ( isCrossPlot )
+            summaryCase = m_ensembleStatCaseXY.get();
+        else
+            summaryCase = m_ensembleStatCaseY.get();
+
         for ( auto address : addresses )
         {
             auto curve = new RimSummaryCurve();
@@ -1906,18 +2061,27 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             curve->setColor( m_statistics->color() );
             curve->setResampling( m_resampling() );
 
-            auto symbol = statisticsCurveSymbolFromAddress( address );
+            auto symbol = statisticsCurveSymbolFromAddress( address.summaryAddressY() );
             curve->setSymbol( symbol );
             curve->setSymbolSize( statisticsCurveSymbolSize( symbol ) );
             curve->setSymbolSkipDistance( 150 );
             if ( m_statistics->showCurveLabels() )
             {
-                curve->setSymbolLabel( QString::fromStdString( address.ensembleStatisticsVectorName() ) );
+                curve->setSymbolLabel( QString::fromStdString( address.summaryAddressY().ensembleStatisticsVectorName() ) );
             }
             curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-            curve->setSummaryCaseY( m_ensembleStatCase.get() );
-            curve->setSummaryAddressYAndApplyInterpolation( address );
+            curve->setSummaryCaseY( summaryCase );
+            curve->setSummaryAddressYAndApplyInterpolation( address.summaryAddressY() );
             curve->setLeftOrRightAxisY( axisY() );
+
+            if ( isCrossPlot )
+            {
+                curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+                curve->setSummaryCaseX( summaryCase );
+                curve->setSummaryAddressX( address.summaryAddressX() );
+                if ( m_xAddressSelector->plotAxisProperties() )
+                    curve->setTopOrBottomAxisX( m_xAddressSelector->plotAxisProperties()->plotAxis() );
+            }
 
             curve->setShowInLegend( m_statistics->showStatisticsCurveLegends() );
 
@@ -2056,7 +2220,7 @@ bool RimEnsembleCurveSet::isFiltered() const
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveSet::hasP10Data() const
 {
-    return m_ensembleStatCase->hasP10Data();
+    return m_ensembleStatCaseY->hasP10Data();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2064,7 +2228,7 @@ bool RimEnsembleCurveSet::hasP10Data() const
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveSet::hasP50Data() const
 {
-    return m_ensembleStatCase->hasP50Data();
+    return m_ensembleStatCaseY->hasP50Data();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2072,7 +2236,7 @@ bool RimEnsembleCurveSet::hasP50Data() const
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveSet::hasP90Data() const
 {
-    return m_ensembleStatCase->hasP90Data();
+    return m_ensembleStatCaseY->hasP90Data();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2080,7 +2244,7 @@ bool RimEnsembleCurveSet::hasP90Data() const
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveSet::hasMeanData() const
 {
-    return m_ensembleStatCase->hasMeanData();
+    return m_ensembleStatCaseY->hasMeanData();
 }
 
 //--------------------------------------------------------------------------------------------------
