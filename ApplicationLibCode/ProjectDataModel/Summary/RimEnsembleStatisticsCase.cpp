@@ -40,9 +40,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleStatisticsCase::RimEnsembleStatisticsCase( RimEnsembleCurveSet* curveSet )
+RimEnsembleStatisticsCase::RimEnsembleStatisticsCase()
 {
-    m_curveSet = curveSet;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +50,48 @@ RimEnsembleStatisticsCase::RimEnsembleStatisticsCase( RimEnsembleCurveSet* curve
 const std::vector<time_t>& RimEnsembleStatisticsCase::timeSteps() const
 {
     return m_timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<time_t> RimEnsembleStatisticsCase::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    return m_timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+{
+    const std::vector<double>* sourceData   = nullptr;
+    auto                       quantityName = resultAddress.ensembleStatisticsVectorName();
+
+    if ( quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME )
+        sourceData = &p10();
+    else if ( quantityName == ENSEMBLE_STAT_P50_QUANTITY_NAME )
+        sourceData = &p50();
+    else if ( quantityName == ENSEMBLE_STAT_P90_QUANTITY_NAME )
+        sourceData = &p90();
+    else if ( quantityName == ENSEMBLE_STAT_MEAN_QUANTITY_NAME )
+        sourceData = &mean();
+
+    if ( !sourceData ) return false;
+
+    values->clear();
+    values->reserve( sourceData->size() );
+    for ( auto val : *sourceData )
+        values->push_back( val );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimEnsembleStatisticsCase::unitName( const RifEclipseSummaryAddress& resultAddress ) const
+{
+    return "RimEnsembleStatisticsCase - Undefined Unit";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +139,7 @@ QString RimEnsembleStatisticsCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatisticsCase::createSummaryReaderInterface()
 {
-    m_statisticsReader.reset( new RifEnsembleStatisticsReader( this ) );
+    // Nothing to do here as RimEnsembleStatisticsCase inherits from RifSummaryReaderInterface
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,33 +147,7 @@ void RimEnsembleStatisticsCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimEnsembleStatisticsCase::summaryReader()
 {
-    if ( !m_statisticsReader )
-    {
-        createSummaryReaderInterface();
-    }
-    return m_statisticsReader.get();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RimEnsembleCurveSet* RimEnsembleStatisticsCase::curveSet() const
-{
-    return m_curveSet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& sumCases, bool includeIncompleteCurves )
-{
-    auto inputAddress = m_curveSet->summaryAddress();
-    if ( m_statisticsReader && inputAddress.isValid() )
-    {
-        const std::vector<RimSummaryCase*>& validCases = validSummaryCases( sumCases, inputAddress, includeIncompleteCurves );
-
-        calculate( validCases, inputAddress, includeIncompleteCurves );
-    }
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,10 +217,6 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RimEnsembleStatisticsCase::unitSystem() const
 {
-    if ( m_curveSet )
-    {
-        return m_curveSet->summaryCaseCollection()->unitSystem();
-    }
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
