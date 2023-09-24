@@ -18,8 +18,6 @@
 
 #include "RimEnsembleCrossPlotStatisticsCase.h"
 
-#include "RifEnsembleStatisticsReader.h"
-
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 

@@ -45,7 +45,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.h
     ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleStatisticsReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.h
     ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
@@ -135,7 +134,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleStatisticsReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp

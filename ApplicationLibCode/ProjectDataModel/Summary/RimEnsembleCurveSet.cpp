@@ -30,8 +30,6 @@
 #include "RimSummaryCalculationCollection.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
-#include "RifEnsembleStatisticsReader.h"
-
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimDerivedEnsembleCaseCollection.h"
@@ -228,7 +226,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
 
-    m_ensembleStatCase.reset( new RimEnsembleStatisticsCase( this ) );
+    m_ensembleStatCase.reset( new RimEnsembleStatisticsCase() );
     m_ensembleStatCase->createSummaryReaderInterface();
     m_ensembleStatCase->createRftReaderInterface();
 
@@ -1877,7 +1875,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             else
                 statCases = group->allSummaryCases();
         }
-        m_ensembleStatCase->calculate( statCases, m_statistics->includeIncompleteCurves() );
+        m_ensembleStatCase->calculate( statCases, addr->address(), m_statistics->includeIncompleteCurves() );
     }
 
     std::vector<RifEclipseSummaryAddress> addresses;
