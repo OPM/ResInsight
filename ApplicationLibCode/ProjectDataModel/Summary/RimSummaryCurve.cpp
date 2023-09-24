@@ -643,31 +643,46 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( m_xAxisType == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
-            auto curveValuesX    = valuesX();
-            auto curveTimeStepsX = timeStepsX();
-
-            auto curveTimeStepsY = timeStepsY();
-
-            if ( curveValuesY.empty() || curveValuesX.empty() )
+            if ( m_xValuesSummaryAddress()->address().category() == SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
             {
-                shouldPopulateViewWithEmptyData = true;
+                std::vector<double> curveValuesX;
+                std::vector<double> curveValuesY;
+
+                // Read x and y values from ensemble statistics (not time steps are read)
+                RifSummaryReaderInterface* reader = m_xValuesSummaryCase()->summaryReader();
+
+                reader->values( m_xValuesSummaryAddress->address(), &curveValuesX );
+                reader->values( m_yValuesSummaryAddress->address(), &curveValuesY );
+
+                setSamplesFromXYValues( curveValuesX, curveValuesY, useLogarithmicScale );
             }
             else
             {
-                RiaTimeHistoryCurveMerger curveMerger;
-                curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
-                curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
-                curveMerger.computeInterpolatedValues();
+                auto curveValuesX    = valuesX();
+                auto curveTimeStepsX = timeStepsX();
+                auto curveTimeStepsY = timeStepsY();
 
-                if ( curveMerger.allXValues().size() > 0 )
+                if ( curveValuesY.empty() || curveValuesX.empty() )
                 {
-                    setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
-                                            curveMerger.interpolatedYValuesForAllXValues( 1 ),
-                                            useLogarithmicScale );
+                    shouldPopulateViewWithEmptyData = true;
                 }
                 else
                 {
-                    shouldPopulateViewWithEmptyData = true;
+                    RiaTimeHistoryCurveMerger curveMerger;
+                    curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
+                    curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
+                    curveMerger.computeInterpolatedValues();
+
+                    if ( curveMerger.allXValues().size() > 0 )
+                    {
+                        setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
+                                                curveMerger.interpolatedYValuesForAllXValues( 1 ),
+                                                useLogarithmicScale );
+                    }
+                    else
+                    {
+                        shouldPopulateViewWithEmptyData = true;
+                    }
                 }
             }
         }
