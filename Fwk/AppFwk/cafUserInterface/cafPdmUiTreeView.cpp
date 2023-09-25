@@ -152,7 +152,7 @@ void PdmUiTreeView::slotOnSelectionChanged()
     m_treeViewEditor->selectedUiItems( objects );
     PdmObjectHandle* objHandle = nullptr;
 
-    if ( objects.size() )
+    if ( !objects.empty() )
     {
         PdmUiObjectHandle* uiObjH = dynamic_cast<PdmUiObjectHandle*>( objects[0] );
         if ( uiObjH )

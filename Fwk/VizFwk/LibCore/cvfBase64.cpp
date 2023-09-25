@@ -221,7 +221,7 @@ std::string Base64::encode(const cvf::UByteArray& data)
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::UByteArray> Base64::decode(const std::string& encodedData)
 {
-    if (encodedData.size() < 1) return NULL;
+    if (encodedData.empty()) return NULL;
 
     std::string decodedData = cvf_base64::base64_decode(encodedData);
     size_t numDecodedBytes = decodedData.length();

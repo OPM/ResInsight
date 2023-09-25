@@ -245,7 +245,7 @@ void BasicAboutDialog::create()
     // Possibly show extend version info
     if (m_showLibraryVersion  ||
         m_showQtVersion	      ||
-        m_verLabels.size() > 0)
+        !m_verLabels.empty())
     {
         QGridLayout* verInfoLayout = new QGridLayout; 
         verInfoLayout->setSpacing(0);
@@ -268,7 +268,7 @@ void BasicAboutDialog::create()
         }
 
         // Custom specified labels
-        if (m_verLabels.size() > 0)
+        if (!m_verLabels.empty())
         {
             CVF_ASSERT(m_verLabels.size() == m_verTexts.size());
 

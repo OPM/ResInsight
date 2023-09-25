@@ -60,7 +60,7 @@ bool ToggleItemsOnOthersOffFeature::isCommandEnabled() const
     caf::PdmFieldHandle*               commonParent = verifySameParentForSelection( selectedObjects );
     std::vector<caf::PdmObjectHandle*> children     = childObjects( commonParent );
 
-    return commonParent != nullptr && children.size() > 0 && objectToggleField( children.front() ) &&
+    return commonParent != nullptr && !children.empty() && objectToggleField( children.front() ) &&
            children.size() > selectedObjects.size();
 }
 

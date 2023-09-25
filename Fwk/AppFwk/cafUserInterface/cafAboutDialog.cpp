@@ -213,7 +213,7 @@ void AboutDialog::create()
     }
 
     // Possibly show extend version info
-    if ( m_showQtVersion || m_verLabels.size() > 0 )
+    if ( m_showQtVersion || !m_verLabels.empty() )
     {
         QGridLayout* verInfoLayout = new QGridLayout;
         verInfoLayout->setSpacing( 0 );
@@ -227,7 +227,7 @@ void AboutDialog::create()
         }
 
         // Custom specified labels
-        if ( m_verLabels.size() > 0 )
+        if ( !m_verLabels.empty() )
         {
             CAF_ASSERT( m_verLabels.size() == m_verTexts.size() );
 

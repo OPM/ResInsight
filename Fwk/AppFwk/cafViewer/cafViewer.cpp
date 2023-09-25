@@ -280,7 +280,7 @@ void caf::Viewer::setupRenderingSequence()
 //--------------------------------------------------------------------------------------------------
 caf::Viewer* caf::Viewer::sharedWidget()
 {
-    if ( sm_viewers.size() > 0 )
+    if ( !sm_viewers.empty() )
     {
         return *( sm_viewers.begin() );
     }
@@ -1036,7 +1036,7 @@ void caf::Viewer::updateComparisonViewActiveFlag()
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::setCurrentComparisonFrame( int frameIndex )
 {
-    if ( m_frameScenes.size() == 0 ) return;
+    if ( m_frameScenes.empty() ) return;
 
     unsigned clampedFrameIndex = static_cast<unsigned>( clampFrameIndex( frameIndex ) );
 
@@ -1072,7 +1072,7 @@ void caf::Viewer::setComparisonViewToFollowAnimation( bool isToFollow )
 //--------------------------------------------------------------------------------------------------
 void caf::Viewer::slotSetCurrentFrame( int frameIndex )
 {
-    if ( m_frameScenes.size() == 0 ) return;
+    if ( m_frameScenes.empty() ) return;
 
     unsigned clampedFrameIndex = static_cast<unsigned>( clampFrameIndex( frameIndex ) );
 

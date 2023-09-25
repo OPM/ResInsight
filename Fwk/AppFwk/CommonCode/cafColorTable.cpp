@@ -48,7 +48,7 @@ namespace caf
 ColorTable::ColorTable( const std::vector<cvf::Color3ub>& colors )
     : m_colors( colors )
 {
-    CVF_ASSERT( m_colors.size() > 0 );
+    CVF_ASSERT( !m_colors.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ ColorTable::ColorTable( const std::vector<cvf::Color3ub>& colors )
 ColorTable::ColorTable( const cvf::Color3ubArray& colors )
     : m_colors( colors.begin(), colors.end() )
 {
-    CVF_ASSERT( m_colors.size() > 0 );
+    CVF_ASSERT( !m_colors.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
