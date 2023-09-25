@@ -146,8 +146,9 @@ caf::PdmFieldHandle* RimSeismicSectionCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_surfaceIntersectionLinesScaleFactor );
-    uiOrdering.add( &m_hiddenSurfaceLines );
+    auto grp = uiOrdering.addNewGroup( "Surface Intersection Lines" );
+    grp->add( &m_surfaceIntersectionLinesScaleFactor );
+    grp->add( &m_hiddenSurfaceLines );
 
     uiOrdering.skipRemainingFields( true );
 }
