@@ -644,7 +644,11 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisT
 
         QString data = ap->writeObjectToXmlString();
 
-        axisPropertiesForPlotAxis( ap->plotAxis() )->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxis() );
+        if ( axisProperty )
+        {
+            axisProperty->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        }
     }
 }
 
