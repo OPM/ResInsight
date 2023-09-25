@@ -196,34 +196,31 @@ void RimMainPlotCollection::initAfterRead()
 
     // Move cross plots into summary plot collection
     auto crossPlots = m_summaryCrossPlotCollection_OBSOLETE->plots();
-    if ( !crossPlots.empty() )
+    for ( auto crossPlot : crossPlots )
     {
+        m_summaryCrossPlotCollection_OBSOLETE->removePlot( crossPlot );
+
         auto* summaryMultiPlot = new RimSummaryMultiPlot;
         summaryMultiPlot->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( m_summaryMultiPlotCollection->multiPlots().size() + 1 ) );
         summaryMultiPlot->setAsPlotMdiWindow();
         m_summaryMultiPlotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
-        for ( auto crossPlot : crossPlots )
+        // We want to convert RimSummaryCrossPlot into a RimSummaryPlot. The cross plot is derived from RimSummaryPlot, but we need to
+        // create a new RimSummaryPlot to be able to store the PDM object as a RimSummaryPlot instead of RimSummaryCrossPlot
+        auto summaryPlot = new RimSummaryPlot;
+        summaryMultiPlot->addPlot( summaryPlot );
+
+        for ( auto curve : crossPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
         {
-            m_summaryCrossPlotCollection_OBSOLETE->removePlot( crossPlot );
-            summaryMultiPlot->addPlot( crossPlot );
+            crossPlot->removeCurve( curve );
 
-            // We want to convert RimSummaryCrossPlot into a RimSummaryPlot. The cross plot is derived from RimSummaryPlot, but we need to
-            // create a new RimSummaryPlot to be able to store the PDM object as a RimSummaryPlot instead of RimSummaryCrossPlot
-            auto summaryPlot = new RimSummaryPlot;
-            summaryMultiPlot->addPlot( summaryPlot );
+            if ( curve->summaryCaseX() != nullptr ) curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
 
-            for ( auto curve : crossPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
-            {
-                crossPlot->removeCurve( curve );
-
-                if ( curve->summaryCaseX() != nullptr ) curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
-
-                summaryPlot->insertCurve( curve, std::numeric_limits<size_t>::max() );
-            }
-
-            delete crossPlot;
+            summaryPlot->insertCurve( curve, std::numeric_limits<size_t>::max() );
+            summaryPlot->findOrAssignPlotAxisX( curve );
         }
+
+        delete crossPlot;
     }
 }
 

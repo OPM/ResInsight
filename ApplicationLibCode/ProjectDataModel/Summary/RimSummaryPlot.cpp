@@ -644,7 +644,11 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisT
 
         QString data = ap->writeObjectToXmlString();
 
-        axisPropertiesForPlotAxis( ap->plotAxis() )->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxis() );
+        if ( axisProperty )
+        {
+            axisProperty->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        }
     }
 }
 
@@ -1237,20 +1241,39 @@ void RimSummaryPlot::findOrAssignPlotAxisX( RimSummaryCurve* curve )
         }
     }
 
-    if ( curve->summaryCaseX() != nullptr && plotWidget() && plotWidget()->isMultiAxisSupported() )
+    if ( curve->summaryCaseX() != nullptr )
     {
-        QString axisObjectName = "New Axis";
-        if ( !curve->summaryAddressX().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressX().uiText() );
-
-        RiuPlotAxis newPlotAxis = plotWidget()->createNextPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-        addNewAxisProperties( newPlotAxis, axisObjectName );
-        if ( plotWidget() )
+        if ( !plotWidget() )
         {
-            plotWidget()->ensureAxisIsCreated( newPlotAxis );
+            // Assign a default bottom axis if no plot widget is present. This can happens during project load and transformation to new
+            // cross plot structure in RimMainPlotCollection::initAfterRead()
+
+            QString axisObjectName = "New Axis";
+            if ( !curve->summaryAddressX().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressX().uiText() );
+
+            RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultBottomForSummaryVectors();
+            addNewAxisProperties( newPlotAxis, axisObjectName );
+
+            curve->setTopOrBottomAxisX( newPlotAxis );
+
+            return;
         }
 
-        updateAxes();
-        curve->setTopOrBottomAxisX( newPlotAxis );
+        if ( plotWidget()->isMultiAxisSupported() )
+        {
+            QString axisObjectName = "New Axis";
+            if ( !curve->summaryAddressX().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressX().uiText() );
+
+            RiuPlotAxis newPlotAxis = plotWidget()->createNextPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+            addNewAxisProperties( newPlotAxis, axisObjectName );
+            if ( plotWidget() )
+            {
+                plotWidget()->ensureAxisIsCreated( newPlotAxis );
+            }
+
+            updateAxes();
+            curve->setTopOrBottomAxisX( newPlotAxis );
+        }
     }
 }
 
