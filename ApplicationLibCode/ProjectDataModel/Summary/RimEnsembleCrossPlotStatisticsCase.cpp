@@ -128,16 +128,7 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
 
     std::vector<std::pair<double, double>> pairs;
 
-    // find resampling period
-    // compute resampled values for both X and Y
-    // construct xy value pairs
-
-    // sort values on x
-    // split X-axis into a number of bins
-    // for each bin, compute statistics on Y values in bin
-
-    auto [minTimeStep, maxTimeStep] = RimEnsembleStatisticsCase::findMinMaxTimeStep( sumCases, inputAddressX );
-
+    auto [minTimeStep, maxTimeStep]   = RimEnsembleStatisticsCase::findMinMaxTimeStep( sumCases, inputAddressX );
     RiaDefines::DateTimePeriod period = RimEnsembleStatisticsCase::findBestResamplingPeriod( minTimeStep, maxTimeStep );
 
     for ( const auto& sumCase : sumCases )
@@ -212,6 +203,38 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
             binnedYValues.clear();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCrossPlotStatisticsCase::hasP10Data() const
+{
+    return !m_p10Data.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCrossPlotStatisticsCase::hasP50Data() const
+{
+    return !m_p50Data.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCrossPlotStatisticsCase::hasP90Data() const
+{
+    return !m_p90Data.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCrossPlotStatisticsCase::hasMeanData() const
+{
+    return !m_meanData.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

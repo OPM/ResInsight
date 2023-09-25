@@ -189,7 +189,7 @@ void RimSummaryAddressSelector::fieldChangedByUi( const caf::PdmFieldHandle* cha
         if ( dlg.exec() == QDialog::Accepted )
         {
             auto curveSelection = dlg.curveSelection();
-            if ( curveSelection.size() > 0 )
+            if ( !curveSelection.empty() )
             {
                 m_summaryCase           = curveSelection[0].summaryCaseY();
                 m_summaryCaseCollection = curveSelection[0].ensemble();
@@ -218,7 +218,7 @@ auto createOptionsForSummaryCase = []() -> QList<caf::PdmOptionItemInfo>
     std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
 
     auto options = RiaSummaryTools::optionsForSummaryCases( cases );
-    if ( options.size() > 0 )
+    if ( !options.empty() )
     {
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
@@ -274,11 +274,13 @@ QList<caf::PdmOptionItemInfo> RimSummaryAddressSelector::calculateValueOptions( 
     {
         return createOptionsForSummaryCase();
     }
-    else if ( fieldNeedingOptions == &m_summaryCaseCollection )
+
+    if ( fieldNeedingOptions == &m_summaryCaseCollection )
     {
         return createOptionsForEnsemble();
     }
-    else if ( fieldNeedingOptions == &m_summaryAddressUiField )
+
+    if ( fieldNeedingOptions == &m_summaryAddressUiField )
     {
         std::set<RifEclipseSummaryAddress> addresses;
         if ( m_dataSource == SummaryDataSource::SINGLE_CASE && m_summaryCase() )
@@ -296,7 +298,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryAddressSelector::calculateValueOptions( 
 
         return createOptionsForAddresses( addresses );
     }
-    else if ( fieldNeedingOptions == &m_plotAxisProperties )
+
+    if ( fieldNeedingOptions == &m_plotAxisProperties )
     {
         if ( auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>() )
         {
@@ -348,7 +351,7 @@ void RimSummaryAddressSelector::defineEditorAttribute( const caf::PdmFieldHandle
 {
     if ( &m_pushButtonSelectSummaryAddress == field )
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( attrib )
         {
             attrib->m_buttonText = "...";

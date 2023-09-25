@@ -42,10 +42,10 @@ public:
                     int                                 binCount,
                     int                                 sampleCountThreshold );
 
-    bool hasP10Data() const { return !m_p10Data.empty(); }
-    bool hasP50Data() const { return !m_p50Data.empty(); }
-    bool hasP90Data() const { return !m_p90Data.empty(); }
-    bool hasMeanData() const { return !m_meanData.empty(); }
+    bool hasP10Data() const;
+    bool hasP50Data() const;
+    bool hasP90Data() const;
+    bool hasMeanData() const;
 
     QString                       caseName() const override;
     void                          createSummaryReaderInterface() override;

@@ -50,7 +50,7 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     CAF_PDM_InitField( &m_crossPlotCurvesStatisticsSampleCountThresholdPerBin,
                        "CrossPlotCurvesStatisticsSampleCountThresholdPerBin",
                        100,
-                       "Sample Treshold per Bin" );
+                       "Sample Threshold per Bin" );
 
     CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "" );
 

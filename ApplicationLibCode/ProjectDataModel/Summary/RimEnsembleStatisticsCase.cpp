@@ -61,26 +61,51 @@ std::vector<time_t> RimEnsembleStatisticsCase::timeSteps( const RifEclipseSummar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatisticsCase::hasP10Data() const
+{
+    return !m_p10Data.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatisticsCase::hasP50Data() const
+{
+    return !m_p50Data.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatisticsCase::hasP90Data() const
+{
+    return !m_p90Data.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatisticsCase::hasMeanData() const
+{
+    return !m_meanData.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    const std::vector<double>* sourceData   = nullptr;
-    auto                       quantityName = resultAddress.ensembleStatisticsVectorName();
+    auto quantityName = resultAddress.ensembleStatisticsVectorName();
 
     if ( quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME )
-        sourceData = &p10();
+        *values = m_p10Data;
     else if ( quantityName == ENSEMBLE_STAT_P50_QUANTITY_NAME )
-        sourceData = &p50();
+        *values = m_p50Data;
     else if ( quantityName == ENSEMBLE_STAT_P90_QUANTITY_NAME )
-        sourceData = &p90();
+        *values = m_p90Data;
     else if ( quantityName == ENSEMBLE_STAT_MEAN_QUANTITY_NAME )
-        sourceData = &mean();
+        *values = m_meanData;
 
-    if ( !sourceData ) return false;
-
-    values->clear();
-    values->reserve( sourceData->size() );
-    for ( auto val : *sourceData )
-        values->push_back( val );
     return true;
 }
 
@@ -95,38 +120,6 @@ std::string RimEnsembleStatisticsCase::unitName( const RifEclipseSummaryAddress&
     }
 
     return "Ensemble Statistics Case - Undefined Unit";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimEnsembleStatisticsCase::p10() const
-{
-    return m_p10Data;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimEnsembleStatisticsCase::p50() const
-{
-    return m_p50Data;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimEnsembleStatisticsCase::p90() const
-{
-    return m_p90Data;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimEnsembleStatisticsCase::mean() const
-{
-    return m_meanData;
 }
 
 //--------------------------------------------------------------------------------------------------
