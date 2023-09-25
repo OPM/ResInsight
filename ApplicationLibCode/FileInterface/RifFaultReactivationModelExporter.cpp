@@ -76,7 +76,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
         [&]() { return printPredefinedFields( stream, partNames ); },
         [&]() { return printInteractions( stream, partNames, borders ); },
-        [&]() { return printSteps( stream, partNames ); },
+        [&]() { return printSteps( stream, partNames, rimModel.selectedTimeSteps(), rimModel.isFirstTimeStepsSelected() ); },
     };
 
     for ( auto method : methods )
@@ -377,16 +377,20 @@ std::pair<bool, std::string>
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string>
     RifFaultReactivationModelExporter::printSteps( std::ostream&                                                     stream,
-                                                   const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames )
+                                                   const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
+                                                   const std::vector<QDateTime>&                                     timeSteps,
+                                                   bool isFirstTimeStepsSelected )
 {
-    int numSteps = 2;
+    // First time step has to be selected in order to export currently
+    if ( !isFirstTimeStepsSelected ) return { false, "Failed to export fault reactivation INP: first time step not selected." };
 
-    for ( int i = 0; i < numSteps; i++ )
+    for ( int i = 0; i < static_cast<int>( timeSteps.size() ); i++ )
     {
         std::string stepNum  = std::to_string( i + 1 );
         std::string stepName = "Step-" + stepNum;
         RifInpExportTools::printComment( stream, "----------------------------------------------------------------" );
         RifInpExportTools::printSectionComment( stream, "STEP: " + stepName );
+        RifInpExportTools::printComment( stream, "Time step: " + timeSteps[i].toString().toStdString() );
 
         RifInpExportTools::printHeading( stream, "Step, name=" + stepName + ", nlgeom=NO" );
 
