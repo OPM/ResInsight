@@ -39,9 +39,7 @@ public:
     static bool updateAddressIfMatching( const QVariant&                                  oldValue,
                                          const QVariant&                                  newValue,
                                          RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                         RifEclipseSummaryAddress*                        adr );
+                                         RifEclipseSummaryAddress&                        adr );
 
-    static bool updateHistoryAndSummaryQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr );
-
-    static bool updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr );
+    static bool updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress& adr );
 };

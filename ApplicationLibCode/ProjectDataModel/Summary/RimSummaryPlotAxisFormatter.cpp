@@ -270,8 +270,17 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        std::string              unitText;
-        RifEclipseSummaryAddress sumAddress = curveDef.summaryAddressY();
+        RifEclipseSummaryAddress sumAddress;
+        if ( m_axisProperties->plotAxis().isHorizontal() )
+        {
+            sumAddress = curveDef.summaryAddressX();
+        }
+        else
+        {
+            sumAddress = curveDef.summaryAddressY();
+        }
+
+        std::string unitText;
         if ( curveDef.ensemble() )
         {
             std::vector<RimSummaryCase*> sumCases = curveDef.ensemble()->allSummaryCases();
@@ -285,8 +294,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
             RimSummaryCase* sumCase = curveDef.summaryCaseY();
             if ( m_axisProperties->plotAxis().isHorizontal() )
             {
-                sumCase    = curveDef.summaryCaseX();
-                sumAddress = curveDef.summaryAddressX();
+                sumCase = curveDef.summaryCaseX();
             }
 
             if ( sumCase && sumCase->summaryReader() )

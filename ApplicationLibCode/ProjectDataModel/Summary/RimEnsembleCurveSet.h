@@ -25,7 +25,9 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
 #include "RiaSummaryCurveAddress.h"
+#include "RiaSummaryDefines.h"
 
+#include "RimEnsembleCrossPlotStatisticsCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleCurveSetInterface.h"
 #include "RimTimeStepFilter.h"
@@ -64,6 +66,7 @@ class RiuSummaryVectorSelectionDialog;
 class RiuPlotWidget;
 class RiuPlotCurve;
 class RimPlotAxisPropertiesInterface;
+class RimSummaryAddressSelector;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -111,6 +114,7 @@ public:
     void deleteCurve( RimSummaryCurve* curve );
 
     void                          setSummaryAddress( RifEclipseSummaryAddress address );
+    void                          setCurveAddress( RiaSummaryCurveAddress address );
     void                          setSummaryAddressAndStatisticsFlag( RifEclipseSummaryAddress address );
     RifEclipseSummaryAddress      summaryAddress() const;
     RiaSummaryCurveAddress        curveAddress() const;
@@ -215,9 +219,13 @@ private:
 
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
     void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
+    void onXAxisAddressChanged( const caf::SignalEmitter* emitter );
 
     void setTransparentCurveColor();
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
+
+    void setSummaryAddressX( RifEclipseSummaryAddress address );
+    bool isXAxisSummaryVector() const;
 
 private:
     caf::PdmField<bool>                       m_showCurves;
@@ -230,6 +238,9 @@ private:
     caf::PdmField<RifEclipseSummaryAddress>       m_yValuesSummaryAddressUiField;
     caf::PdmField<bool>                           m_yPushButtonSelectSummaryAddress;
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::HorizontalAxisType>> m_xAxisType;
+    caf::PdmChildField<RimSummaryAddressSelector*>              m_xAddressSelector;
 
     caf::PdmField<ColorModeEnum>                                       m_colorMode;
     caf::PdmField<cvf::Color3f>                                        m_mainEnsembleColor;
@@ -270,7 +281,8 @@ private:
     QPointer<RiuDraggableOverlayFrame> m_filterOverlayFrame;
     QPointer<RiuDraggableOverlayFrame> m_objectiveFunctionOverlayFrame;
 
-    std::unique_ptr<RimEnsembleStatisticsCase> m_ensembleStatCase;
+    std::unique_ptr<RimEnsembleStatisticsCase>          m_ensembleStatCaseY;
+    std::unique_ptr<RimEnsembleCrossPlotStatisticsCase> m_ensembleStatCaseXY;
 
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
 

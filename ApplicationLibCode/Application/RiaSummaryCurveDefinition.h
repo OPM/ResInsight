@@ -38,8 +38,8 @@ class RiaSummaryCurveDefinition
 {
 public:
     RiaSummaryCurveDefinition();
-    explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress, bool isEnsembleCurve );
-    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress );
+    explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCaseY, const RifEclipseSummaryAddress& summaryAddressY, bool isEnsembleCurve );
+    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddressY );
 
     // Y Axis
     RimSummaryCase*           summaryCaseY() const;

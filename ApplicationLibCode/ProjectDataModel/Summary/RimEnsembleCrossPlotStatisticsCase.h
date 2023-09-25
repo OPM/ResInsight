@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017- Statoil ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,12 +30,17 @@ class RifEclipseSummaryAddress;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleStatisticsCase : public RimSummaryCase, public RifSummaryReaderInterface
+class RimEnsembleCrossPlotStatisticsCase : public RimSummaryCase, public RifSummaryReaderInterface
 {
 public:
-    RimEnsembleStatisticsCase();
+    RimEnsembleCrossPlotStatisticsCase();
 
-    const std::vector<time_t>& timeSteps() const;
+    void calculate( const std::vector<RimSummaryCase*>& sumCases,
+                    const RifEclipseSummaryAddress&     inputAddressX,
+                    const RifEclipseSummaryAddress&     inputAddressY,
+                    bool                                includeIncompleteCurves,
+                    int                                 binCount,
+                    int                                 sampleCountThreshold );
 
     bool hasP10Data() const;
     bool hasP50Data() const;
@@ -47,28 +52,23 @@ public:
     RifSummaryReaderInterface*    summaryReader() override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
-    void calculate( const std::vector<RimSummaryCase*>& sumCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
-
     std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     bool                values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
     std::string         unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
-
-    static std::vector<RimSummaryCase*> validSummaryCases( const std::vector<RimSummaryCase*>& allSumCases,
-                                                           const RifEclipseSummaryAddress&     inputAddress,
-                                                           bool                                includeIncompleteCurves );
-    static std::pair<time_t, time_t>    findMinMaxTimeStep( const std::vector<RimSummaryCase*>& sumCases,
-                                                            const RifEclipseSummaryAddress&     inputAddress );
-    static RiaDefines::DateTimePeriod   findBestResamplingPeriod( time_t minTimeStep, time_t maxTimeStep );
 
 private:
     void clearData();
 
 private:
-    std::vector<time_t> m_timeSteps;
     std::vector<double> m_p10Data;
     std::vector<double> m_p50Data;
     std::vector<double> m_p90Data;
     std::vector<double> m_meanData;
+
+    RifEclipseSummaryAddress m_adrX;
+    RifEclipseSummaryAddress m_adrY;
+
+    std::vector<double> m_binnedXValues;
 
     caf::PdmPointer<RimSummaryCase> m_firstSummaryCase;
 };

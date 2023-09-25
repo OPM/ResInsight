@@ -46,6 +46,12 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels" );
     CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves" );
 
+    CAF_PDM_InitField( &m_crossPlotCurvesBinCount, "CrossPlotCurvesBinCount", 100, "Bin Count" );
+    CAF_PDM_InitField( &m_crossPlotCurvesStatisticsSampleCountThresholdPerBin,
+                       "CrossPlotCurvesStatisticsSampleCountThresholdPerBin",
+                       100,
+                       "Sample Threshold per Bin" );
+
     CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "" );
 
     CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
@@ -77,6 +83,22 @@ bool RimEnsembleStatistics::isActive() const
 void RimEnsembleStatistics::setShowStatisticsCurves( bool show )
 {
     m_active = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEnsembleStatistics::crossPlotCurvesBinCount() const
+{
+    return m_crossPlotCurvesBinCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEnsembleStatistics::crossPlotCurvesSampleCountThresholdPerBin() const
+{
+    return m_crossPlotCurvesStatisticsSampleCountThresholdPerBin;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,27 +146,23 @@ void RimEnsembleStatistics::showColorField( bool show )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_showP10Curve ||
-         changedField == &m_showP50Curve || changedField == &m_showP90Curve || changedField == &m_showMeanCurve ||
-         changedField == &m_showCurveLabels || changedField == &m_color || changedField == &m_includeIncompleteCurves ||
-         changedField == &m_showStatisticsCurveLegends )
-    {
-        auto curveSet = m_parentCurveSet;
-        if ( !curveSet ) return;
-
-        curveSet->updateStatisticsCurves();
-
-        // Trigger update of tree view editor for ensemble curve set as they depend on these fields
-        if ( changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_color ) curveSet->updateEditors();
-    }
-
     if ( changedField == &m_hideEnsembleCurves )
     {
         auto curveSet = m_parentCurveSet;
         if ( !curveSet ) return;
 
         curveSet->updateAllCurves();
+
+        return;
     }
+
+    auto curveSet = m_parentCurveSet;
+    if ( !curveSet ) return;
+
+    curveSet->updateStatisticsCurves();
+
+    // Trigger update of tree view editor for ensemble curve set as they depend on these fields
+    if ( changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_color ) curveSet->updateEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,6 +179,10 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_basedOnFilteredCases );
     uiOrdering.add( &m_includeIncompleteCurves );
     uiOrdering.add( &m_showCurveLabels );
+
+    auto crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot" );
+    crossPlotGroup->add( &m_crossPlotCurvesBinCount );
+    crossPlotGroup->add( &m_crossPlotCurvesStatisticsSampleCountThresholdPerBin );
 
     if ( m_showColorField ) uiOrdering.add( &m_color );
 

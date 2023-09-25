@@ -292,7 +292,7 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         {
             if ( v.summaryAddress.category() == address.category() )
             {
-                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, address.category(), &v.summaryAddress );
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, address.category(), v.summaryAddress );
             }
         }
     }

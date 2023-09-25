@@ -525,7 +525,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 
         options = RiaSummaryTools::optionsForSummaryCases( cases );
 
-        if ( options.size() > 0 )
+        if ( !options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
@@ -643,38 +643,53 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( m_xAxisType == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
-            auto curveValuesX    = valuesX();
-            auto curveTimeStepsX = timeStepsX();
-
-            auto curveTimeStepsY = timeStepsY();
-
-            if ( curveValuesY.empty() || curveValuesX.empty() )
+            if ( m_xValuesSummaryAddress()->address().category() == SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
             {
-                shouldPopulateViewWithEmptyData = true;
+                std::vector<double> curveValuesX;
+                std::vector<double> curveValuesY;
+
+                // Read x and y values from ensemble statistics (not time steps are read)
+                RifSummaryReaderInterface* reader = m_xValuesSummaryCase()->summaryReader();
+
+                reader->values( m_xValuesSummaryAddress->address(), &curveValuesX );
+                reader->values( m_yValuesSummaryAddress->address(), &curveValuesY );
+
+                setSamplesFromXYValues( curveValuesX, curveValuesY, useLogarithmicScale );
             }
             else
             {
-                RiaTimeHistoryCurveMerger curveMerger;
-                curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
-                curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
-                curveMerger.computeInterpolatedValues();
+                auto curveValuesX    = valuesX();
+                auto curveTimeStepsX = timeStepsX();
+                auto curveTimeStepsY = timeStepsY();
 
-                if ( curveMerger.allXValues().size() > 0 )
+                if ( curveValuesY.empty() || curveValuesX.empty() )
                 {
-                    setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
-                                            curveMerger.interpolatedYValuesForAllXValues( 1 ),
-                                            useLogarithmicScale );
+                    shouldPopulateViewWithEmptyData = true;
                 }
                 else
                 {
-                    shouldPopulateViewWithEmptyData = true;
+                    RiaTimeHistoryCurveMerger curveMerger;
+                    curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
+                    curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
+                    curveMerger.computeInterpolatedValues();
+
+                    if ( !curveMerger.allXValues().empty() )
+                    {
+                        setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
+                                                curveMerger.interpolatedYValuesForAllXValues( 1 ),
+                                                useLogarithmicScale );
+                    }
+                    else
+                    {
+                        shouldPopulateViewWithEmptyData = true;
+                    }
                 }
             }
         }
         else
         {
             std::vector<time_t> curveTimeStepsY = timeStepsY();
-            if ( plot->timeAxisProperties() && curveTimeStepsY.size() > 0 && curveTimeStepsY.size() == curveValuesY.size() )
+            if ( plot->timeAxisProperties() && !curveTimeStepsY.empty() && curveTimeStepsY.size() == curveValuesY.size() )
             {
                 if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
                 {
@@ -732,7 +747,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
 
                     std::vector<double> timeFromSimulationStart;
-                    if ( curveTimeStepsY.size() )
+                    if ( !curveTimeStepsY.empty() )
                     {
                         time_t startDate = curveTimeStepsY[0];
                         for ( const auto& date : curveTimeStepsY )
@@ -1193,7 +1208,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( dlg.exec() == QDialog::Accepted )
         {
             auto curveSelection = dlg.curveSelection();
-            if ( curveSelection.size() > 0 )
+            if ( !curveSelection.empty() )
             {
                 m_yValuesSummaryCase = curveSelection[0].summaryCaseY();
                 m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
@@ -1227,7 +1242,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( dlg.exec() == QDialog::Accepted )
         {
             auto curveSelection = dlg.curveSelection();
-            if ( curveSelection.size() > 0 )
+            if ( !curveSelection.empty() )
             {
                 m_xValuesSummaryCase = curveSelection[0].summaryCaseY();
                 m_xValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
@@ -1255,7 +1270,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
             curveMerger.computeInterpolatedValues();
 
-            if ( curveMerger.validIntervalsForAllXValues().size() == 0 )
+            if ( curveMerger.validIntervalsForAllXValues().empty() )
             {
                 QString description;
 

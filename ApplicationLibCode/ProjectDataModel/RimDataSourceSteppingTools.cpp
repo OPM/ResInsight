@@ -77,18 +77,16 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
 bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                                  oldValue,
                                                           const QVariant&                                  newValue,
                                                           RifEclipseSummaryAddressDefines::SummaryCategory category,
-                                                          RifEclipseSummaryAddress*                        adr )
+                                                          RifEclipseSummaryAddress&                        adr )
 {
-    if ( !adr ) return false;
-
     if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();
 
-        if ( adr->regionNumber() == oldInt )
+        if ( adr.regionNumber() == oldInt )
         {
-            adr->setRegion( newInt );
+            adr.setRegion( newInt );
 
             return true;
         }
@@ -98,9 +96,9 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();
 
-        if ( adr->aquiferNumber() == oldInt )
+        if ( adr.aquiferNumber() == oldInt )
         {
-            adr->setAquiferNumber( newInt );
+            adr.setAquiferNumber( newInt );
 
             return true;
         }
@@ -110,9 +108,9 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
 
-        if ( adr->groupName() == oldString )
+        if ( adr.groupName() == oldString )
         {
-            adr->setGroupName( newString );
+            adr.setGroupName( newString );
 
             return true;
         }
@@ -122,9 +120,9 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
 
-        if ( adr->networkName() == oldString )
+        if ( adr.networkName() == oldString )
         {
-            adr->setNetworkName( newString );
+            adr.setNetworkName( newString );
 
             return true;
         }
@@ -134,9 +132,9 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
 
-        if ( adr->wellName() == oldString )
+        if ( adr.wellName() == oldString )
         {
-            adr->setWellName( newString );
+            adr.setWellName( newString );
 
             return true;
         }
@@ -146,9 +144,9 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
-        if ( adr->blockAsString() == oldString )
+        if ( adr.blockAsString() == oldString )
         {
-            adr->setCellIjk( newString );
+            adr.setCellIjk( newString );
 
             return true;
         }
@@ -157,11 +155,11 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
-        if ( adr->formatUiTextRegionToRegion() == oldString )
+        if ( adr.formatUiTextRegionToRegion() == oldString )
         {
             auto [region1, region2] = RifEclipseSummaryAddress::regionToRegionPairFromUiText( newString );
-            adr->setRegion( region1 );
-            adr->setRegion2( region2 );
+            adr.setRegion( region1 );
+            adr.setRegion2( region2 );
 
             return true;
         }
@@ -170,9 +168,9 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
     {
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();
-        if ( adr->wellSegmentNumber() == oldInt )
+        if ( adr.wellSegmentNumber() == oldInt )
         {
-            adr->setWellSegmentNumber( newInt );
+            adr.setWellSegmentNumber( newInt );
 
             return true;
         }
@@ -184,48 +182,14 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( const QVariant&           oldValue,
-                                                                            const QVariant&           newValue,
-                                                                            RifEclipseSummaryAddress* adr )
+bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress& adr )
 {
-    if ( !adr ) return false;
-
     std::string oldString = oldValue.toString().toStdString();
     std::string newString = newValue.toString().toStdString();
 
-    if ( adr->vectorName() == oldString )
+    if ( adr.vectorName() == oldString )
     {
-        adr->setVectorName( newString );
-
-        return true;
-    }
-
-    std::string correspondingOldString = RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( oldString );
-    std::string correspondingNewString = RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( newString );
-
-    if ( adr->vectorName() == correspondingOldString )
-    {
-        adr->setVectorName( correspondingNewString );
-
-        return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr )
-{
-    if ( !adr ) return false;
-
-    std::string oldString = oldValue.toString().toStdString();
-    std::string newString = newValue.toString().toStdString();
-
-    if ( adr->vectorName() == oldString )
-    {
-        adr->setVectorName( newString );
+        adr.setVectorName( newString );
 
         return true;
     }
