@@ -50,7 +50,7 @@ public:
     QString                       caseName() const override;
     void                          createSummaryReaderInterface() override;
     RifSummaryReaderInterface*    summaryReader() override;
-    RiaDefines::EclipseUnitSystem unitSystem() const;
+    RiaDefines::EclipseUnitSystem unitSystem() const override;
 
     std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     bool                values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
@@ -69,4 +69,6 @@ private:
     RifEclipseSummaryAddress m_adrY;
 
     std::vector<double> m_binnedXValues;
+
+    caf::PdmPointer<RimSummaryCase> m_firstSummaryCase;
 };

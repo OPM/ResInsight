@@ -74,7 +74,12 @@ bool RimEnsembleCrossPlotStatisticsCase::values( const RifEclipseSummaryAddress&
 //--------------------------------------------------------------------------------------------------
 std::string RimEnsembleCrossPlotStatisticsCase::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    return "RimEnsembleCrossPlotStatisticsCase - Undefined Unit";
+    if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
+    {
+        return m_firstSummaryCase->summaryReader()->unitName( resultAddress );
+    }
+
+    return "Ensemble Cross Plot - Undefined Unit";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,8 +117,12 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
                                                     int                                 sampleCountThreshold )
 {
     if ( !inputAddressX.isValid() || !inputAddressY.isValid() ) return;
+    if ( sumCases.empty() ) return;
 
     clearData();
+
+    // Use first summary case to get unit system and other meta data
+    m_firstSummaryCase = sumCases.front();
 
     m_adrX = inputAddressX;
     m_adrY = inputAddressY;
@@ -122,11 +131,11 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
 
     // find resampling period
     // compute resampled values for both X and Y
-    // put xy pairs into values
+    // construct xy value pairs
 
     // sort values on x
-    // split x axis into relevant number of bins
-    // for each bin, compute statistics on y values
+    // split X-axis into a number of bins
+    // for each bin, compute statistics on Y values in bin
 
     auto [minTimeStep, maxTimeStep] = RimEnsembleStatisticsCase::findMinMaxTimeStep( sumCases, inputAddressX );
 
@@ -185,6 +194,9 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
         }
         else
         {
+            // Add statistics for current bin if sample count is above threshold
+            // TODO: Add option to skip bin if unique realization count is below threshold
+
             if ( binnedYValues.size() > sampleCountThreshold )
             {
                 double p10, p50, p90, mean;
@@ -208,6 +220,11 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RimEnsembleCrossPlotStatisticsCase::unitSystem() const
 {
+    if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
+    {
+        return m_firstSummaryCase->summaryReader()->unitSystem();
+    }
+
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
@@ -216,6 +233,11 @@ RiaDefines::EclipseUnitSystem RimEnsembleCrossPlotStatisticsCase::unitSystem() c
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RimEnsembleCrossPlotStatisticsCase::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
+    if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
+    {
+        return m_firstSummaryCase->summaryReader()->timeSteps( resultAddress );
+    }
+
     return {};
 }
 
@@ -229,4 +251,5 @@ void RimEnsembleCrossPlotStatisticsCase::clearData()
     m_p50Data.clear();
     m_p90Data.clear();
     m_meanData.clear();
+    m_firstSummaryCase = nullptr;
 }
