@@ -54,8 +54,7 @@ bool RimEnsembleCrossPlotStatisticsCase::values( const RifEclipseSummaryAddress&
         }
     }
 
-    const std::vector<double>* sourceData   = nullptr;
-    auto                       quantityName = resultAddress.ensembleStatisticsVectorName();
+    auto quantityName = resultAddress.ensembleStatisticsVectorName();
 
     if ( quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME )
         *values = m_p10Data;
@@ -197,7 +196,7 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
             // Add statistics for current bin if sample count is above threshold
             // TODO: Add option to skip bin if unique realization count is below threshold
 
-            if ( binnedYValues.size() > sampleCountThreshold )
+            if ( static_cast<int>(binnedYValues.size()) > sampleCountThreshold )
             {
                 double p10, p50, p90, mean;
                 RigStatisticsMath::calculateStatisticsCurves( binnedYValues, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
