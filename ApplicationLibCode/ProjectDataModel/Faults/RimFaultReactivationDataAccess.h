@@ -24,6 +24,7 @@
 class RimEclipseCase;
 class RigEclipseCaseData;
 class RigResultAccessor;
+class RigMainGrid;
 
 //==================================================================================================
 ///
@@ -45,6 +46,7 @@ protected:
 private:
     RimEclipseCase*             m_case;
     RigEclipseCaseData*         m_caseData;
+    const RigMainGrid*          m_mainGrid;
     size_t                      m_timeStepIndex;
     cvf::ref<RigResultAccessor> m_resultAccessor;
 };

@@ -23,6 +23,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigFault.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 
@@ -34,9 +35,14 @@
 RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* thecase, size_t timeStepIndex )
     : m_case( thecase )
     , m_caseData( nullptr )
+    , m_mainGrid( nullptr )
     , m_timeStepIndex( timeStepIndex )
 {
-    if ( m_case ) m_caseData = m_case->eclipseCaseData();
+    if ( m_case )
+    {
+        m_caseData = m_case->eclipseCaseData();
+        m_mainGrid = m_case->mainGrid();
+    }
     if ( m_caseData )
     {
         RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
@@ -63,14 +69,16 @@ double RimFaultReactivationDataAccess::porePressureAtPosition( cvf::Vec3d positi
     double retValue = 0.0;
 
     size_t cellIdx = cvf::UNDEFINED_SIZE_T;
-    if ( ( m_case != nullptr ) && ( m_caseData != nullptr ) )
+    if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
-        auto grid = m_case->mainGrid();
-        if ( grid != nullptr ) cellIdx = grid->findReservoirCellIndexFromPoint( position );
+        cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
 
-        if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) && m_resultAccessor.notNull() )
+        // TODO - adjust cell index to be on correct side of fault
+
+        if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
         {
-            return m_resultAccessor->cellScalar( cellIdx );
+            double value = m_resultAccessor->cellScalar( cellIdx );
+            if ( !std::isinf( value ) ) return 100000.0 * m_resultAccessor->cellScalar( cellIdx ); // return in pascal, not bar
         }
     }
 

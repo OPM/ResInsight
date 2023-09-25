@@ -167,6 +167,29 @@ caf::PdmFieldHandle* RimFaultReactivationModel::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<bool, std::string> RimFaultReactivationModel::validateBeforeRun()
+{
+    if ( fault() == nullptr )
+    {
+        return std::make_pair( false, "A fault has not selected. Please check your model settings." );
+    }
+
+    if ( selectedTimeSteps().size() < 2 )
+    {
+        return std::make_pair( false, "You need at least 2 selected timesteps. Please check your model settings." );
+    }
+
+    if ( selectedTimeSteps()[0] != m_availableTimeSteps[0] )
+    {
+        return std::make_pair( false, "The first available timestep must always be selected. Please check your model settings." );
+    }
+
+    return std::make_pair( true, "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::setFault( RimFaultInView* fault )
 {
     m_fault = fault;
