@@ -758,6 +758,7 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
                 m_seismicData->legendConfig()->changed.connect( this, &RimSeismicSection::onLegendConfigChanged );
 
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_ALL;
+            m_wellPathPoints.clear();
         }
         else if ( ( changedField == &m_type ) || ( changedField == &m_targets ) || ( changedField == &m_depthIndex ) ||
                   ( changedField == &m_inlineIndex ) || ( changedField == &m_xlineIndex ) || changedField == &m_zFilterType ||
