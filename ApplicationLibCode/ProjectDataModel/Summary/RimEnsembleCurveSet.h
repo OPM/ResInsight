@@ -225,6 +225,7 @@ private:
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 
     void setSummaryAddressX( RifEclipseSummaryAddress address );
+    bool isXAxisSummaryVector() const;
 
 private:
     caf::PdmField<bool>                       m_showCurves;
