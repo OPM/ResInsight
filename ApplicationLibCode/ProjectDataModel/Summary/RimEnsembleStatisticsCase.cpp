@@ -89,7 +89,12 @@ bool RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAd
 //--------------------------------------------------------------------------------------------------
 std::string RimEnsembleStatisticsCase::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    return "RimEnsembleStatisticsCase - Undefined Unit";
+    if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
+    {
+        return m_firstSummaryCase->summaryReader()->unitName( resultAddress );
+    }
+
+    return "Ensemble Statistics Case - Undefined Unit";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,15 +160,18 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
                                            const RifEclipseSummaryAddress&     inputAddress,
                                            bool                                includeIncompleteCurves )
 {
-    std::vector<time_t>              allTimeSteps;
-    std::vector<std::vector<double>> caseAndTimeStepValues;
-
+    clearData();
     if ( !inputAddress.isValid() ) return;
+    if ( sumCases.empty() ) return;
 
-    auto [minTimeStep, maxTimeStep] = findMinMaxTimeStep( sumCases, inputAddress );
+    // Use first summary case to get unit system and other meta data
+    m_firstSummaryCase = sumCases.front();
 
+    auto [minTimeStep, maxTimeStep]   = findMinMaxTimeStep( sumCases, inputAddress );
     RiaDefines::DateTimePeriod period = findBestResamplingPeriod( minTimeStep, maxTimeStep );
 
+    std::vector<time_t>              allTimeSteps;
+    std::vector<std::vector<double>> caseAndTimeStepValues;
     caseAndTimeStepValues.reserve( sumCases.size() );
     for ( const auto& sumCase : sumCases )
     {
@@ -185,7 +193,6 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         }
     }
 
-    clearData();
     m_timeSteps = allTimeSteps;
 
     for ( size_t timeStepIndex = 0; timeStepIndex < allTimeSteps.size(); timeStepIndex++ )
@@ -215,6 +222,11 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 //--------------------------------------------------------------------------------------------------
 RiaDefines::EclipseUnitSystem RimEnsembleStatisticsCase::unitSystem() const
 {
+    if ( m_firstSummaryCase && m_firstSummaryCase->summaryReader() )
+    {
+        return m_firstSummaryCase->summaryReader()->unitSystem();
+    }
+
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
@@ -228,6 +240,7 @@ void RimEnsembleStatisticsCase::clearData()
     m_p50Data.clear();
     m_p90Data.clear();
     m_meanData.clear();
+    m_firstSummaryCase = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

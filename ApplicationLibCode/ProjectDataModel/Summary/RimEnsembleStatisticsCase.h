@@ -49,7 +49,7 @@ public:
     QString                       caseName() const override;
     void                          createSummaryReaderInterface() override;
     RifSummaryReaderInterface*    summaryReader() override;
-    RiaDefines::EclipseUnitSystem unitSystem() const;
+    RiaDefines::EclipseUnitSystem unitSystem() const override;
 
     void calculate( const std::vector<RimSummaryCase*>& sumCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
 
@@ -73,4 +73,6 @@ private:
     std::vector<double> m_p50Data;
     std::vector<double> m_p90Data;
     std::vector<double> m_meanData;
+
+    caf::PdmPointer<RimSummaryCase> m_firstSummaryCase;
 };
