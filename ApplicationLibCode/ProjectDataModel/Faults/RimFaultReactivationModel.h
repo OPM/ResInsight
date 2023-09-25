@@ -100,6 +100,7 @@ public:
     void    setBaseDir( QString path );
 
     std::vector<QDateTime> selectedTimeSteps() const;
+    bool                   isFirstTimeStepsSelected() const;
 
     QStringList commandParameters() const;
 

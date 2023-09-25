@@ -533,6 +533,16 @@ std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::isFirstTimeStepsSelected() const
+{
+    if ( m_availableTimeSteps.empty() || selectedTimeSteps().empty() ) return false;
+
+    return m_availableTimeSteps.front() == selectedTimeSteps().front();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimFaultReactivationModel::commandParameters() const
 {
     QStringList retlist;
