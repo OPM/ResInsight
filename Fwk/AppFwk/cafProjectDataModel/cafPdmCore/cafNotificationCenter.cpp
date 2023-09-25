@@ -38,7 +38,7 @@ NotificationCenter::NotificationCenter()
 //--------------------------------------------------------------------------------------------------
 NotificationCenter::~NotificationCenter()
 {
-    CAF_ASSERT( m_observers.size() == 0 );
+    CAF_ASSERT( m_observers.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------

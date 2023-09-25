@@ -165,7 +165,7 @@ bool OpenGLContextGroup::initializeContextGroup(OpenGLContext* currentContext)
 //--------------------------------------------------------------------------------------------------
 void OpenGLContextGroup::uninitializeContextGroup()
 {
-    CVF_ASSERT(m_contexts.size() == 0);
+    CVF_ASSERT(m_contexts.empty());
     CVF_ASSERT(!m_resourceManager->hasAnyOpenGLResources());
 
     // Just replace capablities with a new object

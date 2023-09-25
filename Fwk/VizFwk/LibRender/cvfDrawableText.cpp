@@ -322,7 +322,7 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
     CVF_ASSERT(oglContext);
     CVF_ASSERT(!shaderProgram || ShaderProgram::supportedOpenGL(oglContext));
 
-    if (m_texts.size() == 0) return;
+    if (m_texts.empty()) return;
     CVF_ASSERT(m_positions.size() == m_texts.size() && m_positions.size() == m_directions.size());
 
     if (m_checkPosVisible)

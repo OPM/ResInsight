@@ -133,7 +133,7 @@ Array<T>::Array(const std::vector<T>& other)
 {
     ground();
 
-    if (other.size() > 0)
+    if (!other.empty())
     {
         assign(other);
     }

@@ -188,7 +188,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObject
 PdmFieldHandle* PdmReferenceHelper::fieldFromReference( PdmObjectHandle* root, const QString& reference )
 {
     QStringList decodedReference = reference.split( " " );
-    if ( decodedReference.size() == 0 ) return nullptr;
+    if ( decodedReference.empty() ) return nullptr;
 
     QString fieldKeyword = decodedReference[0];
     decodedReference.pop_front();
@@ -364,7 +364,7 @@ PdmObjectHandle* PdmReferenceHelper::findRoot( PdmObjectHandle* obj )
 {
     std::vector<PdmObjectHandle*> path = findPathToObjectFromRoot( obj );
 
-    if ( path.size() )
+    if ( !path.empty() )
         return path[0];
     else
         return nullptr;

@@ -311,7 +311,7 @@ void PdmUiLineEditor::slotEditingFinished()
 
     uiField()->enableAutoValue( false );
 
-    if ( m_optionCache.size() )
+    if ( !m_optionCache.empty() )
     {
         int index = findIndexToOption( m_lineEdit->text() );
         if ( index > -1 )

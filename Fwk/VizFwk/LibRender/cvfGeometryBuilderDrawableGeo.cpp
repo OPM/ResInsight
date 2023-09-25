@@ -158,7 +158,7 @@ ref<DrawableGeo> GeometryBuilderDrawableGeo::drawableGeo() const
 {
     ref<DrawableGeo> geo = new DrawableGeo;
 
-    if (m_vertices.size() > 0)
+    if (!m_vertices.empty())
     {
         ref<Vec3fArray> newVertexArray = new Vec3fArray(m_vertices);
         geo->setVertexArray(newVertexArray.p());

@@ -328,7 +328,7 @@ void VertexBundle::removeGenericAttribute(const VertexAttribute* vertexAttribute
         m_genericAttributes.eraseAt(idx);
         m_genericBufferObjects.eraseAt(idx);
 
-        if (m_genericAttributes.size() == 0)
+        if (m_genericAttributes.empty())
         {
             m_hasGenericAttribs = false;
         }

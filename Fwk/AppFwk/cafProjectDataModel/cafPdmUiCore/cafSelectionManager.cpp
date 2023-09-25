@@ -358,7 +358,7 @@ void SelectionManager::clearAll()
 
     m_selectionPrLevel.clear();
 
-    if ( changedSelectionLevels.size() )
+    if ( !changedSelectionLevels.empty() )
     {
         notifySelectionChanged( changedSelectionLevels );
     }

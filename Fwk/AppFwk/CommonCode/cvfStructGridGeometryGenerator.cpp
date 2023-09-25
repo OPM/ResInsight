@@ -113,7 +113,7 @@ void CellRangeFilter::addCellExclude( size_t i, size_t j, size_t k, bool applyTo
 //--------------------------------------------------------------------------------------------------
 bool CellRangeFilter::isCellVisible( size_t i, size_t j, size_t k, bool isInSubGridArea ) const
 {
-    if ( m_includeRanges.size() == 0 )
+    if ( m_includeRanges.empty() )
     {
         return false;
     }
@@ -159,7 +159,7 @@ bool CellRangeFilter::isCellExcluded( size_t i, size_t j, size_t k, bool isInSub
 //--------------------------------------------------------------------------------------------------
 bool CellRangeFilter::hasIncludeRanges() const
 {
-    if ( m_includeRanges.size() > 0 )
+    if ( !m_includeRanges.empty() )
         return true;
     else
         return false;
@@ -411,7 +411,7 @@ void StructGridGeometryGenerator::computeArrays()
                 if ( isCellFaceVisible( i, j, k, StructGridInterface::POS_K ) )
                     visibleFaces.push_back( cvf::StructGridInterface::POS_K );
 
-                if ( visibleFaces.size() > 0 )
+                if ( !visibleFaces.empty() )
                 {
                     cvf::Vec3d cornerVerts[8];
                     m_grid->cellCornerVertices( cellIndex, cornerVerts );

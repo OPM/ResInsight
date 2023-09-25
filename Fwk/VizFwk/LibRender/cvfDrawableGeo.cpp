@@ -1428,7 +1428,7 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3dArray* intersectionPoints, U
         accumulatedFaceCount += numPrimFaces;
     }
 
-    if (isectPts.size() > 0)
+    if (!isectPts.empty())
     {
         if (intersectionPoints) intersectionPoints->assign(isectPts);
         if (facesHit) facesHit->assign(faceIndices);

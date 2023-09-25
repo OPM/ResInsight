@@ -158,7 +158,7 @@ ref<Rendering> SingleQuadRenderingGenerator::generate()
 //     sampler->setMinFilter(Sampler::NEAREST);
 //     sampler->setMagFilter(Sampler::NEAREST);
 
-    if (m_textures.size() > 0)
+    if (!m_textures.empty())
     {
         // Setup the texture binding render state
         ref<RenderStateTextureBindings> textureBindings = new RenderStateTextureBindings;

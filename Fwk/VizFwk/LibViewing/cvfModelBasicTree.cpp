@@ -475,7 +475,7 @@ void ModelBasicTreeNode::mergeParts(double maxExtent, uint minimumPrimitiveCount
         }
     }
 
-    if (childrenToBeRemoved.size() > 0)
+    if (!childrenToBeRemoved.empty())
     {
         // Remove children from last to first index to make sure the indices are valid
         std::vector<ModelBasicTreeNode*>::iterator it;

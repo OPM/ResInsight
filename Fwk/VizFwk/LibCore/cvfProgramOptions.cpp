@@ -501,7 +501,7 @@ Option ProgramOptions::option(const String& optionName) const
 String ProgramOptions::firstValue(const String& optionName) const
 {
     const ParsedOption* parsedOption = findParsedOption(optionName);
-    if (parsedOption && parsedOption->m_values.size() > 0)
+    if (parsedOption && !parsedOption->m_values.empty())
     {
         return parsedOption->m_values[0];
     }
@@ -657,7 +657,7 @@ String ProgramOptions::usageText(int maxWidth, int maxOptionWidth) const
         std::vector<String> descrLines = breakStringIntoLines(descrArr[iopt], static_cast<size_t>(maxDescrWidth));
 
         String s = String("%1 ").arg(optAndValArr[iopt], -(firstColWidth - 1));
-        if (s.size() > static_cast<size_t>(firstColWidth) && descrLines.size() > 0)
+        if (s.size() > static_cast<size_t>(firstColWidth) && !descrLines.empty())
         {   
             s += "\n" + firstColBlanks;
         }
@@ -683,7 +683,7 @@ String ProgramOptions::usageText(int maxWidth, int maxOptionWidth) const
 std::vector<String> ProgramOptions::breakStringIntoLines(const String& str, size_t maxCharsPerLine)
 {
     std::vector<String> words = str.split();
-    if (words.size() < 1)
+    if (words.empty())
     {
         return std::vector<String>();
     }

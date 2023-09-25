@@ -208,7 +208,7 @@ caf::CmdFeature* CmdFeatureManager::commandFeature( const std::string& commandId
 //--------------------------------------------------------------------------------------------------
 void CmdFeatureManager::refreshStates( const QStringList& commandIdList )
 {
-    if ( commandIdList.size() == 0 )
+    if ( commandIdList.empty() )
     {
         for ( size_t i = 0; i < m_commandFeatures.size(); i++ )
         {
@@ -241,7 +241,7 @@ void CmdFeatureManager::refreshStates( const QStringList& commandIdList )
 //--------------------------------------------------------------------------------------------------
 void CmdFeatureManager::refreshEnabledState( const QStringList& commandIdList )
 {
-    if ( commandIdList.size() == 0 )
+    if ( commandIdList.empty() )
     {
         for ( size_t i = 0; i < m_commandFeatures.size(); i++ )
         {
@@ -267,7 +267,7 @@ void CmdFeatureManager::refreshEnabledState( const QStringList& commandIdList )
 //--------------------------------------------------------------------------------------------------
 void CmdFeatureManager::refreshCheckedState( const QStringList& commandIdList )
 {
-    if ( commandIdList.size() == 0 )
+    if ( commandIdList.empty() )
     {
         for ( size_t i = 0; i < m_commandFeatures.size(); i++ )
         {

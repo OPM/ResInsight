@@ -161,7 +161,7 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     QList<PdmOptionItemInfo> options = uiField()->valueOptions();
     m_optionItemCount                = options.size();
-    if ( options.size() > 0 || uiField()->isUiReadOnly( uiConfigName ) )
+    if ( !options.empty() || uiField()->isUiReadOnly( uiConfigName ) )
     {
         m_isEditOperationsAvailable = false;
     }
@@ -322,7 +322,7 @@ void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, cons
         m_listView->selectionModel()->select( m_listView->currentIndex(), QItemSelectionModel::SelectCurrent );
 
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
-        if ( idxList.size() >= 1 )
+        if ( !idxList.empty() )
         {
             if ( idxList[0].row() < m_optionItemCount )
             {
@@ -471,7 +471,7 @@ bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
             {
                 QModelIndexList idxList      = m_listView->selectionModel()->selectedIndexes();
                 bool            isAnyDeleted = false;
-                while ( idxList.size() )
+                while ( !idxList.empty() )
                 {
                     m_model->removeRow( idxList[0].row() );
                     idxList      = m_listView->selectionModel()->selectedIndexes();

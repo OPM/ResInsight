@@ -379,7 +379,7 @@ void PdmUiTreeViewEditor::customMenuRequested( QPoint pos )
 
     caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "PdmUiTreeViewEditor", &menu );
 
-    if ( menu.actions().size() > 0 )
+    if ( !menu.actions().empty() )
     {
         // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
         QPoint globalPos = m_treeView->viewport()->mapToGlobal( pos );

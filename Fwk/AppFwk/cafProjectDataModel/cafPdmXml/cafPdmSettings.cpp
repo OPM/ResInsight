@@ -67,7 +67,7 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
             readFieldsFromApplicationStore( child, subContext );
         }
 
-        if ( children.size() == 0 )
+        if ( children.empty() )
         {
             QString key = context + fieldHandle->keyword();
             if ( settings.contains( key ) )
@@ -116,7 +116,7 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
             writeFieldsToApplicationStore( child, subContext );
         }
 
-        if ( children.size() == 0 )
+        if ( children.empty() )
         {
             caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
             CAF_ASSERT( valueField );
