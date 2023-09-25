@@ -66,17 +66,25 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
     auto model = rimModel.model();
     CAF_ASSERT( !model.isNull() );
-    printHeading( stream, applicationNameAndVersion );
-    printParts( stream, *model, partNames, borders, faces, boundaries, rimModel.localCoordSysNormalsXY() );
-    printAssembly( stream, *model, partNames );
-    printMaterials( stream );
-    printInteractionProperties( stream, faultFriction );
-    printBoundaryConditions( stream, *model, partNames, boundaries );
-    printPredefinedFields( stream, partNames );
-    printInteractions( stream, partNames, borders );
-    printSteps( stream, partNames );
 
-    // TODO: improve error handling
+    std::vector<std::function<std::pair<bool, std::string>()>> methods = {
+        [&]() { return printHeading( stream, applicationNameAndVersion ); },
+        [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries, rimModel.localCoordSysNormalsXY() ); },
+        [&]() { return printAssembly( stream, *model, partNames ); },
+        [&]() { return printMaterials( stream ); },
+        [&]() { return printInteractionProperties( stream, faultFriction ); },
+        [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
+        [&]() { return printPredefinedFields( stream, partNames ); },
+        [&]() { return printInteractions( stream, partNames, borders ); },
+        [&]() { return printSteps( stream, partNames ); },
+    };
+
+    for ( auto method : methods )
+    {
+        auto [isOk, errorMessage] = method();
+        if ( !isOk ) return { false, errorMessage };
+    }
+
     return { true, "" };
 }
 
@@ -184,6 +192,8 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
 
         RifInpExportTools::printLine( stream, "," );
         RifInpExportTools::printHeading( stream, "End Part" );
+
+        if ( !stream.good() ) return { false, "Failed to write part " + partName + " to fault reactivation INP." };
     }
 
     return { true, "" };
