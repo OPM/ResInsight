@@ -2046,6 +2046,8 @@ void RimSummaryPlot::disconnectCurveSignals( RimSummaryCurve* curve )
 void RimSummaryPlot::curveDataChanged( const caf::SignalEmitter* emitter )
 {
     loadDataAndUpdate();
+
+    curvesChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
