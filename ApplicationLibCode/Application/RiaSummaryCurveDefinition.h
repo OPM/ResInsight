@@ -30,6 +30,7 @@
 
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RiaSummaryCurveAddress;
 
 //==================================================================================================
 ///
@@ -40,19 +41,25 @@ public:
     RiaSummaryCurveDefinition();
     explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCaseY, const RifEclipseSummaryAddress& summaryAddressY, bool isEnsembleCurve );
     explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddressY );
+    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RiaSummaryCurveAddress& summaryCurveAddress );
+
+    // X and Y Axis
+    RimSummaryCaseCollection* ensemble() const;
+    void                      setEnsemble( RimSummaryCaseCollection* ensemble );
 
     // Y Axis
-    RimSummaryCase*           summaryCaseY() const;
-    RifEclipseSummaryAddress  summaryAddressY() const;
-    RimSummaryCaseCollection* ensemble() const;
-    bool                      isEnsembleCurve() const;
-    void                      setSummaryAddressY( const RifEclipseSummaryAddress& address );
+    RimSummaryCase*          summaryCaseY() const;
+    RifEclipseSummaryAddress summaryAddressY() const;
+    bool                     isEnsembleCurve() const;
+    void                     setSummaryAddressY( const RifEclipseSummaryAddress& address );
 
     // X Axis
     void                     setSummaryCaseX( RimSummaryCase* summaryCase );
     void                     setSummaryAddressX( const RifEclipseSummaryAddress& summaryAddress );
     RimSummaryCase*          summaryCaseX() const;
     RifEclipseSummaryAddress summaryAddressX() const;
+
+    RiaSummaryCurveAddress summaryCurveAddress() const;
 
     void setIdentifierText( SummaryCategory category, const std::string& name );
 
