@@ -864,7 +864,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
 
     for ( auto p : summaryPlots() )
     {
-        for ( auto ax : p->plotYAxes() )
+        for ( auto ax : p->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
         {
             ax->setAutoZoomIfNoCustomRangeIsSet();
         }
@@ -878,7 +878,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         // gather current min/max values for each category (axis label)
         for ( auto plot : summaryPlots() )
         {
-            for ( auto axis : plot->plotYAxes() )
+            for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
             {
                 double minVal = axis->visibleRangeMin();
                 double maxVal = axis->visibleRangeMax();
@@ -900,7 +900,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         // set all plots to use the global min/max values for each category
         for ( auto plot : summaryPlots() )
         {
-            for ( auto axis : plot->plotYAxes() )
+            for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
             {
                 auto [minVal, maxVal] = axisRanges[axis->objectName()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
@@ -1080,7 +1080,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
     {
         std::map<RiuPlotAxis, std::pair<double, double>> axisRanges;
 
-        for ( auto axis : plot->plotYAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
         {
             for ( auto curve : plot->summaryCurves() )
             {
@@ -1146,7 +1146,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         }
 
         // set all plots to use the global min/max values for each category
-        for ( auto axis : plot->plotYAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
         {
             auto [minVal, maxVal] = axisRanges[axis->plotAxis()];
             if ( RiaDefines::isVertical( axis->plotAxis().axis() ) && !std::isinf( minVal ) && !std::isinf( maxVal ) )
@@ -1215,7 +1215,7 @@ void RimSummaryMultiPlot::setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot
     auto timeAxisProp = summaryPlot->timeAxisProperties();
     if ( timeAxisProp ) timeAxisProp->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
 
-    for ( auto plotAxis : summaryPlot->plotYAxes() )
+    for ( auto plotAxis : summaryPlot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
     {
         plotAxis->enableAutoValueMinMax( enableAutoValueMinMax );
         plotAxis->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
@@ -1281,10 +1281,8 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
                 timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
             }
 
-            for ( auto* axisProp : p->plotYAxes() )
+            for ( auto* axisProp : p->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
             {
-                if ( !axisProp ) continue;
-
                 auto tickMarkCount = ( rowsPerPage() == 1 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
                                                             : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
 
@@ -1314,10 +1312,8 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
     {
         for ( auto p : summaryPlots() )
         {
-            for ( auto* axisProp : p->plotYAxes() )
+            for ( auto* axisProp : p->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
             {
-                if ( !axisProp ) continue;
-
                 axisProp->computeAndSetAutoValueForScaleFactor();
                 axisProp->setShowUnitText( true );
                 axisProp->setShowDescription( true );

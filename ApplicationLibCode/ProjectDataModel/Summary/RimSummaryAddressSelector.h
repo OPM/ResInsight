@@ -23,6 +23,8 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
 
+#include "RimPlotAxisProperties.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -55,6 +57,7 @@ public:
     void setResamplingPeriod( RiaDefines::DateTimePeriodEnum resampling );
     void setPlotAxisProperties( RimPlotAxisPropertiesInterface* plotAxisProperties );
     void setShowDataSource( bool enable );
+    void setAxisOrientation( RimPlotAxisProperties::Orientation orientation );
 
     RimSummaryCase*                 summaryCase() const;
     RimSummaryCaseCollection*       ensemble() const;
@@ -79,4 +82,6 @@ private:
 
     SummaryDataSource m_dataSource;
     bool              m_showDataSource;
+
+    RimPlotAxisProperties::Orientation m_plotAxisOrientation;
 };

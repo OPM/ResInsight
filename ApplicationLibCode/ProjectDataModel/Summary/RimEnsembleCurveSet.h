@@ -261,7 +261,7 @@ private:
     caf::PdmField<std::vector<QDateTime>>         m_selectedTimeSteps;
 
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
-    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
+    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;
 
     caf::PdmChildField<RimRegularLegendConfig*>           m_legendConfig;
     caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;

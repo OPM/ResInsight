@@ -551,20 +551,16 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     {
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::VERTICAL ) )
         {
-            // TODO: Should we allow time axis to be used as Y axis?
-            if ( dynamic_cast<RimPlotAxisProperties*>( axis ) )
-            {
-                options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
         }
     }
     else if ( fieldNeedingOptions == &m_xPlotAxisProperties )
     {
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::HORIZONTAL ) )
         {
             options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
         }

@@ -147,6 +147,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_xAddressSelector, "XAddressSelector", "" );
     m_xAddressSelector = new RimSummaryAddressSelector;
+    m_xAddressSelector->setAxisOrientation( RimPlotAxisProperties::Orientation::HORIZONTAL );
     m_xAddressSelector.uiCapability()->setUiTreeHidden( true );
     m_xAddressSelector.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -203,7 +204,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
     m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_yPlotAxisProperties, "Axis", "Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     m_legendConfig = new RimRegularLegendConfig();
@@ -853,7 +854,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateCurveColors();
         updateTimeAnnotations();
     }
-    else if ( changedField == &m_plotAxisProperties )
+    else if ( changedField == &m_yPlotAxisProperties )
     {
         for ( RimSummaryCurve* curve : curves() )
         {
@@ -1000,7 +1001,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_resampling );
-        curveDataGroup->add( &m_plotAxisProperties );
+        curveDataGroup->add( &m_yPlotAxisProperties );
     }
 
     {
@@ -1431,10 +1432,10 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
             options.push_back( caf::PdmOptionItemInfo( name, objFunc ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_plotAxisProperties )
+    else if ( fieldNeedingOptions == &m_yPlotAxisProperties )
     {
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::VERTICAL ) )
         {
             options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
         }
@@ -2391,8 +2392,8 @@ int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol )
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimEnsembleCurveSet::axisY() const
 {
-    if ( m_plotAxisProperties )
-        return m_plotAxisProperties->plotAxis();
+    if ( m_yPlotAxisProperties )
+        return m_yPlotAxisProperties->plotAxis();
     else
         return RiuPlotAxis::defaultLeft();
 }
@@ -2402,8 +2403,8 @@ RiuPlotAxis RimEnsembleCurveSet::axisY() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
-    auto plot            = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-    m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
+    auto plot             = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+    m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
 
     for ( RimSummaryCurve* curve : curves() )
     {
@@ -2416,12 +2417,12 @@ void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::initAfterRead()
 {
-    if ( m_plotAxisProperties.value() == nullptr )
+    if ( m_yPlotAxisProperties.value() == nullptr )
     {
         auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot )
         {
-            m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+            m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
         }
     }
 }

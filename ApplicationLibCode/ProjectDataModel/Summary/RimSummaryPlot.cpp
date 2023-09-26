@@ -49,7 +49,6 @@
 #include "RimGridTimeHistoryCurve.h"
 #include "RimMultiPlot.h"
 #include "RimPlotAxisLogRangeCalculator.h"
-#include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
@@ -621,7 +620,7 @@ const RimSummaryNameHelper* RimSummaryPlot::plotTitleHelper() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot )
 {
-    for ( auto ap : sourceSummaryPlot.plotAxes() )
+    for ( auto ap : sourceSummaryPlot.allPlotAxes() )
     {
         QString data = ap->writeObjectToXmlString();
 
@@ -638,7 +637,7 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisType, const RimSummaryPlot& sourceSummaryPlot )
 {
-    for ( auto ap : sourceSummaryPlot.plotAxes() )
+    for ( auto ap : sourceSummaryPlot.allPlotAxes() )
     {
         if ( ap->plotAxis().axis() != plotAxisType ) continue;
 
@@ -657,9 +656,9 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisT
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& summaryPlot )
 {
-    for ( auto apToCopy : summaryPlot.plotAxes() )
+    for ( auto apToCopy : summaryPlot.allPlotAxes() )
     {
-        for ( auto ap : plotAxes() )
+        for ( auto ap : allPlotAxes() )
         {
             if ( ap->objectName().compare( apToCopy->objectName() ) == 0 )
             {
@@ -2659,7 +2658,7 @@ void RimSummaryPlot::onPlotZoomed()
     setAutoScaleYEnabled( false );
 
     // Disable auto value for min/max fields
-    for ( auto p : plotYAxes() )
+    for ( auto p : plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
     {
         p->enableAutoValueMinMax( false );
     }
@@ -3106,27 +3105,29 @@ bool RimSummaryPlot::isDeletable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxes() const
+std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 {
-    std::vector<RimPlotAxisPropertiesInterface*> axisProps;
-    for ( const auto& ap : m_axisPropertiesArray )
-    {
-        axisProps.push_back( ap );
-    }
-
-    return axisProps;
+    return m_axisPropertiesArray.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotYAxes() const
+std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotAxes( RimPlotAxisProperties::Orientation orientation ) const
 {
     std::vector<RimPlotAxisProperties*> axisProps;
     for ( const auto& ap : m_axisPropertiesArray )
     {
         auto plotAxisProp = dynamic_cast<RimPlotAxisProperties*>( ap.p() );
-        if ( plotAxisProp && plotAxisProp->plotAxis().isVertical() )
+        if ( !plotAxisProp ) continue;
+
+        if ( ( orientation == RimPlotAxisProperties::Orientation::ANY ) ||
+             ( orientation == RimPlotAxisProperties::Orientation::VERTICAL && plotAxisProp->plotAxis().isVertical() ) )
+        {
+            axisProps.push_back( plotAxisProp );
+        }
+        else if ( ( orientation == RimPlotAxisProperties::Orientation::ANY ) ||
+                  ( orientation == RimPlotAxisProperties::Orientation::HORIZONTAL && plotAxisProp->plotAxis().isHorizontal() ) )
         {
             axisProps.push_back( plotAxisProp );
         }

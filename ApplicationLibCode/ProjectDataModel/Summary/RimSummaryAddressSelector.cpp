@@ -72,8 +72,9 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
 
     CAF_PDM_InitFieldNoDefault( &m_resamplingPeriod, "Resampling", "Resampling" );
 
-    m_dataSource     = SummaryDataSource::SINGLE_CASE;
-    m_showDataSource = true;
+    m_dataSource          = SummaryDataSource::SINGLE_CASE;
+    m_showDataSource      = true;
+    m_plotAxisOrientation = RimPlotAxisProperties::Orientation::ANY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,6 +125,14 @@ void RimSummaryAddressSelector::setPlotAxisProperties( RimPlotAxisPropertiesInte
 void RimSummaryAddressSelector::setShowDataSource( bool enable )
 {
     m_showDataSource = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressSelector::setAxisOrientation( RimPlotAxisProperties::Orientation orientation )
+{
+    m_plotAxisOrientation = orientation;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,7 +313,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryAddressSelector::calculateValueOptions( 
         if ( auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>() )
         {
             QList<caf::PdmOptionItemInfo> options;
-            for ( auto axis : plot->plotAxes() )
+            for ( auto axis : plot->plotAxes( m_plotAxisOrientation ) )
             {
                 options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
             }
