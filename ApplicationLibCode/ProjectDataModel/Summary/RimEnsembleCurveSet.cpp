@@ -2332,9 +2332,7 @@ QString RimEnsembleCurveSet::createAutoName() const
 {
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    QString curveSetName = m_summaryAddressNameTools->curveName( RiaSummaryCurveAddress( m_yValuesSummaryAddress->address() ),
-                                                                 plot->plotTitleHelper(),
-                                                                 plot->plotTitleHelper() );
+    QString curveSetName = m_summaryAddressNameTools->curveName( curveAddress(), plot->plotTitleHelper(), plot->plotTitleHelper() );
 
     if ( curveSetName.isEmpty() )
     {
