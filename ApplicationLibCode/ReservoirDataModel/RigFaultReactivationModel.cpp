@@ -21,6 +21,8 @@
 #include "RigGriddedPart3d.h"
 #include "RigPolyLinesData.h"
 
+#include "RimFaultReactivationDataAccess.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -57,6 +59,8 @@ RigFaultReactivationModel::RigFaultReactivationModel()
     for ( auto part : allGridParts() )
     {
         m_3dparts[part] = std::make_shared<RigGriddedPart3d>( part == GridPart::PART2 );
+
+        m_cellIndexAdjustmentMap[part] = {};
     }
 }
 
@@ -343,10 +347,11 @@ std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( GridPart part
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::extractModelData( RimFaultReactivationDataAccess* dataAccess )
+void RigFaultReactivationModel::extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep )
 {
     for ( auto part : allGridParts() )
     {
-        m_3dparts[part]->extractModelData( dataAccess );
+        dataAccess->useCellIndexAdjustment( m_cellIndexAdjustmentMap[part] );
+        m_3dparts[part]->extractModelData( dataAccess, outputTimeStep );
     }
 }

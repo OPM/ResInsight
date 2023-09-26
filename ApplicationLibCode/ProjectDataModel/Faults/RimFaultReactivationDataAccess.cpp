@@ -64,6 +64,14 @@ RimFaultReactivationDataAccess::~RimFaultReactivationDataAccess()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFaultReactivationDataAccess::useCellIndexAdjustment( std::map<size_t, size_t> adjustments )
+{
+    m_cellIndexAdjustment = adjustments;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFaultReactivationDataAccess::porePressureAtPosition( cvf::Vec3d position, double defaultPorePressureGradient )
 {
     double retValue = 0.0;
@@ -73,7 +81,11 @@ double RimFaultReactivationDataAccess::porePressureAtPosition( cvf::Vec3d positi
     {
         cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
 
-        // TODO - adjust cell index to be on correct side of fault
+        // adjust cell index to be on correct side of fault
+        if ( auto search = m_cellIndexAdjustment.find( cellIdx ); search != m_cellIndexAdjustment.end() )
+        {
+            cellIdx = search->second;
+        }
 
         if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
         {

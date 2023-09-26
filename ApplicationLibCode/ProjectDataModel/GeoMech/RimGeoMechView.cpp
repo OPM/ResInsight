@@ -201,7 +201,13 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     if ( m_partsCollection ) m_partsCollection->syncWithCase( m_geomechCase );
 
-    if ( m_faultReactivationResult ) m_faultReactivationResult->onLoadDataAndUpdate();
+    if ( m_faultReactivationResult )
+    {
+        if ( m_geomechCase->gridFileName().toLower().endsWith( ".odb" ) )
+        {
+            m_faultReactivationResult->onLoadDataAndUpdate();
+        }
+    }
 
     scheduleCreateDisplayModelAndRedraw();
 
@@ -1025,7 +1031,11 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_tensorResults() );
     uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
-    uiTreeOrdering.add( m_faultReactivationResult() );
+
+    if ( ( m_faultReactivationResult() != nullptr ) && ( m_faultReactivationResult->isValid() ) )
+    {
+        uiTreeOrdering.add( m_faultReactivationResult() );
+    }
 
     addRequiredUiTreeObjects( uiTreeOrdering );
 

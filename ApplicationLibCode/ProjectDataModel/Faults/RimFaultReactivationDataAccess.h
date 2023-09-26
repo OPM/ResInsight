@@ -21,6 +21,8 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+#include <map>
+
 class RimEclipseCase;
 class RigEclipseCaseData;
 class RigResultAccessor;
@@ -36,6 +38,8 @@ public:
     RimFaultReactivationDataAccess( RimEclipseCase* thecase, size_t timeStepIndex );
     ~RimFaultReactivationDataAccess();
 
+    void useCellIndexAdjustment( std::map<size_t, size_t> adjustments );
+
     double porePressureAtPosition( cvf::Vec3d position, double defaultPorePressureGradient );
 
     size_t timeStepIndex() const;
@@ -49,4 +53,5 @@ private:
     const RigMainGrid*          m_mainGrid;
     size_t                      m_timeStepIndex;
     cvf::ref<RigResultAccessor> m_resultAccessor;
+    std::map<size_t, size_t>    m_cellIndexAdjustment;
 };

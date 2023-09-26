@@ -96,7 +96,7 @@ public:
     std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
 
     void clearModelData();
-    void extractModelData( RimFaultReactivationDataAccess* dataAccess );
+    void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
 protected:
     void generateGrids( cvf::Vec3dArray points );
@@ -126,4 +126,6 @@ private:
     bool                                 m_isValid;
 
     std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
+
+    std::map<GridPart, std::map<size_t, size_t>> m_cellIndexAdjustmentMap;
 };

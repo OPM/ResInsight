@@ -171,7 +171,7 @@ std::pair<bool, std::string> RimFaultReactivationModel::validateBeforeRun()
 {
     if ( fault() == nullptr )
     {
-        return std::make_pair( false, "A fault has not selected. Please check your model settings." );
+        return std::make_pair( false, "A fault has not been selected. Please check your model settings." );
     }
 
     if ( selectedTimeSteps().size() < 2 )
@@ -551,7 +551,12 @@ void RimFaultReactivationModel::updateTimeSteps()
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 {
-    return m_selectedTimeSteps();
+    std::vector<QDateTime> dates;
+    for ( auto d : m_selectedTimeSteps() )
+        dates.push_back( d );
+
+    std::sort( dates.begin(), dates.end() ); //, []( QDateTime a, QDateTime b ) { return a > b; } );
+    return dates;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -651,7 +656,7 @@ bool RimFaultReactivationModel::extractAndExportModelData()
 {
     model()->clearModelData();
 
-    exportModelSettings();
+    if ( !exportModelSettings() ) return false;
 
     auto eCase = eclipseCase();
 
@@ -665,12 +670,13 @@ bool RimFaultReactivationModel::extractAndExportModelData()
         selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
     }
 
+    size_t outputTimeStep = 0;
     // extract data for each timestep
     for ( auto timeStepIdx : selectedTimeStepIndexes )
     {
         RimFaultReactivationDataAccess dataAccess( eCase, timeStepIdx );
 
-        model()->extractModelData( &dataAccess );
+        model()->extractModelData( &dataAccess, outputTimeStep++ );
     }
 
     return true;

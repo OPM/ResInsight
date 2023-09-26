@@ -47,6 +47,8 @@ public:
 
     void onLoadDataAndUpdate();
 
+    bool isValid() const;
+
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

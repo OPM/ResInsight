@@ -62,7 +62,7 @@ public:
                            int                     nVertCellsUpper,
                            double                  thickness );
 
-    void extractModelData( RimFaultReactivationDataAccess* dataAccess );
+    void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
     const std::vector<cvf::Vec3d>&                            nodes() const;
     const std::vector<std::vector<unsigned int>>&             elementIndices() const;
@@ -72,7 +72,7 @@ public:
     const std::map<Boundary, std::vector<unsigned int>>& boundaryElements() const;
     const std::map<Boundary, std::vector<unsigned int>>& boundaryNodes() const;
 
-    const std::vector<double>& nodePorePressure( size_t timeStepIndex ) const;
+    const std::vector<double>& nodePorePressure( size_t outputTimeStep ) const;
 
 protected:
     cvf::Vec3d stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );

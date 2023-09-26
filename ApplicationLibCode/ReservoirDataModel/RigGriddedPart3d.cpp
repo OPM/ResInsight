@@ -360,27 +360,25 @@ const std::map<RigGriddedPart3d::Boundary, std::vector<unsigned int>>& RigGridde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigGriddedPart3d::nodePorePressure( size_t timeStepIndex ) const
+const std::vector<double>& RigGriddedPart3d::nodePorePressure( size_t outputTimeStep ) const
 {
-    if ( timeStepIndex >= m_nodePorePressure.size() ) return m_emptyData;
-    return m_nodePorePressure[timeStepIndex];
+    if ( outputTimeStep >= m_nodePorePressure.size() ) return m_emptyData;
+    return m_nodePorePressure[outputTimeStep];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::extractModelData( RimFaultReactivationDataAccess* dataAccess )
+void RigGriddedPart3d::extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep )
 {
-    const auto timeStepIdx = dataAccess->timeStepIndex();
-
-    if ( m_nodePorePressure.size() <= timeStepIdx )
+    if ( m_nodePorePressure.size() <= outputTimeStep )
     {
-        m_nodePorePressure.resize( timeStepIdx + 1 );
+        m_nodePorePressure.resize( outputTimeStep + 1 );
     }
 
     for ( auto& node : m_nodes )
     {
         double pressure = dataAccess->porePressureAtPosition( node, 1.0 );
-        m_nodePorePressure[timeStepIdx].push_back( pressure );
+        m_nodePorePressure[outputTimeStep].push_back( pressure );
     }
 }
