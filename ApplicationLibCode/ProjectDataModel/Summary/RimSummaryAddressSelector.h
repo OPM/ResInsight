@@ -40,12 +40,6 @@ class RimSummaryAddressSelector : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class SummaryDataSource
-    {
-        SINGLE_CASE,
-        ENSEMBLE
-    };
-
     caf::Signal<> addressChanged;
 
 public:
@@ -71,6 +65,8 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
+    bool isEnsemble() const;
+
 private:
     caf::PdmPtrField<RimSummaryCase*>                 m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*>       m_summaryCaseCollection;
@@ -80,8 +76,7 @@ private:
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
     caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_resamplingPeriod;
 
-    SummaryDataSource m_dataSource;
-    bool              m_showDataSource;
+    bool m_showDataSource;
 
     RimPlotAxisProperties::Orientation m_plotAxisOrientation;
 };
