@@ -206,6 +206,7 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     void updatePlotAxis();
 
@@ -221,7 +222,6 @@ private:
 
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
     void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
-    void onXAxisAddressChanged( const caf::SignalEmitter* emitter );
 
     void setTransparentCurveColor();
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );

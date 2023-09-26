@@ -52,6 +52,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimTimeStepFilter.h"
 
@@ -150,8 +151,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_xAddressSelector->setAxisOrientation( RimPlotAxisProperties::Orientation::HORIZONTAL );
     m_xAddressSelector.uiCapability()->setUiTreeHidden( true );
     m_xAddressSelector.uiCapability()->setUiTreeChildrenHidden( true );
-
-    m_xAddressSelector->addressChanged.connect( this, &RimEnsembleCurveSet::onXAxisAddressChanged );
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR_WITH_ALPHA ), "Coloring Mode" );
 
@@ -1001,6 +1000,33 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( changedChildField == &m_xAddressSelector )
+    {
+        updateAllCurves();
+
+        // The recommended way to trigger update in a parent object is by using caf::Signal. Here we need to update two parent classes, and
+        // they are multiple levels away. To avoid a long signal path that is hard to debug, we use firstAncestorOrThisOfType()
+
+        auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
+        if ( summaryPlot )
+        {
+            summaryPlot->updateAll();
+            summaryPlot->zoomAll();
+        }
+
+        auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+        if ( multiPlot )
+        {
+            multiPlot->updatePlotTitles();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
@@ -1085,14 +1111,6 @@ void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmi
     updateCurveColors();
     updateFilterLegend();
     updateObjectiveFunctionLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::onXAxisAddressChanged( const caf::SignalEmitter* emitter )
-{
-    updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
