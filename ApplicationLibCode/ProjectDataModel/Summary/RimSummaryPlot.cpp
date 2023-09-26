@@ -2365,14 +2365,14 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
         {
             sourceCurveDefs.push_back( curve->curveDefinition() );
         }
+    }
 
-        if ( ensembleCase )
+    if ( ensembleCase )
+    {
+        auto curveSets = m_ensembleCurveSetCollection->curveSets();
+        for ( auto curveSet : curveSets )
         {
-            auto curveSets = m_ensembleCurveSetCollection->curveSets();
-            for ( auto curveSet : curveSets )
-            {
-                sourceCurveDefs.push_back( RiaSummaryCurveDefinition( ensembleCase, curveSet->summaryAddress() ) );
-            }
+            sourceCurveDefs.push_back( RiaSummaryCurveDefinition( ensembleCase, curveSet->summaryAddress() ) );
         }
     }
 
