@@ -924,18 +924,35 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 std::vector<RiaSummaryCurveDefinition> curveDefs;
                 for ( auto summaryCurve : summaryCurves() )
                 {
-                    if ( summaryCurve->axisY() == riuPlotAxis || summaryCurve->axisX() == riuPlotAxis )
+                    if ( summaryCurve->axisY() == riuPlotAxis )
                     {
-                        curveDefs.push_back( summaryCurve->curveDefinition() );
+                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCurve->summaryCaseY(),
+                                                                        summaryCurve->summaryAddressY(),
+                                                                        summaryCurve->isEnsembleCurve() ) );
+                    }
+                    if ( summaryCurve->axisX() == riuPlotAxis )
+                    {
+                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCurve->summaryCaseX(),
+                                                                        summaryCurve->summaryAddressX(),
+                                                                        summaryCurve->isEnsembleCurve() ) );
                     }
                 }
 
                 for ( auto curveSet : ensembleCurveSetCollection()->curveSets() )
                 {
-                    if ( curveSet->axisY() != riuPlotAxis ) continue;
+                    if ( curveSet->axisY() == riuPlotAxis )
+                    {
+                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddress() );
+                        curveDefs.push_back( def );
+                    }
+                    if ( curveSet->axisX() == riuPlotAxis )
+                    {
+                        RiaSummaryCurveDefinition def;
+                        def.setEnsemble( curveSet->summaryCaseCollection() );
+                        def.setSummaryAddressX( curveSet->curveAddress().summaryAddressX() );
 
-                    RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddress() );
-                    curveDefs.push_back( def );
+                        curveDefs.push_back( def );
+                    }
                 }
 
                 RimSummaryPlotAxisFormatter calc( axisProps, {}, curveDefs, visibleAsciiDataCurvesForAxis( riuPlotAxis ), timeHistoryQuantities );
@@ -2322,11 +2339,11 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseColl
     int                               newCurves = 0;
     std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
 
-    std::map<RifEclipseSummaryAddress, std::set<RimSummaryCaseCollection*>> dataVectorMap;
+    std::map<RiaSummaryCurveAddress, std::set<RimSummaryCaseCollection*>> dataVectorMap;
 
     for ( auto& curve : curveSets() )
     {
-        const auto addr = curve->summaryAddress();
+        const auto addr = curve->curveAddress();
         dataVectorMap[addr].insert( curve->summaryCaseCollection() );
     }
 
@@ -2334,7 +2351,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseColl
     {
         if ( ensembles.count( ensemble ) > 0 ) continue;
 
-        auto curveSet = addNewEnsembleCurveY( addr, ensemble );
+        auto curveSet = addNewEnsembleCurve( addr, ensemble );
         curveSetsToUpdate.push_back( curveSet );
         newCurves++;
     }
@@ -2372,7 +2389,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
         auto curveSets = m_ensembleCurveSetCollection->curveSets();
         for ( auto curveSet : curveSets )
         {
-            sourceCurveDefs.push_back( RiaSummaryCurveDefinition( ensembleCase, curveSet->summaryAddress() ) );
+            sourceCurveDefs.push_back( RiaSummaryCurveDefinition( ensembleCase, curveSet->curveAddress() ) );
         }
     }
 
@@ -2436,7 +2453,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             auto addresses = curveDef.ensemble()->ensembleSummaryAddresses();
             if ( addresses.find( curveDef.summaryAddressY() ) != addresses.end() )
             {
-                curveSetsToUpdate.push_back( addNewEnsembleCurveY( curveDef.summaryAddressY(), curveDef.ensemble() ) );
+                curveSetsToUpdate.push_back( addNewEnsembleCurve( curveDef.summaryCurveAddress(), curveDef.ensemble() ) );
                 newCurves++;
             }
         }
@@ -2506,7 +2523,8 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
                 if ( !skipAddress )
                 {
-                    curveSetsToUpdate.push_back( addNewEnsembleCurveY( droppedAddress, ensemble ) );
+                    curveSetsToUpdate.push_back(
+                        addNewEnsembleCurve( RiaSummaryCurveAddress( RifEclipseSummaryAddress::timeAddress(), droppedAddress ), ensemble ) );
                     newCurves++;
                 }
             }
@@ -2628,12 +2646,13 @@ RimSummaryCurve* RimSummaryPlot::addNewCurve( const RifEclipseSummaryAddress& ad
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble )
+RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurve( const RiaSummaryCurveAddress& address, RimSummaryCaseCollection* ensemble )
 {
     auto* curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryCaseCollection( ensemble );
-    curveSet->setSummaryAddressAndStatisticsFlag( address );
+    curveSet->setSummaryAddressAndStatisticsFlag( address.summaryAddressY() );
+    curveSet->setCurveAddress( address );
 
     cvf::Color3f curveColor =
         RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
@@ -2646,6 +2665,9 @@ RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSumma
     curveSet->setColor( curveColor );
 
     ensembleCurveSetCollection()->addCurveSet( curveSet );
+
+    curveSet->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+    curveSet->setBottomOrTopAxis( RiuPlotAxis::defaultBottomForSummaryVectors() );
 
     return curveSet;
 }

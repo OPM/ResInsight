@@ -62,6 +62,7 @@ class RimSummaryPlotSourceStepping;
 class RimTimeAxisAnnotation;
 class RiaSummaryCurveDefinition;
 class RifEclipseSummaryAddress;
+class RiaSummaryCurveAddress;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -307,7 +308,7 @@ private:
                                       RimSummaryCase*                 summaryCase,
                                       const RifEclipseSummaryAddress& addressX,
                                       RimSummaryCase*                 summaryCaseX );
-    RimEnsembleCurveSet* addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
+    RimEnsembleCurveSet* addNewEnsembleCurve( const RiaSummaryCurveAddress& curveAddress, RimSummaryCaseCollection* ensemble );
 
     void updateStackedCurveData();
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );

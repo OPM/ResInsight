@@ -426,6 +426,15 @@ void RimEnsembleCurveSet::setCurveAddress( RiaSummaryCurveAddress address )
 {
     setSummaryAddress( address.summaryAddressY() );
     setSummaryAddressX( address.summaryAddressX() );
+
+    if ( address.summaryAddressX().category() == SummaryCategory::SUMMARY_TIME )
+    {
+        m_xAxisType = RiaDefines::HorizontalAxisType::TIME;
+    }
+    else
+    {
+        m_xAxisType = RiaDefines::HorizontalAxisType::SUMMARY_VECTOR;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -565,6 +574,7 @@ void RimEnsembleCurveSet::onLegendDefinitionChanged()
 void RimEnsembleCurveSet::setSummaryCaseCollection( RimSummaryCaseCollection* sumCaseCollection )
 {
     m_yValuesSummaryCaseCollection = sumCaseCollection;
+    m_xAddressSelector->setEnsemble( sumCaseCollection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2399,6 +2409,17 @@ RiuPlotAxis RimEnsembleCurveSet::axisY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimEnsembleCurveSet::axisX() const
+{
+    if ( m_xAddressSelector->plotAxisProperties() )
+        return m_xAddressSelector->plotAxisProperties()->plotAxis();
+    else
+        return RiuPlotAxis::defaultBottomForSummaryVectors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
     auto plot             = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -2407,6 +2428,20 @@ void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
     for ( RimSummaryCurve* curve : curves() )
     {
         curve->setLeftOrRightAxisY( axisY() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setBottomOrTopAxis( RiuPlotAxis plotAxis )
+{
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+    m_xAddressSelector->setPlotAxisProperties( plot->axisPropertiesForPlotAxis( plotAxis ) );
+
+    for ( RimSummaryCurve* curve : curves() )
+    {
+        curve->setTopOrBottomAxisX( axisX() );
     }
 }
 
