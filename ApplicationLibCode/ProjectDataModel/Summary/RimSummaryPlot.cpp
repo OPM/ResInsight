@@ -335,12 +335,28 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
 {
-    std::vector<RimSummaryCurve*> curves = descendantsIncludingThisOfType<RimSummaryCurve>();
+    std::vector<RimSummaryCurve*> allCurves = descendantsIncludingThisOfType<RimSummaryCurve>();
+
+    std::vector<RimSummaryCurve*> crossPlotCurves;
+    std::vector<RimSummaryCurve*> curves;
+    for ( auto c : allCurves )
+    {
+        if ( c->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        {
+            crossPlotCurves.push_back( c );
+        }
+        else
+        {
+            curves.push_back( c );
+        }
+    }
 
     auto gridCurves  = m_gridTimeHistoryCurves.childrenByType();
     auto asciiCurves = m_asciiDataCurves.childrenByType();
 
     QString text = RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
+
+    text += RimSummaryCurvesData::createTextForCrossPlotCurves( crossPlotCurves );
 
     return text;
 }

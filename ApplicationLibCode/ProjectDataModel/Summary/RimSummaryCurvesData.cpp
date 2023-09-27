@@ -141,6 +141,8 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
                                                    RiaDefines::DateTimePeriod                   resamplingPeriod,
                                                    bool                                         showTimeAsLongString )
 {
+    if ( curves.empty() && asciiCurves.empty() && gridCurves.empty() ) return {};
+
     QString out;
 
     RimSummaryCurvesData summaryCurvesGridData;
@@ -174,6 +176,47 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
     }
 
     return out;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCurvesData::createTextForCrossPlotCurves( const std::vector<RimSummaryCurve*>& curves )
+{
+    QString text;
+
+    for ( const auto& curve : curves )
+    {
+        const auto curveAddress = curve->curveAddress();
+        const auto xAddress     = curveAddress.summaryAddressX();
+        const auto yAddress     = curveAddress.summaryAddressY();
+
+        const auto xValues = curve->valuesX();
+        const auto yValues = curve->valuesY();
+
+        if ( xValues.size() == yValues.size() )
+        {
+            text += curve->curveExportDescription( {} ) + "\n";
+
+            text +=
+                QString( "%1\t%2\n" ).arg( QString::fromStdString( xAddress.vectorName() ) ).arg( QString::fromStdString( yAddress.vectorName() ) );
+
+            for ( size_t i = 0; i < xValues.size(); i++ )
+            {
+                QString line;
+                line += QString::number( xValues[i], 'g', RimSummaryPlot::precision() );
+                line += "\t";
+                line += QString::number( yValues[i], 'g', RimSummaryPlot::precision() );
+                line += "\n";
+
+                text += line;
+            }
+        }
+
+        text += "\n";
+    }
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
