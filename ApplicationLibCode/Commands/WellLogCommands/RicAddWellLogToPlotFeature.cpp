@@ -34,7 +34,7 @@
 #include "RimWellPathCollection.h"
 #include "RiuPlotMainWindowTools.h"
 
-#include "RigWellLogFile.h"
+#include "RigWellLogLasFile.h"
 
 #include "RiuQwtPlotWidget.h"
 
@@ -83,7 +83,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 
             plotTrack->addCurve( curve );
 
-            RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFileData();
+            RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogFileData();
             CVF_ASSERT( wellLogDataFile );
 
             if ( wlIdx == 0 )

@@ -600,7 +600,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                 {
                     using ChannelValNameIdxTuple = std::tuple<double, QString, int>;
 
-                    RigWellLogFile* wellLogFileData = sourceDef.wellLogFile()->wellLogFileData();
+                    RigWellLogLasFile* wellLogFileData = sourceDef.wellLogFile()->wellLogFileData();
 
                     QStringList channelNames = wellLogFileData->wellLogChannelNames();
 

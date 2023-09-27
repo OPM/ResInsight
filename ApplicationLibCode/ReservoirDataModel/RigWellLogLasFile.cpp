@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigWellLogFile.h"
+#include "RigWellLogLasFile.h"
 
 #include "RigWellLogCurveData.h"
 
@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogFile::RigWellLogFile()
+RigWellLogLasFile::RigWellLogLasFile()
     : cvf::Object()
 {
     m_wellLogFile = nullptr;
@@ -46,7 +46,7 @@ RigWellLogFile::RigWellLogFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogFile::~RigWellLogFile()
+RigWellLogLasFile::~RigWellLogLasFile()
 {
     close();
 }
@@ -54,7 +54,7 @@ RigWellLogFile::~RigWellLogFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::open( const QString& fileName, QString* errorMessage )
+bool RigWellLogLasFile::open( const QString& fileName, QString* errorMessage )
 {
     close();
 
@@ -119,7 +119,7 @@ bool RigWellLogFile::open( const QString& fileName, QString* errorMessage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogFile::close()
+void RigWellLogLasFile::close()
 {
     if ( m_wellLogFile )
     {
@@ -134,7 +134,7 @@ void RigWellLogFile::close()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellName() const
+QString RigWellLogLasFile::wellName() const
 {
     CVF_ASSERT( m_wellLogFile );
     return RiaStringEncodingTools::fromNativeEncoded( m_wellLogFile->GetWellName().data() );
@@ -143,7 +143,7 @@ QString RigWellLogFile::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::date() const
+QString RigWellLogLasFile::date() const
 {
     CVF_ASSERT( m_wellLogFile );
     return QString::fromStdString( m_wellLogFile->GetDate() );
@@ -152,7 +152,7 @@ QString RigWellLogFile::date() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RigWellLogFile::wellLogChannelNames() const
+QStringList RigWellLogLasFile::wellLogChannelNames() const
 {
     return m_wellLogChannelNames;
 }
@@ -160,7 +160,7 @@ QStringList RigWellLogFile::wellLogChannelNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogFile::depthValues() const
+std::vector<double> RigWellLogLasFile::depthValues() const
 {
     return values( m_depthLogName );
 }
@@ -168,7 +168,7 @@ std::vector<double> RigWellLogFile::depthValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogFile::tvdMslValues() const
+std::vector<double> RigWellLogLasFile::tvdMslValues() const
 {
     return values( m_tvdMslLogName );
 }
@@ -176,7 +176,7 @@ std::vector<double> RigWellLogFile::tvdMslValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogFile::tvdRkbValues() const
+std::vector<double> RigWellLogLasFile::tvdRkbValues() const
 {
     return values( m_tvdRkbLogName );
 }
@@ -184,7 +184,7 @@ std::vector<double> RigWellLogFile::tvdRkbValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogFile::values( const QString& name ) const
+std::vector<double> RigWellLogLasFile::values( const QString& name ) const
 {
     CVF_ASSERT( m_wellLogFile );
 
@@ -210,7 +210,7 @@ std::vector<double> RigWellLogFile::values( const QString& name ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::depthUnitString() const
+QString RigWellLogLasFile::depthUnitString() const
 {
     QString unit;
 
@@ -226,7 +226,7 @@ QString RigWellLogFile::depthUnitString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const
+QString RigWellLogLasFile::wellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const
 {
     QString unit;
 
@@ -262,7 +262,7 @@ QString RigWellLogFile::wellLogChannelUnitString( const QString& wellLogChannelN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellLogChannelUnitString( const QString& wellLogChannelName ) const
+QString RigWellLogLasFile::wellLogChannelUnitString( const QString& wellLogChannelName ) const
 {
     QString unit;
 
@@ -277,7 +277,7 @@ QString RigWellLogFile::wellLogChannelUnitString( const QString& wellLogChannelN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::hasTvdMslChannel() const
+bool RigWellLogLasFile::hasTvdMslChannel() const
 {
     return !m_tvdMslLogName.isEmpty();
 }
@@ -285,7 +285,7 @@ bool RigWellLogFile::hasTvdMslChannel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::hasTvdRkbChannel() const
+bool RigWellLogLasFile::hasTvdRkbChannel() const
 {
     return !m_tvdRkbLogName.isEmpty();
 }
@@ -293,7 +293,7 @@ bool RigWellLogFile::hasTvdRkbChannel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigWellLogFile::getMissingValue() const
+double RigWellLogLasFile::getMissingValue() const
 {
     return m_wellLogFile->GetContMissing();
 }
@@ -301,7 +301,7 @@ double RigWellLogFile::getMissingValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::DepthUnitType RigWellLogFile::depthUnit() const
+RiaDefines::DepthUnitType RigWellLogLasFile::depthUnit() const
 {
     RiaDefines::DepthUnitType unitType = RiaDefines::DepthUnitType::UNIT_METER;
 
