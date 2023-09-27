@@ -91,7 +91,10 @@ double RimFaultReactivationDataAccess::porePressureAtPosition( cvf::Vec3d positi
         if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
         {
             double value = m_resultAccessor->cellScalar( cellIdx );
-            if ( !std::isinf( value ) ) return 100000.0 * m_resultAccessor->cellScalar( cellIdx ); // return in pascal, not bar
+            if ( !std::isinf( value ) )
+            {
+                return 100000.0 * m_resultAccessor->cellScalar( cellIdx ); // return in pascal, not bar
+            }
         }
     }
 

@@ -555,7 +555,8 @@ std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
     for ( auto d : m_selectedTimeSteps() )
         dates.push_back( d );
 
-    std::sort( dates.begin(), dates.end() ); //, []( QDateTime a, QDateTime b ) { return a > b; } );
+    // selected dates might come in the order they were selected, sort them
+    std::sort( dates.begin(), dates.end() );
     return dates;
 }
 
@@ -670,13 +671,12 @@ bool RimFaultReactivationModel::extractAndExportModelData()
         selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
     }
 
-    size_t outputTimeStep = 0;
     // extract data for each timestep
+    size_t outputTimeStepIndex = 0;
     for ( auto timeStepIdx : selectedTimeStepIndexes )
     {
         RimFaultReactivationDataAccess dataAccess( eCase, timeStepIdx );
-
-        model()->extractModelData( &dataAccess, outputTimeStep++ );
+        model()->extractModelData( &dataAccess, outputTimeStepIndex++ );
     }
 
     return true;
