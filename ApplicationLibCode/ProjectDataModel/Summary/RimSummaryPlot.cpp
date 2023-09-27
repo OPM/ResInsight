@@ -932,9 +932,11 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                     }
                     if ( summaryCurve->axisX() == riuPlotAxis )
                     {
-                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCurve->summaryCaseX(),
-                                                                        summaryCurve->summaryAddressX(),
-                                                                        summaryCurve->isEnsembleCurve() ) );
+                        RiaSummaryCurveDefinition def;
+                        def.setSummaryCaseX( summaryCurve->summaryCaseX() );
+                        def.setSummaryAddressX( summaryCurve->summaryAddressX() );
+
+                        curveDefs.push_back( def );
                     }
                 }
 
