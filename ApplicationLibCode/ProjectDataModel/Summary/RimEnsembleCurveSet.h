@@ -113,9 +113,9 @@ public:
     void addCurve( RimSummaryCurve* curve );
     void deleteCurve( RimSummaryCurve* curve );
 
-    void                          setSummaryAddress( RifEclipseSummaryAddress address );
+    void                          setSummaryAddressY( RifEclipseSummaryAddress address );
     void                          setCurveAddress( RiaSummaryCurveAddress address );
-    void                          setSummaryAddressAndStatisticsFlag( RifEclipseSummaryAddress address );
+    void                          setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address );
     RifEclipseSummaryAddress      summaryAddress() const;
     RiaSummaryCurveAddress        curveAddress() const;
     std::vector<RimSummaryCurve*> curves() const;

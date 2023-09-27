@@ -410,7 +410,7 @@ void RimEnsembleCurveSet::deleteCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::setSummaryAddress( RifEclipseSummaryAddress address )
+void RimEnsembleCurveSet::setSummaryAddressY( RifEclipseSummaryAddress address )
 {
     m_yValuesSummaryAddress->setAddress( address );
     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
@@ -423,7 +423,7 @@ void RimEnsembleCurveSet::setSummaryAddress( RifEclipseSummaryAddress address )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setCurveAddress( RiaSummaryCurveAddress address )
 {
-    setSummaryAddress( address.summaryAddressY() );
+    setSummaryAddressY( address.summaryAddressY() );
     setSummaryAddressX( address.summaryAddressX() );
 
     if ( address.summaryAddressX().category() == SummaryCategory::SUMMARY_TIME )
@@ -455,9 +455,9 @@ bool RimEnsembleCurveSet::isXAxisSummaryVector() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::setSummaryAddressAndStatisticsFlag( RifEclipseSummaryAddress address )
+void RimEnsembleCurveSet::setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address )
 {
-    setSummaryAddress( address );
+    setSummaryAddressY( address );
     m_statistics->setShowStatisticsCurves( !address.isHistoryVector() );
     m_statistics->updateAllRequiredEditors();
 }

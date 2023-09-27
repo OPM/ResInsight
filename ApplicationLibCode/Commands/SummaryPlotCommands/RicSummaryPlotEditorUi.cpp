@@ -503,7 +503,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
 
                 // Do not call setSummaryAddressAndStatisticsFlag() here, as the call to m_statistics->updateAllRequiredEditors(); causes a
                 // crash in updateUiOrdering. The statistics curves will be created when the curve set is added to the plot.
-                curveSet->setSummaryAddress( curveDef.summaryAddressY() );
+                curveSet->setSummaryAddressY( curveDef.summaryAddressY() );
 
                 // Set single curve set color
                 auto   allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();

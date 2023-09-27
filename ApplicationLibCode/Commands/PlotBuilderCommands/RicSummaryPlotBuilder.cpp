@@ -250,7 +250,7 @@ RimEnsembleCurveSet* RicSummaryPlotBuilder::createCurveSet( RimSummaryCaseCollec
     auto curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryCaseCollection( ensemble );
-    curveSet->setSummaryAddressAndStatisticsFlag( addr );
+    curveSet->setSummaryAddressYAndStatisticsFlag( addr );
 
     return curveSet;
 }
