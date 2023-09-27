@@ -46,6 +46,9 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
     if ( m_caseData )
     {
         RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
+
+        m_case->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( resVarAddress );
+
         m_resultAccessor = RigResultAccessorFactory::createFromResultAddress( m_caseData,
                                                                               0,
                                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
@@ -74,8 +77,6 @@ void RimFaultReactivationDataAccess::useCellIndexAdjustment( std::map<size_t, si
 //--------------------------------------------------------------------------------------------------
 double RimFaultReactivationDataAccess::porePressureAtPosition( cvf::Vec3d position, double defaultPorePressureGradient )
 {
-    double retValue = 0.0;
-
     size_t cellIdx = cvf::UNDEFINED_SIZE_T;
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
