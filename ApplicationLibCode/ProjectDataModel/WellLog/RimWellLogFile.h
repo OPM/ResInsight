@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RigWellLogFile.h"
+#include "RigWellLogLasFile.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -57,7 +57,7 @@ public:
     QString   wellName() const;
     QDateTime date() const;
 
-    RigWellLogFile*                     wellLogFileData() { return m_wellLogDataFile.p(); }
+    RigWellLogLasFile*                  wellLogFileData() { return m_wellLogDataFile.p(); }
     std::vector<RimWellLogFileChannel*> wellLogChannels() const;
 
     bool hasFlowData() const;
@@ -86,7 +86,7 @@ private:
     caf::PdmChildArrayField<RimWellLogFileChannel*> m_wellLogChannelNames;
 
 private:
-    cvf::ref<RigWellLogFile>                       m_wellLogDataFile;
+    cvf::ref<RigWellLogLasFile>                    m_wellLogDataFile;
     caf::PdmField<QString>                         m_wellName;
     caf::PdmField<caf::FilePath>                   m_fileName;
     caf::PdmField<QString>                         m_name;

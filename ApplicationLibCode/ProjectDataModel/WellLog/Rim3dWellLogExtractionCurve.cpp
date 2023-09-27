@@ -18,7 +18,7 @@
 
 #include "Rim3dWellLogExtractionCurve.h"
 
-#include "RigWellLogFile.h"
+#include "RigWellLogLasFile.h"
 
 #include "RiaCurveDataTools.h"
 #include "RiaExtractionTools.h"
