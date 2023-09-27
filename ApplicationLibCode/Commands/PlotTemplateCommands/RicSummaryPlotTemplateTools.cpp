@@ -320,11 +320,16 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
             }
 
             // Replace placeholders with object names from selection
-            auto curveAdr = curveSet->summaryAddress();
-            setPlaceholderWellName( &curveAdr, wellNames );
-            setPlaceholderGroupName( &curveAdr, groupNames );
-            setPlaceholderRegion( &curveAdr, regions );
-            curveSet->setSummaryAddressAndStatisticsFlag( curveAdr );
+            auto adr       = curveSet->curveAddress();
+            auto curveAdrY = adr.summaryAddressY();
+            setPlaceholderWellName( &curveAdrY, wellNames );
+            setPlaceholderGroupName( &curveAdrY, groupNames );
+            setPlaceholderRegion( &curveAdrY, regions );
+            auto curveAdrX = adr.summaryAddressX();
+            setPlaceholderWellName( &curveAdrX, wellNames );
+            setPlaceholderGroupName( &curveAdrX, groupNames );
+            setPlaceholderRegion( &curveAdrX, regions );
+            curveSet->setCurveAddress( RiaSummaryCurveAddress( curveAdrX, curveAdrY ) );
         }
     }
 }
