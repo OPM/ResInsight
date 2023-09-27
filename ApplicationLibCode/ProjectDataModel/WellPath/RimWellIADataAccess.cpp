@@ -22,6 +22,8 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigHexIntersectionTools.h"
+
 #include "RimGeoMechCase.h"
 
 #include "../cafHexInterpolator/cafHexInterpolator.h" // Use relative path, as this is a header only file not part of a library
@@ -67,11 +69,21 @@ int RimWellIADataAccess::elementIndex( cvf::Vec3d position )
     cvf::BoundingBox bb;
     bb.add( position );
 
+    auto part = m_caseData->femParts()->part( 0 );
+
     std::vector<size_t> closeElements;
-    m_caseData->femParts()->part( 0 )->findIntersectingElementIndices( bb, &closeElements );
+    part->findIntersectingElementIndices( bb, &closeElements );
     if ( closeElements.empty() ) return -1;
 
-    return (int)closeElements[0];
+    for ( auto elmIdx : closeElements )
+    {
+        std::array<cvf::Vec3d, 8> coordinates;
+        if ( !part->fillElementCoordinates( elmIdx, coordinates ) ) continue;
+
+        if ( RigHexIntersectionTools::isPointInCell( position, coordinates.data() ) ) return (int)elmIdx;
+    }
+
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------

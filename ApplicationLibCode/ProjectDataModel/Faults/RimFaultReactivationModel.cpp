@@ -41,6 +41,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationTools.h"
 #include "RimPolylineTarget.h"
 #include "RimTimeStepFilter.h"
@@ -161,6 +162,29 @@ void RimFaultReactivationModel::setUserDescription( QString description )
 caf::PdmFieldHandle* RimFaultReactivationModel::userDescriptionField()
 {
     return &m_userDescription;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, std::string> RimFaultReactivationModel::validateBeforeRun() const
+{
+    if ( fault() == nullptr )
+    {
+        return std::make_pair( false, "A fault has not been selected. Please check your model settings." );
+    }
+
+    if ( selectedTimeSteps().size() < 2 )
+    {
+        return std::make_pair( false, "You need at least 2 selected timesteps. Please check your model settings." );
+    }
+
+    if ( selectedTimeSteps()[0] != m_availableTimeSteps[0] )
+    {
+        return std::make_pair( false, "The first available timestep must always be selected. Please check your model settings." );
+    }
+
+    return std::make_pair( true, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -527,7 +551,13 @@ void RimFaultReactivationModel::updateTimeSteps()
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 {
-    return m_selectedTimeSteps();
+    std::vector<QDateTime> dates;
+    for ( auto d : m_selectedTimeSteps() )
+        dates.push_back( d );
+
+    // selected dates might come in the order they were selected, sort them
+    std::sort( dates.begin(), dates.end() );
+    return dates;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -625,8 +655,29 @@ bool RimFaultReactivationModel::exportModelSettings()
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationModel::extractAndExportModelData()
 {
-    exportModelSettings();
+    model()->clearModelData();
 
-    // TODO - get values from eclipse and geomech models here
+    if ( !exportModelSettings() ) return false;
+
+    auto eCase = eclipseCase();
+
+    // get the selected time step indexes
+    std::vector<size_t> selectedTimeStepIndexes;
+    for ( auto& timeStep : selectedTimeSteps() )
+    {
+        auto idx = std::find( m_availableTimeSteps.begin(), m_availableTimeSteps.end(), timeStep );
+        if ( idx == m_availableTimeSteps.end() ) return false;
+
+        selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
+    }
+
+    // extract data for each timestep
+    size_t outputTimeStepIndex = 0;
+    for ( auto timeStepIdx : selectedTimeStepIndexes )
+    {
+        RimFaultReactivationDataAccess dataAccess( eCase, timeStepIdx );
+        model()->extractModelData( &dataAccess, outputTimeStepIndex++ );
+    }
+
     return true;
 }

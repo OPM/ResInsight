@@ -104,12 +104,22 @@ RimGeoMechFaultReactivationResult::~RimGeoMechFaultReactivationResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGeoMechFaultReactivationResult::isValid() const
+{
+    return m_bHaveValidData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechFaultReactivationResult::onLoadDataAndUpdate()
 {
     auto geomCase = geoMechCase();
     if ( geomCase == nullptr ) return;
 
-    auto      filename = geomCase->gridFileName();
+    auto filename = geomCase->gridFileName();
+    if ( !filename.toLower().endsWith( ".odb" ) ) return;
+
     QFileInfo fi( filename );
     auto      folder   = fi.path();
     auto      basename = fi.baseName();

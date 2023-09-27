@@ -18,6 +18,8 @@
 
 #include "RigGriddedPart3d.h"
 
+#include "RimFaultReactivationDataAccess.h"
+
 #include "cvfTextureImage.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +48,16 @@ void RigGriddedPart3d::reset()
     m_nodes.clear();
     m_elementIndices.clear();
     m_meshLines.clear();
+
+    clearModelData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::clearModelData()
+{
+    m_nodePorePressure.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,4 +355,30 @@ const std::map<RigGriddedPart3d::Boundary, std::vector<unsigned int>>& RigGridde
 const std::map<RigGriddedPart3d::Boundary, std::vector<unsigned int>>& RigGriddedPart3d::boundaryNodes() const
 {
     return m_boundaryNodes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigGriddedPart3d::nodePorePressure( size_t outputTimeStep ) const
+{
+    if ( outputTimeStep >= m_nodePorePressure.size() ) return m_emptyData;
+    return m_nodePorePressure[outputTimeStep];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep )
+{
+    if ( m_nodePorePressure.size() <= outputTimeStep )
+    {
+        m_nodePorePressure.resize( outputTimeStep + 1 );
+    }
+
+    for ( auto& node : m_nodes )
+    {
+        double pressure = dataAccess->porePressureAtPosition( node, 1.0 );
+        m_nodePorePressure[outputTimeStep].push_back( pressure );
+    }
 }

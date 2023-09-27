@@ -62,9 +62,11 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
     runProgress.setProgressDescription( "Writing input files." );
 
-    if ( model->fault() == nullptr )
+    auto [modelOk, errorMsg] = model->validateBeforeRun();
+
+    if ( !modelOk )
     {
-        QMessageBox::critical( nullptr, frmTitle, "A fault has not selected. Please check your model settings." );
+        QMessageBox::critical( nullptr, frmTitle, QString::fromStdString( errorMsg ) );
         return;
     }
 
