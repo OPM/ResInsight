@@ -120,8 +120,7 @@ struct RimSummaryPlot::CurveInfo
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot()
-    : RimPlot()
-    , curvesChanged( this )
+    : curvesChanged( this )
     , axisChanged( this )
     , plotZoomedByUser( this )
     , titleChanged( this )
@@ -1043,15 +1042,13 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomForAxis( RimPlotAxisPropertiesInterface* axisProperties )
 {
-    RimSummaryTimeAxisProperties* timeAxisProps = dynamic_cast<RimSummaryTimeAxisProperties*>( axisProperties );
-    if ( timeAxisProps )
+    if ( auto timeAxisProps = dynamic_cast<RimSummaryTimeAxisProperties*>( axisProperties ) )
     {
         updateZoomForTimeAxis( timeAxisProps );
         return;
     }
 
-    RimPlotAxisProperties* axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
-    if ( axisProps )
+    if ( auto axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties ) )
     {
         updateZoomForNumericalAxis( axisProps );
         return;
