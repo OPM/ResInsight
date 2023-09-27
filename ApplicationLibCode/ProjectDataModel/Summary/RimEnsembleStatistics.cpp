@@ -47,10 +47,10 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves" );
 
     CAF_PDM_InitField( &m_crossPlotCurvesBinCount, "CrossPlotCurvesBinCount", 100, "Bin Count" );
-    CAF_PDM_InitField( &m_crossPlotCurvesStatisticsSampleCountThresholdPerBin,
-                       "CrossPlotCurvesStatisticsSampleCountThresholdPerBin",
-                       100,
-                       "Sample Threshold per Bin" );
+    CAF_PDM_InitField( &m_crossPlotCurvesStatisticsRealizationCountThresholdPerBin,
+                       "CrossPlotCurvesStatisticsRealizationCountThresholdPerBin",
+                       10,
+                       "Realization Count Threshold per Bin" );
 
     CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "" );
 
@@ -96,9 +96,9 @@ int RimEnsembleStatistics::crossPlotCurvesBinCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimEnsembleStatistics::crossPlotCurvesSampleCountThresholdPerBin() const
+int RimEnsembleStatistics::crossPlotRealizationCountThresholdPerBin() const
 {
-    return m_crossPlotCurvesStatisticsSampleCountThresholdPerBin;
+    return m_crossPlotCurvesStatisticsRealizationCountThresholdPerBin;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     auto crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot" );
     crossPlotGroup->add( &m_crossPlotCurvesBinCount );
-    crossPlotGroup->add( &m_crossPlotCurvesStatisticsSampleCountThresholdPerBin );
+    crossPlotGroup->add( &m_crossPlotCurvesStatisticsRealizationCountThresholdPerBin );
 
     if ( m_showColorField ) uiOrdering.add( &m_color );
 

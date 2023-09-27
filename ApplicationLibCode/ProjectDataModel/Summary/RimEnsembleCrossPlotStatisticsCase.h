@@ -40,7 +40,7 @@ public:
                     const RifEclipseSummaryAddress&     inputAddressY,
                     bool                                includeIncompleteCurves,
                     int                                 binCount,
-                    int                                 sampleCountThreshold );
+                    int                                 realizationCountThreshold );
 
     bool hasP10Data() const;
     bool hasP50Data() const;
