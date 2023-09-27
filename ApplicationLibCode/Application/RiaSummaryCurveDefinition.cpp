@@ -18,6 +18,7 @@
 
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaStdStringTools.h"
+#include "RiaSummaryCurveAddress.h"
 
 #include "RifSummaryReaderInterface.h"
 
@@ -69,6 +70,19 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RiaSummaryCurveAddress& summaryCurveAddress )
+    : m_summaryCaseY( nullptr )
+    , m_summaryAddressY( summaryCurveAddress.summaryAddressY() )
+    , m_summaryCaseX( nullptr )
+    , m_summaryAddressX( summaryCurveAddress.summaryAddressX() )
+    , m_ensemble( ensemble )
+    , m_isEnsembleCurve( true )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCase* RiaSummaryCurveDefinition::summaryCaseY() const
 {
     return m_summaryCaseY;
@@ -80,6 +94,14 @@ RimSummaryCase* RiaSummaryCurveDefinition::summaryCaseY() const
 RimSummaryCaseCollection* RiaSummaryCurveDefinition::ensemble() const
 {
     return m_ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefinition::setEnsemble( RimSummaryCaseCollection* ensemble )
+{
+    m_ensemble = ensemble;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,6 +158,14 @@ RimSummaryCase* RiaSummaryCurveDefinition::summaryCaseX() const
 RifEclipseSummaryAddress RiaSummaryCurveDefinition::summaryAddressX() const
 {
     return m_summaryAddressX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryCurveAddress RiaSummaryCurveDefinition::summaryCurveAddress() const
+{
+    return RiaSummaryCurveAddress( m_summaryAddressX, m_summaryAddressY );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -123,19 +123,19 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
     auto timeStepsX = RimSummaryCurve::timeStepsX();
     auto timeStepsY = RimSummaryCurve::timeStepsY();
 
-    if ( xValues.size() != yValues.size() ) return RiaLogging::error( "X value count and Y value count differs." );
-    if ( xValues.size() != timeStepsX.size() ) return RiaLogging::error( "X value count and X time step count differs." );
-    if ( xValues.size() != timeStepsY.size() ) return RiaLogging::error( "X value count and Y time step count differs." );
-
-    if ( timeStepsX != timeStepsY )
-    {
-        return RiaLogging::error(
-            "Differences in time steps for X and Y axis detected. This is currently not supported. Make sure that the same "
-            "case is used for both axis." );
-    }
-
     if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
+        if ( xValues.size() != yValues.size() ) return RiaLogging::error( "X value count and Y value count differs." );
+        if ( xValues.size() != timeStepsX.size() ) return RiaLogging::error( "X value count and X time step count differs." );
+        if ( xValues.size() != timeStepsY.size() ) return RiaLogging::error( "X value count and Y time step count differs." );
+
+        if ( timeStepsX != timeStepsY )
+        {
+            return RiaLogging::error(
+                "Differences in time steps for X and Y axis detected. This is currently not supported. Make sure that the same "
+                "case is used for both axis." );
+        }
+
         // NB! Assume that time stamps for X and Y are the same
         std::vector<size_t> indicesToRemove;
 

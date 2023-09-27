@@ -22,6 +22,7 @@
 #include "RiaPlotDefines.h"
 
 #include "RimPlot.h"
+#include "RimPlotAxisProperties.h"
 #include "RimSummaryDataSourceStepping.h"
 
 #include "RiuQwtPlotWidget.h"
@@ -61,6 +62,7 @@ class RimSummaryPlotSourceStepping;
 class RimTimeAxisAnnotation;
 class RiaSummaryCurveDefinition;
 class RifEclipseSummaryAddress;
+class RiaSummaryCurveAddress;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -201,8 +203,7 @@ public:
     std::vector<RimEnsembleCurveSet*>               curveSets() const override;
     std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
-    std::vector<RimPlotAxisPropertiesInterface*> plotAxes() const;
-    std::vector<RimPlotAxisProperties*>          plotYAxes() const;
+    std::vector<RimPlotAxisProperties*> plotAxes( RimPlotAxisProperties::Orientation orientation ) const;
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
     RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
@@ -293,6 +294,8 @@ private:
                               RiuPlotAxis               oldPlotAxis,
                               RiuPlotAxis               newPlotAxis );
 
+    std::vector<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
+
     void timeAxisSettingsChanged( const caf::SignalEmitter* emitter );
     void timeAxisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter );
 
@@ -305,7 +308,7 @@ private:
                                       RimSummaryCase*                 summaryCase,
                                       const RifEclipseSummaryAddress& addressX,
                                       RimSummaryCase*                 summaryCaseX );
-    RimEnsembleCurveSet* addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
+    RimEnsembleCurveSet* addNewEnsembleCurve( const RiaSummaryCurveAddress& curveAddress, RimSummaryCaseCollection* ensemble );
 
     void updateStackedCurveData();
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );

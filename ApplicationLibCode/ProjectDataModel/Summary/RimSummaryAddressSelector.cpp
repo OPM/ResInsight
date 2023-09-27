@@ -72,8 +72,8 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
 
     CAF_PDM_InitFieldNoDefault( &m_resamplingPeriod, "Resampling", "Resampling" );
 
-    m_dataSource     = SummaryDataSource::SINGLE_CASE;
-    m_showDataSource = true;
+    m_showDataSource      = true;
+    m_plotAxisOrientation = RimPlotAxisProperties::Orientation::ANY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +82,6 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
 void RimSummaryAddressSelector::setSummaryCase( RimSummaryCase* summaryCase )
 {
     m_summaryCase = summaryCase;
-    m_dataSource  = SummaryDataSource::SINGLE_CASE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +90,6 @@ void RimSummaryAddressSelector::setSummaryCase( RimSummaryCase* summaryCase )
 void RimSummaryAddressSelector::setEnsemble( RimSummaryCaseCollection* ensemble )
 {
     m_summaryCaseCollection = ensemble;
-    m_dataSource            = SummaryDataSource::ENSEMBLE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,6 +122,14 @@ void RimSummaryAddressSelector::setPlotAxisProperties( RimPlotAxisPropertiesInte
 void RimSummaryAddressSelector::setShowDataSource( bool enable )
 {
     m_showDataSource = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressSelector::setAxisOrientation( RimPlotAxisProperties::Orientation orientation )
+{
+    m_plotAxisOrientation = orientation;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,15 +181,15 @@ void RimSummaryAddressSelector::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
 
-        if ( m_dataSource == SummaryDataSource::SINGLE_CASE )
-        {
-            dlg.hideEnsembles();
-            dlg.setCaseAndAddress( m_summaryCase(), m_summaryAddress->address() );
-        }
-        else if ( m_dataSource == SummaryDataSource::ENSEMBLE )
+        if ( isEnsemble() )
         {
             dlg.hideSummaryCases();
             dlg.setEnsembleAndAddress( m_summaryCaseCollection(), m_summaryAddress->address() );
+        }
+        else
+        {
+            dlg.hideEnsembles();
+            dlg.setCaseAndAddress( m_summaryCase(), m_summaryAddress->address() );
         }
 
         if ( dlg.exec() == QDialog::Accepted )
@@ -283,17 +289,17 @@ QList<caf::PdmOptionItemInfo> RimSummaryAddressSelector::calculateValueOptions( 
     if ( fieldNeedingOptions == &m_summaryAddressUiField )
     {
         std::set<RifEclipseSummaryAddress> addresses;
-        if ( m_dataSource == SummaryDataSource::SINGLE_CASE && m_summaryCase() )
+        if ( isEnsemble() && m_summaryCaseCollection() )
+        {
+            addresses = m_summaryCaseCollection()->ensembleSummaryAddresses();
+        }
+        else if ( m_summaryCase() )
         {
             RifSummaryReaderInterface* reader = m_summaryCase()->summaryReader();
             if ( reader )
             {
                 addresses = reader->allResultAddresses();
             }
-        }
-        else if ( m_dataSource == SummaryDataSource::ENSEMBLE && m_summaryCaseCollection() )
-        {
-            addresses = m_summaryCaseCollection()->ensembleSummaryAddresses();
         }
 
         return createOptionsForAddresses( addresses );
@@ -304,7 +310,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryAddressSelector::calculateValueOptions( 
         if ( auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>() )
         {
             QList<caf::PdmOptionItemInfo> options;
-            for ( auto axis : plot->plotAxes() )
+            for ( auto axis : plot->plotAxes( m_plotAxisOrientation ) )
             {
                 options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
             }
@@ -323,13 +329,13 @@ void RimSummaryAddressSelector::defineUiOrdering( QString uiConfigName, caf::Pdm
 {
     if ( m_showDataSource )
     {
-        if ( m_dataSource == SummaryDataSource::SINGLE_CASE )
+        if ( isEnsemble() )
         {
-            uiOrdering.add( &m_summaryCase );
+            uiOrdering.add( &m_summaryCaseCollection );
         }
         else
         {
-            uiOrdering.add( &m_summaryCaseCollection );
+            uiOrdering.add( &m_summaryCase );
         }
     }
 
@@ -357,4 +363,12 @@ void RimSummaryAddressSelector::defineEditorAttribute( const caf::PdmFieldHandle
             attrib->m_buttonText = "...";
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAddressSelector::isEnsemble() const
+{
+    return m_summaryCaseCollection() != nullptr;
 }

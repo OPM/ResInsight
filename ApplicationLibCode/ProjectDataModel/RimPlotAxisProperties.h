@@ -50,6 +50,13 @@ public:
         NUMBER_FORMAT_SCIENTIFIC
     };
 
+    enum class Orientation
+    {
+        HORIZONTAL,
+        VERTICAL,
+        ANY
+    };
+
 public:
     caf::Signal<bool>                                             logarithmicChanged;
     caf::Signal<RimPlotAxisProperties*, RiuPlotAxis, RiuPlotAxis> axisPositionChanged;

@@ -23,6 +23,8 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
 
+#include "RimPlotAxisProperties.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -38,12 +40,6 @@ class RimSummaryAddressSelector : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class SummaryDataSource
-    {
-        SINGLE_CASE,
-        ENSEMBLE
-    };
-
     caf::Signal<> addressChanged;
 
 public:
@@ -55,6 +51,7 @@ public:
     void setResamplingPeriod( RiaDefines::DateTimePeriodEnum resampling );
     void setPlotAxisProperties( RimPlotAxisPropertiesInterface* plotAxisProperties );
     void setShowDataSource( bool enable );
+    void setAxisOrientation( RimPlotAxisProperties::Orientation orientation );
 
     RimSummaryCase*                 summaryCase() const;
     RimSummaryCaseCollection*       ensemble() const;
@@ -68,6 +65,8 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
+    bool isEnsemble() const;
+
 private:
     caf::PdmPtrField<RimSummaryCase*>                 m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*>       m_summaryCaseCollection;
@@ -77,6 +76,7 @@ private:
     caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
     caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_resamplingPeriod;
 
-    SummaryDataSource m_dataSource;
-    bool              m_showDataSource;
+    bool m_showDataSource;
+
+    RimPlotAxisProperties::Orientation m_plotAxisOrientation;
 };

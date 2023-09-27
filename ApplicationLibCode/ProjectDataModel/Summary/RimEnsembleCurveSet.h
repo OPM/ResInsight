@@ -180,7 +180,9 @@ public:
     std::vector<cvf::Color3f> generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const;
 
     RiuPlotAxis axisY() const;
+    RiuPlotAxis axisX() const;
     void        setLeftOrRightAxisY( RiuPlotAxis plotAxis );
+    void        setBottomOrTopAxisX( RiuPlotAxis plotAxis );
 
 protected:
     void initAfterRead() override;
@@ -204,6 +206,7 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     void updatePlotAxis();
 
@@ -219,7 +222,6 @@ private:
 
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
     void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
-    void onXAxisAddressChanged( const caf::SignalEmitter* emitter );
 
     void setTransparentCurveColor();
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
@@ -261,7 +263,7 @@ private:
     caf::PdmField<std::vector<QDateTime>>         m_selectedTimeSteps;
 
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
-    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
+    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;
 
     caf::PdmChildField<RimRegularLegendConfig*>           m_legendConfig;
     caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;

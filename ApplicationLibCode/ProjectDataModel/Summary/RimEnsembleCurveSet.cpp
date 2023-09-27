@@ -52,6 +52,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimTimeStepFilter.h"
 
@@ -147,10 +148,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_xAddressSelector, "XAddressSelector", "" );
     m_xAddressSelector = new RimSummaryAddressSelector;
+    m_xAddressSelector->setAxisOrientation( RimPlotAxisProperties::Orientation::HORIZONTAL );
     m_xAddressSelector.uiCapability()->setUiTreeHidden( true );
     m_xAddressSelector.uiCapability()->setUiTreeChildrenHidden( true );
-
-    m_xAddressSelector->addressChanged.connect( this, &RimEnsembleCurveSet::onXAxisAddressChanged );
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR_WITH_ALPHA ), "Coloring Mode" );
 
@@ -203,7 +203,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
     m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_yPlotAxisProperties, "Axis", "Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     m_legendConfig = new RimRegularLegendConfig();
@@ -425,6 +425,15 @@ void RimEnsembleCurveSet::setCurveAddress( RiaSummaryCurveAddress address )
 {
     setSummaryAddress( address.summaryAddressY() );
     setSummaryAddressX( address.summaryAddressX() );
+
+    if ( address.summaryAddressX().category() == SummaryCategory::SUMMARY_TIME )
+    {
+        m_xAxisType = RiaDefines::HorizontalAxisType::TIME;
+    }
+    else
+    {
+        m_xAxisType = RiaDefines::HorizontalAxisType::SUMMARY_VECTOR;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -564,6 +573,7 @@ void RimEnsembleCurveSet::onLegendDefinitionChanged()
 void RimEnsembleCurveSet::setSummaryCaseCollection( RimSummaryCaseCollection* sumCaseCollection )
 {
     m_yValuesSummaryCaseCollection = sumCaseCollection;
+    m_xAddressSelector->setEnsemble( sumCaseCollection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -853,7 +863,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateCurveColors();
         updateTimeAnnotations();
     }
-    else if ( changedField == &m_plotAxisProperties )
+    else if ( changedField == &m_yPlotAxisProperties )
     {
         for ( RimSummaryCurve* curve : curves() )
         {
@@ -990,6 +1000,33 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( changedChildField == &m_xAddressSelector )
+    {
+        updateAllCurves();
+
+        // The recommended way to trigger update in a parent object is by using caf::Signal. Here we need to update two parent classes, and
+        // they are multiple levels away. To avoid a long signal path that is hard to debug, we use firstAncestorOrThisOfType()
+
+        auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
+        if ( summaryPlot )
+        {
+            summaryPlot->updateAll();
+            summaryPlot->zoomAll();
+        }
+
+        auto multiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+        if ( multiPlot )
+        {
+            multiPlot->updatePlotTitles();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
@@ -1000,7 +1037,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_resampling );
-        curveDataGroup->add( &m_plotAxisProperties );
+        curveDataGroup->add( &m_yPlotAxisProperties );
     }
 
     {
@@ -1074,14 +1111,6 @@ void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmi
     updateCurveColors();
     updateFilterLegend();
     updateObjectiveFunctionLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::onXAxisAddressChanged( const caf::SignalEmitter* emitter )
-{
-    updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1431,10 +1460,10 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
             options.push_back( caf::PdmOptionItemInfo( name, objFunc ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_plotAxisProperties )
+    else if ( fieldNeedingOptions == &m_yPlotAxisProperties )
     {
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::VERTICAL ) )
         {
             options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
         }
@@ -2331,9 +2360,7 @@ QString RimEnsembleCurveSet::createAutoName() const
 {
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-    QString curveSetName = m_summaryAddressNameTools->curveName( RiaSummaryCurveAddress( m_yValuesSummaryAddress->address() ),
-                                                                 plot->plotTitleHelper(),
-                                                                 plot->plotTitleHelper() );
+    QString curveSetName = m_summaryAddressNameTools->curveName( curveAddress(), plot->plotTitleHelper(), plot->plotTitleHelper() );
 
     if ( curveSetName.isEmpty() )
     {
@@ -2391,8 +2418,8 @@ int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol )
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimEnsembleCurveSet::axisY() const
 {
-    if ( m_plotAxisProperties )
-        return m_plotAxisProperties->plotAxis();
+    if ( m_yPlotAxisProperties )
+        return m_yPlotAxisProperties->plotAxis();
     else
         return RiuPlotAxis::defaultLeft();
 }
@@ -2400,10 +2427,21 @@ RiuPlotAxis RimEnsembleCurveSet::axisY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimEnsembleCurveSet::axisX() const
+{
+    if ( m_xAddressSelector->plotAxisProperties() )
+        return m_xAddressSelector->plotAxisProperties()->plotAxis();
+    else
+        return RiuPlotAxis::defaultBottomForSummaryVectors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
-    auto plot            = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-    m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
+    auto plot             = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+    m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
 
     for ( RimSummaryCurve* curve : curves() )
     {
@@ -2414,14 +2452,28 @@ void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setBottomOrTopAxisX( RiuPlotAxis plotAxis )
+{
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+    m_xAddressSelector->setPlotAxisProperties( plot->axisPropertiesForPlotAxis( plotAxis ) );
+
+    for ( RimSummaryCurve* curve : curves() )
+    {
+        curve->setTopOrBottomAxisX( axisX() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::initAfterRead()
 {
-    if ( m_plotAxisProperties.value() == nullptr )
+    if ( m_yPlotAxisProperties.value() == nullptr )
     {
         auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot )
         {
-            m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+            m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
         }
     }
 }
