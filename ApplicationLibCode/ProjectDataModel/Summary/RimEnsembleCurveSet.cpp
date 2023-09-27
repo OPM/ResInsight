@@ -503,7 +503,7 @@ void RimEnsembleCurveSet::deleteEnsembleCurves()
             curvesIndexesToDelete.push_back( c );
     }
 
-    while ( curvesIndexesToDelete.size() > 0 )
+    while ( !curvesIndexesToDelete.empty() )
     {
         size_t currIndex = curvesIndexesToDelete.back();
         delete m_curves[currIndex];
@@ -525,7 +525,7 @@ void RimEnsembleCurveSet::deleteStatisticsCurves()
             curvesIndexesToDelete.push_back( c );
     }
 
-    while ( curvesIndexesToDelete.size() > 0 )
+    while ( !curvesIndexesToDelete.empty() )
     {
         size_t currIndex = curvesIndexesToDelete.back();
         delete m_curves[currIndex];
@@ -808,7 +808,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
         {
-            if ( m_objectiveValuesSummaryAddresses.size() == 0 )
+            if ( m_objectiveValuesSummaryAddresses.empty() )
             {
                 RimSummaryAddress* summaryAddress = new RimSummaryAddress();
                 summaryAddress->setAddress( m_yValuesSummaryAddress->address() );

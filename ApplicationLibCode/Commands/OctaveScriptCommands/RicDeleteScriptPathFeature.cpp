@@ -45,7 +45,7 @@ bool RicDeleteScriptPathFeature::isCommandEnabled() const
     {
         if ( selection.front()->directory().isEmpty() ) return false;
     }
-    return selection.size() > 0;
+    return !selection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ bool RicDeleteScriptPathFeature::isCommandEnabled() const
 void RicDeleteScriptPathFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
-    RimScriptCollection*              scriptCollection      = calcScriptCollections.size() > 0 ? calcScriptCollections[0] : nullptr;
+    RimScriptCollection*              scriptCollection      = !calcScriptCollections.empty() ? calcScriptCollections[0] : nullptr;
     if ( scriptCollection )
     {
         QString toBeRemoved = scriptCollection->directory;

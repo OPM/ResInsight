@@ -48,7 +48,7 @@ bool RicPasteWellLogPlotFeature::isCommandEnabled() const
         return false;
     }
 
-    return RicPasteWellLogPlotFeature::plots().size() > 0;
+    return !RicPasteWellLogPlotFeature::plots().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

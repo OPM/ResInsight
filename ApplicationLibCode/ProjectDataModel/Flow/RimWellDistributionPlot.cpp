@@ -380,7 +380,7 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
     plotWidget->setAxisAutoScale( RiuPlotAxis::defaultLeft(), true );
 
     const std::vector<double>& tofValuesDays = calculator.sortedUniqueTofValues();
-    if ( tofValuesDays.size() == 0 )
+    if ( tofValuesDays.empty() )
     {
         // cvf::Trace::show("No TOF values!");
         return;
@@ -467,7 +467,7 @@ QList<caf::PdmOptionItemInfo> RimWellDistributionPlot::calculateValueOptions( co
     {
         RimTools::timeStepsForCase( m_case, &options );
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( "None", -1 ) );
         }
@@ -485,7 +485,7 @@ QList<caf::PdmOptionItemInfo> RimWellDistributionPlot::calculateValueOptions( co
             }
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( "None", QVariant() ) );
         }
@@ -526,7 +526,7 @@ void RimWellDistributionPlot::fixupDependentFieldsAfterCaseChange()
         }
 
         const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
-        if ( sortedWellNameSet.size() > 0 )
+        if ( !sortedWellNameSet.empty() )
         {
             newWellName = *sortedWellNameSet.begin();
         }

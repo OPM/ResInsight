@@ -43,7 +43,7 @@ bool RicNewEditableWellPathFeature::isCommandEnabled() const
         std::vector<RimWellPath*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
 
-        if ( objects.size() > 0 )
+        if ( !objects.empty() )
         {
             return true;
         }
@@ -52,7 +52,7 @@ bool RicNewEditableWellPathFeature::isCommandEnabled() const
         std::vector<RimWellPathCollection*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
 
-        if ( objects.size() > 0 )
+        if ( !objects.empty() )
         {
             return true;
         }

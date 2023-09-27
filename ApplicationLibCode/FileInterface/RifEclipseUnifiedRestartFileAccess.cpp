@@ -198,7 +198,7 @@ void RifEclipseUnifiedRestartFileAccess::close()
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 {
-    if ( m_timeSteps.size() == 0 )
+    if ( m_timeSteps.empty() )
     {
         extractTimestepsFromEclipse();
     }
@@ -211,7 +211,7 @@ size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart )
 {
-    if ( m_timeSteps.size() == 0 )
+    if ( m_timeSteps.empty() )
     {
         extractTimestepsFromEclipse();
     }
@@ -354,7 +354,7 @@ void RifEclipseUnifiedRestartFileAccess::updateFromGridCount( size_t gridCount )
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RifEclipseUnifiedRestartFileAccess::reportNumbers()
 {
-    if ( m_timeSteps.size() == 0 )
+    if ( m_timeSteps.empty() )
     {
         extractTimestepsFromEclipse();
     }

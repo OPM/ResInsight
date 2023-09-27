@@ -356,7 +356,7 @@ void RigFemPart::calculateElmNeighbors()
                 }
             }
 
-            if ( candidates.size() )
+            if ( !candidates.empty() )
             {
                 fComp.setMainFace( elmNodes, localFaceIndices, faceNodeCount );
             }

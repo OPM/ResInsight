@@ -52,7 +52,7 @@ const RigWellResultFrame* RigSimWellData::wellResultFrame( size_t resultTimeStep
 void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices( const std::vector<QDateTime>& simulationTimeSteps )
 {
     m_resultTimeStepIndexToWellTimeStepIndex.clear();
-    if ( m_wellCellsTimeSteps.size() == 0 ) return;
+    if ( m_wellCellsTimeSteps.empty() ) return;
 
     m_resultTimeStepIndexToWellTimeStepIndex.resize( simulationTimeSteps.size(), cvf::UNDEFINED_SIZE_T );
 
@@ -135,7 +135,7 @@ bool operator==( const RigWellResultPoint& p1, const RigWellResultPoint& p2 )
 //--------------------------------------------------------------------------------------------------
 void RigSimWellData::computeStaticWellCellPath() const
 {
-    if ( m_wellCellsTimeSteps.size() == 0 ) return;
+    if ( m_wellCellsTimeSteps.empty() ) return;
 
     // Mapping of Branch ERT ID to ResultPoint list
     std::map<int, std::list<RigWellResultPoint>> staticWellBranches;

@@ -45,7 +45,7 @@ bool RicPasteStimPlanFractureFeature::isCommandEnabled() const
     std::vector<caf::PdmPointer<RimStimPlanFractureTemplate>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
 
-    if ( typedObjects.size() == 0 )
+    if ( typedObjects.empty() )
     {
         return false;
     }

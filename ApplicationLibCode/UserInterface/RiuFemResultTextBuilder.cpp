@@ -271,7 +271,7 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
     {
         const std::vector<float>& scalarResults =
             geomData->femPartResults()->resultValues( resultDefinition->resultAddress(), gridIndex, timeStepIndex, frameIndex );
-        if ( scalarResults.size() )
+        if ( !scalarResults.empty() )
         {
             caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultDefinition->resultPositionType();
             resultInfoText->append( resPosAppEnum.uiText() + ", " );
@@ -398,7 +398,7 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
         const std::vector<float>& scalarResults =
             geomData->femPartResults()->resultValues( resultColors->resultAddress(), m_gridIndex, m_timeStepIndex, m_frameIndex );
 
-        if ( scalarResults.size() && m_displayCoordView )
+        if ( !scalarResults.empty() && m_displayCoordView )
         {
             RigFemPart*         femPart              = geomData->femParts()->part( m_gridIndex );
             RigFemResultPosEnum activeResultPosition = resultColors->resultPositionType();

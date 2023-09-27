@@ -317,7 +317,7 @@ void RivFemPartPartMgr::updateCellResultColor( int timeStepIndex, int frameIndex
         vxCount = static_cast<int>( vxToResultMapping->size() );
         m_surfaceFacesTextureCoords->resize( vxCount );
 
-        if ( resultValues.size() == 0 )
+        if ( resultValues.empty() )
         {
             m_surfaceFacesTextureCoords->setAll( cvf::Vec2f( 0.0, 1.0f ) );
         }

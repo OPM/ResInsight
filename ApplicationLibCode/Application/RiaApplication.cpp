@@ -934,7 +934,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, gsl::not_null<QStringList*> errorMessages )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
+    if ( m_project == nullptr || m_project->oilFields.empty() ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
     if ( oilField == nullptr ) return {};
@@ -963,7 +963,7 @@ std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> we
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormationsFilePaths )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return;
+    if ( m_project == nullptr || m_project->oilFields.empty() ) return;
 
     RimOilField* oilField = m_project->activeOilField();
     if ( oilField == nullptr ) return;
@@ -989,7 +989,7 @@ void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormat
 std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QString>&       wellLogFilePaths,
                                                                  gsl::not_null<QStringList*> errorMessages )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
+    if ( m_project == nullptr || m_project->oilFields.empty() ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
     if ( oilField == nullptr ) return {};

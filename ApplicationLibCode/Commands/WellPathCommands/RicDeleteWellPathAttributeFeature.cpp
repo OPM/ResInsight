@@ -37,7 +37,7 @@ bool RicDeleteWellPathAttributeFeature::isCommandEnabled() const
         std::vector<RimWellPathAttribute*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
 
-        if ( objects.size() > 0 )
+        if ( !objects.empty() )
         {
             return true;
         }
@@ -60,7 +60,7 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellPathAttribute*> attributes;
     caf::SelectionManager::instance()->objectsByType( &attributes, caf::SelectionManager::FIRST_LEVEL );
     RimWellPathAttributeCollection* wellPathAttributeCollection = nullptr;
-    if ( attributes.size() > 0 )
+    if ( !attributes.empty() )
     {
         wellPathAttributeCollection = attributes[0]->firstAncestorOrThisOfTypeAsserted<RimWellPathAttributeCollection>();
         for ( RimWellPathAttribute* attributeToDelete : attributes )
@@ -102,7 +102,7 @@ void RicDeleteWellPathAttributeFeature::setupActionLook( QAction* actionToSetup 
 {
     std::vector<RimWellPathAttribute*> attributes;
     caf::SelectionManager::instance()->objectsByType( &attributes, caf::SelectionManager::FIRST_LEVEL );
-    if ( attributes.size() > 0 )
+    if ( !attributes.empty() )
     {
         actionToSetup->setText( "Delete Attribute" );
         actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );

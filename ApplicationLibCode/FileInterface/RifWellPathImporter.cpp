@@ -206,7 +206,7 @@ void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
 
             if ( x != HUGE_VAL && y != HUGE_VAL && tvd != HUGE_VAL && md != HUGE_VAL )
             {
-                if ( !fileWellDataArray.size() )
+                if ( fileWellDataArray.empty() )
                 {
                     fileWellDataArray.push_back( RifWellPathImporter::WellData() );
                     fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();
@@ -305,7 +305,7 @@ void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
                 {
                     // Create a new Well data if we have read some data into the previous one.
                     // if not, just overwrite the name
-                    if ( hasReadWellPointInCurrentWell || fileWellDataArray.size() == 0 )
+                    if ( hasReadWellPointInCurrentWell || fileWellDataArray.empty() )
                     {
                         fileWellDataArray.push_back( RifWellPathImporter::WellData() );
                         fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();

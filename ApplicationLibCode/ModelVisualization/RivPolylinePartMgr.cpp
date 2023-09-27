@@ -82,7 +82,7 @@ bool RivPolylinePartMgr::isPolylinesInBoundingBox( std::vector<std::vector<cvf::
 void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* displayXf, const cvf::BoundingBox& boundingBox )
 {
     auto polylineDef = m_polylineInterface->polyLinesData();
-    if ( polylineDef.isNull() || polylineDef->polyLines().size() == 0 )
+    if ( polylineDef.isNull() || polylineDef->polyLines().empty() )
     {
         clearAllGeometry();
         return;

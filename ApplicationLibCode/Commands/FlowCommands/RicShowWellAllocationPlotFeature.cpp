@@ -48,7 +48,7 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled() const
     std::vector<RimSimWellInView*> simWellCollection;
     caf::SelectionManager::instance()->objectsByType( &simWellCollection );
 
-    if ( simWellCollection.size() > 0 )
+    if ( !simWellCollection.empty() )
     {
         return true;
     }
@@ -81,11 +81,11 @@ void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 
     RimSimWellInView* simWell = nullptr;
 
-    if ( collection.size() > 0 )
+    if ( !collection.empty() )
     {
         simWell = collection[0];
     }
-    else if ( wellPathCollection.size() > 0 )
+    else if ( !wellPathCollection.empty() )
     {
         Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
         if ( !view ) return;

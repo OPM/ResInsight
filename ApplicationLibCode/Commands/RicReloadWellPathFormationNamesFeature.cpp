@@ -39,7 +39,7 @@ bool RicReloadWellPathFormationNamesFeature::isCommandEnabled() const
     std::vector<RimWellPathCollection*> wellPathCollection;
     caf::SelectionManager::instance()->objectsByType( &wellPathCollection );
 
-    return ( wellPaths.size() > 0 || wellPathCollection.size() > 0 );
+    return ( !wellPaths.empty() || !wellPathCollection.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,12 +53,12 @@ void RicReloadWellPathFormationNamesFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellPathCollection*> wellPathCollections;
     caf::SelectionManager::instance()->objectsByType( &wellPathCollections );
 
-    if ( wellPaths.size() > 0 )
+    if ( !wellPaths.empty() )
     {
         RimWellPathCollection* wellPathCollection = wellPaths[0]->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
         wellPathCollection->reloadAllWellPathFormations();
     }
-    else if ( wellPathCollections.size() > 0 )
+    else if ( !wellPathCollections.empty() )
     {
         wellPathCollections[0]->reloadAllWellPathFormations();
     }

@@ -96,7 +96,7 @@ void RivNNCGeometryGenerator::computeArrays()
 
         const RigConnection& conn = m_nncData->allConnections()[conIdx];
 
-        if ( conn.polygon().size() )
+        if ( !conn.polygon().empty() )
         {
             bool isVisible = true;
             if ( isVisibilityCalcActive )
@@ -176,7 +176,7 @@ void RivNNCGeometryGenerator::textureCoordinates( cvf::Vec2fArray*              
         nncResultVals = m_nncData->generatedConnectionScalarResult( resVarAddr, nativeTimeStepIndex );
     }
 
-    if ( !nncResultVals || nncResultVals->size() == 0 )
+    if ( !nncResultVals || nncResultVals->empty() )
     {
         textureCoords->setAll( cvf::Vec2f( 0.0f, 1.0f ) );
         return;

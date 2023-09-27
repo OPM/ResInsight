@@ -54,7 +54,7 @@ QList<caf::PdmOptionItemInfo> RiaSimWellBranchTools::valueOptionsForBranchIndexF
     QList<caf::PdmOptionItemInfo> options;
 
     size_t branchCount = simulationWellPaths.size();
-    if ( simulationWellPaths.size() == 0 )
+    if ( simulationWellPaths.empty() )
     {
         options.push_front( caf::PdmOptionItemInfo( "None", -1 ) );
     }
@@ -111,7 +111,7 @@ int RiaSimWellBranchTools::clampBranchIndex( const QString& simWellName, int bra
 {
     auto branches = RiaSimWellBranchTools::simulationWellBranches( simWellName, branchDetection );
 
-    if ( branches.size() == 0 )
+    if ( branches.empty() )
     {
         return -1;
     }

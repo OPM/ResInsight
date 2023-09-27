@@ -68,7 +68,7 @@ RimCellFilterCollection::~RimCellFilterCollection()
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilterCollection::isEmpty() const
 {
-    return m_cellFilters.size() > 0;
+    return !m_cellFilters.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

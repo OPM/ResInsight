@@ -992,7 +992,7 @@ void RiuPlotMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 {
-    return m_mdiArea->subWindowList().size() > 0;
+    return !m_mdiArea->subWindowList().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

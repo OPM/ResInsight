@@ -124,7 +124,7 @@ RimEclipseCase* RicNewViewFeature::selectedEclipseCase()
     std::vector<RimEclipseCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         return selection[0];
     }
@@ -140,7 +140,7 @@ RimGeoMechCase* RicNewViewFeature::selectedGeoMechCase()
     std::vector<RimGeoMechCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         return selection[0];
     }
@@ -175,7 +175,7 @@ RimGeoMechView* RicNewViewFeature::selectedGeoMechView()
     std::vector<RimGeoMechView*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         return selection[0];
     }

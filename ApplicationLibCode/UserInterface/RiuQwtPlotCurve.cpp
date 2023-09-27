@@ -197,7 +197,7 @@ void RiuQwtPlotCurve::drawSymbols( QPainter*          painter,
         pointsToDisplay = points;
     }
 
-    if ( pointsToDisplay.size() > 0 )
+    if ( !pointsToDisplay.empty() )
     {
         symbol.drawSymbols( painter, pointsToDisplay );
 

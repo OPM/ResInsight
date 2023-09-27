@@ -151,7 +151,7 @@ std::vector<double>* RigFlowDiagResults::findScalarResultFrame( const RigFlowDia
     if ( resFrames )
     {
         std::vector<double>& frame = resFrames->frameData( timeStepIndex );
-        if ( frame.size() ) return ( &frame );
+        if ( !frame.empty() ) return ( &frame );
     }
     return nullptr;
 }

@@ -40,7 +40,7 @@ bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled() const
 
     RicSummaryCurveSwitchAxisFeature::extractSelectedCurves( &summaryCurves, &asciiDataCurves, &gridTimeHistoryCurves );
 
-    return summaryCurves.size() || asciiDataCurves.size() || gridTimeHistoryCurves.size();
+    return !summaryCurves.empty() || !asciiDataCurves.empty() || !gridTimeHistoryCurves.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,7 +47,7 @@ bool RicPasteModeledWellPathFeature::isCommandEnabled() const
         std::vector<RimWellPathCollection*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
 
-        if ( objects.size() > 0 )
+        if ( !objects.empty() )
         {
             return true;
         }

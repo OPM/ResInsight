@@ -426,7 +426,7 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded( size_t timeStep
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
 {
-    if ( m_statsAllTimesteps.m_uniqueValues.size() == 0 )
+    if ( m_statsAllTimesteps.m_uniqueValues.empty() )
     {
         std::set<int> setValues;
         m_statisticsCalculator->uniqueValues( 0, setValues ); // This is a Hack ! Only using first timestep. Ok for
@@ -444,7 +444,7 @@ void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeUniqueValuesIfNeeded( size_t timeStepIndex )
 {
-    if ( m_statsPrTs[timeStepIndex].m_uniqueValues.size() == 0 )
+    if ( m_statsPrTs[timeStepIndex].m_uniqueValues.empty() )
     {
         std::set<int> setValues;
         m_statisticsCalculator->uniqueValues( timeStepIndex, setValues );

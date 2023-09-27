@@ -405,7 +405,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
         if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
         {
             std::vector<time_t> dateTimes = timeStepValues();
-            if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
+            if ( !dateTimes.empty() && dateTimes.size() == values.size() )
             {
                 m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, useLogarithmicScale );
             }
@@ -417,7 +417,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
         else
         {
             std::vector<double> days = daysSinceSimulationStart();
-            if ( days.size() > 0 && days.size() == values.size() )
+            if ( !days.empty() && days.size() == values.size() )
             {
                 double timeScale = plot->timeAxisProperties()->fromDaysToDisplayUnitScale();
 

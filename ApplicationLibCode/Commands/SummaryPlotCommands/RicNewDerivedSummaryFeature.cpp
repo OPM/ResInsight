@@ -53,7 +53,7 @@ void RicNewDerivedSummaryFeature::onActionTriggered( bool isChecked )
         {
             auto allCases = mainColl->allSummaryCases();
 
-            if ( allCases.size() > 0 )
+            if ( !allCases.empty() )
             {
                 selectedCases.push_back( allCases[0] );
             }

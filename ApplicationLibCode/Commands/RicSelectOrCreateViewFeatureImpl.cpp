@@ -122,7 +122,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView( RimEcl
             }
             else
             {
-                if ( resultCase->views().size() > 0 )
+                if ( !resultCase->views().empty() )
                 {
                     defaultSelectedView = dynamic_cast<RimEclipseView*>( resultCase->views()[0] );
                 }

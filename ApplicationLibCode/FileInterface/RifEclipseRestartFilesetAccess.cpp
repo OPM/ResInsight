@@ -57,7 +57,7 @@ RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseRestartFilesetAccess::open()
 {
-    if ( m_fileNames.size() > 0 )
+    if ( !m_fileNames.empty() )
     {
         caf::ProgressInfo progInfo( m_fileNames.size(), "" );
 
@@ -124,7 +124,7 @@ size_t RifEclipseRestartFilesetAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart )
 {
-    if ( m_timeSteps.size() == 0 )
+    if ( m_timeSteps.empty() )
     {
         size_t numSteps = m_fileNames.size();
         size_t i;
@@ -314,7 +314,7 @@ int RifEclipseRestartFilesetAccess::readUnitsType()
 {
     ecl_file_type* ecl_file = nullptr;
 
-    if ( m_ecl_files.size() > 0 )
+    if ( !m_ecl_files.empty() )
     {
         openTimeStep( 0 );
         ecl_file = m_ecl_files[0];

@@ -56,7 +56,7 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCurve*> selectedCurves = caf::selectedObjectsByType<RimSummaryCurve*>();
     RimUserDefinedCalculation*    calculation    = nullptr;
 
-    if ( selectedCurves.size() > 0 )
+    if ( !selectedCurves.empty() )
     {
         RifEclipseSummaryAddress selectedAddress = selectedCurves.front()->summaryAddressY();
 

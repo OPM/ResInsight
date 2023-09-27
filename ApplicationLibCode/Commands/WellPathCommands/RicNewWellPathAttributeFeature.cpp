@@ -38,7 +38,7 @@ bool RicNewWellPathAttributeFeature::isCommandEnabled() const
         std::vector<RimWellPathAttribute*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects, caf::SelectionManager::FIRST_LEVEL );
 
-        if ( objects.size() > 0 )
+        if ( !objects.empty() )
         {
             return true;
         }

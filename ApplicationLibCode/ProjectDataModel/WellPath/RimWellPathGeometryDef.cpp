@@ -459,7 +459,7 @@ const RimWellPathTarget* RimWellPathGeometryDef::firstActiveTarget() const
 //--------------------------------------------------------------------------------------------------
 const RimWellPathTarget* RimWellPathGeometryDef::lastActiveTarget() const
 {
-    if ( !m_wellTargets.size() ) return nullptr;
+    if ( m_wellTargets.empty() ) return nullptr;
 
     for ( int tIdx = static_cast<int>( m_wellTargets.size() - 1 ); tIdx >= 0; --tIdx )
     {

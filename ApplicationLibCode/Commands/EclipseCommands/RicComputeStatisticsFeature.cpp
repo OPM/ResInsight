@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicComputeStatisticsFeature, "RicComputeStatisticsFeature" 
 bool RicComputeStatisticsFeature::isCommandEnabled() const
 {
     std::vector<RimEclipseStatisticsCase*> selection = selectedCases();
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimEclipseStatisticsCase* statisticsCase = selection[0];
         if ( statisticsCase )
@@ -46,7 +46,7 @@ bool RicComputeStatisticsFeature::isCommandEnabled() const
             RimIdenticalGridCaseGroup* gridCaseGroup = statisticsCase->firstAncestorOrThisOfType<RimIdenticalGridCaseGroup>();
 
             RimCaseCollection* caseCollection = gridCaseGroup ? gridCaseGroup->caseCollection() : nullptr;
-            return caseCollection ? caseCollection->reservoirs.size() > 0 : false;
+            return caseCollection ? !caseCollection->reservoirs.empty() : false;
         }
     }
 
@@ -59,7 +59,7 @@ bool RicComputeStatisticsFeature::isCommandEnabled() const
 void RicComputeStatisticsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimEclipseStatisticsCase*> selection = selectedCases();
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimEclipseStatisticsCase* statisticsCase = selection[0];
 

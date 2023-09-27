@@ -291,7 +291,7 @@ RimSimWellInView* RimSimWellInViewCollection::findWell( QString name )
 bool RimSimWellInViewCollection::hasVisibleWellCells()
 {
     if ( !isActive() ) return false;
-    if ( wells().size() == 0 ) return false;
+    if ( wells().empty() ) return false;
 
     bool hasCells = false;
     for ( size_t i = 0; !hasCells && i < wells().size(); ++i )
@@ -323,7 +323,7 @@ bool RimSimWellInViewCollection::hasVisibleWellCells()
 bool RimSimWellInViewCollection::hasVisibleWellPipes()
 {
     if ( !isActive() ) return false;
-    if ( wells().size() == 0 ) return false;
+    if ( wells().empty() ) return false;
 
     return true;
 }
@@ -815,7 +815,7 @@ void RimSimWellInViewCollection::scheduleIsWellPipesVisibleRecalculation()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::calculateWellGeometryVisibility( size_t frameIndex )
 {
-    if ( m_framesOfResultWellPipeVisibilities.size() > frameIndex && m_framesOfResultWellPipeVisibilities[frameIndex].size() ) return;
+    if ( m_framesOfResultWellPipeVisibilities.size() > frameIndex && !m_framesOfResultWellPipeVisibilities[frameIndex].empty() ) return;
 
     if ( m_framesOfResultWellPipeVisibilities.size() <= frameIndex ) m_framesOfResultWellPipeVisibilities.resize( frameIndex + 1 );
 

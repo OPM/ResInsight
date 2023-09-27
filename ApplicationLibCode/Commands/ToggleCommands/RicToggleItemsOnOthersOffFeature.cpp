@@ -41,7 +41,7 @@ bool RicToggleItemsOnOthersOffFeature::isCommandEnabled() const
     caf::PdmFieldHandle*               commonParent = commonParentForAllSelections( selectedObjects );
     std::vector<caf::PdmObjectHandle*> children     = childObjects( commonParent );
 
-    return commonParent != nullptr && children.size() > 0 && objectToggleField( children.front() ) && children.size() > selectedObjects.size();
+    return commonParent != nullptr && !children.empty() && objectToggleField( children.front() ) && children.size() > selectedObjects.size();
 }
 
 //--------------------------------------------------------------------------------------------------

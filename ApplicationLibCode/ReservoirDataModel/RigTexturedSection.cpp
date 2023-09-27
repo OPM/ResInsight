@@ -77,7 +77,7 @@ void RigTexturedSection::setWhatToUpdate( WhatToUpdateEnum updateInfo, int index
 //--------------------------------------------------------------------------------------------------
 bool RigTexturedSection::isValid() const
 {
-    if ( m_sectionParts.size() == 0 ) return false;
+    if ( m_sectionParts.empty() ) return false;
 
     bool valid = true;
 

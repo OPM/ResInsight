@@ -76,7 +76,7 @@ bool RicPasteSummaryCrossPlotFeature::isCommandEnabled() const
         return false;
     }
 
-    return RicPasteSummaryCrossPlotFeature::summaryPlots().size() > 0;
+    return !RicPasteSummaryCrossPlotFeature::summaryPlots().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

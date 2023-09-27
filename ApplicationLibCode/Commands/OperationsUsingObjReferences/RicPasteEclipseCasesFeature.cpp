@@ -53,7 +53,7 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled() const
     std::vector<caf::PdmPointer<RimEclipseResultCase>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
 
-    if ( typedObjects.size() == 0 )
+    if ( typedObjects.empty() )
     {
         return false;
     }
@@ -77,7 +77,7 @@ void RicPasteEclipseCasesFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    if ( objectGroup.objects.size() == 0 ) return;
+    if ( objectGroup.objects.empty() ) return;
 
     addCasesToGridCaseGroup( objectGroup, gridCaseGroup );
 
@@ -115,7 +115,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup& 
         }
     }
 
-    if ( resultCases.size() == 0 )
+    if ( resultCases.empty() )
     {
         return;
     }

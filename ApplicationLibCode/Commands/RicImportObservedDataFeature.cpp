@@ -107,7 +107,7 @@ bool RicImportObservedDataFeature::isCommandEnabled() const
     std::vector<RimObservedSummaryData*> selectionObservedData;
     caf::SelectionManager::instance()->objectsByType( &selectionObservedData );
 
-    return ( selectionObservedDataCollection.size() > 0 || selectionObservedData.size() > 0 );
+    return ( !selectionObservedDataCollection.empty() || !selectionObservedData.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------

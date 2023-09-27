@@ -105,7 +105,7 @@ bool RicCloseObservedDataFeature::isCommandEnabled() const
     std::vector<RimObservedFmuRftData*> fmuRftSelection;
     caf::SelectionManager::instance()->objectsByType( &fmuRftSelection );
 
-    if ( summarySelection.size() == 0 && fmuRftSelection.size() == 0 )
+    if ( summarySelection.empty() && fmuRftSelection.empty() )
     {
         return false;
     }

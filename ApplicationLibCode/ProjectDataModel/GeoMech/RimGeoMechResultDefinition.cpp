@@ -362,7 +362,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
          &m_normalizationAirGap == changedField || &m_referenceTimeStep == changedField || &m_isChecked == changedField )
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split( QRegExp( "\\s+" ) );
-        if ( fieldComponentNames.size() > 0 )
+        if ( !fieldComponentNames.empty() )
         {
             m_resultPositionType = m_resultPositionTypeUiField;
             if ( m_resultPositionType() == RIG_FORMATION_NAMES )

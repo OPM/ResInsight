@@ -71,7 +71,7 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    if ( objectGroup.objects.size() == 0 ) return;
+    if ( objectGroup.objects.empty() ) return;
 
     std::vector<caf::PdmPointer<RimExtrudedCurveIntersection>> intersectionObjects;
     objectGroup.objectsByType( &intersectionObjects );

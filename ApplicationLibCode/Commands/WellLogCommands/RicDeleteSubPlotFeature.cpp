@@ -47,7 +47,7 @@ bool RicDeleteSubPlotFeature::isCommandEnabled() const
     std::vector<RimPlot*> selection;
     getSelection( selection );
 
-    return ( selection.size() > 0 );
+    return ( !selection.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------

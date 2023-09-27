@@ -84,7 +84,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
 
     std::vector<RimAsciiDataCurve*> curves = parseCurves( text, pasteOptions );
 
-    if ( curves.size() > 0 )
+    if ( !curves.empty() )
     {
         if ( !summaryPlot )
         {

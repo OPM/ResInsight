@@ -594,7 +594,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
     if ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE )
     {
-        if ( m_targets.size() == 0 ) return m_texturedSection;
+        if ( m_targets.empty() ) return m_texturedSection;
 
         std::vector<cvf::Vec3d> points;
 

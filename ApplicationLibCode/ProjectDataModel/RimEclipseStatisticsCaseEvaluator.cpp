@@ -47,7 +47,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult( RigCaseCellResultsData* 
                                                         size_t                    activeUnionCellCount )
 {
     // Use time step dates from first result in first source case
-    CVF_ASSERT( m_sourceCases.size() > 0 );
+    CVF_ASSERT( !m_sourceCases.empty() );
 
     std::vector<RigEclipseResultAddress> resAddresses =
         m_sourceCases[0]->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->existingResults();
@@ -314,7 +314,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
         {
             RimEclipseCase* eclipseCase = m_sourceCases.at( caseIdx );
 
-            if ( !eclipseCase->reservoirViews.size() )
+            if ( eclipseCase->reservoirViews.empty() )
             {
                 eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData();
                 eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData();
@@ -384,7 +384,7 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std:
     , m_identicalGridCaseGroup( identicalGridCaseGroup )
     , m_useZeroAsInactiveCellValue( false )
 {
-    if ( sourceCases.size() > 0 )
+    if ( !sourceCases.empty() )
     {
         m_reservoirCellCount = sourceCases[0]->eclipseCaseData()->mainGrid()->globalCellArray().size();
     }

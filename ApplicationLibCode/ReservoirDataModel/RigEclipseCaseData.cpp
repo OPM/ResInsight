@@ -189,7 +189,7 @@ size_t RigEclipseCaseData::gridCount() const
 void RigEclipseCaseData::computeWellCellsPrGrid()
 {
     // If we have computed this already, return
-    if ( m_wellCellsInGrid.size() ) return;
+    if ( !m_wellCellsInGrid.empty() ) return;
 
     std::vector<RigGridBase*> grids;
     allGrids( &grids );
@@ -650,7 +650,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
     for ( int acIdx = 0; acIdx < 2; ++acIdx )
     {
         bb.reset();
-        if ( m_mainGrid->nodes().size() == 0 )
+        if ( m_mainGrid->nodes().empty() )
         {
             bb.add( cvf::Vec3d::ZERO );
         }

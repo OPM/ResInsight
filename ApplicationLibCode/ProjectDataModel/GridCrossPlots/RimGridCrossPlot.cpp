@@ -419,7 +419,7 @@ QString RimGridCrossPlot::generateInfoBoxText() const
         }
         infoText += QString( "</ol>" );
     }
-    else if ( curveInfoTexts.size() > 0 )
+    else if ( !curveInfoTexts.empty() )
     {
         infoText += curveInfoTexts.front();
     }

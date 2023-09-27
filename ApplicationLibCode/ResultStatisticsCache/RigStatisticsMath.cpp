@@ -182,7 +182,7 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const st
     std::sort( sortedValues.begin(), sortedValues.end() );
 
     std::vector<double> percentiles( pValPositions.size(), HUGE_VAL );
-    if ( sortedValues.size() )
+    if ( !sortedValues.empty() )
     {
         for ( size_t i = 0; i < pValPositions.size(); ++i )
         {
@@ -226,7 +226,7 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const s
     std::sort( sortedValues.begin(), sortedValues.end() );
 
     std::vector<double> percentiles( pValPositions.size(), HUGE_VAL );
-    if ( sortedValues.size() )
+    if ( !sortedValues.empty() )
     {
         for ( size_t i = 0; i < pValPositions.size(); ++i )
         {

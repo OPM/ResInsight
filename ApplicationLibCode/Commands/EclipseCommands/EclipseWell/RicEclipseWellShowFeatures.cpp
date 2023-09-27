@@ -63,7 +63,7 @@ bool RicEclipseWellShowLabelFeature::isCommandEnabled() const
 bool RicEclipseWellShowLabelFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimSimWellInView* well = selection[0];
 
@@ -111,7 +111,7 @@ bool RicEclipseWellShowHeadFeature::isCommandEnabled() const
 bool RicEclipseWellShowHeadFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimSimWellInView* well = selection[0];
 
@@ -159,7 +159,7 @@ bool RicEclipseWellShowPipeFeature::isCommandEnabled() const
 bool RicEclipseWellShowPipeFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimSimWellInView* well = selection[0];
 
@@ -207,7 +207,7 @@ bool RicEclipseWellShowSpheresFeature::isCommandEnabled() const
 bool RicEclipseWellShowSpheresFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimSimWellInView* well = selection[0];
 
@@ -255,7 +255,7 @@ bool RicEclipseWellShowWellCellsFeature::isCommandEnabled() const
 bool RicEclipseWellShowWellCellsFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimSimWellInView* well = selection[0];
 
@@ -303,7 +303,7 @@ bool RicEclipseWellShowWellCellFenceFeature::isCommandEnabled() const
 bool RicEclipseWellShowWellCellFenceFeature::isCommandChecked() const
 {
     std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimSimWellInView* well = selection[0];
 

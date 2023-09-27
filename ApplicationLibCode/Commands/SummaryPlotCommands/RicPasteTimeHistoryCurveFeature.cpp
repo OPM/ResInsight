@@ -51,7 +51,7 @@ bool RicPasteTimeHistoryCurveFeature::isCommandEnabled() const
         return false;
     }
 
-    return RicPasteTimeHistoryCurveFeature::timeHistoryCurves().size() > 0;
+    return !RicPasteTimeHistoryCurveFeature::timeHistoryCurves().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

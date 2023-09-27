@@ -352,7 +352,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const 
     QList<caf::PdmOptionItemInfo> options;
 
     options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
-    if ( options.size() > 0 ) return options;
+    if ( !options.empty() ) return options;
 
     if ( fieldNeedingOptions == &m_wellPath )
     {
@@ -362,13 +362,13 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const 
             for ( auto wellPath : wellPathColl->allWellPaths() )
             {
                 // Only include well paths coming from a well log file
-                if ( wellPath->wellLogFiles().size() > 0 )
+                if ( !wellPath->wellLogFiles().empty() )
                 {
                     options.push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath ) );
                 }
             }
 
-            if ( options.size() > 0 )
+            if ( !options.empty() )
             {
                 options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
             }
@@ -391,7 +391,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const 
             }
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
         }
@@ -399,7 +399,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const 
 
     if ( fieldNeedingOptions == &m_wellLogFile )
     {
-        if ( m_wellPath() && m_wellPath->wellLogFiles().size() > 0 )
+        if ( m_wellPath() && !m_wellPath->wellLogFiles().empty() )
         {
             for ( RimWellLogFile* const wellLogFile : m_wellPath->wellLogFiles() )
             {

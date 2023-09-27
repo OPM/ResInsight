@@ -2571,7 +2571,7 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor( RimWellLogP
 
     std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches( simWellName, useBranchDetection );
 
-    if ( wellPaths.size() == 0 ) return nullptr;
+    if ( wellPaths.empty() ) return nullptr;
 
     CVF_ASSERT( branchIndex >= 0 && branchIndex < static_cast<int>( wellPaths.size() ) );
 

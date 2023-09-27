@@ -676,9 +676,9 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         QwtScaleDiv groupAxisScaleDiv( 0, currentBarPosition );
         {
-            if ( majTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MajorTick, majTickPositions );
-            if ( midTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MediumTick, midTickPositions );
-            if ( minTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MinorTick, minTickPositions );
+            if ( !majTickPositions.empty() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MajorTick, majTickPositions );
+            if ( !midTickPositions.empty() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MediumTick, midTickPositions );
+            if ( !minTickPositions.empty() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MinorTick, minTickPositions );
 
             if ( barOrientation == Qt::Horizontal )
             {
@@ -739,17 +739,17 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         if ( groupGrid )
         {
             QwtScaleDiv gridDividerScaleDiv( 0, currentBarPosition );
-            if ( majDividerPositions.size() )
+            if ( !majDividerPositions.empty() )
             {
                 gridDividerScaleDiv.setTicks( QwtScaleDiv::MajorTick, majDividerPositions );
             }
 
-            if ( midDividerPositions.size() )
+            if ( !midDividerPositions.empty() )
             {
                 gridDividerScaleDiv.setTicks( QwtScaleDiv::MediumTick, midDividerPositions );
             }
 
-            if ( minDividerPositions.size() )
+            if ( !minDividerPositions.empty() )
             {
                 gridDividerScaleDiv.setTicks( QwtScaleDiv::MinorTick, minDividerPositions );
             }

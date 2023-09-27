@@ -63,7 +63,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered( bool isChe
                                                                           defaultDir,
                                                                           "Well Path Perforation Intervals (*.ev);;All Files (*.*)" );
 
-    if ( wellPathFilePaths.size() < 1 ) return;
+    if ( wellPathFilePaths.empty() ) return;
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );

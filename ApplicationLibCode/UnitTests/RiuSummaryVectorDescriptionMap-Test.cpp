@@ -31,14 +31,14 @@ TEST( RiuSummaryQuantityNameInfoProvider, TestInit )
 
         auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( s );
 
-        EXPECT_TRUE( longName == "" );
+        EXPECT_TRUE( longName.empty() );
     }
 
     {
         std::string s( "does not exist" );
         auto        test = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( s );
 
-        EXPECT_TRUE( test == "" );
+        EXPECT_TRUE( test.empty() );
     }
 
     {

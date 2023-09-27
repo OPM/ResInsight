@@ -69,7 +69,7 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled() const
     auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot>();
     if ( !multiPlot ) return false;
 
-    return RicPasteSummaryPlotFeature::summaryPlots().size() > 0;
+    return !RicPasteSummaryPlotFeature::summaryPlots().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

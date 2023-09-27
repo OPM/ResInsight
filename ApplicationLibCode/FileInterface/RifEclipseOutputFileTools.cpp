@@ -514,7 +514,7 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     {
         // Look for set of restart files (one file per time step)
         QStringList restartFiles = RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_RESTART_FILE );
-        if ( restartFiles.size() > 0 )
+        if ( !restartFiles.empty() )
         {
             resultsAccess = new RifEclipseRestartFilesetAccess();
             resultsAccess->setRestartFiles( restartFiles );

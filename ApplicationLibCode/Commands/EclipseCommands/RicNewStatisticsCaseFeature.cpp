@@ -73,7 +73,7 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
     std::vector<RimEclipseStatisticsCaseCollection*> statisticsCaseCollections;
     caf::SelectionManager::instance()->objectsByType( &statisticsCaseCollections );
 
-    if ( statisticsCaseCollections.size() > 0 )
+    if ( !statisticsCaseCollections.empty() )
     {
         return statisticsCaseCollections[0];
     }
@@ -81,7 +81,7 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
     std::vector<RimCaseCollection*> caseCollections;
     caf::SelectionManager::instance()->objectsByType( &caseCollections );
 
-    if ( caseCollections.size() > 0 )
+    if ( !caseCollections.empty() )
     {
         if ( RimIdenticalGridCaseGroup::isStatisticsCaseCollection( caseCollections[0] ) )
         {

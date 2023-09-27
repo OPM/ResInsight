@@ -310,7 +310,7 @@ void RimProject::beforeInitAfterRead()
     distributePathsFromGlobalPathList();
 
     // Create an empty oil field in case the project did not contain one
-    if ( oilFields.size() < 1 )
+    if ( oilFields.empty() )
     {
         oilFields.push_back( new RimOilField );
     }
@@ -700,7 +700,7 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
         }
 
         auto& observedDataColl = oilField->observedDataCollection();
-        if ( observedDataColl != nullptr && observedDataColl->allObservedSummaryData().size() > 0 )
+        if ( observedDataColl != nullptr && !observedDataColl->allObservedSummaryData().empty() )
         {
             auto observedData = observedDataColl->allObservedSummaryData();
             sumCases.insert( sumCases.end(), observedData.begin(), observedData.end() );

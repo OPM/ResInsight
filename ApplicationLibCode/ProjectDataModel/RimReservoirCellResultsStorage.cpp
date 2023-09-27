@@ -103,7 +103,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
         }
     }
 
-    if ( resAddrs.size() && hasResultsToStore )
+    if ( !resAddrs.empty() && hasResultsToStore )
     {
         QDir::root().mkpath( getCacheDirectoryPath() );
 
@@ -158,7 +158,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
                         data = &( m_cellResults->cellScalarResults( resAddrs[rIdx], tsIdx ) );
                     }
 
-                    if ( data && data->size() )
+                    if ( data && !data->empty() )
                     {
                         stream << (quint64)( data->size() );
                         for ( size_t cIdx = 0; cIdx < data->size(); ++cIdx )
@@ -230,7 +230,7 @@ void RimReservoirCellResultsStorage::setCellResults( RigCaseCellResultsData* cel
 
     // Warn if we thought we were to find some data on the storage file
 
-    if ( !caf::Utils::fileExists( newValidCacheFileName ) && m_resultCacheMetaData.size() )
+    if ( !caf::Utils::fileExists( newValidCacheFileName ) && !m_resultCacheMetaData.empty() )
     {
         qWarning() << "Reading stored results: Missing the storage file : " + newValidCacheFileName;
         return;

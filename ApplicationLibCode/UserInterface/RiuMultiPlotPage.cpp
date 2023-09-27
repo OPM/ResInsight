@@ -451,7 +451,7 @@ void RiuMultiPlotPage::contextMenuEvent( QContextMenuEvent* event )
 
     menuBuilder.appendToMenu( &menu );
 
-    if ( menu.actions().size() > 0 )
+    if ( !menu.actions().empty() )
     {
         menu.exec( event->globalPos() );
     }

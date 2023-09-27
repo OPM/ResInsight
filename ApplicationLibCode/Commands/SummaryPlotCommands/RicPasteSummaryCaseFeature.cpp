@@ -54,7 +54,7 @@ bool RicPasteSummaryCaseFeature::isCommandEnabled() const
 
     std::vector<caf::PdmPointer<RimSummaryCase>> summaryCases = RicPasteSummaryCaseFeature::summaryCases();
 
-    if ( summaryCases.size() == 0 )
+    if ( summaryCases.empty() )
     {
         return false;
     }

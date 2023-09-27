@@ -61,7 +61,7 @@ void RicNewSeismicViewFeature::onActionTriggered( bool isChecked )
 
     RimSeismicData* selectedData = nullptr;
 
-    if ( uiItems.size() > 0 )
+    if ( !uiItems.empty() )
     {
         selectedData = dynamic_cast<RimSeismicData*>( uiItems[0] );
     }

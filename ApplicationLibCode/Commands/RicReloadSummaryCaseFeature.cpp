@@ -94,7 +94,7 @@ std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
     std::vector<RimSummaryCaseMainCollection*> mainCollectionSelection;
     caf::SelectionManager::instance()->objectsByType( &mainCollectionSelection );
 
-    if ( mainCollectionSelection.size() > 0 )
+    if ( !mainCollectionSelection.empty() )
     {
         return mainCollectionSelection[0]->allSummaryCases();
     }

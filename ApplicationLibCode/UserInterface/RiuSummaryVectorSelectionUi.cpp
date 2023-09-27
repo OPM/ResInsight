@@ -518,7 +518,7 @@ void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<Summary
     RimProject* proj        = RimProject::current();
     auto        allSumCases = proj->allSummaryCases();
 
-    if ( allSumCases.size() > 0 )
+    if ( !allSumCases.empty() )
     {
         RifEclipseSummaryAddress defaultAddress;
 
@@ -611,7 +611,7 @@ QList<caf::PdmOptionItemInfo>
 
                 // Observed data
                 auto observedDataColl = oilField->observedDataCollection();
-                if ( observedDataColl->allObservedSummaryData().size() > 0 )
+                if ( !observedDataColl->allObservedSummaryData().empty() )
                 {
                     options.push_back( caf::PdmOptionItemInfo::createHeader( "Observed Data", true ) );
 
@@ -1033,7 +1033,7 @@ std::set<RifEclipseSummaryAddress>
 
     auto isVectorField = identifierAndField != nullptr && identifierAndField->summaryIdentifier() == SummaryIdentifierType::INPUT_VECTOR_NAME;
     auto controllingIdentifierAndField = identifierAndField != nullptr ? lookupControllingField( identifierAndField ) : nullptr;
-    if ( !isVectorField && controllingIdentifierAndField != nullptr && controllingIdentifierAndField->pdmField()->v().size() == 0 )
+    if ( !isVectorField && controllingIdentifierAndField != nullptr && controllingIdentifierAndField->pdmField()->v().empty() )
     {
         return addrUnion;
     }
@@ -1208,7 +1208,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::buildAddressList
     std::set<RifEclipseSummaryAddress> addressSet;
     for ( const auto& category : m_selectedSummaryCategories() )
     {
-        if ( m_identifierFieldsMap.at( category ).size() == 0 || category == SummaryCategory::SUMMARY_INVALID ) continue;
+        if ( m_identifierFieldsMap.at( category ).empty() || category == SummaryCategory::SUMMARY_INVALID ) continue;
 
         const auto&                                            identifierAndFieldList = m_identifierFieldsMap.at( category );
         std::vector<std::pair<SummaryIdentifierType, QString>> selectionStack;
@@ -1422,7 +1422,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
             if ( address.isErrorResult() ) continue;
 
             auto name = address.addressComponentUiText( identifierAndField->summaryIdentifier() );
-            if ( name.size() > 0 )
+            if ( !name.empty() )
             {
                 if ( isVectorField && address.isCalculated() )
                 {
@@ -1443,7 +1443,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
     for ( int i = 0; i < itemCount; i++ )
     {
         // Create headers only for vector fields when observed data is selected
-        bool hasObservedData = itemNames[OBS_DATA].size() > 0;
+        bool hasObservedData = !itemNames[OBS_DATA].empty();
         bool groupItems      = isVectorField && hasObservedData;
         if ( groupItems )
         {

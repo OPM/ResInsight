@@ -515,7 +515,7 @@ void RiuWellImportWizard::downloadWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 {
-    if ( m_wellRequestQueue.size() > 0 )
+    if ( !m_wellRequestQueue.empty() )
     {
         DownloadEntity firstItem = m_wellRequestQueue[0];
         m_wellRequestQueue.pop_front();

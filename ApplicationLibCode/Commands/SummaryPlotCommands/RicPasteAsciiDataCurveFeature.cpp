@@ -46,7 +46,7 @@ bool RicPasteAsciiDataCurveFeature::isCommandEnabled() const
         return false;
     }
 
-    return RicPasteAsciiDataCurveFeature::asciiDataCurves().size() > 0;
+    return !RicPasteAsciiDataCurveFeature::asciiDataCurves().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

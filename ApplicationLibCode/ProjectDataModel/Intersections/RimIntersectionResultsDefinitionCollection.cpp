@@ -97,7 +97,7 @@ void RimIntersectionResultsDefinitionCollection::fieldChangedByUi( const caf::Pd
 
     auto gridView = firstAncestorOrThisOfType<RimGridView>();
     if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
-    if ( intersectionResultsDefinitions().size() > 0 ) intersectionResultsDefinitions()[0]->update2dIntersectionViews();
+    if ( !intersectionResultsDefinitions().empty() ) intersectionResultsDefinitions()[0]->update2dIntersectionViews();
 }
 
 //--------------------------------------------------------------------------------------------------

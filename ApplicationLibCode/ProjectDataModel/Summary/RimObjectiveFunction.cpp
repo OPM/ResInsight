@@ -155,7 +155,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
                 }
             }
 
-            if ( m_normalizeByNumberOfVectors && vectorSummaryAddresses.size() > 0 )
+            if ( m_normalizeByNumberOfVectors && !vectorSummaryAddresses.empty() )
             {
                 aggregatedObjectiveFunctionValue /= vectorSummaryAddresses.size();
             }

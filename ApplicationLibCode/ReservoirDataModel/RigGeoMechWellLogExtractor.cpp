@@ -593,7 +593,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
 
     // Load results
     std::vector<caf::Ten3f> vertexStressesFloat = resultCollection->tensors( stressResAddr, m_partId, timeStepIndex, frameIndex );
-    if ( !vertexStressesFloat.size() ) return;
+    if ( vertexStressesFloat.empty() ) return;
 
     std::vector<caf::Ten3d> vertexStresses;
     vertexStresses.reserve( vertexStressesFloat.size() );

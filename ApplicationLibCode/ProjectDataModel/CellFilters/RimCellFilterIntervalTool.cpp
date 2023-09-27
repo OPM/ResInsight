@@ -82,7 +82,7 @@ RimCellFilterIntervalTool::~RimCellFilterIntervalTool()
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilterIntervalTool::isNumberIncluded( size_t number ) const
 {
-    if ( m_intervals.size() == 0 ) return m_includeAllByDefault;
+    if ( m_intervals.empty() ) return m_includeAllByDefault;
 
     number = number + 1;
 

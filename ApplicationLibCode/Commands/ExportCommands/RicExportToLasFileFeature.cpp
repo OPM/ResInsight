@@ -123,7 +123,7 @@ bool RicExportToLasFileFeature::isCommandEnabled() const
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
 
-    return RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves().size() > 0;
+    return !RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
     std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
-    if ( curves.size() == 0 ) return;
+    if ( curves.empty() ) return;
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_LOGS_DIR" );
 

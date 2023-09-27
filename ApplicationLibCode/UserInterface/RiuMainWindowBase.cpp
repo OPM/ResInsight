@@ -742,7 +742,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     {
         QMenu* layoutsMenu      = m_windowMenu->addMenu( "Use Window Layout" );
         QMenu* deleteLayoutMenu = nullptr;
-        if ( names.size() > 0 ) deleteLayoutMenu = m_windowMenu->addMenu( "Delete Window Layout" );
+        if ( !names.empty() ) deleteLayoutMenu = m_windowMenu->addMenu( "Delete Window Layout" );
 
         for ( auto& defLayout : defaultNames )
         {
@@ -750,7 +750,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
             connect( defLayoutAction, SIGNAL( triggered() ), this, SLOT( setDefaultDockLayout() ) );
         }
 
-        if ( defaultNames.size() > 0 ) layoutsMenu->addSeparator();
+        if ( !defaultNames.empty() ) layoutsMenu->addSeparator();
 
         for ( auto& layout : names )
         {
