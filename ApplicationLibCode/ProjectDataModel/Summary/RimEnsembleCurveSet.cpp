@@ -2452,7 +2452,7 @@ void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::setBottomOrTopAxis( RiuPlotAxis plotAxis )
+void RimEnsembleCurveSet::setBottomOrTopAxisX( RiuPlotAxis plotAxis )
 {
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     m_xAddressSelector->setPlotAxisProperties( plot->axisPropertiesForPlotAxis( plotAxis ) );

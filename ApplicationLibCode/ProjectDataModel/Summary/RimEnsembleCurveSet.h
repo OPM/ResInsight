@@ -182,7 +182,7 @@ public:
     RiuPlotAxis axisY() const;
     RiuPlotAxis axisX() const;
     void        setLeftOrRightAxisY( RiuPlotAxis plotAxis );
-    void        setBottomOrTopAxis( RiuPlotAxis plotAxis );
+    void        setBottomOrTopAxisX( RiuPlotAxis plotAxis );
 
 protected:
     void initAfterRead() override;

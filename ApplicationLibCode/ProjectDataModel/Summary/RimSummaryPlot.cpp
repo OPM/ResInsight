@@ -2667,7 +2667,7 @@ RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurve( const RiaSummaryCurveA
     ensembleCurveSetCollection()->addCurveSet( curveSet );
 
     curveSet->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
-    curveSet->setBottomOrTopAxis( RiuPlotAxis::defaultBottomForSummaryVectors() );
+    curveSet->setBottomOrTopAxisX( RiuPlotAxis::defaultBottomForSummaryVectors() );
 
     return curveSet;
 }
