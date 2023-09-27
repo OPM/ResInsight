@@ -2651,7 +2651,7 @@ RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurve( const RiaSummaryCurveA
     auto* curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryCaseCollection( ensemble );
-    curveSet->setSummaryAddressAndStatisticsFlag( address.summaryAddressY() );
+    curveSet->setSummaryAddressYAndStatisticsFlag( address.summaryAddressY() );
     curveSet->setCurveAddress( address );
 
     cvf::Color3f curveColor =
