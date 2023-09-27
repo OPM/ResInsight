@@ -40,7 +40,7 @@ public:
 
     void useCellIndexAdjustment( std::map<size_t, size_t> adjustments );
 
-    double porePressureAtPosition( cvf::Vec3d position, double defaultPorePressureGradient );
+    double porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient );
 
     size_t timeStepIndex() const;
 

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021 -    Equinor ASA
+//  Copyright (C) 2023  Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ void RimFaultReactivationDataAccess::useCellIndexAdjustment( std::map<size_t, si
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccess::porePressureAtPosition( cvf::Vec3d position, double defaultPorePressureGradient )
+double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient )
 {
     size_t cellIdx = cvf::UNDEFINED_SIZE_T;
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )

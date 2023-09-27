@@ -67,7 +67,7 @@ public:
     QString userDescription();
     void    setUserDescription( QString description );
 
-    std::pair<bool, std::string> validateBeforeRun();
+    std::pair<bool, std::string> validateBeforeRun() const;
 
     void            setFault( RimFaultInView* fault );
     RimFaultInView* fault() const;

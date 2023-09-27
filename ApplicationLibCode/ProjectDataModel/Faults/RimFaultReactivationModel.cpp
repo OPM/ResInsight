@@ -167,7 +167,7 @@ caf::PdmFieldHandle* RimFaultReactivationModel::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string> RimFaultReactivationModel::validateBeforeRun()
+std::pair<bool, std::string> RimFaultReactivationModel::validateBeforeRun() const
 {
     if ( fault() == nullptr )
     {
