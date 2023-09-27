@@ -73,7 +73,7 @@ int RimWellIADataAccess::elementIndex( cvf::Vec3d position )
 
     std::vector<size_t> closeElements;
     part->findIntersectingElementIndices( bb, &closeElements );
-    if ( closeElements.size() == 0 ) return -1;
+    if ( closeElements.empty() ) return -1;
 
     for ( auto elmIdx : closeElements )
     {
