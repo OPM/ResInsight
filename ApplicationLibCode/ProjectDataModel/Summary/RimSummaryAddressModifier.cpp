@@ -81,7 +81,7 @@ std::vector<RifEclipseSummaryAddress> RimSummaryAddressModifier::createEclipseSu
 RifEclipseSummaryAddress RimSummaryAddressModifier::address() const
 {
     if ( m_curve ) return m_curve->summaryAddressY();
-    if ( m_curveSet ) return m_curveSet->summaryAddress();
+    if ( m_curveSet ) return m_curveSet->summaryAddressY();
 
     return {};
 }

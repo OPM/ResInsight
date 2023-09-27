@@ -1591,7 +1591,7 @@ void RimSummaryMultiPlot::appendCurveByStepping( int direction )
 
         for ( auto curveSet : plot->curveSets() )
         {
-            auto address  = curveSet->summaryAddress();
+            auto address  = curveSet->summaryAddressY();
             auto sumEns   = curveSet->summaryCaseCollection();
             int  sumEnsId = sumEns->ensembleId();
             if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )

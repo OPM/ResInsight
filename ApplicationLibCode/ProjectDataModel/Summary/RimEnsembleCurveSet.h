@@ -116,7 +116,7 @@ public:
     void                          setSummaryAddressY( RifEclipseSummaryAddress address );
     void                          setCurveAddress( RiaSummaryCurveAddress address );
     void                          setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address );
-    RifEclipseSummaryAddress      summaryAddress() const;
+    RifEclipseSummaryAddress      summaryAddressY() const;
     RiaSummaryCurveAddress        curveAddress() const;
     std::vector<RimSummaryCurve*> curves() const;
 

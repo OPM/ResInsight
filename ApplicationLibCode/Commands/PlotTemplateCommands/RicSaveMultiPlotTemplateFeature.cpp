@@ -218,7 +218,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                     ensembleReferenceStrings.insert( reference );
                 }
 
-                addresses.push_back( curveSet->summaryAddress() );
+                addresses.push_back( curveSet->summaryAddressY() );
             }
 
             replaceStrings( ensembleReferenceStrings,
