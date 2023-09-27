@@ -491,7 +491,7 @@ public:
             }
         }
 
-        if ( !m_requestedTimesteps.size() )
+        if ( m_requestedTimesteps.empty() )
         {
             server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
                                       RiaSocketServer::tr( "No time steps specified" ).arg( porosityModelName ).arg( propertyName ) );
@@ -643,7 +643,7 @@ public:
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
                         {
-                            if ( ( *scalarResultFrames )[i].size() > 0 )
+                            if ( !( *scalarResultFrames )[i].empty() )
                             {
                                 lastIndexWithDataPresent = i;
                             }
@@ -843,7 +843,7 @@ public:
             }
         }
 
-        if ( !m_requestedTimesteps.size() )
+        if ( m_requestedTimesteps.empty() )
         {
             server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
                                       RiaSocketServer::tr( "No time steps specified" ).arg( porosityModelName ).arg( propertyName ) );
@@ -1016,7 +1016,7 @@ public:
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
                         {
-                            if ( ( *scalarResultFrames )[i].size() > 0 )
+                            if ( !( *scalarResultFrames )[i].empty() )
                             {
                                 lastIndexWithDataPresent = i;
                             }

@@ -639,7 +639,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( cons
             options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
@@ -648,7 +648,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( cons
     {
         RimTools::timeStepsForCase( m_case, &options );
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", -1 ) );
         }
@@ -755,7 +755,7 @@ void RimWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
         }
 
         std::set<QString> sortedWellNames = findSortedWellNames();
-        if ( !sortedWellNames.size() )
+        if ( sortedWellNames.empty() )
             m_wellName = "";
         else if ( sortedWellNames.count( m_wellName() ) == 0 )
         {

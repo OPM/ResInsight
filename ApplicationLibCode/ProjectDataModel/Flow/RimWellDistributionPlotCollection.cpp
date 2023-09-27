@@ -293,7 +293,7 @@ QList<caf::PdmOptionItemInfo> RimWellDistributionPlotCollection::calculateValueO
     {
         RimTools::timeStepsForCase( m_case, &options );
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( "None", -1 ) );
         }
@@ -311,7 +311,7 @@ QList<caf::PdmOptionItemInfo> RimWellDistributionPlotCollection::calculateValueO
             }
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( "None", QVariant() ) );
         }
@@ -451,7 +451,7 @@ void RimWellDistributionPlotCollection::fixupDependentFieldsAfterCaseChange()
         }
 
         const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
-        if ( sortedWellNameSet.size() > 0 )
+        if ( !sortedWellNameSet.empty() )
         {
             newWellName = *sortedWellNameSet.begin();
         }

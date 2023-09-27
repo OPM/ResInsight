@@ -135,7 +135,7 @@ void RimIdenticalGridCaseGroup::removeCase( RimEclipseCase* reservoir )
 
     caseCollection()->reservoirs().removeChild( reservoir );
 
-    if ( caseCollection()->reservoirs().size() == 0 )
+    if ( caseCollection()->reservoirs().empty() )
     {
         m_mainGrid = nullptr;
     }
@@ -168,7 +168,7 @@ caf::PdmFieldHandle* RimIdenticalGridCaseGroup::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 {
-    if ( caseCollection()->reservoirs().size() == 0 )
+    if ( caseCollection()->reservoirs().empty() )
     {
         return;
     }
@@ -262,7 +262,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         return;
     }
 
-    if ( caseCollection->reservoirs.size() == 0 || !m_mainGrid )
+    if ( caseCollection->reservoirs.empty() || !m_mainGrid )
     {
         clearActiveCellUnions();
 
@@ -493,7 +493,7 @@ bool RimIdenticalGridCaseGroup::isStatisticsCaseCollection( RimCaseCollection* r
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
 {
-    if ( caseCollection()->reservoirs().size() )
+    if ( !caseCollection()->reservoirs().empty() )
     {
         return caseCollection()->reservoirs()[0];
     }

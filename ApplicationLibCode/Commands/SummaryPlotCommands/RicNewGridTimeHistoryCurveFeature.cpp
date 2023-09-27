@@ -218,7 +218,7 @@ bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled() const
     std::vector<RiuSelectionItem*> items;
     Riu3dSelectionManager::instance()->selectedItems( items );
 
-    if ( items.size() > 0 )
+    if ( !items.empty() )
     {
         const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>( items[0] );
         if ( eclSelectionItem && eclSelectionItem->m_resultDefinition )
@@ -246,7 +246,7 @@ void RicNewGridTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
 
     std::vector<RiuSelectionItem*> items;
     Riu3dSelectionManager::instance()->selectedItems( items );
-    CVF_ASSERT( items.size() > 0 );
+    CVF_ASSERT( !items.empty() );
 
     for ( auto item : items )
     {

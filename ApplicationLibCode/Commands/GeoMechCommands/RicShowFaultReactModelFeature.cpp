@@ -71,7 +71,7 @@ void RicShowFaultReactModelFeature::onActionTriggered( bool isChecked )
         {
             gCase->reloadDataAndUpdate();
             auto& views = gCase->geoMechViews();
-            if ( views.size() > 0 )
+            if ( !views.empty() )
             {
                 Riu3DMainWindowTools::selectAsCurrentItem( views[0] );
             }

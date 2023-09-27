@@ -76,7 +76,7 @@ void RicSeismicSectionFromIntersectionFeature::onActionTriggered( bool isChecked
         newSection->setUserDescription( intersection->name() );
 
         auto polyline = intersection->polyLines();
-        if ( polyline.size() > 0 )
+        if ( !polyline.empty() )
         {
             for ( auto& p : polyline[0] )
             {

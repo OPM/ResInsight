@@ -1442,7 +1442,7 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu( caf::CmdF
         std::vector<RimCase*> cases;
         ruiMainWindow->selectedCases( cases );
 
-        if ( cases.size() > 0 )
+        if ( !cases.empty() )
         {
             menuBuilder.subMenuStart( "Execute script" );
 

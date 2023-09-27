@@ -224,7 +224,7 @@ size_t RimCase::uiToNativeTimeStepIndex( size_t uiTimeStepIndex )
 {
     std::vector<size_t> nativeTimeIndices = m_timeStepFilter->filteredTimeSteps();
 
-    if ( nativeTimeIndices.size() > 0 )
+    if ( !nativeTimeIndices.empty() )
     {
         return nativeTimeIndices.at( uiTimeStepIndex );
     }

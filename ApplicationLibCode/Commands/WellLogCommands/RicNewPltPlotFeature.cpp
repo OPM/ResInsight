@@ -140,7 +140,7 @@ void RicNewPltPlotFeature::setupActionLook( QAction* actionToSetup )
 RimWellPath* RicNewPltPlotFeature::selectedWellPath() const
 {
     auto selection = caf::selectedObjectsByType<RimWellPath*>();
-    return selection.size() > 0 ? selection[0] : nullptr;
+    return !selection.empty() ? selection[0] : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell( int* branchIndex
         std::vector<RimSimWellInView*> selection;
         caf::SelectionManager::instance()->objectsByType( &selection );
         ( *branchIndex ) = 0;
-        return selection.size() > 0 ? selection[0] : nullptr;
+        return !selection.empty() ? selection[0] : nullptr;
     }
 }
 

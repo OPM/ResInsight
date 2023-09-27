@@ -211,7 +211,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions( cons
             }
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
         }

@@ -612,7 +612,7 @@ void RiuRelativePermeabilityPlotPanel::addCurveConstSaturationIntersectionMarker
 //--------------------------------------------------------------------------------------------------
 double RiuRelativePermeabilityPlotPanel::interpolatedCurveYValue( const std::vector<double>& xVals, const std::vector<double>& yVals, double x )
 {
-    if ( xVals.size() == 0 ) return HUGE_VAL;
+    if ( xVals.empty() ) return HUGE_VAL;
     if ( x < xVals.front() ) return HUGE_VAL;
     if ( x > xVals.back() ) return HUGE_VAL;
 

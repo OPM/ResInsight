@@ -68,7 +68,7 @@ void RimCellIndexFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibili
 {
     if ( gridIndex != m_gridIndex() ) return;
 
-    if ( m_cells.size() == 0 )
+    if ( m_cells.empty() )
     {
         updateCells();
     }

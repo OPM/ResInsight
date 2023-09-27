@@ -982,7 +982,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions( 
     QList<caf::PdmOptionItemInfo> options;
 
     options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
-    if ( options.size() > 0 ) return options;
+    if ( !options.empty() ) return options;
 
     if ( fieldNeedingOptions == &m_wellPath )
     {

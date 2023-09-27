@@ -194,7 +194,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER:
         {
-            if ( columnHeaderText.size() > 0 )
+            if ( !columnHeaderText.empty() )
             {
                 aquiferNumber = RiaStdStringTools::toInt( columnHeaderText[0] );
             }
@@ -206,7 +206,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION:
         {
-            if ( columnHeaderText.size() > 0 )
+            if ( !columnHeaderText.empty() )
             {
                 regionNumber = RiaStdStringTools::toInt( columnHeaderText[0] );
             }
@@ -216,7 +216,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP:
         {
-            if ( columnHeaderText.size() > 0 )
+            if ( !columnHeaderText.empty() )
             {
                 groupName = columnHeaderText[0];
             }
@@ -224,7 +224,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
         }
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL:
         {
-            if ( columnHeaderText.size() > 0 )
+            if ( !columnHeaderText.empty() )
             {
                 wellName = columnHeaderText[0];
             }
@@ -265,7 +265,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
             }
             break;
         case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK:
-            if ( columnHeaderText.size() > 0 )
+            if ( !columnHeaderText.empty() )
             {
                 RifEclipseUserDataKeywordTools::extractThreeInts( &cellI, &cellJ, &cellK, columnHeaderText[0] );
             }

@@ -68,7 +68,7 @@ int RigWellPathGeometryTools::lookup( double x, const QPolygonF& values )
 //--------------------------------------------------------------------------------------------------
 double RigWellPathGeometryTools::value( double x, const QPolygonF& values )
 {
-    if ( values.size() == 0 ) return 0.0;
+    if ( values.empty() ) return 0.0;
 
     const int i = lookup( x, values );
 

@@ -73,7 +73,7 @@ bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled() const
                                      []( RimSummaryCaseCollection* coll )
                                      { return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr; } ),
                      selection.end() );
-    return ( selection.size() > 0 );
+    return ( !selection.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSummaryCaseCollection*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    if ( selection.size() == 0 ) return;
+    if ( selection.empty() ) return;
 
     QMessageBox msgBox;
     msgBox.setIcon( QMessageBox::Question );
@@ -143,7 +143,7 @@ void RicDeleteSummaryCaseCollectionFeature::setupActionLook( QAction* actionToSe
 void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection( RimSummaryCaseCollection* summaryCaseCollection )
 {
     std::vector<RimSummaryCase*> summaryCases = summaryCaseCollection->allSummaryCases();
-    if ( summaryCases.size() == 0 ) return;
+    if ( summaryCases.empty() ) return;
 
     RimSummaryCaseMainCollection* summaryCaseMainCollection = summaryCaseCollection->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
 

@@ -209,7 +209,7 @@ bool RiaSocketServer::readCommandFromOctave()
         args.push_back( arg );
     }
 
-    CVF_ASSERT( args.size() > 0 );
+    CVF_ASSERT( !args.empty() );
 
     // Create the actual RiaSocketCommand object that will interpret the socket data
 

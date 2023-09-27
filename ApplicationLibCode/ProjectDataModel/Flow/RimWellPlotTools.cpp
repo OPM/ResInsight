@@ -561,7 +561,7 @@ std::set<QDateTime> RimWellPlotTools::findMatchingOrAdjacentTimeSteps( const std
     // The above will only work if there are at least one available timestep equal or after any of the basetimeline
     // times. If no timesteps matched but we have some, add the last available because the above code missed it.
 
-    if ( !resultTimeSteps.size() && baseTimeLine.size() && availableTimeSteps.size() )
+    if ( resultTimeSteps.empty() && !baseTimeLine.empty() && !availableTimeSteps.empty() )
     {
         resultTimeSteps.insert( *availableTimeSteps.rbegin() );
     }
@@ -1291,7 +1291,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
         std::set<QDateTime> filteredSummaryRftTimeSteps =
             RimWellPlotTools::findMatchingOrAdjacentTimeSteps( baseTimeSteps, summaryRftTimeSteps );
 
-        if ( addFirstTimestep && gridTimeSteps.size() )
+        if ( addFirstTimestep && !gridTimeSteps.empty() )
         {
             filteredGridTimeSteps.insert( *gridTimeSteps.begin() );
         }

@@ -47,7 +47,7 @@ RimEclipseView* RicSaveEclipseResultAsInputPropertyFeature::selectedEclipseView(
     std::vector<RimEclipseView*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         return selection[0];
     }
@@ -63,7 +63,7 @@ RimEclipseCellColors* RicSaveEclipseResultAsInputPropertyFeature::selectedEclips
     std::vector<RimEclipseCellColors*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         return selection[0];
     }

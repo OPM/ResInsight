@@ -45,7 +45,7 @@ bool RicPasteEllipseFractureFeature::isCommandEnabled() const
     std::vector<caf::PdmPointer<RimEllipseFractureTemplate>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
 
-    if ( typedObjects.size() == 0 )
+    if ( typedObjects.empty() )
     {
         return false;
     }

@@ -249,7 +249,7 @@ bool RivWindowEdgeAxesOverlayItem::pick( int oglXCoord, int oglYCoord, const Vec
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::renderGeneric( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software )
 {
-    if ( size.x() <= 0 || size.y() <= 0 || ( m_windowTickXValues.size() == 0 && m_windowTickYValues.size() == 0 ) )
+    if ( size.x() <= 0 || size.y() <= 0 || ( m_windowTickXValues.empty() && m_windowTickYValues.empty() ) )
     {
         return;
     }

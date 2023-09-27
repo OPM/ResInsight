@@ -944,7 +944,7 @@ QString RimRegularLegendConfig::categoryNameFromCategoryValue( double categoryRe
 {
     if ( categoryResultValue == HUGE_VAL ) return "Undefined";
 
-    if ( m_categoryNames.size() > 0 )
+    if ( !m_categoryNames.empty() )
     {
         for ( size_t categoryIndex = 0; categoryIndex < m_categories.size(); categoryIndex++ )
         {

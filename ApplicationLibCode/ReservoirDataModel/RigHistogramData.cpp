@@ -55,5 +55,5 @@ bool RigHistogramData::isValid( double parameter ) const
 //--------------------------------------------------------------------------------------------------
 bool RigHistogramData::isHistogramVectorValid() const
 {
-    return histogram.size() > 0 && isMinMaxValid();
+    return !histogram.empty() && isMinMaxValid();
 }

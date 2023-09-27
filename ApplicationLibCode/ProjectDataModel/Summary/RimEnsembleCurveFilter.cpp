@@ -346,7 +346,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
     else if ( changedField == &m_filterMode )
     {
-        if ( m_objectiveValuesSummaryAddresses.size() == 0 )
+        if ( m_objectiveValuesSummaryAddresses.empty() )
         {
             RimSummaryAddress* summaryAddress = new RimSummaryAddress();
 

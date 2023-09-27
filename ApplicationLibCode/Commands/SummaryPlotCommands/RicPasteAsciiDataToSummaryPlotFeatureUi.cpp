@@ -496,7 +496,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize( RifCsvUserDataParser* 
     }
 
     parser->parseColumnInfo( parseOptions() );
-    if ( parser->tableData().columnInfos().size() > 0 )
+    if ( !parser->tableData().columnInfos().empty() )
     {
         m_timeSeriesColumnName = QString::fromStdString( parser->tableData().columnInfos()[0].columnName() );
     }

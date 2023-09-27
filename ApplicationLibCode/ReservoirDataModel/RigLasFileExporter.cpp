@@ -160,7 +160,7 @@ public:
 
     void appendDataToLasFile( NRLib::LasWell* lasFile ) const
     {
-        if ( m_logCurveData.size() == 0 ) return;
+        if ( m_logCurveData.empty() ) return;
 
         lasFile->addWellInfo( "WELL", m_wellName.toStdString() );
 
@@ -185,7 +185,7 @@ public:
             lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
         }
 
-        if ( firstCurveData->depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ).size() )
+        if ( !firstCurveData->depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ).empty() )
         {
             lasFile->AddLog( "TVDMSL",
                              "M",
@@ -245,7 +245,7 @@ public:
 private:
     const RigWellLogCurveData* curveDataForFirstCurve() const
     {
-        CVF_ASSERT( m_logCurveData.size() > 0 );
+        CVF_ASSERT( !m_logCurveData.empty() );
 
         return m_logCurveData[0].curveData();
     }

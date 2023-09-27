@@ -199,7 +199,7 @@ bool RimUserDefinedCalculation::parseExpression()
     }
 
     std::vector<QString> variableNames = ExpressionParser::detectReferencedVariables( m_expression );
-    if ( variableNames.size() < 1 )
+    if ( variableNames.empty() )
     {
         RiaLogging::errorInMessageBox( nullptr, "Expression Parser", "Failed to detect any variable names" );
 
@@ -256,7 +256,7 @@ QString RimUserDefinedCalculation::findLeftHandSide( const QString& expression )
 
         QStringList words = s.split( " " );
 
-        if ( words.size() > 0 )
+        if ( !words.empty() )
         {
             return words.back();
         }

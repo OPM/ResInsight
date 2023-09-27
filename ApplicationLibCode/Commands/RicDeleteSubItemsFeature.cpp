@@ -126,7 +126,7 @@ void RicDeleteSubItemsFeature::deleteSubItems( bool onlyDeleteUnchecked )
     std::vector<caf::PdmUiItem*> items;
     caf::SelectionManager::instance()->selectedItems( items );
 
-    CVF_ASSERT( items.size() > 0 );
+    CVF_ASSERT( !items.empty() );
 
     for ( auto item : items )
     {

@@ -512,7 +512,7 @@ void RimSurfaceCollection::deleteSubCollection( const QString& name )
 //--------------------------------------------------------------------------------------------------
 bool RimSurfaceCollection::containsSurface()
 {
-    bool containsSurface = ( surfaces().size() > 0 );
+    bool containsSurface = ( !surfaces().empty() );
 
     for ( auto coll : m_subCollections )
     {

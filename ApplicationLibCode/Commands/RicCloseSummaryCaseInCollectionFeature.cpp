@@ -67,7 +67,7 @@ bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled() const
                                                   { return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr; } ),
                                   summaryCaseCollections.end() );
 
-    return ( summaryCaseMainCollections.size() > 0 || summaryCaseCollections.size() > 0 );
+    return ( !summaryCaseMainCollections.empty() || !summaryCaseCollections.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ void RicCloseSummaryCaseInCollectionFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
     caf::SelectionManager::instance()->objectsByType( &summaryCaseMainCollections );
 
-    if ( summaryCaseMainCollections.size() > 0 )
+    if ( !summaryCaseMainCollections.empty() )
     {
         std::vector<RimSummaryCase*> allSummaryCases = summaryCaseMainCollections[0]->allSummaryCases();
         RicCloseSummaryCaseFeature::deleteSummaryCases( allSummaryCases );

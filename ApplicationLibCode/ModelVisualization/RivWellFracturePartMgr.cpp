@@ -1141,8 +1141,8 @@ std::vector<cvf::Vec3f> RivWellFracturePartMgr::transformToFractureDisplayCoords
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::buildDrawableGeoFromTriangles( const std::vector<cvf::uint>&  triangleIndices,
                                                                                   const std::vector<cvf::Vec3f>& nodeCoords )
 {
-    CVF_ASSERT( triangleIndices.size() > 0 );
-    CVF_ASSERT( nodeCoords.size() > 0 );
+    CVF_ASSERT( !triangleIndices.empty() );
+    CVF_ASSERT( !nodeCoords.empty() );
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
 

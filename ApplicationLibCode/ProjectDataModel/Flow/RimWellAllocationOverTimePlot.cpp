@@ -641,7 +641,7 @@ void RimWellAllocationOverTimePlot::fieldChangedByUi( const caf::PdmFieldHandle*
         }
 
         std::set<QString> sortedWellNames = findSortedWellNames();
-        if ( !sortedWellNames.size() )
+        if ( sortedWellNames.empty() )
             m_wellName = "";
         else if ( sortedWellNames.count( m_wellName() ) == 0 )
         {
@@ -709,7 +709,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationOverTimePlot::calculateValueOptio
         {
             options.push_back( caf::PdmOptionItemInfo( name, name, false, simWellIcon ) );
         }
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
@@ -810,7 +810,7 @@ QString RimWellAllocationOverTimePlot::dateFormatString() const
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
 {
-    if ( m_case == nullptr || m_case->timeStepDates().size() == 0 )
+    if ( m_case == nullptr || m_case->timeStepDates().empty() )
     {
         return;
     }

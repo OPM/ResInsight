@@ -71,7 +71,7 @@ public:
         }
         else if ( precision == odb_Enum::DOUBLE_PRECISION )
         {
-            if ( m_data.size() < 1 )
+            if ( m_data.empty() )
             {
                 int dataSize = m_bulkData.length() * m_bulkData.width();
                 m_data.resize( dataSize );
@@ -720,7 +720,7 @@ size_t RifOdbReader::resultItemCount( const std::string& fieldName, int partInde
 size_t RifOdbReader::componentsCount( const std::string& fieldName, ResultPosition position )
 {
     std::vector<std::string> compNames = componentNames( RifOdbResultKey( position, fieldName ) );
-    return compNames.size() > 0 ? compNames.size() : 1;
+    return !compNames.empty() ? compNames.size() : 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -898,7 +898,7 @@ void RifOdbReader::readElementNodeField( const std::string&                field
     const odb_SequenceFieldBulkData& seqFieldBulkData    = fieldOutput.bulkDataBlocks();
 
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
-    CVF_ASSERT( elementIdToIdxMap.size() > 0 );
+    CVF_ASSERT( !elementIdToIdxMap.empty() );
 
     int numBlocks = seqFieldBulkData.size();
     for ( int block = 0; block < numBlocks; block++ )
@@ -970,7 +970,7 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
     const odb_SequenceFieldBulkData& seqFieldBulkData    = fieldOutput.bulkDataBlocks();
 
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
-    CVF_ASSERT( elementIdToIdxMap.size() > 0 );
+    CVF_ASSERT( !elementIdToIdxMap.empty() );
 
     int numBlocks = seqFieldBulkData.size();
     for ( int block = 0; block < numBlocks; block++ )

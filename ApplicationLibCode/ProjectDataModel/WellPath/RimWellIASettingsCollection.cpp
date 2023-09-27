@@ -105,7 +105,7 @@ bool RimWellIASettingsCollection::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellIASettingsCollection::hasSettings() const
 {
-    return m_wellIASettings.size() > 0;
+    return !m_wellIASettings.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

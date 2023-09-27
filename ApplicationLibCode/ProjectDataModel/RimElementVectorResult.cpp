@@ -536,7 +536,7 @@ bool RimElementVectorResult::resultAddressesCombined( std::vector<RigEclipseResu
         adr.enableDivideByCellFaceArea( true );
     }
 
-    return addresses.size() > 0;
+    return !addresses.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -570,7 +570,7 @@ bool RimElementVectorResult::resultAddressesIJK( std::vector<RigEclipseResultAdd
         adr.enableDivideByCellFaceArea( true );
     }
 
-    return addresses.size() > 0;
+    return !addresses.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

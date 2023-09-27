@@ -219,7 +219,7 @@ size_t RigMainGrid::gridCount() const
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::initAllSubGridsParentGridPointer()
 {
-    if ( m_localGrids.size() && m_localGrids[0]->parentGrid() == nullptr )
+    if ( !m_localGrids.empty() && m_localGrids[0]->parentGrid() == nullptr )
     {
         initSubGridParentPointer();
         size_t i;

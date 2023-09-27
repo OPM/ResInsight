@@ -368,7 +368,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 
     if ( evaluatedOk )
     {
-        if ( timeHistoryCurveMerger.validIntervalsForAllXValues().size() > 0 )
+        if ( !timeHistoryCurveMerger.validIntervalsForAllXValues().empty() )
         {
             size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().front().first;
             size_t lastValidTimeStep  = timeHistoryCurveMerger.validIntervalsForAllXValues().back().second + 1;

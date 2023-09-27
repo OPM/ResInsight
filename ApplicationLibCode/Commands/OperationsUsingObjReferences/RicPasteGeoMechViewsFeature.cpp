@@ -46,7 +46,7 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled() const
     std::vector<caf::PdmPointer<RimGeoMechView>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
 
-    if ( typedObjects.size() == 0 )
+    if ( typedObjects.empty() )
     {
         return false;
     }
@@ -70,7 +70,7 @@ void RicPasteGeoMechViewsFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    if ( objectGroup.objects.size() == 0 ) return;
+    if ( objectGroup.objects.empty() ) return;
 
     std::vector<caf::PdmPointer<RimGeoMechView>> geomViews;
     objectGroup.objectsByType( &geomViews );

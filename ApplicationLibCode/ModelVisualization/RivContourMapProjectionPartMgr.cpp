@@ -302,7 +302,7 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>>
                 lineBBox.add( displayVertex2 );
 
                 bool addOriginalSegment = true;
-                if ( labelBBoxes.size() > 0 )
+                if ( !labelBBoxes.empty() )
                 {
                     for ( const cvf::BoundingBox& existingBBox : labelBBoxes[i] )
                     {

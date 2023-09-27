@@ -136,7 +136,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
         auto plot                = firstAncestorOrThisOfType<RimSummaryPlot>();
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( yAxis() );
 
-        if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
+        if ( !dateTimes.empty() && dateTimes.size() == values.size() )
         {
             if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
             {
@@ -147,7 +147,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
 
                 std::vector<double> times;
-                if ( dateTimes.size() )
+                if ( !dateTimes.empty() )
                 {
                     time_t startDate = dateTimes[0];
                     for ( time_t& date : dateTimes )

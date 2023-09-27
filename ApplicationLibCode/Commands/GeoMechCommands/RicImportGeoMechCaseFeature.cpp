@@ -39,7 +39,7 @@ void RicImportGeoMechCaseFeature::onActionTriggered( bool isChecked )
                                                                   "Import Geo-Mechanical Model",
                                                                   defaultDir,
                                                                   "Abaqus results (*.odb);;Abaqus input file (*.inp)" );
-    if ( fileNames.size() ) defaultDir = QFileInfo( fileNames.last() ).absolutePath();
+    if ( !fileNames.empty() ) defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     app->setLastUsedDialogDirectory( "GEOMECH_MODEL", defaultDir );
 
     for ( const auto& fileName : fileNames )

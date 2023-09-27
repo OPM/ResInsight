@@ -153,7 +153,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
 
         if ( !propertyFilter->isActive() ) continue;
         if ( !propertyFilter->resultDefinition->hasResult() ) continue;
-        if ( resVals.size() == 0 ) continue;
+        if ( resVals.empty() ) continue;
 
         const double lowerBound = propertyFilter->lowerBound();
         const double upperBound = propertyFilter->upperBound();

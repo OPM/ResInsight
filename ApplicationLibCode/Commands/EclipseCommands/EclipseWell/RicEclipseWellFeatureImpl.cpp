@@ -31,7 +31,7 @@
 bool RicEclipseWellFeatureImpl::isAnyWellSelected()
 {
     std::vector<RimSimWellInView*> selection = selectedWells();
-    return selection.size() > 0;
+    return !selection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

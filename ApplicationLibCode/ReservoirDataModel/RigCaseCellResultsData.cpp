@@ -491,7 +491,7 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex( const RigEclipseResultAdd
     size_t scalarResultIndex = findScalarResultIndexFromAddress( resVarAddr );
     CVF_TIGHT_ASSERT( scalarResultIndex < m_cellScalarResults.size() );
 
-    if ( !m_cellScalarResults[scalarResultIndex].size() ) return true;
+    if ( m_cellScalarResults[scalarResultIndex].empty() ) return true;
 
     size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
     return firstTimeStepResultValueCount != m_ownerMainGrid->globalCellArray().size();
@@ -1355,7 +1355,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             for ( size_t timeStepIdx = 0; timeStepIdx < maxTimeStepCount(); timeStepIdx++ )
             {
                 std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIdx];
-                if ( values.size() == 0 )
+                if ( values.empty() )
                 {
                     computeSOILForTimeStep( timeStepIdx );
                 }
@@ -1548,7 +1548,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
             m_cellScalarResults[soilScalarResultIndex].resize( maxTimeStepCount() );
 
             std::vector<double>& values = m_cellScalarResults[soilScalarResultIndex][timeStepIndex];
-            if ( values.size() == 0 )
+            if ( values.empty() )
             {
                 computeSOILForTimeStep( timeStepIndex );
             }
@@ -1582,7 +1582,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
             m_cellScalarResults[scalarResultIndex].resize( timeStepCount );
 
             std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
-            if ( values.size() == 0 )
+            if ( values.empty() )
             {
                 if ( !m_readerInterface->dynamicResult( resultName, m_porosityModel, timeStepIndex, &values ) )
                 {
@@ -1621,7 +1621,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 
             std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
 
-            if ( values.size() == 0 )
+            if ( values.empty() )
             {
                 eclReader->sourSimRlResult( resultName, timeStepIndex, &values );
             }
@@ -1667,7 +1667,7 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex
     if ( m_cellScalarResults[scalarIndexSGAS].size() > timeStepIndex )
     {
         std::vector<double>& values = m_cellScalarResults[scalarIndexSGAS][timeStepIndex];
-        if ( values.size() > 0 ) return;
+        if ( !values.empty() ) return;
     }
 
     size_t swatResultValueCount = 0;
@@ -1675,7 +1675,7 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex
 
     {
         std::vector<double>& swatForTimeStep = m_cellScalarResults[scalarIndexSWAT][timeStepIndex];
-        if ( swatForTimeStep.size() > 0 )
+        if ( !swatForTimeStep.empty() )
         {
             swatResultValueCount = swatForTimeStep.size();
             swatTimeStepCount    = infoForEachResultIndex()[scalarIndexSWAT].timeStepInfos().size();
@@ -1684,7 +1684,7 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex
 
     m_cellScalarResults[scalarIndexSGAS].resize( swatTimeStepCount );
 
-    if ( m_cellScalarResults[scalarIndexSGAS][timeStepIndex].size() > 0 )
+    if ( !m_cellScalarResults[scalarIndexSGAS][timeStepIndex].empty() )
     {
         return;
     }
@@ -1695,7 +1695,7 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex
 
     {
         swatForTimeStep = &( m_cellScalarResults[scalarIndexSWAT][timeStepIndex] );
-        if ( swatForTimeStep->size() == 0 )
+        if ( swatForTimeStep->empty() )
         {
             swatForTimeStep = nullptr;
         }
@@ -2809,7 +2809,7 @@ bool RigCaseCellResultsData::isDataPresent( size_t scalarResultIndex ) const
 
     for ( size_t tsIdx = 0; tsIdx < data.size(); ++tsIdx )
     {
-        if ( data[tsIdx].size() )
+        if ( !data[tsIdx].empty() )
         {
             return true;
         }

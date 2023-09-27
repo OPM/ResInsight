@@ -256,7 +256,7 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     std::vector<RimEclipseCase*> sourceCases = getSourceCases();
 
-    if ( sourceCases.size() == 0 || !sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
+    if ( sourceCases.empty() || !sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
     {
         return;
     }
@@ -540,7 +540,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
         return toOptionList( sourceCaseNames );
     }
 
-    if ( !options.size() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
+    if ( options.empty() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
 
     return options;
 }
@@ -621,7 +621,7 @@ void RimEclipseStatisticsCase::loadSimulationWellDataFromSourceCase()
 //--------------------------------------------------------------------------------------------------
 void addPropertySetToHtmlText( QString& html, const QString& heading, const std::vector<QString>& varNames )
 {
-    if ( varNames.size() )
+    if ( !varNames.empty() )
     {
         html += "<p><b>" + heading + "</b></p>";
         html += "<p class=indent>";
@@ -806,7 +806,7 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
     scheduleACTIVEGeometryRegenOnReservoirViews();
     updateConnectedEditorsAndReservoirViews();
 
-    if ( reservoirViews.size() == 0 )
+    if ( reservoirViews.empty() )
     {
         RicNewViewFeature::addReservoirView( this, nullptr );
     }
@@ -825,7 +825,7 @@ void RimEclipseStatisticsCase::populateResultSelection()
 
     RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
 
-    if ( m_selectedDynamicProperties().size() == 0 )
+    if ( m_selectedDynamicProperties().empty() )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
@@ -833,7 +833,7 @@ void RimEclipseStatisticsCase::populateResultSelection()
         if ( varList.contains( "PRESSURE" ) ) m_selectedDynamicProperties.v().push_back( "PRESSURE" );
     }
 
-    if ( m_selectedStaticProperties().size() == 0 )
+    if ( m_selectedStaticProperties().empty() )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
@@ -841,7 +841,7 @@ void RimEclipseStatisticsCase::populateResultSelection()
         if ( varList.contains( "PORO" ) ) m_selectedStaticProperties.v().push_back( "PORO" );
     }
 
-    if ( m_selectedFractureDynamicProperties().size() == 0 )
+    if ( m_selectedFractureDynamicProperties().empty() )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
@@ -849,7 +849,7 @@ void RimEclipseStatisticsCase::populateResultSelection()
         if ( varList.contains( "PRESSURE" ) ) m_selectedFractureDynamicProperties.v().push_back( "PRESSURE" );
     }
 
-    if ( m_selectedFractureStaticProperties().size() == 0 )
+    if ( m_selectedFractureStaticProperties().empty() )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );

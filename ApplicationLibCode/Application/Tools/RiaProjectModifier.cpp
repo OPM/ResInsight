@@ -123,17 +123,17 @@ void RiaProjectModifier::invalidateExternalFilePaths( RimProject* project )
 //--------------------------------------------------------------------------------------------------
 bool RiaProjectModifier::applyModificationsToProject( RimProject* project )
 {
-    if ( m_caseIdToGridFileNameMap.size() > 0 )
+    if ( !m_caseIdToGridFileNameMap.empty() )
     {
         replaceCase( project );
     }
 
-    if ( m_groupIdToGridFileNamesMap.size() > 0 )
+    if ( !m_groupIdToGridFileNamesMap.empty() )
     {
         replaceSourceCases( project );
     }
 
-    if ( m_caseIdToPropertiesFolderMap.size() > 0 )
+    if ( !m_caseIdToPropertiesFolderMap.empty() )
     {
         replacePropertiesFolder( project );
     }
@@ -309,7 +309,7 @@ int RiaProjectModifier::firstGroupId( RimProject* project )
         RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : nullptr;
         if ( analysisModels )
         {
-            if ( analysisModels->caseGroups.size() > 0 )
+            if ( !analysisModels->caseGroups.empty() )
             {
                 return analysisModels->caseGroups[0]->groupId();
             }

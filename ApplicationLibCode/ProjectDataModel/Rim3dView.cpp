@@ -1343,7 +1343,7 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
 
     cvf::Collection<cvf::Part> parts;
     onCreatePartCollectionFromSelection( &parts );
-    if ( parts.size() > 0 )
+    if ( !parts.empty() )
     {
         for ( size_t i = 0; i < parts.size(); i++ )
         {

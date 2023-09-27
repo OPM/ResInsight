@@ -92,7 +92,7 @@ bool RicPasteSummaryCurveFeature::isCommandEnabled() const
         return false;
     }
 
-    if ( summaryCurvesOnClipboard().size() == 0 )
+    if ( summaryCurvesOnClipboard().empty() )
     {
         return false;
     }

@@ -95,7 +95,7 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
     plot->storeStepDimensionFromToolbar();
 
     QString ext = ".rpt";
-    if ( selectedSummaryPlot()->curveSets().size() > 0 ) ext = ".erpt";
+    if ( !selectedSummaryPlot()->curveSets().empty() ) ext = ".erpt";
 
     QString fileName = settings.filePath() + "/" + settings.name() + ext;
     if ( !fileName.isEmpty() )

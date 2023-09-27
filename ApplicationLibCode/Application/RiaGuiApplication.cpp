@@ -380,7 +380,7 @@ RimViewWindow* RiaGuiApplication::activePlotWindow() const
     if ( m_mainPlotWindow )
     {
         QList<QMdiSubWindow*> subwindows = m_mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        if ( subwindows.size() > 0 )
+        if ( !subwindows.empty() )
         {
             viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
         }
@@ -1059,7 +1059,7 @@ RimViewWindow* RiaGuiApplication::activeViewWindow()
         RiuPlotMainWindow* mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( mainWindowWidget );
 
         QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        if ( subwindows.size() > 0 )
+        if ( !subwindows.empty() )
         {
             viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
         }

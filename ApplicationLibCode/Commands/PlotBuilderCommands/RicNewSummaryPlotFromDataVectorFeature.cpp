@@ -52,7 +52,7 @@ bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled() const
         if ( adr->isEnsemble() ) nEnsembles++;
     }
 
-    bool bOk = ( selectedAddressItems.size() > 0 );
+    bool bOk = ( !selectedAddressItems.empty() );
     if ( nEnsembles > 0 )
     {
         bOk = bOk && ( nEnsembles == selectedItems.size() );

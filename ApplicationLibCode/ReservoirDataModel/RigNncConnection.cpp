@@ -109,7 +109,7 @@ RigConnection& RigConnection::operator=( const RigConnection& rhs )
 //--------------------------------------------------------------------------------------------------
 bool RigConnection::hasCommonArea() const
 {
-    return m_polygon.size() > 0;
+    return !m_polygon.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -107,7 +107,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
     if ( QDialog::Accepted == wellImportwizard.exec() )
     {
         QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
-        if ( wellPaths.size() > 0 )
+        if ( !wellPaths.empty() )
         {
             QStringList errorMessages;
             app->addWellPathsToModel( wellPaths, &errorMessages );

@@ -136,7 +136,7 @@ RigEquil RigEquil::parseString( const QString& keywordData )
     line.replace( "\t", " " );
 
     QStringList items = RiaTextStringTools::splitSkipEmptyParts( line );
-    if ( items.size() > 0 )
+    if ( !items.empty() )
     {
         datumDepth = items.at( 0 ).toDouble();
     }

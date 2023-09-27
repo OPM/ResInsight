@@ -385,7 +385,7 @@ void RiuMultiPlotBook::contextMenuEvent( QContextMenuEvent* event )
 
     menuBuilder.appendToMenu( &menu );
 
-    if ( menu.actions().size() > 0 )
+    if ( !menu.actions().empty() )
     {
         menu.exec( event->globalPos() );
     }
@@ -493,7 +493,7 @@ void RiuMultiPlotBook::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
     if ( !m_plotDefinition || !m_plotDefinition->isValid() || !m_plotDefinition->showWindow() ) return;
 
     applyLook();
-    if ( ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::PLOT ) == RiaDefines::MultiPlotPageUpdateType::PLOT ) || m_pages.size() == 0 )
+    if ( ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::PLOT ) == RiaDefines::MultiPlotPageUpdateType::PLOT ) || m_pages.empty() )
     {
         deleteAllPages();
         createPages();

@@ -47,7 +47,7 @@ bool RiuContextMenuLauncher::eventFilter( QObject* watchedObject, QEvent* event 
         QMenu menu;
         m_menuBuilder.appendToMenu( &menu );
 
-        if ( menu.actions().size() > 0 )
+        if ( !menu.actions().empty() )
         {
             QContextMenuEvent* cme = static_cast<QContextMenuEvent*>( event );
             CVF_ASSERT( cme );

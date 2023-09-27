@@ -613,7 +613,7 @@ const size_t* RifReaderEclipseOutput::eclipseCellIndexMapping()
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults )
 {
-    if ( filenamesWithFaults().size() > 0 )
+    if ( !filenamesWithFaults().empty() )
     {
         for ( size_t i = 0; i < filenamesWithFaults().size(); i++ )
         {
@@ -833,7 +833,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
 void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 {
     CVF_ASSERT( m_eclipseCase );
-    CVF_ASSERT( m_filesWithSameBaseName.size() > 0 );
+    CVF_ASSERT( !m_filesWithSameBaseName.empty() );
 
     caf::ProgressInfo progInfo( m_filesWithSameBaseName.size() + 3, "" );
 

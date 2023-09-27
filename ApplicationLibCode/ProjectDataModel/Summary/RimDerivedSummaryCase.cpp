@@ -178,7 +178,7 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
 
     // Check if we got any data. If not, erase the map entry to comply with previous behavior
 
-    if ( !itAndIsInsertedPair.first->second.first.size() )
+    if ( itAndIsInsertedPair.first->second.first.empty() )
     {
         m_dataCache.erase( itAndIsInsertedPair.first );
     }

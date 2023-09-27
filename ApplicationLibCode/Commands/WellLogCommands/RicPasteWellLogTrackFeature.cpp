@@ -50,7 +50,7 @@ bool RicPasteWellLogTrackFeature::isCommandEnabled() const
         return false;
     }
 
-    return RicPasteWellLogTrackFeature::tracks().size() > 0;
+    return !RicPasteWellLogTrackFeature::tracks().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

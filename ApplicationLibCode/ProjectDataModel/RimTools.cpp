@@ -532,7 +532,7 @@ RimWellPath* RimTools::firstWellPath()
     auto wellpathcoll = wellPathCollection();
     auto wellpaths    = wellpathcoll->allWellPaths();
 
-    if ( wellpaths.size() > 0 ) return wellpaths[0];
+    if ( !wellpaths.empty() ) return wellpaths[0];
 
     return nullptr;
 }

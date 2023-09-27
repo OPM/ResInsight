@@ -42,7 +42,7 @@ bool RicEclipseCaseNewGroupFeature::isCommandEnabled() const
     std::vector<RimEclipseCaseCollection*> caseCollSelection;
     caf::SelectionManager::instance()->objectsByType( &caseCollSelection );
 
-    return caseSelection.size() > 0 || caseCollSelection.size() > 0;
+    return !caseSelection.empty() || !caseCollSelection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

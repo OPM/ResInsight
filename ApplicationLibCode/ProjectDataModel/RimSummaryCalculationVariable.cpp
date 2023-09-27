@@ -75,7 +75,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
             if ( dlg.exec() == QDialog::Accepted )
             {
                 std::vector<RiaSummaryCurveDefinition> curveSelection = dlg.curveSelection();
-                if ( curveSelection.size() > 0 )
+                if ( !curveSelection.empty() )
                 {
                     m_case = curveSelection[0].summaryCaseY();
                     m_summaryAddress->setAddress( curveSelection[0].summaryAddressY() );

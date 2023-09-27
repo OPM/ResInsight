@@ -50,7 +50,7 @@ bool RicExportFaultsFeature::isCommandEnabled() const
 
     caf::SelectionManager::instance()->objectsByType( &selectedFaults );
 
-    return ( selectedFaults.size() > 0 );
+    return ( !selectedFaults.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void RicExportFaultsFeature::onActionTriggered( bool isChecked )
 
     caf::SelectionManager::instance()->objectsByType( &selectedFaults );
 
-    if ( selectedFaults.size() == 0 ) return;
+    if ( selectedFaults.empty() ) return;
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULTS" );
 

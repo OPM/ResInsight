@@ -46,7 +46,7 @@ void RicDeleteWellPathTargetFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellPathTarget*> targets;
     caf::SelectionManager::instance()->objectsByType( &targets, caf::SelectionManager::FIRST_LEVEL );
 
-    if ( targets.size() > 0 )
+    if ( !targets.empty() )
     {
         RimWellPathGeometryDef* wellGeomDef = targets[0]->firstAncestorOrThisOfTypeAsserted<RimWellPathGeometryDef>();
 

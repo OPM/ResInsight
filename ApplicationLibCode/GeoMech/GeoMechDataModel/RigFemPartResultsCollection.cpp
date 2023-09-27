@@ -911,7 +911,7 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompon
 
         if ( compNames.empty() ) // This is a scalar field. Add one component named ""
         {
-            CVF_ASSERT( resVarAddr.componentName == "" );
+            CVF_ASSERT( resVarAddr.componentName.empty() );
             resAddressToComponents.push_back( resVarAddr );
         }
     }

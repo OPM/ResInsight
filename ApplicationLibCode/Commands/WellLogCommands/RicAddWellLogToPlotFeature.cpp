@@ -50,7 +50,7 @@ CAF_CMD_SOURCE_INIT( RicAddWellLogToPlotFeature, "RicAddWellLogToPlotFeature" );
 bool RicAddWellLogToPlotFeature::isCommandEnabled() const
 {
     std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
-    return selection.size() > 0;
+    return !selection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ bool RicAddWellLogToPlotFeature::isCommandEnabled() const
 void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
-    if ( selection.size() < 1 ) return;
+    if ( selection.empty() ) return;
 
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 

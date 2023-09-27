@@ -555,8 +555,8 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
            if intersected cv2 edge has endpoint touching cv1 then
               add endpoint to polygon. continue to add next endpoint until it does not touch Cv1
         */
-        if ( !cv1VxTouchCv2[nextCv1Idx] && ( cv1VxTouchCv2[cv1Idx] || ( intersectedCv2EdgeIdxs.size() ) ) ) // Two touches along edge also
-                                                                                                            // qualifies
+        if ( !cv1VxTouchCv2[nextCv1Idx] && ( cv1VxTouchCv2[cv1Idx] || ( !intersectedCv2EdgeIdxs.empty() ) ) ) // Two touches along edge also
+                                                                                                              // qualifies
         {
             if ( lastIntersection < intersectedCv2EdgeIdxs.size() )
             {

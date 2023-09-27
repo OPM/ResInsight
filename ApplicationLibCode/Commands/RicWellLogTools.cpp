@@ -68,7 +68,7 @@ RimSimWellInView* RicWellLogTools::selectedSimulationWell( int* branchIndex )
         std::vector<RimSimWellInView*> selection;
         caf::SelectionManager::instance()->objectsByType( &selection );
         ( *branchIndex ) = 0;
-        return selection.size() > 0 ? selection[0] : nullptr;
+        return !selection.empty() ? selection[0] : nullptr;
     }
 }
 
@@ -164,10 +164,10 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 {
     std::vector<RimWellPath*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimWellPath* wellPath = selection[0];
-        if ( wellPath->wellLogFiles().size() > 0 )
+        if ( !wellPath->wellLogFiles().empty() )
         {
             return wellPath;
         }
@@ -182,7 +182,7 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
 {
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    if ( wellPath && wellPath->wellLogFiles().size() > 0 )
+    if ( wellPath && !wellPath->wellLogFiles().empty() )
     {
         return wellPath;
     }

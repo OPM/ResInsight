@@ -74,7 +74,7 @@ void RicWellLogsImportFileFeature::onActionTriggered( bool isChecked )
     QStringList     wellLogFilePaths =
         RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Well Logs", defaultDir, nameFilterString );
 
-    if ( wellLogFilePaths.size() >= 1 )
+    if ( !wellLogFilePaths.empty() )
     {
         QStringList errorMessages;
         importWellLogFiles( wellLogFilePaths, &errorMessages );

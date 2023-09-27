@@ -643,7 +643,7 @@ QStringList RicRecursiveFileSearchDialog::createFileNameFilterList()
     QStringList nameFilter;
     QString     effectiveFileNameFilter = !fileNameFilter.isEmpty() ? fileNameFilter : "*";
 
-    if ( fileExtensions.size() == 0 || !extensionFromFileNameFilter().isEmpty() )
+    if ( fileExtensions.empty() || !extensionFromFileNameFilter().isEmpty() )
     {
         nameFilter.append( effectiveFileNameFilter );
     }

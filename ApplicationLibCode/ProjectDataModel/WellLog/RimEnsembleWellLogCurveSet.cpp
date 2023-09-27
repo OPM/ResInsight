@@ -284,7 +284,7 @@ void RimEnsembleWellLogCurveSet::deleteEnsembleCurves()
         }
     }
 
-    while ( curvesIndexesToDelete.size() > 0 )
+    while ( !curvesIndexesToDelete.empty() )
     {
         size_t currIndex = curvesIndexesToDelete.back();
         m_curves.erase( currIndex );
@@ -311,7 +311,7 @@ void RimEnsembleWellLogCurveSet::deleteStatisticsCurves()
         }
     }
 
-    while ( curvesIndexesToDelete.size() > 0 )
+    while ( !curvesIndexesToDelete.empty() )
     {
         size_t currIndex = curvesIndexesToDelete.back();
         m_curves.erase( currIndex );
@@ -582,7 +582,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleWellLogCurveSet::calculateValueOptions(
             }
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
         }

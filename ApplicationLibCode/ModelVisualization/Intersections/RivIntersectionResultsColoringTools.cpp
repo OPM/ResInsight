@@ -368,7 +368,7 @@ void RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoo
 {
     textureCoords->resize( triangleToCellIdx.size() * 3 );
 
-    if ( resultValues.size() == 0 )
+    if ( resultValues.empty() )
     {
         textureCoords->setAll( cvf::Vec2f( 0.0, 1.0f ) );
     }
