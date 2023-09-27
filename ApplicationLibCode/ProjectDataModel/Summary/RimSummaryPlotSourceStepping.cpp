@@ -362,17 +362,26 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     bool triggerLoadDataAndUpdate = false;
 
-    auto updateEnsembleAddresses = [&doZoomAll, &oldValue, &newValue]( const std::vector<RimEnsembleCurveSet*>& curveSets )
+    auto updateEnsembleAddresses =
+        [&doZoomAll, &oldValue, &newValue]( const std::vector<RimEnsembleCurveSet*>& curveSets, SummaryCategory categoryToUpdate )
     {
         for ( auto curveSet : curveSets )
         {
             auto curveAdr = curveSet->curveAddress();
 
             auto yAddressToModify = curveAdr.summaryAddressY();
-            RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, yAddressToModify );
-
             auto xAddressToModify = curveAdr.summaryAddressX();
-            RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, xAddressToModify );
+
+            if ( categoryToUpdate != SummaryCategory::SUMMARY_INVALID )
+            {
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, categoryToUpdate, yAddressToModify );
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, categoryToUpdate, xAddressToModify );
+            }
+            else
+            {
+                RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, yAddressToModify );
+                RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, xAddressToModify );
+            }
 
             curveSet->setCurveAddress( RiaSummaryCurveAddress( xAddressToModify, yAddressToModify ) );
             curveSet->updateConnectedEditors();
@@ -451,7 +460,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         if ( dataSourceSteppingObject() )
         {
-            updateEnsembleAddresses( dataSourceSteppingObject()->curveSets() );
+            updateEnsembleAddresses( dataSourceSteppingObject()->curveSets(), SummaryCategory::SUMMARY_INVALID );
         }
 
         m_vectorName.uiCapability()->updateConnectedEditors();
@@ -516,7 +525,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
             if ( dataSourceSteppingObject() )
             {
-                updateEnsembleAddresses( dataSourceSteppingObject()->curveSets() );
+                updateEnsembleAddresses( dataSourceSteppingObject()->curveSets(), summaryCategoryToModify );
             }
 
             triggerLoadDataAndUpdate = true;
