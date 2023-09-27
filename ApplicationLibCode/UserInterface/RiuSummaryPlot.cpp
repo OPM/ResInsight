@@ -97,7 +97,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
                 ensemble = clickedEnsembleCurveSet->summaryCaseCollection();
                 if ( ensemble && ensemble->isEnsemble() )
                 {
-                    clickedQuantityName = QString::fromStdString( clickedEnsembleCurveSet->summaryAddress().uiText() );
+                    clickedQuantityName = QString::fromStdString( clickedEnsembleCurveSet->summaryAddressY().uiText() );
 
                     if ( curveClicked )
                     {
@@ -127,7 +127,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
                 std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot = summaryPlot->descendantsOfType<RimEnsembleCurveSet>();
                 for ( auto curveSet : allCurveSetsInPlot )
                 {
-                    allQuantityNamesInPlot.push_back( QString::fromStdString( curveSet->summaryAddress().uiText() ) );
+                    allQuantityNamesInPlot.push_back( QString::fromStdString( curveSet->summaryAddressY().uiText() ) );
                 }
             }
             else
@@ -162,7 +162,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
                         {
                             menuBuilder.subMenuStart( "Cross Plots", *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
                             std::vector<std::pair<RigEnsembleParameter, double>> ensembleParameters =
-                                ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(), timeStep );
+                                ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddressY(), timeStep );
                             std::sort( ensembleParameters.begin(),
                                        ensembleParameters.end(),
                                        []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs )

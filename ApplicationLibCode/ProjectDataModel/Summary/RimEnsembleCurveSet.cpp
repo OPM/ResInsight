@@ -465,7 +465,7 @@ void RimEnsembleCurveSet::setSummaryAddressYAndStatisticsFlag( RifEclipseSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
+RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddressY() const
 {
     return m_yValuesSummaryAddress->address();
 }
@@ -477,10 +477,10 @@ RiaSummaryCurveAddress RimEnsembleCurveSet::curveAddress() const
 {
     if ( m_xAxisType() == RiaDefines::HorizontalAxisType::TIME )
     {
-        return RiaSummaryCurveAddress( RifEclipseSummaryAddress::timeAddress(), summaryAddress() );
+        return RiaSummaryCurveAddress( RifEclipseSummaryAddress::timeAddress(), summaryAddressY() );
     }
 
-    return RiaSummaryCurveAddress( m_xAddressSelector->summaryAddress(), summaryAddress() );
+    return RiaSummaryCurveAddress( m_xAddressSelector->summaryAddress(), summaryAddressY() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -742,7 +742,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             if ( !m_xAddressSelector->ensemble() )
             {
                 m_xAddressSelector->setEnsemble( summaryCaseCollection() );
-                m_xAddressSelector->setAddress( summaryAddress() );
+                m_xAddressSelector->setAddress( summaryAddressY() );
             }
 
             if ( !m_xAddressSelector->plotAxisProperties() )
@@ -2015,14 +2015,14 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         {
             m_ensembleStatCaseXY->calculate( statCases,
                                              m_xAddressSelector->summaryAddress(),
-                                             summaryAddress(),
+                                             summaryAddressY(),
                                              m_statistics->includeIncompleteCurves(),
                                              m_statistics->crossPlotCurvesBinCount(),
                                              m_statistics->crossPlotCurvesSampleCountThresholdPerBin() );
         }
         else
         {
-            m_ensembleStatCaseY->calculate( statCases, summaryAddress(), m_statistics->includeIncompleteCurves() );
+            m_ensembleStatCaseY->calculate( statCases, summaryAddressY(), m_statistics->includeIncompleteCurves() );
         }
     }
 
@@ -2203,12 +2203,12 @@ std::vector<std::pair<RigEnsembleParameter, double>> RimEnsembleCurveSet::ensemb
     {
         if ( sortingMode == ParameterSorting::ABSOLUTE_VALUE )
         {
-            return ensemble->correlationSortedEnsembleParameters( summaryAddress() );
+            return ensemble->correlationSortedEnsembleParameters( summaryAddressY() );
         }
 
         if ( sortingMode == ParameterSorting::ALPHABETICALLY )
         {
-            auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddress() );
+            auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddressY() );
             std::sort( parameters.begin(),
                        parameters.end(),
                        []( const auto& lhs, const auto& rhs ) { return lhs.first.name < rhs.first.name; } );

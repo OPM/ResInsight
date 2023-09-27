@@ -68,7 +68,7 @@ void RicSplitMultiPlotFeature::onActionTriggered( bool isChecked )
 
     for ( auto curveSet : plot->curveSets() )
     {
-        RimSummaryAddress* addr = RimSummaryAddress::wrapFileReaderAddress( curveSet->summaryAddress() );
+        RimSummaryAddress* addr = RimSummaryAddress::wrapFileReaderAddress( curveSet->summaryAddressY() );
         addr->setEnsembleId( curveSet->ensembleId() );
         objects.push_back( addr );
     }

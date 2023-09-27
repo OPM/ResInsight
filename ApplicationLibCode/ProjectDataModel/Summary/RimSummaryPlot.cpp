@@ -828,7 +828,7 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveS
     {
         cvf::Color3f curveColor = cvf::Color3f::ORANGE;
 
-        const auto adr = curveSet->summaryAddress();
+        const auto adr = curveSet->summaryAddressY();
         if ( adr.isHistoryVector() )
         {
             curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
@@ -942,7 +942,7 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 {
                     if ( curveSet->axisY() == riuPlotAxis )
                     {
-                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddress() );
+                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddressY() );
                         curveDefs.push_back( def );
                     }
                     if ( curveSet->axisX() == riuPlotAxis )
@@ -2503,7 +2503,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
         for ( auto& curve : curveSets() )
         {
-            const auto addr = curve->summaryAddress();
+            const auto addr = curve->summaryAddressY();
             dataVectorMap[addr].insert( curve->summaryCaseCollection() );
         }
 
@@ -2655,11 +2655,11 @@ RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurve( const RiaSummaryCurveA
     curveSet->setCurveAddress( address );
 
     cvf::Color3f curveColor =
-        RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
+        RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddressY(),
                                                                                 static_cast<int>(
                                                                                     ensembleCurveSetCollection()->curveSetCount() ) );
 
-    auto adr = curveSet->summaryAddress();
+    auto adr = curveSet->summaryAddressY();
     if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
 
     curveSet->setColor( curveColor );
