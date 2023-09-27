@@ -164,6 +164,8 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
         }
     }
 
+    if ( pairs.empty() ) return;
+
     // Sort on X values
     std::sort( pairs.begin(), pairs.end(), []( const auto& lhs, const auto& rhs ) { return lhs.first < rhs.first; } );
 
