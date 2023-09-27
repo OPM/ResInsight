@@ -1448,7 +1448,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
             reader->values( curveDef.summaryAddressY(), &values );
         }
 
-        if ( !( !timeSteps.empty() && !values.empty() ) ) continue;
+        if ( timeSteps.empty() || values.empty() ) continue;
 
         // Find selected timestep indices
 
