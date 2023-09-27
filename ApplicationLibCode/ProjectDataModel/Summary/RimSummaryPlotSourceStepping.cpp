@@ -684,7 +684,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesForCur
     {
         for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
         {
-            addresses.insert( curveSet->summaryAddress() );
+            addresses.insert( curveSet->summaryAddressY() );
         }
 
         std::vector<RimSummaryCurve*> curves;

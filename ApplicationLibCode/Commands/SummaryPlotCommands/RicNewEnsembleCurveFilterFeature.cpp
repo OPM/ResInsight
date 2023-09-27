@@ -61,7 +61,7 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
         {
             std::vector<RifEclipseSummaryAddress> addresses;
 
-            auto candidateAdr       = newFilter->parentCurveSet()->summaryAddress();
+            auto candidateAdr       = newFilter->parentCurveSet()->summaryAddressY();
             auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.vectorName() );
             candidateAdr.setVectorName( nativeQuantityName );
             addresses.push_back( candidateAdr );
