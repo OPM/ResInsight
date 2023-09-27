@@ -888,6 +888,8 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
                 RiaLogging::error( errMsg );
             }
         }
+
+        // csv
     }
 }
 

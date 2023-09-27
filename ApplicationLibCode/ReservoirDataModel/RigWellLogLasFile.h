@@ -36,11 +36,11 @@ class RimWellLogCurve;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogFile : public cvf::Object
+class RigWellLogLasFile : public cvf::Object
 {
 public:
-    RigWellLogFile();
-    ~RigWellLogFile() override;
+    RigWellLogLasFile();
+    ~RigWellLogLasFile() override;
 
     bool open( const QString& fileName, QString* errorMessage );
 

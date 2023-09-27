@@ -26,7 +26,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaQDateTimeTools.h"
 
-#include "RigWellLogFile.h"
+#include "RigWellLogLasFile.h"
 
 #include "RimFileWellPath.h"
 #include "RimTools.h"
@@ -144,7 +144,7 @@ bool RimWellLogFile::readFile( QString* errorMessage )
 {
     if ( !m_wellLogDataFile.p() )
     {
-        m_wellLogDataFile = new RigWellLogFile;
+        m_wellLogDataFile = new RigWellLogLasFile;
     }
 
     m_name = QFileInfo( m_fileName().path() ).fileName();
@@ -242,7 +242,7 @@ std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesFor
     std::vector<RimWellLogFile*> wellLogFiles = wellPath->descendantsIncludingThisOfType<RimWellLogFile>();
     for ( RimWellLogFile* wellLogFile : wellLogFiles )
     {
-        RigWellLogFile*     fileData      = wellLogFile->wellLogFileData();
+        RigWellLogLasFile*  fileData      = wellLogFile->wellLogFileData();
         std::vector<double> channelValues = fileData->values( channelName );
         if ( !channelValues.empty() )
         {

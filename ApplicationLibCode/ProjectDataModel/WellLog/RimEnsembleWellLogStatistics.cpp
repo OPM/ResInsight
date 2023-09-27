@@ -26,8 +26,8 @@
 #include "RiaWellLogUnitTools.h"
 
 #include "RigStatisticsMath.h"
-#include "RigWellLogFile.h"
 #include "RigWellLogIndexDepthOffset.h"
+#include "RigWellLogLasFile.h"
 
 #include "RimWellLogFile.h"
 
@@ -95,7 +95,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
         QString errorMessage;
         if ( wellLogFile->readFile( &errorMessage ) )
         {
-            RigWellLogFile*           fileData        = wellLogFile->wellLogFileData();
+            RigWellLogLasFile*        fileData        = wellLogFile->wellLogFileData();
             RiaDefines::DepthUnitType depthUnitInFile = fileData->depthUnit();
             if ( m_depthUnit != RiaDefines::DepthUnitType::UNIT_NONE && m_depthUnit != depthUnitInFile )
             {
@@ -197,7 +197,7 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
         QString errorMessage;
         if ( wellLogFile->readFile( &errorMessage ) )
         {
-            RigWellLogFile* fileData = wellLogFile->wellLogFileData();
+            RigWellLogLasFile* fileData = wellLogFile->wellLogFileData();
 
             std::vector<double> kIndexValues = fileData->values( RiaResultNames::indexKResultName() );
             std::vector<double> values       = fileData->values( wellLogChannelName );
@@ -300,7 +300,7 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
         QString errorMessage;
         if ( wellLogFile->readFile( &errorMessage ) )
         {
-            RigWellLogFile* fileData = wellLogFile->wellLogFileData();
+            RigWellLogLasFile* fileData = wellLogFile->wellLogFileData();
 
             std::vector<double> depths       = fileData->depthValues();
             std::vector<double> tvdDepths    = fileData->tvdMslValues();
