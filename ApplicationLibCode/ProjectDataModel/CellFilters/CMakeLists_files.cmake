@@ -12,6 +12,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedFilter.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterIntervalTool.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCellIndexFilter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedIndexFilter.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -28,6 +29,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterIntervalTool.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCellIndexFilter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedIndexFilter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

@@ -25,6 +25,7 @@
 #include "RimCellRangeFilter.h"
 #include "RimPolygonFilter.h"
 #include "RimUserDefinedFilter.h"
+#include "RimUserDefinedIndexFilter.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -281,6 +282,18 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimUserDefinedIndexFilter* RimCellFilterCollection::addNewUserDefinedIndexFilter( RimCase* srcCase )
+{
+    RimUserDefinedIndexFilter* pFilter = new RimUserDefinedIndexFilter();
+    pFilter->setCase( srcCase );
+    addFilter( pFilter );
+    onFilterUpdated( pFilter );
+    return pFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection, int defaultSlice )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
@@ -338,7 +351,7 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
     }
     else if ( dynamic_cast<RimUserDefinedFilter*>( pFilter ) )
     {
-        pFilter->setName( QString( "User Defined Filter %1" ).arg( QString::number( nUserFilters ) ) );
+        pFilter->setName( QString( "User Defined IJK Filter %1" ).arg( QString::number( nUserFilters ) ) );
     }
     else if ( dynamic_cast<RimPolygonFilter*>( pFilter ) )
     {
@@ -347,6 +360,10 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
     else if ( dynamic_cast<RimCellIndexFilter*>( pFilter ) )
     {
         pFilter->setName( QString( "Index Filter %1" ).arg( QString::number( nIndexFilters ) ) );
+    }
+    else if ( dynamic_cast<RimUserDefinedIndexFilter*>( pFilter ) )
+    {
+        pFilter->setName( QString( "User Defined Index Filter %1" ).arg( QString::number( nIndexFilters ) ) );
     }
 }
 
