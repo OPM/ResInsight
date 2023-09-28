@@ -59,7 +59,7 @@ void caf::AppEnum<RimSummaryRegressionAnalysisCurve::RegressionType>::setUp()
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::POWER_FIT, "POWER_FIT", "Power Fit" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::EXPONENTIAL, "EXPONENTIAL", "Exponential" );
     addItem( RimSummaryRegressionAnalysisCurve::RegressionType::LOGARITHMIC, "LOGARITHMIC", "Logarithmic" );
-    setDefault( RimSummaryRegressionAnalysisCurve::RegressionType::LINEAR );
+    setDefault( RimSummaryRegressionAnalysisCurve::RegressionType::POLYNOMIAL );
 }
 
 template <>
@@ -131,57 +131,39 @@ RimSummaryRegressionAnalysisCurve::~RimSummaryRegressionAnalysisCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryRegressionAnalysisCurve::setEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet )
+{
+    m_dataSourceForRegression = DataSource::ENSEMBLE_CURVE_SET;
+    m_ensembleCurveSet        = ensembleCurveSet;
+    m_ensembleStatisticsType  = RifEclipseSummaryAddressDefines::StatisticsType::P10;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryRegressionAnalysisCurve::clearSourceCurveData()
+{
+    m_sourceValuesY.clear();
+    m_sourceValuesX.clear();
+    m_sourceTimeStepsY.clear();
+    m_sourceTimeStepsX.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    std::vector<double> xValues;
-    std::vector<double> yValues;
-    std::vector<time_t> timeStepsX;
-    std::vector<time_t> timeStepsY;
-
-    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE_CURVE_SET )
+    if ( m_sourceValuesY.empty() )
     {
-        auto findStatisticsCurve = []( RimEnsembleCurveSet* curveSet, const QString& statisticsCurveName ) -> RimSummaryCurve*
-        {
-            if ( curveSet == nullptr ) return nullptr;
-
-            auto allCurves = curveSet->curves();
-            for ( auto curve : allCurves )
-            {
-                auto yAddr = curve->summaryAddressY();
-
-                if ( yAddr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
-                {
-                    auto statisticsName = QString::fromStdString( yAddr.ensembleStatisticsVectorName() );
-                    if ( statisticsName == statisticsCurveName )
-                    {
-                        return curve;
-                    }
-                }
-            }
-            return nullptr;
-        };
-
-        auto curve = findStatisticsCurve( m_ensembleCurveSet(), m_ensembleStatisticsType().uiText() );
-        if ( curve )
-        {
-            xValues = curve->valuesX();
-            yValues = curve->valuesY();
-
-            auto summaryCase  = m_ensembleCurveSet->summaryCaseCollection()->allSummaryCases().back();
-            auto allTimeSteps = summaryCase->summaryReader()->timeSteps( {} );
-            timeStepsY        = allTimeSteps;
-
-            timeStepsY.resize( xValues.size() );
-            timeStepsX = timeStepsY;
-        }
+        extractSourceCurveData();
+        updateDefaultValues();
     }
-    else
-    {
-        xValues    = RimSummaryCurve::valuesX();
-        yValues    = RimSummaryCurve::valuesY();
-        timeStepsX = RimSummaryCurve::timeStepsX();
-        timeStepsY = RimSummaryCurve::timeStepsY();
-    }
+
+    std::vector<double> xValues    = m_sourceValuesX;
+    std::vector<double> yValues    = m_sourceValuesY;
+    std::vector<time_t> timeStepsX = m_sourceTimeStepsX;
+    std::vector<time_t> timeStepsY = m_sourceTimeStepsY;
 
     if ( yValues.empty() ) return;
 
@@ -246,6 +228,67 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
     m_expressionText = descriptionY;
 
     RimSummaryCurve::onLoadDataAndUpdate( updateParentPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryRegressionAnalysisCurve::extractSourceCurveData()
+{
+    std::vector<double> xValues;
+    std::vector<double> yValues;
+    std::vector<time_t> xTimeSteps;
+    std::vector<time_t> yTimeSteps;
+
+    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE_CURVE_SET )
+    {
+        auto findStatisticsCurve = []( RimEnsembleCurveSet* curveSet, const QString& statisticsCurveName ) -> RimSummaryCurve*
+        {
+            if ( curveSet == nullptr ) return nullptr;
+
+            auto allCurves = curveSet->curves();
+            for ( auto curve : allCurves )
+            {
+                auto yAddr = curve->summaryAddressY();
+
+                if ( yAddr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
+                {
+                    auto statisticsName = QString::fromStdString( yAddr.ensembleStatisticsVectorName() );
+                    if ( statisticsName == statisticsCurveName )
+                    {
+                        return curve;
+                    }
+                }
+            }
+            return nullptr;
+        };
+
+        auto curve = findStatisticsCurve( m_ensembleCurveSet(), m_ensembleStatisticsType().uiText() );
+        if ( curve )
+        {
+            xValues = curve->valuesX();
+            yValues = curve->valuesY();
+
+            auto summaryCase  = m_ensembleCurveSet->summaryCaseCollection()->allSummaryCases().back();
+            auto allTimeSteps = summaryCase->summaryReader()->timeSteps( {} );
+            yTimeSteps        = allTimeSteps;
+
+            yTimeSteps.resize( xValues.size() );
+            xTimeSteps = yTimeSteps;
+        }
+    }
+    else
+    {
+        xValues    = RimSummaryCurve::valuesX();
+        yValues    = RimSummaryCurve::valuesY();
+        xTimeSteps = RimSummaryCurve::timeStepsX();
+        yTimeSteps = RimSummaryCurve::timeStepsY();
+    }
+
+    m_sourceTimeStepsX = xTimeSteps;
+    m_sourceTimeStepsY = yTimeSteps;
+    m_sourceValuesX    = xValues;
+    m_sourceValuesY    = yValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,18 +433,20 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
 
     regressionCurveGroup->add( &m_expressionText );
 
-    caf::PdmUiGroup* timeSelectionGroup = uiOrdering.addNewGroup( "Time Selection" );
-    timeSelectionGroup->add( &m_minTimeStep );
-    timeSelectionGroup->add( &m_maxTimeStep );
-    timeSelectionGroup->add( &m_showTimeSelectionInPlot );
+    caf::PdmUiGroup* valueRangeYGroup = uiOrdering.addNewGroup( "Value Range Y" );
+    valueRangeYGroup->add( &m_valueRangeY );
 
     if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
         caf::PdmUiGroup* valueRangeXGroup = uiOrdering.addNewGroup( "Value Range X" );
         valueRangeXGroup->add( &m_valueRangeX );
-
-        caf::PdmUiGroup* valueRangeYGroup = uiOrdering.addNewGroup( "Value Range Y" );
-        valueRangeYGroup->add( &m_valueRangeY );
+    }
+    else
+    {
+        caf::PdmUiGroup* timeSelectionGroup = uiOrdering.addNewGroup( "Time Selection" );
+        timeSelectionGroup->add( &m_minTimeStep );
+        timeSelectionGroup->add( &m_maxTimeStep );
+        timeSelectionGroup->add( &m_showTimeSelectionInPlot );
     }
 
     caf::PdmUiGroup* forecastingGroup = uiOrdering.addNewGroup( "Forecasting" );
@@ -427,6 +472,11 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
     if ( &m_maxTimeStep == changedField && m_maxTimeStep < m_minTimeStep )
     {
         m_minTimeStep = m_maxTimeStep;
+    }
+
+    if ( changedField == &m_ensembleCurveSet || changedField == &m_ensembleStatisticsType || changedField == &m_dataSourceForRegression )
+    {
+        clearSourceCurveData();
     }
 
     loadAndUpdateDataAndPlot();
@@ -551,7 +601,20 @@ QList<caf::PdmOptionItemInfo> RimSummaryRegressionAnalysisCurve::calculateValueO
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::createCurveAutoName()
 {
-    return RimSummaryCurve::createCurveAutoName() + " " + m_regressionType().uiText() + " Regression";
+    QString sourceCurveName;
+    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE_CURVE_SET )
+    {
+        if ( m_ensembleCurveSet() )
+        {
+            sourceCurveName = m_ensembleCurveSet()->name();
+        }
+    }
+    else
+    {
+        sourceCurveName = RimSummaryCurve::createCurveAutoName();
+    }
+
+    return sourceCurveName + " " + m_regressionType().uiText() + " Regression";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -740,25 +803,22 @@ void RimSummaryRegressionAnalysisCurve::updateTimeAnnotations()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::updateDefaultValues()
 {
-    auto timeSteps = RimSummaryCurve::timeStepsY();
-    if ( !timeSteps.empty() )
+    if ( !m_sourceTimeStepsY.empty() )
     {
-        m_minTimeStep = timeSteps.front();
-        m_maxTimeStep = timeSteps.back();
+        m_minTimeStep = m_sourceTimeStepsY.front();
+        m_maxTimeStep = m_sourceTimeStepsY.back();
     }
 
-    auto allValuesX = RimSummaryCurve::valuesX();
-    if ( !allValuesX.empty() )
+    if ( !m_sourceValuesX.empty() )
     {
-        m_valueRangeX = std::make_pair( *std::min_element( allValuesX.begin(), allValuesX.end() ),
-                                        *std::max_element( allValuesX.begin(), allValuesX.end() ) );
+        m_valueRangeX = std::make_pair( *std::min_element( m_sourceValuesX.begin(), m_sourceValuesX.end() ),
+                                        *std::max_element( m_sourceValuesX.begin(), m_sourceValuesX.end() ) );
     }
 
-    auto allValuesY = RimSummaryCurve::valuesY();
-    if ( !allValuesY.empty() )
+    if ( !m_sourceValuesY.empty() )
     {
-        m_valueRangeY = std::make_pair( *std::min_element( allValuesY.begin(), allValuesY.end() ),
-                                        *std::max_element( allValuesY.begin(), allValuesY.end() ) );
+        m_valueRangeY = std::make_pair( *std::min_element( m_sourceValuesY.begin(), m_sourceValuesY.end() ),
+                                        *std::max_element( m_sourceValuesY.begin(), m_sourceValuesY.end() ) );
     }
 }
 

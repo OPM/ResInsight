@@ -73,6 +73,10 @@ public:
     RimSummaryRegressionAnalysisCurve();
     ~RimSummaryRegressionAnalysisCurve() override;
 
+    void setEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet );
+
+    void clearSourceCurveData();
+
     // Y Axis functions
     std::vector<double> valuesY() const override;
     std::vector<time_t> timeStepsY() const override;
@@ -83,13 +87,14 @@ public:
     static std::vector<time_t>
         getOutputTimeSteps( const std::vector<time_t>& timeSteps, int forecastBackward, int forecastForward, ForecastUnit forecastUnit );
 
-    void updateDefaultValues();
-
 protected:
     void updateTimeAnnotations() override;
 
 private:
     void onLoadDataAndUpdate( bool updateParentPlot ) override;
+
+    void extractSourceCurveData();
+    void updateDefaultValues();
 
     QString createCurveAutoName() override;
     QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
@@ -146,4 +151,10 @@ private:
     std::vector<time_t>                    m_timeStepsX;
     std::vector<double>                    m_valuesY;
     std::vector<time_t>                    m_timeStepsY;
+
+    // Source curve data
+    std::vector<double> m_sourceValuesX;
+    std::vector<time_t> m_sourceTimeStepsX;
+    std::vector<double> m_sourceValuesY;
+    std::vector<time_t> m_sourceTimeStepsY;
 };

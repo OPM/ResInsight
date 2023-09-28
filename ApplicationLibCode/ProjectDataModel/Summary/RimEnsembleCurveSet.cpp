@@ -476,6 +476,14 @@ bool RimEnsembleCurveSet::isXAxisSummaryVector() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::HorizontalAxisType RimEnsembleCurveSet::xAxisType() const
+{
+    return m_xAxisType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address )
 {
     setSummaryAddressY( address );
