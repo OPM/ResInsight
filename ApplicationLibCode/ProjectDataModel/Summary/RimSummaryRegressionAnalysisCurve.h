@@ -36,6 +36,7 @@ class PowerFitRegression;
 } // namespace regression
 
 class RimTimeAxisAnnotation;
+class RimEnsembleCurveSet;
 
 //==================================================================================================
 ///
@@ -61,6 +62,12 @@ public:
         DAYS,
         MONTHS,
         YEARS,
+    };
+
+    enum class DataSource
+    {
+        SUMMARY_ADDRESS,
+        ENSEMBLE_CURVE_SET
     };
 
     RimSummaryRegressionAnalysisCurve();
@@ -91,6 +98,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     std::tuple<std::vector<time_t>, std::vector<double>, QString> computeRegressionCurve( const std::vector<time_t>& timeSteps,
                                                                                           const std::vector<double>& values ) const;
@@ -115,6 +123,10 @@ private:
     static void appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps );
 
 private:
+    caf::PdmField<caf::AppEnum<DataSource>>                                      m_dataSourceForRegression;
+    caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>> m_ensembleStatisticsType;
+
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
     caf::PdmField<time_t>                       m_minTimeStep;
     caf::PdmField<time_t>                       m_maxTimeStep;
