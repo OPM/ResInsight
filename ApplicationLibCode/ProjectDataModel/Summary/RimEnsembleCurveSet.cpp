@@ -2018,7 +2018,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
                                              summaryAddressY(),
                                              m_statistics->includeIncompleteCurves(),
                                              m_statistics->crossPlotCurvesBinCount(),
-                                             m_statistics->crossPlotCurvesSampleCountThresholdPerBin() );
+                                             m_statistics->crossPlotRealizationCountThresholdPerBin() );
         }
         else
         {

@@ -34,13 +34,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCrossPlotStatisticsCase::RimEnsembleCrossPlotStatisticsCase()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimEnsembleCrossPlotStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
     if ( m_adrX.isValid() )
@@ -113,7 +106,7 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
                                                     const RifEclipseSummaryAddress&     inputAddressY,
                                                     bool                                includeIncompleteCurves,
                                                     int                                 binCount,
-                                                    int                                 sampleCountThreshold )
+                                                    int                                 realizationCountThreshold )
 {
     if ( !inputAddressX.isValid() || !inputAddressY.isValid() ) return;
     if ( sumCases.empty() ) return;
@@ -126,13 +119,22 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
     m_adrX = inputAddressX;
     m_adrY = inputAddressY;
 
-    std::vector<std::pair<double, double>> pairs;
+    struct SampleData
+    {
+        double xValue;
+        double yValue;
+        int    realizationId;
+    };
+
+    std::vector<SampleData> sampleData;
 
     auto [minTimeStep, maxTimeStep]   = RimEnsembleStatisticsCase::findMinMaxTimeStep( sumCases, inputAddressX );
     RiaDefines::DateTimePeriod period = RimEnsembleStatisticsCase::findBestResamplingPeriod( minTimeStep, maxTimeStep );
 
     for ( const auto& sumCase : sumCases )
     {
+        int realizationId = sumCase->caseId();
+
         const auto& reader = sumCase->summaryReader();
         if ( reader )
         {
@@ -155,52 +157,72 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
             auto [resampledTimeStepsY, resampledValuesY] =
                 RiaSummaryTools::resampledValuesForPeriod( inputAddressY, timeSteps, valuesY, period );
 
-            size_t minimumCount = std::min( resampledValuesX.size(), resampledValuesY.size() );
+            size_t upperLimit = std::min( resampledValuesX.size(), resampledValuesY.size() );
 
-            for ( size_t i = 0; i < minimumCount; i++ )
+            for ( size_t i = 0; i < upperLimit; i++ )
             {
-                pairs.emplace_back( std::make_pair( resampledValuesX[i], resampledValuesY[i] ) );
+                sampleData.push_back( { .xValue = resampledValuesX[i], .yValue = resampledValuesY[i], .realizationId = realizationId } );
             }
         }
     }
 
-    // Sort on X values
-    std::sort( pairs.begin(), pairs.end(), []( const auto& lhs, const auto& rhs ) { return lhs.first < rhs.first; } );
+    if ( sampleData.empty() ) return;
 
-    const auto p           = std::minmax_element( pairs.begin(), pairs.end() );
-    auto       minX        = p.first->first;
-    auto       maxX        = p.second->first;
-    auto       rangeX      = maxX - minX;
-    auto       deltaRangeX = rangeX / binCount;
+    // Sort on X values
+    std::sort( sampleData.begin(), sampleData.end(), []( const auto& lhs, const auto& rhs ) { return lhs.xValue < rhs.xValue; } );
+
+    auto minX        = sampleData.front().xValue;
+    auto maxX        = sampleData.back().xValue;
+    auto rangeX      = maxX - minX;
+    auto deltaRangeX = rangeX / binCount;
 
     double currentX = minX;
 
-    std::vector<double> binnedYValues;
-    for ( auto v : pairs )
+    std::map<int, std::vector<double>> yValuesPerRealization;
+    for ( auto v : sampleData )
     {
-        if ( v.first < currentX + deltaRangeX )
+        if ( v.xValue < currentX + deltaRangeX )
         {
-            binnedYValues.emplace_back( v.second );
+            yValuesPerRealization[v.realizationId].emplace_back( v.yValue );
         }
         else
         {
             // Add statistics for current bin if sample count is above threshold
-            // TODO: Add option to skip bin if unique realization count is below threshold
-
-            if ( static_cast<int>( binnedYValues.size() ) > sampleCountThreshold )
+            if ( static_cast<int>( yValuesPerRealization.size() ) > realizationCountThreshold )
             {
+                std::vector<double> meanYPerRealization;
+
+                for ( const auto& [id, values] : yValuesPerRealization )
+                {
+                    if ( values.empty() ) continue;
+
+                    double sum = 0.0;
+                    for ( double value : values )
+                    {
+                        sum += value;
+                    }
+
+                    meanYPerRealization.emplace_back( sum / values.size() );
+                }
+
                 double p10, p50, p90, mean;
-                RigStatisticsMath::calculateStatisticsCurves( binnedYValues, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+                RigStatisticsMath::calculateStatisticsCurves( meanYPerRealization,
+                                                              &p10,
+                                                              &p50,
+                                                              &p90,
+                                                              &mean,
+                                                              RigStatisticsMath::PercentileStyle::SWITCHED );
                 m_p10Data.push_back( p10 );
                 m_p50Data.push_back( p50 );
                 m_p90Data.push_back( p90 );
                 m_meanData.push_back( mean );
 
-                m_binnedXValues.emplace_back( currentX );
+                // Use middle of bin as X value
+                m_binnedXValues.emplace_back( currentX + deltaRangeX / 2.0 );
             }
 
             currentX += deltaRangeX;
-            binnedYValues.clear();
+            yValuesPerRealization.clear();
         }
     }
 }
