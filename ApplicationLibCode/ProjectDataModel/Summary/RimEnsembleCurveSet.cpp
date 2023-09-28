@@ -93,6 +93,13 @@ void AppEnum<RimEnsembleCurveSet::ParameterSorting>::setUp()
     addItem( RimEnsembleCurveSet::ParameterSorting::ALPHABETICALLY, "ALPHABETICALLY", "Alphabetically" );
     setDefault( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE );
 }
+template <>
+void AppEnum<RimEnsembleCurveSet::AppearanceMode>::setUp()
+{
+    addItem( RimEnsembleCurveSet::AppearanceMode::DEFAULT, "DEFAULT", "Default" );
+    addItem( RimEnsembleCurveSet::AppearanceMode::CUSTOM, "CUSTOM", "Custom" );
+    setDefault( RimEnsembleCurveSet::AppearanceMode::DEFAULT );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -163,6 +170,20 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleParameterSorting, "EnsembleParameterSorting", "Parameter Sorting" );
+
+    auto defaultLineStyle   = LineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+    auto defaultPointSymbol = PointSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_CROSS );
+
+    CAF_PDM_InitFieldNoDefault( &m_useCustomAppearance, "UseCustomAppearance", "Appearance" );
+    CAF_PDM_InitField( &m_lineStyle, "LineStyle", defaultLineStyle, "Line Style" );
+    CAF_PDM_InitField( &m_pointSymbol, "PointSymbol", defaultPointSymbol, "Symbol" );
+    CAF_PDM_InitField( &m_symbolSize, "SymbolSize", 6, "Symbol Size" );
+
+    auto defaultStatisticsPointSymbol = PointSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
+    CAF_PDM_InitFieldNoDefault( &m_statisticsUseCustomAppearance, "StatisticsUseCustomAppearance", "Appearance" );
+    CAF_PDM_InitField( &m_statisticsLineStyle, "StatisticsLineStyle", defaultLineStyle, "Line Style" );
+    CAF_PDM_InitField( &m_statisticsPointSymbol, "StatisticsPointSymbol", defaultStatisticsPointSymbol, "Symbol" );
+    CAF_PDM_InitField( &m_statisticsSymbolSize, "StatisticsSymbolSize", 6, "Symbol Size" );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
@@ -766,7 +787,10 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         plot->updatePlotTitle();
         updateAllCurves();
     }
-    else if ( changedField == &m_resampling )
+    else if ( changedField == &m_resampling || changedField == &m_useCustomAppearance || changedField == &m_lineStyle ||
+              changedField == &m_pointSymbol || changedField == &m_symbolSize || changedField == &m_statisticsLineStyle ||
+              changedField == &m_statisticsPointSymbol || changedField == &m_statisticsSymbolSize ||
+              changedField == &m_statisticsUseCustomAppearance )
     {
         updateAllCurves();
     }
@@ -1073,6 +1097,15 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     m_statistics->defineUiOrdering( uiConfigName, *statGroup );
 
+    caf::PdmUiGroup* statAppearance = statGroup->addNewGroupWithKeyword( "Appearance", "StatisticsAppearance" );
+    statAppearance->add( &m_statisticsUseCustomAppearance );
+    if ( m_statisticsUseCustomAppearance() == AppearanceMode::CUSTOM )
+    {
+        statAppearance->add( &m_statisticsLineStyle );
+        statAppearance->add( &m_statisticsPointSymbol );
+        statAppearance->add( &m_statisticsSymbolSize );
+    }
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -1191,7 +1224,7 @@ void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* 
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Colors" );
+    caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Appearance" );
     m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
     colorsGroup->add( &m_colorMode );
 
@@ -1250,6 +1283,14 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
                 timeSelectionGroup->add( &m_selectedTimeSteps );
             }
         }
+    }
+
+    colorsGroup->add( &m_useCustomAppearance );
+    if ( m_useCustomAppearance() == AppearanceMode::CUSTOM )
+    {
+        colorsGroup->add( &m_lineStyle );
+        colorsGroup->add( &m_pointSymbol );
+        colorsGroup->add( &m_symbolSize );
     }
 
     uiOrdering.skipRemainingFields();
@@ -1939,6 +1980,13 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 }
                 curve->setLineThickness( lineThickness );
 
+                if ( m_useCustomAppearance() == AppearanceMode::CUSTOM )
+                {
+                    curve->setLineStyle( m_lineStyle() );
+                    curve->setSymbol( m_pointSymbol() );
+                    curve->setSymbolSize( m_symbolSize() );
+                }
+
                 addCurve( curve );
 
                 curve->setLeftOrRightAxisY( axisY() );
@@ -2096,15 +2144,26 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             curve->setColor( m_statistics->color() );
             curve->setResampling( m_resampling() );
 
-            auto symbol = statisticsCurveSymbolFromAddress( address.summaryAddressY() );
-            curve->setSymbol( symbol );
-            curve->setSymbolSize( statisticsCurveSymbolSize( symbol ) );
-            curve->setSymbolSkipDistance( 150 );
-            if ( m_statistics->showCurveLabels() )
+            if ( m_statisticsUseCustomAppearance() == AppearanceMode::DEFAULT )
             {
-                curve->setSymbolLabel( QString::fromStdString( address.summaryAddressY().ensembleStatisticsVectorName() ) );
+                auto symbol = statisticsCurveSymbolFromAddress( address.summaryAddressY() );
+                curve->setSymbol( symbol );
+                curve->setSymbolSize( statisticsCurveSymbolSize( symbol ) );
+                curve->setSymbolSkipDistance( 150 );
+
+                if ( m_statistics->showCurveLabels() )
+                {
+                    curve->setSymbolLabel( QString::fromStdString( address.summaryAddressY().ensembleStatisticsVectorName() ) );
+                }
+                curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
             }
-            curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+            else
+            {
+                curve->setLineStyle( m_statisticsLineStyle() );
+                curve->setSymbol( m_statisticsPointSymbol() );
+                curve->setSymbolSize( m_statisticsSymbolSize() );
+            }
+
             curve->setSummaryCaseY( summaryCase );
             curve->setSummaryAddressYAndApplyInterpolation( address.summaryAddressY() );
             curve->setLeftOrRightAxisY( axisY() );
