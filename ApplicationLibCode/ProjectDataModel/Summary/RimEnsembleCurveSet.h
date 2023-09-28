@@ -35,6 +35,8 @@
 #include "RigEnsembleParameter.h"
 
 #include "RiuPlotAxis.h"
+#include "RiuPlotCurveSymbol.h"
+#include "RiuQwtPlotCurveDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -84,11 +86,19 @@ public:
     using ColorMode          = RimEnsembleCurveSetColorManager::ColorMode;
     using ColorModeEnum      = RimEnsembleCurveSetColorManager::ColorModeEnum;
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
+    using LineStyle          = caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>;
+    using PointSymbol        = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>;
 
     enum class ParameterSorting
     {
         ABSOLUTE_VALUE,
         ALPHABETICALLY
+    };
+
+    enum class AppearanceMode
+    {
+        DEFAULT,
+        CUSTOM
     };
 
 public:
@@ -250,6 +260,16 @@ private:
     caf::PdmField<double>                                              m_colorTransparency;
     caf::PdmField<QString>                                             m_ensembleParameter;
     caf::PdmField<caf::AppEnum<RimEnsembleCurveSet::ParameterSorting>> m_ensembleParameterSorting;
+
+    caf::PdmField<caf::AppEnum<AppearanceMode>> m_useCustomAppearance;
+    caf::PdmField<LineStyle>                    m_lineStyle;
+    caf::PdmField<PointSymbol>                  m_pointSymbol;
+    caf::PdmField<int>                          m_symbolSize;
+
+    caf::PdmField<caf::AppEnum<AppearanceMode>> m_statisticsUseCustomAppearance;
+    caf::PdmField<LineStyle>                    m_statisticsLineStyle;
+    caf::PdmField<PointSymbol>                  m_statisticsPointSymbol;
+    caf::PdmField<int>                          m_statisticsSymbolSize;
 
     caf::PdmChildArrayField<RimSummaryAddress*>   m_objectiveValuesSummaryAddresses;
     caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;
