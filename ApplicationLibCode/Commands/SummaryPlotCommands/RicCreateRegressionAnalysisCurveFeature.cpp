@@ -18,12 +18,15 @@
 
 #include "RicCreateRegressionAnalysisCurveFeature.h"
 
+#include "RiaColorTools.h"
 #include "RiaSummaryTools.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryRegressionAnalysisCurve.h"
+
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
@@ -39,8 +42,7 @@ CAF_CMD_SOURCE_INIT( RicCreateRegressionAnalysisCurveFeature, "RicCreateRegressi
 //--------------------------------------------------------------------------------------------------
 bool RicCreateRegressionAnalysisCurveFeature::isCommandEnabled() const
 {
-    RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
-    return ( selectedPlot && !RiaSummaryTools::isSummaryCrossPlot( selectedPlot ) );
+    return caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,11 +50,20 @@ bool RicCreateRegressionAnalysisCurveFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCreateRegressionAnalysisCurveFeature::onActionTriggered( bool isChecked )
 {
-    RimSummaryCurve* curve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve>();
-    if ( curve )
-    {
-        RimSummaryRegressionAnalysisCurve* newCurve = createRegressionAnalysisCurveAndAddToPlot( curve );
+    RimSummaryRegressionAnalysisCurve* newCurve = nullptr;
 
+    if ( auto summaryCurve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve>() )
+    {
+        newCurve = createRegressionAnalysisCurveAndAddToPlot( summaryCurve );
+    }
+
+    if ( auto curveSet = caf::firstAncestorOfTypeFromSelectedObject<RimEnsembleCurveSet>() )
+    {
+        newCurve = createRegressionAnalysisCurveAndAddToPlot( curveSet );
+    }
+
+    if ( newCurve )
+    {
         RiuPlotMainWindowTools::showPlotMainWindow();
         RiuPlotMainWindowTools::selectAsCurrentItem( newCurve );
     }
@@ -75,9 +86,7 @@ RimSummaryRegressionAnalysisCurve*
 {
     RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 
-    RimSummaryRegressionAnalysisCurve* newCurve = new RimSummaryRegressionAnalysisCurve();
-    CVF_ASSERT( newCurve );
-
+    auto newCurve = new RimSummaryRegressionAnalysisCurve();
     RiaSummaryTools::copyCurveDataSources( *newCurve, *sourceCurve );
 
     newCurve->setColor( sourceCurve->color() );
@@ -88,7 +97,47 @@ RimSummaryRegressionAnalysisCurve*
 
     RiaSummaryTools::copyCurveAxisData( *newCurve, *sourceCurve );
 
-    newCurve->updateDefaultValues();
+    newCurve->loadDataAndUpdate( true );
+    newCurve->updateConnectedEditors();
+
+    RimSummaryMultiPlot* summaryMultiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+    if ( summaryMultiPlot )
+    {
+        summaryMultiPlot->updatePlotTitles();
+    }
+    else
+    {
+        summaryPlot->updatePlotTitle();
+    }
+
+    summaryPlot->updateAllRequiredEditors();
+
+    return newCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryRegressionAnalysisCurve*
+    RicCreateRegressionAnalysisCurveFeature::createRegressionAnalysisCurveAndAddToPlot( RimEnsembleCurveSet* sourceCurveSet )
+{
+    RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
+
+    auto newCurve = new RimSummaryRegressionAnalysisCurve();
+
+    newCurve->setEnsembleCurveSet( sourceCurveSet );
+
+    auto color = RiaColorTools::fromQColorTo3f( sourceCurveSet->mainEnsembleColor() );
+    newCurve->setColor( color );
+    newCurve->setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
+    newCurve->setSymbolSkipDistance( 50 );
+
+    summaryPlot->addCurveAndUpdate( newCurve );
+
+    newCurve->setAxisTypeX( sourceCurveSet->xAxisType() );
+    newCurve->setTopOrBottomAxisX( sourceCurveSet->axisX() );
+    newCurve->setLeftOrRightAxisY( sourceCurveSet->axisY() );
+
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 
