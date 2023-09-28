@@ -2093,13 +2093,13 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             };
 
             if ( m_statistics->showP10Curve() && m_ensembleStatCaseXY->hasP10Data() )
-                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddressX, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP10(), dataAddressX, dataAddressY ) );
             if ( m_statistics->showP50Curve() && m_ensembleStatCaseXY->hasP50Data() )
-                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddressX, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP50(), dataAddressX, dataAddressY ) );
             if ( m_statistics->showP90Curve() && m_ensembleStatCaseXY->hasP90Data() )
-                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddressX, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP90(), dataAddressX, dataAddressY ) );
             if ( m_statistics->showMeanCurve() && m_ensembleStatCaseXY->hasMeanData() )
-                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddressX, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameMean(), dataAddressX, dataAddressY ) );
         }
         else
         {
@@ -2114,13 +2114,13 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             };
 
             if ( m_statistics->showP10Curve() && m_ensembleStatCaseY->hasP10Data() )
-                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP10(), dataAddressY ) );
             if ( m_statistics->showP50Curve() && m_ensembleStatCaseY->hasP50Data() )
-                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP50(), dataAddressY ) );
             if ( m_statistics->showP90Curve() && m_ensembleStatCaseY->hasP90Data() )
-                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameP90(), dataAddressY ) );
             if ( m_statistics->showMeanCurve() && m_ensembleStatCaseY->hasMeanData() )
-                addresses.push_back( getStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddressY ) );
+                addresses.push_back( getStatisticsAddress( RifEclipseSummaryAddressDefines::statisticsNameMean(), dataAddressY ) );
         }
     }
 
@@ -2453,11 +2453,15 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
 //--------------------------------------------------------------------------------------------------
 RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address )
 {
-    auto qName = QString::fromStdString( address.vectorName() );
+    auto qName = address.vectorName();
 
-    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P50_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+    if ( qName.find( RifEclipseSummaryAddressDefines::statisticsNameP10() ) != std::string::npos )
+        return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+    if ( qName.find( RifEclipseSummaryAddressDefines::statisticsNameP50() ) != std::string::npos )
+        return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+    if ( qName.find( RifEclipseSummaryAddressDefines::statisticsNameP90() ) != std::string::npos )
+        return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
+
     return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
 }
 

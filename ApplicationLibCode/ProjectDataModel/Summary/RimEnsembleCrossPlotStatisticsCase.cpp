@@ -21,6 +21,8 @@
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
+#include "RifEclipseSummaryAddressDefines.h"
+
 #include "RigStatisticsMath.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -49,13 +51,13 @@ bool RimEnsembleCrossPlotStatisticsCase::values( const RifEclipseSummaryAddress&
 
     auto quantityName = resultAddress.ensembleStatisticsVectorName();
 
-    if ( quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME )
+    if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP10() )
         *values = m_p10Data;
-    else if ( quantityName == ENSEMBLE_STAT_P50_QUANTITY_NAME )
+    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP50() )
         *values = m_p50Data;
-    else if ( quantityName == ENSEMBLE_STAT_P90_QUANTITY_NAME )
+    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameP90() )
         *values = m_p90Data;
-    else if ( quantityName == ENSEMBLE_STAT_MEAN_QUANTITY_NAME )
+    else if ( quantityName == RifEclipseSummaryAddressDefines::statisticsNameMean() )
         *values = m_meanData;
 
     return true;

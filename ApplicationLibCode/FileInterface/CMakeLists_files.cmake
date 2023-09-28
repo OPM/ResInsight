@@ -88,6 +88,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifThermalToStimPlanFractureXmlOutput.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddressDefines.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -177,6 +178,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifThermalToStimPlanFractureXmlOutput.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddressDefines.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

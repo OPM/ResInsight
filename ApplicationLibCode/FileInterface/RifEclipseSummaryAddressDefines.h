@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,12 +15,10 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#define ENSEMBLE_STAT_P10_QUANTITY_NAME "P10"
-#define ENSEMBLE_STAT_P50_QUANTITY_NAME "P50"
-#define ENSEMBLE_STAT_P90_QUANTITY_NAME "P90"
-#define ENSEMBLE_STAT_MEAN_QUANTITY_NAME "MEAN"
+#include <string>
 
 //==================================================================================================
 //
@@ -65,4 +63,20 @@ enum class SummaryIdentifierType
     INPUT_VECTOR_NAME,
     INPUT_ID
 };
+
+enum class StatisticsType
+{
+    NONE,
+    P10,
+    P50,
+    P90,
+    MEAN
+};
+
+std::string statisticsNameP10();
+std::string statisticsNameP50();
+std::string statisticsNameP90();
+std::string statisticsNameMean();
+std::string statisticsTypeToString( StatisticsType type );
+
 }; // namespace RifEclipseSummaryAddressDefines
