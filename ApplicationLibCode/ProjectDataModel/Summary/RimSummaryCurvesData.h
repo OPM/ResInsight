@@ -66,6 +66,8 @@ public:
                                         RiaDefines::DateTimePeriod                   resamplingPeriod,
                                         bool                                         showTimeAsLongString );
 
+    static QString createTextForCrossPlotCurves( const std::vector<RimSummaryCurve*>& curves );
+
 private:
     static void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCurveType curveType, RimSummaryCurvesData* curvesData );
     static void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, RimSummaryCurvesData* curvesData );
