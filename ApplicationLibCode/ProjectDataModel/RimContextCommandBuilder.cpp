@@ -1050,6 +1050,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewPolygonFilterFeature";
             menuBuilder << "RicNewUserDefinedFilterFeature";
+            menuBuilder << "RicNewUserDefinedIndexFilterFeature";
             menuBuilder << "RicNewCellIndexFilterFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewCellRangeFilterFeature";

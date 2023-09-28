@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2023     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,11 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewUserDefinedFilterFeature.h"
+#include "RicNewUserDefinedIndexFilterFeature.h"
 
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
-#include "RimUserDefinedFilter.h"
+#include "RimUserDefinedIndexFilter.h"
+
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
@@ -28,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewUserDefinedFilterFeature, "RicNewUserDefinedFilterFeature" );
+CAF_CMD_SOURCE_INIT( RicNewUserDefinedIndexFilterFeature, "RicNewUserDefinedIndexFilterFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
+void RicNewUserDefinedIndexFilterFeature::onActionTriggered( bool isChecked )
 {
     // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
@@ -43,7 +44,7 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
     // and the case to use
     RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
 
-    RimUserDefinedFilter* lastCreatedOrUpdated = filtColl->addNewUserDefinedFilter( sourceCase );
+    auto* lastCreatedOrUpdated = filtColl->addNewUserDefinedIndexFilter( sourceCase );
     if ( lastCreatedOrUpdated )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
@@ -53,8 +54,8 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewUserDefinedFilterFeature::setupActionLook( QAction* actionToSetup )
+void RicNewUserDefinedIndexFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_UserDefined.png" ) );
-    actionToSetup->setText( "New User Defined IJK Filter" );
+    actionToSetup->setText( "New User Defined Index Filter" );
 }
