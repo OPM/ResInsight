@@ -53,7 +53,7 @@ public:
     bool includeIncompleteCurves() const { return m_includeIncompleteCurves; }
 
     int crossPlotCurvesBinCount() const;
-    int crossPlotCurvesSampleCountThresholdPerBin() const;
+    int crossPlotRealizationCountThresholdPerBin() const;
 
     void disableP10Curve( bool disable );
     void disableP50Curve( bool disable );
@@ -81,7 +81,7 @@ private:
 
     // Ensemble cross plot settings
     caf::PdmField<int> m_crossPlotCurvesBinCount;
-    caf::PdmField<int> m_crossPlotCurvesStatisticsSampleCountThresholdPerBin;
+    caf::PdmField<int> m_crossPlotCurvesStatisticsRealizationCountThresholdPerBin;
 
     caf::PdmField<QString> m_warningLabel;
 

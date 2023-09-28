@@ -33,14 +33,12 @@ class RifEclipseSummaryAddress;
 class RimEnsembleCrossPlotStatisticsCase : public RimSummaryCase, public RifSummaryReaderInterface
 {
 public:
-    RimEnsembleCrossPlotStatisticsCase();
-
     void calculate( const std::vector<RimSummaryCase*>& sumCases,
                     const RifEclipseSummaryAddress&     inputAddressX,
                     const RifEclipseSummaryAddress&     inputAddressY,
                     bool                                includeIncompleteCurves,
                     int                                 binCount,
-                    int                                 sampleCountThreshold );
+                    int                                 realizationCountThreshold );
 
     bool hasP10Data() const;
     bool hasP50Data() const;

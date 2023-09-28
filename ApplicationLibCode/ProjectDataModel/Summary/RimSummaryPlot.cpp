@@ -120,8 +120,7 @@ struct RimSummaryPlot::CurveInfo
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot()
-    : RimPlot()
-    , curvesChanged( this )
+    : curvesChanged( this )
     , axisChanged( this )
     , plotZoomedByUser( this )
     , titleChanged( this )
@@ -336,12 +335,28 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
 {
-    std::vector<RimSummaryCurve*> curves = descendantsIncludingThisOfType<RimSummaryCurve>();
+    std::vector<RimSummaryCurve*> allCurves = descendantsIncludingThisOfType<RimSummaryCurve>();
+
+    std::vector<RimSummaryCurve*> crossPlotCurves;
+    std::vector<RimSummaryCurve*> curves;
+    for ( auto c : allCurves )
+    {
+        if ( c->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        {
+            crossPlotCurves.push_back( c );
+        }
+        else
+        {
+            curves.push_back( c );
+        }
+    }
 
     auto gridCurves  = m_gridTimeHistoryCurves.childrenByType();
     auto asciiCurves = m_asciiDataCurves.childrenByType();
 
     QString text = RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
+
+    text += RimSummaryCurvesData::createTextForCrossPlotCurves( crossPlotCurves );
 
     return text;
 }
@@ -828,7 +843,7 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveS
     {
         cvf::Color3f curveColor = cvf::Color3f::ORANGE;
 
-        const auto adr = curveSet->summaryAddress();
+        const auto adr = curveSet->summaryAddressY();
         if ( adr.isHistoryVector() )
         {
             curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
@@ -932,9 +947,11 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                     }
                     if ( summaryCurve->axisX() == riuPlotAxis )
                     {
-                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCurve->summaryCaseX(),
-                                                                        summaryCurve->summaryAddressX(),
-                                                                        summaryCurve->isEnsembleCurve() ) );
+                        RiaSummaryCurveDefinition def;
+                        def.setSummaryCaseX( summaryCurve->summaryCaseX() );
+                        def.setSummaryAddressX( summaryCurve->summaryAddressX() );
+
+                        curveDefs.push_back( def );
                     }
                 }
 
@@ -942,7 +959,7 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 {
                     if ( curveSet->axisY() == riuPlotAxis )
                     {
-                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddress() );
+                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddressY() );
                         curveDefs.push_back( def );
                     }
                     if ( curveSet->axisX() == riuPlotAxis )
@@ -1041,15 +1058,13 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomForAxis( RimPlotAxisPropertiesInterface* axisProperties )
 {
-    RimSummaryTimeAxisProperties* timeAxisProps = dynamic_cast<RimSummaryTimeAxisProperties*>( axisProperties );
-    if ( timeAxisProps )
+    if ( auto timeAxisProps = dynamic_cast<RimSummaryTimeAxisProperties*>( axisProperties ) )
     {
         updateZoomForTimeAxis( timeAxisProps );
         return;
     }
 
-    RimPlotAxisProperties* axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
-    if ( axisProps )
+    if ( auto axisProps = dynamic_cast<RimPlotAxisProperties*>( axisProperties ) )
     {
         updateZoomForNumericalAxis( axisProps );
         return;
@@ -2503,7 +2518,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
         for ( auto& curve : curveSets() )
         {
-            const auto addr = curve->summaryAddress();
+            const auto addr = curve->summaryAddressY();
             dataVectorMap[addr].insert( curve->summaryCaseCollection() );
         }
 
@@ -2651,15 +2666,15 @@ RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurve( const RiaSummaryCurveA
     auto* curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryCaseCollection( ensemble );
-    curveSet->setSummaryAddressAndStatisticsFlag( address.summaryAddressY() );
+    curveSet->setSummaryAddressYAndStatisticsFlag( address.summaryAddressY() );
     curveSet->setCurveAddress( address );
 
     cvf::Color3f curveColor =
-        RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
+        RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddressY(),
                                                                                 static_cast<int>(
                                                                                     ensembleCurveSetCollection()->curveSetCount() ) );
 
-    auto adr = curveSet->summaryAddress();
+    auto adr = curveSet->summaryAddressY();
     if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
 
     curveSet->setColor( curveColor );

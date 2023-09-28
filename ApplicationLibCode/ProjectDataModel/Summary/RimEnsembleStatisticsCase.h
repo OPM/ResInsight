@@ -33,10 +33,6 @@ class RifEclipseSummaryAddress;
 class RimEnsembleStatisticsCase : public RimSummaryCase, public RifSummaryReaderInterface
 {
 public:
-    RimEnsembleStatisticsCase();
-
-    const std::vector<time_t>& timeSteps() const;
-
     bool hasP10Data() const;
     bool hasP50Data() const;
     bool hasP90Data() const;
