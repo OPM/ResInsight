@@ -70,6 +70,12 @@ public:
         ENSEMBLE_CURVE_SET
     };
 
+    enum class RangeType
+    {
+        FULL_RANGE,
+        USER_DEFINED_RANGE
+    };
+
     RimSummaryRegressionAnalysisCurve();
     ~RimSummaryRegressionAnalysisCurve() override;
 
@@ -135,9 +141,11 @@ private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>> m_ensembleStatisticsType;
 
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
-    caf::PdmField<time_t>                       m_minTimeStep;
-    caf::PdmField<time_t>                       m_maxTimeStep;
-    caf::PdmField<bool>                         m_showTimeSelectionInPlot;
+
+    caf::PdmField<caf::AppEnum<RangeType>> m_timeRangeSelection;
+    caf::PdmField<time_t>                  m_minTimeStep;
+    caf::PdmField<time_t>                  m_maxTimeStep;
+    caf::PdmField<bool>                    m_showTimeSelectionInPlot;
 
     caf::PdmField<int>                        m_polynomialDegree;
     caf::PdmField<QString>                    m_expressionText;
@@ -145,7 +153,10 @@ private:
     caf::PdmField<int>                        m_forecastBackward;
     caf::PdmField<caf::AppEnum<ForecastUnit>> m_forecastUnit;
 
+    caf::PdmField<caf::AppEnum<RangeType>>   m_xRangeSelection;
     caf::PdmField<std::pair<double, double>> m_valueRangeX;
+
+    caf::PdmField<caf::AppEnum<RangeType>>   m_yRangeSelection;
     caf::PdmField<std::pair<double, double>> m_valueRangeY;
 
     caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;

@@ -79,6 +79,14 @@ void caf::AppEnum<RimSummaryRegressionAnalysisCurve::DataSource>::setUp()
     setDefault( RimSummaryRegressionAnalysisCurve::DataSource::SUMMARY_ADDRESS );
 }
 
+template <>
+void caf::AppEnum<RimSummaryRegressionAnalysisCurve::RangeType>::setUp()
+{
+    addItem( RimSummaryRegressionAnalysisCurve::RangeType::FULL_RANGE, "FULL_RANGE", "Full Range" );
+    addItem( RimSummaryRegressionAnalysisCurve::RangeType::USER_DEFINED_RANGE, "USER_DEFINED_RANGE", "Custom Range" );
+    setDefault( RimSummaryRegressionAnalysisCurve::RangeType::FULL_RANGE );
+}
+
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -98,6 +106,7 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     CAF_PDM_InitFieldNoDefault( &m_forecastUnit, "ForecastUnit", "Unit" );
     CAF_PDM_InitField( &m_polynomialDegree, "PolynomialDegree", 3, "Degree" );
 
+    CAF_PDM_InitFieldNoDefault( &m_timeRangeSelection, "TimeRangeSelection", "Time Range Selection" );
     CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From" );
     m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
@@ -112,9 +121,11 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     m_expressionText.uiCapability()->setUiReadOnly( true );
     m_expressionText.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_xRangeSelection, "XRangeSelection", "X Value Range Selection" );
     CAF_PDM_InitField( &m_valueRangeX, "ValueRangeX", std::make_pair( 0.0, 0.0 ), "Value Range X" );
     m_valueRangeX.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitFieldNoDefault( &m_yRangeSelection, "YRangeSelection", "Y Value Range Selection" );
     CAF_PDM_InitField( &m_valueRangeY, "ValueRangeY", std::make_pair( 0.0, 0.0 ), "Value Range Y" );
     m_valueRangeY.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
@@ -447,18 +458,30 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
     regressionCurveGroup->add( &m_expressionText );
 
     caf::PdmUiGroup* valueRangeYGroup = uiOrdering.addNewGroup( "Value Range Y" );
-    valueRangeYGroup->add( &m_valueRangeY );
+    valueRangeYGroup->add( &m_yRangeSelection );
+    if ( m_yRangeSelection() == RangeType::USER_DEFINED_RANGE )
+    {
+        valueRangeYGroup->add( &m_valueRangeY );
+    }
 
     if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
         caf::PdmUiGroup* valueRangeXGroup = uiOrdering.addNewGroup( "Value Range X" );
-        valueRangeXGroup->add( &m_valueRangeX );
+        valueRangeXGroup->add( &m_xRangeSelection );
+        if ( m_xRangeSelection() == RangeType::USER_DEFINED_RANGE )
+        {
+            valueRangeXGroup->add( &m_valueRangeX );
+        }
     }
     else
     {
         caf::PdmUiGroup* timeSelectionGroup = uiOrdering.addNewGroup( "Time Selection" );
-        timeSelectionGroup->add( &m_minTimeStep );
-        timeSelectionGroup->add( &m_maxTimeStep );
+        timeSelectionGroup->add( &m_timeRangeSelection );
+        if ( m_timeRangeSelection() == RangeType::USER_DEFINED_RANGE )
+        {
+            timeSelectionGroup->add( &m_minTimeStep );
+            timeSelectionGroup->add( &m_maxTimeStep );
+        }
         timeSelectionGroup->add( &m_showTimeSelectionInPlot );
     }
 
@@ -839,19 +862,19 @@ void RimSummaryRegressionAnalysisCurve::updateTimeAnnotations()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::updateDefaultValues()
 {
-    if ( !m_sourceTimeStepsY.empty() )
+    if ( !m_sourceTimeStepsY.empty() && m_timeRangeSelection() == RangeType::FULL_RANGE )
     {
         m_minTimeStep = m_sourceTimeStepsY.front();
         m_maxTimeStep = m_sourceTimeStepsY.back();
     }
 
-    if ( !m_sourceValuesX.empty() )
+    if ( !m_sourceValuesX.empty() && m_xRangeSelection() == RangeType::FULL_RANGE )
     {
         m_valueRangeX = std::make_pair( *std::min_element( m_sourceValuesX.begin(), m_sourceValuesX.end() ),
                                         *std::max_element( m_sourceValuesX.begin(), m_sourceValuesX.end() ) );
     }
 
-    if ( !m_sourceValuesY.empty() )
+    if ( !m_sourceValuesY.empty() && m_yRangeSelection() == RangeType::FULL_RANGE )
     {
         m_valueRangeY = std::make_pair( *std::min_element( m_sourceValuesY.begin(), m_sourceValuesY.end() ),
                                         *std::max_element( m_sourceValuesY.begin(), m_sourceValuesY.end() ) );
