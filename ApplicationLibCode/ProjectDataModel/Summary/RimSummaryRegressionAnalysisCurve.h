@@ -67,7 +67,7 @@ public:
     enum class DataSource
     {
         SUMMARY_ADDRESS,
-        ENSEMBLE_CURVE_SET
+        ENSEMBLE
     };
 
     enum class RangeType

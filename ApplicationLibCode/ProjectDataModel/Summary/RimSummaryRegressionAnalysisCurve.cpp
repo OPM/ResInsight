@@ -75,7 +75,7 @@ template <>
 void caf::AppEnum<RimSummaryRegressionAnalysisCurve::DataSource>::setUp()
 {
     addItem( RimSummaryRegressionAnalysisCurve::DataSource::SUMMARY_ADDRESS, "SUMMARY_ADDRESS", "Summary Address" );
-    addItem( RimSummaryRegressionAnalysisCurve::DataSource::ENSEMBLE_CURVE_SET, "ENSEMBLE_CURVE_SET", "Ensemble Curve Set" );
+    addItem( RimSummaryRegressionAnalysisCurve::DataSource::ENSEMBLE, "ENSEMBLE", "Ensemble" );
     setDefault( RimSummaryRegressionAnalysisCurve::DataSource::SUMMARY_ADDRESS );
 }
 
@@ -106,7 +106,7 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     CAF_PDM_InitFieldNoDefault( &m_forecastUnit, "ForecastUnit", "Unit" );
     CAF_PDM_InitField( &m_polynomialDegree, "PolynomialDegree", 3, "Degree" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeRangeSelection, "TimeRangeSelection", "Time Range Selection" );
+    CAF_PDM_InitFieldNoDefault( &m_timeRangeSelection, "TimeRangeSelection", "Time Range" );
     CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From" );
     m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
@@ -121,11 +121,11 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     m_expressionText.uiCapability()->setUiReadOnly( true );
     m_expressionText.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_xRangeSelection, "XRangeSelection", "X Value Range Selection" );
+    CAF_PDM_InitFieldNoDefault( &m_xRangeSelection, "XRangeSelection", "X Value Range" );
     CAF_PDM_InitField( &m_valueRangeX, "ValueRangeX", std::make_pair( 0.0, 0.0 ), "Value Range X" );
     m_valueRangeX.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_yRangeSelection, "YRangeSelection", "Y Value Range Selection" );
+    CAF_PDM_InitFieldNoDefault( &m_yRangeSelection, "YRangeSelection", "Y Value Range" );
     CAF_PDM_InitField( &m_valueRangeY, "ValueRangeY", std::make_pair( 0.0, 0.0 ), "Value Range Y" );
     m_valueRangeY.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
@@ -144,7 +144,7 @@ RimSummaryRegressionAnalysisCurve::~RimSummaryRegressionAnalysisCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::setEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet )
 {
-    m_dataSourceForRegression = DataSource::ENSEMBLE_CURVE_SET;
+    m_dataSourceForRegression = DataSource::ENSEMBLE;
     m_ensembleCurveSet        = ensembleCurveSet;
     m_ensembleStatisticsType  = RifEclipseSummaryAddressDefines::StatisticsType::P10;
 
@@ -245,7 +245,7 @@ void RimSummaryRegressionAnalysisCurve::extractSourceCurveData()
     std::vector<time_t> xTimeSteps;
     std::vector<time_t> yTimeSteps;
 
-    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE_CURVE_SET )
+    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE )
     {
         auto findStatisticsCurve = []( RimEnsembleCurveSet* curveSet, const QString& statisticsCurveName ) -> RimSummaryCurve*
         {
@@ -435,7 +435,7 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
 
     uiOrdering.add( &m_dataSourceForRegression );
 
-    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE_CURVE_SET )
+    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE )
     {
         uiOrdering.add( &m_ensembleCurveSet );
         uiOrdering.add( &m_ensembleStatisticsType );
@@ -484,7 +484,7 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
     forecastingGroup->add( &m_forecastBackward );
     forecastingGroup->add( &m_forecastUnit );
 
-    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE_CURVE_SET )
+    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE )
     {
         caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
         RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
@@ -644,7 +644,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryRegressionAnalysisCurve::calculateValueO
 QString RimSummaryRegressionAnalysisCurve::createCurveAutoName()
 {
     QString sourceCurveName;
-    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE_CURVE_SET )
+    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE )
     {
         if ( m_ensembleCurveSet() )
         {
