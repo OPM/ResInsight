@@ -69,8 +69,8 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
     std::vector<std::function<std::pair<bool, std::string>()>> methods = {
         [&]() { return printHeading( stream, applicationNameAndVersion ); },
-        [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries, rimModel.localCoordSysNormalsXY() ); },
-        [&]() { return printAssembly( stream, *model, partNames ); },
+        [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries ); },
+        [&]() { return printAssembly( stream, *model, partNames, rimModel.localCoordSysNormalsXY() ); },
         [&]() { return printMaterials( stream ); },
         [&]() { return printInteractionProperties( stream, faultFriction ); },
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
@@ -122,8 +122,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
     const std::map<RigFaultReactivationModel::GridPart, std::string>&                                     partNames,
     const std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>>&                           borders,
     const std::map<std::pair<RigFaultReactivationModel::GridPart, RigGriddedPart3d::BorderSurface>, int>& faces,
-    const std::map<RigGriddedPart3d::Boundary, std::string>&                                              boundaries,
-    const std::pair<cvf::Vec3d, cvf::Vec3d>&                                                              orientation )
+    const std::map<RigGriddedPart3d::Boundary, std::string>&                                              boundaries )
 {
     RifInpExportTools::printSectionComment( stream, "PARTS" );
 
@@ -180,15 +179,8 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
             }
         }
 
-        // Print local orientation
-        std::string orientationName = "ori";
-        RifInpExportTools::printHeading( stream, "Orientation, name=" + orientationName );
-        auto [dir1, dir2] = orientation;
-        RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
-        RifInpExportTools::printLine( stream, "3, 0.0" );
-
         RifInpExportTools::printComment( stream, "Section: sand" );
-        RifInpExportTools::printHeading( stream, "Solid Section, elset=" + partName + ", orientation=" + orientationName + ", material=sand" );
+        RifInpExportTools::printHeading( stream, "Solid Section, elset=" + partName + ", material=sand" );
 
         RifInpExportTools::printLine( stream, "," );
         RifInpExportTools::printHeading( stream, "End Part" );
@@ -205,7 +197,8 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
 std::pair<bool, std::string>
     RifFaultReactivationModelExporter::printAssembly( std::ostream&                                                     stream,
                                                       const RigFaultReactivationModel&                                  model,
-                                                      const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames )
+                                                      const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
+                                                      const std::pair<cvf::Vec3d, cvf::Vec3d>&                          transform )
 {
     // ASSEMBLY part
     RifInpExportTools::printSectionComment( stream, "ASSEMBLY" );
@@ -222,6 +215,17 @@ std::pair<bool, std::string>
         std::string instanceName = partName;
         RifInpExportTools::printHeading( stream, "Instance, name=" + instanceName + ", part=" + partName );
         RifInpExportTools::printHeading( stream, "End Instance" );
+    }
+
+    for ( const auto& part : parts )
+    {
+        auto partNameIt = partNames.find( part );
+        CAF_ASSERT( partNameIt != partNames.end() );
+        std::string partName = partNameIt->second;
+
+        RifInpExportTools::printHeading( stream, "Transform, nset=" + partName + "." + partName );
+        auto [dir1, dir2] = transform;
+        RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
     }
 
     RifInpExportTools::printHeading( stream, "End Assembly" );
