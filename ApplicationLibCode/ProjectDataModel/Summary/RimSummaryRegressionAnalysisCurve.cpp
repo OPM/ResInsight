@@ -147,6 +147,9 @@ void RimSummaryRegressionAnalysisCurve::setEnsembleCurveSet( RimEnsembleCurveSet
     m_dataSourceForRegression = DataSource::ENSEMBLE_CURVE_SET;
     m_ensembleCurveSet        = ensembleCurveSet;
     m_ensembleStatisticsType  = RifEclipseSummaryAddressDefines::StatisticsType::P10;
+
+    setSummaryAddressY( {} );
+    setSummaryAddressX( {} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -506,6 +509,8 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
                                                           const QVariant&            oldValue,
                                                           const QVariant&            newValue )
 {
+    RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( &m_minTimeStep == changedField && m_minTimeStep > m_maxTimeStep )
     {
         m_maxTimeStep = m_minTimeStep;

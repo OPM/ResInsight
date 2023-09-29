@@ -469,6 +469,8 @@ void RiaSummaryAddressAnalyzer::computeQuantityNamesWithHistory() const
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddress& address )
 {
+    if ( !address.isValid() ) return;
+
     if ( address.category() == SummaryCategory::SUMMARY_TIME )
     {
         m_onlyCrossPlotCurves = false;
