@@ -355,3 +355,22 @@ void RigFaultReactivationModel::extractModelData( RimFaultReactivationDataAccess
         m_3dparts[part]->extractModelData( dataAccess, outputTimeStep );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::generateElementSets( const RigMainGrid* grid )
+{
+    for ( auto part : allGridParts() )
+    {
+        m_3dparts[part]->generateElementSets( grid, m_cellIndexAdjustmentMap[part] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::generateCellIndexMapping( const RigMainGrid* grid )
+{
+    m_cellIndexAdjustmentMap.clear();
+}

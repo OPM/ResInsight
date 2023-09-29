@@ -30,6 +30,7 @@
 #include <vector>
 
 class RigGriddedPart3d;
+class RigMainGrid;
 class RimFaultReactivationDataAccess;
 
 class RigFRModelPart
@@ -94,6 +95,9 @@ public:
     const std::vector<std::vector<cvf::Vec3d>>& meshLines( GridPart part ) const;
 
     std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
+
+    void generateCellIndexMapping( const RigMainGrid* grid );
+    void generateElementSets( const RigMainGrid* grid );
 
     void clearModelData();
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );

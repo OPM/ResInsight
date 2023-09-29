@@ -310,8 +310,6 @@ std::pair<bool, std::string>
 
     std::map<RigGriddedPart3d::Boundary, std::string> symmetryTypes = {
         { RigGriddedPart3d::Boundary::Bottom, "ZSYMM" },
-        { RigGriddedPart3d::Boundary::Back, "YSYMM" },
-        { RigGriddedPart3d::Boundary::Front, "YSYMM" },
         { RigGriddedPart3d::Boundary::FarSide, "XSYMM" },
 
     };

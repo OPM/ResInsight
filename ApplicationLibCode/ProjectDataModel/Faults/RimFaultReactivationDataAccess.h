@@ -44,6 +44,9 @@ public:
 
     size_t timeStepIndex() const;
 
+    static size_t
+        findAdjustedCellIndex( const cvf::Vec3d& position, const RigMainGrid* grid, const std::map<size_t, size_t>& cellIndexAdjustmentMap );
+
 protected:
     double calculatePorePressure( double depth, double gradient );
 

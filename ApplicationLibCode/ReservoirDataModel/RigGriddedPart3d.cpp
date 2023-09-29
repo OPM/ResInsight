@@ -18,6 +18,8 @@
 
 #include "RigGriddedPart3d.h"
 
+#include "RigMainGrid.h"
+
 #include "RimFaultReactivationDataAccess.h"
 
 #include "cvfTextureImage.h"
@@ -123,13 +125,8 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     const std::vector<cvf::Vec3d> firstSteps = { step0to1, step1to2, step2to3 };
     const std::vector<cvf::Vec3d> lastSteps  = { step4to5, step5to6, step6to7 };
 
-    const Boundary boundaryBack  = m_flipFrontBack ? Boundary::Front : Boundary::Back;
-    const Boundary boundaryFront = m_flipFrontBack ? Boundary::Back : Boundary::Front;
-
     // ** generate nodes
 
-    m_boundaryNodes[boundaryFront]     = {};
-    m_boundaryNodes[boundaryBack]      = {};
     m_boundaryNodes[Boundary::Bottom]  = {};
     m_boundaryNodes[Boundary::FarSide] = {};
 
@@ -160,14 +157,6 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
                     {
                         m_boundaryNodes[Boundary::FarSide].push_back( nodeIndex );
                     }
-                    if ( t == 0 )
-                    {
-                        m_boundaryNodes[boundaryFront].push_back( nodeIndex );
-                    }
-                    else if ( t == nThicknessCells )
-                    {
-                        m_boundaryNodes[boundaryBack].push_back( nodeIndex );
-                    }
                 }
 
                 p += stepHorz;
@@ -185,8 +174,6 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     m_borderSurfaceElements[BorderSurface::FaultSurface] = {};
     m_borderSurfaceElements[BorderSurface::LowerSurface] = {};
 
-    m_boundaryElements[boundaryFront]     = {};
-    m_boundaryElements[boundaryBack]      = {};
     m_boundaryElements[Boundary::Bottom]  = {};
     m_boundaryElements[Boundary::FarSide] = {};
 
@@ -227,14 +214,6 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
                 if ( h == 0 )
                 {
                     m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
-                }
-                if ( t == 0 )
-                {
-                    m_boundaryElements[boundaryFront].push_back( elementIdx );
-                }
-                else if ( t == ( nThicknessCells - 1 ) )
-                {
-                    m_boundaryElements[boundaryBack].push_back( elementIdx );
                 }
             }
             i += nThicknessOff;
@@ -380,5 +359,22 @@ void RigGriddedPart3d::extractModelData( RimFaultReactivationDataAccess* dataAcc
     {
         double pressure = dataAccess->porePressureAtPosition( node, 1.0 );
         m_nodePorePressure[outputTimeStep].push_back( pressure );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::generateElementSets( const RigMainGrid* grid, std::map<size_t, size_t> cellIndexAdjustment )
+{
+    for ( auto& element : m_elementIndices )
+    {
+        for ( auto nodeIdx : element )
+        {
+            auto cellIdx = RimFaultReactivationDataAccess::findAdjustedCellIndex( m_nodes[nodeIdx], grid, cellIndexAdjustment );
+
+            auto& cell = grid->cell( cellIdx );
+            // cell.isInvalid()
+        }
     }
 }

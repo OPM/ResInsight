@@ -69,7 +69,7 @@ public:
                            int                     nVertCellsUpper,
                            double                  thickness );
 
-    void generateElementSets( RigMainGrid* grid );
+    void generateElementSets( const RigMainGrid* grid, std::map<size_t, size_t> cellIndexAdjustment );
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
     const std::vector<cvf::Vec3d>&                            nodes() const;

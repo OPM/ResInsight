@@ -75,18 +75,32 @@ void RimFaultReactivationDataAccess::useCellIndexAdjustment( std::map<size_t, si
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RimFaultReactivationDataAccess::findAdjustedCellIndex( const cvf::Vec3d&               position,
+                                                              const RigMainGrid*              grid,
+                                                              const std::map<size_t, size_t>& cellIndexAdjustmentMap )
+{
+    CAF_ASSERT( grid != nullptr );
+
+    size_t cellIdx = grid->findReservoirCellIndexFromPoint( position );
+
+    // adjust cell index if present in the map
+    if ( auto search = cellIndexAdjustmentMap.find( cellIdx ); search != cellIndexAdjustmentMap.end() )
+    {
+        cellIdx = search->second;
+    }
+
+    return cellIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient )
 {
     size_t cellIdx = cvf::UNDEFINED_SIZE_T;
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
-        cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-
-        // adjust cell index to be on correct side of fault
-        if ( auto search = m_cellIndexAdjustment.find( cellIdx ); search != m_cellIndexAdjustment.end() )
-        {
-            cellIdx = search->second;
-        }
+        auto cellIdx = findAdjustedCellIndex( position, m_mainGrid, m_cellIndexAdjustment );
 
         if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
         {

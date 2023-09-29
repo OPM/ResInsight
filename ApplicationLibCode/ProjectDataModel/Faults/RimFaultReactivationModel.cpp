@@ -660,6 +660,7 @@ bool RimFaultReactivationModel::extractAndExportModelData()
     if ( !exportModelSettings() ) return false;
 
     auto eCase = eclipseCase();
+    if ( eCase == nullptr ) return false;
 
     // get the selected time step indexes
     std::vector<size_t> selectedTimeStepIndexes;
@@ -670,6 +671,14 @@ bool RimFaultReactivationModel::extractAndExportModelData()
 
         selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
     }
+
+    auto grid = eCase->mainGrid();
+
+    // generate cell index mappings for cells that ends up at the wrong side of the fault 
+    model()->generateCellIndexMapping( grid );
+
+    // generate element sets for the various data parts of the model
+    model()->generateElementSets( grid );
 
     // extract data for each timestep
     size_t outputTimeStepIndex = 0;
