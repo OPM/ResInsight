@@ -266,19 +266,32 @@ void RimSummaryRegressionAnalysisCurve::extractSourceCurveData()
         auto curve = findStatisticsCurve( m_ensembleCurveSet(), m_ensembleStatisticsType().uiText() );
         if ( curve )
         {
-            xValues = curve->valuesX();
             yValues = curve->valuesY();
+            xValues = curve->valuesX();
 
-            auto summaryCase  = m_ensembleCurveSet->summaryCaseCollection()->allSummaryCases().back();
-            auto allTimeSteps = summaryCase->summaryReader()->timeSteps( {} );
-            yTimeSteps        = allTimeSteps;
+            auto curveTimeY = curve->timeStepsY();
+            if ( curveTimeY.size() == yValues.size() )
+            {
+                yTimeSteps = curveTimeY;
+            }
+            else
+            {
+                // Fallback to use time steps from summary case
+                // The time steps are used for reference, not used when computing the regression curve
+                auto summaryCase  = m_ensembleCurveSet->summaryCaseCollection()->allSummaryCases().back();
+                auto allTimeSteps = summaryCase->summaryReader()->timeSteps( {} );
+                yTimeSteps        = allTimeSteps;
 
-            yTimeSteps.resize( xValues.size() );
-            xTimeSteps = yTimeSteps;
+                yTimeSteps.resize( yValues.size() );
+            }
+
+            if ( xValues.size() == yValues.size() ) xTimeSteps = yTimeSteps;
         }
     }
     else
     {
+        // Get curve data from the summary data defined by X and Y axis data
+
         xValues    = RimSummaryCurve::valuesX();
         yValues    = RimSummaryCurve::valuesY();
         xTimeSteps = RimSummaryCurve::timeStepsX();

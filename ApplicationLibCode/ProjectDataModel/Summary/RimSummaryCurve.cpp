@@ -689,52 +689,54 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
                 {
-                    auto reader = summaryCaseY()->summaryReader();
-                    if ( reader )
+                    RifEclipseSummaryAddress errAddress;
+                    std::vector<double>      errValues;
+
+                    if ( summaryCaseY() && summaryCaseY()->summaryReader() )
                     {
-                        auto errAddress = reader->errorAddress( summaryAddressY() );
-                        if ( errAddress.isValid() )
+                        auto reader = summaryCaseY()->summaryReader();
+                        errAddress  = reader->errorAddress( summaryAddressY() );
+                        reader->values( errAddress, &errValues );
+                    }
+
+                    if ( errAddress.isValid() )
+                    {
+                        auto timeSteps = RiuQwtPlotCurve::fromTime_t( curveTimeStepsY );
+
+                        if ( !errValues.empty() )
                         {
-                            std::vector<double> errValues;
-                            reader->values( errAddress, &errValues );
+                            setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, useLogarithmicScale );
+                        }
+                        else
+                        {
+                            setSamplesFromXYValues( timeSteps, curveValuesY, useLogarithmicScale );
+                        }
+                    }
+                    else
+                    {
+                        if ( m_yValuesResampling() != RiaDefines::DateTimePeriod::NONE )
+                        {
+                            auto [resampledTimeSteps, resampledValues] =
+                                RiaSummaryTools::resampledValuesForPeriod( m_yValuesSummaryAddress->address(),
+                                                                           curveTimeStepsY,
+                                                                           curveValuesY,
+                                                                           m_yValuesResampling() );
 
-                            auto timeSteps = RiuQwtPlotCurve::fromTime_t( curveTimeStepsY );
+                            if ( !resampledValues.empty() && !resampledTimeSteps.empty() )
+                            {
+                                // When values are resampled, each time step value is reported at the end of each
+                                // resampling period. Insert a duplicate of the first value at the start of the time
+                                // series to make curve start at the very first reported time step.
 
-                            if ( !errValues.empty() )
-                            {
-                                setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, useLogarithmicScale );
-                            }
-                            else
-                            {
-                                setSamplesFromXYValues( timeSteps, curveValuesY, useLogarithmicScale );
+                                resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
+                                resampledValues.insert( resampledValues.begin(), resampledValues.front() );
+
+                                setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, useLogarithmicScale );
                             }
                         }
                         else
                         {
-                            if ( m_yValuesResampling() != RiaDefines::DateTimePeriod::NONE )
-                            {
-                                auto [resampledTimeSteps, resampledValues] =
-                                    RiaSummaryTools::resampledValuesForPeriod( m_yValuesSummaryAddress->address(),
-                                                                               curveTimeStepsY,
-                                                                               curveValuesY,
-                                                                               m_yValuesResampling() );
-
-                                if ( !resampledValues.empty() && !resampledTimeSteps.empty() )
-                                {
-                                    // When values are resampled, each time step value is reported at the end of each
-                                    // resampling period. Insert a duplicate of the first value at the start of the time
-                                    // series to make curve start at the very first reported time step.
-
-                                    resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
-                                    resampledValues.insert( resampledValues.begin(), resampledValues.front() );
-
-                                    setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, useLogarithmicScale );
-                                }
-                            }
-                            else
-                            {
-                                setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, useLogarithmicScale );
-                            }
+                            setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, useLogarithmicScale );
                         }
                     }
                 }
