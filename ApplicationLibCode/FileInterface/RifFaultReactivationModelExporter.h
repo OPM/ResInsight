@@ -56,11 +56,11 @@ private:
     static std::pair<bool, std::string> printMaterials( std::ostream& stream );
 
     static std::pair<bool, std::string> printInteractionProperties( std::ostream& stream, double faultFriction );
-    static std::pair<bool, std::string> printBoundaryConditions( std::ostream&                                                     stream,
-                                                                 const RigFaultReactivationModel&                                  model,
+    static std::pair<bool, std::string> printBoundaryConditions( std::ostream&                    stream,
+                                                                 const RigFaultReactivationModel& model,
                                                                  const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
                                                                  const std::map<RigGriddedPart3d::Boundary, std::string>& boundaries );
-    static std::pair<bool, std::string> printPredefinedFields( std::ostream&                                                     stream,
+    static std::pair<bool, std::string> printPredefinedFields( std::ostream& stream,
                                                                const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames );
     static std::pair<bool, std::string> printSteps( std::ostream&                                                     stream,
                                                     const RigFaultReactivationModel&                                  model,
