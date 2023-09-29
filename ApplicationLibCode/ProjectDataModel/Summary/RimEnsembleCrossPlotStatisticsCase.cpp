@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleCrossPlotStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RimEnsembleCrossPlotStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( m_adrX.isValid() )
     {
@@ -42,23 +42,22 @@ bool RimEnsembleCrossPlotStatisticsCase::values( const RifEclipseSummaryAddress&
         auto it           = stringToTest.find( m_adrX.vectorName() );
         if ( it != std::string::npos )
         {
-            *values = m_binnedXValues;
-            return true;
+            return { true, m_binnedXValues };
         }
     }
 
     auto quantityName = resultAddress.ensembleStatisticsVectorName();
 
     if ( quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME )
-        *values = m_p10Data;
+        return { true, m_p10Data };
     else if ( quantityName == ENSEMBLE_STAT_P50_QUANTITY_NAME )
-        *values = m_p50Data;
+        return { true, m_p50Data };
     else if ( quantityName == ENSEMBLE_STAT_P90_QUANTITY_NAME )
-        *values = m_p90Data;
+        return { true, m_p90Data };
     else if ( quantityName == ENSEMBLE_STAT_MEAN_QUANTITY_NAME )
-        *values = m_meanData;
+        return { true, m_meanData };
 
-    return true;
+    return { true, {} };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,12 +139,10 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
         {
             const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddressX );
 
-            std::vector<double> valuesX;
-            reader->values( inputAddressX, &valuesX );
+            auto [isXOk, valuesX] = values( inputAddressX );
             if ( valuesX.empty() ) continue;
 
-            std::vector<double> valuesY;
-            reader->values( inputAddressY, &valuesY );
+            auto [isYOk, valuesY] = reader->values( inputAddressY );
             if ( valuesY.empty() ) continue;
 
             if ( !includeIncompleteCurves && timeSteps.size() != valuesX.size() ) continue;

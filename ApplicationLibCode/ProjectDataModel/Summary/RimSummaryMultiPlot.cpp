@@ -944,14 +944,14 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 {
     auto readValues = []( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr )
     {
-        std::vector<double> values;
         if ( summaryCase && summaryCase->summaryReader() )
         {
             RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-            reader->values( addr, &values );
+            auto [isOk, values]               = reader->values( addr );
+            return values;
         }
 
-        return values;
+        return std::vector<double>();
     };
 
     auto findMinMaxForSummaryCase = [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues )

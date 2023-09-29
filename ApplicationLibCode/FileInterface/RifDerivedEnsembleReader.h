@@ -34,10 +34,10 @@ public:
                               RifSummaryReaderInterface* sourceSummaryReader1,
                               RifSummaryReaderInterface* sourceSummaryReader2 );
 
-    std::vector<time_t>           timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
-    bool                          values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
-    std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
-    RiaDefines::EclipseUnitSystem unitSystem() const override;
+    std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
+    std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
+    std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
+    RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
 private:
     RimDerivedSummaryCase* m_derivedCase;

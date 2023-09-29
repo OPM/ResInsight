@@ -73,20 +73,20 @@ bool RimEnsembleStatisticsCase::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RimEnsembleStatisticsCase::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     auto quantityName = resultAddress.ensembleStatisticsVectorName();
 
     if ( quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME )
-        *values = m_p10Data;
+        return { true, m_p10Data };
     else if ( quantityName == ENSEMBLE_STAT_P50_QUANTITY_NAME )
-        *values = m_p50Data;
+        return { true, m_p50Data };
     else if ( quantityName == ENSEMBLE_STAT_P90_QUANTITY_NAME )
-        *values = m_p90Data;
+        return { true, m_p90Data };
     else if ( quantityName == ENSEMBLE_STAT_MEAN_QUANTITY_NAME )
-        *values = m_meanData;
+        return { true, m_meanData };
 
-    return true;
+    return { true, {} };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,8 +152,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
         if ( reader )
         {
             const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
-            std::vector<double>        values;
-            reader->values( inputAddress, &values );
+            auto [isOk, values]                  = reader->values( inputAddress );
 
             if ( values.empty() ) continue;
 

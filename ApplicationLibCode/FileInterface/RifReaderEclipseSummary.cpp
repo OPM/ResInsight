@@ -159,21 +159,18 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    CVF_ASSERT( values );
+    if ( timeSteps( resultAddress ).empty() ) return { false, {} };
 
-    if ( timeSteps( resultAddress ).empty() ) return false;
-
-    values->clear();
-    values->reserve( timeSteps( resultAddress ).size() );
+    std::vector<double> values;
+    values.reserve( timeSteps( resultAddress ).size() );
 
     const std::vector<double>& cachedValues = m_valuesCache->getValues( resultAddress );
     if ( !cachedValues.empty() )
     {
-        values->insert( values->begin(), cachedValues.begin(), cachedValues.end() );
-
-        return true;
+        values.insert( values.begin(), cachedValues.begin(), cachedValues.end() );
+        return { true, values };
     }
 
     if ( m_differenceAddresses.count( resultAddress ) )
@@ -188,35 +185,33 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
         RifEclipseSummaryAddress nativeAdrHistory = resultAddress;
         nativeAdrHistory.setVectorName( quantityNoHistory );
 
-        std::vector<double> nativeValues;
-        std::vector<double> historyValues;
+        auto [nativeValuesOk, nativeValues] = this->values( nativeAdrHistory );
+        if ( !nativeValuesOk ) return { false, {} };
 
-        if ( !this->values( nativeAdrHistory, &nativeValues ) ) return false;
-        if ( !this->values( nativeAdrNoHistory, &historyValues ) ) return false;
+        auto [nativeAdrNoHistoryOk, historyValues] = this->values( nativeAdrNoHistory );
+        if ( !nativeAdrNoHistoryOk ) return { false, {} };
 
-        if ( nativeValues.size() != historyValues.size() ) return false;
+        if ( nativeValues.size() != historyValues.size() ) return { false, {} };
 
         for ( size_t i = 0; i < nativeValues.size(); i++ )
         {
             double diff = nativeValues[i] - historyValues[i];
-            values->push_back( diff );
-            m_valuesCache->insertValues( resultAddress, *values );
+            values.push_back( diff );
+            m_valuesCache->insertValues( resultAddress, values );
         }
 
-        return true;
+        return { true, values };
     }
 
     auto reader = currentSummaryReader();
     if ( reader )
     {
-        auto status = reader->values( resultAddress, values );
-
-        if ( status ) m_valuesCache->insertValues( resultAddress, *values );
-
-        return status;
+        auto [status, values] = reader->values( resultAddress );
+        if ( status ) m_valuesCache->insertValues( resultAddress, values );
+        return { status, values };
     }
 
-    return true;
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------
