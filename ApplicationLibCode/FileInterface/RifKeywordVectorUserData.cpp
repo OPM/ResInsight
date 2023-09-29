@@ -176,17 +176,18 @@ bool RifKeywordVectorUserData::parse( const QString& data, const QString& custom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifKeywordVectorUserData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifKeywordVectorUserData::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     auto search = m_mapFromAddressToVectorIndex.find( resultAddress );
-    if ( search == m_mapFromAddressToVectorIndex.end() ) return false;
+    if ( search == m_mapFromAddressToVectorIndex.end() ) return { false, {} };
 
+    std::vector<double> values;
     for ( const auto& v : m_parser->keywordBasedVectors()[search->second].values )
     {
-        values->push_back( v );
+        values.push_back( v );
     }
 
-    return true;
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------

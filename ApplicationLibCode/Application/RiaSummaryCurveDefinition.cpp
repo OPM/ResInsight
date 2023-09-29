@@ -204,15 +204,16 @@ void RiaSummaryCurveDefinition::setIdentifierText( SummaryCategory category, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition& curveDefinition, gsl::not_null<std::vector<double>*> values )
+std::vector<double> RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition& curveDefinition )
 {
-    if ( !curveDefinition.summaryAddressY().isValid() ) return;
-    if ( !curveDefinition.summaryCaseY() ) return;
+    if ( !curveDefinition.summaryAddressY().isValid() ) return {};
+    if ( !curveDefinition.summaryCaseY() ) return {};
 
     RifSummaryReaderInterface* reader = curveDefinition.summaryCaseY()->summaryReader();
-    if ( !reader ) return;
+    if ( !reader ) return {};
 
-    reader->values( curveDefinition.summaryAddressY(), values );
+    auto [isOk, values] = reader->values( curveDefinition.summaryAddressY() );
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------

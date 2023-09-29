@@ -64,14 +64,14 @@ std::vector<time_t> RifMultipleSummaryReaders::timeSteps( const RifEclipseSummar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifMultipleSummaryReaders::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifMultipleSummaryReaders::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     for ( const auto& r : m_readers )
     {
-        if ( r->hasAddress( resultAddress ) ) return r->values( resultAddress, values );
+        if ( r->hasAddress( resultAddress ) ) return r->values( resultAddress );
     }
 
-    return false;
+    return { false, {} };
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -261,11 +261,10 @@ void RimParameterResultCrossPlot::createPoints()
 
                 if ( !summaryCase->caseRealizationParameters() ) continue;
 
-                std::vector<double> values;
-
                 double closestValue    = std::numeric_limits<double>::infinity();
                 time_t closestTimeStep = 0;
-                if ( reader->values( address, &values ) )
+                auto [isOk, values]    = reader->values( address );
+                if ( isOk )
                 {
                     const std::vector<time_t>& timeSteps = reader->timeSteps( address );
                     for ( size_t i = 0; i < timeSteps.size(); ++i )

@@ -454,8 +454,8 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
 
             if ( summaryCase && summaryCase->summaryReader() )
             {
-                std::vector<double> values;
-                if ( summaryCase->summaryReader()->values( wbhpPressureAddress, &values ) )
+                auto [isOk, values] = summaryCase->summaryReader()->values( wbhpPressureAddress );
+                if ( isOk )
                 {
                     std::vector<time_t> summaryTimeSteps = summaryCase->summaryReader()->timeSteps( wbhpPressureAddress );
                     CVF_ASSERT( values.size() == summaryTimeSteps.size() );

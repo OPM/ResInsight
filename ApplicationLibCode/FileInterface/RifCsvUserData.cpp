@@ -69,25 +69,25 @@ bool RifCsvUserData::parse( const QString& fileName, const AsciiDataParseOptions
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifCsvUserData::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    auto search = m_mapFromAddressToResultIndex.find( resultAddress );
+    std::vector<double> values;
+    auto                search = m_mapFromAddressToResultIndex.find( resultAddress );
     if ( search != m_mapFromAddressToResultIndex.end() )
     {
         size_t columnIndex = search->second;
 
         const Column* ci = m_parser->columnInfo( columnIndex );
-        if ( !ci ) return false;
+        if ( !ci ) return { false, {} };
 
-        values->clear();
-        values->reserve( ci->values.size() );
+        values.reserve( ci->values.size() );
         for ( double val : ci->values )
         {
-            values->push_back( val );
+            values.push_back( val );
         }
     }
 
-    return true;
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------

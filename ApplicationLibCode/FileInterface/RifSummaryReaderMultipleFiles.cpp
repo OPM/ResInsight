@@ -43,12 +43,12 @@ std::vector<time_t> RifSummaryReaderMultipleFiles::timeSteps( const RifEclipseSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryReaderMultipleFiles::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifSummaryReaderMultipleFiles::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
+    std::vector<double> values;
     for ( const auto& reader : m_summaryReaders )
     {
-        std::vector<double> readerValues;
-        reader->values( resultAddress, &readerValues );
+        auto [isOk, readerValues] = reader->values( resultAddress );
 
         if ( readerValues.empty() )
         {
@@ -60,19 +60,18 @@ bool RifSummaryReaderMultipleFiles::values( const RifEclipseSummaryAddress& resu
             // https://github.com/OPM/ResInsight/issues/7065
 
             std::vector<double> zeros( reader->timeSteps( {} ).size(), 0.0 );
-
             readerValues = zeros;
         }
 
         auto valueCount = timeStepCount( reader.get() );
         readerValues.resize( valueCount );
 
-        values->insert( values->end(), readerValues.begin(), readerValues.end() );
+        values.insert( values.end(), readerValues.begin(), readerValues.end() );
     }
 
-    CAF_ASSERT( m_aggregatedTimeSteps.size() == values->size() );
+    CAF_ASSERT( m_aggregatedTimeSteps.size() == values.size() );
 
-    return true;
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------

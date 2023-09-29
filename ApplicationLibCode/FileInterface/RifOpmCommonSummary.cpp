@@ -148,26 +148,27 @@ std::vector<time_t> RifOpmCommonEclipseSummary::timeSteps( const RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     auto it = m_summaryAddressToKeywordMap.find( resultAddress );
     if ( it != m_summaryAddressToKeywordMap.end() )
     {
-        auto keyword = it->second;
+        std::vector<double> values;
+        auto                keyword = it->second;
         if ( m_enhancedReader )
         {
             auto fileValues = m_enhancedReader->get( keyword );
-            values->insert( values->begin(), fileValues.begin(), fileValues.end() );
+            values.insert( values.begin(), fileValues.begin(), fileValues.end() );
         }
         else if ( m_standardReader )
         {
             auto fileValues = m_standardReader->get( keyword );
-            values->insert( values->begin(), fileValues.begin(), fileValues.end() );
+            values.insert( values.begin(), fileValues.begin(), fileValues.end() );
         }
-        return true;
+        return { true, values };
     }
 
-    return false;
+    return { false, {} };
 }
 
 //--------------------------------------------------------------------------------------------------
