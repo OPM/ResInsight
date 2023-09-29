@@ -123,11 +123,9 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
                     const std::vector<time_t>& allTimeSteps           = readerInterface->timeSteps( vectorSummaryAddressDiff );
                     std::vector<size_t>        timeStepsForEvaluation = timeStepIndicesForEvaluation( allTimeSteps, timeConfig );
 
-                    std::vector<double> summaryDiffValues;
-                    std::vector<double> summaryHistoryValues;
-
-                    if ( readerInterface->values( vectorSummaryAddressDiff, &summaryDiffValues ) &&
-                         readerInterface->values( vectorSummaryAddressHistory, &summaryHistoryValues ) )
+                    auto [summaryDiffOk, summaryDiffValues]       = readerInterface->values( vectorSummaryAddressDiff );
+                    auto [summaryHistoryOk, summaryHistoryValues] = readerInterface->values( vectorSummaryAddressHistory );
+                    if ( summaryDiffOk && summaryHistoryOk )
                     {
                         const double functionValue = computeFunctionValue( summaryDiffValues, summaryHistoryValues, timeStepsForEvaluation );
 

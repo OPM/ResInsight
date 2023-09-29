@@ -114,7 +114,7 @@ bool RifReaderObservedData::open( const QString&                                
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     size_t columnIndex = m_allResultAddresses.size();
 
@@ -128,6 +128,7 @@ bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddres
         i++;
     }
 
+    std::vector<double> values;
     if ( columnIndex != m_allResultAddresses.size() )
     {
         const Column* col = m_asciiParser->columnInfo( columnIndex );
@@ -135,12 +136,12 @@ bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddres
         {
             for ( auto& v : col->values )
             {
-                values->push_back( v );
+                values.push_back( v );
             }
         }
     }
 
-    return true;
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------

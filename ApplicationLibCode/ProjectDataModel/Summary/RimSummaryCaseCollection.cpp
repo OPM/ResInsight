@@ -523,11 +523,10 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 
         if ( !summaryCase->caseRealizationParameters() ) continue;
 
-        std::vector<double> values;
-
         double closestValue    = std::numeric_limits<double>::infinity();
         time_t closestTimeStep = 0;
-        if ( reader->values( address, &values ) )
+        auto [isOk, values]    = reader->values( address );
+        if ( isOk )
         {
             const std::vector<time_t>& timeSteps = reader->timeSteps( address );
             for ( size_t i = 0; i < timeSteps.size(); ++i )
@@ -967,8 +966,7 @@ void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& ad
     {
         if ( !s->summaryReader() ) continue;
 
-        std::vector<double> values;
-        s->summaryReader()->values( address, &values );
+        auto [isOk, values] = s->summaryReader()->values( address );
         if ( values.empty() ) continue;
 
         const auto [min, max] = std::minmax_element( values.begin(), values.end() );

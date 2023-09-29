@@ -105,9 +105,7 @@ TEST( HDFTests, ReadOpmSummaryData )
     {
         if ( itemCount++ < 10 )
         {
-            std::vector<double> values;
-            hdf5SummaryReader.values( adr, &values );
-
+            auto [isOk, values] = hdf5SummaryReader.values( adr );
             totalValueCount += values.size();
         }
     }
