@@ -34,7 +34,8 @@
 class RifFaultReactivationModelExporter
 {
 public:
-    static std::pair<bool, std::string> exportToStream( std::ostream& stream, const RimFaultReactivationModel& model );
+    static std::pair<bool, std::string>
+        exportToStream( std::ostream& stream, const std::string& exportDirecotry, const RimFaultReactivationModel& model );
     static std::pair<bool, std::string> exportToFile( const std::string& filePath, const RimFaultReactivationModel& model );
 
 private:
@@ -62,8 +63,10 @@ private:
     static std::pair<bool, std::string> printPredefinedFields( std::ostream&                                                     stream,
                                                                const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames );
     static std::pair<bool, std::string> printSteps( std::ostream&                                                     stream,
+                                                    const RigFaultReactivationModel&                                  model,
                                                     const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
-                                                    const std::vector<QDateTime>&                                     timeSteps );
+                                                    const std::vector<QDateTime>&                                     timeSteps,
+                                                    const std::string&                                                exportDirectory );
 
     static std::pair<bool, std::string> printInteractions( std::ostream&                                                     stream,
                                                            const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
