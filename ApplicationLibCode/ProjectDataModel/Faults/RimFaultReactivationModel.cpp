@@ -297,7 +297,7 @@ void RimFaultReactivationModel::updateVisualization()
                                  m_numberOfCellsVertLow );
     m_modelPlane->setThickness( m_modelThickness );
 
-    m_modelPlane->updateRects();
+    m_modelPlane->updateGeometry();
 
     view->scheduleCreateDisplayModelAndRedraw();
 }

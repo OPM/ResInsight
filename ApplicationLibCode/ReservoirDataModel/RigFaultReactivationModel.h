@@ -83,7 +83,7 @@ public:
     void setCellCounts( int horzPart1, int horzPart2, int vertUpper, int vertMiddle, int vertLower );
     void setThickness( double thickness );
 
-    void updateRects();
+    void updateGeometry();
 
     cvf::Vec3d normal() const;
 

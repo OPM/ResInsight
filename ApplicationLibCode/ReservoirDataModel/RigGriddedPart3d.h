@@ -24,6 +24,7 @@
 #include <map>
 #include <vector>
 
+class RigMainGrid;
 class RimFaultReactivationDataAccess;
 
 //==================================================================================================
@@ -42,10 +43,16 @@ public:
 
     enum class Boundary
     {
-        Front = 0,
-        Back,
         FarSide,
         Bottom
+    };
+
+    enum class ElementSets
+    {
+        OverBurden,
+        UnderBurden,
+        Reservoir,
+        IntraReservoir
     };
 
 public:
@@ -62,6 +69,7 @@ public:
                            int                     nVertCellsUpper,
                            double                  thickness );
 
+    void generateElementSets( RigMainGrid* grid );
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
     const std::vector<cvf::Vec3d>&                            nodes() const;

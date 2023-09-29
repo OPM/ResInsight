@@ -217,7 +217,7 @@ void RigFaultReactivationModel::setThickness( double thickness )
 ///
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::updateRects()
+void RigFaultReactivationModel::updateGeometry()
 {
     reset();
 
