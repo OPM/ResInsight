@@ -674,7 +674,7 @@ bool RimFaultReactivationModel::extractAndExportModelData()
 
     auto grid = eCase->mainGrid();
 
-    // generate cell index mappings for cells that ends up at the wrong side of the fault 
+    // generate cell index mappings for cells that ends up at the wrong side of the fault
     model()->generateCellIndexMapping( grid );
 
     // generate element sets for the various data parts of the model
