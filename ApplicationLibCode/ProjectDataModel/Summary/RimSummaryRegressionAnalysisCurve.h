@@ -87,6 +87,8 @@ public:
     static std::vector<time_t>
         getOutputTimeSteps( const std::vector<time_t>& timeSteps, int forecastBackward, int forecastForward, ForecastUnit forecastUnit );
 
+    void clearCachedData() override;
+
 protected:
     void updateTimeAnnotations() override;
 

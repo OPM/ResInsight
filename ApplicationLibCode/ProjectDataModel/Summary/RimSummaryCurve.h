@@ -105,6 +105,8 @@ public:
 
     RiaDefines::PhaseType phaseType() const override;
 
+    virtual void clearCachedData();
+
 protected:
     // RimPlotCurve overrides
     QString createCurveAutoName() override;

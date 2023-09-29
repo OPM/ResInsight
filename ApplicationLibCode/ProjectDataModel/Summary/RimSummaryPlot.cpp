@@ -95,6 +95,7 @@
 #include <QRectF>
 #include <QString>
 
+#include "RimSummaryRegressionAnalysisCurve.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -1956,6 +1957,20 @@ void RimSummaryPlot::onLoadDataAndUpdate()
     for ( RimAsciiDataCurve* curve : m_asciiDataCurves )
     {
         curve->loadDataAndUpdate( false );
+    }
+
+    // Load data for regression curves, as they depend on data loaded by curves updated previously in this function
+    if ( m_summaryCurveCollection )
+    {
+        auto curves = m_summaryCurveCollection->curves();
+        for ( auto c : curves )
+        {
+            if ( auto regressionCurve = dynamic_cast<RimSummaryRegressionAnalysisCurve*>( c ) )
+            {
+                regressionCurve->clearCachedData();
+                regressionCurve->loadDataAndUpdate( false );
+            }
+        }
     }
 
     if ( plotWidget() )

@@ -746,6 +746,14 @@ std::vector<time_t> RimSummaryRegressionAnalysisCurve::getOutputTimeSteps( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryRegressionAnalysisCurve::clearCachedData()
+{
+    clearSourceCurveData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryRegressionAnalysisCurve::convertToDouble( const std::vector<time_t>& timeSteps )
 {
     std::vector<double> doubleVector( timeSteps.size() );
