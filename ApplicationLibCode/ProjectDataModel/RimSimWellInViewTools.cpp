@@ -159,8 +159,7 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
         return 0.0;
     }
 
-    std::vector<double> values;
-    summaryReader->values( addr, &values );
+    auto [isOkReader, values]     = summaryReader->values( addr );
     std::vector<time_t> timeSteps = summaryReader->timeSteps( addr );
     if ( values.empty() || timeSteps.empty() )
     {

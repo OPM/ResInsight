@@ -55,18 +55,16 @@ caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
 
     auto adr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
 
-    std::vector<double> values;
-
     if ( sumReader )
     {
-        bool isOk = sumReader->values( adr, &values );
-        if ( !isOk )
+        auto [isOk, values] = sumReader->values( adr );
+        if ( isOk )
         {
-            // Error message
+            return RimcDataContainerDouble::create( values );
         }
     }
 
-    return RimcDataContainerDouble::create( values );
+    return RimcDataContainerDouble::create( {} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,9 +208,7 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
 
     if ( sumReader )
     {
-        std::vector<double> values;
-
-        bool isOk = sumReader->values( adr, &values );
+        auto [isOk, values] = sumReader->values( adr );
         if ( !isOk )
         {
             // Error message

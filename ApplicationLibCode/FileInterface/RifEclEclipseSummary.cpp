@@ -256,19 +256,17 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifEclEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    CVF_ASSERT( values );
+    if ( m_timeSteps.empty() ) return { true, {} };
 
-    if ( m_timeSteps.empty() ) return true;
-
-    values->clear();
-    values->reserve( m_timeSteps.size() );
+    std::vector<double> values;
+    values.reserve( m_timeSteps.size() );
 
     if ( m_ecl_SmSpec )
     {
         int variableIndex = indexFromAddress( resultAddress );
-        if ( variableIndex < 0 ) return false;
+        if ( variableIndex < 0 ) return { false, {} };
 
         const ecl::smspec_node& ertSumVarNode = ecl_smspec_iget_node_w_node_index( m_ecl_SmSpec, variableIndex );
         int                     paramsIndex   = ertSumVarNode.get_params_index();
@@ -279,12 +277,12 @@ bool RifEclEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress
         {
             int           dataSize = double_vector_size( dataValues );
             const double* dataPtr  = double_vector_get_const_ptr( dataValues );
-            values->insert( values->end(), dataPtr, dataPtr + dataSize );
+            values.insert( values.end(), dataPtr, dataPtr + dataSize );
             double_vector_free( dataValues );
         }
     }
 
-    return true;
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------

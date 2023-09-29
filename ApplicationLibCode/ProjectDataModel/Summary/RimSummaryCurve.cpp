@@ -298,15 +298,13 @@ std::string RimSummaryCurve::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::valuesY() const
 {
-    std::vector<double> values;
-
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
 
-    if ( !reader ) return values;
+    if ( !reader ) return {};
 
     RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
-    reader->values( addr, &values );
 
+    auto [isOk, values] = reader->values( addr );
     if ( values.empty() ) return values;
 
     RimSummaryPlot* plot         = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -342,18 +340,13 @@ RifEclipseSummaryAddress RimSummaryCurve::errorSummaryAddressY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::errorValuesY() const
 {
-    std::vector<double> values;
-
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
-
-    if ( !reader ) return values;
+    if ( !reader ) return {};
 
     RifEclipseSummaryAddress addr = errorSummaryAddressY();
-    if ( reader->hasAddress( addr ) )
-    {
-        reader->values( addr, &values );
-    }
+    if ( !reader->hasAddress( addr ) ) return {};
 
+    auto [isOk, values] = reader->values( addr );
     return values;
 }
 
@@ -362,17 +355,17 @@ std::vector<double> RimSummaryCurve::errorValuesY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::valuesX() const
 {
-    std::vector<double> values;
+    RifSummaryReaderInterface* reader = m_xValuesSummaryCase()->summaryReader();
+    if ( !reader ) return {};
 
-    if ( m_xValuesSummaryCase() && m_xValuesSummaryCase()->summaryReader() )
+    RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
+    if ( m_xValuesSummaryCase() )
     {
-        RifSummaryReaderInterface* reader = m_xValuesSummaryCase()->summaryReader();
-
-        RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
-        reader->values( addr, &values );
+        auto [isOk, values] = reader->values( addr );
+        return values;
     }
 
-    return values;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -641,15 +634,10 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             if ( m_xValuesSummaryAddress()->address().category() == SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
             {
-                std::vector<double> curveValuesX;
-                std::vector<double> curveValuesY;
-
                 // Read x and y values from ensemble statistics (not time steps are read)
                 RifSummaryReaderInterface* reader = m_xValuesSummaryCase()->summaryReader();
-
-                reader->values( m_xValuesSummaryAddress->address(), &curveValuesX );
-                reader->values( m_yValuesSummaryAddress->address(), &curveValuesY );
-
+                auto [isOkX, curveValuesX]        = reader->values( m_xValuesSummaryAddress->address() );
+                auto [isOkY, curveValuesY]        = reader->values( m_yValuesSummaryAddress->address() );
                 setSamplesFromXYValues( curveValuesX, curveValuesY, useLogarithmicScale );
             }
             else
@@ -696,7 +684,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     {
                         auto reader = summaryCaseY()->summaryReader();
                         errAddress  = reader->errorAddress( summaryAddressY() );
-                        reader->values( errAddress, &errValues );
+                        errValues   = reader->values( errAddress ).second;
                     }
 
                     if ( errAddress.isValid() )

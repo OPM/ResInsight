@@ -70,20 +70,22 @@ std::vector<time_t> RifDerivedEnsembleReader::timeSteps( const RifEclipseSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifDerivedEnsembleReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifDerivedEnsembleReader::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( !resultAddress.isValid() ) return false;
+    if ( !resultAddress.isValid() ) return { false, {} };
 
     if ( m_derivedCase->needsCalculation( resultAddress ) )
     {
         m_derivedCase->calculate( resultAddress );
     }
+
     auto dataValues = m_derivedCase->values( resultAddress );
-    values->clear();
-    values->reserve( dataValues.size() );
+
+    std::vector<double> values;
+    values.reserve( dataValues.size() );
     for ( auto val : dataValues )
-        values->push_back( val );
-    return true;
+        values.push_back( val );
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------

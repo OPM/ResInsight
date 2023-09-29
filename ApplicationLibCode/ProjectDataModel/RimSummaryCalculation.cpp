@@ -332,8 +332,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 
         RiaSummaryCurveDefinition curveDef( summaryCase, v.summaryAddress, false );
 
-        std::vector<double> curveValues;
-        RiaSummaryCurveDefinition::resultValues( curveDef, &curveValues );
+        std::vector<double> curveValues = RiaSummaryCurveDefinition::resultValues( curveDef );
 
         std::vector<time_t> curveTimeSteps = RiaSummaryCurveDefinition::timeSteps( curveDef );
 
