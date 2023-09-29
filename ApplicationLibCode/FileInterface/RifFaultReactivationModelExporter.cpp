@@ -60,8 +60,6 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
     std::map<RigGriddedPart3d::Boundary, std::string> boundaries = {
         { RigGriddedPart3d::Boundary::Bottom, "BOTTOM" },
-        { RigGriddedPart3d::Boundary::Back, "BACK" },
-        { RigGriddedPart3d::Boundary::Front, "FRONT" },
         { RigGriddedPart3d::Boundary::FarSide, "FARSIDE" },
     };
 
