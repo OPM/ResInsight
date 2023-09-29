@@ -454,7 +454,22 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
     forecastingGroup->add( &m_forecastBackward );
     forecastingGroup->add( &m_forecastUnit );
 
-    RimSummaryCurve::defineUiOrdering( uiConfigName, uiOrdering );
+    if ( m_dataSourceForRegression() == DataSource::ENSEMBLE_CURVE_SET )
+    {
+        caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
+        RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
+
+        caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
+        nameGroup->setCollapsedByDefault();
+        nameGroup->add( &m_showLegend );
+        RimPlotCurve::curveNameUiOrdering( *nameGroup );
+    }
+    else
+    {
+        RimSummaryCurve::defineUiOrdering( uiConfigName, uiOrdering );
+    }
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -514,7 +529,7 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
         {
-            auto timeSteps = RimSummaryCurve::timeStepsY();
+            auto timeSteps = m_sourceTimeStepsY;
             if ( !timeSteps.empty() )
             {
                 myAttr->m_minimum = *timeSteps.begin();
@@ -544,7 +559,7 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
             attr->m_decimals        = 2;
             attr->m_sliderTickCount = 100;
 
-            auto values = RimSummaryCurve::valuesX();
+            auto values = m_sourceValuesX;
             if ( !values.empty() )
             {
                 attr->m_minimum = *std::min_element( values.begin(), values.end() );
@@ -559,7 +574,7 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
             attr->m_decimals        = 2;
             attr->m_sliderTickCount = 100;
 
-            auto values = RimSummaryCurve::valuesY();
+            auto values = m_sourceValuesY;
             if ( !values.empty() )
             {
                 attr->m_minimum = *std::min_element( values.begin(), values.end() );
@@ -593,7 +608,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryRegressionAnalysisCurve::calculateValueO
         return options;
     }
 
-    return {};
+    return RimSummaryCurve::calculateValueOptions( fieldNeedingOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
