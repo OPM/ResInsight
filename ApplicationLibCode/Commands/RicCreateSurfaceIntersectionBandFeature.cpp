@@ -41,10 +41,7 @@ CAF_CMD_SOURCE_INIT( RicCreateSurfaceIntersectionBandFeature, "RicCreateSurfaceI
 //--------------------------------------------------------------------------------------------------
 bool RicCreateSurfaceIntersectionBandFeature::isCommandEnabled() const
 {
-    auto* surfColl = RimTools::surfaceCollection();
-    auto  surfaces = surfColl->ensembleSurfaces();
-
-    return !surfaces.empty();
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,12 +61,11 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
 
         RimSurfaceIntersectionBand* objectToSelect = nullptr;
 
+        const double defaultOpacity = 0.6;
+        const auto   colors         = RiaColorTables::structuralUncertaintyColors();
+
         if ( firstEnsembleSurface )
         {
-            const double defaultOpacity = 0.6;
-
-            auto colors = RiaColorTables::structuralUncertaintyColors();
-
             // Create min/max band
             {
                 auto surf1 = firstEnsembleSurface->findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType::MIN );
@@ -109,6 +105,27 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
                     band->lineAppearance()->setColor( color );
                 }
             }
+        }
+        else
+        {
+            auto band = intersection->addIntersectionBand();
+
+            auto surfColl = RimTools::surfaceCollection();
+            auto surfaces = surfColl->surfaces();
+
+            if ( surfaces.size() > 1 )
+            {
+                band->setSurfaces( surfaces[0], surfaces[1] );
+            }
+
+            auto color = colors.cycledColor3f( 1 );
+            band->setBandColor( color );
+            band->setBandOpacity( defaultOpacity );
+            band->setPolygonOffsetUnit( 0.1 );
+
+            band->lineAppearance()->setColor( color );
+
+            objectToSelect = band;
         }
 
         intersection->rebuildGeometryAndScheduleCreateDisplayModel();
