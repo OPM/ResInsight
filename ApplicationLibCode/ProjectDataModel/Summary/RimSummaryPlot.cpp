@@ -95,7 +95,6 @@
 #include <QRectF>
 #include <QString>
 
-#include "RimSummaryRegressionAnalysisCurve.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -1965,10 +1964,9 @@ void RimSummaryPlot::onLoadDataAndUpdate()
         auto curves = m_summaryCurveCollection->curves();
         for ( auto c : curves )
         {
-            if ( auto regressionCurve = dynamic_cast<RimSummaryRegressionAnalysisCurve*>( c ) )
+            if ( c->isRegressionCurve() )
             {
-                regressionCurve->clearCachedData();
-                regressionCurve->loadDataAndUpdate( false );
+                c->loadDataAndUpdate( false );
             }
         }
     }

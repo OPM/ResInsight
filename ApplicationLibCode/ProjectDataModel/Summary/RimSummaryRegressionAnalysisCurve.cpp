@@ -152,24 +152,10 @@ void RimSummaryRegressionAnalysisCurve::setEnsembleCurveSet( RimEnsembleCurveSet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryRegressionAnalysisCurve::clearSourceCurveData()
-{
-    m_sourceValuesY.clear();
-    m_sourceValuesX.clear();
-    m_sourceTimeStepsY.clear();
-    m_sourceTimeStepsX.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    if ( m_sourceValuesY.empty() )
-    {
-        extractSourceCurveData();
-        updateDefaultValues();
-    }
+    extractSourceCurveData();
+    updateDefaultValues();
 
     std::vector<double> xValues    = m_sourceValuesX;
     std::vector<double> yValues    = m_sourceValuesY;
@@ -190,11 +176,12 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
                 "Differences in time steps for X and Y axis detected. This is currently not supported. Make sure that the same "
                 "case is used for both axis." );
         }
+    }
 
-        // NB! Assume that time stamps for X and Y are the same
-        std::vector<size_t> indicesToRemove;
+    std::vector<size_t> indicesToRemove;
 
-        // Step 1: Find indices of values which are outside the specified range
+    if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+    {
         for ( size_t i = 0; i < xValues.size(); i++ )
         {
             if ( xValues[i] < m_valueRangeX().first || xValues[i] > m_valueRangeX().second )
@@ -202,31 +189,35 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
                 indicesToRemove.push_back( i );
             }
         }
+    }
 
-        for ( size_t i = 0; i < yValues.size(); i++ )
+    for ( size_t i = 0; i < yValues.size(); i++ )
+    {
+        if ( yValues[i] < m_valueRangeY().first || yValues[i] > m_valueRangeY().second )
         {
-            if ( yValues[i] < m_valueRangeY().first || yValues[i] > m_valueRangeY().second )
-            {
-                indicesToRemove.push_back( i );
-            }
+            indicesToRemove.push_back( i );
+        }
+    }
+
+    // Sort indices in descending order
+    std::sort( indicesToRemove.rbegin(), indicesToRemove.rend() );
+
+    // There might be duplicates, remove them
+    indicesToRemove.erase( std::unique( indicesToRemove.begin(), indicesToRemove.end() ), indicesToRemove.end() );
+
+    // Remove elements at the specified indices
+    for ( auto index : indicesToRemove )
+    {
+        if ( index < yValues.size() )
+        {
+            yValues.erase( yValues.begin() + index );
+            timeStepsY.erase( timeStepsY.begin() + index );
         }
 
-        // Step 2: Sort indices in descending order
-        std::sort( indicesToRemove.rbegin(), indicesToRemove.rend() );
-
-        // There might be duplicates, remove them
-        indicesToRemove.erase( std::unique( indicesToRemove.begin(), indicesToRemove.end() ), indicesToRemove.end() );
-
-        // Step 3: Remove elements at the specified indices
-        for ( auto index : indicesToRemove )
+        if ( index < xValues.size() )
         {
-            if ( index < xValues.size() )
-            {
-                xValues.erase( xValues.begin() + index );
-                yValues.erase( yValues.begin() + index );
-                timeStepsX.erase( timeStepsX.begin() + index );
-                timeStepsY.erase( timeStepsY.begin() + index );
-            }
+            xValues.erase( xValues.begin() + index );
+            timeStepsX.erase( timeStepsX.begin() + index );
         }
     }
 
@@ -525,11 +516,6 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
         m_minTimeStep = m_maxTimeStep;
     }
 
-    if ( changedField == &m_ensembleCurveSet || changedField == &m_ensembleStatisticsType || changedField == &m_dataSourceForRegression )
-    {
-        clearSourceCurveData();
-    }
-
     loadAndUpdateDataAndPlot();
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -769,9 +755,9 @@ std::vector<time_t> RimSummaryRegressionAnalysisCurve::getOutputTimeSteps( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryRegressionAnalysisCurve::clearCachedData()
+bool RimSummaryRegressionAnalysisCurve::isRegressionCurve() const
 {
-    clearSourceCurveData();
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

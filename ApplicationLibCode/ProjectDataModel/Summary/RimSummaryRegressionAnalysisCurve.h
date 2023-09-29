@@ -81,8 +81,6 @@ public:
 
     void setEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet );
 
-    void clearSourceCurveData();
-
     // Y Axis functions
     std::vector<double> valuesY() const override;
     std::vector<time_t> timeStepsY() const override;
@@ -93,7 +91,8 @@ public:
     static std::vector<time_t>
         getOutputTimeSteps( const std::vector<time_t>& timeSteps, int forecastBackward, int forecastForward, ForecastUnit forecastUnit );
 
-    void clearCachedData() override;
+
+ bool isRegressionCurve() const override;
 
 protected:
     void updateTimeAnnotations() override;

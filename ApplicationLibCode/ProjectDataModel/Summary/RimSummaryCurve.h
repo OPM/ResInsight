@@ -105,7 +105,7 @@ public:
 
     RiaDefines::PhaseType phaseType() const override;
 
-    virtual void clearCachedData();
+    virtual bool isRegressionCurve() const;
 
 protected:
     // RimPlotCurve overrides
