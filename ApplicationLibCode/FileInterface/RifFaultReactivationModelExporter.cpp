@@ -27,12 +27,15 @@
 
 #include "RifInpExportTools.h"
 
+#include <filesystem>
 #include <fstream>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( std::ostream& stream, const RimFaultReactivationModel& rimModel )
+std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( std::ostream&                    stream,
+                                                                                const std::string&               exportDirectory,
+                                                                                const RimFaultReactivationModel& rimModel )
 {
     std::string applicationNameAndVersion = std::string( RI_APPLICATION_NAME ) + " " + std::string( STRPRODUCTVER );
 
@@ -76,7 +79,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
         [&]() { return printPredefinedFields( stream, partNames ); },
         [&]() { return printInteractions( stream, partNames, borders ); },
-        [&]() { return printSteps( stream, partNames, rimModel.selectedTimeSteps() ); },
+        [&]() { return printSteps( stream, *model, partNames, rimModel.selectedTimeSteps(), exportDirectory ); },
     };
 
     for ( auto method : methods )
@@ -94,8 +97,11 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToFile( const std::string&               filePath,
                                                                               const RimFaultReactivationModel& model )
 {
+    std::filesystem::path p( filePath );
+    std::string           exportDirectory = p.parent_path().generic_string();
+
     std::ofstream stream( filePath );
-    return exportToStream( stream, model );
+    return exportToStream( stream, exportDirectory, model );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,8 +387,10 @@ std::pair<bool, std::string>
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string>
     RifFaultReactivationModelExporter::printSteps( std::ostream&                                                     stream,
+                                                   const RigFaultReactivationModel&                                  model,
                                                    const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
-                                                   const std::vector<QDateTime>&                                     timeSteps )
+                                                   const std::vector<QDateTime>&                                     timeSteps,
+                                                   const std::string&                                                exportDirectory )
 {
     // First time step has to be selected in order to export currently
     if ( timeSteps.size() < 2 ) return { false, "Failed to export fault reactivation INP: needs at least two time steps." };
@@ -402,16 +410,34 @@ std::pair<bool, std::string>
         RifInpExportTools::printNumbers( stream, { 1.0, 1.0, 1e-05, 1.0 } );
 
         RifInpExportTools::printSectionComment( stream, "BOUNDARY CONDITIONS" );
-        RifInpExportTools::printHeading( stream, "Boundary" );
 
-        std::string part1Name = partNames.find( RigFaultReactivationModel::GridPart::PART1 )->second;
-        std::string part2Name = partNames.find( RigFaultReactivationModel::GridPart::PART2 )->second;
+        // Export the pore pressure to a separate inp file for each step
+        QString fileName = "PORE_PRESSURE_DATE_" + timeSteps[i].toString( "yyyyMMdd" ) + "_" + QString::fromStdString( stepName ) + ".inp";
 
-        std::string ppName = "PORE_PRESSURE";
-        RifInpExportTools::printLine( stream, part1Name + "." + ppName + ", 8, 8" );
-        RifInpExportTools::printHeading( stream, "Boundary" );
-        std::string extra = i != 0 ? ", 1e+07" : "";
-        RifInpExportTools::printLine( stream, part2Name + "." + ppName + ", 8, 8" + extra );
+        QString filePath = QString( "%1/%2" ).arg( QString::fromStdString( exportDirectory ) ).arg( fileName );
+
+        std::ofstream ppStream( filePath.toStdString() );
+        if ( !ppStream.good() )
+        {
+            return { false, "Failed to create pore pressure file." };
+        }
+
+        for ( auto [part, partName] : partNames )
+        {
+            auto grid = model.grid( part );
+
+            const std::vector<cvf::Vec3d>& nodes = grid->nodes();
+
+            const std::vector<double> porePressure = grid->nodePorePressure( i );
+            for ( size_t i = 0; i < nodes.size(); i++ )
+            {
+                std::string line = partName + "." + std::to_string( i + 1 ) + ", 8, 8, " + std::to_string( porePressure[i] );
+                RifInpExportTools::printLine( ppStream, line );
+            }
+        }
+
+        RifInpExportTools::printHeading( stream, "Boundary, type=displacement" );
+        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
 
         RifInpExportTools::printSectionComment( stream, "OUTPUT REQUESTS" );
         RifInpExportTools::printHeading( stream, "Restart, write, frequency=0" );
