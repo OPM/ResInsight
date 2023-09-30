@@ -24,6 +24,7 @@
 
 class RimSummaryPlot;
 class RimSummaryCurve;
+class RimEnsembleCurveSet;
 
 //==================================================================================================
 ///
@@ -38,4 +39,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
     static RimSummaryRegressionAnalysisCurve* createRegressionAnalysisCurveAndAddToPlot( RimSummaryCurve* sourceCurve );
+    static RimSummaryRegressionAnalysisCurve* createRegressionAnalysisCurveAndAddToPlot( RimEnsembleCurveSet* sourceCurveSet );
 };

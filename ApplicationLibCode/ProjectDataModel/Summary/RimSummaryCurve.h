@@ -105,6 +105,8 @@ public:
 
     RiaDefines::PhaseType phaseType() const override;
 
+    virtual bool isRegressionCurve() const;
+
 protected:
     // RimPlotCurve overrides
     QString createCurveAutoName() override;

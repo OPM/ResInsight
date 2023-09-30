@@ -36,6 +36,7 @@ class PowerFitRegression;
 } // namespace regression
 
 class RimTimeAxisAnnotation;
+class RimEnsembleCurveSet;
 
 //==================================================================================================
 ///
@@ -63,8 +64,22 @@ public:
         YEARS,
     };
 
+    enum class DataSource
+    {
+        SUMMARY_ADDRESS,
+        ENSEMBLE
+    };
+
+    enum class RangeType
+    {
+        FULL_RANGE,
+        USER_DEFINED_RANGE
+    };
+
     RimSummaryRegressionAnalysisCurve();
     ~RimSummaryRegressionAnalysisCurve() override;
+
+    void setEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet );
 
     // Y Axis functions
     std::vector<double> valuesY() const override;
@@ -76,13 +91,16 @@ public:
     static std::vector<time_t>
         getOutputTimeSteps( const std::vector<time_t>& timeSteps, int forecastBackward, int forecastForward, ForecastUnit forecastUnit );
 
-    void updateDefaultValues();
+    bool isRegressionCurve() const override;
 
 protected:
     void updateTimeAnnotations() override;
 
 private:
     void onLoadDataAndUpdate( bool updateParentPlot ) override;
+
+    void extractSourceCurveData();
+    void updateDefaultValues();
 
     QString createCurveAutoName() override;
     QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
@@ -91,6 +109,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     std::tuple<std::vector<time_t>, std::vector<double>, QString> computeRegressionCurve( const std::vector<time_t>& timeSteps,
                                                                                           const std::vector<double>& values ) const;
@@ -115,10 +134,16 @@ private:
     static void appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps );
 
 private:
+    caf::PdmField<caf::AppEnum<DataSource>>                                      m_dataSourceForRegression;
+    caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>> m_ensembleStatisticsType;
+
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
-    caf::PdmField<time_t>                       m_minTimeStep;
-    caf::PdmField<time_t>                       m_maxTimeStep;
-    caf::PdmField<bool>                         m_showTimeSelectionInPlot;
+
+    caf::PdmField<caf::AppEnum<RangeType>> m_timeRangeSelection;
+    caf::PdmField<time_t>                  m_minTimeStep;
+    caf::PdmField<time_t>                  m_maxTimeStep;
+    caf::PdmField<bool>                    m_showTimeSelectionInPlot;
 
     caf::PdmField<int>                        m_polynomialDegree;
     caf::PdmField<QString>                    m_expressionText;
@@ -126,7 +151,10 @@ private:
     caf::PdmField<int>                        m_forecastBackward;
     caf::PdmField<caf::AppEnum<ForecastUnit>> m_forecastUnit;
 
+    caf::PdmField<caf::AppEnum<RangeType>>   m_xRangeSelection;
     caf::PdmField<std::pair<double, double>> m_valueRangeX;
+
+    caf::PdmField<caf::AppEnum<RangeType>>   m_yRangeSelection;
     caf::PdmField<std::pair<double, double>> m_valueRangeY;
 
     caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;
@@ -134,4 +162,10 @@ private:
     std::vector<time_t>                    m_timeStepsX;
     std::vector<double>                    m_valuesY;
     std::vector<time_t>                    m_timeStepsY;
+
+    // Source curve data
+    std::vector<double> m_sourceValuesX;
+    std::vector<time_t> m_sourceTimeStepsX;
+    std::vector<double> m_sourceValuesY;
+    std::vector<time_t> m_sourceTimeStepsY;
 };

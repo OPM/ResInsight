@@ -1958,6 +1958,19 @@ void RimSummaryPlot::onLoadDataAndUpdate()
         curve->loadDataAndUpdate( false );
     }
 
+    // Load data for regression curves, as they depend on data loaded by curves updated previously in this function
+    if ( m_summaryCurveCollection )
+    {
+        auto curves = m_summaryCurveCollection->curves();
+        for ( auto c : curves )
+        {
+            if ( c->isRegressionCurve() )
+            {
+                c->loadDataAndUpdate( false );
+            }
+        }
+    }
+
     if ( plotWidget() )
     {
         plotWidget()->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
