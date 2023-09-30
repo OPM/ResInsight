@@ -241,7 +241,6 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
     s->setCase( sourceCase );
 
     s->setOneBasedIndex( oneBasedSliceIndex );
-    s->setUserDescription( "Surface" );
 
     if ( !s->onLoadData() )
     {

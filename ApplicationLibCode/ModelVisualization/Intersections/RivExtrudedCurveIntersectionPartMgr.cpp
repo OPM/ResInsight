@@ -620,7 +620,7 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
 
         auto part = createCurvePart( polylines,
                                      useBufferObjects,
-                                     surface->userDescription(),
+                                     surface->fullName(),
                                      curve->lineAppearance()->color(),
                                      curve->lineAppearance()->thickness(),
                                      scaleTransform );
@@ -647,7 +647,7 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
         {
             auto part = createCurvePart( polylineA,
                                          useBufferObjects,
-                                         surface1->userDescription(),
+                                         surface1->fullName(),
                                          band->lineAppearance()->color(),
                                          band->lineAppearance()->thickness(),
                                          scaleTransform );
@@ -657,7 +657,7 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
         {
             auto part = createCurvePart( polylineB,
                                          useBufferObjects,
-                                         surface2->userDescription(),
+                                         surface2->fullName(),
                                          band->lineAppearance()->color(),
                                          band->lineAppearance()->thickness(),
                                          scaleTransform );
@@ -769,7 +769,7 @@ cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const 
 
         if ( part.notNull() && scaleTransform )
         {
-            // The polyLines are defined in the display coordinate system without Z-scaling. The z-scaling is applied to the visualization
+            // The polylines are defined in the display coordinate system without Z-scaling. The z-scaling is applied to the visualization
             // parts using Part::setTransform(Transform* transform)
             // The annotation objects are defined by display coordinates, so apply the Z-scaling to the coordinates
 
