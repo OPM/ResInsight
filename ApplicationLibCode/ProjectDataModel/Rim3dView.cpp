@@ -1698,7 +1698,9 @@ void Rim3dView::updateScreenSpaceModel()
         annoTool.setCountHint( m_annotationCountHint() );
     }
 
-    annoTool.addAnnotationLabels( partCollection, m_viewer->mainCamera(), m_screenSpaceModel.p() );
+    // The scaling factor is computed using the camera, and this does not work for the flat intersection view
+    bool computeScalingFactor = ( viewContent() != RiaDefines::View3dContent::FLAT_INTERSECTION );
+    annoTool.addAnnotationLabels( partCollection, m_viewer->mainCamera(), m_screenSpaceModel.p(), computeScalingFactor );
 
     nativeOrOverrideViewer()->addStaticModelOnce( m_screenSpaceModel.p(), isUsingOverrideViewer() );
 }

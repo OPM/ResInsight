@@ -242,11 +242,13 @@ auto createMultipleLabels = []( const cvf::Camera*             camera,
 //--------------------------------------------------------------------------------------------------
 void RivAnnotationTools::addAnnotationLabels( const cvf::Collection<cvf::Part>& partCollection,
                                               const cvf::Camera*                camera,
-                                              cvf::ModelBasicList*              model )
+                                              cvf::ModelBasicList*              model,
+                                              bool                              computeScalingFactor )
 {
     if ( !camera || !model ) return;
 
-    const double anchorLineScalingFactor = computeScalingFactorFromZoom( camera );
+    // The scaling factor is computed using the camera, and this does not work for the flat intersection view
+    const double anchorLineScalingFactor = computeScalingFactor ? computeScalingFactorFromZoom( camera ) : 1.0;
 
     for ( auto p : partCollection )
     {
