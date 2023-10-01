@@ -91,7 +91,7 @@ caf::PdmScriptResponse RicfExportWellPaths::execute()
     {
         if ( wellPath )
         {
-            feature->exportWellPath( wellPath, m_mdStepSize, exportFolder, false );
+            RicExportSelectedWellPathsFeature::exportWellPath( wellPath, m_mdStepSize, exportFolder, false );
         }
     }
     return caf::PdmScriptResponse();

@@ -40,7 +40,7 @@ public:
         PNG,
         PDF
     };
-    typedef caf::AppEnum<PlotOutputFormat> PreferredOutputFormatEnum;
+    using PreferredOutputFormatEnum = caf::AppEnum<PlotOutputFormat>;
 
     enum class SnapshotsType
     {
@@ -48,7 +48,7 @@ public:
         PLOTS,
         ALL
     };
-    typedef caf::AppEnum<SnapshotsType> SnapshotsTypeEnum;
+    using SnapshotsTypeEnum = caf::AppEnum<SnapshotsType>;
 
 public:
     RicfExportSnapshots();

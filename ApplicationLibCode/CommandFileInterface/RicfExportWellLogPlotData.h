@@ -54,7 +54,7 @@ public:
         LAS,
         ASCII
     };
-    typedef caf::AppEnum<ExportFormat> ExportFormatEnum;
+    using ExportFormatEnum = caf::AppEnum<ExportFormat>;
 
 public:
     RicfExportWellLogPlotData();

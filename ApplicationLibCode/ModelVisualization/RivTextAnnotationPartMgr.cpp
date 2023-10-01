@@ -157,10 +157,8 @@ bool RivTextAnnotationPartMgr::isTextInBoundingBox( const cvf::BoundingBox& boun
     if ( !coll ) return false;
 
     auto effectiveBoundingBox = RiaBoundingBoxTools::inflate( boundingBox, 3 );
-    if ( effectiveBoundingBox.contains( getAnchorPointInDomain( coll->snapAnnotations(), coll->annotationPlaneZ() ) ) ||
-         effectiveBoundingBox.contains( getLabelPointInDomain( coll->snapAnnotations(), coll->annotationPlaneZ() ) ) )
-        return true;
-    return false;
+    return effectiveBoundingBox.contains( getAnchorPointInDomain( coll->snapAnnotations(), coll->annotationPlaneZ() ) ) ||
+         effectiveBoundingBox.contains( getLabelPointInDomain( coll->snapAnnotations(), coll->annotationPlaneZ() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

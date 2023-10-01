@@ -1276,12 +1276,7 @@ public:
         }
 
         // Write remaining data
-        if ( !RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) ) )
-        {
-            return false;
-        }
-
-        return true;
+        return RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) );
     }
 
     static std::vector<std::pair<size_t, size_t>> getSelectedCellsForCase( const RimCase* reservoirCase )

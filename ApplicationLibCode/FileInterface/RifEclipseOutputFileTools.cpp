@@ -621,12 +621,7 @@ bool RifEclipseOutputFileTools::isExportedFromIntersect( const ecl_file_type* ec
     if ( !intehead_kw ) return false;
 
     int int_value = ecl_kw_iget_int( intehead_kw, INTEHEAD_IPROG_INDEX );
-    if ( int_value == INTEHEAD_INTERSECT_VALUE )
-    {
-        return true;
-    }
-
-    return false;
+    return int_value == INTEHEAD_INTERSECT_VALUE;
 }
 
 //--------------------------------------------------------------------------------------------------

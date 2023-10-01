@@ -104,7 +104,7 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     caf::VecIjk lgrCellCounts( m_refinementI, m_refinementJ, m_refinementK );
     QStringList wellsIntersectingOtherLgrs;
 
-    feature->exportLgrsForWellPaths( exportFolder,
+    RicExportLgrFeature::exportLgrsForWellPaths( exportFolder,
                                      wellPaths,
                                      eclipseCase,
                                      m_timeStep,

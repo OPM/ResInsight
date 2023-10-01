@@ -39,7 +39,7 @@ void RiuTools::enableAllActionsOnShow( QObject* object, QMenu* menu )
 {
     if ( object && menu )
     {
-        object->connect( menu,
+        QObject::connect( menu,
                          &QMenu::aboutToShow,
                          [menu]()
                          {

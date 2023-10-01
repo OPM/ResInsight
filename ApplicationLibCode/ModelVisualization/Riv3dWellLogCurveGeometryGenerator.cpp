@@ -273,9 +273,7 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve( const cvf::Vec
         }
     }
 
-    if ( closestPoint->isUndefined() ) return false;
-
-    return true;
+    return !closestPoint->isUndefined();
 }
 
 //--------------------------------------------------------------------------------------------------

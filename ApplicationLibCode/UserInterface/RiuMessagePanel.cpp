@@ -70,7 +70,7 @@ void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
     QTextCharFormat form = m_textEdit->currentCharFormat();
     form.setForeground( clr );
     form.setFontWeight( messageLevel == RILogLevel::RI_LL_ERROR ? QFont::DemiBold : QFont::Normal );
-    form.setFontItalic( messageLevel == RILogLevel::RI_LL_DEBUG ? true : false );
+    form.setFontItalic( messageLevel == RILogLevel::RI_LL_DEBUG );
     m_textEdit->setCurrentCharFormat( form );
     m_textEdit->appendPlainText( msg );
 

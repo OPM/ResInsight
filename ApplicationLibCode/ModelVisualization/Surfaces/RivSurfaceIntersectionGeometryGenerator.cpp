@@ -312,7 +312,7 @@ cvf::ref<cvf::DrawableGeo> RivSurfaceIntersectionGeometryGenerator::generateSurf
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivSurfaceIntersectionGeometryGenerator::createMeshDrawable()
 {
-    if ( !( m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0 ) ) return nullptr;
+    if ( !m_cellBorderLineVxes.notNull() || m_cellBorderLineVxes->size() == 0 ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_cellBorderLineVxes.p() );
@@ -329,7 +329,7 @@ cvf::ref<cvf::DrawableGeo> RivSurfaceIntersectionGeometryGenerator::createMeshDr
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivSurfaceIntersectionGeometryGenerator::createFaultMeshDrawable()
 {
-    if ( !( m_faultCellBorderLineVxes.notNull() && m_faultCellBorderLineVxes->size() != 0 ) ) return nullptr;
+    if ( !m_faultCellBorderLineVxes.notNull() || m_faultCellBorderLineVxes->size() == 0 ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_faultCellBorderLineVxes.p() );
@@ -389,10 +389,5 @@ RimSurfaceInView* RivSurfaceIntersectionGeometryGenerator::intersection() const
 //--------------------------------------------------------------------------------------------------
 bool RivSurfaceIntersectionGeometryGenerator::isAnyGeometryPresent() const
 {
-    if ( m_triangleVxes->size() == 0 )
-    {
-        return false;
-    }
-
-    return true;
+    return m_triangleVxes->size() != 0;
 }
