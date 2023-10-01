@@ -22,6 +22,7 @@
 #include "cvfVector3.h"
 
 #include <map>
+#include <vector>
 
 class RimEclipseCase;
 class RigEclipseCaseData;

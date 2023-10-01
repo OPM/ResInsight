@@ -97,7 +97,6 @@ size_t RimFaultReactivationDataAccess::findAdjustedCellIndex( const cvf::Vec3d& 
 //--------------------------------------------------------------------------------------------------
 double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient ) const
 {
-    size_t cellIdx = cvf::UNDEFINED_SIZE_T;
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
         auto cellIdx = findAdjustedCellIndex( position, m_mainGrid, m_cellIndexAdjustment );
