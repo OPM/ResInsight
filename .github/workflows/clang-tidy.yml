@@ -87,4 +87,5 @@ jobs:
           title: "Fixes by clang-tidy"
           branch: clang-tidy-patches
           branch-suffix: random
-          path: ApplicationLibCode
+          add-paths: |
+            ApplicationLibCode/*
