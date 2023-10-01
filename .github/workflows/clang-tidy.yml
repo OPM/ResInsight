@@ -68,7 +68,7 @@ jobs:
       - name: Run clang-tidy and apply fixes, clang-format after fixes
         run: |
           cd build
-          run-clang-tidy-15 -config-file ../ApplicationLibCode/.clang-tidy -fix files ApplicationLibCode/Application ApplicationLibCode/ProjectDataModel ApplicationLibCode/ReservoirDataModel ApplicationLibCode/Commands ApplicationLibCode/GeoMech
+          run-clang-tidy-15 -config-file ../ApplicationLibCode/.clang-tidy -fix files ApplicationLibCode
       - name: Run clang-format after clang-tidy
         run: |
           cd build/ApplicationLibCode
