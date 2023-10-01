@@ -188,6 +188,9 @@ size_t RigEclipseCaseData::gridCount() const
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCaseData::computeWellCellsPrGrid()
 {
+    // MSJ test
+    if ( m_wellCellsInGrid.size() == 0 ) return;
+
     // If we have computed this already, return
     if ( !m_wellCellsInGrid.empty() ) return;
 
