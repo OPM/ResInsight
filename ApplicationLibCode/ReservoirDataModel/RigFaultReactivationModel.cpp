@@ -359,9 +359,7 @@ void RigFaultReactivationModel::extractModelData( RimFaultReactivationDataAccess
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::generateElementSets( const RimFaultReactivationDataAccess* dataAccess,
-                                                     const RigMainGrid*                    grid
-                                                      )
+void RigFaultReactivationModel::generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid )
 {
     for ( auto part : allGridParts() )
     {
