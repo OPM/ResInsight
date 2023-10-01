@@ -40,15 +40,17 @@ public:
 
     void useCellIndexAdjustment( std::map<size_t, size_t> adjustments );
 
-    double porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient );
+    double porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient ) const;
 
     size_t timeStepIndex() const;
 
     static size_t
         findAdjustedCellIndex( const cvf::Vec3d& position, const RigMainGrid* grid, const std::map<size_t, size_t>& cellIndexAdjustmentMap );
 
+    bool elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const;
+
 protected:
-    double calculatePorePressure( double depth, double gradient );
+    static double calculatePorePressure( double depth, double gradient );
 
 private:
     RimEclipseCase*             m_case;

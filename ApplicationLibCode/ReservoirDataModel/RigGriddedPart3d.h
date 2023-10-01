@@ -69,22 +69,31 @@ public:
                            int                     nVertCellsUpper,
                            double                  thickness );
 
-    void generateElementSets( const RigMainGrid* grid, std::map<size_t, size_t> cellIndexAdjustment );
+    void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
     const std::vector<cvf::Vec3d>&                            nodes() const;
     const std::vector<std::vector<unsigned int>>&             elementIndices() const;
     const std::map<BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
-    const std::vector<std::vector<cvf::Vec3d>>&               meshLines() const;
+
+    const std::vector<std::vector<cvf::Vec3d>>& meshLines() const;
+    std::vector<cvf::Vec3d>                     elementCorners( size_t elementIndex ) const;
 
     const std::map<Boundary, std::vector<unsigned int>>& boundaryElements() const;
     const std::map<Boundary, std::vector<unsigned int>>& boundaryNodes() const;
+
+    const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
 
     const std::vector<double>& nodePorePressure( size_t outputTimeStep ) const;
 
 protected:
     cvf::Vec3d stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
-    void       generateMeshlines( std::vector<cvf::Vec3d> cornerPoints, int numHorzCells, int numVertCells );
+    void       generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells );
+
+    bool elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
+    bool elementIsBelowReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
+
+    std::pair<size_t, size_t> reservoirZTopBottom( const RigMainGrid* grid ) const;
 
 private:
     bool m_flipFrontBack;
@@ -95,7 +104,10 @@ private:
     std::vector<std::vector<cvf::Vec3d>>               m_meshLines;
     std::map<Boundary, std::vector<unsigned int>>      m_boundaryElements;
     std::map<Boundary, std::vector<unsigned int>>      m_boundaryNodes;
+    std::map<ElementSets, std::vector<unsigned int>>   m_elementSets;
 
     std::vector<std::vector<double>> m_nodePorePressure;
     const std::vector<double>        m_emptyData;
+
+    std::vector<cvf::Vec3d> m_reservoirRect;
 };

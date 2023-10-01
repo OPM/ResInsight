@@ -95,7 +95,7 @@ size_t RimFaultReactivationDataAccess::findAdjustedCellIndex( const cvf::Vec3d& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient )
+double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient ) const
 {
     size_t cellIdx = cvf::UNDEFINED_SIZE_T;
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
@@ -120,7 +120,7 @@ double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d&
 //--------------------------------------------------------------------------------------------------
 double RimFaultReactivationDataAccess::calculatePorePressure( double depth, double gradient )
 {
-    return gradient * 9.81 * depth * 1000;
+    return gradient * 9.81 * depth * 1000.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,4 +129,28 @@ double RimFaultReactivationDataAccess::calculatePorePressure( double depth, doub
 size_t RimFaultReactivationDataAccess::timeStepIndex() const
 {
     return m_timeStepIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationDataAccess::elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const
+{
+    int nValid = 0;
+    for ( auto& p : elementCorners )
+    {
+        auto cellIdx = findAdjustedCellIndex( p, m_mainGrid, m_cellIndexAdjustment );
+
+        if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
+        {
+            double value = m_resultAccessor->cellScalar( cellIdx );
+            if ( !std::isinf( value ) )
+            {
+                nValid++;
+            }
+        }
+    }
+
+    // if more than half of the nodes have valid data, we're ok
+    return nValid > 4;
 }

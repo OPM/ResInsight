@@ -22,6 +22,7 @@
 
 #include "RimFaultReactivationDataAccess.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfTextureImage.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -50,6 +51,7 @@ void RigGriddedPart3d::reset()
     m_nodes.clear();
     m_elementIndices.clear();
     m_meshLines.clear();
+    m_elementSets.clear();
 
     clearModelData();
 }
@@ -231,6 +233,13 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     generateMeshlines( { inputPoints[0], inputPoints[1], inputPoints[5], inputPoints[4] }, nHorzCells, nVertCellsLower );
     generateMeshlines( { inputPoints[1], inputPoints[2], inputPoints[6], inputPoints[5] }, nHorzCells, nVertCellsMiddle );
     generateMeshlines( { inputPoints[2], inputPoints[3], inputPoints[7], inputPoints[6] }, nHorzCells, nVertCellsUpper );
+
+    // store the reservoir part corners for later
+    m_reservoirRect.clear();
+    for ( auto i : { 1, 2, 6, 5 } )
+    {
+        m_reservoirRect.push_back( inputPoints[i] );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +255,7 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
 ///
 /// Assumes 0->3 and 1->2 is parallel
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateMeshlines( std::vector<cvf::Vec3d> cornerPoints, int numHorzCells, int numVertCells )
+void RigGriddedPart3d::generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells )
 {
     cvf::Vec3d step0to1 = stepVector( cornerPoints[0], cornerPoints[1], numVertCells );
     cvf::Vec3d step0to3 = stepVector( cornerPoints[0], cornerPoints[3], numHorzCells );
@@ -365,16 +374,105 @@ void RigGriddedPart3d::extractModelData( RimFaultReactivationDataAccess* dataAcc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateElementSets( const RigMainGrid* grid, std::map<size_t, size_t> cellIndexAdjustment )
+std::pair<size_t, size_t> RigGriddedPart3d::reservoirZTopBottom( const RigMainGrid* grid ) const
 {
-    for ( auto& element : m_elementIndices )
+    cvf::BoundingBox resBb;
+    for ( const auto& p : m_reservoirRect )
     {
-        for ( auto nodeIdx : element )
-        {
-            auto cellIdx = RimFaultReactivationDataAccess::findAdjustedCellIndex( m_nodes[nodeIdx], grid, cellIndexAdjustment );
+        resBb.add( p );
+    }
+    std::vector<size_t> intersectingCells;
+    grid->findIntersectingCells( resBb, &intersectingCells );
 
-            auto& cell = grid->cell( cellIdx );
-            // cell.isInvalid()
+    resBb.reset();
+    for ( auto cellIdx : intersectingCells )
+    {
+        resBb.add( grid->cell( cellIdx ).boundingBox() );
+    }
+
+    return std::make_pair( resBb.max().z(), resBb.min().z() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid )
+{
+    m_elementSets[ElementSets::OverBurden]     = {};
+    m_elementSets[ElementSets::Reservoir]      = {};
+    m_elementSets[ElementSets::IntraReservoir] = {};
+    m_elementSets[ElementSets::UnderBurden]    = {};
+
+    auto [topResZ, bottomResZ] = reservoirZTopBottom( grid );
+
+    for ( unsigned int i = 0; i < m_elementIndices.size(); i++ )
+    {
+        auto corners = elementCorners( i );
+
+        if ( dataAccess->elementHasValidData( corners ) )
+        {
+            m_elementSets[ElementSets::Reservoir].push_back( i );
+        }
+        else
+        {
+            if ( elementIsAboveReservoir( corners, topResZ ) )
+            {
+                m_elementSets[ElementSets::OverBurden].push_back( i );
+            }
+            else if ( elementIsBelowReservoir( corners, bottomResZ ) )
+            {
+                m_elementSets[ElementSets::UnderBurden].push_back( i );
+            }
+            else
+            {
+                m_elementSets[ElementSets::IntraReservoir].push_back( i );
+            }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) const
+{
+    if ( elementIndex >= m_elementIndices.size() ) return {};
+
+    std::vector<cvf::Vec3d> corners;
+
+    for ( auto nodeIdx : m_elementIndices[elementIndex] )
+    {
+        if ( nodeIdx >= m_nodes.size() ) continue;
+        corners.push_back( m_nodes[nodeIdx] );
+    }
+
+    return corners;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGriddedPart3d::elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const
+{
+    int nValid = 0;
+    for ( auto& p : cornerPoints )
+    {
+        if ( p.z() > threshold ) nValid++;
+    }
+
+    return nValid > 4;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGriddedPart3d::elementIsBelowReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const
+{
+    int nValid = 0;
+    for ( auto& p : cornerPoints )
+    {
+        if ( p.z() < threshold ) nValid++;
+    }
+
+    return nValid > 4;
 }

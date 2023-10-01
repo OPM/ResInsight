@@ -674,11 +674,14 @@ bool RimFaultReactivationModel::extractAndExportModelData()
 
     auto grid = eCase->mainGrid();
 
-    // generate cell index mappings for cells that ends up at the wrong side of the fault 
+    // generate cell index mappings for cells that ends up at the wrong side of the fault
     model()->generateCellIndexMapping( grid );
 
     // generate element sets for the various data parts of the model
-    model()->generateElementSets( grid );
+    {
+        RimFaultReactivationDataAccess dataAccess( eCase, 0 );
+        model()->generateElementSets( &dataAccess, grid );
+    }
 
     // extract data for each timestep
     size_t outputTimeStepIndex = 0;

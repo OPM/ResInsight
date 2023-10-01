@@ -97,7 +97,7 @@ public:
     std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
 
     void generateCellIndexMapping( const RigMainGrid* grid );
-    void generateElementSets( const RigMainGrid* grid );
+    void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
 
     void clearModelData();
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );

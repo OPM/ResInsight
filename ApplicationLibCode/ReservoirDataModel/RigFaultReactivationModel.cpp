@@ -359,11 +359,13 @@ void RigFaultReactivationModel::extractModelData( RimFaultReactivationDataAccess
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::generateElementSets( const RigMainGrid* grid )
+void RigFaultReactivationModel::generateElementSets( const RimFaultReactivationDataAccess* dataAccess,
+                                                     const RigMainGrid*                    grid
+                                                      )
 {
     for ( auto part : allGridParts() )
     {
-        m_3dparts[part]->generateElementSets( grid, m_cellIndexAdjustmentMap[part] );
+        m_3dparts[part]->generateElementSets( dataAccess, grid );
     }
 }
 
