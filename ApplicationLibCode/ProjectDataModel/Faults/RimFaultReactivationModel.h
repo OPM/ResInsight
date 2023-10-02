@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimFaultReactivationEnums.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
 #include "RimTimeStepFilter.h"
@@ -60,6 +61,7 @@ class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPoly
     CAF_PDM_HEADER_INIT;
 
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
+    using ElementSets        = RimFaultReactivation::ElementSets;
 
 public:
     RimFaultReactivationModel();
@@ -105,7 +107,8 @@ public:
     void    setBaseDir( QString path );
 
     std::vector<QDateTime> selectedTimeSteps() const;
-    bool                   isFirstTimeStepsSelected() const;
+
+    std::array<double, 3> materialParameters( ElementSets elementSet );
 
     QStringList commandParameters() const;
 
@@ -167,7 +170,7 @@ private:
     caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
 
-    caf::PdmChildArrayField<RimParameterGroup*> m_parameters;
+    caf::PdmChildArrayField<RimParameterGroup*> m_materialParameters;
 
     std::vector<QDateTime> m_availableTimeSteps;
 };

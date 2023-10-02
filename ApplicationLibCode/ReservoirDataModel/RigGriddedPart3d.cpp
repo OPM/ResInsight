@@ -172,9 +172,9 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
 
     m_elementIndices.resize( (size_t)( nVertCells * nHorzCells * nThicknessCells ) );
 
-    m_borderSurfaceElements[BorderSurface::UpperSurface] = {};
-    m_borderSurfaceElements[BorderSurface::FaultSurface] = {};
-    m_borderSurfaceElements[BorderSurface::LowerSurface] = {};
+    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
+    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::FaultSurface] = {};
+    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::LowerSurface] = {};
 
     m_boundaryElements[Boundary::Bottom]  = {};
     m_boundaryElements[Boundary::FarSide] = {};
@@ -183,15 +183,15 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     int elementIdx       = 0;
     layer                = 0;
 
-    BorderSurface currentSurfaceRegion = BorderSurface::LowerSurface;
+    RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
 
     const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
 
     for ( int v = 0; v < nVertCells; v++, layer++ )
     {
-        if ( v >= nVertCellsLower ) currentSurfaceRegion = BorderSurface::FaultSurface;
-        if ( v >= nVertCellsLower + nVertCellsMiddle ) currentSurfaceRegion = BorderSurface::UpperSurface;
+        if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
+        if ( v >= nVertCellsLower + nVertCellsMiddle ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
 
         int i = layerIndexOffset;
 
@@ -316,7 +316,7 @@ const std::vector<std::vector<unsigned int>>& RigGriddedPart3d::elementIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<RigGriddedPart3d::BorderSurface, std::vector<unsigned int>>& RigGriddedPart3d::borderSurfaceElements() const
+const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& RigGriddedPart3d::borderSurfaceElements() const
 {
     return m_borderSurfaceElements;
 }
@@ -332,7 +332,7 @@ const std::vector<std::vector<cvf::Vec3d>>& RigGriddedPart3d::meshLines() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<RigGriddedPart3d::Boundary, std::vector<unsigned int>>& RigGriddedPart3d::boundaryElements() const
+const std::map<RimFaultReactivation::Boundary, std::vector<unsigned int>>& RigGriddedPart3d::boundaryElements() const
 {
     return m_boundaryElements;
 }
@@ -340,7 +340,7 @@ const std::map<RigGriddedPart3d::Boundary, std::vector<unsigned int>>& RigGridde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<RigGriddedPart3d::Boundary, std::vector<unsigned int>>& RigGriddedPart3d::boundaryNodes() const
+const std::map<RimFaultReactivation::Boundary, std::vector<unsigned int>>& RigGriddedPart3d::boundaryNodes() const
 {
     return m_boundaryNodes;
 }

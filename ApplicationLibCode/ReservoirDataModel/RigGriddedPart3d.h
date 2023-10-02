@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimFaultReactivationEnums.h"
+
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -33,27 +35,8 @@ class RimFaultReactivationDataAccess;
 //==================================================================================================
 class RigGriddedPart3d : public cvf::Object
 {
-public:
-    enum class BorderSurface
-    {
-        UpperSurface = 0,
-        FaultSurface,
-        LowerSurface
-    };
-
-    enum class Boundary
-    {
-        FarSide,
-        Bottom
-    };
-
-    enum class ElementSets
-    {
-        OverBurden,
-        UnderBurden,
-        Reservoir,
-        IntraReservoir
-    };
+    using ElementSets = RimFaultReactivation::ElementSets;
+    using Boundary = RimFaultReactivation::Boundary;
 
 public:
     RigGriddedPart3d( bool flipFrontBack );
@@ -72,9 +55,9 @@ public:
     void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
-    const std::vector<cvf::Vec3d>&                            nodes() const;
-    const std::vector<std::vector<unsigned int>>&             elementIndices() const;
-    const std::map<BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
+    const std::vector<cvf::Vec3d>&                                                  nodes() const;
+    const std::vector<std::vector<unsigned int>>&                                   elementIndices() const;
+    const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
 
     const std::vector<std::vector<cvf::Vec3d>>& meshLines() const;
     std::vector<cvf::Vec3d>                     elementCorners( size_t elementIndex ) const;
@@ -98,10 +81,10 @@ protected:
 private:
     bool m_flipFrontBack;
 
-    std::vector<cvf::Vec3d>                            m_nodes;
-    std::vector<std::vector<unsigned int>>             m_elementIndices;
-    std::map<BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
-    std::vector<std::vector<cvf::Vec3d>>               m_meshLines;
+    std::vector<cvf::Vec3d>                                                  m_nodes;
+    std::vector<std::vector<unsigned int>>                                   m_elementIndices;
+    std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
+    std::vector<std::vector<cvf::Vec3d>>                                     m_meshLines;
     std::map<Boundary, std::vector<unsigned int>>      m_boundaryElements;
     std::map<Boundary, std::vector<unsigned int>>      m_boundaryNodes;
     std::map<ElementSets, std::vector<unsigned int>>   m_elementSets;

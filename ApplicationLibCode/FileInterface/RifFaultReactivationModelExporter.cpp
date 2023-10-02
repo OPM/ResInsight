@@ -39,13 +39,13 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 {
     std::string applicationNameAndVersion = std::string( RI_APPLICATION_NAME ) + " " + std::string( STRPRODUCTVER );
 
-    using PartBorderSurface                                        = RigGriddedPart3d::BorderSurface;
+    using PartBorderSurface                                        = RimFaultReactivation::BorderSurface;
     std::vector<std::pair<PartBorderSurface, std::string>> borders = { { PartBorderSurface::UpperSurface, "TOP" },
                                                                        { PartBorderSurface::FaultSurface, "FAULT" },
                                                                        { PartBorderSurface::LowerSurface, "BASE" } };
 
     // The two parts are "mirrored", so face number 4 should of the two parts should face eachother.
-    using FaultGridPart                                              = RigFaultReactivationModel::GridPart;
+    using FaultGridPart                                              = RimFaultReactivation::GridPart;
     std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::PART1, PartBorderSurface::FaultSurface }, 4 },
                                                                          { { FaultGridPart::PART1, PartBorderSurface::UpperSurface }, 4 },
                                                                          { { FaultGridPart::PART1, PartBorderSurface::LowerSurface }, 4 },
@@ -58,9 +58,9 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         { FaultGridPart::PART2, "RIGHT_PART" },
     };
 
-    std::map<RigGriddedPart3d::Boundary, std::string> boundaries = {
-        { RigGriddedPart3d::Boundary::Bottom, "BOTTOM" },
-        { RigGriddedPart3d::Boundary::FarSide, "FARSIDE" },
+    std::map<RimFaultReactivation::Boundary, std::string> boundaries = {
+        { RimFaultReactivation::Boundary::Bottom, "BOTTOM" },
+        { RimFaultReactivation::Boundary::FarSide, "FARSIDE" },
     };
 
     double faultFriction = 0.0;
@@ -121,12 +121,12 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printHeading( st
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
-    std::ostream&                                                                                         stream,
-    const RigFaultReactivationModel&                                                                      model,
-    const std::map<RigFaultReactivationModel::GridPart, std::string>&                                     partNames,
-    const std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>>&                           borders,
-    const std::map<std::pair<RigFaultReactivationModel::GridPart, RigGriddedPart3d::BorderSurface>, int>& faces,
-    const std::map<RigGriddedPart3d::Boundary, std::string>&                                              boundaries )
+    std::ostream&                                                                                        stream,
+    const RigFaultReactivationModel&                                                                     model,
+    const std::map<RimFaultReactivation::GridPart, std::string>&                                         partNames,
+    const std::vector<std::pair<RimFaultReactivation::BorderSurface, std::string>>&                      borders,
+    const std::map<std::pair<RimFaultReactivation::GridPart, RimFaultReactivation::BorderSurface>, int>& faces,
+    const std::map<RimFaultReactivation::Boundary, std::string>&                                         boundaries )
 {
     RifInpExportTools::printSectionComment( stream, "PARTS" );
 
@@ -152,7 +152,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
 
         RifInpExportTools::printNodeSet( stream, "PORE_PRESSURE", 1, nodes.size(), true );
 
-        const std::map<RigGriddedPart3d::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements = grid->borderSurfaceElements();
+        const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements = grid->borderSurfaceElements();
 
         for ( auto [boundary, boundaryName] : boundaries )
         {
@@ -199,10 +199,10 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string>
-    RifFaultReactivationModelExporter::printAssembly( std::ostream&                                                     stream,
-                                                      const RigFaultReactivationModel&                                  model,
-                                                      const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
-                                                      const std::pair<cvf::Vec3d, cvf::Vec3d>&                          transform )
+    RifFaultReactivationModelExporter::printAssembly( std::ostream&                                                stream,
+                                                      const RigFaultReactivationModel&                             model,
+                                                      const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                      const std::pair<cvf::Vec3d, cvf::Vec3d>&                     transform )
 {
     // ASSEMBLY part
     RifInpExportTools::printSectionComment( stream, "ASSEMBLY" );
@@ -297,10 +297,10 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printInteraction
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string>
-    RifFaultReactivationModelExporter::printBoundaryConditions( std::ostream&                                                     stream,
-                                                                const RigFaultReactivationModel&                                  model,
-                                                                const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
-                                                                const std::map<RigGriddedPart3d::Boundary, std::string>& boundaries )
+    RifFaultReactivationModelExporter::printBoundaryConditions( std::ostream&                                                stream,
+                                                                const RigFaultReactivationModel&                             model,
+                                                                const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                                const std::map<RimFaultReactivation::Boundary, std::string>& boundaries )
 {
     auto printBoundaryCondition = []( std::ostream& stream, const std::string& boundarySetName, const std::string& symmetryType )
     {
@@ -308,9 +308,9 @@ std::pair<bool, std::string>
         RifInpExportTools::printLine( stream, boundarySetName + ", " + symmetryType );
     };
 
-    std::map<RigGriddedPart3d::Boundary, std::string> symmetryTypes = {
-        { RigGriddedPart3d::Boundary::Bottom, "ZSYMM" },
-        { RigGriddedPart3d::Boundary::FarSide, "XSYMM" },
+    std::map<RimFaultReactivation::Boundary, std::string> symmetryTypes = {
+        { RimFaultReactivation::Boundary::Bottom, "ZSYMM" },
+        { RimFaultReactivation::Boundary::FarSide, "XSYMM" },
 
     };
 
@@ -348,8 +348,8 @@ std::pair<bool, std::string>
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string>
-    RifFaultReactivationModelExporter::printPredefinedFields( std::ostream&                                                     stream,
-                                                              const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames )
+    RifFaultReactivationModelExporter::printPredefinedFields( std::ostream&                                                stream,
+                                                              const std::map<RimFaultReactivation::GridPart, std::string>& partNames )
 {
     // PREDEFINED FIELDS
     struct PredefinedField
@@ -381,12 +381,11 @@ std::pair<bool, std::string>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string>
-    RifFaultReactivationModelExporter::printSteps( std::ostream&                                                     stream,
-                                                   const RigFaultReactivationModel&                                  model,
-                                                   const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
-                                                   const std::vector<QDateTime>&                                     timeSteps,
-                                                   const std::string&                                                exportDirectory )
+std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std::ostream&                    stream,
+                                                                            const RigFaultReactivationModel& model,
+                                                                            const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                                            const std::vector<QDateTime>& timeSteps,
+                                                                            const std::string&            exportDirectory )
 {
     // First time step has to be selected in order to export currently
     if ( timeSteps.size() < 2 ) return { false, "Failed to export fault reactivation INP: needs at least two time steps." };
@@ -454,9 +453,9 @@ std::pair<bool, std::string>
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string>
-    RifFaultReactivationModelExporter::printInteractions( std::ostream&                                                     stream,
-                                                          const std::map<RigFaultReactivationModel::GridPart, std::string>& partNames,
-                                                          const std::vector<std::pair<RigGriddedPart3d::BorderSurface, std::string>>& borders )
+    RifFaultReactivationModelExporter::printInteractions( std::ostream&                                                stream,
+                                                          const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                          const std::vector<std::pair<RimFaultReactivation::BorderSurface, std::string>>& borders )
 {
     RifInpExportTools::printSectionComment( stream, "INTERACTIONS" );
     for ( const auto& [border, borderName] : borders )
@@ -465,7 +464,7 @@ std::pair<bool, std::string>
 
         std::string interactionName = "NON-FAULT";
         std::string extra;
-        if ( border == RigGriddedPart3d::BorderSurface::FaultSurface )
+        if ( border == RimFaultReactivation::BorderSurface::FaultSurface )
         {
             interactionName = "FAULT";
             extra           = ", adjust=0.0";
@@ -474,8 +473,8 @@ std::pair<bool, std::string>
         RifInpExportTools::printHeading( stream,
                                          "Contact Pair, interaction=" + interactionName + ", small sliding, type=SURFACE TO SURFACE" + extra );
 
-        std::string part1Name = partNames.find( RigFaultReactivationModel::GridPart::PART1 )->second;
-        std::string part2Name = partNames.find( RigFaultReactivationModel::GridPart::PART2 )->second;
+        std::string part1Name = partNames.find( RimFaultReactivation::GridPart::PART1 )->second;
+        std::string part2Name = partNames.find( RimFaultReactivation::GridPart::PART2 )->second;
         RifInpExportTools::printLine( stream, part1Name + "." + borderName + ", " + part2Name + "." + borderName );
     }
 

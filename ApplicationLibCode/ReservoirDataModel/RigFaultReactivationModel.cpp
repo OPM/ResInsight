@@ -74,7 +74,7 @@ RigFaultReactivationModel::~RigFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::allModelParts() const
+std::vector<RimFaultReactivation::ModelParts> RigFaultReactivationModel::allModelParts() const
 {
     return { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 };
 }
@@ -82,7 +82,7 @@ std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::al
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFaultReactivationModel::GridPart> RigFaultReactivationModel::allGridParts() const
+std::vector<RimFaultReactivation::GridPart> RigFaultReactivationModel::allGridParts() const
 {
     return { GridPart::PART1, GridPart::PART2 };
 }
@@ -296,7 +296,7 @@ cvf::Vec3d RigFaultReactivationModel::normal() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( ModelParts part ) const
+std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( RimFaultReactivation::ModelParts part ) const
 {
     return m_parts.at( part ).rect;
 }
@@ -304,7 +304,7 @@ std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( ModelParts part ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( ModelParts part ) const
+cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( RimFaultReactivation::ModelParts part ) const
 {
     return m_parts.at( part ).texture;
 }
@@ -312,7 +312,7 @@ cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( ModelParts part 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<cvf::Vec3d>>& RigFaultReactivationModel::meshLines( GridPart part ) const
+const std::vector<std::vector<cvf::Vec3d>>& RigFaultReactivationModel::meshLines( RimFaultReactivation::GridPart part ) const
 {
     return m_3dparts.at( part )->meshLines();
 }
@@ -339,7 +339,7 @@ void RigFaultReactivationModel::generateGrids( cvf::Vec3dArray points )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( GridPart part ) const
+std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( RimFaultReactivation::GridPart part ) const
 {
     return m_3dparts.at( part );
 }

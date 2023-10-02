@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimFaultReactivationEnums.h"
+
 #include "cvfArray.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
@@ -48,24 +50,9 @@ public:
 ///
 //==================================================================================================
 class RigFaultReactivationModel : public cvf::Object
-
 {
-public:
-    enum class ModelParts
-    {
-        HiPart1 = 0,
-        MidPart1,
-        LowPart1,
-        HiPart2,
-        MidPart2,
-        LowPart2
-    };
-
-    enum class GridPart
-    {
-        PART1,
-        PART2
-    };
+    using ModelParts = RimFaultReactivation::ModelParts;
+    using GridPart   = RimFaultReactivation::GridPart;
 
 public:
     RigFaultReactivationModel();

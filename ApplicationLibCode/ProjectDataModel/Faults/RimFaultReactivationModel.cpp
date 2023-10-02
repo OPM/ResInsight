@@ -38,6 +38,7 @@
 #include "RivFaultReactivationModelPartMgr.h"
 
 #include "Rim3dView.h"
+#include "RimDoubleParameter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
@@ -115,13 +116,13 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_targets.uiCapability()->setUiTreeHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_parameters, "ModelingParameters", "Modeling Parameters", ":/Bullet.png" );
+    CAF_PDM_InitFieldNoDefault( &m_materialParameters, "MaterialParameters", "Materials", ":/Bullet.png" );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
-    this->uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );
 
@@ -152,10 +153,10 @@ bool RimFaultReactivationModel::initSettings( QString& outErrmsg )
     RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechFRMDefaultXML() );
     if ( !basicreader.parseFile( outErrmsg ) ) return false;
 
-    m_parameters.deleteChildren();
+    m_materialParameters.deleteChildren();
     for ( auto group : basicreader.parameterGroups() )
     {
-        m_parameters.push_back( group );
+        m_materialParameters.push_back( group );
     }
 
     return true;
@@ -584,16 +585,6 @@ std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::isFirstTimeStepsSelected() const
-{
-    if ( m_availableTimeSteps.empty() || selectedTimeSteps().empty() ) return false;
-
-    return m_availableTimeSteps.front() == selectedTimeSteps().front();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QStringList RimFaultReactivationModel::commandParameters() const
 {
     QStringList retlist;
@@ -713,4 +704,31 @@ bool RimFaultReactivationModel::extractAndExportModelData()
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets elementSet )
+{
+    std::array<double, 3>                     retVal   = { 0.0, 0.0, 0.0 };
+    static std::map<ElementSets, std::string> groupMap = { { ElementSets::OverBurden, "material_overburden" },
+                                                           { ElementSets::Reservoir, "material_reservoir" },
+                                                           { ElementSets::IntraReservoir, "material_intrareservoir" },
+                                                           { ElementSets::UnderBurden, "material_underburden" } };
+
+    auto keyName = QString::fromStdString( groupMap[elementSet] );
+
+    for ( auto& grp : m_materialParameters )
+    {
+        if ( grp->name() != keyName ) continue;
+
+        retVal[0] = grp->parameterDoubleValue( "youngs_modulus", 0.0 );
+        retVal[1] = grp->parameterDoubleValue( "poissons_number", 0.0 );
+        retVal[2] = grp->parameterDoubleValue( "density", 0.0 );
+
+        break;
+    }
+
+    return retVal;
 }
