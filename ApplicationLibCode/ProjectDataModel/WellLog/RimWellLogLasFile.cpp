@@ -73,15 +73,9 @@ RimWellLogLasFile::RimWellLogLasFile()
     CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
     m_date.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "Filename" );
-    m_fileName.uiCapability()->setUiReadOnly( true );
-
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
     m_name.uiCapability()->setUiReadOnly( true );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
-
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelNames, "WellLogFileChannels", "" );
-    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannelNames );
 
     CAF_PDM_InitField( &m_wellFlowCondition,
                        "WellFlowCondition",
@@ -127,14 +121,6 @@ RimWellLogLasFile* RimWellLogLasFile::readWellLogFile( const QString& logFilePat
     }
 
     return wellLogFile;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogLasFile::setFileName( const QString& fileName )
-{
-    m_fileName = fileName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,19 +199,6 @@ QDateTime RimWellLogLasFile::date() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFileChannel*> RimWellLogLasFile::wellLogChannels() const
-{
-    std::vector<RimWellLogFileChannel*> channels;
-    for ( const auto& channel : m_wellLogChannelNames )
-    {
-        channels.push_back( channel );
-    }
-    return channels;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimWellLogLasFile::hasFlowData() const
 {
     return RimWellPlotTools::hasFlowData( this );
@@ -234,12 +207,11 @@ bool RimWellLogLasFile::hasFlowData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>> RimWellLogLasFile::findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
+std::vector<std::pair<double, double>> RimWellLogLasFile::findMdAndChannelValuesForWellPath( const RimWellPath& wellPath,
                                                                                              const QString&     channelName,
                                                                                              QString*           unitString /*=nullptr*/ )
 {
-    CVF_ASSERT( wellPath );
-    std::vector<RimWellLogLasFile*> wellLogFiles = wellPath->descendantsIncludingThisOfType<RimWellLogLasFile>();
+    std::vector<RimWellLogLasFile*> wellLogFiles = wellPath.descendantsIncludingThisOfType<RimWellLogLasFile>();
     for ( RimWellLogLasFile* wellLogFile : wellLogFiles )
     {
         RigWellLogLasFile*  fileData      = wellLogFile->wellLogFileData();
