@@ -60,8 +60,11 @@ RimFaultReactivationModelCollection::~RimFaultReactivationModelCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationModel*
-    RimFaultReactivationModelCollection::addNewModel( RimFaultInView* fault, cvf::Vec3d target1, cvf::Vec3d target2, QString baseDir )
+RimFaultReactivationModel* RimFaultReactivationModelCollection::addNewModel( RimFaultInView* fault,
+                                                                             cvf::Vec3d      target1,
+                                                                             cvf::Vec3d      target2,
+                                                                             QString         baseDir,
+                                                                             QString&        outErrMsg )
 {
     auto newModel = new RimFaultReactivationModel();
     newModel->setFault( fault );
@@ -69,11 +72,20 @@ RimFaultReactivationModel*
     newModel->setUserDescription( fault->name() );
     newModel->setTargets( target1, target2 );
 
+    QString errmsg;
+    if ( !newModel->initSettings( errmsg ) )
+    {
+        delete newModel;
+        outErrMsg = "Unable to load default parameters from the Fault Reactivation Model default parameter XML file:\n" + errmsg;
+        return nullptr;
+    }
+
     m_models.push_back( newModel );
+
+    updateConnectedEditors();
 
     newModel->updateVisualization();
 
-    // updateView();
     return newModel;
 }
 

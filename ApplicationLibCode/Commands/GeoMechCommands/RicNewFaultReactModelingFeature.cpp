@@ -43,6 +43,7 @@
 #include "cvfStructGrid.h"
 
 #include <QAction>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicNewFaultReactModelingFeature, "RicNewFaultReactModelingFeature" );
 
@@ -110,12 +111,17 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
                 if ( baseDir.isNull() || baseDir.isEmpty() ) return;
 
-                auto model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2, baseDir );
+                QString errMsg;
+                auto    model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2, baseDir, errMsg );
                 if ( model != nullptr )
                 {
                     model->updateTimeSteps();
                     view->updateAllRequiredEditors();
                     Riu3DMainWindowTools::selectAsCurrentItem( model );
+                }
+                else
+                {
+                    QMessageBox::critical( nullptr, "Fault Reactivation Modeling", errMsg );
                 }
             }
         }

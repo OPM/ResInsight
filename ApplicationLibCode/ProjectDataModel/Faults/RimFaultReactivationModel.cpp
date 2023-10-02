@@ -24,6 +24,7 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RifJsonEncodeDecode.h"
+#include "RifParameterXmlReader.h"
 
 #include "RigBasicPlane.h"
 #include "RigFaultReactivationModel.h"
@@ -43,6 +44,7 @@
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationTools.h"
+#include "RimParameterGroup.h"
 #include "RimPolylineTarget.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
@@ -116,6 +118,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( false );
 
+    CAF_PDM_InitFieldNoDefault( &m_parameters, "ModelingParameters", "Modeling Parameters", ":/Bullet.png" );
+
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
     this->uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -138,6 +142,23 @@ RimFaultReactivationModel::~RimFaultReactivationModel()
 void RimFaultReactivationModel::initAfterRead()
 {
     updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::initSettings( QString& outErrmsg )
+{
+    RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechFRMDefaultXML() );
+    if ( !basicreader.parseFile( outErrmsg ) ) return false;
+
+    m_parameters.deleteChildren();
+    for ( auto group : basicreader.parameterGroups() )
+    {
+        m_parameters.push_back( group );
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

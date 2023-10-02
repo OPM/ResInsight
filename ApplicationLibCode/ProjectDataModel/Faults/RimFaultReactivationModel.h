@@ -42,6 +42,7 @@
 class RicPolylineTargetsPickEventHandler;
 class RimEclipseCase;
 class RimFaultInView;
+class RimParameterGroup;
 class RimPolylineTarget;
 class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
@@ -63,6 +64,8 @@ class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPoly
 public:
     RimFaultReactivationModel();
     ~RimFaultReactivationModel() override;
+
+    bool initSettings( QString& outErrmsg );
 
     QString userDescription();
     void    setUserDescription( QString description );
@@ -163,6 +166,8 @@ private:
 
     caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
+
+    caf::PdmChildArrayField<RimParameterGroup*> m_parameters;
 
     std::vector<QDateTime> m_availableTimeSteps;
 };
