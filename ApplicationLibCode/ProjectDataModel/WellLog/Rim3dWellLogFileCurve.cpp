@@ -20,9 +20,9 @@
 
 #include "RigWellLogLasFile.h"
 
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurveNameConfig.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurveNameConfig.h"
 #include "RimWellPath.h"
 
 #include <QFileInfo>
@@ -46,7 +46,7 @@ Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
     CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
-    m_nameConfig = new RimWellLogFileCurveNameConfig();
+    m_nameConfig = new RimWellLogLasFileCurveNameConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions( cons
 
         if ( wellPath && !wellPath->wellLogFiles().empty() )
         {
-            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
+            for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 QFileInfo fileInfo( wellLogFile->fileName() );
                 options.push_back( caf::PdmOptionItemInfo( fileInfo.baseName(), wellLogFile ) );

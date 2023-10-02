@@ -16,27 +16,21 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogFileCurveNameConfig.h"
+#pragma once
+
+#include "RimNameConfig.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-
-CAF_PDM_SOURCE_INIT( RimWellLogFileCurveNameConfig, "RimWellLogFileCurveNameConfig" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogFileCurveNameConfig::RimWellLogFileCurveNameConfig()
-    : RimNameConfig( "Las Curve" )
+class RimWellLogLasFileCurveNameConfig : public RimNameConfig
 {
-    CAF_PDM_InitObject( "Well Log File Curve Name Generator" );
-}
+    CAF_PDM_HEADER_INIT;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurveNameConfig::doEnableAllAutoNameTags( bool enable )
-{
-}
+public:
+    RimWellLogLasFileCurveNameConfig();
+
+private:
+    void doEnableAllAutoNameTags( bool enable ) override;
+};

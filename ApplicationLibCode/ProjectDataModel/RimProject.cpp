@@ -92,7 +92,7 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"

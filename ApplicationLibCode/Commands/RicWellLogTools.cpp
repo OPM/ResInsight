@@ -33,9 +33,9 @@
 #include "RimWellLogCalculatedCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
@@ -140,10 +140,10 @@ void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack,
 {
     for ( size_t cIdx = 0; cIdx < wellLogFileChannels.size(); cIdx++ )
     {
-        RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve( plotTrack );
+        RimWellLogLasFileCurve* plotCurve = RicWellLogTools::addFileCurve( plotTrack );
 
-        RimWellPath*    wellPath    = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellPath>();
-        RimWellLogFile* wellLogFile = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellLogFile>();
+        RimWellPath*       wellPath    = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellPath>();
+        RimWellLogLasFile* wellLogFile = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellLogLasFile>();
 
         if ( wellPath )
         {
@@ -406,11 +406,11 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
+RimWellLogLasFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
 {
     CVF_ASSERT( plotTrack );
 
-    RimWellLogFileCurve* curve = new RimWellLogFileCurve();
+    RimWellLogLasFileCurve* curve = new RimWellLogLasFileCurve();
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );

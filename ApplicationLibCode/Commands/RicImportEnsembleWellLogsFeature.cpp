@@ -26,7 +26,7 @@
 #include "RimEnsembleWellLogsCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 
 #include "RicRecursiveFileSearchDialog.h"
 #include "WellLogCommands/RicWellLogsImportFileFeature.h"
@@ -85,11 +85,11 @@ RimEnsembleWellLogs*
 {
     if ( fileNames.isEmpty() ) return nullptr;
 
-    std::vector<RimWellLogFile*> cases;
+    std::vector<RimWellLogLasFile*> cases;
     for ( QString fileNames : fileNames )
     {
-        QString         errorMessage;
-        RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile( fileNames, &errorMessage );
+        QString            errorMessage;
+        RimWellLogLasFile* logFileInfo = RimWellLogLasFile::readWellLogFile( fileNames, &errorMessage );
         cases.push_back( logFileInfo );
         if ( !errorMessage.isEmpty() )
         {

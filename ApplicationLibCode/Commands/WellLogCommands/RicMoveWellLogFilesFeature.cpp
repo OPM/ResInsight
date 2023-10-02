@@ -20,7 +20,7 @@
 #include "RicMoveWellLogFilesFeature.h"
 
 #include "RimProject.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RiuMainWindow.h"
 
@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicMoveWellLogFilesFeature, "RicMoveWellLogFilesFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicMoveWellLogFilesFeature::isCommandEnabled() const
 {
-    RimWellLogFile* selectedWellLogFile = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogFile>();
+    RimWellLogLasFile* selectedWellLogFile = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogLasFile>();
 
     if ( !selectedWellLogFile ) return false;
 
@@ -55,9 +55,9 @@ void RicMoveWellLogFilesFeature::onActionTriggered( bool isChecked )
     {
         RimProject* proj = RimProject::current();
 
-        RimWellPath*    destWellPath   = proj->wellPathByName( userData.toString() );
-        RimWellLogFile* wellLogFile    = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogFile>();
-        RimWellPath*    sourceWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
+        RimWellPath*       destWellPath   = proj->wellPathByName( userData.toString() );
+        RimWellLogLasFile* wellLogFile    = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogLasFile>();
+        RimWellPath*       sourceWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
 
         if ( !destWellPath || !wellLogFile || !sourceWellPath ) return;
 

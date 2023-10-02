@@ -45,7 +45,7 @@
 #include "RimWellAllocationTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPlotTools.h"
@@ -440,9 +440,9 @@ void RimWellAllocationPlot::updateFromWell()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack )
 {
-    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
-    RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
-                                                                     : RimWellLogFile::WELL_FLOW_COND_STANDARD;
+    RiaDefines::EclipseUnitSystem        unitSet   = m_case->eclipseCaseData()->unitsType();
+    RimWellLogLasFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR
+                                                                        : RimWellLogLasFile::WELL_FLOW_COND_STANDARD;
 
     QString axisTitle = RimWellPlotTools::flowPlotAxisTitle( condition, unitSet );
     plotTrack->setPropertyValueAxisTitle( axisTitle );

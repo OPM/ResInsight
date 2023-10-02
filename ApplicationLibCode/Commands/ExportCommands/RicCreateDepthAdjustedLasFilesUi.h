@@ -32,7 +32,7 @@
 
 class RimCase;
 class RimWellPath;
-class RimWellLogFile;
+class RimWellLogLasFile;
 
 //==================================================================================================
 ///
@@ -54,12 +54,12 @@ public:
     QString invalidSelectionsLogString() const;
 
 public:
-    caf::PdmField<QString>              exportFolder;
-    caf::PdmPtrField<RimCase*>          selectedCase;
-    caf::PdmPtrField<RimWellPath*>      sourceWell;
-    caf::PdmPtrField<RimWellLogFile*>   wellLogFile;
-    caf::PdmField<std::vector<QString>> selectedResultProperties;
-    caf::PdmPtrArrayField<RimWellPath*> destinationWells;
+    caf::PdmField<QString>               exportFolder;
+    caf::PdmPtrField<RimCase*>           selectedCase;
+    caf::PdmPtrField<RimWellPath*>       sourceWell;
+    caf::PdmPtrField<RimWellLogLasFile*> wellLogFile;
+    caf::PdmField<std::vector<QString>>  selectedResultProperties;
+    caf::PdmPtrArrayField<RimWellPath*>  destinationWells;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

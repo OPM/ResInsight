@@ -24,9 +24,9 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
@@ -74,11 +74,11 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
         RimWellLogFileChannel* wellLog = selection[wlIdx];
 
         auto wellPath    = wellLog->firstAncestorOrThisOfType<RimWellPath>();
-        auto wellLogFile = wellLog->firstAncestorOrThisOfType<RimWellLogFile>();
+        auto wellLogFile = wellLog->firstAncestorOrThisOfType<RimWellLogLasFile>();
         if ( wellLogFile )
         {
-            RimWellLogFileCurve* curve      = new RimWellLogFileCurve;
-            cvf::Color3f         curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
+            RimWellLogLasFileCurve* curve      = new RimWellLogLasFileCurve;
+            cvf::Color3f            curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
             curve->setColor( curveColor );
 
             plotTrack->addCurve( curve );

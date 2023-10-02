@@ -29,7 +29,7 @@
 #include "RimTools.h"
 #include "RimWbsParameters.h"
 #include "RimWellLogCurveCommonDataSource.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotNameConfig.h"
 
 #include "cafPdmBase.h"

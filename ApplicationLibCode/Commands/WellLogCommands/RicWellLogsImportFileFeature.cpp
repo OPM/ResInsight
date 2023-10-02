@@ -37,14 +37,15 @@ CAF_CMD_SOURCE_INIT( RicWellLogsImportFileFeature, "RicWellLogsImportFileFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RicWellLogsImportFileFeature::importWellLogFiles( const QStringList& wellLogFilePaths, QStringList* errorMessages )
+std::vector<RimWellLogLasFile*> RicWellLogsImportFileFeature::importWellLogFiles( const QStringList& wellLogFilePaths,
+                                                                                  QStringList*       errorMessages )
 {
     RiaApplication* app = RiaApplication::instance();
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELL_LOGS_DIR", QFileInfo( wellLogFilePaths.last() ).absolutePath() );
 
-    std::vector<RimWellLogFile*> wellLogFiles = app->addWellLogsToModel( wellLogFilePaths, errorMessages );
+    std::vector<RimWellLogLasFile*> wellLogFiles = app->addWellLogsToModel( wellLogFilePaths, errorMessages );
 
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 

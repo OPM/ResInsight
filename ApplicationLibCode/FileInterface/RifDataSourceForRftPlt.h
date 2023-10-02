@@ -29,7 +29,7 @@
 #include <QMetaType>
 #include <QPointer>
 
-class RimWellLogFile;
+class RimWellLogLasFile;
 class RimEclipseCase;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
@@ -59,7 +59,7 @@ public:
     RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase );
     RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemble );
     RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble, RimEclipseCase* eclipseCase );
-    RifDataSourceForRftPlt( RimWellLogFile* wellLogFile );
+    RifDataSourceForRftPlt( RimWellLogLasFile* wellLogFile );
     RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData );
     RifDataSourceForRftPlt( RimPressureDepthData* pressureDepthData );
 
@@ -68,7 +68,7 @@ public:
     RimEclipseCase*           eclCase() const;
     RimSummaryCase*           summaryCase() const;
     RimSummaryCaseCollection* ensemble() const;
-    RimWellLogFile*           wellLogFile() const;
+    RimWellLogLasFile*        wellLogFile() const;
     RimObservedFmuRftData*    observedFmuRftData() const;
     RimPressureDepthData*     pressureDepthData() const;
 
@@ -88,7 +88,7 @@ private:
     caf::PdmPointer<RimEclipseCase>           m_eclCase;
     caf::PdmPointer<RimSummaryCase>           m_summaryCase;
     caf::PdmPointer<RimSummaryCaseCollection> m_ensemble;
-    caf::PdmPointer<RimWellLogFile>           m_wellLogFile;
+    caf::PdmPointer<RimWellLogLasFile>        m_wellLogFile;
     caf::PdmPointer<RimObservedFmuRftData>    m_observedFmuRftData;
     caf::PdmPointer<RimPressureDepthData>     m_pressureDepthData;
 };

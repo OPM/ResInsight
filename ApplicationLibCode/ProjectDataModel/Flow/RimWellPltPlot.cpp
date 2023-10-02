@@ -48,9 +48,9 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlotNameConfig.h"
@@ -178,10 +178,10 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 
     QString axisTitle;
     if ( m_useReservoirConditionCurves )
-        axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet );
+        axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR, unitSet );
     if ( m_useReservoirConditionCurves && m_useStandardConditionCurves ) axisTitle += " | ";
     if ( m_useStandardConditionCurves )
-        axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet );
+        axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogLasFile::WELL_FLOW_COND_STANDARD, unitSet );
 
     plotTrack->setPropertyValueAxisTitle( axisTitle );
 
@@ -533,7 +533,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     const std::vector<double>& depthValues = wfTotalAccumulator.pseudoLengthFromTop( 0 );
 
-                    QString curveUnitText = RimWellPlotTools::flowUnitText( RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet );
+                    QString curveUnitText = RimWellPlotTools::flowUnitText( RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR, unitSet );
 
                     const std::vector<double> accFlow = wfTotalAccumulator.accumulatedTracerFlowPrPseudoLength( RIG_FLOW_TOTAL_NAME, 0 );
                     addStackedCurve( curveName + ", " + RIG_FLOW_TOTAL_NAME + " " + curveUnitText,
@@ -574,7 +574,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                             else if ( tracerName == RIG_FLOW_WATER_NAME )
                                 flowPhase = FLOW_PHASE_WATER;
                             QString curveUnitText =
-                                RimWellPlotTools::curveUnitText( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase );
+                                RimWellPlotTools::curveUnitText( RimWellLogLasFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase );
 
                             const std::vector<double>& accFlow = wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength( tracerName, 0 );
                             addStackedCurve( curveName + ", " + tracerName + " " + curveUnitText,
@@ -593,10 +593,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         {
             if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
             {
-                RimWellLogFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();
+                RimWellLogLasFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();
 
-                if ( ( m_useStandardConditionCurves() && flowCondition == RimWellLogFile::WELL_FLOW_COND_STANDARD ) ||
-                     ( m_useReservoirConditionCurves() && flowCondition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ) )
+                if ( ( m_useStandardConditionCurves() && flowCondition == RimWellLogLasFile::WELL_FLOW_COND_STANDARD ) ||
+                     ( m_useReservoirConditionCurves() && flowCondition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR ) )
                 {
                     using ChannelValNameIdxTuple = std::tuple<double, QString, int>;
 

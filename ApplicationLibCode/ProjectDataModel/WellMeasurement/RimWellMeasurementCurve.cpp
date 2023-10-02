@@ -24,7 +24,7 @@
 #include "RimDepthTrackPlot.h"
 #include "RimProject.h"
 #include "RimTools.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"

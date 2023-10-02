@@ -22,7 +22,7 @@
 #include "cafCmdFeature.h"
 #include <set>
 
-class RimWellLogFile;
+class RimWellLogLasFile;
 class RimViewWindow;
 
 //==================================================================================================
@@ -37,5 +37,5 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    std::set<RimViewWindow*> referringWellLogPlots( const RimWellLogFile* wellLogFile );
+    std::set<RimViewWindow*> referringWellLogPlots( const RimWellLogLasFile* wellLogFile );
 };

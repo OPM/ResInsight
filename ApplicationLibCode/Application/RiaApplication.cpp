@@ -83,7 +83,7 @@
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
@@ -986,8 +986,8 @@ void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormat
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well log file paths (LAS files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QString>&       wellLogFilePaths,
-                                                                 gsl::not_null<QStringList*> errorMessages )
+std::vector<RimWellLogLasFile*> RiaApplication::addWellLogsToModel( const QList<QString>&       wellLogFilePaths,
+                                                                    gsl::not_null<QStringList*> errorMessages )
 {
     if ( m_project == nullptr || m_project->oilFields.empty() ) return {};
 
@@ -1001,7 +1001,7 @@ std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QSt
         m_project->updateConnectedEditors();
     }
 
-    std::vector<RimWellLogFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths, errorMessages );
+    std::vector<RimWellLogLasFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths, errorMessages );
 
     oilField->wellPathCollection->updateConnectedEditors();
 

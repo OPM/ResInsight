@@ -33,7 +33,7 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimMainPlotCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 
@@ -114,7 +114,7 @@ LasDepthValueAndIndexPerKLayer
 //--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase*                        selectedCase,
                                                                          RimWellPath*                    sourceWell,
-                                                                         RimWellLogFile*                 soureWellLogFile,
+                                                                         RimWellLogLasFile*              soureWellLogFile,
                                                                          const std::vector<RimWellPath*> destinationWells,
                                                                          const std::vector<QString>&     selectedResultProperties,
                                                                          const QString&                  exportFolder,

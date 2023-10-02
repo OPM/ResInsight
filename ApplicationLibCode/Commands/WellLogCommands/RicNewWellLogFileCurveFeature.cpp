@@ -24,9 +24,9 @@
 #include "RicWellLogTools.h"
 
 #include "RimTools.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -66,8 +66,8 @@ void RicNewWellLogFileCurveFeature::onActionTriggered( bool isChecked )
         RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLogFile();
         if ( wellPath )
         {
-            RimWellLogTrack*     newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogFileCurve* plotCurve           = RicWellLogTools::addFileCurve( newWellLogPlotTrack );
+            RimWellLogTrack*        newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogLasFileCurve* plotCurve           = RicWellLogTools::addFileCurve( newWellLogPlotTrack );
             plotCurve->setWellPath( wellPath );
 
             if ( wellPath->wellLogFiles().size() == 1 )

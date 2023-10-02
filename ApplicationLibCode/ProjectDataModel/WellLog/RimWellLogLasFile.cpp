@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
@@ -42,27 +42,27 @@
 #include <QString>
 #include <QStringList>
 
-CAF_PDM_SOURCE_INIT( RimWellLogFile, "WellLogFile" );
+CAF_PDM_SOURCE_INIT( RimWellLogLasFile, "WellLogLasFile", "WellLogFile" );
 
 namespace caf
 {
 template <>
-void caf::AppEnum<RimWellLogFile::WellFlowCondition>::setUp()
+void caf::AppEnum<RimWellLogLasFile::WellFlowCondition>::setUp()
 {
-    addItem( RimWellLogFile::WELL_FLOW_COND_RESERVOIR, "RESERVOIR", "Reservoir Volumes" );
-    addItem( RimWellLogFile::WELL_FLOW_COND_STANDARD, "STANDARD", "Standard Volumes" );
+    addItem( RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR, "RESERVOIR", "Reservoir Volumes" );
+    addItem( RimWellLogLasFile::WELL_FLOW_COND_STANDARD, "STANDARD", "Standard Volumes" );
 }
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QDateTime RimWellLogFile::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtcDateTime( QDate( 1900, 1, 1 ) );
+const QDateTime RimWellLogLasFile::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtcDateTime( QDate( 1900, 1, 1 ) );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile::RimWellLogFile()
+RimWellLogLasFile::RimWellLogLasFile()
 {
     CAF_PDM_InitObject( "Well LAS File Info", ":/LasFile16x16.png" );
 
@@ -85,7 +85,7 @@ RimWellLogFile::RimWellLogFile()
 
     CAF_PDM_InitField( &m_wellFlowCondition,
                        "WellFlowCondition",
-                       caf::AppEnum<RimWellLogFile::WellFlowCondition>( RimWellLogFile::WELL_FLOW_COND_STANDARD ),
+                       caf::AppEnum<RimWellLogLasFile::WellFlowCondition>( RimWellLogLasFile::WELL_FLOW_COND_STANDARD ),
                        "Well Flow Rates" );
 
     CAF_PDM_InitField( &m_invalidDateMessage, "InvalidDateMessage", QString( "Invalid or no date" ), "" );
@@ -99,7 +99,7 @@ RimWellLogFile::RimWellLogFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile::~RimWellLogFile()
+RimWellLogLasFile::~RimWellLogLasFile()
 {
     m_wellLogChannelNames.deleteChildren();
 }
@@ -107,17 +107,17 @@ RimWellLogFile::~RimWellLogFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RimWellLogFile::readWellLogFile( const QString& logFilePath, QString* errorMessage )
+RimWellLogLasFile* RimWellLogLasFile::readWellLogFile( const QString& logFilePath, QString* errorMessage )
 {
     CAF_ASSERT( errorMessage );
 
     QFileInfo fi( logFilePath );
 
-    RimWellLogFile* wellLogFile = nullptr;
+    RimWellLogLasFile* wellLogFile = nullptr;
 
     if ( fi.suffix().toUpper().compare( "LAS" ) == 0 )
     {
-        wellLogFile = new RimWellLogFile();
+        wellLogFile = new RimWellLogLasFile();
         wellLogFile->setFileName( logFilePath );
         if ( !wellLogFile->readFile( errorMessage ) )
         {
@@ -132,7 +132,7 @@ RimWellLogFile* RimWellLogFile::readWellLogFile( const QString& logFilePath, QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFile::setFileName( const QString& fileName )
+void RimWellLogLasFile::setFileName( const QString& fileName )
 {
     m_fileName = fileName;
 }
@@ -140,7 +140,7 @@ void RimWellLogFile::setFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogFile::readFile( QString* errorMessage )
+bool RimWellLogLasFile::readFile( QString* errorMessage )
 {
     if ( !m_wellLogDataFile.p() )
     {
@@ -197,7 +197,7 @@ bool RimWellLogFile::readFile( QString* errorMessage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogFile::wellName() const
+QString RimWellLogLasFile::wellName() const
 {
     return m_wellName;
 }
@@ -205,7 +205,7 @@ QString RimWellLogFile::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RimWellLogFile::date() const
+QDateTime RimWellLogLasFile::date() const
 {
     return m_date;
 }
@@ -213,7 +213,7 @@ QDateTime RimWellLogFile::date() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
+std::vector<RimWellLogFileChannel*> RimWellLogLasFile::wellLogChannels() const
 {
     std::vector<RimWellLogFileChannel*> channels;
     for ( const auto& channel : m_wellLogChannelNames )
@@ -226,7 +226,7 @@ std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogFile::hasFlowData() const
+bool RimWellLogLasFile::hasFlowData() const
 {
     return RimWellPlotTools::hasFlowData( this );
 }
@@ -234,13 +234,13 @@ bool RimWellLogFile::hasFlowData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
-                                                                                          const QString&     channelName,
-                                                                                          QString*           unitString /*=nullptr*/ )
+std::vector<std::pair<double, double>> RimWellLogLasFile::findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
+                                                                                             const QString&     channelName,
+                                                                                             QString*           unitString /*=nullptr*/ )
 {
     CVF_ASSERT( wellPath );
-    std::vector<RimWellLogFile*> wellLogFiles = wellPath->descendantsIncludingThisOfType<RimWellLogFile>();
-    for ( RimWellLogFile* wellLogFile : wellLogFiles )
+    std::vector<RimWellLogLasFile*> wellLogFiles = wellPath->descendantsIncludingThisOfType<RimWellLogLasFile>();
+    for ( RimWellLogLasFile* wellLogFile : wellLogFiles )
     {
         RigWellLogLasFile*  fileData      = wellLogFile->wellLogFileData();
         std::vector<double> channelValues = fileData->values( channelName );
@@ -266,7 +266,7 @@ std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesFor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFile::setupBeforeSave()
+void RimWellLogLasFile::setupBeforeSave()
 {
     m_wellFlowCondition.xmlCapability()->setIOWritable( hasFlowData() );
 }
@@ -274,7 +274,7 @@ void RimWellLogFile::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimWellLogLasFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_fileName );
     uiOrdering.add( &m_date );
@@ -296,7 +296,7 @@ void RimWellLogFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimWellLogLasFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_date )
     {
@@ -308,7 +308,7 @@ void RimWellLogFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFile::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimWellLogLasFile::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiDateEditorAttribute* attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute );
     if ( attrib != nullptr )
@@ -320,7 +320,7 @@ void RimWellLogFile::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogFile::isDateValid( const QDateTime dateTime )
+bool RimWellLogLasFile::isDateValid( const QDateTime dateTime )
 {
     return dateTime.isValid() && dateTime != DEFAULT_DATE_TIME;
 }

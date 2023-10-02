@@ -53,8 +53,8 @@
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
@@ -872,7 +872,7 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
 
         QString                                lasUnits;
         std::vector<std::pair<double, double>> lasFileValues =
-            RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress, &lasUnits );
+            RimWellLogLasFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress, &lasUnits );
         if ( !lasFileValues.empty() )
         {
             QString extractorUnits = RigGeoMechWellLogExtractor::parameterInputUnits( parameter );
