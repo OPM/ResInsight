@@ -3178,7 +3178,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
             curveData.md  = geoMechWellLogExtractor->cellIntersectionMDs();
             curveData.tvd = geoMechWellLogExtractor->cellIntersectionTVDs();
 
-            RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geoMechWellLogExtractor );
+            RimWellLogExtractionCurve::findAndLoadWbsParametersFromFiles( wellPath, geoMechWellLogExtractor );
             RimWellBoreStabilityPlot* wbsPlot = firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
             if ( wbsPlot )
             {

@@ -215,7 +215,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
             {
                 *measuredDepthValues = geomExtractor->cellIntersectionMDs();
 
-                RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geomExtractor.p() );
+                RimWellLogExtractionCurve::findAndLoadWbsParametersFromFiles( wellPath, geomExtractor.p() );
 
                 m_geomResultDefinition->loadResult();
 
