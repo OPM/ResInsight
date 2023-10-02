@@ -105,15 +105,15 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     QStringList wellsIntersectingOtherLgrs;
 
     RicExportLgrFeature::exportLgrsForWellPaths( exportFolder,
-                                     wellPaths,
-                                     eclipseCase,
-                                     m_timeStep,
-                                     lgrCellCounts,
-                                     m_splitType(),
-                                     { RigCompletionData::CompletionType::PERFORATION,
-                                       RigCompletionData::CompletionType::FRACTURE,
-                                       RigCompletionData::CompletionType::FISHBONES },
-                                     &wellsIntersectingOtherLgrs );
+                                                 wellPaths,
+                                                 eclipseCase,
+                                                 m_timeStep,
+                                                 lgrCellCounts,
+                                                 m_splitType(),
+                                                 { RigCompletionData::CompletionType::PERFORATION,
+                                                   RigCompletionData::CompletionType::FRACTURE,
+                                                   RigCompletionData::CompletionType::FISHBONES },
+                                                 &wellsIntersectingOtherLgrs );
 
     caf::PdmScriptResponse response;
     if ( !wellsIntersectingOtherLgrs.empty() )

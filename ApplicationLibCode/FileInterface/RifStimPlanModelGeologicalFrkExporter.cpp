@@ -410,7 +410,7 @@ std::vector<double> RifStimPlanModelGeologicalFrkExporter::createPerforationValu
         double bottom = depthEnd[idx];
 
         // Layer is perforation if end points are inside the perforation interval
-        bool isPerforation = bottom >= perforationTop && top <= perforationBottom ;
+        bool isPerforation = bottom >= perforationTop && top <= perforationBottom;
         perfs.push_back( static_cast<double>( isPerforation ) );
     }
 

@@ -63,7 +63,7 @@ RivTextureCoordsCreator::RivTextureCoordsCreator( RimEclipseCellColors*         
 //--------------------------------------------------------------------------------------------------
 bool RivTextureCoordsCreator::isValid()
 {
-    return !(m_quadMapper.isNull() || m_resultAccessor.isNull() || m_texMapper.isNull());
+    return !( m_quadMapper.isNull() || m_resultAccessor.isNull() || m_texMapper.isNull() );
 }
 
 //--------------------------------------------------------------------------------------------------
