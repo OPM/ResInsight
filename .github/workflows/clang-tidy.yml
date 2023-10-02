@@ -71,7 +71,7 @@ jobs:
           run-clang-tidy-15 -config-file ../ApplicationLibCode/.clang-tidy -fix files ApplicationLibCode
       - name: Run clang-format after clang-tidy
         run: |
-          cd build/ApplicationLibCode
+          cd ApplicationLibCode
           find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-15 -i
       - uses: peter-evans/create-pull-request@v5
         with:
