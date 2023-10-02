@@ -659,7 +659,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
             return curveData;
         }
 
-        findAndLoadWbsParametersFromLasFiles( m_wellPath(), wellExtractor.p() );
+        findAndLoadWbsParametersFromFiles( m_wellPath(), wellExtractor.p() );
         RimWellBoreStabilityPlot* wbsPlot = firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
         if ( wbsPlot )
         {
@@ -863,7 +863,7 @@ void RimWellLogExtractionCurve::mapPropertyValuesFromReferenceWell( std::vector<
 //--------------------------------------------------------------------------------------------------
 /// Search well path for LAS-files containing Well Bore Stability data and set them in the extractor.
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor )
+void RimWellLogExtractionCurve::findAndLoadWbsParametersFromFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor )
 {
     auto allParams = RigWbsParameter::allParameters();
     for ( const RigWbsParameter& parameter : allParams )
