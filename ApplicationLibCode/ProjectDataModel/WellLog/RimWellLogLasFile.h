@@ -42,22 +42,19 @@ class RimWellLogLasFile : public RimWellLogFile
 {
     CAF_PDM_HEADER_INIT;
 
-    const static QDateTime DEFAULT_DATE_TIME;
-
 public:
     RimWellLogLasFile();
     ~RimWellLogLasFile() override;
 
     static RimWellLogLasFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
 
-    QString name() const { return m_name; }
+    QString name() const override { return m_name; }
 
-    bool readFile( QString* errorMessage );
+    bool readFile( QString* errorMessage ) override;
 
-    QString   wellName() const;
-    QDateTime date() const;
+    QString wellName() const override;
 
-    RigWellLogLasFile* wellLogFileData() { return m_wellLogDataFile.p(); }
+    RigWellLogLasFile* wellLogFileData() override { return m_wellLogDataFile.p(); }
 
     bool hasFlowData() const;
 
@@ -75,8 +72,6 @@ public:
 private:
     void setupBeforeSave() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
 
@@ -86,7 +81,6 @@ private:
     cvf::ref<RigWellLogLasFile>                    m_wellLogDataFile;
     caf::PdmField<QString>                         m_wellName;
     caf::PdmField<QString>                         m_name;
-    caf::PdmField<QDateTime>                       m_date;
     bool                                           m_lasFileHasValidDate;
     caf::PdmField<caf::AppEnum<WellFlowCondition>> m_wellFlowCondition;
 

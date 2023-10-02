@@ -120,6 +120,8 @@ RimWbsParameters::RimWbsParameters()
                                  { RigWbsParameter::K0_FG(), &m_userDefinedK0FG },
                                  { RigWbsParameter::K0_SH(), &m_userDefinedK0SH },
                                  { RigWbsParameter::FG_Shale(), &m_FGShaleMultiplier },
+                                 { RigWbsParameter::FG_MkMin(), &m_FGShaleMultiplier },
+                                 { RigWbsParameter::FG_MkExp(), &m_FGShaleMultiplier },
                                  { RigWbsParameter::waterDensity(), &m_userDefinedDensity } };
 
     for ( auto parameterFieldPair : m_parameterSourceFields )

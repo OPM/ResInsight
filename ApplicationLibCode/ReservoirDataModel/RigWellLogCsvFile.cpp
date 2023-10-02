@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,36 +16,38 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigWellLogLasFile.h"
+#include "RigWellLogCsvFile.h"
 
+#include "RiaInterpolationTools.h"
+#include "RifCsvUserDataParser.h"
 #include "RigWellLogCurveData.h"
+#include "RigWellPathGeometryTools.h"
 
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+
+#include "RiaLogging.h"
 #include "RiaStringEncodingTools.h"
 
 #include "RimWellLogCurve.h"
-
-#include "laswell.hpp"
-#include "well.hpp"
+#include "RimWellPath.h"
 
 #include <QFileInfo>
 #include <QString>
 
-#include <cmath> // Needed for HUGE_VAL on Linux
-#include <exception>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogLasFile::RigWellLogLasFile()
+RigWellLogCsvFile::RigWellLogCsvFile()
     : RigWellLogFile()
 {
-    m_wellLogFile = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogLasFile::~RigWellLogLasFile()
+RigWellLogCsvFile::~RigWellLogCsvFile()
 {
     close();
 }
@@ -54,64 +55,80 @@ RigWellLogLasFile::~RigWellLogLasFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogLasFile::open( const QString& fileName, QString* errorMessage )
+bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QString* errorMessage )
 {
-    close();
+    m_wellLogChannelNames.clear();
 
-    NRLib::Well* well = nullptr;
+    RifCsvUserDataFileParser parser( fileName, errorMessage );
 
-    try
+    AsciiDataParseOptions parseOptions;
+    parseOptions.useCustomDateTimeFormat = true;
+    parseOptions.dateTimeFormat          = "dd.MM.yyyy hh:mm:ss";
+    parseOptions.fallbackDateTimeFormat  = "dd.MM.yyyy";
+    parseOptions.cellSeparator           = ";";
+    parseOptions.decimalSeparator        = ",";
+
+    if ( !parser.parse( parseOptions ) )
     {
-        int wellFormat = NRLib::Well::LAS;
-
-        well = NRLib::Well::ReadWell( RiaStringEncodingTools::toNativeEncoded( fileName ).data(), wellFormat );
-        if ( !well )
-        {
-            return false;
-        }
-    }
-    catch ( std::exception& e )
-    {
-        if ( well )
-        {
-            delete well;
-        }
-
-        if ( e.what() )
-        {
-            CVF_ASSERT( errorMessage );
-            *errorMessage = e.what();
-        }
-
         return false;
     }
 
-    QStringList wellLogNames;
+    std::map<QString, std::vector<double>> readValues;
 
-    const std::map<std::string, std::vector<double>>&          contLogs = well->GetContLog();
-    std::map<std::string, std::vector<double>>::const_iterator itCL;
-    for ( itCL = contLogs.begin(); itCL != contLogs.end(); ++itCL )
+    for ( auto s : parser.tableData().columnInfos() )
     {
-        QString logName = QString::fromStdString( itCL->first );
-        wellLogNames.append( logName );
+        if ( s.dataType != Column::NUMERIC ) continue;
+        QString columnName = QString::fromStdString( s.columnName() );
+        m_wellLogChannelNames.append( columnName );
+        readValues[columnName] = s.values;
+        m_units[columnName]    = QString::fromStdString( s.unitName );
 
-        // 2018-11-09 Added MD https://github.com/OPM/ResInsight/issues/3641
-        if ( logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH" || logName.toUpper() == "MD" )
+        if ( columnName.toUpper() == "TVDMSL" || columnName.toUpper().contains( "TVD" ) )
         {
-            m_depthLogName = logName;
-        }
-        else if ( logName.toUpper() == "TVDMSL" )
-        {
-            m_tvdMslLogName = logName;
-        }
-        else if ( logName.toUpper() == "TVDRKB" )
-        {
-            m_tvdRkbLogName = logName;
+            m_tvdMslLogName = columnName;
         }
     }
 
-    m_wellLogChannelNames = wellLogNames;
-    m_wellLogFile         = well;
+    if ( m_tvdMslLogName.isEmpty() )
+    {
+        QString message = "CSV file does not have TVD values.";
+        RiaLogging::error( message );
+        if ( errorMessage ) *errorMessage = message;
+        return false;
+    }
+
+    std::vector<double> readTvds = readValues[m_tvdMslLogName];
+
+    for ( auto [channelName, readValues] : readValues )
+    {
+        if ( channelName == m_tvdMslLogName )
+        {
+            // Use TVD from well path.
+            m_values[m_tvdMslLogName] = wellPath->trueVerticalDepths();
+        }
+        else
+        {
+            CAF_ASSERT( readValues.size() == readTvds.size() );
+
+            auto wellPathMds  = wellPath->measuredDepths();
+            auto wellPathTvds = wellPath->trueVerticalDepths();
+
+            // Interpolate values for the well path depths (from TVD).
+            // Assumes that the well channel values is dependent on TVD only (MD is not considered).
+            std::vector<double> values;
+            for ( auto tvd : wellPathTvds )
+            {
+                double value = RiaInterpolationTools::linear( readTvds, readValues, tvd, RiaInterpolationTools::ExtrapolationMode::TREND );
+                values.push_back( value );
+            }
+
+            m_values[channelName] = values;
+        }
+    }
+
+    // Use MD from well path.
+    m_depthLogName           = "DEPTH";
+    m_values[m_depthLogName] = wellPath->measuredDepths();
 
     return true;
 }
@@ -119,40 +136,18 @@ bool RigWellLogLasFile::open( const QString& fileName, QString* errorMessage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogLasFile::close()
+void RigWellLogCsvFile::close()
 {
-    if ( m_wellLogFile )
-    {
-        delete m_wellLogFile;
-        m_wellLogFile = nullptr;
-    }
-
     m_wellLogChannelNames.clear();
     m_depthLogName.clear();
+    m_values.clear();
+    m_units.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogLasFile::wellName() const
-{
-    CVF_ASSERT( m_wellLogFile );
-    return RiaStringEncodingTools::fromNativeEncoded( m_wellLogFile->GetWellName().data() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RigWellLogLasFile::date() const
-{
-    CVF_ASSERT( m_wellLogFile );
-    return QString::fromStdString( m_wellLogFile->GetDate() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList RigWellLogLasFile::wellLogChannelNames() const
+QStringList RigWellLogCsvFile::wellLogChannelNames() const
 {
     return m_wellLogChannelNames;
 }
@@ -160,7 +155,7 @@ QStringList RigWellLogLasFile::wellLogChannelNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogLasFile::depthValues() const
+std::vector<double> RigWellLogCsvFile::depthValues() const
 {
     return values( m_depthLogName );
 }
@@ -168,7 +163,7 @@ std::vector<double> RigWellLogLasFile::depthValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogLasFile::tvdMslValues() const
+std::vector<double> RigWellLogCsvFile::tvdMslValues() const
 {
     return values( m_tvdMslLogName );
 }
@@ -176,72 +171,45 @@ std::vector<double> RigWellLogLasFile::tvdMslValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogLasFile::tvdRkbValues() const
+std::vector<double> RigWellLogCsvFile::tvdRkbValues() const
 {
-    return values( m_tvdRkbLogName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogLasFile::values( const QString& name ) const
-{
-    CVF_ASSERT( m_wellLogFile );
-
-    if ( m_wellLogFile->HasContLog( name.toStdString() ) )
-    {
-        std::vector<double> logValues = m_wellLogFile->GetContLog( name.toStdString() );
-
-        for ( size_t vIdx = 0; vIdx < logValues.size(); vIdx++ )
-        {
-            if ( m_wellLogFile->IsMissing( logValues[vIdx] ) )
-            {
-                // Convert missing ("NULL") values to HUGE_VAL
-                logValues[vIdx] = HUGE_VAL;
-            }
-        }
-
-        return logValues;
-    }
-
+    // Not supported.
     return std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogLasFile::depthUnitString() const
+std::vector<double> RigWellLogCsvFile::values( const QString& name ) const
 {
-    QString unit;
-
-    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>( m_wellLogFile );
-    if ( lasWell )
-    {
-        unit = QString::fromStdString( lasWell->depthUnit() );
-    }
-
-    return unit;
+    if ( auto it = m_values.find( name ); it != m_values.end() ) return it->second;
+    return std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogLasFile::wellLogChannelUnitString( const QString& wellLogChannelName ) const
+QString RigWellLogCsvFile::depthUnitString() const
 {
-    QString unit;
-
-    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>( m_wellLogFile );
-    if ( lasWell )
-    {
-        return QString::fromStdString( lasWell->unitName( wellLogChannelName.toStdString() ) );
-    }
-    return "";
+    return wellLogChannelUnitString( m_tvdMslLogName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogLasFile::hasTvdMslChannel() const
+QString RigWellLogCsvFile::wellLogChannelUnitString( const QString& wellLogChannelName ) const
+{
+    auto unit = m_units.find( wellLogChannelName );
+    if ( unit != m_units.end() )
+        return unit->second;
+    else
+        return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigWellLogCsvFile::hasTvdMslChannel() const
 {
     return !m_tvdMslLogName.isEmpty();
 }
@@ -249,7 +217,7 @@ bool RigWellLogLasFile::hasTvdMslChannel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogLasFile::hasTvdRkbChannel() const
+bool RigWellLogCsvFile::hasTvdRkbChannel() const
 {
     return !m_tvdRkbLogName.isEmpty();
 }
@@ -257,7 +225,7 @@ bool RigWellLogLasFile::hasTvdRkbChannel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigWellLogLasFile::getMissingValue() const
+double RigWellLogCsvFile::getMissingValue() const
 {
-    return m_wellLogFile->GetContMissing();
+    return std::numeric_limits<double>::infinity();
 }

@@ -23,10 +23,18 @@
 #include "RimWellLogFileChannel.h"
 
 #include "RiaFieldHandleTools.h"
+#include "RiaQDateTimeTools.h"
+
+#include "cafPdmUiDateEditor.h"
 
 #include <QString>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimWellLogFile, "WellLogFileInterface" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QDateTime RimWellLogFile::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtcDateTime( QDate( 1900, 1, 1 ) );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,6 +45,8 @@ RimWellLogFile::RimWellLogFile()
 
     CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "Filename" );
     m_fileName.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelNames, "WellLogFileChannels", "" );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannelNames );
@@ -77,4 +87,34 @@ std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
         channels.push_back( channel );
     }
     return channels;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RimWellLogFile::date() const
+{
+    return m_date;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_date )
+    {
+        // Due to a possible bug in QDateEdit/PdmUiDateEditor, convert m_date to a QDateTime having UTC timespec
+        m_date = RiaQDateTimeTools::createUtcDateTime( m_date().date(), m_date().time() );
+    }
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( caf::PdmUiDateEditorAttribute* attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute ) )
+    {
+        attrib->dateFormat = RiaQDateTimeTools::dateFormatString();
+    }
 }

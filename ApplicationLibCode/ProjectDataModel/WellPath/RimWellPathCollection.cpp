@@ -169,7 +169,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
         if ( wellPath )
         {
-            for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
+            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 if ( wellLogFile )
                 {
@@ -384,6 +384,16 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
     updateAllRequiredEditors();
 
     return logFileInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::addWellLog( RimWellLogFile* wellLogFile, RimWellPath* wellPath )
+{
+    wellPath->addWellLogFile( wellLogFile );
+    sortWellsByName();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

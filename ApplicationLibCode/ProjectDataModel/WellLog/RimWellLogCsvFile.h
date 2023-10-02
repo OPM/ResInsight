@@ -19,23 +19,46 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-#include <set>
+#include "RimWellLogFile.h"
 
-class RimWellLogFile;
-class RimViewWindow;
+#include "RigWellLogCsvFile.h"
+
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+
+#include <QDateTime>
+#include <QString>
+
+class RimWellPath;
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RicWellLogFileCloseFeature : public caf::CmdFeature
+class RimWellLogCsvFile : public RimWellLogFile
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+public:
+    RimWellLogCsvFile();
+    ~RimWellLogCsvFile() override;
 
-    std::set<RimViewWindow*> referringWellLogPlots( const RimWellLogFile* wellLogFile );
+    QString name() const override { return m_name; }
+
+    bool readFile( QString* errorMessage ) override;
+
+    QString wellName() const override;
+
+    RigWellLogCsvFile* wellLogFileData() override;
+
+    std::vector<std::pair<double, double>>
+        findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) override;
+
+private:
+    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
+
+private:
+    cvf::ref<RigWellLogCsvFile> m_wellLogDataFile;
+    caf::PdmField<QString>      m_wellName;
+    caf::PdmField<QString>      m_name;
 };

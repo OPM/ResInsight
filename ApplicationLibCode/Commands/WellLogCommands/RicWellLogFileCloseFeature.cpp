@@ -21,7 +21,7 @@
 
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
-#include "RimWellLogLasFile.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellPath.h"
 #include "RimWellPltPlot.h"
@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT( RicWellLogFileCloseFeature, "RicWellLogFileCloseFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicWellLogFileCloseFeature::isCommandEnabled() const
 {
-    std::vector<RimWellLogLasFile*> objects = caf::selectedObjectsByType<RimWellLogLasFile*>();
+    std::vector<RimWellLogFile*> objects = caf::selectedObjectsByType<RimWellLogFile*>();
     return !objects.empty();
 }
 
@@ -49,7 +49,7 @@ bool RicWellLogFileCloseFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicWellLogFileCloseFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimWellLogLasFile*> objects = caf::selectedObjectsByType<RimWellLogLasFile*>();
+    std::vector<RimWellLogFile*> objects = caf::selectedObjectsByType<RimWellLogFile*>();
 
     if ( objects.empty() ) return;
 
@@ -85,7 +85,7 @@ void RicWellLogFileCloseFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimViewWindow*> RicWellLogFileCloseFeature::referringWellLogPlots( const RimWellLogLasFile* wellLogFile )
+std::set<RimViewWindow*> RicWellLogFileCloseFeature::referringWellLogPlots( const RimWellLogFile* wellLogFile )
 {
     // Remove all curves displaying data from the specified wellLogFile
     std::vector<caf::PdmObjectHandle*> referringObjects = wellLogFile->objectsWithReferringPtrFields();

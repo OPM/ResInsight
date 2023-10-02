@@ -1492,6 +1492,7 @@ int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menu
     candidates << "RicWellPathsImportFileFeature";
     candidates << "RicWellPathFormationsImportFileFeature";
     candidates << "RicWellLogsImportFileFeature";
+    candidates << "RicImportWellLogCsvFileFeature";
     candidates << "RicReloadWellPathFormationNamesFeature";
 
     return appendSubMenuWithCommands( menuBuilder, candidates, "Import", QIcon(), addSeparatorBeforeMenu );

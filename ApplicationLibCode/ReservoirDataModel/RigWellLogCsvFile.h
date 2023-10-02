@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,28 +23,23 @@
 #include "RiaDefines.h"
 
 #include <QStringList>
+
+#include <map>
 #include <vector>
 
-namespace NRLib
-{
-class Well;
-}
-
-class RimWellLogCurve;
+class RigWellPath;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogLasFile : public RigWellLogFile
+class RigWellLogCsvFile : public RigWellLogFile
 {
 public:
-    RigWellLogLasFile();
-    ~RigWellLogLasFile() override;
+    RigWellLogCsvFile();
+    ~RigWellLogCsvFile() override;
 
-    bool open( const QString& fileName, QString* errorMessage );
+    bool open( const QString& fileName, RigWellPath* wellPath, QString* errorMessage );
 
-    QString     wellName() const;
-    QString     date() const;
     QStringList wellLogChannelNames() const override;
 
     std::vector<double> depthValues() const override;
@@ -54,7 +48,8 @@ public:
 
     std::vector<double> values( const QString& name ) const override;
 
-    QString wellLogChannelUnitString( const QString& wellLogChannelName ) const override;
+    QString                   wellLogChannelUnitString( const QString& wellLogChannelName ) const override;
+    RiaDefines::DepthUnitType depthUnit() const;
 
     bool hasTvdMslChannel() const override;
     bool hasTvdRkbChannel() const override;
@@ -65,9 +60,10 @@ private:
     void    close();
     QString depthUnitString() const override;
 
-    NRLib::Well* m_wellLogFile;
-    QStringList  m_wellLogChannelNames;
-    QString      m_depthLogName;
-    QString      m_tvdMslLogName;
-    QString      m_tvdRkbLogName;
+    QStringList                            m_wellLogChannelNames;
+    QString                                m_depthLogName;
+    QString                                m_tvdMslLogName;
+    QString                                m_tvdRkbLogName;
+    std::map<QString, std::vector<double>> m_values;
+    std::map<QString, QString>             m_units;
 };
