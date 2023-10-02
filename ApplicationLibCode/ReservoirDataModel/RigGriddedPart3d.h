@@ -36,7 +36,7 @@ class RimFaultReactivationDataAccess;
 class RigGriddedPart3d : public cvf::Object
 {
     using ElementSets = RimFaultReactivation::ElementSets;
-    using Boundary = RimFaultReactivation::Boundary;
+    using Boundary    = RimFaultReactivation::Boundary;
 
 public:
     RigGriddedPart3d( bool flipFrontBack );
@@ -85,9 +85,9 @@ private:
     std::vector<std::vector<unsigned int>>                                   m_elementIndices;
     std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
     std::vector<std::vector<cvf::Vec3d>>                                     m_meshLines;
-    std::map<Boundary, std::vector<unsigned int>>      m_boundaryElements;
-    std::map<Boundary, std::vector<unsigned int>>      m_boundaryNodes;
-    std::map<ElementSets, std::vector<unsigned int>>   m_elementSets;
+    std::map<Boundary, std::vector<unsigned int>>                            m_boundaryElements;
+    std::map<Boundary, std::vector<unsigned int>>                            m_boundaryNodes;
+    std::map<ElementSets, std::vector<unsigned int>>                         m_elementSets;
 
     std::vector<std::vector<double>> m_nodePorePressure;
     const std::vector<double>        m_emptyData;
