@@ -45,7 +45,7 @@ class RimEnsembleStatistics;
 class RimEnsembleStatisticsCase;
 class RimWellLogCurve;
 class RimWellLogLasFileCurve;
-class RimWellLogLasFile;
+class RimWellLogFile;
 class RimPlotCurveAppearance;
 
 class RigWellPathFormations;
@@ -150,7 +150,7 @@ private:
 
     void updateCurveColors();
 
-    bool            isSameRealization( RimSummaryCase* summaryCase, RimWellLogLasFile* wellLogFile ) const;
+    bool            isSameRealization( RimSummaryCase* summaryCase, RimWellLogFile* wellLogFile ) const;
     RimSummaryCase* findMatchingSummaryCase( RimWellLogLasFileCurve* wellLogCurve ) const;
 
     void connectEnsembleCurveSetFilterSignals();

@@ -19,55 +19,40 @@
 
 #pragma once
 
-#include "RigWellLogFile.h"
-
 #include "RiaDefines.h"
+
+#include "cvfObject.h"
 
 #include <QStringList>
 #include <vector>
-
-namespace NRLib
-{
-class Well;
-}
 
 class RimWellLogCurve;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogLasFile : public RigWellLogFile
+class RigWellLogFile : public cvf::Object
 {
 public:
-    RigWellLogLasFile();
-    ~RigWellLogLasFile() override;
+    RigWellLogFile();
+    ~RigWellLogFile() override;
 
-    bool open( const QString& fileName, QString* errorMessage );
+    virtual QStringList wellLogChannelNames() const = 0;
 
-    QString     wellName() const;
-    QString     date() const;
-    QStringList wellLogChannelNames() const override;
+    virtual std::vector<double> depthValues() const  = 0;
+    virtual std::vector<double> tvdMslValues() const = 0;
+    virtual std::vector<double> tvdRkbValues() const = 0;
 
-    std::vector<double> depthValues() const override;
-    std::vector<double> tvdMslValues() const override;
-    std::vector<double> tvdRkbValues() const override;
+    virtual std::vector<double> values( const QString& name ) const = 0;
 
-    std::vector<double> values( const QString& name ) const override;
+    virtual QString wellLogChannelUnitString( const QString& wellLogChannelName ) const = 0;
+    virtual QString depthUnitString() const                                             = 0;
 
-    QString wellLogChannelUnitString( const QString& wellLogChannelName ) const override;
+    QString convertedWellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const;
+    RiaDefines::DepthUnitType depthUnit() const;
 
-    bool hasTvdMslChannel() const override;
-    bool hasTvdRkbChannel() const override;
+    virtual bool hasTvdMslChannel() const = 0;
+    virtual bool hasTvdRkbChannel() const = 0;
 
-    double getMissingValue() const override;
-
-private:
-    void    close();
-    QString depthUnitString() const override;
-
-    NRLib::Well* m_wellLogFile;
-    QStringList  m_wellLogChannelNames;
-    QString      m_depthLogName;
-    QString      m_tvdMslLogName;
-    QString      m_tvdRkbLogName;
+    virtual double getMissingValue() const = 0;
 };

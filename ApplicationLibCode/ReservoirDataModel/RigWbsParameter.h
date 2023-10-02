@@ -74,6 +74,11 @@ public:
 
     static RigWbsParameter PP_Reservoir();
     static RigWbsParameter PP_NonReservoir();
+    static RigWbsParameter PP_Min();
+    static RigWbsParameter PP_Max();
+    static RigWbsParameter PP_Exp();
+    static RigWbsParameter PP_Initial();
+
     static RigWbsParameter poissonRatio();
     static RigWbsParameter UCS();
     static RigWbsParameter OBG();
@@ -83,6 +88,9 @@ public:
     static RigWbsParameter K0_FG();
     static RigWbsParameter K0_SH();
     static RigWbsParameter FG_Shale();
+    static RigWbsParameter FG_MkMin();
+    static RigWbsParameter FG_MkExp();
+
     static RigWbsParameter waterDensity();
 
     static std::set<RigWbsParameter> allParameters();

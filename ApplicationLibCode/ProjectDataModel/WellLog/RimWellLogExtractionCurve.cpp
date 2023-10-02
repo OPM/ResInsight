@@ -885,12 +885,10 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromFiles( const RimWell
             else
             {
                 QString errMsg =
-                    QString( "Could not convert units of LAS-channel %1 from %2 to %3" ).arg( lasAddress ).arg( lasUnits ).arg( extractorUnits );
+                    QString( "Could not convert units of LAS-channel '%1' from '%2' to '%3'" ).arg( lasAddress ).arg( lasUnits ).arg( extractorUnits );
                 RiaLogging::error( errMsg );
             }
         }
-
-        // csv
     }
 }
 

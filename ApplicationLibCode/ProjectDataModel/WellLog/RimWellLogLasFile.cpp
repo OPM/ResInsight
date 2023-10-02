@@ -36,8 +36,6 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cafPdmUiDateEditor.h"
-
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
@@ -57,11 +55,6 @@ void caf::AppEnum<RimWellLogLasFile::WellFlowCondition>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QDateTime RimWellLogLasFile::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtcDateTime( QDate( 1900, 1, 1 ) );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimWellLogLasFile::RimWellLogLasFile()
 {
     CAF_PDM_InitObject( "Well LAS File Info", ":/LasFile16x16.png" );
@@ -70,12 +63,11 @@ RimWellLogLasFile::RimWellLogLasFile()
     m_wellName.uiCapability()->setUiReadOnly( true );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellName );
 
-    CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
-    m_date.uiCapability()->setUiReadOnly( true );
-
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
     m_name.uiCapability()->setUiReadOnly( true );
     RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
+
+    m_date.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_wellFlowCondition,
                        "WellFlowCondition",
@@ -191,14 +183,6 @@ QString RimWellLogLasFile::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RimWellLogLasFile::date() const
-{
-    return m_date;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimWellLogLasFile::hasFlowData() const
 {
     return RimWellPlotTools::hasFlowData( this );
@@ -263,30 +247,6 @@ void RimWellLogLasFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     }
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogLasFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    if ( changedField == &m_date )
-    {
-        // Due to a possible bug in QDateEdit/PdmUiDateEditor, convert m_date to a QDateTime having UTC timespec
-        m_date = RiaQDateTimeTools::createUtcDateTime( m_date().date(), m_date().time() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogLasFile::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    caf::PdmUiDateEditorAttribute* attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute );
-    if ( attrib != nullptr )
-    {
-        attrib->dateFormat = RiaQDateTimeTools::dateFormatString();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

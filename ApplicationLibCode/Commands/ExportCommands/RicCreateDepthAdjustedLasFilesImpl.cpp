@@ -33,6 +33,7 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimMainPlotCollection.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
@@ -214,14 +215,16 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QSt
     // Add tvd msl values if existing
     if ( !tvdMslValues.empty() )
     {
-        const auto unitText = sourceWellLogData->wellLogChannelUnitString( RiaDefines::propertyNameTvdMslDepth(), deptUnit ).toStdString();
+        const auto unitText =
+            sourceWellLogData->convertedWellLogChannelUnitString( RiaDefines::propertyNameTvdMslDepth(), deptUnit ).toStdString();
         lasFile.AddLog( RiaDefines::propertyNameTvdMslDepth().toStdString(), unitText, "True vertical depth " + depthUnitComment, tvdMslValues );
     }
 
     // Add tvd rkb values if existing
     if ( !tvdRkbValues.empty() )
     {
-        const auto unitText = sourceWellLogData->wellLogChannelUnitString( RiaDefines::propertyNameTvdRkbDepth(), deptUnit ).toStdString();
+        const auto unitText =
+            sourceWellLogData->convertedWellLogChannelUnitString( RiaDefines::propertyNameTvdRkbDepth(), deptUnit ).toStdString();
         lasFile.AddLog( RiaDefines::propertyNameTvdRkbDepth().toStdString(), unitText, "True vertical depth (Rotary Kelly Bushing)", tvdRkbValues );
     }
 

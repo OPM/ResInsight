@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RigWellLogCurveData.h"
 #include "RigWellLogIndexDepthOffset.h"
@@ -84,7 +85,7 @@ void RimWellLogLasFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( m_wellPath && m_wellLogFile )
         {
-            RigWellLogLasFile* wellLogFile = m_wellLogFile->wellLogFileData();
+            RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
             if ( wellLogFile )
             {
                 std::vector<double> values              = wellLogFile->values( m_wellLogChannelName );
@@ -286,7 +287,7 @@ void RimWellLogLasFileCurve::setWellLogChannelName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogLasFileCurve::setWellLogFile( RimWellLogLasFile* wellLogFile )
+void RimWellLogLasFileCurve::setWellLogFile( RimWellLogFile* wellLogFile )
 {
     m_wellLogFile = wellLogFile;
 }
@@ -401,7 +402,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogLasFileCurve::calculateValueOptions( con
     {
         if ( m_wellPath() && !m_wellPath->wellLogFiles().empty() )
         {
-            for ( RimWellLogLasFile* const wellLogFile : m_wellPath->wellLogFiles() )
+            for ( RimWellLogFile* const wellLogFile : m_wellPath->wellLogFiles() )
             {
                 QFileInfo fileInfo( wellLogFile->fileName() );
                 options.push_back( caf::PdmOptionItemInfo( fileInfo.baseName(), wellLogFile ) );
@@ -423,7 +424,7 @@ void RimWellLogLasFileCurve::initAfterRead()
 
     if ( m_wellPath->wellLogFiles().size() == 1 )
     {
-        m_wellLogFile = m_wellPath->wellLogFiles().front();
+        m_wellLogFile = dynamic_cast<RimWellLogLasFile*>( m_wellPath->wellLogFiles().front() );
     }
 }
 
@@ -456,14 +457,14 @@ QString RimWellLogLasFileCurve::createCurveAutoName()
             channelNameAvailable = true;
         }
 
-        RigWellLogLasFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
+        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
 
         if ( wellLogFile )
         {
             if ( channelNameAvailable )
             {
                 auto    wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
-                QString unitName    = wellLogFile->wellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
+                QString unitName    = wellLogFile->convertedWellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
 
                 if ( !unitName.isEmpty() )
                 {
@@ -471,10 +472,10 @@ QString RimWellLogLasFileCurve::createCurveAutoName()
                 }
             }
 
-            QString date = wellLogFile->date();
+            QString date = m_wellLogFile->date().toString( RiaQDateTimeTools::dateFormatString() );
             if ( !date.isEmpty() )
             {
-                name.push_back( wellLogFile->date() );
+                name.push_back( date );
             }
         }
 
@@ -507,7 +508,7 @@ QString RimWellLogLasFileCurve::wellLogChannelUnits() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogLasFile* RimWellLogLasFileCurve::wellLogFile() const
+RimWellLogFile* RimWellLogLasFileCurve::wellLogFile() const
 {
     return m_wellLogFile();
 }

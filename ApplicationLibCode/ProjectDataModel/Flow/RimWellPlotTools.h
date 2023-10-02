@@ -75,24 +75,24 @@ public:
     static bool      isTotalFlowChannel( const QString& channelName );
     static FlowPhase flowPhaseFromChannelName( const QString& channelName );
 
-    static std::vector<RimWellLogLasFile*> wellLogFilesContainingFlow( const QString& wellName );
-    static RimWellPath*                    wellPathByWellPathNameOrSimWellName( const QString& wellPathNameOrSimwellName );
+    static std::vector<RimWellLogFile*> wellLogFilesContainingFlow( const QString& wellName );
+    static RimWellPath*                 wellPathByWellPathNameOrSimWellName( const QString& wellPathNameOrSimwellName );
 
     // RFT Only
 private:
     static std::pair<RigEclipseResultAddress, QString> pressureResultDataInfo( const RigEclipseCaseData* eclipseCaseData );
 
 public:
-    static void                            addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSourceForRftPlt>>&       destMap,
-                                                              const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd );
-    static std::vector<RimWellLogLasFile*> wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName );
-    static RimWellLogFileChannel*          getPressureChannelFromWellFile( const RimWellLogLasFile* wellLogFile );
-    static RimWellPath*                    wellPathFromWellLogFile( const RimWellLogLasFile* wellLogFile );
+    static void                         addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSourceForRftPlt>>&       destMap,
+                                                           const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd );
+    static std::vector<RimWellLogFile*> wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName );
+    static RimWellLogFileChannel*       getPressureChannelFromWellFile( const RimWellLogFile* wellLogFile );
+    static RimWellPath*                 wellPathFromWellLogFile( const RimWellLogFile* wellLogFile );
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromGridCase( RimEclipseCase* gridCase );
     static RiaRftPltCurveDefinition                              curveDefFromCurve( const RimWellLogCurve* curve );
 
     // others
-    static bool hasFlowData( const RimWellLogLasFile* wellLogFile );
+    static bool hasFlowData( const RimWellLogFile* wellLogFile );
     static bool hasAssociatedWellPath( const QString& wellName );
 
     // Both
@@ -145,7 +145,7 @@ private:
 
     static std::set<QString> FLOW_DATA_NAMES;
 
-    static bool                hasPressureData( const RimWellLogLasFile* wellLogFile );
+    static bool                hasPressureData( const RimWellLogFile* wellLogFile );
     static bool                isPressureChannel( RimWellLogFileChannel* channel );
     static bool                hasPressureData( RimEclipseResultCase* gridCase );
     static bool                hasPressureData( RimWellPath* wellPath );
