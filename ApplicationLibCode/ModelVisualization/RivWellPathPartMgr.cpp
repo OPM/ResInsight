@@ -236,7 +236,10 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
                 cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( attribute );
 
                 cvf::Collection<cvf::Part> parts;
-                RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, attribute->defaultComponentColor() );
+                RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts,
+                                                                                   displayCoords,
+                                                                                   radii,
+                                                                                   attribute->defaultComponentColor() );
                 for ( auto part : parts )
                 {
                     part->setSourceInfo( objectSourceInfo.p() );
@@ -268,7 +271,10 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
                 cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( attribute );
 
                 cvf::Collection<cvf::Part> parts;
-                RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, attribute->defaultComponentColor() );
+                RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts,
+                                                                                   displayCoords,
+                                                                                   radii,
+                                                                                   attribute->defaultComponentColor() );
                 for ( auto part : parts )
                 {
                     part->setSourceInfo( objectSourceInfo.p() );

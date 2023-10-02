@@ -181,7 +181,7 @@ bool RifEclipseUserDataParserTools::isANumber( const std::string& line )
     try
     {
         auto value = std::stod( line );
-        return !(std::isinf( value ) || std::isnan( value ));
+        return !( std::isinf( value ) || std::isnan( value ) );
     }
     catch ( ... )
     {
