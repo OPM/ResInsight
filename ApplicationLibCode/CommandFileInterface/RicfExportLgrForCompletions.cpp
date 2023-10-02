@@ -35,7 +35,6 @@
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
-#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldScriptingCapability.h"
 
 #include <QStringList>
@@ -89,9 +88,6 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "LGR" );
     }
-
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    auto                    feature = dynamic_cast<RicExportLgrFeature*>( commandManager->getCommandFeature( "RicExportLgrFeature" ) );
 
     RimEclipseCase* eclipseCase = TOOLS::caseFromId( m_caseId() );
     if ( !eclipseCase )
