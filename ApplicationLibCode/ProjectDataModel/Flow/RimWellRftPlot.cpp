@@ -48,9 +48,9 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogRftCurve.h"
@@ -268,10 +268,10 @@ void RimWellRftPlot::applyInitialSelections()
         sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
     }
 
-    std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
+    std::vector<RimWellLogLasFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
     if ( !wellLogFiles.empty() )
     {
-        for ( RimWellLogFile* const wellLogFile : wellLogFiles )
+        for ( RimWellLogLasFile* const wellLogFile : wellLogFiles )
         {
             sourcesToSelect.push_back( RifDataSourceForRftPlt( wellLogFile ) );
         }
@@ -655,12 +655,12 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
         else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
-            RimWellLogFile* const wellLogFile = curveDefToAdd.address().wellLogFile();
-            RimWellPath* const    wellPath    = RimWellPlotTools::wellPathFromWellLogFile( wellLogFile );
+            RimWellLogLasFile* const wellLogFile = curveDefToAdd.address().wellLogFile();
+            RimWellPath* const       wellPath    = RimWellPlotTools::wellPathFromWellLogFile( wellLogFile );
             if ( wellLogFile != nullptr )
             {
                 RimWellLogFileChannel* pressureChannel = RimWellPlotTools::getPressureChannelFromWellFile( wellLogFile );
-                auto                   curve           = new RimWellLogFileCurve();
+                auto                   curve           = new RimWellLogLasFileCurve();
 
                 plotTrack->addCurve( curve );
                 curve->setWellPath( wellPath );
@@ -695,7 +695,7 @@ std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSourcesExpanded() co
     {
         if ( addr.sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
-            for ( RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ) )
+            for ( RimWellLogLasFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ) )
             {
                 sources.push_back( RifDataSourceForRftPlt( wellLogFile ) );
             }

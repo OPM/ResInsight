@@ -36,17 +36,17 @@ class QString;
 ///
 ///
 //==================================================================================================
-class RimWellLogFile : public caf::PdmObject
+class RimWellLogLasFile : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
     const static QDateTime DEFAULT_DATE_TIME;
 
 public:
-    RimWellLogFile();
-    ~RimWellLogFile() override;
+    RimWellLogLasFile();
+    ~RimWellLogLasFile() override;
 
-    static RimWellLogFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
+    static RimWellLogLasFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
 
     void    setFileName( const QString& fileName );
     QString fileName() const { return m_fileName().path(); }
@@ -68,7 +68,7 @@ public:
         WELL_FLOW_COND_STANDARD
     };
 
-    RimWellLogFile::WellFlowCondition wellFlowRateCondition() const { return m_wellFlowCondition(); }
+    RimWellLogLasFile::WellFlowCondition wellFlowRateCondition() const { return m_wellFlowCondition(); }
 
     static std::vector<std::pair<double, double>>
         findMdAndChannelValuesForWellPath( const RimWellPath* wellPath, const QString& channelName, QString* unitString = nullptr );

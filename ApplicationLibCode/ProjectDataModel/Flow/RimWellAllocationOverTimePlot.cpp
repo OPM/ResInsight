@@ -40,7 +40,7 @@
 #include "RimSimWellInView.h"
 #include "RimStackablePlotCurve.h"
 #include "RimWellAllocationTools.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPlotTools.h"
 
 #include "RiuContextMenuLauncher.h"
@@ -764,13 +764,13 @@ cvf::Color3f RimWellAllocationOverTimePlot::getTracerColor( const QString& trace
 //--------------------------------------------------------------------------------------------------
 QString RimWellAllocationOverTimePlot::getValueTypeText() const
 {
-    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
-    RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
-                                                                     : RimWellLogFile::WELL_FLOW_COND_STANDARD;
+    RiaDefines::EclipseUnitSystem        unitSet   = m_case->eclipseCaseData()->unitsType();
+    RimWellLogLasFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR
+                                                                        : RimWellLogLasFile::WELL_FLOW_COND_STANDARD;
 
     if ( m_flowValueType == FlowValueType::FLOW_RATE_PERCENTAGE )
     {
-        QString conditionText = condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
+        QString conditionText = condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
         return QString( "Percentage of %1 Flow Rate [%]" ).arg( conditionText );
     }
     if ( m_flowValueType == FlowValueType::FLOW_RATE )
@@ -787,7 +787,7 @@ QString RimWellAllocationOverTimePlot::getValueTypeText() const
     }
     if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE )
     {
-        QString conditionText = condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
+        QString conditionText = condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
         return QString( "Accumulated %1 Flow Volume Allocation [%]" ).arg( conditionText );
     }
 

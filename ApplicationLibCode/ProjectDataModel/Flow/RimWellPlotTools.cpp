@@ -38,9 +38,9 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -78,7 +78,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::hasPressureData( const RimWellLogFile* wellLogFile )
+bool RimWellPlotTools::hasPressureData( const RimWellLogLasFile* wellLogFile )
 {
     for ( RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
     {
@@ -92,7 +92,7 @@ bool RimWellPlotTools::hasPressureData( const RimWellLogFile* wellLogFile )
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasPressureData( RimWellPath* wellPath )
 {
-    for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
+    for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
     {
         if ( hasPressureData( wellLogFile ) )
         {
@@ -144,7 +144,7 @@ bool RimWellPlotTools::hasPressureData( RimEclipseResultCase* gridCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPlotTools::hasFlowData( const RimWellLogFile* wellLogFile )
+bool RimWellPlotTools::hasFlowData( const RimWellLogLasFile* wellLogFile )
 {
     for ( RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels() )
     {
@@ -158,7 +158,7 @@ bool RimWellPlotTools::hasFlowData( const RimWellLogFile* wellLogFile )
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasFlowData( const RimWellPath* wellPath )
 {
-    for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
+    for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
     {
         if ( hasFlowData( wellLogFile ) )
         {
@@ -268,20 +268,20 @@ void RimWellPlotTools::addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName )
+std::vector<RimWellLogLasFile*> RimWellPlotTools::wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName )
 {
-    std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const      project   = RimProject::current();
-    std::vector<RimWellPath*>    wellPaths = project->allWellPaths();
+    std::vector<RimWellLogLasFile*> wellLogFiles;
+    const RimProject* const         project   = RimProject::current();
+    std::vector<RimWellPath*>       wellPaths = project->allWellPaths();
 
     for ( auto wellPath : wellPaths )
     {
         if ( !wellPathNameOrSimWellName.isEmpty() &&
              ( wellPathNameOrSimWellName == wellPath->associatedSimulationWellName() || wellPathNameOrSimWellName == wellPath->name() ) )
         {
-            const std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
+            const std::vector<RimWellLogLasFile*> files = wellPath->wellLogFiles();
 
-            for ( RimWellLogFile* file : files )
+            for ( RimWellLogLasFile* file : files )
             {
                 if ( hasPressureData( file ) )
                 {
@@ -297,7 +297,7 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const RimWellLogFile* wellLogFile )
+RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const RimWellLogLasFile* wellLogFile )
 {
     if ( wellLogFile != nullptr )
     {
@@ -315,19 +315,19 @@ RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow( const QString& wellPathName )
+std::vector<RimWellLogLasFile*> RimWellPlotTools::wellLogFilesContainingFlow( const QString& wellPathName )
 {
-    std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const      project   = RimProject::current();
-    std::vector<RimWellPath*>    wellPaths = project->allWellPaths();
+    std::vector<RimWellLogLasFile*> wellLogFiles;
+    const RimProject* const         project   = RimProject::current();
+    std::vector<RimWellPath*>       wellPaths = project->allWellPaths();
 
     for ( auto wellPath : wellPaths )
     {
         if ( wellPath->name() == wellPathName )
         {
-            std::vector<RimWellLogFile*> files = wellPath->wellLogFiles();
+            std::vector<RimWellLogLasFile*> files = wellPath->wellLogFiles();
 
-            for ( RimWellLogFile* file : files )
+            for ( RimWellLogLasFile* file : files )
             {
                 if ( hasFlowData( file ) )
                 {
@@ -342,14 +342,14 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogFile* wellLogFile )
+RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogLasFile* wellLogFile )
 {
     RimProject* const project = RimProject::current();
     for ( const auto& oilField : project->oilFields )
     {
         for ( const auto& wellPath : oilField->wellPathCollection()->allWellPaths() )
         {
-            for ( RimWellLogFile* const file : wellPath->wellLogFiles() )
+            for ( RimWellLogLasFile* const file : wellPath->wellLogFiles() )
             {
                 if ( file == wellLogFile )
                 {
@@ -616,7 +616,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
 {
     const RimWellLogRftCurve*        rftCurve         = dynamic_cast<const RimWellLogRftCurve*>( curve );
     const RimWellLogExtractionCurve* gridCurve        = dynamic_cast<const RimWellLogExtractionCurve*>( curve );
-    const RimWellLogFileCurve*       wellLogFileCurve = dynamic_cast<const RimWellLogFileCurve*>( curve );
+    const RimWellLogLasFileCurve*    wellLogFileCurve = dynamic_cast<const RimWellLogLasFileCurve*>( curve );
 
     if ( rftCurve != nullptr )
     {
@@ -676,7 +676,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
     }
     else if ( wellLogFileCurve != nullptr )
     {
-        RimWellLogFile* const wellLogFile = wellLogFileCurve->wellLogFile();
+        RimWellLogLasFile* const wellLogFile = wellLogFileCurve->wellLogFile();
 
         if ( wellLogFile != nullptr )
         {
@@ -869,11 +869,11 @@ std::set<RiaRftPltCurveDefinition>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem )
+QString RimWellPlotTools::flowPlotAxisTitle( RimWellLogLasFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem )
 {
     QString axisTitle;
 
-    if ( condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR )
+    if ( condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR )
     {
         QString unitText = RimWellPlotTools::flowUnitText( condition, unitSystem );
 
@@ -917,11 +917,11 @@ QString flowConditionReservoirUnitText( RiaDefines::EclipseUnitSystem unitSystem
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellPlotTools::flowUnitText( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem )
+QString RimWellPlotTools::flowUnitText( RimWellLogLasFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem )
 {
     QString unitText;
 
-    if ( condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR )
+    if ( condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR )
     {
         unitText = flowConditionReservoirUnitText( unitSystem );
     }
@@ -949,11 +949,11 @@ QString RimWellPlotTools::flowUnitText( RimWellLogFile::WellFlowCondition condit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellPlotTools::flowVolumePlotAxisTitle( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem )
+QString RimWellPlotTools::flowVolumePlotAxisTitle( RimWellLogLasFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem )
 {
     QString axisTitle;
 
-    if ( condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR )
+    if ( condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR )
     {
         QString unitText = RimWellPlotTools::flowVolumeUnitText( condition, unitSystem );
 
@@ -997,11 +997,11 @@ QString flowVolumeConditionReservoirUnitText( RiaDefines::EclipseUnitSystem unit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellPlotTools::flowVolumeUnitText( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem )
+QString RimWellPlotTools::flowVolumeUnitText( RimWellLogLasFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem )
 {
     QString unitText;
 
-    if ( condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR )
+    if ( condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR )
     {
         unitText = flowVolumeConditionReservoirUnitText( unitSystem );
     }
@@ -1029,11 +1029,13 @@ QString RimWellPlotTools::flowVolumeUnitText( RimWellLogFile::WellFlowCondition 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellPlotTools::curveUnitText( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem, FlowPhase flowPhase )
+QString RimWellPlotTools::curveUnitText( RimWellLogLasFile::WellFlowCondition condition,
+                                         RiaDefines::EclipseUnitSystem        unitSystem,
+                                         FlowPhase                            flowPhase )
 {
     QString unitText;
 
-    if ( condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR )
+    if ( condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR )
     {
         unitText = flowConditionReservoirUnitText( unitSystem );
     }

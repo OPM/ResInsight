@@ -156,8 +156,8 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellIASettings.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
@@ -500,7 +500,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAdd3dWellLogFileCurveFeature";
             menuBuilder << "RicAdd3dWellLogRftCurveFeature";
         }
-        else if ( dynamic_cast<RimWellLogFile*>( firstUiItem ) )
+        else if ( dynamic_cast<RimWellLogLasFile*>( firstUiItem ) )
         {
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";

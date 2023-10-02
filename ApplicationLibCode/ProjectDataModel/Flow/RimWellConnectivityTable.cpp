@@ -40,7 +40,7 @@
 #include "RimSimWellInView.h"
 #include "RimTools.h"
 #include "RimWellAllocationTools.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPlotTools.h"
 
 #include "RiuMatrixPlotWidget.h"
@@ -919,8 +919,8 @@ std::vector<QString> RimWellConnectivityTable::getProductionWellNamesAtTimeSteps
 //--------------------------------------------------------------------------------------------------
 QString RimWellConnectivityTable::createTableTitle() const
 {
-    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
-    RimWellLogFile::WellFlowCondition condition = RimWellLogFile::WELL_FLOW_COND_RESERVOIR;
+    RiaDefines::EclipseUnitSystem        unitSet   = m_case->eclipseCaseData()->unitsType();
+    RimWellLogLasFile::WellFlowCondition condition = RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR;
 
     auto timeSampleValueTypeText = [&]() -> QString
     {

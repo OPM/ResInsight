@@ -42,8 +42,8 @@
 #include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogExtractionCurveNameConfig.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 
 #include "cafUtils.h"

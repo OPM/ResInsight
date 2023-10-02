@@ -38,7 +38,7 @@
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicDifferenceData.h"
 #include "RimSurfaceCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 

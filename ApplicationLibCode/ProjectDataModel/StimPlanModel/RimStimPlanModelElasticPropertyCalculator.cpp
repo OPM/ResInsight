@@ -47,7 +47,7 @@
 #include "RimStimPlanModelElasticPropertyCalculator.h"
 #include "RimStimPlanModelTemplate.h"
 #include "RimTools.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"

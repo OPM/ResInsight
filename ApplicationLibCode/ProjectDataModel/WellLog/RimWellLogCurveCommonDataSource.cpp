@@ -34,7 +34,7 @@
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogRftCurve.h"
@@ -331,7 +331,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
     for ( RimWellLogCurve* curve : curves )
     {
         auto* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
-        auto* fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
+        auto* fileCurve       = dynamic_cast<RimWellLogLasFileCurve*>( curve );
         auto* flowRateCurve   = dynamic_cast<RimWellFlowRateCurve*>( curve );
         auto* rftCurve        = dynamic_cast<RimWellLogRftCurve*>( curve );
 
@@ -515,7 +515,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
     std::set<RimWellLogPlot*> plots;
     for ( RimWellLogCurve* curve : curves )
     {
-        auto* fileCurve        = dynamic_cast<RimWellLogFileCurve*>( curve );
+        auto* fileCurve        = dynamic_cast<RimWellLogLasFileCurve*>( curve );
         auto* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( curve );
         auto* measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( curve );
         auto* rftCurve         = dynamic_cast<RimWellLogRftCurve*>( curve );
@@ -527,7 +527,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 fileCurve->setWellPath( wellPathToApply() );
                 if ( !fileCurve->wellLogChannelUiName().isEmpty() )
                 {
-                    RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
+                    RimWellLogLasFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
                     fileCurve->setWellLogFile( logFile );
                     auto parentPlot = fileCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                     plots.insert( parentPlot );

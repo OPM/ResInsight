@@ -24,8 +24,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 

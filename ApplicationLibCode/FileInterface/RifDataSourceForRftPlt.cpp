@@ -26,7 +26,7 @@
 #include "RimPressureDepthData.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 
 #include "cafAppEnum.h"
 #include "cvfAssert.h"
@@ -74,7 +74,7 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimWellLogFile* wellLogFile )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimWellLogLasFile* wellLogFile )
 {
     m_sourceType  = SourceType::OBSERVED_LAS_FILE;
     m_wellLogFile = wellLogFile;
@@ -248,7 +248,7 @@ RimSummaryCase* RifDataSourceForRftPlt::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RifDataSourceForRftPlt::wellLogFile() const
+RimWellLogLasFile* RifDataSourceForRftPlt::wellLogFile() const
 {
     return m_wellLogFile;
 }

@@ -22,7 +22,7 @@
 #include "RimPressureDepthData.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 
 #include "cafAppEnum.h"
 #include "cvfAssert.h"

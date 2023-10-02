@@ -61,7 +61,7 @@ class RimProject;
 class RimSummaryPlot;
 class Rim3dView;
 class RimViewWindow;
-class RimWellLogFile;
+class RimWellLogLasFile;
 class RimWellLogPlot;
 class RimWellAllocationPlot;
 
@@ -147,9 +147,9 @@ public:
 
     bool openOdbCaseFromFile( const QString& fileName, bool applyTimeStepFilter = false );
 
-    std::vector<RimWellPath*>    addWellPathsToModel( QList<QString> wellPathFilePaths, gsl::not_null<QStringList*> errorMessages );
-    void                         addWellPathFormationsToModel( QList<QString> wellPathFilePaths );
-    std::vector<RimWellLogFile*> addWellLogsToModel( const QList<QString>& wellLogFilePaths, gsl::not_null<QStringList*> errorMessages );
+    std::vector<RimWellPath*>       addWellPathsToModel( QList<QString> wellPathFilePaths, gsl::not_null<QStringList*> errorMessages );
+    void                            addWellPathFormationsToModel( QList<QString> wellPathFilePaths );
+    std::vector<RimWellLogLasFile*> addWellLogsToModel( const QList<QString>& wellLogFilePaths, gsl::not_null<QStringList*> errorMessages );
 
     QString scriptDirectories() const;
     QString scriptEditorPath() const;

@@ -24,7 +24,7 @@
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurementCurve.h"

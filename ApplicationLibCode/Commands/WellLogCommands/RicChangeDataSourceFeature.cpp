@@ -24,7 +24,7 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -101,7 +101,7 @@ bool RicChangeDataSourceFeature::selectedTracksAndCurves( std::vector<RimWellLog
     {
         RimWellLogTrack*           wellLogTrack           = dynamic_cast<RimWellLogTrack*>( selectedObject );
         RimWellLogExtractionCurve* wellLogExtractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( selectedObject );
-        RimWellLogFileCurve*       wellLogFileCurve       = dynamic_cast<RimWellLogFileCurve*>( selectedObject );
+        RimWellLogLasFileCurve*    wellLogFileCurve       = dynamic_cast<RimWellLogLasFileCurve*>( selectedObject );
         if ( wellLogTrack )
         {
             tracks->push_back( wellLogTrack );

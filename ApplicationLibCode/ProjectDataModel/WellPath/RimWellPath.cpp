@@ -43,8 +43,8 @@
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
 #include "RimWellIASettingsCollection.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
@@ -578,18 +578,18 @@ void RimWellPath::setNameNoUpdateOfExportName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPath::wellLogFiles() const
+std::vector<RimWellLogLasFile*> RimWellPath::wellLogFiles() const
 {
-    return std::vector<RimWellLogFile*>( m_wellLogFiles.begin(), m_wellLogFiles.end() );
+    return std::vector<RimWellLogLasFile*>( m_wellLogFiles.begin(), m_wellLogFiles.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RimWellPath::firstWellLogFileMatchingChannelName( const QString& channelName ) const
+RimWellLogLasFile* RimWellPath::firstWellLogFileMatchingChannelName( const QString& channelName ) const
 {
-    std::vector<RimWellLogFile*> allWellLogFiles = wellLogFiles();
-    for ( RimWellLogFile* logFile : allWellLogFiles )
+    std::vector<RimWellLogLasFile*> allWellLogFiles = wellLogFiles();
+    for ( RimWellLogLasFile* logFile : allWellLogFiles )
     {
         std::vector<RimWellLogFileChannel*> channels = logFile->wellLogChannels();
         for ( RimWellLogFileChannel* channel : channels )
@@ -895,12 +895,12 @@ double RimWellPath::datumElevation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::addWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::addWellLogFile( RimWellLogLasFile* logFileInfo )
 {
     // Prevent the same file from being loaded more than once
     auto itr = std::find_if( m_wellLogFiles.begin(),
                              m_wellLogFiles.end(),
-                             [&]( const RimWellLogFile* file )
+                             [&]( const RimWellLogLasFile* file )
                              { return QString::compare( file->fileName(), logFileInfo->fileName(), Qt::CaseInsensitive ) == 0; } );
 
     // Todo: Verify well name to ensure all well log files having the same well name
@@ -919,7 +919,7 @@ void RimWellPath::addWellLogFile( RimWellLogFile* logFileInfo )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::deleteWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::deleteWellLogFile( RimWellLogLasFile* logFileInfo )
 {
     detachWellLogFile( logFileInfo );
     delete logFileInfo;
@@ -928,7 +928,7 @@ void RimWellPath::deleteWellLogFile( RimWellLogFile* logFileInfo )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::detachWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::detachWellLogFile( RimWellLogLasFile* logFileInfo )
 {
     auto pdmObject = dynamic_cast<caf::PdmObjectHandle*>( logFileInfo );
     for ( size_t i = 0; i < m_wellLogFiles.size(); i++ )
