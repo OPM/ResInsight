@@ -603,7 +603,7 @@ void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* le
     RigGeoMechCaseData* gmCase = m_geomechCase->geoMechData();
     CVF_ASSERT( gmCase );
 
-    RigFemResultPosEnum resPos       = tensorResults()->resultPositionType();
+    RigFemResultPosEnum resPos       = RimTensorResults::resultPositionType();
     QString             resFieldName = tensorResults()->resultFieldName();
 
     RigFemResultAddress resVarAddress( resPos, resFieldName.toStdString(), "" );

@@ -387,7 +387,7 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
     {
-        if ( RiaApplication::instance()->enableDevelopmentFeatures() )
+        if ( RiaApplication::enableDevelopmentFeatures() )
         {
             uiOrdering.add( &m_useEnhancedSummaryDataFile );
         }
@@ -397,7 +397,7 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     {
         uiOrdering.add( &m_createH5SummaryDataFile );
 
-        if ( RiaApplication::instance()->enableDevelopmentFeatures() )
+        if ( RiaApplication::enableDevelopmentFeatures() )
         {
             uiOrdering.add( &m_createH5SummaryFileThreadCount );
         }

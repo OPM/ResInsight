@@ -859,7 +859,7 @@ void RicRecursiveFileSearchDialog::slotCopyFileItemText()
     if ( m_fileListWidget->currentItem() )
     {
         QString relativePathText = m_fileListWidget->currentItem()->text();
-        RiaGuiApplication::instance()->clipboard()->setText( relativePathText );
+        QApplication::clipboard()->setText( relativePathText );
     }
 }
 

@@ -309,7 +309,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
         caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->validator = new RiaValidRegExpValidator( RiaPreferences::current()->defaultMultiLateralWellNamePattern() );
+            myAttr->validator = new RiaValidRegExpValidator( RiaPreferences::defaultMultiLateralWellNamePattern() );
         }
     }
     else if ( field == &m_defaultScaleFactorZ )

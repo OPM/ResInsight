@@ -98,7 +98,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     , m_zScale( 1.0 )
 {
     cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
-    QFont      font         = RiaGuiApplication::instance()->font();
+    QFont      font         = QApplication::font();
 
     auto viewFontSize = RiaPreferences::current()->defaultSceneFontSize();
     font.setPointSize( caf::FontTools::absolutePointSize( viewFontSize ) );

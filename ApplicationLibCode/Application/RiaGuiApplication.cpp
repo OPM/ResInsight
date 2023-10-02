@@ -512,7 +512,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
     {
         CVF_ASSERT( o.valueCount() == 1 );
         QString regressionTestPath = cvfqt::Utils::toQString( o.value( 0 ) );
-        RiaRegressionTestRunner::instance()->updateRegressionTest( regressionTestPath );
+        RiaRegressionTestRunner::updateRegressionTest( regressionTestPath );
         return ApplicationStatus::EXIT_COMPLETED;
     }
 
@@ -1544,7 +1544,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
 //--------------------------------------------------------------------------------------------------
 int RiaGuiApplication::applicationResolution()
 {
-    return RiaGuiApplication::instance()->desktop()->logicalDpiX();
+    return QApplication::desktop()->logicalDpiX();
 }
 
 //--------------------------------------------------------------------------------------------------
