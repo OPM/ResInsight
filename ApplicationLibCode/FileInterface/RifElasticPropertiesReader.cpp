@@ -83,7 +83,7 @@ RifElasticProperties
 
     // Plus one to allow trailing separator
     const int expectedTokens = 13;
-    if ( !( tokens.size() == expectedTokens || tokens.size() == expectedTokens + 1 ) )
+    if ( tokens.size() != expectedTokens && tokens.size() != expectedTokens + 1 )
     {
         throw FileParseException( QString( "Incomplete data on line %1: %2" ).arg( lineNumber ).arg( filePath ) );
     }

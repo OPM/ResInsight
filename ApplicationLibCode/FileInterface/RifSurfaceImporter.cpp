@@ -644,8 +644,7 @@ bool RifSurfaceImporter::vectorFuzzyCompare( const cvf::Vec2d& vector1, const cv
         B             = fabs( B );
         float largest = ( B > A ) ? B : A;
 
-        if ( diff <= largest * maxRelDiff ) return true;
-        return false;
+        return diff <= largest * maxRelDiff;
     };
     return ( AlmostEqualRelativeAndAbs( vector1.x(), vector2.x(), epsilon ) && AlmostEqualRelativeAndAbs( vector1.y(), vector2.y(), epsilon ) );
 }

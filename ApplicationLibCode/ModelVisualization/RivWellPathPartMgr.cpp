@@ -152,7 +152,7 @@ bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClip
 
     if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
 
-    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::ALL_ON && m_rimWellPath->showWellPath() == false ) return false;
+    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::ALL_ON && !m_rimWellPath->showWellPath() ) return false;
 
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return false;
 
@@ -236,7 +236,7 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
                 cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( attribute );
 
                 cvf::Collection<cvf::Part> parts;
-                geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, attribute->defaultComponentColor() );
+                RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, attribute->defaultComponentColor() );
                 for ( auto part : parts )
                 {
                     part->setSourceInfo( objectSourceInfo.p() );
@@ -268,7 +268,7 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
                 cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( attribute );
 
                 cvf::Collection<cvf::Part> parts;
-                geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, attribute->defaultComponentColor() );
+                RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, attribute->defaultComponentColor() );
                 for ( auto part : parts )
                 {
                     part->setSourceInfo( objectSourceInfo.p() );
@@ -352,7 +352,7 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
             // Use the view legend config to find color, if only one type of measurement is selected.
             cvf::Color3f color = cvf::Color3f( wellMeasurementInView->legendConfig()->scalarMapper()->mapToColor( wellMeasurement->value() ) );
 
-            geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
+            RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
             for ( auto part : parts )
             {
                 part->setSourceInfo( objectSourceInfo.p() );

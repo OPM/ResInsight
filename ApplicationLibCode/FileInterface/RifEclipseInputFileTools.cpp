@@ -1106,7 +1106,7 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( Q
             int firstQuote = line.indexOf( "'" );
             int lastQuote  = line.lastIndexOf( "'" );
 
-            if ( !( firstQuote < 0 || lastQuote < 0 || firstQuote == lastQuote ) )
+            if ( firstQuote >= 0 && lastQuote >= 0 && firstQuote != lastQuote )
             {
                 QDir currentFileFolder;
                 {
@@ -1231,7 +1231,7 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( 
             int firstQuote = line.indexOf( "'" );
             int lastQuote  = line.lastIndexOf( "'" );
 
-            if ( !( firstQuote < 0 || lastQuote < 0 || firstQuote == lastQuote ) )
+            if ( firstQuote >= 0 && lastQuote >= 0 && firstQuote != lastQuote )
             {
                 QDir currentFileFolder;
                 {

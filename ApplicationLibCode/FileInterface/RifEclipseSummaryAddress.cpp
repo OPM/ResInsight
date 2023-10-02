@@ -792,21 +792,17 @@ bool RifEclipseSummaryAddress::isValid() const
             return false;
 
         case SummaryCategory::SUMMARY_REGION:
-            if ( m_number0 == -1 ) return false;
-            return true;
+            return m_number0 != -1;
 
         case SummaryCategory::SUMMARY_REGION_2_REGION:
             if ( m_number0 == -1 ) return false;
-            if ( m_number1 == -1 ) return false;
-            return true;
+            return m_number1 != -1;
 
         case SummaryCategory::SUMMARY_GROUP:
-            if ( m_name.empty() ) return false;
-            return true;
+            return !m_name.empty();
 
         case SummaryCategory::SUMMARY_WELL:
-            if ( m_name.empty() ) return false;
-            return true;
+            return !m_name.empty();
 
         case SummaryCategory::SUMMARY_WELL_COMPLETION:
             if ( m_name.empty() ) return false;
@@ -817,8 +813,7 @@ bool RifEclipseSummaryAddress::isValid() const
 
         case SummaryCategory::SUMMARY_WELL_LGR:
             if ( m_lgrName.empty() ) return false;
-            if ( m_name.empty() ) return false;
-            return true;
+            return !m_name.empty();
 
         case SummaryCategory::SUMMARY_WELL_COMPLETION_LGR:
             if ( m_lgrName.empty() ) return false;
@@ -830,8 +825,7 @@ bool RifEclipseSummaryAddress::isValid() const
 
         case SummaryCategory::SUMMARY_WELL_SEGMENT:
             if ( m_name.empty() ) return false;
-            if ( m_number0 == -1 ) return false;
-            return true;
+            return m_number0 != -1;
 
         case SummaryCategory::SUMMARY_BLOCK:
             if ( m_number0 == -1 ) return false;
@@ -847,8 +841,7 @@ bool RifEclipseSummaryAddress::isValid() const
             return true;
 
         case SummaryCategory::SUMMARY_AQUIFER:
-            if ( m_number0 == -1 ) return false;
-            return true;
+            return m_number0 != -1;
     }
 
     return true;
