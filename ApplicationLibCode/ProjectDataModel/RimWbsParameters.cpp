@@ -23,6 +23,7 @@
 #include "RigGeoMechCaseData.h"
 
 #include "RimGeoMechCase.h"
+#include "RimWellLogFileUtil.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 
@@ -378,7 +379,7 @@ void RimWbsParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 bool RimWbsParameters::hasLasFileWithChannel( const QString& channel ) const
 {
-    return m_wellPath && !RimWellLogLasFile::findMdAndChannelValuesForWellPath( m_wellPath, channel ).empty();
+    return m_wellPath && !RimWellLogFileUtil::findMdAndChannelValuesForWellPath( *m_wellPath, channel ).empty();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimWellLogFile.h"
+
 #include "RigWellLogLasFile.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -36,7 +38,7 @@ class QString;
 ///
 ///
 //==================================================================================================
-class RimWellLogLasFile : public caf::PdmObject
+class RimWellLogLasFile : public RimWellLogFile
 {
     CAF_PDM_HEADER_INIT;
 
@@ -48,8 +50,6 @@ public:
 
     static RimWellLogLasFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
 
-    void    setFileName( const QString& fileName );
-    QString fileName() const { return m_fileName().path(); }
     QString name() const { return m_name; }
 
     bool readFile( QString* errorMessage );
@@ -57,8 +57,7 @@ public:
     QString   wellName() const;
     QDateTime date() const;
 
-    RigWellLogLasFile*                  wellLogFileData() { return m_wellLogDataFile.p(); }
-    std::vector<RimWellLogFileChannel*> wellLogChannels() const;
+    RigWellLogLasFile* wellLogFileData() { return m_wellLogDataFile.p(); }
 
     bool hasFlowData() const;
 
@@ -70,8 +69,8 @@ public:
 
     RimWellLogLasFile::WellFlowCondition wellFlowRateCondition() const { return m_wellFlowCondition(); }
 
-    static std::vector<std::pair<double, double>>
-        findMdAndChannelValuesForWellPath( const RimWellPath* wellPath, const QString& channelName, QString* unitString = nullptr );
+    std::vector<std::pair<double, double>>
+        findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) override;
 
 private:
     void setupBeforeSave() override;
@@ -83,12 +82,9 @@ private:
 
     static bool isDateValid( const QDateTime dateTime );
 
-    caf::PdmChildArrayField<RimWellLogFileChannel*> m_wellLogChannelNames;
-
 private:
     cvf::ref<RigWellLogLasFile>                    m_wellLogDataFile;
     caf::PdmField<QString>                         m_wellName;
-    caf::PdmField<caf::FilePath>                   m_fileName;
     caf::PdmField<QString>                         m_name;
     caf::PdmField<QDateTime>                       m_date;
     bool                                           m_lasFileHasValidDate;
