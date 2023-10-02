@@ -348,6 +348,14 @@ const std::map<RimFaultReactivation::Boundary, std::vector<unsigned int>>& RigGr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& RigGriddedPart3d::elementSets() const
+{
+    return m_elementSets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigGriddedPart3d::nodePorePressure( size_t outputTimeStep ) const
 {
     if ( outputTimeStep >= m_nodePorePressure.size() ) return m_emptyData;
