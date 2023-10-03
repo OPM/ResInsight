@@ -141,7 +141,7 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
         {
             const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddressX );
 
-            auto [isXOk, valuesX] = values( inputAddressX );
+            auto [isXOk, valuesX] = reader->values( inputAddressX );
             if ( valuesX.empty() ) continue;
 
             auto [isYOk, valuesY] = reader->values( inputAddressY );
