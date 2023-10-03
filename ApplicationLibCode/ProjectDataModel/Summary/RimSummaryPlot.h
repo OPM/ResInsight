@@ -207,6 +207,7 @@ public:
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
     RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
+    RimPlotAxisProperties*          addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
     void                            findOrAssignPlotAxisX( RimSummaryCurve* curve );
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
@@ -239,8 +240,6 @@ private:
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
     void connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis );
-
-    RimPlotAxisProperties* addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -304,11 +303,10 @@ private:
     void assignYPlotAxis( RimSummaryCurve* curve );
     void assignXPlotAxis( RimSummaryCurve* curve );
 
-    RimSummaryCurve*     addNewCurve( const RifEclipseSummaryAddress& address,
-                                      RimSummaryCase*                 summaryCase,
-                                      const RifEclipseSummaryAddress& addressX,
-                                      RimSummaryCase*                 summaryCaseX );
-    RimEnsembleCurveSet* addNewEnsembleCurve( const RiaSummaryCurveAddress& curveAddress, RimSummaryCaseCollection* ensemble );
+    RimSummaryCurve* addNewCurve( const RifEclipseSummaryAddress& address,
+                                  RimSummaryCase*                 summaryCase,
+                                  const RifEclipseSummaryAddress& addressX,
+                                  RimSummaryCase*                 summaryCaseX );
 
     void updateStackedCurveData();
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
