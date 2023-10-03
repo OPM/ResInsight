@@ -50,8 +50,10 @@ public:
     void setAddress( const RifEclipseSummaryAddress& address );
     void setResamplingPeriod( RiaDefines::DateTimePeriodEnum resampling );
     void setPlotAxisProperties( RimPlotAxisPropertiesInterface* plotAxisProperties );
-    void setShowDataSource( bool enable );
     void setAxisOrientation( RimPlotAxisProperties::Orientation orientation );
+
+    void setShowDataSource( bool enable );
+    void setShowResampling( bool enable );
 
     RimSummaryCase*                 summaryCase() const;
     RimSummaryCaseCollection*       ensemble() const;
@@ -77,6 +79,7 @@ private:
     caf::PdmField<RiaDefines::DateTimePeriodEnum>     m_resamplingPeriod;
 
     bool m_showDataSource;
+    bool m_showResampling;
 
     RimPlotAxisProperties::Orientation m_plotAxisOrientation;
 };
