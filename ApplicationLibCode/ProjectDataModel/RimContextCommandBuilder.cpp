@@ -1288,6 +1288,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendSummaryPlotsForSummaryAddressesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryTableFeature";
+            menuBuilder << "RicCreateCrossPlotFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )

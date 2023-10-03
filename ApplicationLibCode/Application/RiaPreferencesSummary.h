@@ -107,6 +107,8 @@ public:
     bool                          colorCurvesByPhase() const;
     bool                          appendHistoryVectors() const;
 
+    QString crossPlotAddressCombinations() const;
+
     SummaryHistoryCurveStyleMode defaultSummaryHistoryCurveStyle() const;
 
     RiaDefines::ColumnCount defaultMultiPlotColumnCount() const;
@@ -132,6 +134,7 @@ private:
     caf::PdmField<SummaryRestartFilesImportModeType> m_summaryEnsembleImportMode;
 
     caf::PdmField<QString>                          m_defaultSummaryCurvesTextFilter;
+    caf::PdmField<QString>                          m_crossPlotAddressCombinations;
     caf::PdmField<SummaryHistoryCurveStyleModeType> m_defaultSummaryHistoryCurveStyle;
     caf::PdmField<bool>                             m_curveColorByPhase;
     caf::PdmField<bool>                             m_appendHistoryVectors;

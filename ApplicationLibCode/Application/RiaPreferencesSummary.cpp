@@ -111,6 +111,14 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
     CAF_PDM_InitFieldNoDefault( &m_defaultSummaryPlot, "defaultSummaryPlot", "Create Plot On Summary Data Import" );
 
+    CAF_PDM_InitField( &m_crossPlotAddressCombinations,
+                       "CrossPlotAddressCombinations",
+                       QString( "FWIR FOPT;FGOR FOPT;FWCT FOPT;FGLIR FOPR" ),
+                       "Cross Plot Curves",
+                       "",
+                       "Semicolon separated list used to create cross plot curves",
+                       "" );
+
     CAF_PDM_InitField( &m_selectDefaultTemplates, "selectDefaultTemplate", false, "", "", "Select Default Templates" );
     m_selectDefaultTemplates.xmlCapability()->disableIO();
     m_selectDefaultTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
@@ -282,6 +290,8 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
             break;
     }
 
+    uiOrdering.add( &m_crossPlotAddressCombinations );
+
     auto historyCurveGroup = uiOrdering.addNewGroup( "History Vectors" );
 
     historyCurveGroup->add( &m_defaultSummaryHistoryCurveStyle );
@@ -367,6 +377,14 @@ bool RiaPreferencesSummary::colorCurvesByPhase() const
 bool RiaPreferencesSummary::appendHistoryVectors() const
 {
     return m_appendHistoryVectors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesSummary::crossPlotAddressCombinations() const
+{
+    return m_crossPlotAddressCombinations;
 }
 
 //--------------------------------------------------------------------------------------------------
