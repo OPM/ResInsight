@@ -195,6 +195,7 @@ public:
     void                           setBottomOrTopAxisX( RiuPlotAxis plotAxis );
     bool                           isXAxisSummaryVector() const;
     RiaDefines::HorizontalAxisType xAxisType() const;
+    void                           findOrAssignBottomAxisX( RiuPlotAxis plotAxis );
 
 protected:
     void initAfterRead() override;

@@ -39,6 +39,7 @@
 
 #include "RicfCommandObject.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
@@ -2379,7 +2380,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseColl
     {
         if ( ensembles.count( ensemble ) > 0 ) continue;
 
-        auto curveSet = addNewEnsembleCurve( addr, ensemble );
+        auto curveSet = RicSummaryPlotBuilder::addNewEnsembleCurve( this, addr, ensemble );
         curveSetsToUpdate.push_back( curveSet );
         newCurves++;
     }
@@ -2481,7 +2482,8 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             auto addresses = curveDef.ensemble()->ensembleSummaryAddresses();
             if ( addresses.find( curveDef.summaryAddressY() ) != addresses.end() )
             {
-                curveSetsToUpdate.push_back( addNewEnsembleCurve( curveDef.summaryCurveAddress(), curveDef.ensemble() ) );
+                auto curveSet = RicSummaryPlotBuilder::addNewEnsembleCurve( this, curveDef.summaryCurveAddress(), curveDef.ensemble() );
+                curveSetsToUpdate.push_back( curveSet );
                 newCurves++;
             }
         }
@@ -2551,8 +2553,13 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
 
                 if ( !skipAddress )
                 {
-                    curveSetsToUpdate.push_back(
-                        addNewEnsembleCurve( RiaSummaryCurveAddress( RifEclipseSummaryAddress::timeAddress(), droppedAddress ), ensemble ) );
+                    auto curveSet =
+                        RicSummaryPlotBuilder::addNewEnsembleCurve( this,
+                                                                    RiaSummaryCurveAddress( RifEclipseSummaryAddress::timeAddress(),
+                                                                                            droppedAddress ),
+                                                                    ensemble );
+
+                    curveSetsToUpdate.push_back( curveSet );
                     newCurves++;
                 }
             }
@@ -2669,35 +2676,6 @@ RimSummaryCurve* RimSummaryPlot::addNewCurve( const RifEclipseSummaryAddress& ad
     addCurveNoUpdate( newCurve );
 
     return newCurve;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurve( const RiaSummaryCurveAddress& address, RimSummaryCaseCollection* ensemble )
-{
-    auto* curveSet = new RimEnsembleCurveSet();
-
-    curveSet->setSummaryCaseCollection( ensemble );
-    curveSet->setSummaryAddressYAndStatisticsFlag( address.summaryAddressY() );
-    curveSet->setCurveAddress( address );
-
-    cvf::Color3f curveColor =
-        RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddressY(),
-                                                                                static_cast<int>(
-                                                                                    ensembleCurveSetCollection()->curveSetCount() ) );
-
-    auto adr = curveSet->summaryAddressY();
-    if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
-
-    curveSet->setColor( curveColor );
-
-    ensembleCurveSetCollection()->addCurveSet( curveSet );
-
-    curveSet->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
-    curveSet->setBottomOrTopAxisX( RiuPlotAxis::defaultBottomForSummaryVectors() );
-
-    return curveSet;
 }
 
 //--------------------------------------------------------------------------------------------------

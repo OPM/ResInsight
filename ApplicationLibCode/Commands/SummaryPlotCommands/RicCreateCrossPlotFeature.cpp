@@ -18,18 +18,16 @@
 
 #include "RicCreateCrossPlotFeature.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RiaPreferencesSummary.h"
-
-#include "RicPasteSummaryCrossPlotFeature.h"
-
-#include "RimSummaryCrossPlot.h"
-#include "RimSummaryCrossPlotCollection.h"
+#include "RiaSummaryCurveAddress.h"
+#include "RifEclipseSummaryAddress.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "cafSelectionManagerTools.h"
-#include "cvfAssert.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-#include "RifEclipseSummaryAddress.h"
 #include <QAction>
 #include <QMenu>
 
@@ -76,7 +74,7 @@ void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
     for ( const auto& s : textList )
     {
         auto action = submenu->addAction( s );
-        connect( action, &QAction::triggered, this, &RicCreateCrossPlotFeature::onActionTriggered );
+        connect( action, &QAction::triggered, this, &RicCreateCrossPlotFeature::onSubMenuActionTriggered );
     }
 
     actionToSetup->setMenu( submenu );
@@ -87,8 +85,8 @@ void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
 {
-    QString address1;
-    QString address2;
+    QString addressX;
+    QString addressY;
 
     QAction* action = qobject_cast<QAction*>( sender() );
 
@@ -97,13 +95,19 @@ void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
         QString text         = action->text();
         auto    addressTexts = text.split( " " );
 
-        if ( !addressTexts.empty() ) address1 = addressTexts[0];
-        if ( addressTexts.size() > 1 ) address2 = addressTexts[1];
+        if ( !addressTexts.empty() ) addressY = addressTexts[0];
+        if ( addressTexts.size() > 1 ) addressX = addressTexts[1];
     }
 
-    RifEclipseSummaryAddress adr1 = RifEclipseSummaryAddress::fromEclipseTextAddress( address1.toStdString() );
-    RifEclipseSummaryAddress adr2 = RifEclipseSummaryAddress::fromEclipseTextAddress( address2.toStdString() );
+    RifEclipseSummaryAddress adrX = RifEclipseSummaryAddress::fromEclipseTextAddress( addressX.toStdString() );
+    RifEclipseSummaryAddress adrY = RifEclipseSummaryAddress::fromEclipseTextAddress( addressY.toStdString() );
 
-    auto newPlot = RicSummaryPlotBuilder::createPlot( eclipseAddresses, selectedCases, selectedEnsembles );
+    RiaSummaryCurveAddress curveAddress( adrX, adrY );
+
+    auto selectedCases     = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCase>();
+    auto selectedEnsembles = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCaseCollection>();
+
+    auto newPlot = RicSummaryPlotBuilder::createCrossPlot( { curveAddress }, { selectedCases }, { selectedEnsembles } );
+
     RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
 }

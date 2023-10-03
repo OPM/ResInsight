@@ -22,6 +22,7 @@
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
+#include "RiaPreferencesSummary.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryTools.h"
 
@@ -29,7 +30,6 @@
 #include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RiaPreferencesSummary.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
@@ -40,6 +40,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -622,6 +623,47 @@ RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::set<RifEclipseSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicSummaryPlotBuilder::createCrossPlot( const std::vector<RiaSummaryCurveAddress>&    addresses,
+                                                        const std::vector<RimSummaryCase*>&           summaryCases,
+                                                        const std::vector<RimSummaryCaseCollection*>& ensembles )
+{
+    auto* summaryPlot = new RimSummaryPlot();
+    summaryPlot->enableAutoPlotTitle( true );
+
+    for ( const auto& addr : addresses )
+    {
+        for ( const auto ensemble : ensembles )
+        {
+            if ( !ensemble ) continue;
+
+            auto curveSet = addNewEnsembleCurve( summaryPlot, addr, ensemble );
+            curveSet->findOrAssignBottomAxisX( RiuPlotAxis::defaultBottomForSummaryVectors() );
+        }
+
+        for ( const auto summaryCase : summaryCases )
+        {
+            if ( !summaryCase ) continue;
+
+            auto curve = new RimSummaryCurve();
+
+            curve->setSummaryCaseY( summaryCase );
+            curve->setSummaryAddressY( addr.summaryAddressY() );
+            curve->setSummaryAddressX( addr.summaryAddressX() );
+
+            summaryPlot->addCurveNoUpdate( curve );
+        }
+    }
+
+    summaryPlot->applyDefaultCurveAppearances();
+    summaryPlot->loadDataAndUpdate();
+    summaryPlot->zoomAll();
+
+    return summaryPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicSummaryPlotBuilder::appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
                                                 const std::set<RifEclipseSummaryAddress>&     addresses,
                                                 const std::vector<RimSummaryCase*>&           summaryCases,
@@ -642,4 +684,36 @@ void RicSummaryPlotBuilder::appendCurvesToPlot( RimSummaryPlot*                 
             summaryPlot->addCurveNoUpdate( curve );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* RicSummaryPlotBuilder::addNewEnsembleCurve( RimSummaryPlot*               summaryPlot,
+                                                                 const RiaSummaryCurveAddress& curveAddress,
+                                                                 RimSummaryCaseCollection*     ensemble )
+{
+    auto* curveSet = new RimEnsembleCurveSet();
+
+    curveSet->setSummaryCaseCollection( ensemble );
+    curveSet->setCurveAddress( curveAddress );
+
+    cvf::Color3f curveColor =
+        RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddressY(),
+                                                                                static_cast<int>(
+                                                                                    summaryPlot->ensembleCurveSetCollection()->curveSetCount() ) );
+
+    auto adr = curveSet->summaryAddressY();
+    if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
+
+    curveSet->setColor( curveColor );
+
+    summaryPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
+
+    curveSet->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+    curveSet->setBottomOrTopAxisX( RiuPlotAxis::defaultBottomForSummaryVectors() );
+
+    summaryPlot->curvesChanged.send();
+
+    return curveSet;
 }

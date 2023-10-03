@@ -485,6 +485,27 @@ RiaDefines::HorizontalAxisType RimEnsembleCurveSet::xAxisType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::findOrAssignBottomAxisX( RiuPlotAxis plotAxis )
+{
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
+    if ( !plot ) return;
+
+    if ( auto axis = plot->axisPropertiesForPlotAxis( plotAxis ) )
+    {
+        m_xAddressSelector->setPlotAxisProperties( axis );
+    }
+    else
+    {
+        RimPlotAxisProperties* newPlotAxisProperties = plot->addNewAxisProperties( plotAxis, "Bottom Axis" );
+        plot->updateConnectedEditors();
+
+        m_xAddressSelector->setPlotAxisProperties( newPlotAxisProperties );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address )
 {
     setSummaryAddressY( address );
@@ -779,22 +800,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 m_xAddressSelector->setAddress( summaryAddressY() );
             }
 
-            if ( !m_xAddressSelector->plotAxisProperties() )
-            {
-                RiuPlotAxis plotAxis = RiuPlotAxis::defaultBottomForSummaryVectors();
-                if ( auto axis = plot->axisPropertiesForPlotAxis( plotAxis ) )
-                {
-                    m_xAddressSelector->setPlotAxisProperties( axis );
-                }
-                else
-                {
-                    RimPlotAxisProperties* newPlotAxisProperties =
-                        plot->addNewAxisProperties( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Bottom Axis" );
-                    plot->updateConnectedEditors();
-
-                    m_xAddressSelector->setPlotAxisProperties( newPlotAxisProperties );
-                }
-            }
+            findOrAssignBottomAxisX( RiuPlotAxis::defaultBottomForSummaryVectors() );
         }
         plot->updateAxes();
         plot->updatePlotTitle();
