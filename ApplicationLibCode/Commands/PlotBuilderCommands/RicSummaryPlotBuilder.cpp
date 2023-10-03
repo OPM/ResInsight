@@ -633,6 +633,7 @@ void RicSummaryPlotBuilder::appendCurvesToPlot( RimSummaryPlot*                 
         {
             auto curveSet = createCurveSet( ensemble, addr );
             summaryPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
+            curveSet->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
         }
 
         for ( const auto summaryCase : summaryCases )
