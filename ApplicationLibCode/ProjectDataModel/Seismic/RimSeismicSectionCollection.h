@@ -72,6 +72,8 @@ public:
     std::vector<RimRegularLegendConfig*> legendConfigs();
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
+    void setSurfacesVisible( const std::vector<RimSurface*>& surfaces );
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 

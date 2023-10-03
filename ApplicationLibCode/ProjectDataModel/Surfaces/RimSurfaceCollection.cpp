@@ -30,6 +30,7 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
 #include "RimSurfaceResultDefinition.h"
@@ -304,6 +305,12 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
     for ( auto view : views )
     {
         view->updateSurfacesInViewTreeItems();
+
+        if ( auto gridView = dynamic_cast<RimGridView*>( view ) )
+        {
+            auto seismicCollection = gridView->seismicSectionCollection();
+            seismicCollection->setSurfacesVisible( surfsToReload );
+        }
     }
 
     std::set<Rim3dView*> viewsNeedingUpdate;

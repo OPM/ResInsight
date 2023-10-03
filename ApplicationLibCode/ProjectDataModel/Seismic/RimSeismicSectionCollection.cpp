@@ -262,12 +262,30 @@ void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::setSurfacesVisible( const std::vector<RimSurface*>& surfaces )
+{
+    for ( auto surface : surfaces )
+    {
+        if ( std::find( m_surfacesWithVisibleSurfaceLines.begin(), m_surfacesWithVisibleSurfaceLines.end(), surface ) ==
+             m_surfacesWithVisibleSurfaceLines.end() )
+        {
+            m_surfacesWithVisibleSurfaceLines.push_back( surface );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSeismicSectionCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_surfacesWithVisibleSurfaceLines )
     {
+        // If a surface is deleted, we need to remove it from the list of surfaces with visible surface lines
+        m_surfacesWithVisibleSurfaceLines.removePtr( nullptr );
+
         auto surfaceCollection = RimTools::surfaceCollection();
         for ( auto surface : surfaceCollection->surfaces() )
         {
