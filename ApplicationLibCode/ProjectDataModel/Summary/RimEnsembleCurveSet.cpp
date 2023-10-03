@@ -156,6 +156,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_xAddressSelector, "XAddressSelector", "" );
     m_xAddressSelector = new RimSummaryAddressSelector;
     m_xAddressSelector->setAxisOrientation( RimPlotAxisProperties::Orientation::HORIZONTAL );
+    m_xAddressSelector->setShowResampling( false );
     m_xAddressSelector.uiCapability()->setUiTreeHidden( true );
     m_xAddressSelector.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -771,6 +772,10 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             if ( !m_xAddressSelector->ensemble() )
             {
                 m_xAddressSelector->setEnsemble( summaryCaseCollection() );
+            }
+
+            if ( !m_xAddressSelector->summaryAddress().isValid() )
+            {
                 m_xAddressSelector->setAddress( summaryAddressY() );
             }
 
@@ -1053,6 +1058,9 @@ void RimEnsembleCurveSet::childFieldChangedByUi( const caf::PdmFieldHandle* chan
         {
             multiPlot->updatePlotTitles();
         }
+
+        // Trigger update, as the axis object name might have changed. Will update the axis object of the curve set.
+        updateConnectedEditors();
     }
 }
 
@@ -1068,7 +1076,13 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
-        curveDataGroup->add( &m_resampling );
+
+        if ( !isXAxisSummaryVector() )
+        {
+            // Resampling is automatic for cross plot curves
+            curveDataGroup->add( &m_resampling );
+        }
+
         curveDataGroup->add( &m_yPlotAxisProperties );
     }
 
