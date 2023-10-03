@@ -147,7 +147,7 @@ std::vector<std::pair<cvf::Vec3d, size_t>>
     // Create vector of pairs based on pair of two vectors
 
     std::vector<std::pair<cvf::Vec3d, size_t>> polyLineAndSegment;
-    for ( size_t i = 0; i < polyLineAndSegment.size(); i++ )
+    for ( size_t i = 0; i < resampledPolyline.size(); i++ )
     {
         polyLineAndSegment.push_back( std::make_pair( resampledPolyline[i], segmentIndices[i] ) );
     }

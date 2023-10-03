@@ -594,7 +594,8 @@ bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d
 QString RimGridCaseSurface::fullName() const
 {
     QString retval = RimSurface::fullName();
-    retval += " - K:";
+    if ( !retval.isEmpty() ) retval += " - ";
+    retval += "K:";
     retval += QString::number( m_oneBasedSliceIndex );
     return retval;
 }

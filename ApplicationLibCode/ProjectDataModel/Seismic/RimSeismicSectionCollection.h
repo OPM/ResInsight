@@ -72,6 +72,8 @@ public:
     std::vector<RimRegularLegendConfig*> legendConfigs();
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
+    void setSurfacesVisible( const std::vector<RimSurface*>& surfaces );
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
@@ -88,5 +90,5 @@ private:
     caf::PdmChildArrayField<RimSeismicSection*> m_seismicSections;
 
     caf::PdmField<double>              m_surfaceIntersectionLinesScaleFactor;
-    caf::PdmPtrArrayField<RimSurface*> m_hiddenSurfaceLines;
+    caf::PdmPtrArrayField<RimSurface*> m_surfacesWithVisibleSurfaceLines;
 };

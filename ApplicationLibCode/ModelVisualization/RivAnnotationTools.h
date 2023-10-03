@@ -58,7 +58,10 @@ public:
     void setCountHint( int countHint );
 
     // Create labels for the given collection of parts. The labels are added to the given model.
-    void addAnnotationLabels( const cvf::Collection<cvf::Part>& partCollection, const cvf::Camera* camera, cvf::ModelBasicList* model );
+    void addAnnotationLabels( const cvf::Collection<cvf::Part>& partCollection,
+                              const cvf::Camera*                camera,
+                              cvf::ModelBasicList*              model,
+                              bool                              computeScalingFactor );
 
     static cvf::ref<cvf::Part> createPartFromPolyline( const cvf::Color3f& color, const std::vector<cvf::Vec3d>& polyLine );
 

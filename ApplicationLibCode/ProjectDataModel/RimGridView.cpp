@@ -528,19 +528,24 @@ void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool prope
 
         if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
         {
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
-
             if ( !propertyFiltersActive )
             {
                 cvf::UByteArray visibleCells;
                 calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
                 m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep(), &visibleCells );
             }
+
+            // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
+            // appendPartsToModel() after appendDynamicPartsToModel()
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
         }
         else
         {
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
             m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep() );
+
+            // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
+            // appendPartsToModel() after appendDynamicPartsToModel()
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
         }
         m_intersectionVizModel->updateBoundingBoxesRecursive();
         nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );

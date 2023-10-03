@@ -248,7 +248,7 @@ void RimIntersectionCollection::appendDynamicPartsToModel( cvf::ModelBasicList* 
     {
         if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->generatePartGeometry( visibleCells );
+            cs->intersectionPartMgr()->generatePartGeometry( visibleCells, scaleTransform );
             cs->intersectionPartMgr()->appendIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
         }

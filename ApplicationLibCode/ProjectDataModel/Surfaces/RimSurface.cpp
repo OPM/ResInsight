@@ -234,7 +234,11 @@ QString RimSurface::fullName() const
 {
     if ( depthOffset() != 0.0 )
     {
-        return QString( "%1 - Offset:%2" ).arg( m_userDescription, QString::number( depthOffset() ) );
+        QString name = m_userDescription;
+        if ( !name.isEmpty() ) name += " - ";
+        name += QString( "Offset:%1" ).arg( QString::number( depthOffset() ) );
+
+        return name;
     }
 
     return QString( "%1" ).arg( m_userDescription );

@@ -55,8 +55,8 @@ RimSeismicSectionCollection::RimSeismicSectionCollection()
 
     CAF_PDM_InitField( &m_surfaceIntersectionLinesScaleFactor, "SurfaceIntersectionLinesScaleFactor", 5.0, "Line Scale Factor ( >= 1.0 )" );
 
-    CAF_PDM_InitFieldNoDefault( &m_hiddenSurfaceLines, "HiddenSurfaceLines", "Hidden Surface Lines" );
-    m_hiddenSurfaceLines.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_surfacesWithVisibleSurfaceLines, "SurfacesWithVisibleSurfaceLines", "Surface Lines" );
+    m_surfacesWithVisibleSurfaceLines.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     setName( "Seismic Sections" );
 }
@@ -148,7 +148,7 @@ void RimSeismicSectionCollection::defineUiOrdering( QString uiConfigName, caf::P
 {
     auto grp = uiOrdering.addNewGroup( "Surface Intersection Lines" );
     grp->add( &m_surfaceIntersectionLinesScaleFactor );
-    grp->add( &m_hiddenSurfaceLines );
+    grp->add( &m_surfacesWithVisibleSurfaceLines );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -171,23 +171,7 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
 {
     if ( !isChecked() ) return;
 
-    auto computeVisibleSurface = [&]() -> std::vector<RimSurface*>
-    {
-        std::vector<RimSurface*> visibleSurfaces;
-        auto                     allSurfaces    = RimTools::surfaceCollection()->surfaces();
-        auto                     hiddenSurfaces = m_hiddenSurfaceLines.value();
-
-        for ( const auto& surf : allSurfaces )
-        {
-            if ( std::find( hiddenSurfaces.begin(), hiddenSurfaces.end(), surf ) != hiddenSurfaces.end() ) continue;
-
-            visibleSurfaces.push_back( surf );
-        }
-
-        return visibleSurfaces;
-    };
-
-    auto visibleSurfaces = computeVisibleSurface();
+    auto visibleSurfaces = m_surfacesWithVisibleSurfaceLines().ptrReferencedObjectsByType();
 
     for ( auto& section : m_seismicSections )
     {
@@ -278,12 +262,30 @@ void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::setSurfacesVisible( const std::vector<RimSurface*>& surfaces )
+{
+    for ( auto surface : surfaces )
+    {
+        if ( std::find( m_surfacesWithVisibleSurfaceLines.begin(), m_surfacesWithVisibleSurfaceLines.end(), surface ) ==
+             m_surfacesWithVisibleSurfaceLines.end() )
+        {
+            m_surfacesWithVisibleSurfaceLines.push_back( surface );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSeismicSectionCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_hiddenSurfaceLines )
+    if ( fieldNeedingOptions == &m_surfacesWithVisibleSurfaceLines )
     {
+        // If a surface is deleted, we need to remove it from the list of surfaces with visible surface lines
+        m_surfacesWithVisibleSurfaceLines.removePtr( nullptr );
+
         auto surfaceCollection = RimTools::surfaceCollection();
         for ( auto surface : surfaceCollection->surfaces() )
         {
