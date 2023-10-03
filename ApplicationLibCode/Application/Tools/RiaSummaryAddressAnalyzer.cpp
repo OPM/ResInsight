@@ -469,8 +469,6 @@ void RiaSummaryAddressAnalyzer::computeQuantityNamesWithHistory() const
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddress& address )
 {
-    if ( !address.isValid() ) return;
-
     if ( address.category() == SummaryCategory::SUMMARY_TIME )
     {
         m_onlyCrossPlotCurves = false;
@@ -478,6 +476,8 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
         // A time address has no other information than SummaryCategory::SUMMARY_TIME
         return;
     }
+
+    if ( !address.isValid() ) return;
 
     const std::string& wellName = address.wellName();
 

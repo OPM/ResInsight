@@ -42,6 +42,8 @@ public:
     void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
     void appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses );
 
+    void analyzeSingleAddress( const RifEclipseSummaryAddress& address );
+
     void clear();
 
     std::set<std::string> quantities() const;
@@ -80,8 +82,6 @@ public:
 private:
     void assignCategoryToQuantities() const;
     void computeQuantityNamesWithHistory() const;
-
-    void analyzeSingleAddress( const RifEclipseSummaryAddress& address );
 
     static std::set<std::string> keysInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
     static std::set<int>         keysInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
