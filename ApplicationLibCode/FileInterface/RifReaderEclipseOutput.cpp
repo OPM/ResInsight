@@ -512,14 +512,14 @@ void RifReaderEclipseOutput::setHdf5FileName( const QString& fileName )
     }
 
     std::vector<QDateTime> sourSimTimeSteps = hdf5ReaderInterface->timeSteps();
-    if ( sourSimTimeSteps.size() == 0 )
+    if ( sourSimTimeSteps.empty() )
     {
         RiaLogging::error( "HDF: No data available from SourSim" );
 
         return;
     }
 
-    if ( timeStepInfos.size() > 0 )
+    if ( !timeStepInfos.empty() )
     {
         if ( allTimeSteps().size() != sourSimTimeSteps.size() )
         {
@@ -1277,7 +1277,7 @@ cvf::Vec3d interpolate3DPosition( const std::vector<SegmentPositionContribution>
         {
             if ( positions[i].m_isFromAbove && positions[i].m_lengthFromConnection < minDistFromContribAbove )
             {
-                if ( contrFromAbove.size() )
+                if ( !contrFromAbove.empty() )
                     contrFromAbove[0] = positions[i];
                 else
                     contrFromAbove.push_back( positions[i] );
@@ -1287,7 +1287,7 @@ cvf::Vec3d interpolate3DPosition( const std::vector<SegmentPositionContribution>
 
             if ( !positions[i].m_isFromAbove && positions[i].m_lengthFromConnection < minDistFromContribBelow )
             {
-                if ( contrFromBelow.size() )
+                if ( !contrFromBelow.empty() )
                     contrFromBelow[0] = positions[i];
                 else
                     contrFromBelow.push_back( positions[i] );
@@ -1446,14 +1446,7 @@ public:
 
         size_t reservoirCellIdx = m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex( gridIndex, gridCellIndex );
 
-        if ( m_gridCellsWithSubCellWellConnections.count( reservoirCellIdx ) )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return m_gridCellsWithSubCellWellConnections.count( reservoirCellIdx ) != 0;
     }
 
 private:
@@ -1877,7 +1870,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                 bool isWellHead = true;
                 for ( const auto& wellResultBranch : wellResFrame.wellResultBranches() )
                 {
-                    bool previousResultPointWasCell = isWellHead ? true : false;
+                    bool previousResultPointWasCell = isWellHead;
 
                     // Go downwards until we find a none-cell result point just after a cell result point
                     // When we do, start propagating
@@ -2240,7 +2233,7 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel( RiaDefines
                                                                       std::vector<double>*          destinationResultValues,
                                                                       const std::vector<double>&    sourceResultValues )
 {
-    if ( sourceResultValues.size() == 0 ) return;
+    if ( sourceResultValues.empty() ) return;
 
     RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 

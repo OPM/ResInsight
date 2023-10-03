@@ -79,7 +79,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             }
             if ( lineColor.isEmpty() && symbolColor.isEmpty() ) return;
 
-            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList topLevelWidgets = QApplication::topLevelWidgets();
             for ( QWidget* widget : topLevelWidgets )
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
@@ -121,7 +121,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             QRegExp            itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
             QString            color           = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
-            const QWidgetList  topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList  topLevelWidgets = QApplication::topLevelWidgets();
 
             if ( !color.isEmpty() )
             {
@@ -159,7 +159,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             QRegExp            itemNameRegExp( match.captured( "itemName" ) );
             QRegularExpression colorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
             QString            color           = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
-            const QWidgetList  topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList  topLevelWidgets = QApplication::topLevelWidgets();
 
             if ( !color.isEmpty() )
             {
@@ -196,7 +196,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             QRegularExpression textColorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
             QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
 
-            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList topLevelWidgets = QApplication::topLevelWidgets();
 
             if ( !color.isEmpty() )
             {
@@ -250,7 +250,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             QRegularExpression textColorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
             QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
 
-            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList topLevelWidgets = QApplication::topLevelWidgets();
 
             if ( !color.isEmpty() )
             {
@@ -304,7 +304,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             QRegularExpression textColorRegExp( "text-color:\\s*([#a-zA-Z0-9]+)" );
             QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
 
-            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList topLevelWidgets = QApplication::topLevelWidgets();
 
             if ( !textColor.isEmpty() )
             {
@@ -349,7 +349,7 @@ void RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum theme )
     s_qwtPlotItemPropertiesMap.clear();
 
     applyStyleSheet( theme );
-    const QWidgetList allWidgets = RiaGuiApplication::instance()->allWidgets();
+    const QWidgetList allWidgets = QApplication::allWidgets();
     for ( QWidget* widget : allWidgets )
     {
         widget->style()->unpolish( widget );
@@ -503,7 +503,7 @@ bool RiuGuiTheme::writeStyleSheetToFile( RiaDefines::ThemeEnum theme, const QStr
             preparseStyleSheet( theme, modifiedStyleSheet );
             RiaGuiApplication* app = RiaGuiApplication::instance();
             app->setStyleSheet( modifiedStyleSheet );
-            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->allWidgets();
+            const QWidgetList topLevelWidgets = QApplication::allWidgets();
             for ( QWidget* widget : topLevelWidgets )
             {
                 widget->style()->unpolish( widget );
@@ -768,7 +768,7 @@ void RiuGuiTheme::preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styl
 
     QRegularExpression              paletteRegExp( regExp );
     QRegularExpressionMatchIterator matchIterator = paletteRegExp.globalMatch( styleSheet );
-    QPalette                        palette       = RiaGuiApplication::instance()->palette();
+    QPalette                        palette       = QApplication::palette();
 
     while ( matchIterator.hasNext() )
     {

@@ -52,7 +52,7 @@ class RifOpmHdf5Summary : public RifSummaryReaderInterface
 {
 public:
     RifOpmHdf5Summary();
-    ~RifOpmHdf5Summary();
+    ~RifOpmHdf5Summary() override;
 
     bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 

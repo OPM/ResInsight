@@ -465,7 +465,7 @@ void RivTensorResultPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*   
 //--------------------------------------------------------------------------------------------------
 bool RivTensorResultPartMgr::isTensorAddress( RigFemResultAddress address )
 {
-    if ( !( address.resultPosType == RIG_ELEMENT_NODAL || address.resultPosType == RIG_INTEGRATION_POINT ) )
+    if ( address.resultPosType != RIG_ELEMENT_NODAL && address.resultPosType != RIG_INTEGRATION_POINT )
     {
         return false;
     }
@@ -509,12 +509,7 @@ bool RivTensorResultPartMgr::isValid( cvf::Vec3f resultVector )
 //--------------------------------------------------------------------------------------------------
 bool RivTensorResultPartMgr::isPressure( float principalValue )
 {
-    if ( principalValue >= 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return principalValue >= 0;
 }
 
 //--------------------------------------------------------------------------------------------------

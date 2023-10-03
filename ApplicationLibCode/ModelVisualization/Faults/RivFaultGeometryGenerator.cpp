@@ -80,7 +80,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::generateSurface( bool only
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
 {
-    if ( !( m_vertices.notNull() && m_vertices->size() != 0 ) ) return nullptr;
+    if ( !m_vertices.notNull() || m_vertices->size() == 0 ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_vertices.p() );
@@ -99,7 +99,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable( double creaseAngle )
 {
-    if ( !( m_vertices.notNull() && m_vertices->size() != 0 ) ) return nullptr;
+    if ( !m_vertices.notNull() || m_vertices->size() == 0 ) return nullptr;
 
     cvf::OutlineEdgeExtractor ee( creaseAngle, *m_vertices );
 

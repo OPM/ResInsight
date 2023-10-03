@@ -310,11 +310,9 @@ bool RimSimWellInViewCollection::hasVisibleWellCells()
         }
     }
 
-    if ( !hasCells ) return false;
-
     // Todo: Handle range filter intersection
 
-    return true;
+    return hasCells;
 }
 
 //--------------------------------------------------------------------------------------------------

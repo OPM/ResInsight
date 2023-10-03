@@ -311,7 +311,7 @@ public:
     }
 
 protected:
-    virtual void drawBackbone( QPainter* ) const override {}
+    void drawBackbone( QPainter* ) const override {}
 
 private:
     std::map<double, RiuBarChartTick> m_posTickTypeAndTexts;

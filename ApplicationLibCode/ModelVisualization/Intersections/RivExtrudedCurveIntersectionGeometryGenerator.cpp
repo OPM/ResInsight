@@ -637,7 +637,7 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::genera
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::createMeshDrawable()
 {
-    if ( !( m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0 ) ) return nullptr;
+    if ( !m_cellBorderLineVxes.notNull() || m_cellBorderLineVxes->size() == 0 ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_cellBorderLineVxes.p() );
@@ -654,7 +654,7 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::createFaultMeshDrawable()
 {
-    if ( !( m_faultCellBorderLineVxes.notNull() && m_faultCellBorderLineVxes->size() != 0 ) ) return nullptr;
+    if ( !m_faultCellBorderLineVxes.notNull() || m_faultCellBorderLineVxes->size() == 0 ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_faultCellBorderLineVxes.p() );
@@ -841,12 +841,7 @@ cvf::Mat4d RivExtrudedCurveIntersectionGeometryGenerator::unflattenTransformMatr
 //--------------------------------------------------------------------------------------------------
 bool RivExtrudedCurveIntersectionGeometryGenerator::isAnyGeometryPresent() const
 {
-    if ( m_triangleVxes->size() == 0 )
-    {
-        return false;
-    }
-
-    return true;
+    return m_triangleVxes->size() != 0;
 }
 
 //--------------------------------------------------------------------------------------------------

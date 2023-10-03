@@ -51,4 +51,4 @@ public:
 };
 
 #include "cafFactory.h"
-typedef caf::Factory<RiaSocketCommand, QString> RiaSocketCommandFactory;
+using RiaSocketCommandFactory = caf::Factory<RiaSocketCommand, QString>;

@@ -86,8 +86,8 @@ private:
 
 // Define our assert macros
 #if CVF_ENABLE_ASSERTS == 1
-#   define CVF_ASSERT(expr)           (void)( (!!(expr)) || (cvf::Assert::CONTINUE == cvf::Assert::reportFailedAssert(__FILE__, __LINE__, #expr, NULL))  || (CVF_DEBUGTRAP(), 0) )
-#   define CVF_ASSERT_MSG(expr, msg)  (void)( (!!(expr)) || (cvf::Assert::CONTINUE == cvf::Assert::reportFailedAssert(__FILE__, __LINE__, #expr, (msg))) || (CVF_DEBUGTRAP(), 0) )
+#   define CVF_ASSERT(expr)           (void)( (!!(expr)) || (cvf::Assert::CONTINUE == cvf::Assert::reportFailedAssert(__FILE__, __LINE__, #expr, NULL))  || (CVF_DEBUGTRAP(), 0) ) /* NOLINT */
+#   define CVF_ASSERT_MSG(expr, msg)  (void)( (!!(expr)) || (cvf::Assert::CONTINUE == cvf::Assert::reportFailedAssert(__FILE__, __LINE__, #expr, (msg))) || (CVF_DEBUGTRAP(), 0) ) /* NOLINT */
 #   define CVF_FAIL_MSG(msg)          (void)( (cvf::Assert::CONTINUE == cvf::Assert::reportFailedAssert(__FILE__, __LINE__, NULL, (msg))) || (CVF_DEBUGTRAP(), 0) )
 #else 
 #   define CVF_ASSERT(expr)           ((void)0)

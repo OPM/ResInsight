@@ -68,17 +68,11 @@ jobs:
       - name: Run clang-tidy and apply fixes, clang-format after fixes
         run: |
           cd build
-          run-clang-tidy-15 -fix files ApplicationLibCode/Application ApplicationLibCode/ProjectDataModel ApplicationLibCode/ReservoirDataModel ApplicationLibCode/Commands ApplicationLibCode/GeoMech
+          run-clang-tidy-15 -config-file ../ApplicationLibCode/.clang-tidy -fix files ApplicationLibCode
       - name: Run clang-format after clang-tidy
         run: |
-          cd build/ApplicationLibCode
+          cd ApplicationLibCode
           find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-15 -i
-      - name: Remove Qt before creating PR
-        run: |
-          rm -rf Qt
-          cd ThirdParty/vcpkg
-          git reset --hard HEAD
-          git clean -fxd
       - uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -86,3 +80,5 @@ jobs:
           title: "Fixes by clang-tidy"
           branch: clang-tidy-patches
           branch-suffix: random
+          add-paths: |
+            ApplicationLibCode/*

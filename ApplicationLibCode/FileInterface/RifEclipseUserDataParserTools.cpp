@@ -87,11 +87,7 @@ bool RifEclipseUserDataParserTools::isLineSkippable( const std::string& line )
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::isAComment( const std::string& word )
 {
-    if ( word.find( "--" ) != std::string::npos )
-    {
-        return true;
-    }
-    return false;
+    return word.find( "--" ) != std::string::npos;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,8 +181,7 @@ bool RifEclipseUserDataParserTools::isANumber( const std::string& line )
     try
     {
         auto value = std::stod( line );
-        if ( std::isinf( value ) || std::isnan( value ) ) return false;
-        return true;
+        return !( std::isinf( value ) || std::isnan( value ) );
     }
     catch ( ... )
     {
@@ -215,12 +210,7 @@ std::vector<std::string> RifEclipseUserDataParserTools::headerReader( std::strin
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::hasTimeUnit( const std::string& word )
 {
-    if ( word == "DAYS" || word == "DAY" || word == "YEARS" || word == "YEAR" || word == "DATE" || word == "DATES" )
-    {
-        return true;
-    }
-
-    return false;
+    return word == "DAYS" || word == "DAY" || word == "YEARS" || word == "YEAR" || word == "DATE" || word == "DATES";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,12 +258,7 @@ bool RifEclipseUserDataParserTools::isValidTableData( size_t columnCount, const 
         }
     }
 
-    if ( columnsWithDate == 1 && doubleValues.size() == columnCount - 1 )
-    {
-        return true;
-    }
-
-    return false;
+    return columnsWithDate == 1 && doubleValues.size() == columnCount - 1;
 }
 
 //--------------------------------------------------------------------------------------------------

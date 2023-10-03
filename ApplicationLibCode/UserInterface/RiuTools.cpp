@@ -39,12 +39,12 @@ void RiuTools::enableAllActionsOnShow( QObject* object, QMenu* menu )
 {
     if ( object && menu )
     {
-        object->connect( menu,
-                         &QMenu::aboutToShow,
-                         [menu]()
-                         {
-                             for ( auto act : menu->actions() )
-                                 act->setEnabled( true );
-                         } );
+        QObject::connect( menu,
+                          &QMenu::aboutToShow,
+                          [menu]()
+                          {
+                              for ( auto act : menu->actions() )
+                                  act->setEnabled( true );
+                          } );
     }
 }
