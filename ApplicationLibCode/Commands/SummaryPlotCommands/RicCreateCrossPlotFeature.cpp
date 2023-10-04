@@ -25,13 +25,13 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
 #include "cafSelectionManagerTools.h"
 
-#include "RimSummaryAddress.h"
-#include "RimSummaryAddressCollection.h"
 #include <QAction>
 #include <QMenu>
 
@@ -67,29 +67,83 @@ void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 
     auto collectionContentType = RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED;
 
-    std::string selectedWellName;
-    std::string selectedGroupName;
+    std::string wellName;
+    std::string groupName;
+
+    if ( auto addr = dynamic_cast<RimSummaryAddress*>( caf::SelectionManager::instance()->selectedItem() ) )
+    {
+        wellName  = addr->address().wellName();
+        groupName = addr->address().groupName();
+    }
 
     if ( auto addrCollection = dynamic_cast<RimSummaryAddressCollection*>( caf::SelectionManager::instance()->selectedItem() ) )
     {
         collectionContentType = addrCollection->contentType();
+
+        if ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::WELL ) && wellName.empty() )
+        {
+            auto addresses = addrCollection->descendantsOfType<RimSummaryAddress>();
+            if ( !addresses.empty() )
+            {
+                wellName = addresses.front()->address().wellName();
+            }
+        }
+
+        if ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::GROUP ) && groupName.empty() )
+        {
+            auto addresses = addrCollection->descendantsOfType<RimSummaryAddress>();
+            if ( !addresses.empty() )
+            {
+                groupName = addresses.front()->address().groupName();
+            }
+        }
     }
 
-    if ( auto addr = dynamic_cast<RimSummaryAddress*>( caf::SelectionManager::instance()->selectedItem() ) )
-    {
-        selectedWellName  = addr->address().wellName();
-        selectedGroupName = addr->address().groupName();
-    }
-
-    bool isWell  = ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::WELL ) || !selectedWellName.empty() );
-    bool isGroup = ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::GROUP ) || !selectedGroupName.empty() );
+    bool isWell  = ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::WELL ) || !wellName.empty() );
+    bool isGroup = ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::GROUP ) || !groupName.empty() );
 
     auto textList = text.split( ";" );
     for ( const auto& s : textList )
     {
-        QString menuText = s;
+        auto originalString = s.toStdString();
+        auto modifiedString = originalString;
 
-        auto action = subMenu->addAction( s );
+        if ( isWell )
+        {
+            std::string wellString;
+
+            auto words = s.split( " " );
+            for ( const auto& w : words )
+            {
+                auto tmp = w.toStdString().substr( 1 );
+
+                tmp = "W" + tmp + ":" + wellName;
+
+                if ( !wellString.empty() ) wellString += " ";
+                wellString += tmp;
+            }
+
+            modifiedString = wellString;
+        }
+        else if ( isGroup )
+        {
+            std::string groupString;
+
+            auto words = s.split( " " );
+            for ( const auto& w : words )
+            {
+                auto tmp = w.toStdString().substr( 1 );
+
+                tmp = "G" + tmp + ":" + groupName;
+
+                if ( !groupString.empty() ) groupString += " ";
+                groupString += tmp;
+            }
+
+            modifiedString = groupString;
+        }
+
+        auto action = subMenu->addAction( QString::fromStdString( modifiedString ) );
         action->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
 
         connect( action, &QAction::triggered, this, &RicCreateCrossPlotFeature::onSubMenuActionTriggered );
@@ -106,15 +160,12 @@ void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
     QString addressX;
     QString addressY;
 
-    auto* action = qobject_cast<QAction*>( sender() );
-
-    if ( action )
+    if ( auto* action = qobject_cast<QAction*>( sender() ) )
     {
-        QString text         = action->text();
-        auto    addressTexts = text.split( " " );
+        auto words = action->text().split( " " );
 
-        if ( !addressTexts.empty() ) addressY = addressTexts[0];
-        if ( addressTexts.size() > 1 ) addressX = addressTexts[1];
+        if ( !words.empty() ) addressY = words[0];
+        if ( words.size() > 1 ) addressX = words[1];
     }
 
     RifEclipseSummaryAddress adrX = RifEclipseSummaryAddress::fromEclipseTextAddress( addressX.toStdString() );
