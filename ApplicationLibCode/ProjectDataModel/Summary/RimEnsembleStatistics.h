@@ -21,6 +21,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 class RimEnsembleCurveSetInterface;
 
