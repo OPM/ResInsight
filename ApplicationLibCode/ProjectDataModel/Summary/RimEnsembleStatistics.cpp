@@ -37,7 +37,14 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
 
     CAF_PDM_InitField( &m_active, "Active", true, "Show Statistics Curves" );
     CAF_PDM_InitField( &m_showStatisticsCurveLegends, "ShowStatisticsCurveLegends", false, "Show Statistics Curve Legends" );
+
+    // Create a proxy field to invert the logic in m_hideEnsembleCurves, and avoid adding obsolete field and conversion code in initAfterRead()
     CAF_PDM_InitField( &m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves" );
+    m_hideEnsembleCurves.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_showEnsembleCurves, "ShowEnsembleCurves", "Show Ensemble Curves" );
+    m_showEnsembleCurves.registerGetMethod( this, &RimEnsembleStatistics::onShowEnsembleCurves );
+    m_showEnsembleCurves.registerSetMethod( this, &RimEnsembleStatistics::onSetShowEnsembleCurves );
+
     CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases" );
     CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10" );
     CAF_PDM_InitField( &m_showP50Curve, "ShowP50Curve", false, "P50" );
@@ -83,6 +90,94 @@ bool RimEnsembleStatistics::isActive() const
 void RimEnsembleStatistics::setShowStatisticsCurves( bool show )
 {
     m_active = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::showStatisticsCurveLegends() const
+{
+    return m_showStatisticsCurveLegends;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::hideEnsembleCurves() const
+{
+    return m_hideEnsembleCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::basedOnFilteredCases() const
+{
+    return m_basedOnFilteredCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::showP10Curve() const
+{
+    return m_showP10Curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::showP50Curve() const
+{
+    return m_showP50Curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::showP90Curve() const
+{
+    return m_showP90Curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::showMeanCurve() const
+{
+    return m_showMeanCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::showCurveLabels() const
+{
+    return m_showCurveLabels;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::enableCurveLabels( bool enable )
+{
+    m_showCurveLabels = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::setColor( const cvf::Color3f& color )
+{
+    m_color = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::includeIncompleteCurves() const
+{
+    return m_includeIncompleteCurves;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,7 +241,7 @@ void RimEnsembleStatistics::showColorField( bool show )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_hideEnsembleCurves )
+    if ( changedField == &m_showEnsembleCurves )
     {
         auto curveSet = m_parentCurveSet;
         if ( !curveSet ) return;
@@ -175,7 +270,7 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_active );
     m_showStatisticsCurveLegends.uiCapability()->setUiReadOnly( !m_active );
     uiOrdering.add( &m_showStatisticsCurveLegends );
-    uiOrdering.add( &m_hideEnsembleCurves );
+    uiOrdering.add( &m_showEnsembleCurves );
     uiOrdering.add( &m_basedOnFilteredCases );
     uiOrdering.add( &m_includeIncompleteCurves );
     uiOrdering.add( &m_showCurveLabels );
@@ -204,4 +299,20 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     m_showP90Curve.uiCapability()->setUiName( curveSet->hasP90Data() ? "P90" : "P90 (Needs > 8 curves)" );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleStatistics::onShowEnsembleCurves() const
+{
+    return !m_hideEnsembleCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::onSetShowEnsembleCurves( const bool& enable )
+{
+    m_hideEnsembleCurves = !enable;
 }
