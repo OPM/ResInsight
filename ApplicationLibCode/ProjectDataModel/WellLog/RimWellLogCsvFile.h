@@ -48,13 +48,15 @@ public:
 
     // static RimWellLogCsvFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
 
-    QString name() const { return m_name; }
+    QString name() const override { return m_name; }
 
-    bool readFile( QString* errorMessage );
+    bool readFile( QString* errorMessage ) override;
 
-    QString wellName() const;
+    QString wellName() const override;
 
-    RigWellLogCsvFile* wellLogFileData();
+    RigWellLogCsvFile* wellLogFileData() override;
+
+    QDateTime date() const override;
 
     std::vector<std::pair<double, double>>
         findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) override;

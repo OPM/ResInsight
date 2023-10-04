@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "RiaDefines.h"
+#include "RigWellLogFile.h"
 
-#include "cvfObject.h"
+#include "RiaDefines.h"
 
 #include <QStringList>
 #include <vector>
@@ -29,32 +29,32 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellLogCsvFile : public cvf::Object
+class RigWellLogCsvFile : public RigWellLogFile
 {
 public:
     RigWellLogCsvFile();
     ~RigWellLogCsvFile() override;
 
-    bool open( const QString& fileName, QString* errorMessage );
+    bool open( const QString& fileName, QString* errorMessage ) override;
 
-    QString     wellName() const;
-    QString     date() const;
-    QStringList wellLogChannelNames() const;
+    QString     wellName() const override;
+    QString     date() const override;
+    QStringList wellLogChannelNames() const override;
 
-    std::vector<double> depthValues() const;
-    std::vector<double> tvdMslValues() const;
-    std::vector<double> tvdRkbValues() const;
+    std::vector<double> depthValues() const override;
+    std::vector<double> tvdMslValues() const override;
+    std::vector<double> tvdRkbValues() const override;
 
-    std::vector<double> values( const QString& name ) const;
+    std::vector<double> values( const QString& name ) const override;
 
-    QString wellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const;
-    QString wellLogChannelUnitString( const QString& wellLogChannelName ) const;
-    RiaDefines::DepthUnitType depthUnit() const;
+    QString wellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const override;
+    QString wellLogChannelUnitString( const QString& wellLogChannelName ) const override;
+    RiaDefines::DepthUnitType depthUnit() const override;
 
-    bool hasTvdMslChannel() const;
-    bool hasTvdRkbChannel() const;
+    bool hasTvdMslChannel() const override;
+    bool hasTvdRkbChannel() const override;
 
-    double getMissingValue() const;
+    double getMissingValue() const override;
 
 private:
     void    close();

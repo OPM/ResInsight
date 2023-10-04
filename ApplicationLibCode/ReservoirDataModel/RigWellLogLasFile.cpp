@@ -38,7 +38,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellLogLasFile::RigWellLogLasFile()
-    : cvf::Object()
+    : RigWellLogFile()
 {
     m_wellLogFile = nullptr;
 }

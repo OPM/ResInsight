@@ -52,12 +52,12 @@ public:
 
     QString name() const { return m_name; }
 
-    bool readFile( QString* errorMessage );
+    bool readFile( QString* errorMessage ) override;
 
-    QString   wellName() const;
+    QString   wellName() const override;
     QDateTime date() const;
 
-    RigWellLogLasFile* wellLogFileData() { return m_wellLogDataFile.p(); }
+    RigWellLogLasFile* wellLogFileData() override { return m_wellLogDataFile.p(); }
 
     bool hasFlowData() const;
 
