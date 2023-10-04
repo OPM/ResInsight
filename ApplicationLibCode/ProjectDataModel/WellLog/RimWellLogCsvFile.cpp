@@ -95,18 +95,18 @@ RimWellLogCsvFile::~RimWellLogCsvFile()
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCsvFile::readFile( QString* errorMessage )
 {
-    // if ( !m_wellLogDataFile.p() )
-    // {
-    //     m_wellLogDataFile = new RigWellLogCsvFile;
-    // }
+    if ( !m_wellLogDataFile.p() )
+    {
+        m_wellLogDataFile = new RigWellLogCsvFile;
+    }
 
-    // m_name = QFileInfo( m_fileName().path() ).fileName();
+    m_name = QFileInfo( m_fileName().path() ).fileName();
 
-    // if ( !m_wellLogDataFile->open( m_fileName().path(), errorMessage ) )
-    // {
-    //     m_wellLogDataFile = nullptr;
-    //     return false;
-    // }
+    if ( !m_wellLogDataFile->open( m_fileName().path(), errorMessage ) )
+    {
+        m_wellLogDataFile = nullptr;
+        return false;
+    }
 
     // m_wellName = m_wellLogDataFile->wellName();
 
@@ -125,15 +125,15 @@ bool RimWellLogCsvFile::readFile( QString* errorMessage )
     //     m_date = DEFAULT_DATE_TIME;
     // }
 
-    // m_wellLogChannelNames.deleteChildren();
+    m_wellLogChannelNames.deleteChildren();
 
-    // QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
-    // for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
-    // {
-    //     RimWellLogFileChannel* wellLog = new RimWellLogFileChannel();
-    //     wellLog->setName( wellLogNames[logIdx] );
-    //     m_wellLogChannelNames.push_back( wellLog );
-    // }
+    QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
+    for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )
+    {
+        RimWellLogFileChannel* wellLog = new RimWellLogFileChannel();
+        wellLog->setName( wellLogNames[logIdx] );
+        m_wellLogChannelNames.push_back( wellLog );
+    }
 
     // auto wellPath = firstAncestorOrThisOfType<RimFileWellPath>();
     // if ( wellPath )

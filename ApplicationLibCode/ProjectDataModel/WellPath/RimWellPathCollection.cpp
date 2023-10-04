@@ -389,6 +389,16 @@ std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::addWellLog( RimWellLogFile* wellLogFile, RimWellPath* wellPath )
+{
+    wellPath->addWellLogFile( wellLogFile );
+    sortWellsByName();
+    updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths )
 {
     QString outputMessage = "Well Picks Import\n";
