@@ -36,21 +36,21 @@ public:
 
     bool isActive() const;
     void setShowStatisticsCurves( bool show );
-    bool showStatisticsCurveLegends() const { return m_showStatisticsCurveLegends; }
-    bool hideEnsembleCurves() const { return m_hideEnsembleCurves; }
-    bool basedOnFilteredCases() const { return m_basedOnFilteredCases; }
-    bool showP10Curve() const { return m_showP10Curve; }
-    bool showP50Curve() const { return m_showP50Curve; }
-    bool showP90Curve() const { return m_showP90Curve; }
-    bool showMeanCurve() const { return m_showMeanCurve; }
+    bool showStatisticsCurveLegends() const;
+    bool hideEnsembleCurves() const;
+    bool basedOnFilteredCases() const;
+    bool showP10Curve() const;
+    bool showP50Curve() const;
+    bool showP90Curve() const;
+    bool showMeanCurve() const;
 
-    bool showCurveLabels() const { return m_showCurveLabels; }
-    void enableCurveLabels( bool enable ) { m_showCurveLabels = enable; }
+    bool showCurveLabels() const;
+    void enableCurveLabels( bool enable );
 
     cvf::Color3f color() const { return m_color; }
-    void         setColor( const cvf::Color3f& color ) { m_color = color; }
+    void         setColor( const cvf::Color3f& color );
 
-    bool includeIncompleteCurves() const { return m_includeIncompleteCurves; }
+    bool includeIncompleteCurves() const;
 
     int crossPlotCurvesBinCount() const;
     int crossPlotRealizationCountThresholdPerBin() const;
@@ -66,18 +66,23 @@ public:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
+    bool onShowEnsembleCurves() const;
+    void onSetShowEnsembleCurves( const bool& enable );
+
+private:
     RimEnsembleCurveSetInterface* m_parentCurveSet;
 
-    caf::PdmField<bool> m_active;
-    caf::PdmField<bool> m_showStatisticsCurveLegends;
-    caf::PdmField<bool> m_hideEnsembleCurves;
-    caf::PdmField<bool> m_basedOnFilteredCases;
-    caf::PdmField<bool> m_showP10Curve;
-    caf::PdmField<bool> m_showP50Curve;
-    caf::PdmField<bool> m_showP90Curve;
-    caf::PdmField<bool> m_showMeanCurve;
-    caf::PdmField<bool> m_showCurveLabels;
-    caf::PdmField<bool> m_includeIncompleteCurves;
+    caf::PdmField<bool>           m_active;
+    caf::PdmField<bool>           m_showStatisticsCurveLegends;
+    caf::PdmField<bool>           m_hideEnsembleCurves;
+    caf::PdmProxyValueField<bool> m_showEnsembleCurves;
+    caf::PdmField<bool>           m_basedOnFilteredCases;
+    caf::PdmField<bool>           m_showP10Curve;
+    caf::PdmField<bool>           m_showP50Curve;
+    caf::PdmField<bool>           m_showP90Curve;
+    caf::PdmField<bool>           m_showMeanCurve;
+    caf::PdmField<bool>           m_showCurveLabels;
+    caf::PdmField<bool>           m_includeIncompleteCurves;
 
     // Ensemble cross plot settings
     caf::PdmField<int> m_crossPlotCurvesBinCount;
