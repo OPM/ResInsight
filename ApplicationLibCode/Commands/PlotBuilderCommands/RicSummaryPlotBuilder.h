@@ -103,6 +103,8 @@ public:
     static RimEnsembleCurveSet*
         addNewEnsembleCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCaseCollection* ensemble );
 
+    static RimSummaryCurve* addNewSummaryCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCase* summaryCase );
+
 private:
     std::set<RifEclipseSummaryAddress>     m_addresses;
     std::vector<RimSummaryCase*>           m_summaryCases;

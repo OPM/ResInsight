@@ -644,13 +644,7 @@ RimSummaryPlot* RicSummaryPlotBuilder::createCrossPlot( const std::vector<RiaSum
         {
             if ( !summaryCase ) continue;
 
-            auto curve = new RimSummaryCurve();
-
-            curve->setSummaryCaseY( summaryCase );
-            curve->setSummaryAddressY( addr.summaryAddressY() );
-            curve->setSummaryAddressX( addr.summaryAddressX() );
-
-            summaryPlot->addCurveNoUpdate( curve );
+            addNewSummaryCurve( summaryPlot, addr, summaryCase );
         }
     }
 
@@ -716,4 +710,33 @@ RimEnsembleCurveSet* RicSummaryPlotBuilder::addNewEnsembleCurve( RimSummaryPlot*
     summaryPlot->curvesChanged.send();
 
     return curveSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RicSummaryPlotBuilder::addNewSummaryCurve( RimSummaryPlot*               summaryPlot,
+                                                            const RiaSummaryCurveAddress& curveAddress,
+                                                            RimSummaryCase*               summaryCase )
+{
+    auto curve = new RimSummaryCurve();
+
+    curve->setSummaryCaseY( summaryCase );
+    curve->setSummaryAddressY( curveAddress.summaryAddressY() );
+
+    curve->setSummaryCaseX( summaryCase );
+    curve->setSummaryAddressX( curveAddress.summaryAddressX() );
+    if ( curveAddress.summaryAddressX().category() != SummaryCategory::SUMMARY_TIME )
+    {
+        curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+    }
+
+    summaryPlot->addCurveNoUpdate( curve );
+
+    if ( curveAddress.summaryAddressX().category() != SummaryCategory::SUMMARY_TIME )
+    {
+        summaryPlot->findOrAssignPlotAxisX( curve );
+    }
+
+    return curve;
 }

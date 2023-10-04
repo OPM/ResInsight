@@ -22,7 +22,9 @@
 
 #include "RiaPreferencesSummary.h"
 #include "RiaSummaryCurveAddress.h"
+
 #include "RifEclipseSummaryAddress.h"
+
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
@@ -46,14 +48,7 @@ bool RicCreateCrossPlotFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCreateCrossPlotFeature::onActionTriggered( bool isChecked )
 {
-    /*
-        std::vector<RimSummaryCrossPlot*> selectedObjects = caf::selectedObjectsByType<RimSummaryCrossPlot*>();
-
-        if ( selectedObjects.size() == 1 )
-        {
-            RicPasteSummaryCrossPlotFeature::copyPlotAndAddToCollection( selectedObjects[0] );
-        }
-    */
+    // Nothing to do here, the sub menus are handled by the onSubMenuActionTriggered
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,20 +59,18 @@ void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setText( "Summary Cross Plot" );
     // actionToSetup->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
 
-    auto myMenu = actionToSetup->menu();
-
-    QMenu* submenu = new QMenu( "Create Cross Plot" );
+    auto* subMenu = new QMenu( "Create Cross Plot" );
 
     auto text = RiaPreferencesSummary::current()->crossPlotAddressCombinations();
 
     auto textList = text.split( ";" );
     for ( const auto& s : textList )
     {
-        auto action = submenu->addAction( s );
+        auto action = subMenu->addAction( s );
         connect( action, &QAction::triggered, this, &RicCreateCrossPlotFeature::onSubMenuActionTriggered );
     }
 
-    actionToSetup->setMenu( submenu );
+    actionToSetup->setMenu( subMenu );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +81,7 @@ void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
     QString addressX;
     QString addressY;
 
-    QAction* action = qobject_cast<QAction*>( sender() );
+    auto* action = qobject_cast<QAction*>( sender() );
 
     if ( action )
     {
