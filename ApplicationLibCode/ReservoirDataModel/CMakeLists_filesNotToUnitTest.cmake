@@ -5,6 +5,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseToCaseRangeFilterMapper.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCenterLineCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogLasFile.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCsvFile.h
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirGridTools.h
 )
 
@@ -15,6 +16,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigCaseToCaseRangeFilterMapper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCenterLineCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogLasFile.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCsvFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigReservoirGridTools.cpp
 )
 
