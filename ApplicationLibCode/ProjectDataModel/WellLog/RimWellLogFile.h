@@ -27,6 +27,8 @@
 class RimWellLogFileChannel;
 class RimWellPath;
 
+class RigWellLogFile;
+
 //==================================================================================================
 ///
 ///
@@ -42,6 +44,13 @@ public:
     virtual void                                setFileName( const QString& fileName );
     virtual QString                             fileName() const;
     virtual std::vector<RimWellLogFileChannel*> wellLogChannels() const;
+
+    virtual QString         wellName() const                  = 0;
+    virtual QString         name() const                      = 0;
+    virtual bool            readFile( QString* errorMessage ) = 0;
+    virtual RigWellLogFile* wellLogFileData()                 = 0;
+
+    virtual QDateTime date() const = 0;
 
     virtual std::vector<std::pair<double, double>>
         findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) = 0;

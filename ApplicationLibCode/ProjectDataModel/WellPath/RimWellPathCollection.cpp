@@ -169,7 +169,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
         if ( wellPath )
         {
-            for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
+            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 if ( wellLogFile )
                 {

@@ -256,3 +256,11 @@ RigWellLogCsvFile* RimWellLogCsvFile::wellLogFileData()
 // {
 //     return dateTime.isValid() && dateTime != DEFAULT_DATE_TIME;
 // }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RimWellLogCsvFile::date() const
+{
+    return QDateTime();
+}

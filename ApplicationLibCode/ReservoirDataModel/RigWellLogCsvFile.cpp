@@ -35,7 +35,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellLogCsvFile::RigWellLogCsvFile()
-    : cvf::Object()
+    : RigWellLogFile()
 {
     // m_wellLogFile = nullptr;
 }
@@ -132,6 +132,16 @@ void RigWellLogCsvFile::close()
 ///
 //--------------------------------------------------------------------------------------------------
 QString RigWellLogCsvFile::wellName() const
+{
+    // CVF_ASSERT( m_wellLogFile );
+    // return RiaStringEncodingTools::fromNativeEncoded( m_wellLogFile->GetWellName().data() );
+    return "TODO";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellLogCsvFile::date() const
 {
     // CVF_ASSERT( m_wellLogFile );
     // return RiaStringEncodingTools::fromNativeEncoded( m_wellLogFile->GetWellName().data() );

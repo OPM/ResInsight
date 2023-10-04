@@ -48,6 +48,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogLasFileCurve.h"
@@ -780,10 +781,13 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
 
             for ( const auto& wellLogFile : wellLogFiles )
             {
-                auto addr = RifDataSourceForRftPlt( wellLogFile );
-                auto item = caf::PdmOptionItemInfo( wellLogFile->name(), QVariant::fromValue( addr ) );
-                item.setLevel( 1 );
-                options.push_back( item );
+                if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
+                {
+                    auto addr = RifDataSourceForRftPlt( wellLogLasFile );
+                    auto item = caf::PdmOptionItemInfo( wellLogFile->name(), QVariant::fromValue( addr ) );
+                    item.setLevel( 1 );
+                    options.push_back( item );
+                }
             }
         }
     }
@@ -994,8 +998,11 @@ void RimWellPltPlot::initAfterLoad()
             {
                 for ( const auto& wellLogFile : wellLogFiles )
                 {
-                    auto addr = RifDataSourceForRftPlt( wellLogFile );
-                    selectedSources.push_back( addr );
+                    if ( auto wellLogLasFile = dynamic_cast<RimWellLogLasFile*>( wellLogFile ) )
+                    {
+                        auto addr = RifDataSourceForRftPlt( wellLogLasFile );
+                        selectedSources.push_back( addr );
+                    }
                 }
             }
 

@@ -1020,7 +1020,7 @@ std::vector<RimWellLogLasFile*> RimEnsembleWellLogCurveSet::filterEnsembleCases(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleWellLogCurveSet::isSameRealization( RimSummaryCase* summaryCase, RimWellLogLasFile* wellLogFile ) const
+bool RimEnsembleWellLogCurveSet::isSameRealization( RimSummaryCase* summaryCase, RimWellLogFile* wellLogFile ) const
 {
     QString wellLogFileName = wellLogFile->fileName();
 
