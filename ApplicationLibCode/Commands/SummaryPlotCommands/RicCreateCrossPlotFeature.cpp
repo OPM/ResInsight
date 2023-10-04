@@ -30,6 +30,8 @@
 
 #include "cafSelectionManagerTools.h"
 
+#include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include <QAction>
 #include <QMenu>
 
@@ -57,16 +59,39 @@ void RicCreateCrossPlotFeature::onActionTriggered( bool isChecked )
 void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Summary Cross Plot" );
-    // actionToSetup->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
 
     auto* subMenu = new QMenu( "Create Cross Plot" );
 
     auto text = RiaPreferencesSummary::current()->crossPlotAddressCombinations();
 
+    auto collectionContentType = RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED;
+
+    std::string selectedWellName;
+    std::string selectedGroupName;
+
+    if ( auto addrCollection = dynamic_cast<RimSummaryAddressCollection*>( caf::SelectionManager::instance()->selectedItem() ) )
+    {
+        collectionContentType = addrCollection->contentType();
+    }
+
+    if ( auto addr = dynamic_cast<RimSummaryAddress*>( caf::SelectionManager::instance()->selectedItem() ) )
+    {
+        selectedWellName  = addr->address().wellName();
+        selectedGroupName = addr->address().groupName();
+    }
+
+    bool isWell  = ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::WELL ) || !selectedWellName.empty() );
+    bool isGroup = ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::GROUP ) || !selectedGroupName.empty() );
+
     auto textList = text.split( ";" );
     for ( const auto& s : textList )
     {
+        QString menuText = s;
+
         auto action = subMenu->addAction( s );
+        action->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
+
         connect( action, &QAction::triggered, this, &RicCreateCrossPlotFeature::onSubMenuActionTriggered );
     }
 

@@ -1101,6 +1101,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
+            menuBuilder << "RicCreateCrossPlotFeature";
         }
         else if ( dynamic_cast<RimPlotAxisPropertiesInterface*>( firstUiItem ) )
         {
