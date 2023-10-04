@@ -1354,7 +1354,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
 void RimWellPlotTools::calculateValueOptionsForTimeSteps( const QString&                             wellPathNameOrSimWellName,
                                                           const std::vector<RifDataSourceForRftPlt>& selSources,
                                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
-                                                          QList<caf::PdmOptionItemInfo>&                               options )
+                                                          QList<caf::PdmOptionItemInfo>& options )
 {
     auto timestepsToShowWithSources = calculateRelevantTimeStepsFromCases( wellPathNameOrSimWellName, selSources, interestingRFTResults );
 
