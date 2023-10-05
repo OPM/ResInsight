@@ -32,8 +32,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlot.h"
-#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -117,12 +115,6 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
             summaryPlot->loadDataAndUpdate();
         }
         multiPlot->updatePlotTitles();
-    }
-
-    RimSummaryCrossPlotCollection* summaryCrossPlotColl = RiaSummaryTools::summaryCrossPlotCollection();
-    for ( RimSummaryPlot* summaryPlot : summaryCrossPlotColl->plots() )
-    {
-        summaryPlot->loadDataAndUpdate();
     }
 }
 

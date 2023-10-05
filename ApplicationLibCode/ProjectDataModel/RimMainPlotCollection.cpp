@@ -274,14 +274,6 @@ RimSummaryMultiPlotCollection* RimMainPlotCollection::summaryMultiPlotCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection() const
-{
-    return m_summaryCrossPlotCollection_OBSOLETE();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimSummaryTableCollection* RimMainPlotCollection::summaryTableCollection() const
 {
     return m_summaryTableCollection();
@@ -509,7 +501,6 @@ std::vector<RimPlotCollection*> RimMainPlotCollection::allPlotCollections() cons
     std::vector<RimPlotCollection*> plotCollections;
     plotCollections.push_back( wellLogPlotCollection() );
     plotCollections.push_back( summaryMultiPlotCollection() );
-    plotCollections.push_back( summaryCrossPlotCollection() );
     plotCollections.push_back( summaryTableCollection() );
     plotCollections.push_back( gridCrossPlotCollection() );
     plotCollections.push_back( analysisPlotCollection() );

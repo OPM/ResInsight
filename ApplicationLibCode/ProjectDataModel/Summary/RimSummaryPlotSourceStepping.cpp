@@ -32,7 +32,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryDataSourceStepping.h"
@@ -567,21 +566,6 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         if ( ensembleCurveColl )
         {
             ensembleCurveColl->updateConnectedEditors();
-        }
-
-        RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>( summaryPlot );
-        if ( summaryCrossPlot )
-        {
-            // Trigger update of curve collection (and summary toolbar in main window), as the visibility of combo
-            // boxes might have been changed due to the updates in this function
-            auto curveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
-            if ( curveCollection )
-            {
-                curveCollection->updateConnectedEditors();
-            }
-
-            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-            mainPlotWindow->updateMultiPlotToolBar();
         }
     }
 }

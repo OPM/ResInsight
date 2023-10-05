@@ -80,7 +80,6 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryTableCollection.h"
 #include "RimSurfaceCollection.h"

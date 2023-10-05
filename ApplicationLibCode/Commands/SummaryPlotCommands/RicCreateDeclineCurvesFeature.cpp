@@ -39,8 +39,7 @@ CAF_CMD_SOURCE_INIT( RicCreateDeclineCurvesFeature, "RicCreateDeclineCurvesFeatu
 //--------------------------------------------------------------------------------------------------
 bool RicCreateDeclineCurvesFeature::isCommandEnabled() const
 {
-    RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
-    return ( selectedPlot && !RiaSummaryTools::isSummaryCrossPlot( selectedPlot ) );
+    return caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,7 +27,6 @@
 #include "RimGridCrossPlotCurve.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimVfpPlot.h"
 #include "RimWellAllocationOverTimePlot.h"
@@ -191,11 +190,6 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
 
     for ( auto plot : selection )
     {
-        if ( dynamic_cast<RimSummaryCrossPlot*>( plot ) )
-        {
-            return false;
-        }
-
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) || dynamic_cast<RimWellLogTrack*>( plot ) ||
              dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) ||
              dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )

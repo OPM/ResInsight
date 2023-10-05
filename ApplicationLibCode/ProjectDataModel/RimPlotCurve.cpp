@@ -28,7 +28,6 @@
 #include "RimNameConfig.h"
 #include "RimPlotRectAnnotation.h"
 #include "RimProject.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"

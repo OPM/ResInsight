@@ -134,8 +134,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlot.h"
-#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
@@ -625,12 +623,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewPlotDataFilterFeature";
         }
-        else if ( dynamic_cast<RimSummaryCrossPlotCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicPasteSummaryCrossPlotFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicNewSummaryCrossPlotFeature";
-        }
         else if ( dynamic_cast<RimSummaryTableCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSummaryTableFeature";
@@ -696,12 +688,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
         }
-        else if ( dynamic_cast<RimSummaryPlot*>( firstUiItem ) ) // This is also the definition for RimSummaryCrossPlot
+        else if ( dynamic_cast<RimSummaryPlot*>( firstUiItem ) )
         {
-            RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>( firstUiItem );
-
             menuBuilder << "RicPasteSummaryCurveFeature";
-            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "RicPasteSummaryPlotFeature";
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
             menuBuilder << "RicPasteEnsembleCurveSetFeature";
@@ -710,16 +699,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicDuplicateSummaryPlotFeature";
             menuBuilder << "RicSplitMultiPlotFeature";
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
-            menuBuilder << "RicDuplicateSummaryCrossPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewPlotAxisPropertiesFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "Separator";
-
-            // Export is not supported for cross plot
-            if ( !summaryCrossPlot ) menuBuilder << "RicAsciiExportSummaryPlotFeature";
-
+            menuBuilder << "RicAsciiExportSummaryPlotFeature";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
@@ -731,7 +716,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryCurve*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
-            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
 
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCurveFeature";
@@ -739,7 +723,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicCreateDeclineCurvesFeature";
             menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
-            menuBuilder << "RicDuplicateSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicSetSourceSteppingSummaryCurveFeature";
             menuBuilder << "RicClearSourceSteppingSummaryCurveFeature";
@@ -754,7 +737,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryCurveCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
-            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
@@ -812,7 +794,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicNewDerivedEnsembleFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder.addSeparator();
@@ -833,7 +814,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder.addSeparator();
@@ -1184,7 +1164,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicOpenSummaryPlotEditorFeature";
         menuBuilder << "RicNewDerivedEnsembleFeature";
-        menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";
         menuBuilder.addSeparator();
@@ -1260,11 +1239,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSummaryPlot*>( firstUiItem ) )
         {
-            RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>( firstUiItem );
-            if ( !summaryCrossPlot )
-            {
-                menuBuilder << "RicAsciiExportSummaryPlotFeature";
-            }
+            menuBuilder << "RicAsciiExportSummaryPlotFeature";
         }
         else if ( dynamic_cast<RimSeismicData*>( firstUiItem ) )
         {

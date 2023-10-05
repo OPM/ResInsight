@@ -68,7 +68,6 @@ public:
     RimRftPlotCollection*                rftPlotCollection() const;
     RimPltPlotCollection*                pltPlotCollection() const;
     RimSummaryMultiPlotCollection*       summaryMultiPlotCollection() const;
-    RimSummaryCrossPlotCollection*       summaryCrossPlotCollection() const;
     RimSummaryTableCollection*           summaryTableCollection() const;
     RimAnalysisPlotCollection*           analysisPlotCollection() const;
     RimCorrelationPlotCollection*        correlationPlotCollection() const;
