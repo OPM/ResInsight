@@ -20,7 +20,6 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"

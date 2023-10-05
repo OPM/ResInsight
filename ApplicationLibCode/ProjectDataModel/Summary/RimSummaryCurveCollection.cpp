@@ -24,7 +24,6 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
@@ -381,12 +380,6 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolbar()
 {
-    auto parentCrossPlot = firstAncestorOrThisOfType<RimSummaryCrossPlot>();
-    if ( parentCrossPlot )
-    {
-        return m_unionSourceStepping->fieldsToShowInToolbar();
-    }
-
     return m_ySourceStepping()->fieldsToShowInToolbar();
 }
 

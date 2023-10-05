@@ -77,7 +77,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"

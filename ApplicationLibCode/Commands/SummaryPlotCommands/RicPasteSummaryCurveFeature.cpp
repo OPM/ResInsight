@@ -22,7 +22,6 @@
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"

@@ -1,21 +1,16 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultSummaryPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotFeatureImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryCrossPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryCrossPlotCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataToSummaryPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataToSummaryPlotFeatureUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicViewZoomAllFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveSwitchAxisFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryCrossPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryCrossPlotCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicAsciiExportSummaryPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewGridTimeHistoryCurveFeature.h
@@ -23,7 +18,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteTimeHistoryCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCrossPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorWidgetCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.h
@@ -58,21 +52,16 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultSummaryPlotFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotFeatureImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryCurveFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryCrossPlotFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryCrossPlotCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataToSummaryPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataToSummaryPlotFeatureUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicViewZoomAllFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveSwitchAxisFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryPlotFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryCrossPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryCurveFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryCrossPlotCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAsciiExportSummaryPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewGridTimeHistoryCurveFeature.cpp
@@ -80,7 +69,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteTimeHistoryCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCrossPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorWidgetCreator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.cpp

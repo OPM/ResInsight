@@ -23,7 +23,6 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryPlot.h"

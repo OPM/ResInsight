@@ -28,7 +28,6 @@
 
 class RimSummaryCase;
 class RimSummaryCurve;
-class RimSummaryCrossPlot;
 class RimSummaryPlot;
 class RiuPlotWidget;
 class RiuPlotCurve;
@@ -102,7 +101,6 @@ private:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
 private:
-    friend class RimSummaryCrossPlot;
     friend class RimSummaryPlot;
 
     caf::PdmField<bool>                       m_showCurves;
