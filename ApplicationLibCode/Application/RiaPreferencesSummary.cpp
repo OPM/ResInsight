@@ -114,9 +114,10 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_crossPlotAddressCombinations,
                        "CrossPlotAddressCombinations",
                        QString( "FWIR FOPT;FGOR FOPT;FWCT FOPT;FGLIR FOPR" ),
-                       "Cross Plot Curves",
+                       "Cross Plot Addresses [Y-adr X-adr]",
                        "",
-                       "Semicolon separated list used to create cross plot curves",
+                       "Semicolon separated list used to create cross plot curves. Based on selection, the names will be changed to "
+                       "corresponing well or group vector names",
                        "" );
 
     CAF_PDM_InitField( &m_selectDefaultTemplates, "selectDefaultTemplate", false, "", "", "Select Default Templates" );

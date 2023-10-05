@@ -32,5 +32,7 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    void onSubMenuActionTriggered( bool isChecked );
+private:
+    void               onSubMenuActionTriggered( bool isChecked );
+    static QStringList crossPlotAddressesBasedOnSelection();
 };

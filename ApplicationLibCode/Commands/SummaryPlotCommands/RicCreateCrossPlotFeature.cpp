@@ -53,6 +53,8 @@ void RicCreateCrossPlotFeature::onActionTriggered( bool isChecked )
     // Nothing to do here, the sub menus are handled by the onSubMenuActionTriggered
 }
 
+auto newCrossPlotText = []() -> QString { return "New Cross Plot"; };
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -61,8 +63,64 @@ void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setText( "Summary Cross Plot" );
     actionToSetup->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
 
-    auto* subMenu = new QMenu( "Create Cross Plot" );
+    auto subMenu = new QMenu( "Create Cross Plot" );
 
+    auto menuTexts = crossPlotAddressesBasedOnSelection();
+    menuTexts.append( newCrossPlotText() );
+
+    for ( const auto& crossPlotAddresses : menuTexts )
+    {
+        auto action = subMenu->addAction( crossPlotAddresses );
+        action->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
+
+        connect( action, &QAction::triggered, this, &RicCreateCrossPlotFeature::onSubMenuActionTriggered );
+    }
+
+    actionToSetup->setMenu( subMenu );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
+{
+    QString addressX;
+    QString addressY;
+
+    if ( auto* action = qobject_cast<QAction*>( sender() ) )
+    {
+        auto text = action->text();
+        if ( text != newCrossPlotText() )
+        {
+            auto words = action->text().split( " " );
+
+            if ( !words.empty() ) addressY = words[0];
+            if ( words.size() > 1 ) addressX = words[1];
+        }
+    }
+
+    RifEclipseSummaryAddress adrX = RifEclipseSummaryAddress::fromEclipseTextAddress( addressX.toStdString() );
+    RifEclipseSummaryAddress adrY = RifEclipseSummaryAddress::fromEclipseTextAddress( addressY.toStdString() );
+
+    RiaSummaryCurveAddress curveAddress( adrX, adrY );
+
+    auto selectedCases     = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCase>();
+    auto selectedEnsembles = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCaseCollection>();
+
+    auto newPlot = RicSummaryPlotBuilder::createCrossPlot( { curveAddress }, { selectedCases }, { selectedEnsembles } );
+
+    RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+// Returns a list of cross plot address combinations based on the current selection
+// The vectors defined in preferences is given in field vectors
+// If the selection is a field address, use the list from preferences
+// If the selection is a well address, F is replaced with W and well name is appended
+// If the selection is a group address, F is replaced with G and group name is appended
+//--------------------------------------------------------------------------------------------------
+QStringList RicCreateCrossPlotFeature::crossPlotAddressesBasedOnSelection()
+{
     auto text = RiaPreferencesSummary::current()->crossPlotAddressCombinations();
 
     auto collectionContentType = RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED;
@@ -102,11 +160,12 @@ void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
     bool isWell  = ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::WELL ) || !wellName.empty() );
     bool isGroup = ( ( collectionContentType == RimSummaryAddressCollection::CollectionContentType::GROUP ) || !groupName.empty() );
 
+    QStringList crossPlotAddressCombinations;
+
     auto textList = text.split( ";" );
     for ( const auto& s : textList )
     {
-        auto originalString = s.toStdString();
-        auto modifiedString = originalString;
+        auto modifiedString = s.toStdString();
 
         if ( isWell )
         {
@@ -143,40 +202,8 @@ void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
             modifiedString = groupString;
         }
 
-        auto action = subMenu->addAction( QString::fromStdString( modifiedString ) );
-        action->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
-
-        connect( action, &QAction::triggered, this, &RicCreateCrossPlotFeature::onSubMenuActionTriggered );
+        crossPlotAddressCombinations.append( QString::fromStdString( modifiedString ) );
     }
 
-    actionToSetup->setMenu( subMenu );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicCreateCrossPlotFeature::onSubMenuActionTriggered( bool isChecked )
-{
-    QString addressX;
-    QString addressY;
-
-    if ( auto* action = qobject_cast<QAction*>( sender() ) )
-    {
-        auto words = action->text().split( " " );
-
-        if ( !words.empty() ) addressY = words[0];
-        if ( words.size() > 1 ) addressX = words[1];
-    }
-
-    RifEclipseSummaryAddress adrX = RifEclipseSummaryAddress::fromEclipseTextAddress( addressX.toStdString() );
-    RifEclipseSummaryAddress adrY = RifEclipseSummaryAddress::fromEclipseTextAddress( addressY.toStdString() );
-
-    RiaSummaryCurveAddress curveAddress( adrX, adrY );
-
-    auto selectedCases     = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCase>();
-    auto selectedEnsembles = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCaseCollection>();
-
-    auto newPlot = RicSummaryPlotBuilder::createCrossPlot( { curveAddress }, { selectedCases }, { selectedEnsembles } );
-
-    RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+    return crossPlotAddressCombinations;
 }
