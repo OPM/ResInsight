@@ -32,6 +32,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -45,10 +46,10 @@ RimPerforationInterval::RimPerforationInterval()
 {
     CAF_PDM_InitScriptableObject( "Perforation", ":/PerforationInterval16x16.png" );
 
-    CAF_PDM_InitField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD" );
-    CAF_PDM_InitField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD" );
-    CAF_PDM_InitField( &m_diameter, "Diameter", 0.216, "Diameter" );
-    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
+    CAF_PDM_InitScriptableField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD" );
+    CAF_PDM_InitScriptableField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD" );
+    CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.216, "Diameter" );
+    CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
 
     CAF_PDM_InitField( &m_startOfHistory_OBSOLETE, "StartOfHistory", true, "All Timesteps" );
     m_startOfHistory_OBSOLETE.xmlCapability()->setIOWritable( false );

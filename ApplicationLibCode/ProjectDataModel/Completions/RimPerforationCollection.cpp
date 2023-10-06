@@ -33,6 +33,9 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimPerforationCollection, "PerforationCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -40,12 +43,12 @@ CAF_PDM_SOURCE_INIT( RimPerforationCollection, "PerforationCollection" );
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection::RimPerforationCollection()
 {
-    CAF_PDM_InitObject( "Perforations", ":/PerforationIntervals16x16.png" );
+    CAF_PDM_InitScriptableObject( "Perforations", ":/PerforationIntervals16x16.png" );
 
     nameField()->uiCapability()->setUiHidden( true );
     setName( "Perforations" );
 
-    CAF_PDM_InitFieldNoDefault( &m_perforations, "Perforations", "Perforations" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_perforations, "Perforations", "Perforations" );
     m_perforations.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nonDarcyParameters, "NonDarcyParameters", "Non-Darcy Parameters" );

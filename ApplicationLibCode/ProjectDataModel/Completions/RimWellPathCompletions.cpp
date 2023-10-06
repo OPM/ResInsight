@@ -36,6 +36,8 @@
 #include "cvfAssert.h"
 
 #include "cafPdmDoubleStringValidator.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -49,9 +51,9 @@ CAF_PDM_SOURCE_INIT( RimWellPathCompletions, "WellPathCompletions" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathCompletions::RimWellPathCompletions()
 {
-    CAF_PDM_InitObject( "Completions", ":/CompletionsSymbol16x16.png" );
+    CAF_PDM_InitScriptableObject( "Completions", ":/CompletionsSymbol16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_perforationCollection, "Perforations", "Perforations" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_perforationCollection, "Perforations", "Perforations" );
     m_perforationCollection = new RimPerforationCollection;
     m_perforationCollection.uiCapability()->setUiTreeHidden( true );
 
