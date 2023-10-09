@@ -48,8 +48,8 @@ public:
     virtual bool isSegmentInTitle() const            = 0;
     virtual bool isCompletionInTitle() const         = 0;
 
-    virtual std::set<std::string> vectorNames() const = 0;
-    virtual QString               caseName() const    = 0;
+    virtual std::vector<std::string> vectorNames() const = 0;
+    virtual QString                  caseName() const    = 0;
 
     virtual std::string titleVectorName() const = 0;
     virtual std::string titleWellName() const   = 0;

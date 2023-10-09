@@ -127,14 +127,14 @@ bool RimMultiSummaryPlotNameHelper::isCompletionInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RimMultiSummaryPlotNameHelper::vectorNames() const
+std::vector<std::string> RimMultiSummaryPlotNameHelper::vectorNames() const
 {
-    std::set<std::string> allNames;
+    std::vector<std::string> allNames;
 
     for ( auto nameHelper : m_nameHelpers )
     {
         auto nameHelperVectorNames = nameHelper->vectorNames();
-        allNames.insert( nameHelperVectorNames.begin(), nameHelperVectorNames.end() );
+        allNames.insert( allNames.end(), nameHelperVectorNames.begin(), nameHelperVectorNames.end() );
     }
 
     return allNames;
