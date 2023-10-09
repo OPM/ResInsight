@@ -56,6 +56,7 @@
 #include "qwt_scale_draw.h"
 #include "qwt_text.h"
 
+#include "RifCsvDataTableFormatter.h"
 #include <algorithm>
 #include <limits>
 #include <map>
@@ -107,44 +108,6 @@ public:
 private:
     std::map<size_t, QString> m_tickLabels;
 };
-
-template <typename KeyType, typename ValueType>
-class CorrelationMatrixRowOrColumn
-{
-public:
-    CorrelationMatrixRowOrColumn( const KeyType& key, const std::vector<double>& correlations, const std::vector<ValueType>& values )
-        : m_key( key )
-        , m_correlations( correlations )
-        , m_values( values )
-        , m_correlationSum( 0.0 )
-        , m_correlationAbsSum( 0.0 )
-    {
-        bool anyValid = false;
-        for ( auto value : correlations )
-        {
-            if ( RiaCurveDataTools::isValidValue( value, false ) )
-            {
-                m_correlationSum += value;
-                m_correlationAbsSum += std::abs( value );
-                anyValid = true;
-            }
-        }
-        if ( !anyValid )
-        {
-            m_correlationSum    = std::numeric_limits<double>::infinity();
-            m_correlationAbsSum = std::numeric_limits<double>::infinity();
-        }
-    }
-
-    KeyType                m_key;
-    std::vector<double>    m_correlations;
-    std::vector<ValueType> m_values;
-    double                 m_correlationSum;
-    double                 m_correlationAbsSum;
-};
-
-using CorrelationMatrixColumn = CorrelationMatrixRowOrColumn<QString, RiaSummaryCurveDefinition>;
-using CorrelationMatrixRow    = CorrelationMatrixRowOrColumn<RiaSummaryCurveDefinition, QString>;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -247,6 +210,41 @@ int RimCorrelationMatrixPlot::topNFilterCount() const
 bool RimCorrelationMatrixPlot::isCurveHighlightSupported() const
 {
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCorrelationMatrixPlot::asciiDataForPlotExport() const
+{
+    QString text;
+
+    QTextStream              stream( &text );
+    QString                  fieldSeparator = "\t";
+    RifCsvDataTableFormatter formatter( stream, fieldSeparator );
+    formatter.setUseQuotes( false );
+
+    std::vector<RifTextDataTableColumn> header;
+    for ( const auto& param : m_paramLabels )
+    {
+        header.emplace_back( RifTextDataTableColumn( param.second ) );
+    }
+
+    formatter.header( header );
+
+    for ( const auto& barDef : m_valuesForTextReport )
+    {
+        for ( const auto& corr : barDef.m_correlations )
+        {
+            formatter.add( corr );
+        }
+
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -645,6 +643,8 @@ void RimCorrelationMatrixPlot::createMatrix()
 
         m_resultLabels[rowIdx] = resultLabel;
     }
+
+    m_valuesForTextReport = correlationMatrixRows;
 }
 
 //--------------------------------------------------------------------------------------------------

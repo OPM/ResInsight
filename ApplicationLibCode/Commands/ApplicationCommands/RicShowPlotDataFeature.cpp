@@ -42,6 +42,7 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
+#include "RimCorrelationMatrixPlot.h"
 
 CAF_CMD_SOURCE_INIT( RicShowPlotDataFeature, "RicShowPlotDataFeature" );
 
@@ -193,7 +194,8 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
     {
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) || dynamic_cast<RimWellLogTrack*>( plot ) ||
              dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) ||
-             dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) || dynamic_cast<RimAnalysisPlot*>( plot ) )
+             dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) || dynamic_cast<RimAnalysisPlot*>( plot ) ||
+             dynamic_cast<RimCorrelationMatrixPlot*>( plot ) )
         {
             validPlots++;
         }
@@ -225,9 +227,16 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimPlotWindow*> selection;
     getSelection( selection );
 
-    std::vector<RimSummaryPlot*>                selectedSummaryPlots;
+    // Using RiuTabbedSummaryPlotTextProvider
+    std::vector<RimSummaryPlot*> selectedSummaryPlots;
+
+    // Using RiuTabbedGridCrossPlotTextProvider
+    std::vector<RimGridCrossPlot*> crossPlots;
+
+    // Show content using RimPlot::description() and RimPlot::asciiDataForPlotExport()
+    std::vector<RimPlot*> rimPlots;
+
     std::vector<RimWellLogPlot*>                wellLogPlots;
-    std::vector<RimGridCrossPlot*>              crossPlots;
     std::vector<RimVfpPlot*>                    vfpPlots;
     std::vector<RimWellLogTrack*>               depthTracks;
     std::vector<RimWellAllocationOverTimePlot*> wellAllocationOverTimePlots;
@@ -241,15 +250,20 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
             continue;
         }
 
-        if ( auto wellPlot = dynamic_cast<RimWellLogPlot*>( plot ) )
-        {
-            wellLogPlots.push_back( wellPlot );
-            continue;
-        }
-
         if ( auto xPlot = dynamic_cast<RimGridCrossPlot*>( plot ) )
         {
             crossPlots.push_back( xPlot );
+            continue;
+        }
+
+        if ( auto rimPlot = dynamic_cast<RimPlot*>( plot ) )
+        {
+            rimPlots.push_back( rimPlot );
+        }
+
+        if ( auto wellPlot = dynamic_cast<RimWellLogPlot*>( plot ) )
+        {
+            wellLogPlots.push_back( wellPlot );
             continue;
         }
 
@@ -283,6 +297,18 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         auto textProvider = new RiuTabbedSummaryPlotTextProvider( summaryPlot );
         RicShowPlotDataFeature::showTabbedTextWindow( textProvider );
     }
+    for ( RimGridCrossPlot* crossPlot : crossPlots )
+    {
+        auto textProvider = new RiuTabbedGridCrossPlotTextProvider( crossPlot );
+        RicShowPlotDataFeature::showTabbedTextWindow( textProvider );
+    }
+
+    for ( auto rimPlot : rimPlots )
+    {
+        QString title = rimPlot->description();
+        QString text  = rimPlot->asciiDataForPlotExport();
+        RicShowPlotDataFeature::showTextWindow( title, text );
+    }
 
     for ( RimWellLogPlot* wellLogPlot : wellLogPlots )
     {
@@ -303,12 +329,6 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         QString title = vfpPlot->description();
         QString text  = vfpPlot->asciiDataForPlotExport();
         RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-
-    for ( RimGridCrossPlot* crossPlot : crossPlots )
-    {
-        auto textProvider = new RiuTabbedGridCrossPlotTextProvider( crossPlot );
-        RicShowPlotDataFeature::showTabbedTextWindow( textProvider );
     }
 
     for ( RimWellAllocationOverTimePlot* wellAllocationOverTimePlot : wellAllocationOverTimePlots )
