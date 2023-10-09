@@ -22,7 +22,6 @@
 #include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaSummaryAddressAnalyzer.h"
-#include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryStringTools.h"
 
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
@@ -1264,12 +1263,8 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
         for ( auto p : summaryPlots() )
         {
-            std::set<RiaSummaryCurveDefinition> allCurveDefs = p->summaryAndEnsembleCurveDefinitions();
-            for ( const auto& curveDef : allCurveDefs )
-            {
-                analyzer.analyzeSingleAddress( curveDef.summaryAddressX() );
-                analyzer.analyzeSingleAddress( curveDef.summaryAddressY() );
-            }
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
+            analyzer.appendAddresses( addresses );
         }
 
         bool canShowOneAxisTitlePerRow = analyzer.isSingleQuantityIgnoreHistory() && ( m_axisRangeAggregation() != AxisRangeAggregation::NONE );
