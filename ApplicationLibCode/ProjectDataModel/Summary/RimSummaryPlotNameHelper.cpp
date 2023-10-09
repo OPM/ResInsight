@@ -193,7 +193,7 @@ bool RimSummaryPlotNameHelper::isCompletionInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RimSummaryPlotNameHelper::vectorNames() const
+std::list<std::string> RimSummaryPlotNameHelper::vectorNames() const
 {
     return m_analyzer->quantities();
 }

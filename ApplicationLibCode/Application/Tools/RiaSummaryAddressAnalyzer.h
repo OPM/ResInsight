@@ -21,6 +21,7 @@
 #include "RiaSummaryCurveAddress.h"
 #include "RifEclipseSummaryAddress.h"
 
+#include <list>
 #include <set>
 #include <string>
 #include <tuple>
@@ -46,7 +47,7 @@ public:
 
     void clear();
 
-    std::set<std::string> quantities() const;
+    std::list<std::string> quantities() const;
     std::set<std::string> quantityNamesWithHistory() const;
     std::set<std::string> quantityNamesNoHistory() const;
 
@@ -93,7 +94,7 @@ private:
     static std::vector<std::vector<RifEclipseSummaryAddress>> valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
 
 private:
-    std::set<std::string>         m_quantities;
+    std::list<std::string>        m_quantities;
     mutable std::set<std::string> m_quantitiesWithMatchingHistory;
     mutable std::set<std::string> m_quantitiesNoMatchingHistory;
 

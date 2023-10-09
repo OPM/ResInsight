@@ -70,15 +70,15 @@ void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RiaSummaryCur
 
     for ( const auto& adr : addresses )
     {
-        analyzeSingleAddress( adr.summaryAddressX() );
         analyzeSingleAddress( adr.summaryAddressY() );
+        analyzeSingleAddress( adr.summaryAddressX() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryAddressAnalyzer::quantities() const
+std::list<std::string> RiaSummaryAddressAnalyzer::quantities() const
 {
     return m_quantities;
 }
@@ -445,7 +445,7 @@ void RiaSummaryAddressAnalyzer::computeQuantityNamesWithHistory() const
     {
         std::string correspondingHistoryCurve = correspondingHistorySummaryCurveName( s );
 
-        if ( m_quantities.find( correspondingHistoryCurve ) != m_quantities.end() )
+        if ( std::find( m_quantities.begin(), m_quantities.end(), correspondingHistoryCurve ) != m_quantities.end() )
         {
             // Insert the curve name without H
             if ( RiaStdStringTools::endsWith( s, historyIdentifier ) )
@@ -488,7 +488,10 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
 
     if ( !address.vectorName().empty() )
     {
-        m_quantities.insert( address.vectorName() );
+        if ( std::find( m_quantities.begin(), m_quantities.end(), address.vectorName() ) == m_quantities.end() )
+        {
+            m_quantities.push_back( address.vectorName() );
+        }
     }
 
     if ( !address.groupName().empty() )
