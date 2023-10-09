@@ -23,6 +23,7 @@
 #include "RiaPreferencesSummary.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RimAnalysisPlot.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimPlotWindow.h"
@@ -192,7 +193,7 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
     {
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) || dynamic_cast<RimWellLogTrack*>( plot ) ||
              dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) ||
-             dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
+             dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) || dynamic_cast<RimAnalysisPlot*>( plot ) )
         {
             validPlots++;
         }
@@ -230,6 +231,7 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimVfpPlot*>                    vfpPlots;
     std::vector<RimWellLogTrack*>               depthTracks;
     std::vector<RimWellAllocationOverTimePlot*> wellAllocationOverTimePlots;
+    std::vector<RimAnalysisPlot*>               analysisPlots;
 
     for ( auto plot : selection )
     {
@@ -266,6 +268,12 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         if ( auto wellAllocationOverTimePlot = dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
         {
             wellAllocationOverTimePlots.push_back( wellAllocationOverTimePlot );
+            continue;
+        }
+
+        if ( auto analysisPlot = dynamic_cast<RimAnalysisPlot*>( plot ) )
+        {
+            analysisPlots.push_back( analysisPlot );
             continue;
         }
     }
@@ -307,6 +315,12 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     {
         QString title = wellAllocationOverTimePlot->description();
         QString text  = wellAllocationOverTimePlot->asciiDataForPlotExport();
+        RicShowPlotDataFeature::showTextWindow( title, text );
+    }
+    for ( RimAnalysisPlot* analysisPlot : analysisPlots )
+    {
+        QString title = analysisPlot->description();
+        QString text  = analysisPlot->asciiDataForPlotExport();
         RicShowPlotDataFeature::showTextWindow( title, text );
     }
 }
