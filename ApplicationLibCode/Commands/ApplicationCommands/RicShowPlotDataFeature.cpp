@@ -41,8 +41,8 @@
 #include "cafProgressInfo.h"
 #include "cafSelectionManagerTools.h"
 
-#include <QAction>
 #include "RimCorrelationMatrixPlot.h"
+#include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicShowPlotDataFeature, "RicShowPlotDataFeature" );
 
