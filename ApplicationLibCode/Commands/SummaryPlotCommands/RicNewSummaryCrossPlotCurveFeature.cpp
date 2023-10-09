@@ -32,6 +32,7 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
@@ -58,26 +59,21 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered( bool isChecked )
     auto plot = selectedSummaryPlot();
     if ( plot )
     {
-        RimSummaryCurve* newCurve   = new RimSummaryCurve();
-        cvf::Color3f     curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plot->curveCount() );
-        newCurve->setColor( curveColor );
+        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plot->curveCount() );
 
         RimSummaryCase* defaultCase = nullptr;
         if ( project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0 )
         {
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase( 0 );
-            newCurve->setSummaryCaseY( defaultCase );
-            newCurve->setSummaryAddressY( RifEclipseSummaryAddress::fieldAddress( "FOPT" ) );
-
-            newCurve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
-            newCurve->setSummaryCaseX( defaultCase );
-            newCurve->setSummaryAddressX( RifEclipseSummaryAddress::fieldAddress( "FGOR" ) );
         }
 
-        plot->addCurveAndUpdate( newCurve );
+        RiaSummaryCurveAddress addr( RifEclipseSummaryAddress::fieldAddress( "FOPT" ), RifEclipseSummaryAddress::fieldAddress( "FGOR" ) );
+        auto                   newCurve = RicSummaryPlotBuilder::addNewSummaryCurve( plot, addr, defaultCase );
 
+        newCurve->setColor( curveColor );
         newCurve->loadDataAndUpdate( true );
 
+        plot->zoomAll();
         plot->updateConnectedEditors();
 
         RiuPlotMainWindowTools::onObjectAppended( newCurve );
@@ -90,7 +86,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered( bool isChecked )
 void RicNewSummaryCrossPlotCurveFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Summary Cross Plot Curve" );
-    actionToSetup->setIcon( QIcon( ":/SummaryCurve16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
