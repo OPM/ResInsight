@@ -47,6 +47,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryTableFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateDeclineCurvesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateRegressionAnalysisCurveFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateCrossPlotFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -98,6 +99,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryTableFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateDeclineCurvesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateRegressionAnalysisCurveFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateCrossPlotFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

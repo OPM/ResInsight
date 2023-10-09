@@ -1021,15 +1021,17 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
 
     auto addressUiText = addr.uiText();
+    if ( !m_yValuesSummaryCase() )
+    {
+        return QString::fromStdString( addressUiText );
+    }
 
     if ( group && group->isEnsemble() )
     {
         return QString( "%1.%2.%3" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() ).arg( group->name() );
     }
-    else
-    {
-        return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() );
-    }
+
+    return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() );
 }
 
 //--------------------------------------------------------------------------------------------------

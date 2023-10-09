@@ -699,10 +699,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicDuplicateSummaryPlotFeature";
             menuBuilder << "RicSplitMultiPlotFeature";
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
-            menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewPlotAxisPropertiesFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
+            menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicAsciiExportSummaryPlotFeature";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
@@ -1101,6 +1101,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
+            menuBuilder << "RicCreateCrossPlotFeature";
         }
         else if ( dynamic_cast<RimPlotAxisPropertiesInterface*>( firstUiItem ) )
         {
@@ -1288,6 +1289,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendSummaryPlotsForSummaryAddressesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryTableFeature";
+            menuBuilder << "RicCreateCrossPlotFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )

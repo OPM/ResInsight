@@ -43,6 +43,9 @@ CAF_PDM_SOURCE_INIT( RimSummaryAddressSelector, "RimSummaryAddressSelector" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddressSelector::RimSummaryAddressSelector()
     : addressChanged( this )
+    , m_showDataSource( true )
+    , m_showResampling( true )
+    , m_plotAxisOrientation( RimPlotAxisProperties::Orientation::ANY )
 
 {
     CAF_PDM_InitFieldNoDefault( &m_summaryCase, "SummaryCase", "Case" );
@@ -71,9 +74,6 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
     m_summaryAddress = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault( &m_resamplingPeriod, "Resampling", "Resampling" );
-
-    m_showDataSource      = true;
-    m_plotAxisOrientation = RimPlotAxisProperties::Orientation::ANY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,6 +122,14 @@ void RimSummaryAddressSelector::setPlotAxisProperties( RimPlotAxisPropertiesInte
 void RimSummaryAddressSelector::setShowDataSource( bool enable )
 {
     m_showDataSource = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressSelector::setShowResampling( bool enable )
+{
+    m_showResampling = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -344,7 +352,12 @@ void RimSummaryAddressSelector::defineUiOrdering( QString uiConfigName, caf::Pdm
 
     uiOrdering.add( &m_summaryAddressUiField, { true, 2, 1 } );
     uiOrdering.add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
-    uiOrdering.add( &m_resamplingPeriod, { true, 3, 1 } );
+
+    if ( m_showResampling )
+    {
+        uiOrdering.add( &m_resamplingPeriod, { true, 3, 1 } );
+    }
+
     uiOrdering.add( &m_plotAxisProperties, { true, 3, 1 } );
 
     uiOrdering.skipRemainingFields( true );
