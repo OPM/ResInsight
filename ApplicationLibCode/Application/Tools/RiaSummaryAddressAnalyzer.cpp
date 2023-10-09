@@ -70,6 +70,7 @@ void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RiaSummaryCur
 
     for ( const auto& adr : addresses )
     {
+        // Use Y address first, to make sure the ordering of cross plot names is correct
         analyzeSingleAddress( adr.summaryAddressY() );
         analyzeSingleAddress( adr.summaryAddressX() );
     }
@@ -78,7 +79,7 @@ void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RiaSummaryCur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<std::string> RiaSummaryAddressAnalyzer::quantities() const
+std::vector<std::string> RiaSummaryAddressAnalyzer::quantities() const
 {
     return m_quantities;
 }
@@ -488,6 +489,7 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
 
     if ( !address.vectorName().empty() )
     {
+        // The ordering of the quantities is used when creating titles of plots
         if ( std::find( m_quantities.begin(), m_quantities.end(), address.vectorName() ) == m_quantities.end() )
         {
             m_quantities.push_back( address.vectorName() );

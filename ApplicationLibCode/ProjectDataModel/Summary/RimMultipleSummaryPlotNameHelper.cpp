@@ -127,9 +127,9 @@ bool RimMultiSummaryPlotNameHelper::isCompletionInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<std::string> RimMultiSummaryPlotNameHelper::vectorNames() const
+std::vector<std::string> RimMultiSummaryPlotNameHelper::vectorNames() const
 {
-    std::list<std::string> allNames;
+    std::vector<std::string> allNames;
 
     for ( auto nameHelper : m_nameHelpers )
     {
