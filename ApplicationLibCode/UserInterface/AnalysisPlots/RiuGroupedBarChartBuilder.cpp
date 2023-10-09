@@ -21,6 +21,8 @@
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
+#include "RifCsvDataTableFormatter.h"
+
 #include "RiuGuiTheme.h"
 
 #include "cafFontTools.h"
@@ -834,6 +836,45 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 void RiuGroupedBarChartBuilder::setLabelFontSize( int labelPointSize )
 {
     m_labelPointSize = labelPointSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuGroupedBarChartBuilder::plotContentAsText() const
+{
+    QString text;
+
+    QTextStream              stream( &text );
+    QString                  fieldSeparator = "\t";
+    RifCsvDataTableFormatter formatter( stream, fieldSeparator );
+    formatter.setUseQuotes( false );
+
+    std::vector<RifTextDataTableColumn> header;
+    header.emplace_back( RifTextDataTableColumn( "Major" ) );
+    header.emplace_back( RifTextDataTableColumn( "Mid" ) );
+    header.emplace_back( RifTextDataTableColumn( "Minor" ) );
+    header.emplace_back( RifTextDataTableColumn( "Legend" ) );
+    header.emplace_back( RifTextDataTableColumn( "Bar" ) );
+    header.emplace_back( RifTextDataTableColumn( "Value", RifTextDataTableDoubleFormat::RIF_FLOAT ) );
+
+    formatter.header( header );
+
+    for ( const BarEntry& barDef : m_sortedBarEntries )
+    {
+        formatter.add( barDef.m_majTickText );
+        formatter.add( barDef.m_midTickText );
+        formatter.add( barDef.m_minTickText );
+        formatter.add( barDef.m_legendText );
+        formatter.add( barDef.m_barText );
+        formatter.add( barDef.m_value );
+
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
