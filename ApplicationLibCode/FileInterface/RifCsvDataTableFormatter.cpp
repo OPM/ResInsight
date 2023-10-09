@@ -24,7 +24,16 @@
 RifCsvDataTableFormatter::RifCsvDataTableFormatter( QTextStream& out, const QString fieldSeparator )
     : m_out( out )
     , m_fieldSeparator( fieldSeparator )
+    , m_useQuotes( true )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifCsvDataTableFormatter::setUseQuotes( bool useQuotes )
+{
+    m_useQuotes = useQuotes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,8 +52,15 @@ RifCsvDataTableFormatter& RifCsvDataTableFormatter::header( const std::vector<Ri
 //--------------------------------------------------------------------------------------------------
 RifCsvDataTableFormatter& RifCsvDataTableFormatter::add( const QString& str )
 {
-    QString quotedString = "\"" + str + "\"";
-    m_lineBuffer.push_back( quotedString );
+    if ( m_useQuotes )
+    {
+        QString quotedString = "\"" + str + "\"";
+        m_lineBuffer.push_back( quotedString );
+    }
+    else
+    {
+        m_lineBuffer.push_back( str );
+    }
     return *this;
 }
 
