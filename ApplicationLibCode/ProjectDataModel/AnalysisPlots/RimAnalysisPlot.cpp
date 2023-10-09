@@ -926,6 +926,20 @@ void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimAnalysisPlot::asciiDataForPlotExport() const
+{
+    RiuGroupedBarChartBuilder chartBuilder;
+    addDataToChartBuilder( chartBuilder );
+
+    QString text = description() + "\n\n";
+    text += chartBuilder.plotContentAsText();
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::cleanupBeforeClose()
 {
     detachAllCurves();

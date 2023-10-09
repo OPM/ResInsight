@@ -95,6 +95,7 @@ public:
 
     std::vector<time_t> selectedTimeSteps() const;
     QString             description() const override;
+    QString             asciiDataForPlotExport() const override;
 
 private:
     // Overridden PDM methods
@@ -139,7 +140,6 @@ private:
     void setAutoScaleYEnabled( bool enabled ) override {}
     void updateLegend() override{};
 
-    QString asciiDataForPlotExport() const override { return ""; }
     // Private methods
 
     void cleanupBeforeClose();
