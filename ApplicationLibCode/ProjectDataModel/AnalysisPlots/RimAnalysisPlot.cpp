@@ -25,12 +25,6 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTextStringTools.h"
 
-#include "RiuGroupedBarChartBuilder.h"
-#include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotTools.h"
-#include "RiuSummaryQwtPlot.h"
-#include "RiuSummaryVectorSelectionDialog.h"
-
 #include "RifSummaryReaderInterface.h"
 
 #include "RimAnalysisPlotDataEntry.h"
@@ -43,12 +37,20 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
+#include "RiuContextMenuLauncher.h"
+#include "RiuGroupedBarChartBuilder.h"
+#include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotTools.h"
+#include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorSelectionDialog.h"
+
 #include "qwt_column_symbol.h"
 #include "qwt_legend.h"
 #include "qwt_painter.h"
 #include "qwt_plot_barchart.h"
 #include "qwt_scale_draw.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiActionPushButtonEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -827,6 +829,10 @@ RiuPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParen
     if ( !m_plotWidget )
     {
         m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+
+        caf::CmdFeatureMenuBuilder menuBuilder;
+        menuBuilder << "RicShowPlotDataFeature";
+        new RiuContextMenuLauncher( m_plotWidget, menuBuilder );
     }
 
     return m_plotWidget;
