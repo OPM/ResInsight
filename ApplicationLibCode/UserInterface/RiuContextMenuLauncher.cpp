@@ -30,10 +30,27 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuContextMenuLauncher::RiuContextMenuLauncher( QWidget* widget, const caf::CmdFeatureMenuBuilder& commandIds )
+RiuContextMenuLauncher::RiuContextMenuLauncher( QWidget* widget, const caf::CmdFeatureMenuBuilder& menuBuilder )
     : QObject( widget )
-    , m_menuBuilder( commandIds )
+    , m_menuBuilder( menuBuilder )
 {
+    widget->installEventFilter( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuContextMenuLauncher::RiuContextMenuLauncher( QWidget* widget, const QStringList& commandIds )
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    for ( const auto& cmd : commandIds )
+    {
+        menuBuilder << cmd;
+    }
+
+    m_menuBuilder = menuBuilder;
+
     widget->installEventFilter( this );
 }
 

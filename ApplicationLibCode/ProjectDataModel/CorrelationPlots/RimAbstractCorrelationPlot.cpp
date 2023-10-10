@@ -33,10 +33,12 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -554,6 +556,8 @@ RiuPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* main
     {
         m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
         updatePlotTitle();
+
+        new RiuContextMenuLauncher( m_plotWidget, { "RicShowPlotDataFeature" } );
     }
 
     return m_plotWidget;

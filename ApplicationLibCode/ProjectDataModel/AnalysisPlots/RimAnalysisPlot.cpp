@@ -830,9 +830,7 @@ RiuPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParen
     {
         m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
-        caf::CmdFeatureMenuBuilder menuBuilder;
-        menuBuilder << "RicShowPlotDataFeature";
-        new RiuContextMenuLauncher( m_plotWidget, menuBuilder );
+        new RiuContextMenuLauncher( m_plotWidget, { "RicShowPlotDataFeature" } );
     }
 
     return m_plotWidget;

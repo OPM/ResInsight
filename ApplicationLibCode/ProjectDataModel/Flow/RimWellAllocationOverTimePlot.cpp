@@ -270,9 +270,7 @@ RiuPlotWidget* RimWellAllocationOverTimePlot::doCreatePlotViewWidget( QWidget* m
     // Remove event filter to disable unwanted highlighting on left click in plot.
     plotWidget->removeEventFilter();
 
-    caf::CmdFeatureMenuBuilder menuBuilder;
-    menuBuilder << "RicShowPlotDataFeature";
-    new RiuContextMenuLauncher( plotWidget, menuBuilder );
+    new RiuContextMenuLauncher( m_plotWidget, { "RicShowPlotDataFeature" } );
 
     m_plotWidget = plotWidget;
     RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(),

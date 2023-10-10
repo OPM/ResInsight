@@ -24,6 +24,7 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RimAnalysisPlot.h"
+#include "RimCorrelationMatrixPlot.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimPlotWindow.h"
@@ -41,7 +42,6 @@
 #include "cafProgressInfo.h"
 #include "cafSelectionManagerTools.h"
 
-#include "RimCorrelationMatrixPlot.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicShowPlotDataFeature, "RicShowPlotDataFeature" );
@@ -74,10 +74,8 @@ public:
         {
             return "No Resampling";
         }
-        else
-        {
-            return QString( "%1" ).arg( RiaQDateTimeTools::dateTimePeriodName( timePeriod ) );
-        }
+
+        return QString( "%1" ).arg( RiaQDateTimeTools::dateTimePeriodName( timePeriod ) );
     }
 
     QString tabText( int tabIndex ) const override
@@ -92,10 +90,8 @@ public:
 
             return m_summaryPlot->asciiDataForSummaryPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
         }
-        else
-        {
-            return m_summaryPlot->asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::NONE, true );
-        }
+
+        return m_summaryPlot->asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::NONE, true );
     }
 
     int tabCount() const override { return (int)tabs().size(); }
@@ -195,7 +191,7 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) || dynamic_cast<RimWellLogTrack*>( plot ) ||
              dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) ||
              dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) || dynamic_cast<RimAnalysisPlot*>( plot ) ||
-             dynamic_cast<RimCorrelationMatrixPlot*>( plot ) )
+             dynamic_cast<RimCorrelationMatrixPlot*>( plot ) || dynamic_cast<RimAbstractCorrelationPlot*>( plot ) )
         {
             validPlots++;
         }
@@ -236,12 +232,6 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     // Show content using RimPlot::description() and RimPlot::asciiDataForPlotExport()
     std::vector<RimPlot*> rimPlots;
 
-    std::vector<RimWellLogPlot*>                wellLogPlots;
-    std::vector<RimVfpPlot*>                    vfpPlots;
-    std::vector<RimWellLogTrack*>               depthTracks;
-    std::vector<RimWellAllocationOverTimePlot*> wellAllocationOverTimePlots;
-    std::vector<RimAnalysisPlot*>               analysisPlots;
-
     for ( auto plot : selection )
     {
         if ( auto sumPlot = dynamic_cast<RimSummaryPlot*>( plot ) )
@@ -260,36 +250,6 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         {
             rimPlots.push_back( rimPlot );
         }
-
-        if ( auto wellPlot = dynamic_cast<RimWellLogPlot*>( plot ) )
-        {
-            wellLogPlots.push_back( wellPlot );
-            continue;
-        }
-
-        if ( auto vfpPlot = dynamic_cast<RimVfpPlot*>( plot ) )
-        {
-            vfpPlots.push_back( vfpPlot );
-            continue;
-        }
-
-        if ( auto depthTrack = dynamic_cast<RimWellLogTrack*>( plot ) )
-        {
-            depthTracks.push_back( depthTrack );
-            continue;
-        }
-
-        if ( auto wellAllocationOverTimePlot = dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
-        {
-            wellAllocationOverTimePlots.push_back( wellAllocationOverTimePlot );
-            continue;
-        }
-
-        if ( auto analysisPlot = dynamic_cast<RimAnalysisPlot*>( plot ) )
-        {
-            analysisPlots.push_back( analysisPlot );
-            continue;
-        }
     }
 
     for ( RimSummaryPlot* summaryPlot : selectedSummaryPlots )
@@ -307,40 +267,6 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     {
         QString title = rimPlot->description();
         QString text  = rimPlot->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-
-    for ( RimWellLogPlot* wellLogPlot : wellLogPlots )
-    {
-        QString title = wellLogPlot->description();
-        QString text  = wellLogPlot->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-
-    for ( auto* plot : depthTracks )
-    {
-        QString title = plot->description();
-        QString text  = plot->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-
-    for ( RimVfpPlot* vfpPlot : vfpPlots )
-    {
-        QString title = vfpPlot->description();
-        QString text  = vfpPlot->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-
-    for ( RimWellAllocationOverTimePlot* wellAllocationOverTimePlot : wellAllocationOverTimePlots )
-    {
-        QString title = wellAllocationOverTimePlot->description();
-        QString text  = wellAllocationOverTimePlot->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-    for ( RimAnalysisPlot* analysisPlot : analysisPlots )
-    {
-        QString title = analysisPlot->description();
-        QString text  = analysisPlot->asciiDataForPlotExport();
         RicShowPlotDataFeature::showTextWindow( title, text );
     }
 }
@@ -362,7 +288,7 @@ void RicShowPlotDataFeature::showTabbedTextWindow( RiuTabbedTextProvider* textPr
     RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     CVF_ASSERT( plotwindow );
 
-    RiuTabbedTextDialog* textWidget = new RiuTabbedTextDialog( textProvider );
+    auto* textWidget = new RiuTabbedTextDialog( textProvider );
     textWidget->setMinimumSize( 800, 600 );
     plotwindow->addToTemporaryWidgets( textWidget );
     textWidget->show();
@@ -377,7 +303,7 @@ void RicShowPlotDataFeature::showTextWindow( const QString& title, const QString
     RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     CVF_ASSERT( plotwindow );
 
-    RiuTextDialog* textWiget = new RiuTextDialog();
+    auto* textWiget = new RiuTextDialog();
     textWiget->setMinimumSize( 400, 600 );
 
     textWiget->setWindowTitle( title );
@@ -398,7 +324,7 @@ void RicShowPlotDataFeature::getSelection( std::vector<RimPlotWindow*>& selectio
         QVariant userData = this->userData();
         if ( !userData.isNull() && userData.canConvert<void*>() )
         {
-            RimPlot* plot = static_cast<RimPlot*>( userData.value<void*>() );
+            auto* plot = static_cast<RimPlot*>( userData.value<void*>() );
             if ( plot ) selection.push_back( plot );
         }
     }

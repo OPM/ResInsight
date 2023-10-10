@@ -376,9 +376,7 @@ RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
         // Remove event filter to disable unwanted highlighting on left click in plot.
         plotWidget->removeEventFilter();
 
-        caf::CmdFeatureMenuBuilder menuBuilder;
-        menuBuilder << "RicShowPlotDataFeature";
-        new RiuContextMenuLauncher( plotWidget, menuBuilder );
+        new RiuContextMenuLauncher( plotWidget, { "RicShowPlotDataFeature" } );
 
         m_plotWidget = plotWidget;
     }
