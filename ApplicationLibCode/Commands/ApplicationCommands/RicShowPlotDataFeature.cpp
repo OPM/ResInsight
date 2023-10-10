@@ -25,8 +25,11 @@
 
 #include "RimAnalysisPlot.h"
 #include "RimCorrelationMatrixPlot.h"
+#include "RimCorrelationPlot.h"
+#include "RimCorrelationReportPlot.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
+#include "RimParameterResultCrossPlot.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
@@ -191,7 +194,8 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) || dynamic_cast<RimWellLogTrack*>( plot ) ||
              dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) ||
              dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) || dynamic_cast<RimAnalysisPlot*>( plot ) ||
-             dynamic_cast<RimCorrelationMatrixPlot*>( plot ) || dynamic_cast<RimAbstractCorrelationPlot*>( plot ) )
+             dynamic_cast<RimCorrelationMatrixPlot*>( plot ) || dynamic_cast<RimAbstractCorrelationPlot*>( plot ) ||
+             dynamic_cast<RimCorrelationReportPlot*>( plot ) )
         {
             validPlots++;
         }
@@ -246,6 +250,17 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
             continue;
         }
 
+        if ( auto correlationReportPlot = dynamic_cast<RimCorrelationReportPlot*>( plot ) )
+        {
+            // A correlation report plot contains three plots. Add them as individual plots to rimPlots to make the data available in three
+            // individual text dialogs.
+
+            rimPlots.push_back( correlationReportPlot->matrixPlot() );
+            rimPlots.push_back( correlationReportPlot->correlationPlot() );
+            rimPlots.push_back( correlationReportPlot->crossPlot() );
+            continue;
+        }
+
         if ( auto rimPlot = dynamic_cast<RimPlot*>( plot ) )
         {
             rimPlots.push_back( rimPlot );
@@ -266,7 +281,11 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     for ( auto rimPlot : rimPlots )
     {
         QString title = rimPlot->description();
-        QString text  = rimPlot->asciiDataForPlotExport();
+        QString text  = title;
+        text += "\n";
+        text += "\n";
+        text += rimPlot->asciiDataForPlotExport();
+
         RicShowPlotDataFeature::showTextWindow( title, text );
     }
 }

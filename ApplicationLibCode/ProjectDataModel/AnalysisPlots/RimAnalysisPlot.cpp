@@ -935,10 +935,7 @@ QString RimAnalysisPlot::asciiDataForPlotExport() const
     RiuGroupedBarChartBuilder chartBuilder;
     addDataToChartBuilder( chartBuilder );
 
-    QString text = description() + "\n\n";
-    text += chartBuilder.plotContentAsText();
-
-    return text;
+    return chartBuilder.plotContentAsText();
 }
 
 //--------------------------------------------------------------------------------------------------
