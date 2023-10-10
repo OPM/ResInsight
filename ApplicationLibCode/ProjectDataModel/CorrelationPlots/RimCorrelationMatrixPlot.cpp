@@ -225,6 +225,8 @@ QString RimCorrelationMatrixPlot::asciiDataForPlotExport() const
     formatter.setUseQuotes( false );
 
     std::vector<RifTextDataTableColumn> header;
+    header.emplace_back( RifTextDataTableColumn( "Vector" ) );
+
     for ( const auto& param : m_paramLabels )
     {
         header.emplace_back( RifTextDataTableColumn( param.second ) );
@@ -232,9 +234,11 @@ QString RimCorrelationMatrixPlot::asciiDataForPlotExport() const
 
     formatter.header( header );
 
-    for ( const auto& barDef : m_valuesForTextReport )
+    for ( const auto& row : m_valuesForTextReport )
     {
-        for ( const auto& corr : barDef.m_correlations )
+        formatter.add( QString::fromStdString( row.m_key.summaryAddressY().uiText() ) );
+
+        for ( const auto& corr : row.m_correlations )
         {
             formatter.add( corr );
         }
