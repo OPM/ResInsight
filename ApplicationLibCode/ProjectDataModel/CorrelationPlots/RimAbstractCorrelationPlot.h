@@ -52,7 +52,7 @@ public:
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     void                                   setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     void                                   setTimeStep( std::time_t timeStep );
-    std::set<RimSummaryCaseCollection*>    ensembles();
+    std::set<RimSummaryCaseCollection*>    ensembles() const;
 
     // Get summary cases filtered by attached ensemble parameter filter
     std::set<RimSummaryCase*> filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const;
@@ -85,7 +85,7 @@ protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    std::set<RifEclipseSummaryAddress> addresses();
+    std::set<RifEclipseSummaryAddress> addresses() const;
     std::set<RigEnsembleParameter>     ensembleParameters();
     std::set<RigEnsembleParameter>     variationSortedEnsembleParameters();
     RigEnsembleParameter               ensembleParameter( const QString& ensembleParameterName );
@@ -128,7 +128,7 @@ private:
     void connectCurveFilterSignals();
     void onFilterSourceChanged( const caf::SignalEmitter* emitter );
 
-    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser() const;
 
 protected:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;

@@ -61,15 +61,14 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void onLoadDataAndUpdate() override;
-
-    void updateAxes() override;
+    void    onLoadDataAndUpdate() override;
+    void    updateAxes() override;
+    QString asciiDataForPlotExport() const override;
 
     // Private methods
-    void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
+    void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const;
     void updatePlotTitle() override;
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
@@ -81,4 +80,6 @@ private:
     caf::PdmField<int>                  m_topNFilterCount;
     caf::PdmField<std::vector<QString>> m_selectedParametersList;
     caf::PdmField<cvf::Color3f>         m_barColor;
+
+protected:
 };
