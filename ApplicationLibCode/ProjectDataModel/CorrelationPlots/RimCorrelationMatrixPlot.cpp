@@ -24,6 +24,7 @@
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RifCsvDataTableFormatter.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RigEnsembleParameter.h"
@@ -56,7 +57,6 @@
 #include "qwt_scale_draw.h"
 #include "qwt_text.h"
 
-#include "RifCsvDataTableFormatter.h"
 #include <algorithm>
 #include <limits>
 #include <map>

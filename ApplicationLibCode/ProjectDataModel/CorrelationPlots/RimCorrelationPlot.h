@@ -80,6 +80,4 @@ private:
     caf::PdmField<int>                  m_topNFilterCount;
     caf::PdmField<std::vector<QString>> m_selectedParametersList;
     caf::PdmField<cvf::Color3f>         m_barColor;
-
-protected:
 };

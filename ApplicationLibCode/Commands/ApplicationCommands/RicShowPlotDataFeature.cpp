@@ -228,7 +228,7 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     getSelection( selection );
 
     // Using RiuTabbedSummaryPlotTextProvider
-    std::vector<RimSummaryPlot*> selectedSummaryPlots;
+    std::vector<RimSummaryPlot*> summaryPlots;
 
     // Using RiuTabbedGridCrossPlotTextProvider
     std::vector<RimGridCrossPlot*> crossPlots;
@@ -240,7 +240,7 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     {
         if ( auto sumPlot = dynamic_cast<RimSummaryPlot*>( plot ) )
         {
-            selectedSummaryPlots.push_back( sumPlot );
+            summaryPlots.push_back( sumPlot );
             continue;
         }
 
@@ -267,7 +267,7 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    for ( RimSummaryPlot* summaryPlot : selectedSummaryPlots )
+    for ( RimSummaryPlot* summaryPlot : summaryPlots )
     {
         auto textProvider = new RiuTabbedSummaryPlotTextProvider( summaryPlot );
         RicShowPlotDataFeature::showTabbedTextWindow( textProvider );
