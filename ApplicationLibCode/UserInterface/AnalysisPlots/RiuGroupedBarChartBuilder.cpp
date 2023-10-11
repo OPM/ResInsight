@@ -21,6 +21,8 @@
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
+#include "RifCsvDataTableFormatter.h"
+
 #include "RiuGuiTheme.h"
 
 #include "cafFontTools.h"
@@ -834,6 +836,62 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 void RiuGroupedBarChartBuilder::setLabelFontSize( int labelPointSize )
 {
     m_labelPointSize = labelPointSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuGroupedBarChartBuilder::plotContentAsText() const
+{
+    QString text;
+
+    QTextStream              stream( &text );
+    QString                  fieldSeparator = "\t";
+    RifCsvDataTableFormatter formatter( stream, fieldSeparator );
+    formatter.setUseQuotes( false );
+
+    bool hasTextForMajor  = false;
+    bool hasTextForMid    = false;
+    bool hasTextForMinor  = false;
+    bool hasTextForLegend = false;
+    bool hasTextForBar    = false;
+
+    for ( const BarEntry& barDef : m_sortedBarEntries )
+    {
+        if ( !barDef.m_majTickText.isEmpty() ) hasTextForMajor = true;
+        if ( !barDef.m_midTickText.isEmpty() ) hasTextForMid = true;
+        if ( !barDef.m_minTickText.isEmpty() ) hasTextForMinor = true;
+        if ( !barDef.m_legendText.isEmpty() ) hasTextForLegend = true;
+        if ( !barDef.m_barText.isEmpty() && barDef.m_barText != barDef.m_legendText ) hasTextForBar = true;
+    }
+
+    std::vector<RifTextDataTableColumn> header;
+    if ( hasTextForMajor ) header.emplace_back( RifTextDataTableColumn( "Major" ) );
+    if ( hasTextForMid ) header.emplace_back( RifTextDataTableColumn( "Mid" ) );
+    if ( hasTextForMinor ) header.emplace_back( RifTextDataTableColumn( "Minor" ) );
+    if ( hasTextForLegend ) header.emplace_back( RifTextDataTableColumn( "Legend" ) );
+    if ( hasTextForBar ) header.emplace_back( RifTextDataTableColumn( "Bar" ) );
+
+    header.emplace_back( RifTextDataTableColumn( "Value", RifTextDataTableDoubleFormat::RIF_FLOAT ) );
+
+    formatter.header( header );
+
+    for ( const BarEntry& barDef : m_sortedBarEntries )
+    {
+        if ( hasTextForMajor ) formatter.add( barDef.m_majTickText );
+        if ( hasTextForMid ) formatter.add( barDef.m_midTickText );
+        if ( hasTextForMinor ) formatter.add( barDef.m_minTickText );
+        if ( hasTextForLegend ) formatter.add( barDef.m_legendText );
+        if ( hasTextForBar ) formatter.add( barDef.m_barText );
+
+        formatter.add( barDef.m_value );
+
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------

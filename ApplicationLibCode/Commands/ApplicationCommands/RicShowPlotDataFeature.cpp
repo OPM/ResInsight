@@ -23,8 +23,13 @@
 #include "RiaPreferencesSummary.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RimAnalysisPlot.h"
+#include "RimCorrelationMatrixPlot.h"
+#include "RimCorrelationPlot.h"
+#include "RimCorrelationReportPlot.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
+#include "RimParameterResultCrossPlot.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
@@ -72,10 +77,8 @@ public:
         {
             return "No Resampling";
         }
-        else
-        {
-            return QString( "%1" ).arg( RiaQDateTimeTools::dateTimePeriodName( timePeriod ) );
-        }
+
+        return QString( "%1" ).arg( RiaQDateTimeTools::dateTimePeriodName( timePeriod ) );
     }
 
     QString tabText( int tabIndex ) const override
@@ -90,10 +93,8 @@ public:
 
             return m_summaryPlot->asciiDataForSummaryPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
         }
-        else
-        {
-            return m_summaryPlot->asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::NONE, true );
-        }
+
+        return m_summaryPlot->asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::NONE, true );
     }
 
     int tabCount() const override { return (int)tabs().size(); }
@@ -192,7 +193,9 @@ bool RicShowPlotDataFeature::isCommandEnabled() const
     {
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) || dynamic_cast<RimWellLogTrack*>( plot ) ||
              dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) ||
-             dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
+             dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) || dynamic_cast<RimAnalysisPlot*>( plot ) ||
+             dynamic_cast<RimCorrelationMatrixPlot*>( plot ) || dynamic_cast<RimAbstractCorrelationPlot*>( plot ) ||
+             dynamic_cast<RimCorrelationReportPlot*>( plot ) )
         {
             validPlots++;
         }
@@ -224,24 +227,20 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimPlotWindow*> selection;
     getSelection( selection );
 
-    std::vector<RimSummaryPlot*>                selectedSummaryPlots;
-    std::vector<RimWellLogPlot*>                wellLogPlots;
-    std::vector<RimGridCrossPlot*>              crossPlots;
-    std::vector<RimVfpPlot*>                    vfpPlots;
-    std::vector<RimWellLogTrack*>               depthTracks;
-    std::vector<RimWellAllocationOverTimePlot*> wellAllocationOverTimePlots;
+    // Using RiuTabbedSummaryPlotTextProvider
+    std::vector<RimSummaryPlot*> summaryPlots;
+
+    // Using RiuTabbedGridCrossPlotTextProvider
+    std::vector<RimGridCrossPlot*> crossPlots;
+
+    // Show content using RimPlot::description() and RimPlot::asciiDataForPlotExport()
+    std::vector<RimPlot*> rimPlots;
 
     for ( auto plot : selection )
     {
         if ( auto sumPlot = dynamic_cast<RimSummaryPlot*>( plot ) )
         {
-            selectedSummaryPlots.push_back( sumPlot );
-            continue;
-        }
-
-        if ( auto wellPlot = dynamic_cast<RimWellLogPlot*>( plot ) )
-        {
-            wellLogPlots.push_back( wellPlot );
+            summaryPlots.push_back( sumPlot );
             continue;
         }
 
@@ -251,62 +250,42 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
             continue;
         }
 
-        if ( auto vfpPlot = dynamic_cast<RimVfpPlot*>( plot ) )
+        if ( auto correlationReportPlot = dynamic_cast<RimCorrelationReportPlot*>( plot ) )
         {
-            vfpPlots.push_back( vfpPlot );
+            // A correlation report plot contains three plots. Add them as individual plots to rimPlots to make the data available in three
+            // individual text dialogs.
+
+            rimPlots.push_back( correlationReportPlot->matrixPlot() );
+            rimPlots.push_back( correlationReportPlot->correlationPlot() );
+            rimPlots.push_back( correlationReportPlot->crossPlot() );
             continue;
         }
 
-        if ( auto depthTrack = dynamic_cast<RimWellLogTrack*>( plot ) )
+        if ( auto rimPlot = dynamic_cast<RimPlot*>( plot ) )
         {
-            depthTracks.push_back( depthTrack );
-            continue;
-        }
-
-        if ( auto wellAllocationOverTimePlot = dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
-        {
-            wellAllocationOverTimePlots.push_back( wellAllocationOverTimePlot );
-            continue;
+            rimPlots.push_back( rimPlot );
         }
     }
 
-    for ( RimSummaryPlot* summaryPlot : selectedSummaryPlots )
+    for ( RimSummaryPlot* summaryPlot : summaryPlots )
     {
         auto textProvider = new RiuTabbedSummaryPlotTextProvider( summaryPlot );
         RicShowPlotDataFeature::showTabbedTextWindow( textProvider );
     }
-
-    for ( RimWellLogPlot* wellLogPlot : wellLogPlots )
-    {
-        QString title = wellLogPlot->description();
-        QString text  = wellLogPlot->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-
-    for ( auto* plot : depthTracks )
-    {
-        QString title = plot->description();
-        QString text  = plot->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-
-    for ( RimVfpPlot* vfpPlot : vfpPlots )
-    {
-        QString title = vfpPlot->description();
-        QString text  = vfpPlot->asciiDataForPlotExport();
-        RicShowPlotDataFeature::showTextWindow( title, text );
-    }
-
     for ( RimGridCrossPlot* crossPlot : crossPlots )
     {
         auto textProvider = new RiuTabbedGridCrossPlotTextProvider( crossPlot );
         RicShowPlotDataFeature::showTabbedTextWindow( textProvider );
     }
 
-    for ( RimWellAllocationOverTimePlot* wellAllocationOverTimePlot : wellAllocationOverTimePlots )
+    for ( auto rimPlot : rimPlots )
     {
-        QString title = wellAllocationOverTimePlot->description();
-        QString text  = wellAllocationOverTimePlot->asciiDataForPlotExport();
+        QString title = rimPlot->description();
+        QString text  = title;
+        text += "\n";
+        text += "\n";
+        text += rimPlot->asciiDataForPlotExport();
+
         RicShowPlotDataFeature::showTextWindow( title, text );
     }
 }
@@ -328,7 +307,7 @@ void RicShowPlotDataFeature::showTabbedTextWindow( RiuTabbedTextProvider* textPr
     RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     CVF_ASSERT( plotwindow );
 
-    RiuTabbedTextDialog* textWidget = new RiuTabbedTextDialog( textProvider );
+    auto* textWidget = new RiuTabbedTextDialog( textProvider );
     textWidget->setMinimumSize( 800, 600 );
     plotwindow->addToTemporaryWidgets( textWidget );
     textWidget->show();
@@ -343,7 +322,7 @@ void RicShowPlotDataFeature::showTextWindow( const QString& title, const QString
     RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     CVF_ASSERT( plotwindow );
 
-    RiuTextDialog* textWiget = new RiuTextDialog();
+    auto* textWiget = new RiuTextDialog();
     textWiget->setMinimumSize( 400, 600 );
 
     textWiget->setWindowTitle( title );
@@ -364,7 +343,7 @@ void RicShowPlotDataFeature::getSelection( std::vector<RimPlotWindow*>& selectio
         QVariant userData = this->userData();
         if ( !userData.isNull() && userData.canConvert<void*>() )
         {
-            RimPlot* plot = static_cast<RimPlot*>( userData.value<void*>() );
+            auto* plot = static_cast<RimPlot*>( userData.value<void*>() );
             if ( plot ) selection.push_back( plot );
         }
     }

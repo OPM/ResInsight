@@ -48,13 +48,13 @@ class RimAnalysisPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum BarOrientation
+    enum class BarOrientation
     {
         BARS_HORIZONTAL,
         BARS_VERTICAL
     };
 
-    enum SortGroupType
+    enum class SortGroupType
     {
         NONE,
         SUMMARY_ITEM,
@@ -82,18 +82,20 @@ public:
     void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     void setTimeSteps( const std::vector<time_t>& timeSteps );
 
-    std::set<RifEclipseSummaryAddress> unfilteredAddresses();
-    std::set<RigEnsembleParameter>     ensembleParameters();
-    RigEnsembleParameter               ensembleParameter( const QString& ensembleParameterName );
+    std::set<RifEclipseSummaryAddress> unfilteredAddresses() const;
+    std::set<RigEnsembleParameter>     ensembleParameters() const;
+    RigEnsembleParameter               ensembleParameter( const QString& ensembleParameterName ) const;
 
     void maxMinValueFromAddress( const RifEclipseSummaryAddress&           address,
                                  RimPlotDataFilterItem::TimeStepSourceType timeStepSourceType,
                                  const std::vector<QDateTime>&             timeRangeOrSelection,
                                  bool                                      useAbsValue,
                                  double*                                   min,
-                                 double*                                   max );
+                                 double*                                   max ) const;
 
-    std::vector<time_t> selectedTimeSteps();
+    std::vector<time_t> selectedTimeSteps() const;
+    QString             description() const override;
+    QString             asciiDataForPlotExport() const override;
 
 private:
     // Overridden PDM methods
@@ -104,10 +106,10 @@ private:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    std::set<time_t> allAvailableTimeSteps();
+    std::set<time_t> allAvailableTimeSteps() const;
 
-    std::set<RimSummaryCase*> timestepDefiningSourceCases();
-    std::set<RimSummaryCase*> allSourceCases();
+    std::set<RimSummaryCase*> timestepDefiningSourceCases() const;
+    std::set<RimSummaryCase*> allSourceCases() const;
 
     void onFiltersChanged( const caf::SignalEmitter* emitter );
 
@@ -121,8 +123,7 @@ private:
 
     // RimPlotWindow overrides
 
-    QString description() const override;
-    void    doUpdateLayout() override {}
+    void doUpdateLayout() override {}
 
     // RimPlot Overrides
 
@@ -139,24 +140,22 @@ private:
     void setAutoScaleYEnabled( bool enabled ) override {}
     void updateLegend() override{};
 
-    QString asciiDataForPlotExport() const override { return ""; }
-
     // Private methods
 
     void cleanupBeforeClose();
-    void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
+    void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const;
     void updatePlotTitle();
 
     QString assignGroupingText( RimAnalysisPlot::SortGroupType  sortGroup,
                                 const RiaSummaryCurveDefinition dataEntry,
                                 const QString&                  timestepString ) const;
 
-    RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser*     updateAndGetCurveAnalyzer() const;
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
-    std::vector<RiaSummaryCurveDefinition> filteredCurveDefs();
+    std::vector<RiaSummaryCurveDefinition> filteredCurveDefs() const;
     void                                   applyFilter( const RimPlotDataFilterItem*        filter,
                                                         std::set<RimSummaryCase*>*          filteredSumCases,
-                                                        std::set<RifEclipseSummaryAddress>* filteredSummaryItems );
+                                                        std::set<RifEclipseSummaryAddress>* filteredSummaryItems ) const;
 
     static std::vector<size_t> findTimestepIndices( std::vector<time_t> selectedTimesteps, const std::vector<time_t>& timesteps );
 
@@ -166,7 +165,7 @@ private:
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
 
-    void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
+    void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder ) const;
 
     int  barTextFontSize() const;
     void initAfterRead() override;

@@ -223,6 +223,7 @@ QStringList caseNamesOfValidEnsembleCases( const RimSummaryCaseCollection* ensem
 void RimParameterResultCrossPlot::createPoints()
 {
     detachAllCurves();
+    m_valuesForTextReport.clear();
 
     time_t selectedTimestep = m_timeStep().toSecsSinceEpoch();
 
@@ -285,6 +286,8 @@ void RimParameterResultCrossPlot::createPoints()
                     double paramValue = parameter.values[caseIdx].toDouble();
                     parameterValues.push_back( paramValue );
 
+                    m_valuesForTextReport.push_back( { paramValue, closestValue } );
+
                     m_xRange.first  = std::min( m_xRange.first, paramValue );
                     m_xRange.second = std::max( m_xRange.second, paramValue );
 
@@ -312,6 +315,22 @@ void RimParameterResultCrossPlot::createPoints()
         }
         ensembleIdx++;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimParameterResultCrossPlot::asciiDataForPlotExport() const
+{
+    QString asciiData;
+
+    asciiData += "Parameter\tResult\n";
+    for ( const auto& valuePair : m_valuesForTextReport )
+    {
+        asciiData += QString( "%1\t%2\n" ).arg( valuePair.first ).arg( valuePair.second );
+    }
+
+    return asciiData;
 }
 
 //--------------------------------------------------------------------------------------------------
