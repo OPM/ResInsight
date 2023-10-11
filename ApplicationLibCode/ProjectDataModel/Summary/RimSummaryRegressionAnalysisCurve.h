@@ -133,6 +133,9 @@ private:
 
     static void appendTimeSteps( std::vector<time_t>& destinationTimeSteps, const std::set<QDateTime>& sourceTimeSteps );
 
+    std::pair<time_t, time_t> fullTimeStepRange() const;
+    std::pair<time_t, time_t> selectedTimeStepRange() const;
+
 private:
     caf::PdmField<caf::AppEnum<DataSource>>                                      m_dataSourceForRegression;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
@@ -141,8 +144,8 @@ private:
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
 
     caf::PdmField<caf::AppEnum<RangeType>> m_timeRangeSelection;
-    caf::PdmField<time_t>                  m_minTimeStep;
-    caf::PdmField<time_t>                  m_maxTimeStep;
+    caf::PdmField<int>                     m_minTimeStep;
+    caf::PdmField<int>                     m_maxTimeStep;
     caf::PdmField<bool>                    m_showTimeSelectionInPlot;
 
     caf::PdmField<int>                        m_polynomialDegree;

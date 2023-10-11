@@ -61,10 +61,10 @@ RimSummaryDeclineCurve::RimSummaryDeclineCurve()
     CAF_PDM_InitField( &m_hyperbolicDeclineConstant, "HyperbolicDeclineConstant", 0.5, "Decline Constant" );
     m_hyperbolicDeclineConstant.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From" );
+    CAF_PDM_InitField( &m_minTimeStep, "MinTimeStep", 75, "From" );
     m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "To" );
+    CAF_PDM_InitField( &m_maxTimeStep, "MaxTimeStep", 100, "To" );
     m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showTimeSelectionInPlot, "ShowTimeSelectionInPlot", true, "Show In Plot" );
@@ -84,10 +84,12 @@ RimSummaryDeclineCurve::~RimSummaryDeclineCurve()
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryDeclineCurve::valuesY() const
 {
+    auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+
     return createDeclineCurveValues( RimSummaryCurve::valuesY(),
                                      RimSummaryCurve::timeStepsY(),
-                                     m_minTimeStep,
-                                     m_maxTimeStep,
+                                     minTimeStep,
+                                     maxTimeStep,
                                      RiaSummaryTools::hasAccumulatedData( summaryAddressY() ) );
 }
 
@@ -96,10 +98,12 @@ std::vector<double> RimSummaryDeclineCurve::valuesY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryDeclineCurve::valuesX() const
 {
+    auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+
     return createDeclineCurveValues( RimSummaryCurve::valuesX(),
                                      RimSummaryCurve::timeStepsX(),
-                                     m_minTimeStep,
-                                     m_maxTimeStep,
+                                     minTimeStep,
+                                     maxTimeStep,
                                      RiaSummaryTools::hasAccumulatedData( summaryAddressX() ) );
 }
 
@@ -108,7 +112,9 @@ std::vector<double> RimSummaryDeclineCurve::valuesX() const
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RimSummaryDeclineCurve::timeStepsY() const
 {
-    std::vector<time_t> timeSteps = getTimeStepsInRange( RimSummaryCurve::timeStepsY(), m_minTimeStep, m_maxTimeStep );
+    auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+
+    std::vector<time_t> timeSteps = getTimeStepsInRange( RimSummaryCurve::timeStepsY(), minTimeStep, maxTimeStep );
     appendFutureTimeSteps( timeSteps );
     return timeSteps;
 }
@@ -118,7 +124,9 @@ std::vector<time_t> RimSummaryDeclineCurve::timeStepsY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RimSummaryDeclineCurve::timeStepsX() const
 {
-    std::vector<time_t> timeSteps = getTimeStepsInRange( RimSummaryCurve::timeStepsX(), m_minTimeStep, m_maxTimeStep );
+    auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+
+    std::vector<time_t> timeSteps = getTimeStepsInRange( RimSummaryCurve::timeStepsX(), minTimeStep, maxTimeStep );
     appendFutureTimeSteps( timeSteps );
     return timeSteps;
 }
@@ -135,7 +143,7 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
     if ( values.empty() || timeSteps.empty() ) return values;
 
     // Use only the values inside the range specified
-    auto [timeStepsInRange, valuesInRange] = getInRangeValues( timeSteps, values, m_minTimeStep, m_maxTimeStep );
+    auto [timeStepsInRange, valuesInRange] = getInRangeValues( timeSteps, values, minTimeStep, maxTimeStep );
 
     if ( timeStepsInRange.empty() || valuesInRange.empty() ) return values;
 
@@ -162,6 +170,9 @@ std::vector<double> RimSummaryDeclineCurve::createDeclineCurveValues( const std:
     return outValues;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimSummaryDeclineCurve::computeInitialProductionAndDeclineRate( const std::vector<double>& values,
                                                                                           const std::vector<time_t>& timeSteps,
                                                                                           bool                       isAccumulatedResult )
@@ -263,6 +274,35 @@ double RimSummaryDeclineCurve::computePredictedValue( double initialProductionRa
     }
 
     return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<time_t, time_t> RimSummaryDeclineCurve::fullTimeStepRange() const
+{
+    auto timeSteps = RimSummaryCurve::timeStepsY();
+    if ( !timeSteps.empty() )
+    {
+        return std::make_pair( *timeSteps.begin(), *timeSteps.rbegin() );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<time_t, time_t> RimSummaryDeclineCurve::selectedTimeStepRange() const
+{
+    // Scale the slider values to the full time step range
+
+    auto [min, max]  = fullTimeStepRange();
+    auto range       = max - min;
+    auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeStep / 100.0 ) );
+    auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeStep / 100.0 ) );
+
+    return { selectedMin, selectedMax };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,12 +417,8 @@ void RimSummaryDeclineCurve::defineEditorAttribute( const caf::PdmFieldHandle* f
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
         {
-            auto timeSteps = RimSummaryCurve::timeStepsY();
-            if ( !timeSteps.empty() )
-            {
-                myAttr->m_minimum = *timeSteps.begin();
-                myAttr->m_maximum = *timeSteps.rbegin();
-            }
+            myAttr->m_minimum     = 0;
+            myAttr->m_maximum     = 100;
             myAttr->m_showSpinBox = false;
         }
     }
@@ -422,25 +458,11 @@ void RimSummaryDeclineCurve::updateTimeAnnotations()
 
     if ( m_showTimeSelectionInPlot && isChecked() )
     {
-        m_timeRangeAnnotation = plot->addTimeRangeAnnotation( m_minTimeStep, m_maxTimeStep );
+        auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
+
+        m_timeRangeAnnotation = plot->addTimeRangeAnnotation( minTimeStep, maxTimeStep );
         m_timeRangeAnnotation->setColor( color() );
         m_timeRangeAnnotation->setName( "" );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryDeclineCurve::updateDefaultValues()
-{
-    auto timeSteps = RimSummaryCurve::timeStepsY();
-    if ( !timeSteps.empty() )
-    {
-        // Default min time step is 3/4 into the data
-        const double historyStep = 0.75;
-        const size_t idx         = static_cast<size_t>( timeSteps.size() * historyStep );
-        m_minTimeStep            = timeSteps[idx];
-        m_maxTimeStep            = timeSteps.back();
     }
 }
 

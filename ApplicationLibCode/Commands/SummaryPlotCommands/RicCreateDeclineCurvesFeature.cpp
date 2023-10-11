@@ -102,7 +102,6 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
 
     RiaSummaryTools::copyCurveAxisData( *newCurve, *sourceCurve );
 
-    newCurve->updateDefaultValues();
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 
