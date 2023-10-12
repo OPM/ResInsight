@@ -63,10 +63,11 @@ public:
 
     void showColorField( bool show );
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defaultUiOrdering( bool showCrossPlotGroup, caf::PdmUiOrdering& uiOrdering );
 
 private:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     bool onShowEnsembleCurves() const;
     void onSetShowEnsembleCurves( const bool& enable );
 
