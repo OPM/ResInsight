@@ -82,6 +82,8 @@ void CmdFieldChangeExec::redo()
 {
     m_commandData->m_undoFieldValueSerialized.resize( m_commandData->m_pathToFields.size() );
 
+    std::vector<caf::PdmObjectHandle*> objs;
+
     for ( size_t i = 0; i < m_commandData->m_pathToFields.size(); i++ )
     {
         auto fieldTextPath = m_commandData->m_pathToFields[i];
@@ -89,17 +91,22 @@ void CmdFieldChangeExec::redo()
         PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, fieldTextPath );
         if ( !field ) continue;
 
-        bool             objectFlag     = false;
-        PdmObjectHandle* obj            = field->ownerObject();
-        auto             uiObjectHandle = uiObj( obj );
-        if ( uiObjectHandle )
-        {
-            objectFlag = uiObjectHandle->notifyAllFieldsInMultiFieldChangedEvents();
+        bool objectNotificationFlag = false;
 
-            // Make sure that uiOrdering has been called on all objects, as some object do some state initialization.
-            // This is relevant for data source stepping objects. This operation could be made into a virtual function.
-            caf::PdmUiOrdering ordering;
-            uiObjectHandle->uiOrdering( "", ordering );
+        if ( auto obj = field->ownerObject() )
+        {
+            objs.push_back( obj );
+
+            if ( auto uiObjectHandle = uiObj( obj ) )
+            {
+                objectNotificationFlag = uiObjectHandle->notifyAllFieldsInMultiFieldChangedEvents();
+
+                // Make sure that uiOrdering has been called on all objects, as some object do some state
+                // initialization. This is relevant for data source stepping objects. This operation could be made into
+                // a virtual function.
+                caf::PdmUiOrdering ordering;
+                uiObjectHandle->uiOrdering( "", ordering );
+            }
         }
 
         PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
@@ -113,7 +120,7 @@ void CmdFieldChangeExec::redo()
 
             bool isLastField                  = ( i == m_commandData->m_pathToFields.size() - 1 );
             bool sendFieldChangedNotification = isLastField;
-            if ( objectFlag ) sendFieldChangedNotification = true;
+            if ( objectNotificationFlag ) sendFieldChangedNotification = true;
             if ( uiFieldHandle->notifyAllFieldsInMultiFieldChangedEvents() ) sendFieldChangedNotification = true;
 
             if ( m_commandData->m_undoFieldValueSerialized[i].isEmpty() )
@@ -159,7 +166,6 @@ void CmdFieldChangeExec::redo()
 
     if ( m_commandData->m_ownerOfChildArrayField && m_commandData->m_childArrayFieldHandle )
     {
-        std::vector<caf::PdmObjectHandle*> objs;
         m_commandData->m_ownerOfChildArrayField->onChildrenUpdated( m_commandData->m_childArrayFieldHandle, objs );
     }
 }

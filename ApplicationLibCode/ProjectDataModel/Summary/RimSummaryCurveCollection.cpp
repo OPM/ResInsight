@@ -126,9 +126,12 @@ void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle
 {
     if ( childArray == &m_curves )
     {
-        for ( RimSummaryCurve* curve : m_curves )
+        for ( auto obj : updatedObjects )
         {
-            curve->updateCurveAppearance();
+            if ( auto curve = dynamic_cast<RimSummaryCurve*>( obj ) )
+            {
+                curve->updateCurveAppearance();
+            }
         }
 
         auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
