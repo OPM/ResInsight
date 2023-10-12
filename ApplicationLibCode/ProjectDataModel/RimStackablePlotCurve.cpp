@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimStackablePlotCurve.h"
 
 #include "RiaColorTables.h"
@@ -107,11 +108,7 @@ void RimStackablePlotCurve::setIsStacked( bool stacked )
 {
     m_isStacked = stacked;
 
-    if ( !m_isStacked() && fillStyle() != Qt::NoBrush )
-    {
-        // Switch off area fill when turning off stacking.
-        setFillStyle( Qt::NoBrush );
-    }
+    updateStackingAppearance();
     stackingChanged.send( m_isStacked() );
 }
 
@@ -124,11 +121,7 @@ void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
     if ( changedField == &m_isStacked )
     {
-        if ( !m_isStacked() && fillStyle() != Qt::NoBrush )
-        {
-            // Switch off area fill when turning off stacking.
-            setFillStyle( Qt::NoBrush );
-        }
+        updateStackingAppearance();
         stackingChanged.send( m_isStacked() );
     }
     else if ( changedField == &m_isStackedWithPhaseColors )
@@ -173,4 +166,26 @@ void RimStackablePlotCurve::defaultUiOrdering( caf::PdmUiOrdering& uiOrdering )
     nameGroup->setCollapsedByDefault();
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStackablePlotCurve::updateCurveAppearance()
+{
+    updateStackingAppearance();
+
+    RimPlotCurve::updateCurveAppearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStackablePlotCurve::updateStackingAppearance()
+{
+    if ( !m_isStacked() && fillStyle() != Qt::NoBrush )
+    {
+        // Switch off area fill when turning off stacking.
+        setFillStyle( Qt::NoBrush );
+    }
 }
