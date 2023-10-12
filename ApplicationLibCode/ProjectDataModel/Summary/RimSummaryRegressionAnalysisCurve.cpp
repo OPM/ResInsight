@@ -718,7 +718,7 @@ void RimSummaryRegressionAnalysisCurve::appendTimeSteps( std::vector<time_t>& de
 //--------------------------------------------------------------------------------------------------
 std::pair<time_t, time_t> RimSummaryRegressionAnalysisCurve::fullTimeStepRange() const
 {
-    auto timeSteps = RimSummaryCurve::timeStepsY();
+    auto timeSteps = m_sourceTimeStepsY;
     if ( !timeSteps.empty() )
     {
         return std::make_pair( *timeSteps.begin(), *timeSteps.rbegin() );
