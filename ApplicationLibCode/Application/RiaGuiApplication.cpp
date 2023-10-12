@@ -952,10 +952,8 @@ void RiaGuiApplication::createMainWindow()
 {
     CVF_ASSERT( m_mainWindow == nullptr );
 
-    if ( RiaPreferences::current()->useUndoRedo() )
-    {
-        caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
-    }
+    // Always enable undo/redo framework, as multi-select operations perform significantly better with it enabled
+    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
 
     m_mainWindow     = new RiuMainWindow;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
@@ -980,10 +978,8 @@ void RiaGuiApplication::createMainPlotWindow()
 {
     CVF_ASSERT( m_mainPlotWindow == nullptr );
 
-    if ( RiaPreferences::current()->useUndoRedo() )
-    {
-        caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
-    }
+    // Always enable undo/redo framework, as multi-select operations perform significantly better with it enabled
+    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
 
     m_mainPlotWindow = std::make_unique<RiuPlotMainWindow>();
     m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );
