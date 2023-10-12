@@ -1164,7 +1164,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     bool             showStatisticsColor = m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR;
     m_statistics->showColorField( showStatisticsColor );
 
-    m_statistics->defineUiOrdering( uiConfigName, *statGroup );
+    m_statistics->appendFields( isXAxisSummaryVector(), *statGroup );
 
     caf::PdmUiGroup* statAppearance = statGroup->addNewGroupWithKeyword( "Appearance", "StatisticsAppearance" );
     statAppearance->add( &m_statisticsUseCustomAppearance );

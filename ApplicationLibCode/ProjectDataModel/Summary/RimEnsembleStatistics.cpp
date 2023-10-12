@@ -239,6 +239,50 @@ void RimEnsembleStatistics::showColorField( bool show )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::appendFields( bool showCrossPlotGroup, caf::PdmUiOrdering& uiOrdering )
+{
+    auto curveSet = m_parentCurveSet;
+
+    uiOrdering.add( &m_active );
+    m_showStatisticsCurveLegends.uiCapability()->setUiReadOnly( !m_active );
+    uiOrdering.add( &m_showStatisticsCurveLegends );
+    uiOrdering.add( &m_showEnsembleCurves );
+    uiOrdering.add( &m_basedOnFilteredCases );
+    uiOrdering.add( &m_includeIncompleteCurves );
+    uiOrdering.add( &m_showCurveLabels );
+
+    if ( showCrossPlotGroup )
+    {
+        auto crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot" );
+        crossPlotGroup->add( &m_crossPlotCurvesBinCount );
+        crossPlotGroup->add( &m_crossPlotCurvesStatisticsRealizationCountThresholdPerBin );
+    }
+
+    if ( m_showColorField ) uiOrdering.add( &m_color );
+
+    auto group = uiOrdering.addNewGroup( "Curves" );
+    if ( !curveSet->hasMeanData() ) group->add( &m_warningLabel );
+    group->add( &m_showP90Curve );
+    group->add( &m_showP50Curve );
+    group->add( &m_showMeanCurve );
+    group->add( &m_showP10Curve );
+
+    disableP10Curve( !m_active || !curveSet->hasP10Data() );
+    disableP50Curve( !m_active || !curveSet->hasP50Data() );
+    disableP90Curve( !m_active || !curveSet->hasP90Data() );
+    disableMeanCurve( !m_active || !curveSet->hasMeanData() );
+    m_showCurveLabels.uiCapability()->setUiReadOnly( !m_active );
+    m_color.uiCapability()->setUiReadOnly( !m_active );
+
+    m_showP10Curve.uiCapability()->setUiName( curveSet->hasP10Data() ? "P10" : "P10 (Needs > 8 curves)" );
+    m_showP90Curve.uiCapability()->setUiName( curveSet->hasP90Data() ? "P90" : "P90 (Needs > 8 curves)" );
+
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showEnsembleCurves )
@@ -265,40 +309,8 @@ void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto curveSet = m_parentCurveSet;
-
-    uiOrdering.add( &m_active );
-    m_showStatisticsCurveLegends.uiCapability()->setUiReadOnly( !m_active );
-    uiOrdering.add( &m_showStatisticsCurveLegends );
-    uiOrdering.add( &m_showEnsembleCurves );
-    uiOrdering.add( &m_basedOnFilteredCases );
-    uiOrdering.add( &m_includeIncompleteCurves );
-    uiOrdering.add( &m_showCurveLabels );
-
-    auto crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot" );
-    crossPlotGroup->add( &m_crossPlotCurvesBinCount );
-    crossPlotGroup->add( &m_crossPlotCurvesStatisticsRealizationCountThresholdPerBin );
-
-    if ( m_showColorField ) uiOrdering.add( &m_color );
-
-    auto group = uiOrdering.addNewGroup( "Curves" );
-    if ( !curveSet->hasMeanData() ) group->add( &m_warningLabel );
-    group->add( &m_showP90Curve );
-    group->add( &m_showP50Curve );
-    group->add( &m_showMeanCurve );
-    group->add( &m_showP10Curve );
-
-    disableP10Curve( !m_active || !curveSet->hasP10Data() );
-    disableP50Curve( !m_active || !curveSet->hasP50Data() );
-    disableP90Curve( !m_active || !curveSet->hasP90Data() );
-    disableMeanCurve( !m_active || !curveSet->hasMeanData() );
-    m_showCurveLabels.uiCapability()->setUiReadOnly( !m_active );
-    m_color.uiCapability()->setUiReadOnly( !m_active );
-
-    m_showP10Curve.uiCapability()->setUiName( curveSet->hasP10Data() ? "P10" : "P10 (Needs > 8 curves)" );
-    m_showP90Curve.uiCapability()->setUiName( curveSet->hasP90Data() ? "P90" : "P90 (Needs > 8 curves)" );
-
-    uiOrdering.skipRemainingFields( true );
+    bool showCrossPlot = true;
+    appendFields( showCrossPlot, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------

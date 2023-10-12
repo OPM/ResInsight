@@ -482,8 +482,9 @@ void RimEnsembleWellLogCurveSet::defineUiOrdering( QString uiConfigName, caf::Pd
         }
     }
 
-    caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup( "Statistics" );
-    m_statistics->defineUiOrdering( uiConfigName, *statGroup );
+    caf::PdmUiGroup* statGroup          = uiOrdering.addNewGroup( "Statistics" );
+    bool             showCrossPlotGroup = false;
+    m_statistics->appendFields( showCrossPlotGroup, *statGroup );
 
     caf::PdmUiGroup* curveAppearanceGroup = uiOrdering.addNewGroup( "Curve Appearance" );
     QString          configName           = "AppearanceOrdering";
