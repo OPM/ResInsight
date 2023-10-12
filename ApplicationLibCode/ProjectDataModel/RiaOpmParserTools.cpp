@@ -264,8 +264,13 @@ std::vector<RiaOpmParserTools::AicdTemplateValues> RiaOpmParserTools::extractWse
                     auto typeTag = deckItem.getType();
                     if ( typeTag == Opm::type_tag::fdouble )
                     {
-                        double doubleValue            = deckItem.get<double>( 0 );
-                        aicdTemplate[deckItem.name()] = doubleValue;
+                        // Only read out explicitly set values. If the value is defaulted, do not read out the value to make sure the string
+                        // "1*" is displayed in the GUI
+                        if ( !deckItem.defaultApplied( 0 ) )
+                        {
+                            double doubleValue            = deckItem.get<double>( 0 );
+                            aicdTemplate[deckItem.name()] = doubleValue;
+                        }
                     }
                 }
 
