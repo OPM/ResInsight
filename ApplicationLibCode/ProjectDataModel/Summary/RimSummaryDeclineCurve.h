@@ -100,8 +100,8 @@ private:
     caf::PdmField<double>                         m_hyperbolicDeclineConstant;
 
     // Time step range defined in the range [0..100] as time_t can hold values that do not fit into int used by QSpinBox
-    caf::PdmField<int> m_minTimeStep;
-    caf::PdmField<int> m_maxTimeStep;
+    caf::PdmField<int> m_minTimeSliderPosition;
+    caf::PdmField<int> m_maxTimeSliderPosition;
 
     caf::PdmField<bool> m_showTimeSelectionInPlot;
 

@@ -144,8 +144,8 @@ private:
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
 
     caf::PdmField<caf::AppEnum<RangeType>> m_timeRangeSelection;
-    caf::PdmField<int>                     m_minTimeStep;
-    caf::PdmField<int>                     m_maxTimeStep;
+    caf::PdmField<int>                     m_minTimeSliderPosition;
+    caf::PdmField<int>                     m_maxTimeSliderPosition;
     caf::PdmField<bool>                    m_showTimeSelectionInPlot;
 
     caf::PdmField<int>                        m_polynomialDegree;

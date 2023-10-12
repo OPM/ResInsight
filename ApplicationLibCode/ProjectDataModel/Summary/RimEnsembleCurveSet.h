@@ -280,8 +280,8 @@ private:
     caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;
     caf::PdmField<bool>                           m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmPtrField<RimCustomObjectiveFunction*> m_customObjectiveFunction;
-    caf::PdmField<int>                            m_minTimeStep;
-    caf::PdmField<int>                            m_maxTimeStep;
+    caf::PdmField<int>                            m_minTimeSliderPosition;
+    caf::PdmField<int>                            m_maxTimeSliderPosition;
     caf::PdmField<QDate>                          m_minDateRange;
     caf::PdmField<QDate>                          m_maxDateRange;
     caf::PdmField<TimeStepFilterEnum>             m_timeStepFilter;

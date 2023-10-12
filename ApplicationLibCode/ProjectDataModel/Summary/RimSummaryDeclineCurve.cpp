@@ -61,11 +61,11 @@ RimSummaryDeclineCurve::RimSummaryDeclineCurve()
     CAF_PDM_InitField( &m_hyperbolicDeclineConstant, "HyperbolicDeclineConstant", 0.5, "Decline Constant" );
     m_hyperbolicDeclineConstant.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_minTimeStep, "MinTimeStep", 75, "From" );
-    m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_minTimeSliderPosition, "MinTimeSliderPosition", 75, "From" );
+    m_minTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_maxTimeStep, "MaxTimeStep", 100, "To" );
-    m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_maxTimeSliderPosition, "MaxTimeSliderPosition", 100, "To" );
+    m_maxTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showTimeSelectionInPlot, "ShowTimeSelectionInPlot", true, "Show In Plot" );
 }
@@ -299,8 +299,8 @@ std::pair<time_t, time_t> RimSummaryDeclineCurve::selectedTimeStepRange() const
 
     auto [min, max]  = fullTimeStepRange();
     auto range       = max - min;
-    auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeStep / 100.0 ) );
-    auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeStep / 100.0 ) );
+    auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeSliderPosition / 100.0 ) );
+    auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeSliderPosition / 100.0 ) );
 
     return { selectedMin, selectedMax };
 }
@@ -355,8 +355,8 @@ void RimSummaryDeclineCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
 
     caf::PdmUiGroup* timeSelectionGroup = uiOrdering.addNewGroup( "Time Selection" );
-    timeSelectionGroup->add( &m_minTimeStep );
-    timeSelectionGroup->add( &m_maxTimeStep );
+    timeSelectionGroup->add( &m_minTimeSliderPosition );
+    timeSelectionGroup->add( &m_maxTimeSliderPosition );
     timeSelectionGroup->add( &m_showTimeSelectionInPlot );
 
     RimSummaryCurve::defineUiOrdering( uiConfigName, uiOrdering );
@@ -367,19 +367,19 @@ void RimSummaryDeclineCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 void RimSummaryDeclineCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( &m_minTimeStep == changedField && m_minTimeStep > m_maxTimeStep )
+    if ( &m_minTimeSliderPosition == changedField && m_minTimeSliderPosition > m_maxTimeSliderPosition )
     {
-        m_maxTimeStep = m_minTimeStep;
+        m_maxTimeSliderPosition = m_minTimeSliderPosition;
     }
 
-    if ( &m_maxTimeStep == changedField && m_maxTimeStep < m_minTimeStep )
+    if ( &m_maxTimeSliderPosition == changedField && m_maxTimeSliderPosition < m_minTimeSliderPosition )
     {
-        m_minTimeStep = m_maxTimeStep;
+        m_minTimeSliderPosition = m_maxTimeSliderPosition;
     }
 
     RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_declineCurveType || changedField == &m_predictionYears || changedField == &m_hyperbolicDeclineConstant ||
-         changedField == &m_minTimeStep || changedField == &m_maxTimeStep || changedField == &m_showTimeSelectionInPlot )
+         changedField == &m_minTimeSliderPosition || changedField == &m_maxTimeSliderPosition || changedField == &m_showTimeSelectionInPlot )
     {
         loadAndUpdateDataAndPlot();
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -413,7 +413,7 @@ void RimSummaryDeclineCurve::defineEditorAttribute( const caf::PdmFieldHandle* f
             myAttr->m_decimals = 2;
         }
     }
-    else if ( field == &m_minTimeStep || field == &m_maxTimeStep )
+    else if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
         {

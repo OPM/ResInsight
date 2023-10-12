@@ -107,11 +107,11 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
     CAF_PDM_InitField( &m_polynomialDegree, "PolynomialDegree", 3, "Degree" );
 
     CAF_PDM_InitFieldNoDefault( &m_timeRangeSelection, "TimeRangeSelection", "Time Range" );
-    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From" );
-    m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_minTimeSliderPosition, "MinTimeSliderPosition", "From" );
+    m_minTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "To" );
-    m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_maxTimeSliderPosition, "MaxTimeSliderPosition", "To" );
+    m_maxTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showTimeSelectionInPlot, "ShowTimeSelectionInPlot", false, "Show In Plot" );
 
@@ -474,8 +474,8 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
         timeSelectionGroup->add( &m_timeRangeSelection );
         if ( m_timeRangeSelection() == RangeType::USER_DEFINED_RANGE )
         {
-            timeSelectionGroup->add( &m_minTimeStep );
-            timeSelectionGroup->add( &m_maxTimeStep );
+            timeSelectionGroup->add( &m_minTimeSliderPosition );
+            timeSelectionGroup->add( &m_maxTimeSliderPosition );
         }
         timeSelectionGroup->add( &m_showTimeSelectionInPlot );
     }
@@ -512,14 +512,14 @@ void RimSummaryRegressionAnalysisCurve::fieldChangedByUi( const caf::PdmFieldHan
 {
     RimSummaryCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( &m_minTimeStep == changedField && m_minTimeStep > m_maxTimeStep )
+    if ( &m_minTimeSliderPosition == changedField && m_minTimeSliderPosition > m_maxTimeSliderPosition )
     {
-        m_maxTimeStep = m_minTimeStep;
+        m_maxTimeSliderPosition = m_minTimeSliderPosition;
     }
 
-    if ( &m_maxTimeStep == changedField && m_maxTimeStep < m_minTimeStep )
+    if ( &m_maxTimeSliderPosition == changedField && m_maxTimeSliderPosition < m_minTimeSliderPosition )
     {
-        m_minTimeStep = m_maxTimeStep;
+        m_minTimeSliderPosition = m_maxTimeSliderPosition;
     }
 
     loadAndUpdateDataAndPlot();
@@ -553,7 +553,7 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
             lineEditorAttr->validator = new QIntValidator( 0, 50, nullptr );
         }
     }
-    else if ( field == &m_minTimeStep || field == &m_maxTimeStep )
+    else if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
         {
@@ -736,8 +736,8 @@ std::pair<time_t, time_t> RimSummaryRegressionAnalysisCurve::selectedTimeStepRan
 
     auto [min, max]  = fullTimeStepRange();
     auto range       = max - min;
-    auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeStep / 100.0 ) );
-    auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeStep / 100.0 ) );
+    auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeSliderPosition / 100.0 ) );
+    auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeSliderPosition / 100.0 ) );
 
     return { selectedMin, selectedMax };
 }
@@ -882,8 +882,8 @@ void RimSummaryRegressionAnalysisCurve::updateDefaultValues()
 {
     if ( !m_sourceTimeStepsY.empty() && m_timeRangeSelection() == RangeType::FULL_RANGE )
     {
-        m_minTimeStep = 0;
-        m_maxTimeStep = 100;
+        m_minTimeSliderPosition = 0;
+        m_maxTimeSliderPosition = 100;
     }
 
     if ( !m_sourceValuesX.empty() && m_xRangeSelection() == RangeType::FULL_RANGE )

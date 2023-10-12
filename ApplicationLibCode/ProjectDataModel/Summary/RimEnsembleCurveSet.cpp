@@ -207,14 +207,14 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From" );
     m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "" );
-    m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_minTimeSliderPosition, "MinTimeSliderPosition", 0, "" );
+    m_minTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To" );
     m_maxDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "" );
-    m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_maxTimeSliderPosition, "MaxTimeSliderPosition", 100, "" );
+    m_maxTimeSliderPosition.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
@@ -491,8 +491,8 @@ std::pair<time_t, time_t> RimEnsembleCurveSet::selectedTimeStepRange() const
 
     auto [min, max]  = fullTimeStepRange();
     auto range       = max - min;
-    auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeStep / 100.0 ) );
-    auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeStep / 100.0 ) );
+    auto selectedMin = min + static_cast<time_t>( range * ( m_minTimeSliderPosition / 100.0 ) );
+    auto selectedMax = min + static_cast<time_t>( range * ( m_maxTimeSliderPosition / 100.0 ) );
 
     return { selectedMin, selectedMax };
 }
@@ -898,8 +898,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 summaryAddress->setAddress( m_yValuesSummaryAddress->address() );
                 m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 updateAddressesUiField();
-                m_minTimeStep = 0;
-                m_maxTimeStep = 100;
+                m_minTimeSliderPosition = 0;
+                m_maxTimeSliderPosition = 100;
                 updateMaxMinAndDefaultValues();
             }
         }
@@ -924,7 +924,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateObjectiveFunctionLegend();
         updateMaxMinAndDefaultValues();
     }
-    else if ( changedField == &m_minTimeStep || changedField == &m_maxTimeStep )
+    else if ( changedField == &m_minTimeSliderPosition || changedField == &m_maxTimeSliderPosition )
     {
         updateMaxMinAndDefaultValues();
         updateCurveColors();
@@ -941,8 +941,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         maxTime      = std::clamp( maxTime, min, max );
 
         // Convert from date to normalized value between 0 and 100
-        m_minTimeStep = static_cast<int>( ( double( minTime - min ) / double( range ) ) * 100 );
-        m_maxTimeStep = static_cast<int>( ( double( maxTime - min ) / double( range ) ) * 100 );
+        m_minTimeSliderPosition = static_cast<int>( ( double( minTime - min ) / double( range ) ) * 100 );
+        m_maxTimeSliderPosition = static_cast<int>( ( double( maxTime - min ) / double( range ) ) * 100 );
 
         updateCurveColors();
         updateTimeAnnotations();
@@ -1046,8 +1046,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 setTimeSteps( indices );
             }
 
-            m_minTimeStep = 0;
-            m_maxTimeStep = 100;
+            m_minTimeSliderPosition = 0;
+            m_maxTimeSliderPosition = 100;
 
             updateLegendMappingMode();
             updateCurveColors();
@@ -1342,9 +1342,9 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
                    m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
             {
                 timeSelectionGroup->add( &m_minDateRange );
-                timeSelectionGroup->add( &m_minTimeStep );
+                timeSelectionGroup->add( &m_minTimeSliderPosition );
                 timeSelectionGroup->add( &m_maxDateRange );
-                timeSelectionGroup->add( &m_maxTimeStep );
+                timeSelectionGroup->add( &m_maxTimeSliderPosition );
             }
             if ( m_objectiveFunction()->functionType() == RimObjectiveFunction::FunctionType::F2 ||
                  ( m_customObjectiveFunction() &&
@@ -1434,7 +1434,7 @@ void RimEnsembleCurveSet::defineEditorAttribute( const caf::PdmFieldHandle* fiel
         attrib->m_buttonText = "...";
     }
 
-    if ( field == &m_minTimeStep || field == &m_maxTimeStep )
+    if ( field == &m_minTimeSliderPosition || field == &m_maxTimeSliderPosition )
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
         {
