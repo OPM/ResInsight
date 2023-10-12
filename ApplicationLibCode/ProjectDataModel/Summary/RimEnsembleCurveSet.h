@@ -209,7 +209,7 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QList<caf::PdmOptionItemInfo>          calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    std::set<time_t>                       allAvailableTimeSteps();
+    std::set<time_t>                       allAvailableTimeSteps() const;
     std::set<RimSummaryCase*>              timestepDefiningSourceCases();
     RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
@@ -240,6 +240,9 @@ private:
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 
     void setSummaryAddressX( RifEclipseSummaryAddress address );
+
+    std::pair<time_t, time_t> fullTimeStepRange() const;
+    std::pair<time_t, time_t> selectedTimeStepRange() const;
 
 private:
     caf::PdmField<bool>                       m_showCurves;
@@ -277,8 +280,8 @@ private:
     caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;
     caf::PdmField<bool>                           m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmPtrField<RimCustomObjectiveFunction*> m_customObjectiveFunction;
-    caf::PdmField<time_t>                         m_minTimeStep;
-    caf::PdmField<time_t>                         m_maxTimeStep;
+    caf::PdmField<int>                            m_minTimeSliderPosition;
+    caf::PdmField<int>                            m_maxTimeSliderPosition;
     caf::PdmField<QDate>                          m_minDateRange;
     caf::PdmField<QDate>                          m_maxDateRange;
     caf::PdmField<TimeStepFilterEnum>             m_timeStepFilter;
