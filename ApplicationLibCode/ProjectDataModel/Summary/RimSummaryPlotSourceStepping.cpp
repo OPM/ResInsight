@@ -636,19 +636,51 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
         std::vector<RimSummaryCurve*> curves;
         if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
 
-        for ( auto curve : curves )
+        size_t maxAddrCount = 0;
+        int    maxAddrIndex = -1;
+
+        for ( size_t i = 0; i < curves.size(); i++ )
         {
+            auto curve = curves[i];
             if ( !curve ) continue;
 
             if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
             {
                 auto addresses = curve->summaryCaseY()->summaryReader()->allResultAddresses();
-                addressSet.insert( addresses.begin(), addresses.end() );
+
+                size_t addrCount = addresses.size();
+                if ( addrCount > maxAddrCount )
+                {
+                    maxAddrCount = addrCount;
+                    maxAddrIndex = (int)i;
+                }
             }
 
             if ( isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
             {
+                auto   addresses = curve->summaryCaseX()->summaryReader()->allResultAddresses();
+                size_t addrCount = addresses.size();
+                if ( addrCount > maxAddrCount )
+                {
+                    maxAddrCount = addrCount;
+                    maxAddrIndex = (int)i;
+                }
+            }
+        }
+
+        if ( maxAddrIndex >= 0 )
+        {
+            auto curve = curves[maxAddrIndex];
+
+            if ( isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
+            {
                 auto addresses = curve->summaryCaseX()->summaryReader()->allResultAddresses();
+                addressSet.insert( addresses.begin(), addresses.end() );
+            }
+
+            if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
+            {
+                auto addresses = curve->summaryCaseY()->summaryReader()->allResultAddresses();
                 addressSet.insert( addresses.begin(), addresses.end() );
             }
         }
