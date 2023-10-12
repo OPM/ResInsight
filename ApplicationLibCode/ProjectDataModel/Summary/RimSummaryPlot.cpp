@@ -2118,6 +2118,9 @@ void RimSummaryPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
 void RimSummaryPlot::curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked )
 {
     loadDataAndUpdate();
+
+    // Change of stacking can result in very large y-axis changes, so zoom all
+    zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
