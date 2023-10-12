@@ -130,7 +130,6 @@ void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle
         {
             if ( auto curve = dynamic_cast<RimSummaryCurve*>( obj ) )
             {
-
                 curve->updateCurveAppearance();
             }
         }
