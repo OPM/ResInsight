@@ -405,7 +405,7 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_showCurve )
     {
-        if ( m_isStacked() || m_showCurve() )
+        if ( isStacked() || m_showCurve() )
         {
             updateZoomInParentPlot();
         }
