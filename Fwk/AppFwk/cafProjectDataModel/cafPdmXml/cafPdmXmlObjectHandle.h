@@ -54,7 +54,10 @@ public:
     void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
     void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
 
+    // Never call resolveReferencesRecursively() from initAfterRead(), as the document is not fully imported and the
+    // resolving might fail. The object needs to be fully inserted into the document before resolving references.
     void resolveReferencesRecursively( std::vector<PdmFieldHandle*>* fieldWithFailingResolve = nullptr );
+
     bool inheritsClassWithKeyword( const QString& testClassKeyword ) const;
 
     const std::list<QString>& classInheritanceStack() const;
@@ -74,9 +77,10 @@ protected: // Virtual
     void registerClassKeyword( const QString& registerKeyword );
 
 private:
-    void initAfterReadRecursively( PdmObjectHandle* object );
-    void setupBeforeSaveRecursively( PdmObjectHandle* object );
-    void resolveReferencesRecursively( PdmObjectHandle* object, std::vector<PdmFieldHandle*>* fieldWithFailingResolve );
+    static void initAfterReadRecursively( PdmObjectHandle* object );
+    static void setupBeforeSaveRecursively( PdmObjectHandle* object );
+    static void resolveReferencesRecursively( PdmObjectHandle*              object,
+                                              std::vector<PdmFieldHandle*>* fieldWithFailingResolve );
 
 private:
     friend class PdmObjectHandle; // Only temporary for void PdmObject::addFieldNoDefault( ) accessing findField

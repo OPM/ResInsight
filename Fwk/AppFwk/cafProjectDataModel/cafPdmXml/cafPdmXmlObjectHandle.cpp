@@ -404,7 +404,8 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Never call resolveReferencesRecursively() from initAfterRead(), as the document is not fully imported and the
+// resolving might fail. The object needs to be fully inserted into the document before resolving references.
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::resolveReferencesRecursively(
     std::vector<PdmFieldHandle*>* fieldWithFailingResolve /*= nullptr*/ )
