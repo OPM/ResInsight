@@ -435,7 +435,6 @@ void RimSeismicSection::updateVisualization()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::initAfterRead()
 {
-    resolveReferencesRecursively();
     if ( m_seismicData != nullptr )
     {
         m_seismicData->legendConfig()->changed.connect( this, &RimSeismicSection::onLegendConfigChanged );
