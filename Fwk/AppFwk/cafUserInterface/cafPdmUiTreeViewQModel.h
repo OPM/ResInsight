@@ -91,6 +91,8 @@ private:
     void emitDataChanged( const QModelIndex& index );
     void updateEditorsForSubTree( PdmUiTreeOrdering* root );
 
+    void allIndicesRecursiveImpl( const QModelIndex& current, std::list<QModelIndex>& modelList ) const;
+
     PdmUiTreeOrdering* m_treeOrderingRoot;
     QStringList        m_columnHeaders;
     QString            m_uiConfigName;
