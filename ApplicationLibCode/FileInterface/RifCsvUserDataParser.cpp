@@ -384,19 +384,33 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
 
             QString unit;
 
-            // Check if unit is part of the column name in parentheses, e.g. "VECTOR (unit)".
-            QRegExp exp( "\\((.*)\\)" );
-            if ( exp.indexIn( colName ) >= 0 )
+            // Find unit from column header text
+            // "VECTOR_NAME (unit)"
+            // "VECTOR_NAME [unit]"
             {
-                // "VECTOR (unit)" ==> "(unit)"
-                QString fullCapture = exp.cap( 0 );
-                // "VECTOR (unit)" ==> "unit"
-                QString unitCapture = exp.cap( 1 );
+                // "VECTORNAME (unit)" ==> "(unit)"
+                QRegExp exp( "[[]([^]]+)[]]" );
+                if ( exp.indexIn( colName ) >= 0 )
+                {
+                    QString fullCapture = exp.cap( 0 );
+                    QString unitCapture = exp.cap( 1 );
 
-                unit = unitCapture;
+                    unit    = unitCapture;
+                    colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
+                }
+            }
 
-                // Remove unit from name
-                colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
+            {
+                // "VECTOR_NAME [unit]" ==> "[unit]"
+                QRegExp exp( "[(]([^)]+)[)]" );
+                if ( exp.indexIn( colName ) >= 0 )
+                {
+                    QString fullCapture = exp.cap( 0 );
+                    QString unitCapture = exp.cap( 1 );
+
+                    unit    = unitCapture;
+                    colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
+                }
             }
 
             if ( auto it = nameMapping.find( colName ); it != nameMapping.end() )

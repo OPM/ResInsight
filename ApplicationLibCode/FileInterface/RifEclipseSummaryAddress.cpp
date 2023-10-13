@@ -722,11 +722,6 @@ std::string RifEclipseSummaryAddress::itemUiText() const
             text += std::to_string( aquiferNumber() );
         }
         break;
-        case SummaryCategory::SUMMARY_IMPORTED:
-        {
-            text += vectorName();
-        }
-        break;
     }
 
     return text;
