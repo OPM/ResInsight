@@ -164,6 +164,8 @@ private:
     // Use friend class to avoid public noise
     friend class PdmXmlObjectHandle;
     bool m_isInsideInitAfterRead;
+
+    mutable PdmUiObjectHandle* m_uiCapability;
 };
 } // namespace caf
 

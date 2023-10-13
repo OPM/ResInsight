@@ -24,9 +24,8 @@ PdmUiObjectHandle::PdmUiObjectHandle( PdmObjectHandle* owner, bool giveOwnership
 PdmUiObjectHandle* uiObj( const PdmObjectHandle* obj )
 {
     if ( !obj ) return nullptr;
-    PdmUiObjectHandle* uiObject = obj->capability<PdmUiObjectHandle>();
-    CAF_ASSERT( uiObject );
-    return uiObject;
+
+    return obj->uiCapability();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,10 +231,16 @@ void PdmUiObjectHandle::updateUiIconFromToggleField()
 //--------------------------------------------------------------------------------------------------
 PdmUiObjectHandle* PdmObjectHandle::uiCapability() const
 {
-    PdmUiObjectHandle* uiField = capability<PdmUiObjectHandle>();
-    CAF_ASSERT( uiField );
+    if ( !m_uiCapability )
+    {
+        // Cache the ui capability for performance reasons
+        auto uiField = capability<PdmUiObjectHandle>();
+        CAF_ASSERT( uiField );
 
-    return uiField;
+        m_uiCapability = uiField;
+    }
+
+    return m_uiCapability;
 }
 
 } // End namespace caf
