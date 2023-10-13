@@ -591,6 +591,11 @@ bool PdmUiTreeViewEditor::updateSelectionManager()
 void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRootIndex /* = QModelIndex() */ )
 {
     auto allIndices = m_treeViewModel->allIndicesRecursive( subRootIndex );
+    if ( allIndices.empty() ) return;
+
+    std::vector<PdmUiItem*> selection;
+    selectedUiItems( selection );
+
     for ( QModelIndex& index : allIndices )
     {
         QModelIndex filterIndex = m_filterModel->mapFromSource( index );
@@ -608,9 +613,6 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
             {
                 PdmFieldReorderCapability* reorderability =
                     PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject );
-
-                std::vector<PdmUiItem*> selection;
-                selectedUiItems( selection );
 
                 if ( reorderability && filterIndex.row() >= 0 && selection.size() == 1u && selection.front() == uiItem )
                 {
