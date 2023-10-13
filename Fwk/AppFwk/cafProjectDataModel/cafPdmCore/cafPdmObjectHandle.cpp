@@ -15,6 +15,8 @@ PdmObjectHandle::PdmObjectHandle()
 {
     m_parentField = nullptr;
     m_isDeletable = false;
+
+    m_isInsideInitAfterRead = false;
 }
 
 //--------------------------------------------------------------------------------------------------

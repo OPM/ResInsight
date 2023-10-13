@@ -159,6 +159,11 @@ private:
     std::set<PdmObjectHandle**> m_pointersReferencingMe;
 
     bool m_isDeletable;
+
+    // m_isInsideInitAfterRead is used to detect if resolveReferencesRecursively() is called from initAfterRead()
+    // Use friend class to avoid public noise
+    friend class PdmXmlObjectHandle;
+    bool m_isInsideInitAfterRead;
 };
 } // namespace caf
 

@@ -51,8 +51,8 @@ public:
     /// Check if a string is a valid Xml element name
     static bool isValidXmlElementName( const QString& name );
 
-    void initAfterReadRecursively() { initAfterReadRecursively( this->m_owner ); };
-    void setupBeforeSaveRecursively() { setupBeforeSaveRecursively( this->m_owner ); };
+    void initAfterReadRecursively();
+    void setupBeforeSaveRecursively();
 
     // Never call resolveReferencesRecursively() from initAfterRead(), as the document is not fully imported and the
     // resolving might fail. The object needs to be fully inserted into the document before resolving references.
