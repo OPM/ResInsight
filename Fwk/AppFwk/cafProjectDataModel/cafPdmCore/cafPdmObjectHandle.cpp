@@ -13,8 +13,9 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle::PdmObjectHandle()
 {
-    m_parentField = nullptr;
-    m_isDeletable = false;
+    m_parentField  = nullptr;
+    m_isDeletable  = false;
+    m_uiCapability = nullptr;
 
     m_isInsideInitAfterRead = false;
 }
@@ -146,7 +147,8 @@ void PdmObjectHandle::removeReferencingPtrField( PdmFieldHandle* fieldReferringT
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::prepareForDelete()
 {
-    m_parentField = nullptr;
+    m_parentField  = nullptr;
+    m_uiCapability = nullptr;
 
     for ( size_t i = 0; i < m_capabilities.size(); ++i )
     {
