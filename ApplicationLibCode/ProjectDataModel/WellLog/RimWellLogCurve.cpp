@@ -225,7 +225,7 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::updateCurveAppearance()
 {
-    RimPlotCurve::updateCurveAppearance();
+    RimStackablePlotCurve::updateCurveAppearance();
 
     auto orientation = RiaDefines::Orientation::VERTICAL;
 
