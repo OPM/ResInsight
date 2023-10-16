@@ -801,6 +801,10 @@ void RimGeoMechView::onClampCurrentTimestep()
     {
         maxSteps = m_geomechCase->geoMechData()->femPartResults()->totalSteps();
     }
+    else
+    {
+        return;
+    }
     if ( m_currentTimeStep >= maxSteps ) m_currentTimeStep = maxSteps - 1;
     if ( m_currentTimeStep < 0 ) m_currentTimeStep = 0;
 
