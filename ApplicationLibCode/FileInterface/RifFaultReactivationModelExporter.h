@@ -46,14 +46,17 @@ private:
                     const std::map<RimFaultReactivation::GridPart, std::string>&                                         partNames,
                     const std::vector<std::pair<RimFaultReactivation::BorderSurface, std::string>>&                      borders,
                     const std::map<std::pair<RimFaultReactivation::GridPart, RimFaultReactivation::BorderSurface>, int>& faces,
-                    const std::map<RimFaultReactivation::Boundary, std::string>&                                         boundaries );
+                    const std::map<RimFaultReactivation::Boundary, std::string>&                                         boundaries,
+                    const std::map<RimFaultReactivation::ElementSets, std::string>&                                      materialNames );
 
     static std::pair<bool, std::string> printAssembly( std::ostream&                                                stream,
                                                        const RigFaultReactivationModel&                             model,
                                                        const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                                        const std::pair<cvf::Vec3d, cvf::Vec3d>&                     transform );
 
-    static std::pair<bool, std::string> printMaterials( std::ostream& stream );
+    static std::pair<bool, std::string> printMaterials( std::ostream&                                                   stream,
+                                                        const RimFaultReactivationModel&                                rimModel,
+                                                        const std::map<RimFaultReactivation::ElementSets, std::string>& materialNames );
 
     static std::pair<bool, std::string> printInteractionProperties( std::ostream& stream, double faultFriction );
     static std::pair<bool, std::string> printBoundaryConditions( std::ostream&                                                stream,
