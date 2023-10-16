@@ -559,6 +559,7 @@ RigHistogramData RimSeismicView::histogramData()
     {
         auto xvals = m_seismicData->histogramXvalues();
         auto yvals = m_seismicData->histogramYvalues();
+        if ( xvals.empty() || yvals.empty() ) return histData;
 
         histData.min  = xvals.front();
         histData.max  = xvals.back();
