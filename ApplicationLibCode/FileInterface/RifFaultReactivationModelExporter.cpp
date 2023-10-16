@@ -23,6 +23,7 @@
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaVersionInfo.h"
 
 #include "RifInpExportTools.h"
@@ -63,6 +64,13 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         { RimFaultReactivation::Boundary::FarSide, "FARSIDE" },
     };
 
+    std::map<RimFaultReactivation::ElementSets, std::string> materialNames = {
+        { RimFaultReactivation::ElementSets::OverBurden, "OVERBURDEN" },
+        { RimFaultReactivation::ElementSets::IntraReservoir, "INTRA_RESERVOIR" },
+        { RimFaultReactivation::ElementSets::Reservoir, "RESERVOIR" },
+        { RimFaultReactivation::ElementSets::UnderBurden, "UNDERBURDEN" },
+    };
+
     double faultFriction = 0.0;
 
     auto model = rimModel.model();
@@ -70,9 +78,9 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
     std::vector<std::function<std::pair<bool, std::string>()>> methods = {
         [&]() { return printHeading( stream, applicationNameAndVersion ); },
-        [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries ); },
+        [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries, materialNames ); },
         [&]() { return printAssembly( stream, *model, partNames, rimModel.localCoordSysNormalsXY() ); },
-        [&]() { return printMaterials( stream ); },
+        [&]() { return printMaterials( stream, rimModel, materialNames ); },
         [&]() { return printInteractionProperties( stream, faultFriction ); },
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
         [&]() { return printPredefinedFields( stream, partNames ); },
@@ -126,7 +134,8 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
     const std::map<RimFaultReactivation::GridPart, std::string>&                                         partNames,
     const std::vector<std::pair<RimFaultReactivation::BorderSurface, std::string>>&                      borders,
     const std::map<std::pair<RimFaultReactivation::GridPart, RimFaultReactivation::BorderSurface>, int>& faces,
-    const std::map<RimFaultReactivation::Boundary, std::string>&                                         boundaries )
+    const std::map<RimFaultReactivation::Boundary, std::string>&                                         boundaries,
+    const std::map<RimFaultReactivation::ElementSets, std::string>&                                      materialNames )
 {
     RifInpExportTools::printSectionComment( stream, "PARTS" );
 
@@ -183,8 +192,25 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
             }
         }
 
-        RifInpExportTools::printComment( stream, "Section: sand" );
-        RifInpExportTools::printHeading( stream, "Solid Section, elset=" + partName + ", material=sand" );
+        std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>> elementSets = grid->elementSets();
+
+        for ( auto [setType, elements] : elementSets )
+        {
+            auto materialNameIt = materialNames.find( setType );
+            CAF_ASSERT( materialNameIt != materialNames.end() );
+            std::string materialName    = materialNameIt->second;
+            std::string materialSetName = materialName;
+            if ( elements.empty() )
+            {
+                RifInpExportTools::printComment( stream, "Section: " + materialName + " (skipped: no elements)" );
+            }
+            else
+            {
+                RifInpExportTools::printComment( stream, "Section: " + materialName );
+                RifInpExportTools::printElementSet( stream, materialSetName, true, elements );
+                RifInpExportTools::printHeading( stream, "Solid Section, elset=" + materialSetName + ", material=" + materialName );
+            }
+        }
 
         RifInpExportTools::printLine( stream, "," );
         RifInpExportTools::printHeading( stream, "End Part" );
@@ -240,30 +266,53 @@ std::pair<bool, std::string>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string> RifFaultReactivationModelExporter::printMaterials( std::ostream& stream )
+std::pair<bool, std::string>
+    RifFaultReactivationModelExporter::printMaterials( std::ostream&                                                   stream,
+                                                       const RimFaultReactivationModel&                                rimModel,
+                                                       const std::map<RimFaultReactivation::ElementSets, std::string>& materialNames )
 {
     // MATERIALS PART
     struct Material
     {
         std::string name;
         double      density;
-        double      elastic1;
-        double      elastic2;
+        double      youngsModulus;
+        double      poissonNumber;
         double      permeability1;
         double      permeability2;
     };
 
     RifInpExportTools::printSectionComment( stream, "MATERIALS" );
+    std::vector<Material> materials;
 
-    std::vector<Material> materials = {
-        Material{ .name = "sand", .density = 2000.0, .elastic1 = 5e+09, .elastic2 = 0.2, .permeability1 = 1e-09, .permeability2 = 0.3 } };
+    for ( auto [element, materialName] : materialNames )
+    {
+        std::array<double, 3> parameters = rimModel.materialParameters( element );
+
+        // Incoming unit for Young's Modulus is GPa: convert to Pa.
+        double youngsModulus = RiaEclipseUnitTools::gigaPascalToPascal( parameters[0] );
+
+        // Poisson Number has no unit.
+        double poissonNumber = parameters[1];
+
+        // Unit is already kg/m^3
+        double density = parameters[2];
+
+        materials.push_back( Material{ .name          = materialName,
+                                       .density       = density,
+                                       .youngsModulus = youngsModulus,
+                                       .poissonNumber = poissonNumber,
+                                       .permeability1 = 1e-09,
+                                       .permeability2 = 0.3 } );
+    }
+
     for ( Material mat : materials )
     {
         RifInpExportTools::printHeading( stream, "Material, name=" + mat.name );
         RifInpExportTools::printHeading( stream, "Density" );
         RifInpExportTools::printNumber( stream, mat.density );
         RifInpExportTools::printHeading( stream, "Elastic" );
-        RifInpExportTools::printNumbers( stream, { mat.elastic1, mat.elastic2 } );
+        RifInpExportTools::printNumbers( stream, { mat.youngsModulus, mat.poissonNumber } );
 
         RifInpExportTools::printHeading( stream, "Permeability, specific=1." );
         RifInpExportTools::printNumbers( stream, { mat.permeability1, mat.permeability2 } );
