@@ -148,14 +148,6 @@ void RimSeismicData::logError( QString msg )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicData::initAfterRead()
-{
-    updateMetaData();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSeismicData::setFileName( QString filename )
 {
     if ( filename != m_filename().path() )
@@ -496,6 +488,16 @@ std::pair<int, int> RimSeismicData::convertToInlineXline( cvf::Vec3d worldCoords
 std::pair<double, double> RimSeismicData::dataRangeMinMax() const
 {
     return m_activeDataRange;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::ensureFileReaderIsInitialized()
+{
+    if ( !openFileIfNotOpen() ) return;
+
+    updateMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
