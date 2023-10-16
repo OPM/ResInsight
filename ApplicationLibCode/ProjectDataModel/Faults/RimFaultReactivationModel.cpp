@@ -731,7 +731,7 @@ bool RimFaultReactivationModel::extractAndExportModelData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets elementSet )
+std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets elementSet ) const
 {
     std::array<double, 3>                     retVal   = { 0.0, 0.0, 0.0 };
     static std::map<ElementSets, std::string> groupMap = { { ElementSets::OverBurden, "material_overburden" },
