@@ -68,6 +68,8 @@
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimScriptCollection.h"
+#include "RimSeismicData.h"
+#include "RimSeismicDataCollection.h"
 #include "RimSeismicView.h"
 #include "RimSeismicViewCollection.h"
 #include "RimSimWellInViewCollection.h"
@@ -526,7 +528,6 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         }
     }
 
-    // Add well paths for each oil field
     for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
     {
         RimOilField* oilField = m_project->oilFields[oilFieldIdx];
@@ -536,8 +537,16 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             oilField->wellPathCollection = std::make_unique<RimWellPathCollection>();
         }
 
+        // Initialize well paths
         oilField->wellPathCollection->loadDataAndUpdate();
         oilField->ensembleWellLogsCollection->loadDataAndUpdate();
+
+        // Initialize seismic data
+        auto& seisDataColl = oilField->seismicDataCollection();
+        for ( auto seismicData : seisDataColl->seismicData() )
+        {
+            seismicData->ensureFileReaderIsInitialized();
+        }
     }
 
     {
