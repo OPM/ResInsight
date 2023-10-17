@@ -18,6 +18,7 @@
 
 #include "RicCreateRegressionAnalysisCurveFeature.h"
 
+#include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaSummaryTools.h"
 
@@ -84,12 +85,15 @@ void RicCreateRegressionAnalysisCurveFeature::setupActionLook( QAction* actionTo
 RimSummaryRegressionAnalysisCurve*
     RicCreateRegressionAnalysisCurveFeature::createRegressionAnalysisCurveAndAddToPlot( RimSummaryCurve* sourceCurve )
 {
-    RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
+    auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 
     auto newCurve = new RimSummaryRegressionAnalysisCurve();
     RiaSummaryTools::copyCurveDataSources( *newCurve, *sourceCurve );
 
-    newCurve->setColor( sourceCurve->color() );
+    auto candidates    = RiaColorTables::summaryCurveDefaultPaletteColors();
+    auto contrastColor = RiaColorTools::selectContrastColorFromCandiates( sourceCurve->color(), candidates.color3fArray() );
+
+    newCurve->setColor( contrastColor );
     newCurve->setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
     newCurve->setSymbolSkipDistance( 50 );
 
@@ -100,7 +104,7 @@ RimSummaryRegressionAnalysisCurve*
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 
-    RimSummaryMultiPlot* summaryMultiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+    auto* summaryMultiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
     if ( summaryMultiPlot )
     {
         summaryMultiPlot->updatePlotTitles();
@@ -121,14 +125,18 @@ RimSummaryRegressionAnalysisCurve*
 RimSummaryRegressionAnalysisCurve*
     RicCreateRegressionAnalysisCurveFeature::createRegressionAnalysisCurveAndAddToPlot( RimEnsembleCurveSet* sourceCurveSet )
 {
-    RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
+    auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 
     auto newCurve = new RimSummaryRegressionAnalysisCurve();
 
     newCurve->setEnsembleCurveSet( sourceCurveSet );
 
     auto color = RiaColorTools::fromQColorTo3f( sourceCurveSet->mainEnsembleColor() );
-    newCurve->setColor( color );
+
+    auto candidates    = RiaColorTables::summaryCurveDefaultPaletteColors();
+    auto contrastColor = RiaColorTools::selectContrastColorFromCandiates( color, candidates.color3fArray() );
+
+    newCurve->setColor( contrastColor );
     newCurve->setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
     newCurve->setSymbolSkipDistance( 50 );
 
@@ -141,7 +149,7 @@ RimSummaryRegressionAnalysisCurve*
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 
-    RimSummaryMultiPlot* summaryMultiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
+    auto* summaryMultiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
     if ( summaryMultiPlot )
     {
         summaryMultiPlot->updatePlotTitles();

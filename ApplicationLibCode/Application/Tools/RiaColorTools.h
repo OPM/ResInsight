@@ -42,6 +42,8 @@ public:
     static QColor       toQColor( cvf::Color4f color );
     static cvf::Color3f fromQColorTo3f( QColor );
 
+    static cvf::Color3f selectContrastColorFromCandiates( cvf::Color3f color, const cvf::Color3fArray& candidates );
+
     static QColor       textColor();
     static cvf::Color3f textColor3f();
 

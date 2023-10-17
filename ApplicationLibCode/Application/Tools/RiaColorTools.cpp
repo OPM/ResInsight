@@ -137,6 +137,30 @@ cvf::Color3f RiaColorTools::fromQColorTo3f( QColor color )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Find the color with larges distance to the given color based on RGB distance
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::selectContrastColorFromCandiates( cvf::Color3f color, const cvf::Color3fArray& candidates )
+{
+    if ( candidates.size() == 0 ) return color;
+
+    float        maxDiff       = 0.0f;
+    cvf::Color3f selectedColor = color;
+
+    for ( const auto& candidate : candidates )
+    {
+        const auto diff = std::fabs( color.r() - candidate.r() ) + std::fabs( color.g() - candidate.g() ) +
+                          std::fabs( color.b() - candidate.b() );
+        if ( diff > maxDiff )
+        {
+            maxDiff       = diff;
+            selectedColor = candidate;
+        }
+    }
+
+    return selectedColor;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QColor RiaColorTools::textColor()
