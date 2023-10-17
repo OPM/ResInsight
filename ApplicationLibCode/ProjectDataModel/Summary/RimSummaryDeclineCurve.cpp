@@ -345,6 +345,9 @@ void RimSummaryDeclineCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 {
     RimPlotCurve::updateFieldUiState();
 
+    // A decline curve is only supported for time history curves, hide the X-axis group.
+    hideXAxisGroup();
+
     caf::PdmUiGroup* declineCurveGroup = uiOrdering.addNewGroup( "Decline Curve" );
     declineCurveGroup->add( &m_declineCurveType );
     declineCurveGroup->add( &m_predictionYears );
