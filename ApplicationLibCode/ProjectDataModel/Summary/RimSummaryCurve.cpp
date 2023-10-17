@@ -1151,9 +1151,6 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         plot->updateAxes();
         plot->updatePlotTitle();
-
-        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        mainPlotWindow->updateMultiPlotToolBar();
     }
     else if ( changedField == &m_yPlotAxisProperties )
     {

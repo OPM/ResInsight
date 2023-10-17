@@ -191,7 +191,6 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         updateCurveAppearance();
     }
 
-    RiuPlotMainWindowTools::refreshToolbars();
     replotParentPlot();
 }
 
