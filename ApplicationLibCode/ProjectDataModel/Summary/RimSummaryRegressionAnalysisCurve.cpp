@@ -25,6 +25,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleStatistics.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimTimeAxisAnnotation.h"
@@ -457,8 +458,6 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
 {
     RimPlotCurve::updateFieldUiState();
 
-    uiOrdering.add( &m_dataSourceForRegression );
-
     if ( m_dataSourceForRegression() == DataSource::ENSEMBLE )
     {
         uiOrdering.add( &m_ensembleCurveSet );
@@ -649,6 +648,44 @@ QList<caf::PdmOptionItemInfo> RimSummaryRegressionAnalysisCurve::calculateValueO
             for ( auto curveSet : curveSets )
             {
                 options.append( { curveSet->name(), curveSet } );
+            }
+        }
+
+        return options;
+    }
+
+    if ( fieldNeedingOptions == &m_ensembleStatisticsType )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+        options.append( { "None", nullptr } );
+
+        if ( m_ensembleCurveSet() )
+        {
+            auto statisticsOptions = m_ensembleCurveSet()->statisticsOptions();
+
+            std::vector<RifEclipseSummaryAddressDefines::StatisticsType> availableStatistics;
+            if ( statisticsOptions->showP10Curve() )
+            {
+                availableStatistics.push_back( RifEclipseSummaryAddressDefines::StatisticsType::P10 );
+            }
+            if ( statisticsOptions->showP50Curve() )
+            {
+                availableStatistics.push_back( RifEclipseSummaryAddressDefines::StatisticsType::P50 );
+            }
+            if ( statisticsOptions->showP90Curve() )
+            {
+                availableStatistics.push_back( RifEclipseSummaryAddressDefines::StatisticsType::P90 );
+            }
+            if ( statisticsOptions->showMeanCurve() )
+            {
+                availableStatistics.push_back( RifEclipseSummaryAddressDefines::StatisticsType::MEAN );
+            }
+
+            for ( const auto& statisticsType : availableStatistics )
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::StatisticsType>::uiText( statisticsType ),
+                                            statisticsType ) );
             }
         }
 
