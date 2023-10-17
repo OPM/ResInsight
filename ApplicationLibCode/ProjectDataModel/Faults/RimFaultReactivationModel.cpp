@@ -107,6 +107,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_numberOfCellsVertMid, "NumberOfCellsVertMid", 20, "Vertical Number of Cells, Middle Part" );
     CAF_PDM_InitField( &m_numberOfCellsVertLow, "NumberOfCellsVertLow", 20, "Vertical Number of Cells, Lower Part" );
 
+    CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Export Using Local Coordinates" );
+
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
@@ -319,6 +321,18 @@ void RimFaultReactivationModel::updateVisualization()
                                  m_numberOfCellsVertLow );
     m_modelPlane->setThickness( m_modelThickness );
 
+    // set up transform to local coordinate system
+    {
+        auto [xVec, yVec]    = localCoordSysNormalsXY();
+        cvf::Mat4d transform = cvf::Mat4d::fromCoordSystemAxes( &xVec, &yVec, &cvf::Vec3d::Z_AXIS );
+        cvf::Vec3d center    = m_targets[0]->targetPointXYZ() * -1.0;
+        center.z()           = 0.0;
+        center.transformPoint( transform );
+        transform.setTranslation( center );
+        m_modelPlane->setLocalCoordTransformation( transform );
+        m_modelPlane->setUseLocalCoordinates( m_useLocalCoordinates );
+    }
+
     m_modelPlane->updateGeometry();
 
     view->scheduleCreateDisplayModelAndRedraw();
@@ -423,6 +437,13 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RimFaultReactivationModel::localCoordSysNormal
     cvf::Vec3d yNormal = m_modelPlane->normal();
     cvf::Vec3d xNormal = yNormal ^ cvf::Vec3d::Z_AXIS;
 
+    xNormal.z() = 0.0;
+    yNormal.z() = 0.0;
+    xNormal.normalize();
+    yNormal.normalize();
+
+    yNormal = xNormal ^ cvf::Vec3d::Z_AXIS;
+
     return std::make_pair( xNormal, yNormal );
 }
 
@@ -460,6 +481,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     gridModelGrp->add( &m_numberOfCellsVertUp );
     gridModelGrp->add( &m_numberOfCellsVertMid );
     gridModelGrp->add( &m_numberOfCellsVertLow );
+    gridModelGrp->add( &m_useLocalCoordinates );
 
     auto timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
     timeStepGrp->add( &m_timeStepFilter );

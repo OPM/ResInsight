@@ -197,6 +197,23 @@ void RigFaultReactivationModel::setThickness( double thickness )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::setLocalCoordTransformation( cvf::Mat4d transform )
+{
+    m_localCoordTransform = transform;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::setUseLocalCoordinates( bool useLocalCoordinates )
+{
+    m_3dparts[GridPart::PART1]->setUseLocalCoordinates( useLocalCoordinates );
+    m_3dparts[GridPart::PART2]->setUseLocalCoordinates( useLocalCoordinates );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///                  7
 ///       3----------|----------- 11
 ///        |         |          |
@@ -334,6 +351,9 @@ void RigFaultReactivationModel::generateGrids( cvf::Vec3dArray points )
                                                   m_cellCountVertMiddle,
                                                   m_cellCountVertUpper,
                                                   m_thickness );
+
+    m_3dparts[GridPart::PART1]->generateLocalNodes( m_localCoordTransform );
+    m_3dparts[GridPart::PART2]->generateLocalNodes( m_localCoordTransform );
 }
 
 //--------------------------------------------------------------------------------------------------

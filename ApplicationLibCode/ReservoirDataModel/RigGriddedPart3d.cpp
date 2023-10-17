@@ -29,7 +29,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigGriddedPart3d::RigGriddedPart3d( bool flipFrontBack )
-    : m_flipFrontBack( flipFrontBack )
+    : m_useLocalCoordinates( false )
 {
 }
 
@@ -49,6 +49,7 @@ void RigGriddedPart3d::reset()
     m_boundaryNodes.clear();
     m_borderSurfaceElements.clear();
     m_nodes.clear();
+    m_localNodes.clear();
     m_elementIndices.clear();
     m_meshLines.clear();
     m_elementSets.clear();
@@ -288,11 +289,36 @@ void RigGriddedPart3d::generateMeshlines( const std::vector<cvf::Vec3d>& cornerP
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// returns node in either global or local coords depending on m_useLocalCoordinates flag
 //--------------------------------------------------------------------------------------------------
 const std::vector<cvf::Vec3d>& RigGriddedPart3d::nodes() const
 {
+    if ( m_useLocalCoordinates ) return m_localNodes;
     return m_nodes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Always returns nodes in global coordinates
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d>& RigGriddedPart3d::globalNodes() const
+{
+    return m_nodes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::setUseLocalCoordinates( bool useLocalCoordinates )
+{
+    m_useLocalCoordinates = useLocalCoordinates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGriddedPart3d::useLocalCoordinates() const
+{
+    return m_useLocalCoordinates;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -436,6 +462,19 @@ void RigGriddedPart3d::generateElementSets( const RimFaultReactivationDataAccess
                 m_elementSets[ElementSets::IntraReservoir].push_back( i );
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
+{
+    m_localNodes.clear();
+
+    for ( auto& node : m_nodes )
+    {
+        m_localNodes.push_back( node.getTransformedPoint( transform ) );
     }
 }
 

@@ -26,6 +26,7 @@
 #include "cvfPlane.h"
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
+#include "cvfMatrix4.h"
 
 #include <map>
 #include <memory>
@@ -70,6 +71,8 @@ public:
 
     void setCellCounts( int horzPart1, int horzPart2, int vertUpper, int vertMiddle, int vertLower );
     void setThickness( double thickness );
+    void setLocalCoordTransformation( cvf::Mat4d transform );
+    void setUseLocalCoordinates( bool useLocalCoordinates );
 
     void updateGeometry();
 
@@ -119,4 +122,6 @@ private:
     std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
 
     std::map<GridPart, std::map<size_t, size_t>> m_cellIndexAdjustmentMap;
+
+    cvf::Mat4d m_localCoordTransform;
 };

@@ -20,6 +20,7 @@
 
 #include "RimFaultReactivationEnums.h"
 
+#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -53,9 +54,14 @@ public:
                            double                  thickness );
 
     void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
+    void generateLocalNodes( const cvf::Mat4d transform );
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
-    const std::vector<cvf::Vec3d>&                                                  nodes() const;
+    const std::vector<cvf::Vec3d>& nodes() const;
+    const std::vector<cvf::Vec3d>& globalNodes() const;
+    void                           setUseLocalCoordinates( bool useLocalCoordinates );
+    bool                           useLocalCoordinates() const;
+
     const std::vector<std::vector<unsigned int>>&                                   elementIndices() const;
     const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
 
@@ -79,9 +85,10 @@ protected:
     std::pair<size_t, size_t> reservoirZTopBottom( const RigMainGrid* grid ) const;
 
 private:
-    bool m_flipFrontBack;
+    bool m_useLocalCoordinates;
 
     std::vector<cvf::Vec3d>                                                  m_nodes;
+    std::vector<cvf::Vec3d>                                                  m_localNodes;
     std::vector<std::vector<unsigned int>>                                   m_elementIndices;
     std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
     std::vector<std::vector<cvf::Vec3d>>                                     m_meshLines;

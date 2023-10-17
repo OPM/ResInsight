@@ -163,6 +163,7 @@ private:
     caf::PdmField<int>    m_numberOfCellsVertUp;
     caf::PdmField<int>    m_numberOfCellsVertMid;
     caf::PdmField<int>    m_numberOfCellsVertLow;
+    caf::PdmField<bool>   m_useLocalCoordinates;
 
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;
