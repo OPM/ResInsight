@@ -879,6 +879,14 @@ void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::hideXAxisGroup()
+{
+    m_showXAxisGroup = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimPlotCurve::updateFieldUiState();
@@ -902,6 +910,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_showErrorBars );
     }
 
+    if ( m_showXAxisGroup )
     {
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X Axis" );
         curveDataGroup->add( &m_xAxisType, { true, 3, 1 } );

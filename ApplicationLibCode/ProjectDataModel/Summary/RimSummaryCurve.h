@@ -131,6 +131,8 @@ protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
+    void hideXAxisGroup();
+
 private:
     RifSummaryReaderInterface* valuesSummaryReaderX() const;
     RifSummaryReaderInterface* valuesSummaryReaderY() const;
@@ -162,4 +164,6 @@ private:
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
     caf::PdmField<bool>                               m_isTopZWithinCategory;
+
+    bool m_showXAxisGroup = true;
 };
