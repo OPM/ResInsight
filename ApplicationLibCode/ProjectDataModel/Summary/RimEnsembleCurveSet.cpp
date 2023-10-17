@@ -2425,6 +2425,14 @@ bool RimEnsembleCurveSet::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimEnsembleStatistics* RimEnsembleCurveSet::statisticsOptions() const
+{
+    return m_statistics();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateEnsembleLegendItem()
 {
     if ( !m_plotCurveForLegendText ) return;

@@ -176,6 +176,8 @@ public:
     bool hasP90Data() const override;
     bool hasMeanData() const override;
 
+    const RimEnsembleStatistics* statisticsOptions() const;
+
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCaseCollection* summaryCaseGroup );
