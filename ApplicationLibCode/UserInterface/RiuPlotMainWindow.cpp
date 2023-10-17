@@ -684,8 +684,11 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
         }
         else
         {
-            m_multiPlotToolBarEditor->setFields( toolBarFields );
-            m_multiPlotToolBarEditor->updateUi();
+            if ( !m_multiPlotToolBarEditor->isEditorDataEqualAndValid( toolBarFields ) )
+            {
+                m_multiPlotToolBarEditor->setFields( toolBarFields );
+                m_multiPlotToolBarEditor->updateUi();
+            }
             m_multiPlotToolBarEditor->show();
         }
 
