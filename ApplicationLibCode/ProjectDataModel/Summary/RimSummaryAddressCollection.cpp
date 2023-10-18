@@ -184,8 +184,11 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     auto* imported      = getOrCreateSubfolder( CollectionContentType::IMPORTED );
 
     // Sort addresses to have calculated results last per category
-    std::vector<RifEclipseSummaryAddress> sortedAddresses( addresses.size() );
-    std::copy( addresses.begin(), addresses.end(), sortedAddresses.begin() );
+    std::vector<RifEclipseSummaryAddress> sortedAddresses;
+    std::copy_if( addresses.begin(),
+                  addresses.end(),
+                  std::back_inserter( sortedAddresses ),
+                  []( RifEclipseSummaryAddress x ) { return !x.isErrorResult(); } );
     std::sort( sortedAddresses.begin(),
                sortedAddresses.end(),
                []( const RifEclipseSummaryAddress& a, const RifEclipseSummaryAddress& b ) -> bool
@@ -202,6 +205,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                    if ( a.cellI() != b.cellI() ) return a.cellI() < b.cellI();
                    if ( a.wellSegmentNumber() != b.wellSegmentNumber() ) return a.wellSegmentNumber() < b.wellSegmentNumber();
                    if ( a.aquiferNumber() != b.aquiferNumber() ) return a.aquiferNumber() < b.aquiferNumber();
+                   if ( a.isErrorResult() != b.isErrorResult() ) return !a.isErrorResult();
 
                    // Calculated results are sorted last.
                    if ( a.isCalculated() != b.isCalculated() ) return a.isCalculated() < b.isCalculated();
