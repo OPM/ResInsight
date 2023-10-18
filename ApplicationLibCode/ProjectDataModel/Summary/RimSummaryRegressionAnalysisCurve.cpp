@@ -160,25 +160,48 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
     extractSourceCurveData();
     updateDefaultValues();
 
+    // Clear derived data
+    m_valuesX.clear();
+    m_valuesY.clear();
+    m_timeStepsX.clear();
+    m_timeStepsY.clear();
+    m_expressionText = "Undefined";
+
     std::vector<double> xValues    = m_sourceValuesX;
     std::vector<double> yValues    = m_sourceValuesY;
     std::vector<time_t> timeStepsX = m_sourceTimeStepsX;
     std::vector<time_t> timeStepsY = m_sourceTimeStepsY;
 
-    if ( yValues.empty() ) return;
+    QStringList errorMessages;
+
+    if ( yValues.empty() )
+    {
+        errorMessages += "No Y values found for regression curve.";
+    }
 
     if ( axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
     {
-        if ( xValues.size() != yValues.size() ) return RiaLogging::error( "X value count and Y value count differs." );
-        if ( xValues.size() != timeStepsX.size() ) return RiaLogging::error( "X value count and X time step count differs." );
-        if ( xValues.size() != timeStepsY.size() ) return RiaLogging::error( "X value count and Y time step count differs." );
+        if ( xValues.size() != yValues.size() ) errorMessages += "X value count and Y value count differs.";
+        if ( xValues.size() != timeStepsX.size() ) errorMessages += "X value count and X time step count differs.";
+        if ( xValues.size() != timeStepsY.size() ) errorMessages += "X value count and Y time step count differs.";
 
         if ( timeStepsX != timeStepsY )
         {
-            return RiaLogging::error(
+            errorMessages +=
                 "Differences in time steps for X and Y axis detected. This is currently not supported. Make sure that the same "
-                "case is used for both axis." );
+                "case is used for both axis.";
         }
+    }
+
+    if ( !errorMessages.isEmpty() )
+    {
+        // Call parent class to make sure the curve is removed from the plot
+        RimSummaryCurve::onLoadDataAndUpdate( updateParentPlot );
+
+        QString errMsg = errorMessages.join( "\n" );
+        RiaLogging::error( errMsg );
+
+        return;
     }
 
     std::vector<size_t> indicesToRemove;
