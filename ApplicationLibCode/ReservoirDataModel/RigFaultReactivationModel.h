@@ -22,11 +22,11 @@
 
 #include "cvfArray.h"
 #include "cvfColor3.h"
+#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfPlane.h"
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
-#include "cvfMatrix4.h"
 
 #include <map>
 #include <memory>
