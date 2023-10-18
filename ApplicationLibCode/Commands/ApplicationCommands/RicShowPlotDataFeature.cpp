@@ -233,6 +233,9 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     // Using RiuTabbedGridCrossPlotTextProvider
     std::vector<RimGridCrossPlot*> crossPlots;
 
+    // Special handling for well log plots
+    std::vector<RimWellLogPlot*> wellLogPlots;
+
     // Show content using RimPlot::description() and RimPlot::asciiDataForPlotExport()
     std::vector<RimPlot*> rimPlots;
 
@@ -247,6 +250,12 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         if ( auto xPlot = dynamic_cast<RimGridCrossPlot*>( plot ) )
         {
             crossPlots.push_back( xPlot );
+            continue;
+        }
+
+        if ( auto wellLogPlot = dynamic_cast<RimWellLogPlot*>( plot ) )
+        {
+            wellLogPlots.push_back( wellLogPlot );
             continue;
         }
 
@@ -285,6 +294,17 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         text += "\n";
         text += "\n";
         text += rimPlot->asciiDataForPlotExport();
+
+        RicShowPlotDataFeature::showTextWindow( title, text );
+    }
+
+    for ( auto wellLogPlot : wellLogPlots )
+    {
+        QString title = wellLogPlot->description();
+        QString text  = title;
+        text += "\n";
+        text += "\n";
+        text += wellLogPlot->asciiDataForPlotExport();
 
         RicShowPlotDataFeature::showTextWindow( title, text );
     }

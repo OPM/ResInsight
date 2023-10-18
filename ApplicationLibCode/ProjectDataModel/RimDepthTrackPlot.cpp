@@ -896,17 +896,17 @@ void RimDepthTrackPlot::setAvailableDepthTypes( const std::set<DepthTypeEnum>& d
 //--------------------------------------------------------------------------------------------------
 QString RimDepthTrackPlot::asciiDataForPlotExport() const
 {
-    QString out = description() + "\n";
+    QString plotContentAsText;
 
     for ( RimPlot* plot : plots() )
     {
         if ( plot->showWindow() )
         {
-            out += plot->asciiDataForPlotExport();
+            plotContentAsText += plot->asciiDataForPlotExport();
         }
     }
 
-    return out;
+    return plotContentAsText;
 }
 
 //--------------------------------------------------------------------------------------------------
