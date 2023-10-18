@@ -19,17 +19,19 @@
 
 #include "RigWellLogCsvFile.h"
 
+#include "RifCsvUserDataParser.h"
 #include "RigWellLogCurveData.h"
+#include "RigWellPathGeometryTools.h"
+
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include "RiaStringEncodingTools.h"
 
 #include "RimWellLogCurve.h"
+#include "RimWellPath.h"
 
 #include <QFileInfo>
 #include <QString>
-
-#include <cmath> // Needed for HUGE_VAL on Linux
-#include <exception>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,7 +39,6 @@
 RigWellLogCsvFile::RigWellLogCsvFile()
     : RigWellLogFile()
 {
-    // m_wellLogFile = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,66 +52,55 @@ RigWellLogCsvFile::~RigWellLogCsvFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage )
+bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage, RimWellPath* wellPath )
 {
-    // close();
+    m_values.clear();
+    m_wellLogChannelNames.clear();
 
-    // NRLib::Well* well = nullptr;
+    RifCsvUserDataFileParser parser( fileName );
 
-    // try
-    // {
-    //     int wellFormat = NRLib::Well::LAS;
+    AsciiDataParseOptions parseOptions;
+    parseOptions.useCustomDateTimeFormat = true;
+    parseOptions.dateTimeFormat          = "dd.MM.yyyy hh:mm:ss";
+    parseOptions.fallbackDateTimeFormat  = "dd.MM.yyyy";
+    parseOptions.cellSeparator           = ";";
+    parseOptions.decimalSeparator        = ",";
 
-    //     well = NRLib::Well::ReadWell( RiaStringEncodingTools::toNativeEncoded( fileName ).data(), wellFormat );
-    //     if ( !well )
-    //     {
-    //         return false;
-    //     }
-    // }
-    // catch ( std::exception& e )
-    // {
-    //     if ( well )
-    //     {
-    //         delete well;
-    //     }
+    if ( parser.parse( parseOptions ) )
+    {
+        for ( auto s : parser.tableData().columnInfos() )
+        {
+            if ( s.dataType != Column::NUMERIC ) continue;
+            QString columnName = QString::fromStdString( s.columnName() );
+            printf( "Column name: [%s] %s %zu\n", columnName.toStdString().c_str(), s.unitName.c_str(), s.values.size() );
+            m_wellLogChannelNames.append( columnName );
+            m_values[columnName] = s.values;
 
-    //     if ( e.what() )
-    //     {
-    //         CVF_ASSERT( errorMessage );
-    //         *errorMessage = e.what();
-    //     }
+            if ( columnName.toUpper() == "DEPT" || columnName.toUpper() == "DEPTH" || columnName.toUpper() == "MD" )
+            {
+                m_depthLogName = columnName;
+            }
+            else if ( columnName.toUpper() == "TVDMSL" )
+            {
+                m_tvdMslLogName = columnName;
+            }
+            else if ( columnName.toUpper() == "TVDRKB" )
+            {
+                m_tvdRkbLogName = columnName;
+            }
+        }
 
-    //     return false;
-    // }
+        auto wellPathMd  = wellPath->wellPathGeometry()->measuredDepths();
+        auto wellPathTvd = wellPath->wellPathGeometry()->trueVerticalDepths();
 
-    // QStringList wellLogNames;
+        // Estimate measured depth for cells that do not have measured depth
 
-    // const std::map<std::string, std::vector<double>>&          contLogs = well->GetContLog();
-    // std::map<std::string, std::vector<double>>::const_iterator itCL;
-    // for ( itCL = contLogs.begin(); itCL != contLogs.end(); ++itCL )
-    // {
-    //     QString logName = QString::fromStdString( itCL->first );
-    //     wellLogNames.append( logName );
+        auto estimatedMeasuredDepth = RigWellPathGeometryTools::interpolateMdFromTvd( wellPathMd, wellPathTvd, tvdValuesToEstimate );
 
-    //     // 2018-11-09 Added MD https://github.com/OPM/ResInsight/issues/3641
-    //     if ( logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH" || logName.toUpper() == "MD" )
-    //     {
-    //         m_depthLogName = logName;
-    //     }
-    //     else if ( logName.toUpper() == "TVDMSL" )
-    //     {
-    //         m_tvdMslLogName = logName;
-    //     }
-    //     else if ( logName.toUpper() == "TVDRKB" )
-    //     {
-    //         m_tvdRkbLogName = logName;
-    //     }
-    // }
+        return true;
+    }
 
-    m_wellLogChannelNames = QStringList( { "MD", "PP_EXP", "PP_MIN", "PP_MAX", "PP_INIT" } );
-    // m_wellLogFile         = well;
-
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,14 +108,9 @@ bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage )
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCsvFile::close()
 {
-    // if ( m_wellLogFile )
-    // {
-    //     delete m_wellLogFile;
-    //     m_wellLogFile = nullptr;
-    // }
-
-    // m_wellLogChannelNames.clear();
-    // m_depthLogName.clear();
+    m_wellLogChannelNames.clear();
+    m_depthLogName.clear();
+    m_values.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,24 +170,7 @@ std::vector<double> RigWellLogCsvFile::tvdRkbValues() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogCsvFile::values( const QString& name ) const
 {
-    // CVF_ASSERT( m_wellLogFile );
-
-    // if ( m_wellLogFile->HasContLog( name.toStdString() ) )
-    // {
-    //     std::vector<double> logValues = m_wellLogFile->GetContLog( name.toStdString() );
-
-    //     for ( size_t vIdx = 0; vIdx < logValues.size(); vIdx++ )
-    //     {
-    //         if ( m_wellLogFile->IsMissing( logValues[vIdx] ) )
-    //         {
-    //             // Convert missing ("NULL") values to HUGE_VAL
-    //             logValues[vIdx] = HUGE_VAL;
-    //         }
-    //     }
-
-    //     return logValues;
-    // }
-
+    if ( auto it = m_values.find( name ); it != m_values.end() ) return it->second;
     return std::vector<double>();
 }
 

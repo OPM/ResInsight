@@ -24,6 +24,7 @@
 #include "RiaDefines.h"
 
 #include <QStringList>
+#include <map>
 #include <vector>
 
 //==================================================================================================
@@ -60,8 +61,9 @@ private:
     void    close();
     QString depthUnitString() const;
 
-    QStringList m_wellLogChannelNames;
-    QString     m_depthLogName;
-    QString     m_tvdMslLogName;
-    QString     m_tvdRkbLogName;
+    QStringList                            m_wellLogChannelNames;
+    QString                                m_depthLogName;
+    QString                                m_tvdMslLogName;
+    QString                                m_tvdRkbLogName;
+    std::map<QString, std::vector<double>> m_values;
 };
