@@ -44,7 +44,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
                                                                        { PartBorderSurface::FaultSurface, "FAULT" },
                                                                        { PartBorderSurface::LowerSurface, "BASE" } };
 
-    // The two parts are "mirrored", so face number 4 should of the two parts should face eachother.
+    // The two parts are "mirrored", so face number 4 of the two parts should face eachother.
     using FaultGridPart                                              = RimFaultReactivation::GridPart;
     std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::PART1, PartBorderSurface::FaultSurface }, 4 },
                                                                          { { FaultGridPart::PART1, PartBorderSurface::UpperSurface }, 4 },
