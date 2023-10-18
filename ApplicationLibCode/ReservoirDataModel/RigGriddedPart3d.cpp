@@ -408,7 +408,7 @@ void RigGriddedPart3d::extractModelData( RimFaultReactivationDataAccess* dataAcc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<size_t, size_t> RigGriddedPart3d::reservoirZTopBottom( const RigMainGrid* grid ) const
+std::pair<int, int> RigGriddedPart3d::reservoirZTopBottom( const RigMainGrid* grid ) const
 {
     cvf::BoundingBox resBb;
     for ( const auto& p : m_reservoirRect )
@@ -424,7 +424,10 @@ std::pair<size_t, size_t> RigGriddedPart3d::reservoirZTopBottom( const RigMainGr
         resBb.add( grid->cell( cellIdx ).boundingBox() );
     }
 
-    return std::make_pair( resBb.max().z(), resBb.min().z() );
+    auto maxZ = resBb.max().z();
+    auto minZ = resBb.min().z();
+
+    return std::make_pair( maxZ, minZ );
 }
 
 //--------------------------------------------------------------------------------------------------

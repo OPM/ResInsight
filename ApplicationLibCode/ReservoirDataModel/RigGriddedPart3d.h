@@ -82,7 +82,7 @@ protected:
     bool elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
     bool elementIsBelowReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
 
-    std::pair<size_t, size_t> reservoirZTopBottom( const RigMainGrid* grid ) const;
+    std::pair<int, int> reservoirZTopBottom( const RigMainGrid* grid ) const;
 
 private:
     bool m_useLocalCoordinates;
