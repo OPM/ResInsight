@@ -43,6 +43,7 @@ public:
     QString geomechWIADefaultXML() const;
     QString geomechWIACommand() const;
 
+    QString geomechFRMDefaultXML() const;
     QString geomechFRMCommand() const;
 
     bool waitBeforeRun() const;
@@ -54,6 +55,7 @@ private:
     caf::PdmField<QString> m_geomechWIADefaultXML;
     caf::PdmField<QString> m_geomechWIACommand;
 
+    caf::PdmField<QString> m_geomechFRMDefaultXML;
     caf::PdmField<QString> m_geomechFRMCommand;
 
     caf::PdmField<bool> m_waitForInputFileEdit;

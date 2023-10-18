@@ -24,6 +24,7 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RifJsonEncodeDecode.h"
+#include "RifParameterXmlReader.h"
 
 #include "RigBasicPlane.h"
 #include "RigFaultReactivationModel.h"
@@ -37,12 +38,14 @@
 #include "RivFaultReactivationModelPartMgr.h"
 
 #include "Rim3dView.h"
+#include "RimDoubleParameter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationTools.h"
+#include "RimParameterGroup.h"
 #include "RimPolylineTarget.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
@@ -104,6 +107,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_numberOfCellsVertMid, "NumberOfCellsVertMid", 20, "Vertical Number of Cells, Middle Part" );
     CAF_PDM_InitField( &m_numberOfCellsVertLow, "NumberOfCellsVertLow", 20, "Vertical Number of Cells, Lower Part" );
 
+    CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Export Using Local Coordinates" );
+
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
@@ -113,11 +118,13 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_targets.uiCapability()->setUiTreeHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( false );
 
+    CAF_PDM_InitFieldNoDefault( &m_materialParameters, "MaterialParameters", "Materials", ":/Bullet.png" );
+
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
-    this->uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );
 
@@ -138,6 +145,23 @@ RimFaultReactivationModel::~RimFaultReactivationModel()
 void RimFaultReactivationModel::initAfterRead()
 {
     updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::initSettings( QString& outErrmsg )
+{
+    RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechFRMDefaultXML() );
+    if ( !basicreader.parseFile( outErrmsg ) ) return false;
+
+    m_materialParameters.deleteChildren();
+    for ( auto group : basicreader.parameterGroups() )
+    {
+        m_materialParameters.push_back( group );
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -297,7 +321,19 @@ void RimFaultReactivationModel::updateVisualization()
                                  m_numberOfCellsVertLow );
     m_modelPlane->setThickness( m_modelThickness );
 
-    m_modelPlane->updateRects();
+    // set up transform to local coordinate system
+    {
+        auto [xVec, yVec]    = localCoordSysNormalsXY();
+        cvf::Mat4d transform = cvf::Mat4d::fromCoordSystemAxes( &xVec, &yVec, &cvf::Vec3d::Z_AXIS );
+        cvf::Vec3d center    = m_targets[0]->targetPointXYZ() * -1.0;
+        center.z()           = 0.0;
+        center.transformPoint( transform );
+        transform.setTranslation( center );
+        m_modelPlane->setLocalCoordTransformation( transform );
+        m_modelPlane->setUseLocalCoordinates( m_useLocalCoordinates );
+    }
+
+    m_modelPlane->updateGeometry();
 
     view->scheduleCreateDisplayModelAndRedraw();
 }
@@ -401,6 +437,13 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RimFaultReactivationModel::localCoordSysNormal
     cvf::Vec3d yNormal = m_modelPlane->normal();
     cvf::Vec3d xNormal = yNormal ^ cvf::Vec3d::Z_AXIS;
 
+    xNormal.z() = 0.0;
+    yNormal.z() = 0.0;
+    xNormal.normalize();
+    yNormal.normalize();
+
+    yNormal = xNormal ^ cvf::Vec3d::Z_AXIS;
+
     return std::make_pair( xNormal, yNormal );
 }
 
@@ -438,6 +481,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     gridModelGrp->add( &m_numberOfCellsVertUp );
     gridModelGrp->add( &m_numberOfCellsVertMid );
     gridModelGrp->add( &m_numberOfCellsVertLow );
+    gridModelGrp->add( &m_useLocalCoordinates );
 
     auto timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
     timeStepGrp->add( &m_timeStepFilter );
@@ -563,16 +607,6 @@ std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::isFirstTimeStepsSelected() const
-{
-    if ( m_availableTimeSteps.empty() || selectedTimeSteps().empty() ) return false;
-
-    return m_availableTimeSteps.front() == selectedTimeSteps().front();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QStringList RimFaultReactivationModel::commandParameters() const
 {
     QStringList retlist;
@@ -660,6 +694,7 @@ bool RimFaultReactivationModel::extractAndExportModelData()
     if ( !exportModelSettings() ) return false;
 
     auto eCase = eclipseCase();
+    if ( eCase == nullptr ) return false;
 
     // get the selected time step indexes
     std::vector<size_t> selectedTimeStepIndexes;
@@ -671,6 +706,17 @@ bool RimFaultReactivationModel::extractAndExportModelData()
         selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
     }
 
+    auto grid = eCase->mainGrid();
+
+    // generate cell index mappings for cells that ends up at the wrong side of the fault
+    model()->generateCellIndexMapping( grid );
+
+    // generate element sets for the various data parts of the model
+    {
+        RimFaultReactivationDataAccess dataAccess( eCase, 0 );
+        model()->generateElementSets( &dataAccess, grid );
+    }
+
     // extract data for each timestep
     size_t outputTimeStepIndex = 0;
     for ( auto timeStepIdx : selectedTimeStepIndexes )
@@ -680,4 +726,31 @@ bool RimFaultReactivationModel::extractAndExportModelData()
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets elementSet )
+{
+    std::array<double, 3>                     retVal   = { 0.0, 0.0, 0.0 };
+    static std::map<ElementSets, std::string> groupMap = { { ElementSets::OverBurden, "material_overburden" },
+                                                           { ElementSets::Reservoir, "material_reservoir" },
+                                                           { ElementSets::IntraReservoir, "material_intrareservoir" },
+                                                           { ElementSets::UnderBurden, "material_underburden" } };
+
+    auto keyName = QString::fromStdString( groupMap[elementSet] );
+
+    for ( auto& grp : m_materialParameters )
+    {
+        if ( grp->name() != keyName ) continue;
+
+        retVal[0] = grp->parameterDoubleValue( "youngs_modulus", 0.0 );
+        retVal[1] = grp->parameterDoubleValue( "poissons_number", 0.0 );
+        retVal[2] = grp->parameterDoubleValue( "density", 0.0 );
+
+        break;
+    }
+
+    return retVal;
 }

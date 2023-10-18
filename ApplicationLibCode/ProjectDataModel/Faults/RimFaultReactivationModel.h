@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimFaultReactivationEnums.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
 #include "RimTimeStepFilter.h"
@@ -42,6 +43,7 @@
 class RicPolylineTargetsPickEventHandler;
 class RimEclipseCase;
 class RimFaultInView;
+class RimParameterGroup;
 class RimPolylineTarget;
 class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
@@ -59,10 +61,13 @@ class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPoly
     CAF_PDM_HEADER_INIT;
 
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
+    using ElementSets        = RimFaultReactivation::ElementSets;
 
 public:
     RimFaultReactivationModel();
     ~RimFaultReactivationModel() override;
+
+    bool initSettings( QString& outErrmsg );
 
     QString userDescription();
     void    setUserDescription( QString description );
@@ -102,7 +107,8 @@ public:
     void    setBaseDir( QString path );
 
     std::vector<QDateTime> selectedTimeSteps() const;
-    bool                   isFirstTimeStepsSelected() const;
+
+    std::array<double, 3> materialParameters( ElementSets elementSet );
 
     QStringList commandParameters() const;
 
@@ -157,12 +163,15 @@ private:
     caf::PdmField<int>    m_numberOfCellsVertUp;
     caf::PdmField<int>    m_numberOfCellsVertMid;
     caf::PdmField<int>    m_numberOfCellsVertLow;
+    caf::PdmField<bool>   m_useLocalCoordinates;
 
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;
 
     caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
+
+    caf::PdmChildArrayField<RimParameterGroup*> m_materialParameters;
 
     std::vector<QDateTime> m_availableTimeSteps;
 };

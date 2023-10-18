@@ -69,6 +69,7 @@ public:
 
     RimGenericParameter* parameter( QString name ) const;
     QVariant             parameterValue( QString name ) const;
+    double               parameterDoubleValue( QString name, double defaultValue ) const;
 
 private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;

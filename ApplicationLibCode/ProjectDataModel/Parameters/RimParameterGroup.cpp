@@ -345,3 +345,13 @@ QVariant RimParameterGroup::parameterValue( QString name ) const
     }
     return QVariant();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimParameterGroup::parameterDoubleValue( QString name, double defaultValue ) const
+{
+    RimDoubleParameter* p = dynamic_cast<RimDoubleParameter*>( parameter( name ) );
+    if ( p == nullptr ) return defaultValue;
+    return p->value();
+}

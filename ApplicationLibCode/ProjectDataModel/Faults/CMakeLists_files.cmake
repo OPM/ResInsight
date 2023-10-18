@@ -5,6 +5,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationModelCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccess.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationEnums.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES

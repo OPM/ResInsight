@@ -18,8 +18,11 @@
 
 #pragma once
 
+#include "RimFaultReactivationEnums.h"
+
 #include "cvfArray.h"
 #include "cvfColor3.h"
+#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfPlane.h"
 #include "cvfTextureImage.h"
@@ -30,6 +33,7 @@
 #include <vector>
 
 class RigGriddedPart3d;
+class RigMainGrid;
 class RimFaultReactivationDataAccess;
 
 class RigFRModelPart
@@ -47,24 +51,9 @@ public:
 ///
 //==================================================================================================
 class RigFaultReactivationModel : public cvf::Object
-
 {
-public:
-    enum class ModelParts
-    {
-        HiPart1 = 0,
-        MidPart1,
-        LowPart1,
-        HiPart2,
-        MidPart2,
-        LowPart2
-    };
-
-    enum class GridPart
-    {
-        PART1,
-        PART2
-    };
+    using ModelParts = RimFaultReactivation::ModelParts;
+    using GridPart   = RimFaultReactivation::GridPart;
 
 public:
     RigFaultReactivationModel();
@@ -82,8 +71,10 @@ public:
 
     void setCellCounts( int horzPart1, int horzPart2, int vertUpper, int vertMiddle, int vertLower );
     void setThickness( double thickness );
+    void setLocalCoordTransformation( cvf::Mat4d transform );
+    void setUseLocalCoordinates( bool useLocalCoordinates );
 
-    void updateRects();
+    void updateGeometry();
 
     cvf::Vec3d normal() const;
 
@@ -94,6 +85,9 @@ public:
     const std::vector<std::vector<cvf::Vec3d>>& meshLines( GridPart part ) const;
 
     std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
+
+    void generateCellIndexMapping( const RigMainGrid* grid );
+    void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
 
     void clearModelData();
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
@@ -128,4 +122,6 @@ private:
     std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
 
     std::map<GridPart, std::map<size_t, size_t>> m_cellIndexAdjustmentMap;
+
+    cvf::Mat4d m_localCoordTransform;
 };

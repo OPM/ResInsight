@@ -74,7 +74,7 @@ RigFaultReactivationModel::~RigFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::allModelParts() const
+std::vector<RimFaultReactivation::ModelParts> RigFaultReactivationModel::allModelParts() const
 {
     return { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 };
 }
@@ -82,7 +82,7 @@ std::vector<RigFaultReactivationModel::ModelParts> RigFaultReactivationModel::al
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFaultReactivationModel::GridPart> RigFaultReactivationModel::allGridParts() const
+std::vector<RimFaultReactivation::GridPart> RigFaultReactivationModel::allGridParts() const
 {
     return { GridPart::PART1, GridPart::PART2 };
 }
@@ -197,6 +197,23 @@ void RigFaultReactivationModel::setThickness( double thickness )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::setLocalCoordTransformation( cvf::Mat4d transform )
+{
+    m_localCoordTransform = transform;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::setUseLocalCoordinates( bool useLocalCoordinates )
+{
+    m_3dparts[GridPart::PART1]->setUseLocalCoordinates( useLocalCoordinates );
+    m_3dparts[GridPart::PART2]->setUseLocalCoordinates( useLocalCoordinates );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///                  7
 ///       3----------|----------- 11
 ///        |         |          |
@@ -217,7 +234,7 @@ void RigFaultReactivationModel::setThickness( double thickness )
 ///
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::updateRects()
+void RigFaultReactivationModel::updateGeometry()
 {
     reset();
 
@@ -296,7 +313,7 @@ cvf::Vec3d RigFaultReactivationModel::normal() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( ModelParts part ) const
+std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( RimFaultReactivation::ModelParts part ) const
 {
     return m_parts.at( part ).rect;
 }
@@ -304,7 +321,7 @@ std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( ModelParts part ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( ModelParts part ) const
+cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( RimFaultReactivation::ModelParts part ) const
 {
     return m_parts.at( part ).texture;
 }
@@ -312,7 +329,7 @@ cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( ModelParts part 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<cvf::Vec3d>>& RigFaultReactivationModel::meshLines( GridPart part ) const
+const std::vector<std::vector<cvf::Vec3d>>& RigFaultReactivationModel::meshLines( RimFaultReactivation::GridPart part ) const
 {
     return m_3dparts.at( part )->meshLines();
 }
@@ -334,12 +351,15 @@ void RigFaultReactivationModel::generateGrids( cvf::Vec3dArray points )
                                                   m_cellCountVertMiddle,
                                                   m_cellCountVertUpper,
                                                   m_thickness );
+
+    m_3dparts[GridPart::PART1]->generateLocalNodes( m_localCoordTransform );
+    m_3dparts[GridPart::PART2]->generateLocalNodes( m_localCoordTransform );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( GridPart part ) const
+std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( RimFaultReactivation::GridPart part ) const
 {
     return m_3dparts.at( part );
 }
@@ -354,4 +374,23 @@ void RigFaultReactivationModel::extractModelData( RimFaultReactivationDataAccess
         dataAccess->useCellIndexAdjustment( m_cellIndexAdjustmentMap[part] );
         m_3dparts[part]->extractModelData( dataAccess, outputTimeStep );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid )
+{
+    for ( auto part : allGridParts() )
+    {
+        m_3dparts[part]->generateElementSets( dataAccess, grid );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModel::generateCellIndexMapping( const RigMainGrid* grid )
+{
+    m_cellIndexAdjustmentMap.clear();
 }

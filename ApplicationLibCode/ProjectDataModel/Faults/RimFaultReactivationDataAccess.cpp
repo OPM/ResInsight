@@ -75,18 +75,31 @@ void RimFaultReactivationDataAccess::useCellIndexAdjustment( std::map<size_t, si
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient )
+size_t RimFaultReactivationDataAccess::findAdjustedCellIndex( const cvf::Vec3d&               position,
+                                                              const RigMainGrid*              grid,
+                                                              const std::map<size_t, size_t>& cellIndexAdjustmentMap )
 {
-    size_t cellIdx = cvf::UNDEFINED_SIZE_T;
+    CAF_ASSERT( grid != nullptr );
+
+    size_t cellIdx = grid->findReservoirCellIndexFromPoint( position );
+
+    // adjust cell index if present in the map
+    if ( auto search = cellIndexAdjustmentMap.find( cellIdx ); search != cellIndexAdjustmentMap.end() )
+    {
+        cellIdx = search->second;
+    }
+
+    return cellIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient ) const
+{
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
-        cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-
-        // adjust cell index to be on correct side of fault
-        if ( auto search = m_cellIndexAdjustment.find( cellIdx ); search != m_cellIndexAdjustment.end() )
-        {
-            cellIdx = search->second;
-        }
+        auto cellIdx = findAdjustedCellIndex( position, m_mainGrid, m_cellIndexAdjustment );
 
         if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
         {
@@ -106,7 +119,7 @@ double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d&
 //--------------------------------------------------------------------------------------------------
 double RimFaultReactivationDataAccess::calculatePorePressure( double depth, double gradient )
 {
-    return gradient * 9.81 * depth * 1000;
+    return gradient * 9.81 * depth * 1000.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,4 +128,28 @@ double RimFaultReactivationDataAccess::calculatePorePressure( double depth, doub
 size_t RimFaultReactivationDataAccess::timeStepIndex() const
 {
     return m_timeStepIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationDataAccess::elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const
+{
+    int nValid = 0;
+    for ( auto& p : elementCorners )
+    {
+        auto cellIdx = findAdjustedCellIndex( p, m_mainGrid, m_cellIndexAdjustment );
+
+        if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
+        {
+            double value = m_resultAccessor->cellScalar( cellIdx );
+            if ( !std::isinf( value ) )
+            {
+                nValid++;
+            }
+        }
+    }
+
+    // if more than half of the nodes have valid data, we're ok
+    return nValid > 4;
 }
