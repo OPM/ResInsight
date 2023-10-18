@@ -94,6 +94,7 @@ public:
     {
         INFINITE_CONDUCTIVITY,
         FINITE_CONDUCTIVITY,
+        FINITE_CONDUCTIVITY_INFINITE_WELL_PI,
     };
 
     enum PermeabilityEnum
@@ -139,6 +140,7 @@ public:
     FracConductivityEnum                        conductivityType() const;
     double                                      perforationLength() const;
     bool                                        useUserDefinedPerforationLength() const;
+    bool                                        useFiniteConductivityInFracture() const;
 
     double                            wellPathDepthAtFracture() const;
     virtual std::pair<double, double> wellPathDepthAtFractureRange() const  = 0;

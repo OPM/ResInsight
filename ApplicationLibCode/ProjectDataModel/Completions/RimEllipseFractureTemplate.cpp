@@ -444,7 +444,7 @@ void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
         m_width.uiCapability()->setUiName( "Width [inches]" );
     }
 
-    if ( conductivityType() == FINITE_CONDUCTIVITY )
+    if ( useFiniteConductivityInFracture() )
     {
         m_permeability.uiCapability()->setUiHidden( false );
         m_width.uiCapability()->setUiHidden( false );

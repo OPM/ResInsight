@@ -755,7 +755,7 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
             m_perforationLength.uiCapability()->setUiHidden( true );
         }
 
-        if ( fractureTemplate()->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY )
+        if ( fractureTemplate()->useFiniteConductivityInFracture() )
         {
             m_wellDiameter.uiCapability()->setUiHidden( false );
         }
