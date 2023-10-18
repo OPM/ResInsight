@@ -45,6 +45,7 @@
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationTools.h"
+#include "RimGeoMechCase.h"
 #include "RimParameterGroup.h"
 #include "RimPolylineTarget.h"
 #include "RimTimeStepFilter.h"
@@ -73,11 +74,9 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitObject( "Fault Reactivation Model", ":/fault_react_24x24.png" );
 
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Model" ), "Name" );
-
+    CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeoMechCase", "Global GeoMech Model" );
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working folder" );
-
     CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
-
     CAF_PDM_InitField( &m_extentHorizontal, "HorizontalExtent", 1000.0, "Horizontal Extent" );
     CAF_PDM_InitField( &m_extentVerticalAbove, "VerticalExtentAbove", 200.0, "Vertical Extent Above Anchor" );
     m_extentVerticalAbove.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -383,6 +382,10 @@ QList<caf::PdmOptionItemInfo> RimFaultReactivationModel::calculateValueOptions( 
     {
         RimTimeStepFilter::timeStepOptions( options, &m_selectedTimeSteps, m_availableTimeSteps, m_selectedTimeSteps, m_timeStepFilter() );
     }
+    else if ( fieldNeedingOptions == &m_geomechCase )
+    {
+        RimTools::geoMechCaseOptionItems( &options );
+    }
 
     return options;
 }
@@ -456,6 +459,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     genGrp->add( &m_userDescription );
     genGrp->add( &m_fault );
     genGrp->add( &m_baseDir );
+    genGrp->add( &m_geomechCase );
 
     auto faultGrp = uiOrdering.addNewGroup( "Fault Plane" );
 
@@ -562,6 +566,14 @@ RimEclipseCase* RimFaultReactivationModel::eclipseCase()
     }
 
     return eCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimFaultReactivationModel::geoMechCase()
+{
+    return m_geomechCase();
 }
 
 //--------------------------------------------------------------------------------------------------
