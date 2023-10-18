@@ -42,6 +42,7 @@
 
 class RicPolylineTargetsPickEventHandler;
 class RimEclipseCase;
+class RimGeoMechCase;
 class RimFaultInView;
 class RimParameterGroup;
 class RimPolylineTarget;
@@ -127,6 +128,7 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     RimEclipseCase* eclipseCase();
+    RimGeoMechCase* geoMechCase();
 
     void initAfterRead() override;
 
@@ -144,6 +146,7 @@ private:
 
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmPtrField<RimFaultInView*>           m_fault;
+    caf::PdmPtrField<RimGeoMechCase*>           m_geomechCase;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
     caf::PdmField<cvf::Color3f>                 m_faultPlaneColor;
     caf::PdmField<cvf::Color3f>                 m_modelPart1Color;
