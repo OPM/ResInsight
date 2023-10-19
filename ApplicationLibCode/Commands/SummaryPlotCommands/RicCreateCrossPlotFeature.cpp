@@ -53,21 +53,19 @@ void RicCreateCrossPlotFeature::onActionTriggered( bool isChecked )
     // Nothing to do here, the sub menus are handled by the onSubMenuActionTriggered
 }
 
-auto newCrossPlotText = []() -> QString { return "New Cross Plot"; };
+auto newCrossPlotText = []() -> QString { return "Custom Cross Plot"; };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Summary Cross Plot" );
+    actionToSetup->setText( "Create Summary Cross Plot" );
     actionToSetup->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
 
-    auto subMenu = new QMenu( "Create Cross Plot" );
+    auto subMenu = new QMenu;
 
     auto menuTexts = crossPlotAddressesBasedOnSelection();
-    menuTexts.append( newCrossPlotText() );
-
     for ( const auto& crossPlotAddresses : menuTexts )
     {
         auto action = subMenu->addAction( crossPlotAddresses );
@@ -75,6 +73,13 @@ void RicCreateCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 
         connect( action, &QAction::triggered, this, &RicCreateCrossPlotFeature::onSubMenuActionTriggered );
     }
+
+    subMenu->addSeparator();
+
+    auto newCustomPlotAction = subMenu->addAction( newCrossPlotText() );
+    newCustomPlotAction->setIcon( QIcon( ":/SummaryXPlotLight16x16.png" ) );
+
+    connect( newCustomPlotAction, &QAction::triggered, this, &RicCreateCrossPlotFeature::onSubMenuActionTriggered );
 
     actionToSetup->setMenu( subMenu );
 }
