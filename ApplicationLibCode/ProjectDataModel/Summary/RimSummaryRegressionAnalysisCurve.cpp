@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaRegressionTextTools.h"
+#include "RiaStatisticsTools.h"
 #include "RiaTimeTTools.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -211,18 +212,18 @@ void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPl
     {
         for ( size_t i = 0; i < xValues.size(); i++ )
         {
-            if ( xValues[i] < m_valueRangeX().first || xValues[i] > m_valueRangeX().second )
+            if ( xValues[i] < m_valueRangeX().first || xValues[i] > m_valueRangeX().second || !RiaStatisticsTools::isValidNumber( xValues[i] ) )
             {
                 indicesToRemove.push_back( i );
             }
         }
-    }
 
-    for ( size_t i = 0; i < yValues.size(); i++ )
-    {
-        if ( yValues[i] < m_valueRangeY().first || yValues[i] > m_valueRangeY().second )
+        for ( size_t i = 0; i < yValues.size(); i++ )
         {
-            indicesToRemove.push_back( i );
+            if ( yValues[i] < m_valueRangeY().first || yValues[i] > m_valueRangeY().second || !RiaStatisticsTools::isValidNumber( yValues[i] ) )
+            {
+                indicesToRemove.push_back( i );
+            }
         }
     }
 
