@@ -29,6 +29,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"
 
 #include "cvfColor3.h"
 #include "cvfVector3.h"
