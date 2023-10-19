@@ -18,6 +18,7 @@
 
 #include "RimEnsembleCrossPlotStatisticsCase.h"
 
+#include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
@@ -177,6 +178,7 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
 
     double currentX = minX;
 
+    bool                               anyValidValueForStatistics = false;
     std::map<int, std::vector<double>> yValuesPerRealization;
     for ( auto v : sampleData )
     {
@@ -187,7 +189,9 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
         else
         {
             // Add statistics for current bin if sample count is above threshold
-            if ( static_cast<int>( yValuesPerRealization.size() ) > realizationCountThreshold )
+            const bool isRealizationCountOk = static_cast<int>( yValuesPerRealization.size() ) > realizationCountThreshold;
+            if ( isRealizationCountOk ) anyValidValueForStatistics = true;
+
             {
                 std::vector<double> meanYPerRealization;
 
@@ -204,17 +208,27 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
                     meanYPerRealization.emplace_back( sum / values.size() );
                 }
 
-                double p10, p50, p90, mean;
+                double p10  = std::numeric_limits<double>::infinity();
+                double p50  = std::numeric_limits<double>::infinity();
+                double p90  = std::numeric_limits<double>::infinity();
+                double mean = std::numeric_limits<double>::infinity();
                 RigStatisticsMath::calculateStatisticsCurves( meanYPerRealization,
                                                               &p10,
                                                               &p50,
                                                               &p90,
                                                               &mean,
                                                               RigStatisticsMath::PercentileStyle::SWITCHED );
+                if ( !isRealizationCountOk )
+                {
+                    p10 = std::numeric_limits<double>::infinity();
+                    p50 = std::numeric_limits<double>::infinity();
+                    p90 = std::numeric_limits<double>::infinity();
+                }
+
+                m_meanData.push_back( mean );
                 m_p10Data.push_back( p10 );
                 m_p50Data.push_back( p50 );
                 m_p90Data.push_back( p90 );
-                m_meanData.push_back( mean );
 
                 // Use middle of bin as X value
                 m_binnedXValues.emplace_back( currentX + deltaRangeX / 2.0 );
@@ -223,6 +237,11 @@ void RimEnsembleCrossPlotStatisticsCase::calculate( const std::vector<RimSummary
             currentX += deltaRangeX;
             yValuesPerRealization.clear();
         }
+    }
+
+    if ( !anyValidValueForStatistics )
+    {
+        RiaLogging::warning( "Not enough data to compute statistics curves. Consider reducing the realization count threshold." );
     }
 }
 
