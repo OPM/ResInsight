@@ -41,6 +41,8 @@ public:
     RimFishbonesPipeProperties();
     ~RimFishbonesPipeProperties() override;
 
+    void setHoleDiameter( double diameter);
+
     double skinFactor() const { return m_skinFactor(); }
     double holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
 

@@ -174,6 +174,18 @@ void RimFishbones::setMeasuredDepthAndCount( double startMD, double spacing, int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFishbones::setSystemParameters( int lateralsPerSub, double lateralLength, double holeDiameter, double buildAngle, int icdsPerSub )
+{
+    m_lateralCountPerSub = lateralsPerSub;
+    m_lateralLength      = QString::number( lateralLength );
+    m_pipeProperties->setHoleDiameter( holeDiameter );
+    m_lateralBuildAngle = buildAngle;
+    m_icdCount          = icdsPerSub;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFishbones::measuredDepth( size_t subIndex ) const
 {
     return m_valveLocations->measuredDepth( subIndex );

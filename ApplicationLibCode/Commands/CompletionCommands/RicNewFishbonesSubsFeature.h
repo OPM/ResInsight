@@ -22,6 +22,16 @@
 
 class RimFishbonesCollection;
 
+struct RicFishbonesSystemParameters
+{
+    int    lateralsPerSub;
+    double lateralLength;
+    double holeDiameter;
+    double buildAngle;
+
+    int icdsPerSub;
+};
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -30,13 +40,22 @@ class RicNewFishbonesSubsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
+    static RicFishbonesSystemParameters drillingStandardParameters();
+    static RicFishbonesSystemParameters drillingExtendedParameters();
+    static RicFishbonesSystemParameters acidJettingParameters();
+
     static void adjustWellPathScaling( RimFishbonesCollection* fishboneCollection );
 
-protected:
+private:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
     bool isCommandEnabled() const override;
 
-private:
+    void onDrillingStandard();
+    void onDrillingExtended();
+    void onAcidJetting();
+
+    void createFishbones( const RicFishbonesSystemParameters& customParameters );
+
     static RimFishbonesCollection* selectedFishbonesCollection();
 };

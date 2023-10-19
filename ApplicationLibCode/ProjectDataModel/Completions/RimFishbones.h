@@ -73,6 +73,8 @@ public:
 
     void setMeasuredDepthAndCount( double startMD, double spacing, int subCount );
 
+    void setSystemParameters( int lateralsPerSub, double lateralLength, double holeDiameter, double buildAngle, int icdsPerSub );
+
     double measuredDepth( size_t subIndex ) const;
     double rotationAngle( size_t subIndex ) const;
 
