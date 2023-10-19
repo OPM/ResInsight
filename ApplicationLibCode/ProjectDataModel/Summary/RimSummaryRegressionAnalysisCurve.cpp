@@ -730,7 +730,7 @@ QString RimSummaryRegressionAnalysisCurve::curveExportDescription( const RifEcli
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LinearRegression& reg )
 {
-    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -738,7 +738,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PolynomialRegression& reg )
 {
-    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -746,7 +746,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PowerFitRegression& reg )
 {
-    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -754,7 +754,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::ExponentialRegression& reg )
 {
-    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -762,7 +762,7 @@ QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regress
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LogarithmicRegression& reg )
 {
-    return RiaRegressionTextTools::generateRegressionText( reg ) + getXAxisUnitText();
+    return RiaRegressionTextTools::generateRegressionText( reg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -958,12 +958,4 @@ void RimSummaryRegressionAnalysisCurve::updateDefaultValues()
         m_valueRangeY = std::make_pair( *std::min_element( m_sourceValuesY.begin(), m_sourceValuesY.end() ),
                                         *std::max_element( m_sourceValuesY.begin(), m_sourceValuesY.end() ) );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryRegressionAnalysisCurve::getXAxisUnitText()
-{
-    return QString( "<br>X Axis Unit: Year" );
 }
