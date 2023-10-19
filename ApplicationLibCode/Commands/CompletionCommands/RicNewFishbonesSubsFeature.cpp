@@ -29,6 +29,7 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -38,9 +39,9 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QMenu>
 #include <QMessageBox>
 
-#include "RimTools.h"
 #include <cmath>
 
 CAF_CMD_SOURCE_INIT( RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature" );
@@ -50,14 +51,52 @@ CAF_CMD_SOURCE_INIT( RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
 {
+    // Nothing to do here, handled by sub menu actions
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFishbonesSubsFeature::onDrillingStandard()
+{
+    createFishbones( RicNewFishbonesSubsFeature::drillingStandardParameters() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFishbonesSubsFeature::onDrillingExtended()
+{
+    createFishbones( RicNewFishbonesSubsFeature::drillingExtendedParameters() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFishbonesSubsFeature::onAcidJetting()
+{
+    createFishbones( RicNewFishbonesSubsFeature::acidJettingParameters() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFishbonesSubsFeature::createFishbones( const RicFishbonesSystemParameters& customParameters )
+{
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
     CVF_ASSERT( fishbonesCollection );
 
     RimWellPath* wellPath = fishbonesCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
-    RimFishbones* obj = new RimFishbones;
+    auto* obj = new RimFishbones;
     fishbonesCollection->appendFishbonesSubs( obj );
+
+    obj->setSystemParameters( customParameters.lateralsPerSub,
+                              customParameters.lateralLength,
+                              customParameters.holeDiameter,
+                              customParameters.buildAngle,
+                              customParameters.icdsPerSub );
 
     double wellPathTipMd = wellPath->uniqueEndMD();
     if ( wellPathTipMd != HUGE_VAL )
@@ -85,6 +124,30 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicFishbonesSystemParameters RicNewFishbonesSubsFeature::drillingStandardParameters()
+{
+    return { .lateralsPerSub = 3, .lateralLength = 11.0, .holeDiameter = 12.5, .buildAngle = 6.0, .icdsPerSub = 3 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicFishbonesSystemParameters RicNewFishbonesSubsFeature::drillingExtendedParameters()
+{
+    return { .lateralsPerSub = 3, .lateralLength = 18.0, .holeDiameter = 12.5, .buildAngle = 4.0, .icdsPerSub = 3 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicFishbonesSystemParameters RicNewFishbonesSubsFeature::acidJettingParameters()
+{
+    return { .lateralsPerSub = 4, .lateralLength = 12.0, .holeDiameter = 15.0, .buildAngle = 6.0, .icdsPerSub = 4 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection()
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
@@ -95,7 +158,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 
     caf::PdmUiItem* pdmUiItem = allSelectedItems.front();
 
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    auto* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
         objToFind = objHandle->firstAncestorOrThisOfType<RimFishbonesCollection>();
@@ -124,8 +187,30 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/FishBoneGroup16x16.png" ) );
+    auto icon = QIcon( ":/FishBoneGroup16x16.png" );
+    actionToSetup->setIcon( icon );
     actionToSetup->setText( "Create Fishbones" );
+
+    auto subMenu = new QMenu;
+
+    {
+        auto action = subMenu->addAction( "Drilling Standard" );
+        action->setIcon( icon );
+        connect( action, &QAction::triggered, this, &RicNewFishbonesSubsFeature::onDrillingStandard );
+    }
+
+    {
+        auto action = subMenu->addAction( "Drilling Extended" );
+        action->setIcon( icon );
+        connect( action, &QAction::triggered, this, &RicNewFishbonesSubsFeature::onDrillingExtended );
+    }
+    {
+        auto action = subMenu->addAction( "Acid Jetting" );
+        action->setIcon( icon );
+        connect( action, &QAction::triggered, this, &RicNewFishbonesSubsFeature::onAcidJetting );
+    }
+
+    actionToSetup->setMenu( subMenu );
 }
 
 //--------------------------------------------------------------------------------------------------

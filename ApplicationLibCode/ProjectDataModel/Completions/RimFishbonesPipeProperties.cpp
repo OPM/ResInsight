@@ -47,6 +47,14 @@ RimFishbonesPipeProperties::~RimFishbonesPipeProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFishbonesPipeProperties::setHoleDiameter( double diameter )
+{
+    m_lateralHoleDiameter = diameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
