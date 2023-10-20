@@ -113,7 +113,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
 
     CAF_PDM_InitField( &m_crossPlotAddressCombinations,
                        "CrossPlotAddressCombinations",
-                       QString( "FWIR FOPT;FGOR FOPT;FWCT FOPT;FGLIR FOPR" ),
+                       QString( "FWCT FOPT;FWPR FOPT;FWIR FOPT;FGOR FOPT;FGLIR FOPR" ),
                        "Cross Plot Addresses [Y-adr X-adr]",
                        "",
                        "Semicolon separated list used to create cross plot curves. Based on selection, the names will be changed to "
