@@ -2117,8 +2117,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
     RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
     RimSummaryAddress*        addr  = m_yValuesSummaryAddress();
 
-    if ( !isCurvesVisible() || m_disableStatisticCurves || !group ||
-         addr->address().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
+    if ( m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
         return;
 
     // Calculate
@@ -2209,13 +2208,15 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         else
             summaryCase = m_ensembleStatCaseY.get();
 
-        for ( auto address : addresses )
+        for ( const auto& address : addresses )
         {
             auto curve = new RimSummaryCurve();
             curve->setParentPlotNoReplot( plot->plotWidget() );
             m_curves.push_back( curve );
             curve->setColor( m_statistics->color() );
             curve->setResampling( m_resampling() );
+
+            curve->setCheckState( isCurvesVisible() );
 
             if ( m_statisticsUseCustomAppearance() == AppearanceMode::DEFAULT )
             {
