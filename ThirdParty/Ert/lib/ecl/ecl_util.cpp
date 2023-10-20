@@ -457,11 +457,6 @@ static char * ecl_util_alloc_filename_static(const char * path, const char * bas
     ext        = NULL;
   }
 
-  if (!upper_case) {
-    for (size_t i=0; i < strlen(ext); i++)
-      ext[i] = tolower(ext[i]);
-  }
-
   filename = util_alloc_filename(path , base , ext);
   free(ext);
 
@@ -661,11 +656,6 @@ int ecl_util_select_filelist( const char * path , const char * base , ecl_file_e
 
     char * ext_pattern = util_alloc_string_copy(ecl_util_get_file_pattern( file_type , fmt_file ));
     char * file_pattern;
-
-    if (!upper_case) {
-      for (size_t i=0; i < strlen(ext_pattern); i++)
-        ext_pattern[i] = tolower(ext_pattern[i]);
-    }
 
     if (base)
       file_pattern = util_alloc_filename(NULL , base, ext_pattern);
