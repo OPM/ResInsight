@@ -79,8 +79,8 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
                    aicdTemplates.end(),
                    []( RiaOpmParserTools::AicdTemplateValues& templateA, RiaOpmParserTools::AicdTemplateValues& templateB )
                    {
-                       int idA = 0;
-                       int idB = 0;
+                       int idA = std::numeric_limits<int>::max();
+                       int idB = std::numeric_limits<int>::max();
 
                        auto itA = templateA.find( RiaOpmParserTools::aicdTemplateId() );
                        if ( itA != templateA.end() )
@@ -94,7 +94,13 @@ void RicImportValveTemplatesFeature::onActionTriggered( bool isChecked )
                            idB = itB->second;
                        }
 
-                       return idA < idB;
+                       if ( idA != std::numeric_limits<int>::max() && idB != std::numeric_limits<int>::max() )
+                       {
+                           // Sort by id if both have id
+                           return idA < idB;
+                       }
+
+                       return templateA < templateB;
                    } );
 
         auto it = std::unique( aicdTemplates.begin(), aicdTemplates.end() );
