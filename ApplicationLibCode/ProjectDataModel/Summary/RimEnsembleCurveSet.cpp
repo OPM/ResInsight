@@ -1109,6 +1109,13 @@ void RimEnsembleCurveSet::childFieldChangedByUi( const caf::PdmFieldHandle* chan
         // Trigger update, as the axis object name might have changed. Will update the axis object of the curve set.
         updateConnectedEditors();
     }
+    if ( changedChildField == &m_statistics )
+    {
+        if ( auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>() )
+        {
+            summaryPlot->loadDataAndUpdate();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
