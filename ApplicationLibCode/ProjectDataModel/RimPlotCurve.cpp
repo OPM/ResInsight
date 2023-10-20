@@ -1027,7 +1027,7 @@ void RimPlotCurve::updateCurveAppearance()
     QColor fillColor = RiaColorTools::toQColor( m_curveAppearance->fillColor() );
 
     fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
-    QBrush fillBrush( fillColor, m_curveAppearance->fillStyle() );
+    QBrush fillBrush( fillColor, fillStyle() );
     m_plotCurve->setAppearance( m_curveAppearance->lineStyle(),
                                 m_curveAppearance->interpolation(),
                                 m_curveAppearance->lineThickness(),

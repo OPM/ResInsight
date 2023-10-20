@@ -34,7 +34,7 @@ public:
     bool                          isStacked() const;
     bool                          isStackedWithPhaseColors() const;
     void                          setIsStacked( bool stacked );
-    void                          updateCurveAppearance() override;
+    Qt::BrushStyle                fillStyle() const override;
 
     void defaultUiOrdering( caf::PdmUiOrdering& uiOrdering );
     void stackingUiOrdering( caf::PdmUiOrdering& uiOrdering );
@@ -44,7 +44,6 @@ protected:
 
 private:
     void onFillColorChanged( const caf::SignalEmitter* emitter ) override;
-    void updateStackingAppearance();
 
 protected:
     caf::PdmField<bool> m_isStacked;
