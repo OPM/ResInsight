@@ -1831,12 +1831,6 @@ bool RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
     std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
     for ( RimSummaryCurve* curve : stackedCurves )
     {
-        // Apply a area filled style if it isn't already set
-        if ( curve->fillStyle() == Qt::NoBrush )
-        {
-            curve->setFillStyle( Qt::SolidPattern );
-        }
-
         curve->loadDataAndUpdate( false );
 
         curvePhaseCount[curve->phaseType()]++;

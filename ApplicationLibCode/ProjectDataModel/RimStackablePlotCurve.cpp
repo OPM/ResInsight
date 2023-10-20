@@ -108,7 +108,6 @@ void RimStackablePlotCurve::setIsStacked( bool stacked )
 {
     m_isStacked = stacked;
 
-    updateStackingAppearance();
     stackingChanged.send( m_isStacked() );
 }
 
@@ -121,7 +120,6 @@ void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
     if ( changedField == &m_isStacked )
     {
-        updateStackingAppearance();
         stackingChanged.send( m_isStacked() );
     }
     else if ( changedField == &m_isStackedWithPhaseColors )
@@ -171,21 +169,11 @@ void RimStackablePlotCurve::defaultUiOrdering( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStackablePlotCurve::updateCurveAppearance()
+Qt::BrushStyle RimStackablePlotCurve::fillStyle() const
 {
-    updateStackingAppearance();
+    auto selectedFillStyle = RimPlotCurve::fillStyle();
 
-    RimPlotCurve::updateCurveAppearance();
-}
+    if ( m_isStacked() && selectedFillStyle == Qt::NoBrush ) return Qt::SolidPattern;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStackablePlotCurve::updateStackingAppearance()
-{
-    if ( !m_isStacked() && fillStyle() != Qt::NoBrush )
-    {
-        // Switch off area fill when turning off stacking.
-        setFillStyle( Qt::NoBrush );
-    }
+    return selectedFillStyle;
 }
