@@ -18,7 +18,7 @@ permx_results = case.active_cell_property("STATIC_NATIVE", "PERMX", 0)
 
 # Generate output result
 results = []
-for (poro, permx) in zip(poro_results, permx_results):
+for poro, permx in zip(poro_results, permx_results):
     results.append(poro * permx)
 
 try:

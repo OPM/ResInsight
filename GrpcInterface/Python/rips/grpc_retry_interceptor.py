@@ -14,12 +14,10 @@ class RetryOnRpcErrorClientInterceptor(
         self.status_for_retry = status_for_retry
 
     def _intercept_call(self, continuation, client_call_details, request_or_iterator):
-
         for retry_num in range(self.retry_policy.num_retries()):
             response = continuation(client_call_details, request_or_iterator)
 
             if isinstance(response, grpc.RpcError):
-
                 # Return if it was last attempt
                 if retry_num == (self.retry_policy.num_retries() - 1):
                     return response

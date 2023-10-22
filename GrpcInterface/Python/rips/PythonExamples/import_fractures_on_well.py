@@ -32,7 +32,6 @@ print("well path:", well_path.name)
 # Place fracture at given depths
 measured_depths = [3200.0, 3400.0, 3600.0]
 for measured_depth in measured_depths:
-
     print("Placing fracture at {} depth (MD)".format(measured_depth))
     # Create stim plan  at a give measured depth
     fracture = well_path.add_fracture(

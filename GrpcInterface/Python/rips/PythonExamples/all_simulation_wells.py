@@ -21,7 +21,7 @@ if resinsight is not None:
         for sim_well in sim_wells:
             print("Simulation well: " + sim_well.name)
 
-            for (tidx, timestep) in enumerate(timesteps):
+            for tidx, timestep in enumerate(timesteps):
                 status = sim_well.status(tidx)
                 cells = sim_well.cells(tidx)
                 print(

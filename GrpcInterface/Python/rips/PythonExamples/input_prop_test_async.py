@@ -5,14 +5,15 @@
 import rips
 import time
 
+
 # Internal function for creating a result from a small chunk of poro and permx results
 # The return value of the function is a generator for the results rather than the result itself.
 def create_result(poro_chunks, permx_chunks):
     # Loop through all the chunks of poro and permx in order
-    for (poroChunk, permxChunk) in zip(poro_chunks, permx_chunks):
+    for poroChunk, permxChunk in zip(poro_chunks, permx_chunks):
         resultChunk = []
         # Loop through all the values inside the chunks, in order
-        for (poro, permx) in zip(poroChunk.values, permxChunk.values):
+        for poro, permx in zip(poroChunk.values, permxChunk.values):
             resultChunk.append(poro * permx)
         # Return a generator object that behaves like a Python iterator
         yield resultChunk

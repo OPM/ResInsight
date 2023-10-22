@@ -67,7 +67,7 @@ def test_MultipleCases(rips_instance, initialize_test):
 
 
 def get_cell_index_with_ijk(cell_info, i, j, k):
-    for (idx, cell) in enumerate(cell_info):
+    for idx, cell in enumerate(cell_info):
         if cell.local_ijk.i == i and cell.local_ijk.j == j and cell.local_ijk.k == k:
             return idx
     return -1
@@ -216,7 +216,7 @@ def test_selected_cells(rips_instance, initialize_test):
     assert len(selected_cells) == 0
 
     time_step_info = case.time_steps()
-    for (tidx, timestep) in enumerate(time_step_info):
+    for tidx, timestep in enumerate(time_step_info):
         # Try to read for SOIL the time step (will be empty since nothing is selected)
         soil_results = case.selected_cell_property("DYNAMIC_NATIVE", "SOIL", tidx)
         assert len(soil_results) == 0
