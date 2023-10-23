@@ -435,7 +435,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 #ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
     {
-        m_geoMechPreferences()->appendItems( uiOrdering );
+        if ( RiaApplication::enableDevelopmentFeatures() )
+        {
+            m_geoMechPreferences()->appendItems( uiOrdering );
+        }
     }
 #endif
     else if ( uiConfigName == RiaPreferences::tabNameImportExport() )
@@ -613,7 +616,10 @@ QStringList RiaPreferences::tabNames()
     names << tabNamePlotting();
     names << tabNameScripting();
 #ifdef USE_ODB_API
-    names << tabNameGeomech();
+    if ( RiaApplication::enableDevelopmentFeatures() )
+    {
+        names << tabNameGeomech();
+    }
 #endif
     names << tabNameImportExport();
 
