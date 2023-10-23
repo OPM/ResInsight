@@ -44,7 +44,7 @@ CAF_CMD_SOURCE_INIT( RicNewOctaveScriptFeature, "RicNewOctaveScriptFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewOctaveScriptFeature::isCommandEnabled()
+bool RicNewOctaveScriptFeature::isCommandEnabled() const
 {
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
     if ( calcScriptCollections.empty() ) return false;
@@ -59,8 +59,8 @@ void RicNewOctaveScriptFeature::onActionTriggered( bool isChecked )
     std::vector<RimCalcScript*>       calcScripts           = RicScriptFeatureImpl::selectedScripts();
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
 
-    RimCalcScript*       calcScript = calcScripts.size() > 0 ? calcScripts[0] : nullptr;
-    RimScriptCollection* scriptColl = calcScriptCollections.size() > 0 ? calcScriptCollections[0] : nullptr;
+    RimCalcScript*       calcScript = !calcScripts.empty() ? calcScripts[0] : nullptr;
+    RimScriptCollection* scriptColl = !calcScriptCollections.empty() ? calcScriptCollections[0] : nullptr;
 
     QString fullPathNewScript;
 

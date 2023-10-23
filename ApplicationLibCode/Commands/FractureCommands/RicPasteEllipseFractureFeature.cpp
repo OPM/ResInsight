@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicPasteEllipseFractureFeature, "RicPasteEllipseFractureFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteEllipseFractureFeature::isCommandEnabled()
+bool RicPasteEllipseFractureFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
@@ -45,7 +45,7 @@ bool RicPasteEllipseFractureFeature::isCommandEnabled()
     std::vector<caf::PdmPointer<RimEllipseFractureTemplate>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
 
-    if ( typedObjects.size() == 0 )
+    if ( typedObjects.empty() )
     {
         return false;
     }

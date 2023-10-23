@@ -23,10 +23,14 @@
 #include "cafPdmObject.h"
 #include "cafSignal.h"
 
+#include "cvfArray.h"
+
 class RimCellFilter;
+class RimCellIndexFilter;
 class RimCellRangeFilter;
 class RimPolygonFilter;
 class RimUserDefinedFilter;
+class RimUserDefinedIndexFilter;
 class RimCase;
 
 namespace cvf
@@ -48,9 +52,11 @@ public:
 
     caf::Signal<> filtersChanged;
 
-    RimPolygonFilter*     addNewPolygonFilter( RimCase* srcCase );
-    RimUserDefinedFilter* addNewUserDefinedFilter( RimCase* srcCase );
-    RimCellRangeFilter*   addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection = -1, int defaultSlice = -1 );
+    RimPolygonFilter*          addNewPolygonFilter( RimCase* srcCase );
+    RimCellRangeFilter*        addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection = -1, int defaultSlice = -1 );
+    RimCellIndexFilter*        addNewCellIndexFilter( RimCase* srcCase );
+    RimUserDefinedFilter*      addNewUserDefinedFilter( RimCase* srcCase );
+    RimUserDefinedIndexFilter* addNewUserDefinedIndexFilter( RimCase* srcCase );
 
     void removeFilter( RimCellFilter* filter );
 
@@ -59,11 +65,13 @@ public:
     void setActive( bool bActive );
 
     void compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const;
+    void updateCellVisibilityByIndex( cvf::UByteArray* cellsIncluded, cvf::UByteArray* cellsExcluded, size_t gridIndex ) const;
 
     std::vector<RimCellFilter*> filters() const;
 
     bool hasActiveFilters() const;
-    bool hasActiveIncludeFilters() const;
+    bool hasActiveIncludeIndexFilters() const;
+    bool hasActiveIncludeRangeFilters() const;
 
     void updateIconState();
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;

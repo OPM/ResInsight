@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryPlotFromDataVectorFeature, "RicNewSummaryPlotF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled()
+bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );
@@ -52,7 +52,7 @@ bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled()
         if ( adr->isEnsemble() ) nEnsembles++;
     }
 
-    bool bOk = ( selectedAddressItems.size() > 0 );
+    bool bOk = ( !selectedAddressItems.empty() );
     if ( nEnsembles > 0 )
     {
         bOk = bOk && ( nEnsembles == selectedItems.size() );

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include "cafPdmUiItem.h"
 
@@ -31,5 +31,5 @@ class RiaOptionItemFactory
 public:
     static void                   appendOptionItemFromViewNameAndCaseName( Rim3dView* view, QList<caf::PdmOptionItemInfo>* optionItems );
     static void                   appendOptionItemsForEnsembleCurveSets( QList<caf::PdmOptionItemInfo>* options );
-    static caf::PdmOptionItemInfo optionItemFromSummaryType( RifEclipseSummaryAddress::SummaryVarCategory summaryType );
+    static caf::PdmOptionItemInfo optionItemFromSummaryType( RifEclipseSummaryAddressDefines::SummaryCategory summaryType );
 };

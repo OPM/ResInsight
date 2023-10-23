@@ -43,6 +43,8 @@ public:
     void setMultiSegmentWell( bool isMultiSegmentWell );
     bool isMultiSegmentWell() const;
 
+    void setWellName( const QString& wellName );
+
     bool hasWellResult( size_t resultTimeStepIndex ) const;
     bool hasAnyValidCells( size_t resultTimeStepIndex ) const;
 

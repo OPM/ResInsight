@@ -168,6 +168,6 @@ TEST( RiaSummaryAddressAnalyzer, QuantitiesPerCategory )
     auto categories = analyzer.categories();
     EXPECT_EQ( 2u, categories.size() );
 
-    auto vectorNamesForWells = analyzer.vectorNamesForCategory( RifEclipseSummaryAddress::SUMMARY_WELL );
+    auto vectorNamesForWells = analyzer.vectorNamesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL );
     EXPECT_EQ( 3u, vectorNamesForWells.size() );
 }

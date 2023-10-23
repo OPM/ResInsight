@@ -203,7 +203,7 @@ double CategoryMapper::domainValue( double normalizedValue ) const
 {
     double clampedValue = cvf::Math::clamp( normalizedValue, 0.0, 1.0 );
 
-    if ( m_categoryValues.size() == 0 )
+    if ( m_categoryValues.empty() )
     {
         return 0.0;
     }

@@ -45,7 +45,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.h
     ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleStatisticsReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.h
     ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
@@ -85,6 +84,11 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealSummaryCsvReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifThermalToStimPlanFractureXmlOutput.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddressDefines.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -132,7 +136,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleStatisticsReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp
@@ -171,6 +174,11 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmCommon.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifFaultReactivationModelExporter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifThermalToStimPlanFractureXmlOutput.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddressDefines.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

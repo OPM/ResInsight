@@ -22,13 +22,20 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 #include "cafSignal.h"
+
+#include "cvfArray.h"
 
 namespace cvf
 {
 class StructGridInterface;
 class CellRangeFilter;
 } // namespace cvf
+
+class RimGeoMechCase;
+class RimEclipseCase;
+class RimCase;
 
 //==================================================================================================
 ///
@@ -45,9 +52,16 @@ public:
         EXCLUDE
     };
 
+    enum FilterDefinitionType
+    {
+        RANGE,
+        INDEX,
+        PROPERTY
+    };
+
     caf::Signal<> filterChanged;
 
-    RimCellFilter();
+    RimCellFilter( FilterDefinitionType defType );
     ~RimCellFilter() override;
 
     QString name() const;
@@ -55,6 +69,11 @@ public:
 
     bool isActive() const;
     void setActive( bool active );
+
+    virtual void setCase( RimCase* srcCase );
+
+    bool isRangeFilter() const;
+    bool isIndexFilter() const;
 
     virtual bool isFilterEnabled() const;
 
@@ -69,7 +88,8 @@ public:
     void updateIconState();
     void updateActiveState( bool isControlled );
 
-    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) = 0;
+    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ){};
+    virtual void    updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ){};
     virtual QString fullName() const;
 
 protected:
@@ -77,6 +97,9 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     bool                 isFilterControlled() const;
+
+    RimGeoMechCase* geoMechCase() const;
+    RimEclipseCase* eclipseCase() const;
 
     const cvf::StructGridInterface* selectedGrid() const;
 
@@ -88,4 +111,8 @@ protected:
     caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
     caf::PdmField<int>                          m_gridIndex;
     caf::PdmField<bool>                         m_propagateToSubGrids;
+    caf::PdmPtrField<RimCase*>                  m_srcCase;
+
+private:
+    FilterDefinitionType m_filterDefinitionType;
 };

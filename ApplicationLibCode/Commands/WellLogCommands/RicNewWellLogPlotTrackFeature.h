@@ -31,10 +31,10 @@ class RicNewWellLogPlotTrackFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimWellLogPlot* selectedWellLogPlot();
+    static RimWellLogPlot* selectedWellLogPlot();
 };

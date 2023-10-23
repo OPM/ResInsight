@@ -86,7 +86,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
 {
     if ( fileNames.contains( RiaDefines::mockModelBasicInputCase() ) )
     {
-        cvf::ref<RifReaderInterface> readerInterface = this->createMockModel( fileNames[0] );
+        cvf::ref<RifReaderInterface> readerInterface = createMockModel( fileNames[0] );
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
         results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
@@ -95,16 +95,16 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
 
         QFileInfo gridFileName( fileNames[0] );
         QString   caseName = gridFileName.completeBaseName();
-        this->setCaseUserDescription( caseName );
+        setCaseUserDescription( caseName );
 
         computeCachedData();
 
         return true;
     }
 
-    if ( this->eclipseCaseData() == nullptr )
+    if ( eclipseCaseData() == nullptr )
     {
-        this->setReservoirData( new RigEclipseCaseData( this ) );
+        setReservoirData( new RigEclipseCaseData( this ) );
     }
 
     bool importFaults = RiaPreferences::current()->readerSettings()->importFaults();
@@ -114,12 +114,12 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
     QString gridFileName;
 
     // First find and read the grid data
-    if ( this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
+    if ( eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
     {
         for ( int i = 0; i < fileNames.size(); i++ )
         {
             QString errorMessages;
-            if ( RifEclipseInputFileTools::openGridFile( fileNames[i], this->eclipseCaseData(), importFaults, &errorMessages ) )
+            if ( RifEclipseInputFileTools::openGridFile( fileNames[i], eclipseCaseData(), importFaults, &errorMessages ) )
             {
                 setGridFileName( fileNames[i] );
                 gridFileName = fileNames[i];
@@ -127,9 +127,9 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
                 QFileInfo gridFileName( fileNames[i] );
                 QString   caseName = gridFileName.completeBaseName();
 
-                this->setCaseUserDescription( caseName );
+                setCaseUserDescription( caseName );
 
-                this->eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
+                eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
 
                 computeCachedData();
 
@@ -142,7 +142,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         }
     }
 
-    if ( this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
+    if ( eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
     {
         for ( QString errorMessages : allErrorMessages )
         {
@@ -173,12 +173,12 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
 
     if ( !filesToRead.empty() )
     {
-        RifInputPropertyLoader::loadAndSynchronizeInputProperties( m_inputPropertyCollection, this->eclipseCaseData(), filesToRead, importFaults );
+        RifInputPropertyLoader::loadAndSynchronizeInputProperties( m_inputPropertyCollection, eclipseCaseData(), filesToRead, importFaults );
     }
 
     if ( importFaults )
     {
-        this->ensureFaultDataIsComputed();
+        ensureFaultDataIsComputed();
     }
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createPlaceholderResultEntries();
@@ -192,13 +192,13 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
 bool RimEclipseInputCase::openEclipseGridFile()
 {
     // Early exit if reservoir data is created
-    if ( this->eclipseCaseData() == nullptr )
+    if ( eclipseCaseData() == nullptr )
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
         if ( gridFileName().contains( RiaDefines::mockModelBasicInputCase() ) )
         {
-            readerInterface = this->createMockModel( gridFileName() );
+            readerInterface = createMockModel( gridFileName() );
         }
         else
         {
@@ -210,16 +210,16 @@ bool RimEclipseInputCase::openEclipseGridFile()
                 return false;
             }
 
-            this->setReservoirData( eclipseCase.p() );
+            setReservoirData( eclipseCase.p() );
         }
 
-        CVF_ASSERT( this->eclipseCaseData() );
+        CVF_ASSERT( eclipseCaseData() );
         CVF_ASSERT( readerInterface.notNull() );
 
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
         results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
-        this->eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
+        eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
 
         loadAndSynchronizeInputProperties( true );
         computeCachedData();
@@ -286,7 +286,7 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel( QString model
         m_inputPropertyCollection->inputProperties.push_back( inputProperty );
     }
 
-    this->setReservoirData( reservoir.p() );
+    setReservoirData( reservoir.p() );
 
     return mockFileInterface.p();
 }

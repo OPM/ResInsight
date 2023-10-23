@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaSummaryDefines.h"
 #include "RimSummaryPlotSourceStepping.h"
 
 #include "cafPdmChildArrayField.h"
@@ -27,7 +28,6 @@
 
 class RimSummaryCase;
 class RimSummaryCurve;
-class RimSummaryCrossPlot;
 class RimSummaryPlot;
 class RiuPlotWidget;
 class RiuPlotCurve;
@@ -54,8 +54,9 @@ public:
 
     RimSummaryPlotSourceStepping* sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const;
 
-    std::vector<RimSummaryCurve*> curves() const;
-    std::vector<RimSummaryCurve*> curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const;
+    std::set<RiaDefines::HorizontalAxisType> horizontalAxisTypes() const;
+    std::vector<RimSummaryCurve*>            curves() const;
+    std::vector<RimSummaryCurve*>            curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const;
 
     void setCurveAsTopZWithinCategory( RimSummaryCurve* curve );
 
@@ -100,7 +101,6 @@ private:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
 private:
-    friend class RimSummaryCrossPlot;
     friend class RimSummaryPlot;
 
     caf::PdmField<bool>                       m_showCurves;

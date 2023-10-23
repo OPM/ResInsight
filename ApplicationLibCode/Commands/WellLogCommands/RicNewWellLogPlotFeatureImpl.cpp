@@ -176,8 +176,7 @@ RimWellLogTrack*
 
     if ( !caseToApply )
     {
-        std::vector<RimCase*> allCases;
-        RimProject::current()->allCases( allCases );
+        std::vector<RimCase*> allCases = RimProject::current()->allGridCases();
         if ( !allCases.empty() )
         {
             caseToApply = allCases.front();

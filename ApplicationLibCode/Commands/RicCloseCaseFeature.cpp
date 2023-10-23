@@ -48,7 +48,7 @@ CAF_CMD_SOURCE_INIT( RicCloseCaseFeature, "RicCloseCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCloseCaseFeature::isCommandEnabled()
+bool RicCloseCaseFeature::isCommandEnabled() const
 {
     return !selectedCases().empty();
 }
@@ -188,8 +188,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
     {
         RimProject* project = RimProject::current();
 
-        std::vector<RimCase*> cases;
-        project->allCases( cases );
+        std::vector<RimCase*> cases = project->allGridCases();
 
         if ( cases.empty() )
         {

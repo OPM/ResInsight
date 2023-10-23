@@ -45,9 +45,7 @@ TEST( DISABLED_RifSummaryDataTest, OpmCommonAllData )
             size_t i = 0;
             for ( auto adr : reader.allResultAddresses() )
             {
-                std::vector<double> values;
-
-                reader.values( adr, &values );
+                auto [isOk, values] = reader.values( adr );
                 totalValuesRead += values.size();
                 i++;
                 if ( i > maxCount ) break;
@@ -94,9 +92,7 @@ TEST( DISABLED_RifSummaryDataTest, LibEclAllData )
             size_t i = 0;
             for ( auto adr : reader.allResultAddresses() )
             {
-                std::vector<double> values;
-
-                reader.values( adr, &values );
+                auto [isOk, values] = reader.values( adr );
                 totalValuesRead += values.size();
 
                 i++;

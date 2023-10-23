@@ -37,14 +37,6 @@ RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRangeFilterSliceFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 {
     // Find the selected Cell Filter Collection

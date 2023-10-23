@@ -18,9 +18,6 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-#include "RifEclipseSummaryAddressQMetaType.h"
-
 #include "RimObjectiveFunction.h"
 
 #include "cafPdmChildArrayField.h"

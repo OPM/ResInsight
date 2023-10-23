@@ -275,7 +275,6 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering( cvf::Effect* effect
 
     // Polygon offset
 
-    if ( true )
     {
         cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
         polyOffset->configurePolygonPositiveOffset();

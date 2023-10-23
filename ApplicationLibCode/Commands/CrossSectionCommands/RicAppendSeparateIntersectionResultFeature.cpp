@@ -35,14 +35,6 @@ CAF_CMD_SOURCE_INIT( RicAppendSeparateIntersectionResultFeature, "RicAppendSepar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendSeparateIntersectionResultFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicAppendSeparateIntersectionResultFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmObjectHandle*> collection;

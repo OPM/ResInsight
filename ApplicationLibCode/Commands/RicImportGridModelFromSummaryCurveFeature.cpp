@@ -32,14 +32,6 @@ CAF_CMD_SOURCE_INIT( RicImportGridModelFromSummaryCurveFeature, "RicImportGridMo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGridModelFromSummaryCurveFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportGridModelFromSummaryCurveFeature::onActionTriggered( bool isChecked )
 {
     QVariant userData = this->userData();

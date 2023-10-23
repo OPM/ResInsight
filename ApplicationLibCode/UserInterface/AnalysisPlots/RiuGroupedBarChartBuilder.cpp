@@ -21,6 +21,8 @@
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
+#include "RifCsvDataTableFormatter.h"
+
 #include "RiuGuiTheme.h"
 
 #include "cafFontTools.h"
@@ -57,11 +59,11 @@ public:
     {
         painter->save();
 
-        switch ( this->style() )
+        switch ( style() )
         {
             case QwtColumnSymbol::Box:
             {
-                switch ( this->frameStyle() )
+                switch ( frameStyle() )
                 {
                     case QwtColumnSymbol::NoFrame:
                     {
@@ -75,8 +77,8 @@ public:
                         }
 
                         painter->fillRect( r,
-                                           this->palette().window() ); // This line here is the difference. Qwt adds a 1
-                                                                       // to width and height.
+                                           palette().window() ); // This line here is the difference. Qwt adds a 1
+                                                                 // to width and height.
                     }
                     break;
                     default:
@@ -121,9 +123,9 @@ public:
         , m_labelFontPointSize( labelFontPointSize )
         , m_textColor( textColor )
     {
-        this->setTickLength( QwtScaleDiv::MajorTick, 0 );
-        this->setTickLength( QwtScaleDiv::MediumTick, 0 );
-        this->setTickLength( QwtScaleDiv::MinorTick, 0 );
+        setTickLength( QwtScaleDiv::MajorTick, 0 );
+        setTickLength( QwtScaleDiv::MediumTick, 0 );
+        setTickLength( QwtScaleDiv::MinorTick, 0 );
 
         int minorTextLineCount  = 0;
         int mediumTextLineCount = 0;
@@ -183,7 +185,7 @@ public:
         auto posTickIt = m_posTickTypeAndTexts.find( v );
         if ( posTickIt != m_posTickTypeAndTexts.end() )
         {
-            if ( this->alignment() == BottomScale )
+            if ( alignment() == BottomScale )
             {
                 if ( posTickIt->second.tickType == QwtScaleDiv::MediumTick )
                 {
@@ -198,7 +200,7 @@ public:
                     return createLabelFromString( posTickIt->second.label, -2 );
                 }
             }
-            else if ( this->alignment() == LeftScale )
+            else if ( alignment() == LeftScale )
             {
                 if ( posTickIt->second.tickType == QwtScaleDiv::MediumTick )
                 {
@@ -311,7 +313,7 @@ public:
     }
 
 protected:
-    virtual void drawBackbone( QPainter* ) const override {}
+    void drawBackbone( QPainter* ) const override {}
 
 private:
     std::map<double, RiuBarChartTick> m_posTickTypeAndTexts;
@@ -676,9 +678,9 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         QwtScaleDiv groupAxisScaleDiv( 0, currentBarPosition );
         {
-            if ( majTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MajorTick, majTickPositions );
-            if ( midTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MediumTick, midTickPositions );
-            if ( minTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MinorTick, minTickPositions );
+            if ( !majTickPositions.empty() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MajorTick, majTickPositions );
+            if ( !midTickPositions.empty() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MediumTick, midTickPositions );
+            if ( !minTickPositions.empty() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MinorTick, minTickPositions );
 
             if ( barOrientation == Qt::Horizontal )
             {
@@ -739,17 +741,17 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         if ( groupGrid )
         {
             QwtScaleDiv gridDividerScaleDiv( 0, currentBarPosition );
-            if ( majDividerPositions.size() )
+            if ( !majDividerPositions.empty() )
             {
                 gridDividerScaleDiv.setTicks( QwtScaleDiv::MajorTick, majDividerPositions );
             }
 
-            if ( midDividerPositions.size() )
+            if ( !midDividerPositions.empty() )
             {
                 gridDividerScaleDiv.setTicks( QwtScaleDiv::MediumTick, midDividerPositions );
             }
 
-            if ( minDividerPositions.size() )
+            if ( !minDividerPositions.empty() )
             {
                 gridDividerScaleDiv.setTicks( QwtScaleDiv::MinorTick, minDividerPositions );
             }
@@ -834,6 +836,62 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 void RiuGroupedBarChartBuilder::setLabelFontSize( int labelPointSize )
 {
     m_labelPointSize = labelPointSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuGroupedBarChartBuilder::plotContentAsText() const
+{
+    QString text;
+
+    QTextStream              stream( &text );
+    QString                  fieldSeparator = "\t";
+    RifCsvDataTableFormatter formatter( stream, fieldSeparator );
+    formatter.setUseQuotes( false );
+
+    bool hasTextForMajor  = false;
+    bool hasTextForMid    = false;
+    bool hasTextForMinor  = false;
+    bool hasTextForLegend = false;
+    bool hasTextForBar    = false;
+
+    for ( const BarEntry& barDef : m_sortedBarEntries )
+    {
+        if ( !barDef.m_majTickText.isEmpty() ) hasTextForMajor = true;
+        if ( !barDef.m_midTickText.isEmpty() ) hasTextForMid = true;
+        if ( !barDef.m_minTickText.isEmpty() ) hasTextForMinor = true;
+        if ( !barDef.m_legendText.isEmpty() ) hasTextForLegend = true;
+        if ( !barDef.m_barText.isEmpty() && barDef.m_barText != barDef.m_legendText ) hasTextForBar = true;
+    }
+
+    std::vector<RifTextDataTableColumn> header;
+    if ( hasTextForMajor ) header.emplace_back( RifTextDataTableColumn( "Major" ) );
+    if ( hasTextForMid ) header.emplace_back( RifTextDataTableColumn( "Mid" ) );
+    if ( hasTextForMinor ) header.emplace_back( RifTextDataTableColumn( "Minor" ) );
+    if ( hasTextForLegend ) header.emplace_back( RifTextDataTableColumn( "Legend" ) );
+    if ( hasTextForBar ) header.emplace_back( RifTextDataTableColumn( "Bar" ) );
+
+    header.emplace_back( RifTextDataTableColumn( "Value", RifTextDataTableDoubleFormat::RIF_FLOAT ) );
+
+    formatter.header( header );
+
+    for ( const BarEntry& barDef : m_sortedBarEntries )
+    {
+        if ( hasTextForMajor ) formatter.add( barDef.m_majTickText );
+        if ( hasTextForMid ) formatter.add( barDef.m_midTickText );
+        if ( hasTextForMinor ) formatter.add( barDef.m_minTickText );
+        if ( hasTextForLegend ) formatter.add( barDef.m_legendText );
+        if ( hasTextForBar ) formatter.add( barDef.m_barText );
+
+        formatter.add( barDef.m_value );
+
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------

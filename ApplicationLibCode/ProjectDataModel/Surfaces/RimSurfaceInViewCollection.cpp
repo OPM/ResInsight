@@ -18,6 +18,7 @@
 
 #include "RimSurfaceInViewCollection.h"
 
+#include "Rim3dView.h"
 #include "RimEnsembleSurface.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
@@ -51,7 +52,7 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "SurfacesInViewFieldCollections", "SurfacesInViewFieldCollections" );
     m_collectionsInView.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField" );
+    CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "Surfaces" );
     m_surfacesInView.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceCollectionRef", "SurfaceCollection" );
@@ -154,7 +155,7 @@ void RimSurfaceInViewCollection::syncCollectionsWithView()
         {
             // check if this is a collection we need to create
 
-            RimSurfaceInViewCollection* viewSurfColl = this->getCollectionInViewForCollection( surfcoll );
+            RimSurfaceInViewCollection* viewSurfColl = getCollectionInViewForCollection( surfcoll );
             if ( viewSurfColl == nullptr )
             {
                 RimSurfaceInViewCollection* newColl = new RimSurfaceInViewCollection();
@@ -205,7 +206,7 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
         for ( auto surf : surfs )
         {
             // check if this is a surface we need to create
-            RimSurfaceInView* viewSurf = this->getSurfaceInViewForSurface( surf );
+            RimSurfaceInView* viewSurf = getSurfaceInViewForSurface( surf );
             if ( viewSurf == nullptr )
             {
                 RimSurfaceInView* newSurfInView = new RimSurfaceInView();
@@ -279,7 +280,7 @@ void RimSurfaceInViewCollection::clearGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform, bool onlyNativeParts )
 {
     if ( !isChecked() ) return;
 
@@ -287,7 +288,7 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
     {
         if ( coll->isChecked() )
         {
-            coll->appendPartsToModel( model, scaleTransform );
+            coll->appendPartsToModel( model, scaleTransform, onlyNativeParts );
         }
     }
 
@@ -295,7 +296,14 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
     {
         if ( surf->isActive() )
         {
-            surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
+            if ( onlyNativeParts )
+            {
+                surf->nativeSurfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
+            }
+            else
+            {
+                surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
+            }
         }
     }
 
@@ -307,11 +315,11 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 
     if ( changedField == &m_isChecked )
     {
-        auto ownerView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
+        auto ownerView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
 }
@@ -321,7 +329,7 @@ void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::initAfterRead()
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -361,7 +369,7 @@ RimSurfaceInViewCollection* RimSurfaceInViewCollection::getCollectionInViewForCo
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex )
 {
-    if ( !this->isChecked() ) return;
+    if ( !isChecked() ) return;
 
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {
@@ -407,7 +415,7 @@ void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResul
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::applySingleColorEffect()
 {
-    if ( !this->isChecked() ) return;
+    if ( !isChecked() ) return;
 
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {
@@ -431,7 +439,7 @@ void RimSurfaceInViewCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
 {
-    if ( !this->isChecked() ) return false;
+    if ( !isChecked() ) return false;
 
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {

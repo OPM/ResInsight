@@ -195,8 +195,8 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
         m_plotWidget->qwtPlot()->insertLegend( nullptr );
         m_plotWidget->updateLegend();
 
-        this->updateAxes();
-        this->updatePlotTitle();
+        updateAxes();
+        updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
 }
@@ -230,7 +230,7 @@ void RimCorrelationPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder )
+void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const
 {
     time_t selectedTimestep = m_timeStep().toSecsSinceEpoch();
 
@@ -293,6 +293,17 @@ void RimCorrelationPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotIt
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCorrelationPlot::asciiDataForPlotExport() const
+{
+    RiuGroupedBarChartBuilder chartBuilder;
+    addDataToChartBuilder( chartBuilder );
+
+    return chartBuilder.plotContentAsText();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -100,11 +100,3 @@ void RicNewEllipseFractureTemplateFeature::setupActionLook( QAction* actionToSet
     actionToSetup->setIcon( QIcon( ":/FractureTemplate16x16.png" ) );
     actionToSetup->setText( "New Ellipse Fracture Template" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicNewEllipseFractureTemplateFeature::isCommandEnabled()
-{
-    return true;
-}

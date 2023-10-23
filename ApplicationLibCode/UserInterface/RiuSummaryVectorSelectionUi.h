@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -38,6 +38,7 @@ class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
 class RiaCurveSetDefinition;
 class SummaryIdentifierAndField;
+class RifEclipseSummaryAddress;
 
 using SummarySource = caf::PdmObject;
 
@@ -94,16 +95,15 @@ private:
                                                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const;
 
     std::set<RifEclipseSummaryAddress> buildAddressListFromSelections() const;
-    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddress::SummaryVarCategory            category,
+    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddressDefines::SummaryCategory        category,
                                                                                std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
-                                                                               std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
+                                                                               std::vector<std::pair<RifEclipseSummaryAddressDefines::SummaryIdentifierType, QString>>& identifierPath,
                                                                                std::set<RifEclipseSummaryAddress>& addressSet ) const;
 
     void resetAllFields();
     bool isObservedData( const RimSummaryCase* sumCase ) const;
 
     std::vector<SummarySource*> selectedSummarySources() const;
-    static RimSummaryCase*      calculatedSummaryCase();
 
     void appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options ) const;
     void appendOptionItemsForCategories( QList<caf::PdmOptionItemInfo>& options ) const;
@@ -113,10 +113,10 @@ private:
 private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
 
-    caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>> m_selectedSummaryCategories;
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>              m_currentSummaryCategory;
+    caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>>> m_selectedSummaryCategories;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>>              m_currentSummaryCategory;
 
-    std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>> m_identifierFieldsMap;
+    std::map<RifEclipseSummaryAddressDefines::SummaryCategory, std::vector<SummaryIdentifierAndField*>> m_identifierFieldsMap;
 
     bool m_multiSelectionMode;
 

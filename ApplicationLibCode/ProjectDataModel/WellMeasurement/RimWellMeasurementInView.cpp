@@ -84,7 +84,7 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     CAF_PDM_InitField( &m_radiusScaleFactor, "RadiusScaleFactor", 2.5, "Radius Scale" );
     m_radiusScaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    this->setName( "Well Measurement" );
+    setName( "Well Measurement" );
 
     m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
     m_maximumResultValue = cvf::UNDEFINED_DOUBLE;

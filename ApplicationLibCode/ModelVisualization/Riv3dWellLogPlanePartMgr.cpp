@@ -173,7 +173,7 @@ double Riv3dWellLogPlanePartMgr::wellPathCenterToPlotStartOffset( Rim3dWellLogCu
     }
     else
     {
-        double cellSize       = m_gridView->ownerCase()->characteristicCellSize();
+        double cellSize       = m_gridView->characteristicCellSize();
         double wellPathOffset = std::min( m_wellPath->wellPathRadius( cellSize ), 0.1 * planeWidth() );
         return m_wellPath->wellPathRadius( cellSize ) + wellPathOffset;
     }
@@ -186,7 +186,7 @@ double Riv3dWellLogPlanePartMgr::planeWidth() const
 {
     if ( !m_gridView ) return 0;
 
-    double                             cellSize        = m_gridView->ownerCase()->characteristicCellSize();
+    double                             cellSize        = m_gridView->characteristicCellSize();
     const Rim3dWellLogCurveCollection* curveCollection = m_wellPath->rim3dWellLogCurveCollection();
     return cellSize * curveCollection->planeWidthScaling();
 }

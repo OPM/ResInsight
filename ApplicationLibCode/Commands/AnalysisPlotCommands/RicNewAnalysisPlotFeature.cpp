@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicNewAnalysisPlotFeature, "RicNewAnalysisPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewAnalysisPlotFeature::isCommandEnabled()
+bool RicNewAnalysisPlotFeature::isCommandEnabled() const
 {
     if ( caf::firstAncestorOfTypeFromSelectedObject<RimAnalysisPlotCollection>() ) return true;
     if ( caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>() ) return true;

@@ -29,6 +29,12 @@ enum class FileType
     STIMPLAN_SUMMARY
 };
 
+enum class HorizontalAxisType
+{
+    TIME,
+    SUMMARY_VECTOR
+};
+
 QString summaryField();
 QString summaryAquifer();
 QString summaryNetwork();

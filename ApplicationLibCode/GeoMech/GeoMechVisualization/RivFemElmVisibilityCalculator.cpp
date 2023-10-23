@@ -20,6 +20,7 @@
 #include "RivFemElmVisibilityCalculator.h"
 
 #include "RigCaseToCaseCellMapper.h"
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
@@ -53,34 +54,61 @@ void RivFemElmVisibilityCalculator::computeAllVisible( cvf::UByteArray* elmVisib
 //--------------------------------------------------------------------------------------------------
 void RivFemElmVisibilityCalculator::computeRangeVisibility( cvf::UByteArray*            elmVisibilities,
                                                             const RigFemPart*           femPart,
-                                                            const cvf::CellRangeFilter& rangeFilter )
+                                                            const cvf::CellRangeFilter& rangeFilter,
+                                                            const cvf::UByteArray*      indexIncludeVisibility,
+                                                            const cvf::UByteArray*      indexExcludeVisibility,
+                                                            bool                        useIndexInclude )
 {
     elmVisibilities->resize( femPart->elementCount() );
 
     const RigFemPartGrid* grid = femPart->getOrCreateStructGrid();
 
+    size_t mainGridI;
+    size_t mainGridJ;
+    size_t mainGridK;
+
     if ( rangeFilter.hasIncludeRanges() )
     {
-        for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+        if ( useIndexInclude )
         {
-            size_t mainGridI;
-            size_t mainGridJ;
-            size_t mainGridK;
-
-            grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
-            ( *elmVisibilities )[elmIdx] = rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false );
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
+                ( *elmVisibilities )[elmIdx] =
+                    ( ( *indexIncludeVisibility )[elmIdx] || rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false ) ) &&
+                    ( *indexExcludeVisibility )[elmIdx];
+            }
+        }
+        else
+        {
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
+                ( *elmVisibilities )[elmIdx] = rangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, false ) &&
+                                               ( *indexExcludeVisibility )[elmIdx];
+            }
         }
     }
     else
     {
-        for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+        if ( useIndexInclude )
         {
-            size_t mainGridI;
-            size_t mainGridJ;
-            size_t mainGridK;
-
-            grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
-            ( *elmVisibilities )[elmIdx] = !rangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, false );
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
+                ( *elmVisibilities )[elmIdx] = ( *indexIncludeVisibility )[elmIdx] &&
+                                               !rangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, false ) &&
+                                               ( *indexExcludeVisibility )[elmIdx];
+            }
+        }
+        else
+        {
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                grid->ijkFromCellIndex( elmIdx, &mainGridI, &mainGridJ, &mainGridK );
+                ( *elmVisibilities )[elmIdx] = !rangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, false ) &&
+                                               ( *indexExcludeVisibility )[elmIdx];
+            }
         }
     }
 }
@@ -118,18 +146,14 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
 
         RigGeoMechCaseData* caseData = propFilterColl->reservoirView()->geoMechCase()->geoMechData();
 
-        RigFemResultAddress resVarAddress = propertyFilter->resultDefinition->resultAddress();
-
-        // Do a "Hack" to use elm nodal and not nodal POR results
-        if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" )
-            resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+        RigFemResultAddress resVarAddress = RigFemAddressDefines::getResultLookupAddress( propertyFilter->resultDefinition->resultAddress() );
 
         const std::vector<float>& resVals =
             caseData->femPartResults()->resultValues( resVarAddress, part->elementPartId(), timeStepIndex, frameIndex );
 
         if ( !propertyFilter->isActive() ) continue;
         if ( !propertyFilter->resultDefinition->hasResult() ) continue;
-        if ( resVals.size() == 0 ) continue;
+        if ( resVals.empty() ) continue;
 
         const double lowerBound = propertyFilter->lowerBound();
         const double upperBound = propertyFilter->upperBound();

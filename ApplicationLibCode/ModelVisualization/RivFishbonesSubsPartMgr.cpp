@@ -60,7 +60,7 @@ void RivFishbonesSubsPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*  
 
     if ( !m_rimFishbonesSubs->isActive() ) return;
 
-    if ( m_parts.size() == 0 )
+    if ( m_parts.empty() )
     {
         buildParts( displayCoordTransform, characteristicCellSize );
     }

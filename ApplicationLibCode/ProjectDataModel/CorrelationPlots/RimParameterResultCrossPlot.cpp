@@ -106,8 +106,8 @@ void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* c
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_ensembleParameter )
     {
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
+        loadDataAndUpdate();
+        updateConnectedEditors();
     }
 }
 
@@ -171,8 +171,8 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
             m_plotWidget->updateLegend();
         }
 
-        this->updateAxes();
-        this->updatePlotTitle();
+        updateAxes();
+        updatePlotTitle();
         m_plotWidget->scheduleReplot();
     }
 }
@@ -223,6 +223,7 @@ QStringList caseNamesOfValidEnsembleCases( const RimSummaryCaseCollection* ensem
 void RimParameterResultCrossPlot::createPoints()
 {
     detachAllCurves();
+    m_valuesForTextReport.clear();
 
     time_t selectedTimestep = m_timeStep().toSecsSinceEpoch();
 
@@ -261,11 +262,10 @@ void RimParameterResultCrossPlot::createPoints()
 
                 if ( !summaryCase->caseRealizationParameters() ) continue;
 
-                std::vector<double> values;
-
                 double closestValue    = std::numeric_limits<double>::infinity();
                 time_t closestTimeStep = 0;
-                if ( reader->values( address, &values ) )
+                auto [isOk, values]    = reader->values( address );
+                if ( isOk )
                 {
                     const std::vector<time_t>& timeSteps = reader->timeSteps( address );
                     for ( size_t i = 0; i < timeSteps.size(); ++i )
@@ -285,6 +285,8 @@ void RimParameterResultCrossPlot::createPoints()
                     caseValuesAtTimestep.push_back( closestValue );
                     double paramValue = parameter.values[caseIdx].toDouble();
                     parameterValues.push_back( paramValue );
+
+                    m_valuesForTextReport.push_back( { paramValue, closestValue } );
 
                     m_xRange.first  = std::min( m_xRange.first, paramValue );
                     m_xRange.second = std::max( m_xRange.second, paramValue );
@@ -313,6 +315,22 @@ void RimParameterResultCrossPlot::createPoints()
         }
         ensembleIdx++;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimParameterResultCrossPlot::asciiDataForPlotExport() const
+{
+    QString asciiData;
+
+    asciiData += "Parameter\tResult\n";
+    for ( const auto& valuePair : m_valuesForTextReport )
+    {
+        asciiData += QString( "%1\t%2\n" ).arg( valuePair.first ).arg( valuePair.second );
+    }
+
+    return asciiData;
 }
 
 //--------------------------------------------------------------------------------------------------

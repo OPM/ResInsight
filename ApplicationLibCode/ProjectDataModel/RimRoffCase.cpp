@@ -34,6 +34,7 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -46,7 +47,7 @@ CAF_PDM_SOURCE_INIT( RimRoffCase, "RimRoffCase" );
 RimRoffCase::RimRoffCase()
     : RimEclipseCase()
 {
-    CAF_PDM_InitObject( "RimRoffCase", ":/EclipseInput48x48.png" );
+    CAF_PDM_InitScriptableObject( "RimRoffCase", ":/EclipseInput48x48.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ bool RimRoffCase::openEclipseGridFile()
     if ( eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
     {
         QString errorMessages;
-        if ( RifRoffFileTools::openGridFile( fileName, this->eclipseCaseData(), &errorMessages ) )
+        if ( RifRoffFileTools::openGridFile( fileName, eclipseCaseData(), &errorMessages ) )
         {
             QFileInfo gridFileInfo( fileName );
             QString   caseName = gridFileInfo.completeBaseName();
@@ -153,7 +154,7 @@ bool RimRoffCase::importAsciiInputProperties( const QStringList& fileNames )
 {
     bool importFaults = false;
     RifInputPropertyLoader::loadAndSynchronizeInputProperties( m_inputPropertyCollection,
-                                                               this->eclipseCaseData(),
+                                                               eclipseCaseData(),
                                                                std::vector<QString>( fileNames.begin(), fileNames.end() ),
                                                                importFaults );
 

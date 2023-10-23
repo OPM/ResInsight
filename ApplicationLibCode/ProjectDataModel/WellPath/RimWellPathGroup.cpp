@@ -76,7 +76,7 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
         RimWellPath::copyCompletionSettings( wellPath, this );
     }
 
-    if ( !this->wellPathGeometry()->wellPathPoints().empty() )
+    if ( !wellPathGeometry()->wellPathPoints().empty() )
     {
         m_childWellPaths.push_back( wellPath );
         createWellPathGeometry();
@@ -360,7 +360,7 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
 {
     if ( m_childWellPaths.size() <= 1u ) return;
 
-    auto wellPathPoints = this->wellPathGeometry()->wellPathPoints();
+    auto wellPathPoints = wellPathGeometry()->wellPathPoints();
 
     auto comp = []( const cvf::Vec3d& lhs, const cvf::Vec3d& rhs )
     {

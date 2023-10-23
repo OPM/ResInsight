@@ -30,7 +30,6 @@ class RicHelpAboutFeature : public caf::CmdFeature
     static QString getPythonVersion( const QString& pathToPythonExecutable );
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
@@ -43,7 +42,6 @@ class RicHelpCommandLineFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
@@ -56,7 +54,6 @@ class RicHelpSummaryCommandLineFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
@@ -69,7 +66,6 @@ class RicHelpOpenUsersGuideFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
@@ -82,7 +78,6 @@ class RicSearchHelpFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
@@ -95,7 +90,6 @@ class RicSearchIssuesHelpFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
@@ -108,7 +102,6 @@ class RicCreateNewIssueHelpFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

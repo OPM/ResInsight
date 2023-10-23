@@ -83,7 +83,7 @@ class PdmObjectCapability;
         QString                    iconResourceName;                                                   \
         QString                    toolTip;                                                            \
         QString                    whatsThis;                                                          \
-        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                   \
+        if ( !arguments.empty() ) iconResourceName = arguments[0];                                     \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                            \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                          \
                                                                                                        \
@@ -108,7 +108,7 @@ class PdmObjectCapability;
         QString                    iconResourceName;                                                                                    \
         QString                    toolTip;                                                                                             \
         QString                    whatsThis;                                                                                           \
-        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                                                    \
+        if ( !arguments.empty() ) iconResourceName = arguments[0];                                                                      \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                                                             \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                                           \
         CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                           \
@@ -137,7 +137,7 @@ class PdmObjectCapability;
         QString                    iconResourceName;                                                                                    \
         QString                    toolTip;                                                                                             \
         QString                    whatsThis;                                                                                           \
-        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                                                    \
+        if ( !arguments.empty() ) iconResourceName = arguments[0];                                                                      \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                                                             \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                                           \
         CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                           \

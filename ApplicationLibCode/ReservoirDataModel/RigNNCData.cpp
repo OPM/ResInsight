@@ -576,11 +576,11 @@ std::vector<QString> RigNNCData::availableProperties( NNCResultType resultType )
 
     for ( auto it : m_connectionResults )
     {
-        if ( resultType == NNCResultType::NNC_STATIC && it.second.size() == 1 && it.second[0].size() > 0 && isNative( it.first ) )
+        if ( resultType == NNCResultType::NNC_STATIC && it.second.size() == 1 && !it.second[0].empty() && isNative( it.first ) )
         {
             properties.push_back( it.first );
         }
-        else if ( resultType == NNCResultType::NNC_DYNAMIC && it.second.size() > 1 && it.second[0].size() > 0 && isNative( it.first ) )
+        else if ( resultType == NNCResultType::NNC_DYNAMIC && it.second.size() > 1 && !it.second[0].empty() && isNative( it.first ) )
         {
             properties.push_back( it.first );
         }
@@ -689,12 +689,8 @@ const QString RigNNCData::getNNCDataTypeFromScalarResultIndex( const RigEclipseR
 //--------------------------------------------------------------------------------------------------
 bool RigNNCData::isNative( QString nncDataType ) const
 {
-    if ( nncDataType == RiaDefines::propertyNameCombTrans() || nncDataType == RiaDefines::propertyNameFluxGas() ||
-         nncDataType == RiaDefines::propertyNameFluxOil() || nncDataType == RiaDefines::propertyNameFluxWat() ||
-         nncDataType == RiaDefines::propertyNameRiCombMult() || nncDataType == RiaDefines::propertyNameRiCombTrans() ||
-         nncDataType == RiaDefines::propertyNameRiCombTransByArea() )
-    {
-        return true;
-    }
-    return false;
+    return nncDataType == RiaDefines::propertyNameCombTrans() || nncDataType == RiaDefines::propertyNameFluxGas() ||
+           nncDataType == RiaDefines::propertyNameFluxOil() || nncDataType == RiaDefines::propertyNameFluxWat() ||
+           nncDataType == RiaDefines::propertyNameRiCombMult() || nncDataType == RiaDefines::propertyNameRiCombTrans() ||
+           nncDataType == RiaDefines::propertyNameRiCombTransByArea();
 }

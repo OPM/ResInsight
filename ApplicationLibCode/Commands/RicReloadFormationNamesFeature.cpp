@@ -32,14 +32,14 @@ CAF_CMD_SOURCE_INIT( RicReloadFormationNamesFeature, "RicReloadFormationNamesFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadFormationNamesFeature::isCommandEnabled()
+bool RicReloadFormationNamesFeature::isCommandEnabled() const
 {
     std::vector<RimFormationNames*> selectedFormationNamesObjs;
     caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesObjs );
     std::vector<RimFormationNamesCollection*> selectedFormationNamesCollObjs;
     caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
 
-    return ( selectedFormationNamesObjs.size() > 0 || selectedFormationNamesCollObjs.size() > 0 );
+    return ( !selectedFormationNamesObjs.empty() || !selectedFormationNamesCollObjs.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ void RicReloadFormationNamesFeature::onActionTriggered( bool isChecked )
     std::vector<RimFormationNamesCollection*> selectedFormationNamesCollObjs;
     caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );
 
-    if ( selectedFormationNamesCollObjs.size() )
+    if ( !selectedFormationNamesCollObjs.empty() )
     {
         selectedFormationNamesCollObjs[0]->readAllFormationNames();
         for ( RimFormationNames* fnames : selectedFormationNamesCollObjs[0]->formationNamesList() )

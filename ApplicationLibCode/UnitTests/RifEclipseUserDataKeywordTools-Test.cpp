@@ -154,7 +154,7 @@ TEST( RifEclipseUserDataKeywordToolsTest, CreationOfSummaryAddresses )
 
         EXPECT_EQ( address.category(), RifEclipseSummaryAddress::SUMMARY_WELL_GROUP );
         EXPECT_STREQ( quantity.data(), address.quantityName().data() );
-        EXPECT_STREQ( columnData[0].data(), address.wellGroupName().data() );
+        EXPECT_STREQ( columnData[0].data(), address.groupName().data() );
     }
 
     // Well

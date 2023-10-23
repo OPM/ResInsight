@@ -68,6 +68,7 @@ class RimElementVectorResult;
 class RimStreamlineInViewCollection;
 class RimMultipleEclipseResults;
 class RigEclipseResultAddress;
+class RimFaultReactivationModelCollection;
 
 namespace cvf
 {
@@ -91,15 +92,16 @@ public:
 
     RiaDefines::View3dContent viewContent() const override;
 
-    RimEclipseCellColors*          cellResult() const;
-    RimCellEdgeColors*             cellEdgeResult() const;
-    RimElementVectorResult*        elementVectorResult() const;
-    RimEclipseFaultColors*         faultResultSettings() const;
-    RimStimPlanColors*             fractureColors() const;
-    RimSimWellInViewCollection*    wellCollection() const;
-    RimFaultInViewCollection*      faultCollection() const;
-    RimVirtualPerforationResults*  virtualPerforationResult() const;
-    RimStreamlineInViewCollection* streamlineCollection() const;
+    RimEclipseCellColors*                cellResult() const;
+    RimCellEdgeColors*                   cellEdgeResult() const;
+    RimElementVectorResult*              elementVectorResult() const;
+    RimEclipseFaultColors*               faultResultSettings() const;
+    RimStimPlanColors*                   fractureColors() const;
+    RimSimWellInViewCollection*          wellCollection() const;
+    RimFaultInViewCollection*            faultCollection() const;
+    RimVirtualPerforationResults*        virtualPerforationResult() const;
+    RimStreamlineInViewCollection*       streamlineCollection() const;
+    RimFaultReactivationModelCollection* faultReactivationModelCollection() const;
 
     bool showInvalidCells() const;
     bool showInactiveCells() const;
@@ -160,8 +162,6 @@ public:
     std::vector<RimLegendConfig*> legendConfigs() const override;
     cvf::Color4f                  colorFromCellCategory( RivCellSetEnum geometryType ) const;
 
-    void syncronizeLocalAnnotationsFromGlobal();
-
     std::vector<RigEclipseResultAddress> additionalResultsForResultInfo() const;
 
 protected:
@@ -203,7 +203,6 @@ private:
                                               RimEclipseResultDefinition* eclResDef,
                                               int                         timeStepIndex );
 
-    void onResetLegendsInViewer() override;
     void updateVirtualConnectionLegendRanges();
 
     void updateFaultColors();
@@ -218,6 +217,9 @@ private:
     void setVisibleGridParts( const std::vector<RivCellSetEnum>& cellSets );
     void setVisibleGridPartsWatertight();
 
+protected:
+    cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
+
 private:
     caf::PdmField<bool> m_showInvalidCells;
     caf::PdmField<bool> m_showInactiveCells;
@@ -231,9 +233,10 @@ private:
 
     caf::PdmProxyValueField<std::vector<double>> m_cellResultData;
 
-    caf::PdmChildField<RimSimWellInViewCollection*>    m_wellCollection;
-    caf::PdmChildField<RimFaultInViewCollection*>      m_faultCollection;
-    caf::PdmChildField<RimStreamlineInViewCollection*> m_streamlineCollection;
+    caf::PdmChildField<RimSimWellInViewCollection*>          m_wellCollection;
+    caf::PdmChildField<RimFaultInViewCollection*>            m_faultCollection;
+    caf::PdmChildField<RimFaultReactivationModelCollection*> m_faultReactivationModelCollection;
+    caf::PdmChildField<RimStreamlineInViewCollection*>       m_streamlineCollection;
 
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;

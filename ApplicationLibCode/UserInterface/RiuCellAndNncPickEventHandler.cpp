@@ -82,7 +82,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         const cvf::Part* firstNncHitPart      = nullptr;
         uint             nncPartTriangleIndex = cvf::UNDEFINED_UINT;
 
-        if ( pickItemInfos.size() )
+        if ( !pickItemInfos.empty() )
         {
             size_t indexToFirstNoneNncItem     = cvf::UNDEFINED_SIZE_T;
             size_t indexToNncItemNearFirstItem = cvf::UNDEFINED_SIZE_T;

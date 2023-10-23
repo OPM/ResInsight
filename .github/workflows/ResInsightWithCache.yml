@@ -196,6 +196,7 @@ jobs:
               -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
+              -D RESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false
               -D RESINSIGHT_ENABLE_UNITY_BUILD=${{ matrix.config.unity-build }}
               -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
@@ -228,6 +229,14 @@ jobs:
         shell: bash
         run: |
           cmakebuild/ApplicationExeCode/ResInsight --unittest
+
+      - name: (Python) Check types using mypy
+        if: matrix.config.build-python-module
+        shell: bash
+        run: |
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install mypy types-protobuf
+          cd GrpcInterface/Python/rips
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy *.py generated/generated_classes.py
 
       - name: Run pytest
         if: matrix.config.build-python-module
@@ -276,7 +285,7 @@ jobs:
     - name: Display structure of downloaded files
       run: ls -R
 
-    - name: Publish package distributions to TestPyPI
+    - name: Publish Python package to pypi
       # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
       uses: pypa/gh-action-pypi-publish@release/v1
       # uncomment the two lines below to publish to test PyPi

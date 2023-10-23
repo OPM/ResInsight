@@ -18,6 +18,7 @@
 
 #include "RimTimeStepFilter.h"
 
+#include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RifReaderEclipseOutput.h"
@@ -478,4 +479,63 @@ void RimTimeStepFilter::setReadOnlyLastFrame( bool onlyLast )
 bool RimTimeStepFilter::readOnlyLastFrame() const
 {
     return m_readOnlyLastFrame;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTimeStepFilter::timeStepOptions( QList<caf::PdmOptionItemInfo>&            options,
+                                         const caf::PdmFieldHandle*                timestepField,
+                                         std::vector<QDateTime>                    availableTimeSteps,
+                                         std::vector<QDateTime>                    selectedTimeSteps,
+                                         RimTimeStepFilter::TimeStepFilterTypeEnum filterType )
+{
+    if ( availableTimeSteps.empty() ) return;
+
+    std::set<QDateTime>    currentlySelectedTimeSteps( selectedTimeSteps.begin(), selectedTimeSteps.end() );
+    std::set<int>          currentlySelectedTimeStepIndices;
+    std::vector<QDateTime> allDateTimes;
+    for ( auto& dateTime : availableTimeSteps )
+    {
+        if ( currentlySelectedTimeSteps.count( dateTime ) )
+        {
+            currentlySelectedTimeStepIndices.insert( (int)allDateTimes.size() );
+        }
+        allDateTimes.push_back( dateTime );
+    }
+
+    std::vector<int> filteredTimeStepIndices =
+        RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, filterType, 1 );
+
+    // Add existing time steps to list of options to avoid removing them when changing filter.
+    filteredTimeStepIndices.insert( filteredTimeStepIndices.end(),
+                                    currentlySelectedTimeStepIndices.begin(),
+                                    currentlySelectedTimeStepIndices.end() );
+    std::sort( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() );
+    filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
+                                   filteredTimeStepIndices.end() );
+
+    QString dateFormatString     = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                    RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString timeFormatString     = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                                    RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+    QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+    bool showTime = ( filterType == RimTimeStepFilter::TS_ALL ) || ( filterType == RimTimeStepFilter::TS_INTERVAL_DAYS );
+
+    for ( auto timeStepIndex : filteredTimeStepIndices )
+    {
+        QDateTime dateTime = allDateTimes[timeStepIndex];
+
+        if ( showTime && dateTime.time() != QTime( 0, 0, 0 ) )
+        {
+            options.push_back(
+                caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormatString ), dateTime ) );
+        }
+        else
+        {
+            options.push_back(
+                caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ), dateTime ) );
+        }
+    }
 }

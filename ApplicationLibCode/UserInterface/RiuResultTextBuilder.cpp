@@ -177,7 +177,7 @@ QString RiuResultTextBuilder::mainResultText()
         text += "\n";
     }
 
-    QString topoText = this->geometrySelectionText( "\n" );
+    QString topoText = geometrySelectionText( "\n" );
     text += topoText;
     appendDetails( text, formationDetails() );
     text += "\n";
@@ -420,12 +420,12 @@ QString RiuResultTextBuilder::faultResultDetails()
                 if ( m_eclipseView->faultResultSettings()->customFaultResult()->resultType() != RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
                 {
                     text += "Fault result data:\n";
-                    this->appendTextFromResultColors( eclipseCaseData,
-                                                      m_gridIndex,
-                                                      m_cellIndex,
-                                                      m_timeStepIndex,
-                                                      m_eclipseView->currentFaultResultColors(),
-                                                      &text );
+                    appendTextFromResultColors( eclipseCaseData,
+                                                m_gridIndex,
+                                                m_cellIndex,
+                                                m_timeStepIndex,
+                                                m_eclipseView->currentFaultResultColors(),
+                                                &text );
                 }
             }
         }

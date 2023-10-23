@@ -41,9 +41,9 @@ private:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void onLoadDataAndUpdate() override;
-
-    void updateAxes() override;
+    void    onLoadDataAndUpdate() override;
+    void    updateAxes() override;
+    QString asciiDataForPlotExport() const override;
 
     // Private methods
     void updatePlotTitle() override;
@@ -54,4 +54,6 @@ private:
 
     std::pair<double, double> m_xRange;
     std::pair<double, double> m_yRange;
+
+    std::vector<std::pair<double, double>> m_valuesForTextReport;
 };

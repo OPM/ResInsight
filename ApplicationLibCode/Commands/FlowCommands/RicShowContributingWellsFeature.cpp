@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicShowContributingWellsFeature, "RicShowContributingWellsF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowContributingWellsFeature::isCommandEnabled()
+bool RicShowContributingWellsFeature::isCommandEnabled() const
 {
     std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType( &collection );

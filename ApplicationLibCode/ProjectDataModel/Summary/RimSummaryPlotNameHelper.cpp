@@ -48,7 +48,7 @@ void RimSummaryPlotNameHelper::clear()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotNameHelper::appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses )
+void RimSummaryPlotNameHelper::appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses )
 {
     m_analyzer->appendAddresses( addresses );
 
@@ -102,10 +102,16 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
+bool RimSummaryPlotNameHelper::isPlotDisplayingSingleCurve() const
 {
     if ( m_analyzer->quantities().size() == 2 )
     {
+        if ( m_analyzer->onlyCrossPlotCurves() )
+        {
+            // We have cross plot curves, and two quantities. This means that we have one curve.
+            return true;
+        }
+
         std::vector<std::string> strings;
         for ( const auto& q : m_analyzer->quantities() )
             strings.push_back( q );
@@ -113,6 +119,7 @@ bool RimSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
         auto first  = RimObjectiveFunctionTools::nativeQuantityName( strings[0] );
         auto second = RimObjectiveFunctionTools::nativeQuantityName( strings[1] );
 
+        // We have two quantities, one summary vector and one corresponding history vector.
         if ( first == second ) return true;
     }
 
@@ -133,6 +140,14 @@ bool RimSummaryPlotNameHelper::isWellNameInTitle() const
 bool RimSummaryPlotNameHelper::isGroupNameInTitle() const
 {
     return !m_titleGroupName.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotNameHelper::isNetworkInTitle() const
+{
+    return !m_titleNetwork.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,7 +193,7 @@ bool RimSummaryPlotNameHelper::isCompletionInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RimSummaryPlotNameHelper::vectorNames() const
+std::vector<std::string> RimSummaryPlotNameHelper::vectorNames() const
 {
     return m_analyzer->quantities();
 }
@@ -213,6 +228,14 @@ std::string RimSummaryPlotNameHelper::titleWellName() const
 std::string RimSummaryPlotNameHelper::titleGroupName() const
 {
     return m_titleGroupName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleNetwork() const
+{
+    return m_titleNetwork;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,6 +278,7 @@ void RimSummaryPlotNameHelper::clearTitleSubStrings()
     m_titleQuantity.clear();
     m_titleWellName.clear();
     m_titleGroupName.clear();
+    m_titleNetwork.clear();
     m_titleRegion.clear();
     m_titleBlock.clear();
     m_titleSegment.clear();
@@ -272,6 +296,7 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 
     auto wellNames  = m_analyzer->wellNames();
     auto groupNames = m_analyzer->groupNames();
+    auto networks   = m_analyzer->networkNames();
     auto regions    = m_analyzer->regionNumbers();
     auto blocks     = m_analyzer->blocks();
     auto categories = m_analyzer->categories();
@@ -304,6 +329,11 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
         if ( groupNames.size() == 1 )
         {
             m_titleGroupName = *( groupNames.begin() );
+        }
+
+        if ( networks.size() == 1 )
+        {
+            m_titleNetwork = *( networks.begin() );
         }
 
         if ( regions.size() == 1 )

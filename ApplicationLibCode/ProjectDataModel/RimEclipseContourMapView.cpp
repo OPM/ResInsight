@@ -191,15 +191,15 @@ void RimEclipseContourMapView::onCreateDisplayModel()
 {
     RimEclipseView::onCreateDisplayModel();
 
-    if ( !this->isTimeStepDependentDataVisible() )
+    if ( !isTimeStepDependentDataVisible() )
     {
         // Need to add geometry even if it hasn't happened during dynamic time step update.
         updateGeometry();
     }
 
-    if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
+    if ( viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
     {
-        this->zoomAll();
+        zoomAll();
     }
 }
 
@@ -209,8 +209,8 @@ void RimEclipseContourMapView::onCreateDisplayModel()
 void RimEclipseContourMapView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup( "Viewer" );
-    viewGroup->add( this->userDescriptionField() );
-    viewGroup->add( this->backgroundColorField() );
+    viewGroup->add( userDescriptionField() );
+    viewGroup->add( backgroundColorField() );
     viewGroup->add( &m_showAxisLines );
     viewGroup->add( &m_showScaleLegend );
 
@@ -325,7 +325,7 @@ void RimEclipseContourMapView::appendContourMapProjectionToModel()
             cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
             contourMapProjectionModelBasicList->setName( name );
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+            cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
             m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
@@ -350,7 +350,7 @@ void RimEclipseContourMapView::appendContourLinesToModel()
             cvf::ref<cvf::ModelBasicList> contourMapLabelModelBasicList = new cvf::ModelBasicList;
             contourMapLabelModelBasicList->setName( name );
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+            cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
             m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p() );
             contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
@@ -375,7 +375,7 @@ void RimEclipseContourMapView::appendPickPointVisToModel()
             cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
             contourMapProjectionModelBasicList->setName( name );
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+            cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
             m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();

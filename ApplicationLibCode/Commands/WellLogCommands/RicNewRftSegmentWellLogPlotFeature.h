@@ -43,7 +43,6 @@ public:
     static RimSummaryCase* getSelectedOrFirstRftCase();
 
 private:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
 
     void setupActionLook( QAction* actionToSetup ) override;

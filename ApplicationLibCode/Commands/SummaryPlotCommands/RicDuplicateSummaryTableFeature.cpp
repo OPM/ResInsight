@@ -37,14 +37,6 @@ CAF_CMD_SOURCE_INIT( RicDuplicateSummaryTableFeature, "RicDuplicateSummaryTableF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDuplicateSummaryTableFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicDuplicateSummaryTableFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObject*  selObj       = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );

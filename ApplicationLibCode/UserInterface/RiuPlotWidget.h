@@ -202,7 +202,7 @@ protected:
     std::map<RiuPlotAxis, QString> m_axisTitles;
     std::map<RiuPlotAxis, bool>    m_axisTitlesEnabled;
     const int                      m_overlayMargins;
-    QString                        m_plotTitle;
+    QString                        m_plotTitleText;
     bool                           m_plotTitleEnabled;
 
     QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;

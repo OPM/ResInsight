@@ -102,7 +102,7 @@ void RicUserDefinedCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         m_currentCalculation = calculationCollection()->addCalculation();
 
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_deleteCalculation )
     {
@@ -113,7 +113,7 @@ void RicUserDefinedCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* ch
             calculationCollection()->deleteCalculation( m_currentCalculation() );
             m_currentCalculation = nullptr;
 
-            this->updateConnectedEditors();
+            updateConnectedEditors();
             caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
         }
     }

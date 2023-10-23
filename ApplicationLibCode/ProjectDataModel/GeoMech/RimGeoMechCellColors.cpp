@@ -33,7 +33,7 @@ RimGeoMechCellColors::RimGeoMechCellColors()
     : legendConfigChanged( this )
 {
     CAF_PDM_InitFieldNoDefault( &legendConfig, "LegendDefinition", "Color Legend" );
-    this->legendConfig = new RimRegularLegendConfig();
+    legendConfig = new RimRegularLegendConfig();
     legendConfig.uiCapability()->setUiTreeHidden( true );
     legendConfig->changed.connect( this, &RimGeoMechCellColors::onLegendConfigChanged );
 }
@@ -82,7 +82,7 @@ void RimGeoMechCellColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCellColors::updateLegendCategorySettings()
 {
-    if ( this->hasCategoryResult() )
+    if ( hasCategoryResult() )
     {
         legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );

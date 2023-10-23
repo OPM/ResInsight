@@ -119,7 +119,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
 {
     if ( !plotWidget ) return;
 
-    RiuPlotAxis axis = m_axisProperties->plotAxisType();
+    RiuPlotAxis axis = m_axisProperties->plotAxis();
     {
         QString axisTitle = m_axisProperties->customTitle();
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
@@ -254,19 +254,15 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         RifEclipseSummaryAddress sumAddress;
         std::string              unitText;
 
-        if ( m_axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( m_axisProperties->plotAxis().isHorizontal() )
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();
         }
-        else if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
+        else if ( rimCurve->axisY() == m_axisProperties->plotAxis() )
         {
             sumAddress = rimCurve->summaryAddressY();
             unitText   = rimCurve->unitNameY();
-        }
-        else
-        {
-            continue;
         }
 
         addToUnitToQuantityMap( unitText, sumAddress );
@@ -274,18 +270,36 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
-        std::string                     unitText;
-        if ( curveDef.summaryCase() && curveDef.summaryCase()->summaryReader() )
+        RifEclipseSummaryAddress sumAddress;
+        if ( m_axisProperties->plotAxis().isHorizontal() )
         {
-            unitText = curveDef.summaryCase()->summaryReader()->unitName( sumAddress );
+            sumAddress = curveDef.summaryAddressX();
         }
-        else if ( curveDef.ensemble() )
+        else
+        {
+            sumAddress = curveDef.summaryAddressY();
+        }
+
+        std::string unitText;
+        if ( curveDef.ensemble() )
         {
             std::vector<RimSummaryCase*> sumCases = curveDef.ensemble()->allSummaryCases();
             if ( !sumCases.empty() && sumCases[0] && sumCases[0]->summaryReader() )
             {
                 unitText = sumCases[0]->summaryReader()->unitName( sumAddress );
+            }
+        }
+        else
+        {
+            RimSummaryCase* sumCase = curveDef.summaryCaseY();
+            if ( m_axisProperties->plotAxis().isHorizontal() )
+            {
+                sumCase = curveDef.summaryCaseX();
+            }
+
+            if ( sumCase && sumCase->summaryReader() )
+            {
+                unitText = sumCase->summaryReader()->unitName( sumAddress );
             }
         }
 
@@ -368,29 +382,26 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
 
     for ( RimSummaryCurve* rimCurve : m_summaryCurves )
     {
-        RifEclipseSummaryAddress sumAddress;
-
-        if ( m_axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( rimCurve->axisY() == m_axisProperties->plotAxis() )
         {
-            sumAddress = rimCurve->summaryAddressX();
+            addVectorNames( rimCurve->summaryAddressY() );
         }
-        else if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
+        else if ( rimCurve->axisX() == m_axisProperties->plotAxis() )
         {
-            sumAddress = rimCurve->summaryAddressY();
+            addVectorNames( rimCurve->summaryAddressX() );
         }
-        else
-        {
-            continue;
-        }
-
-        addVectorNames( sumAddress );
     }
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
-
-        addVectorNames( sumAddress );
+        if ( m_axisProperties->plotAxis().isVertical() )
+        {
+            addVectorNames( curveDef.summaryAddressY() );
+        }
+        else
+        {
+            addVectorNames( curveDef.summaryAddressX() );
+        }
     }
 
     QString assembledAxisObjectName;

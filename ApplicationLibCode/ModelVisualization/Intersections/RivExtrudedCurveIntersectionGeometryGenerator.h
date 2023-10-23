@@ -97,9 +97,6 @@ private:
     const std::vector<std::vector<cvf::Vec3d>>& flattenedOrOffsettedPolyLines();
     cvf::Vec3d transformPointByPolylineSegmentIndex( const cvf::Vec3d& domainCoord, size_t lineIndex, size_t segmentIndex );
 
-    static std::vector<std::pair<cvf::Vec3d, size_t>> computeResampledPolyline( const std::vector<cvf::Vec3d>& polyline,
-                                                                                double                         resamplingDistance );
-
 private:
     RimExtrudedCurveIntersection*              m_intersection;
     cvf::ref<RivIntersectionHexGridInterface>  m_hexGrid;

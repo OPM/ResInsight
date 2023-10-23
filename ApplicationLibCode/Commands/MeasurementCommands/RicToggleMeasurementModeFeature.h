@@ -35,10 +35,10 @@ class RicToggleMeasurementModeFeature : public caf::CmdFeature
     void refreshActionLook();
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 
 protected:
     RimMeasurement* measurement() const;
@@ -58,7 +58,7 @@ class RicTogglePolyMeasurementModeFeature : public RicToggleMeasurementModeFeatu
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 
 private:
     void refreshMeasurementActionLook();

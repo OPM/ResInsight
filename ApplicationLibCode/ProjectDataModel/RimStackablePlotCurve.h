@@ -34,16 +34,20 @@ public:
     bool                          isStacked() const;
     bool                          isStackedWithPhaseColors() const;
     void                          setIsStacked( bool stacked );
+    Qt::BrushStyle                fillStyle() const override;
+
+    void defaultUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void stackingUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void stackingUiOrdering( caf::PdmUiOrdering& uiOrdering );
-    void defaultUiOrdering( caf::PdmUiOrdering& uiOrdering );
-
+private:
     void onFillColorChanged( const caf::SignalEmitter* emitter ) override;
 
 protected:
     caf::PdmField<bool> m_isStacked;
+
+private:
     caf::PdmField<bool> m_isStackedWithPhaseColors;
 };

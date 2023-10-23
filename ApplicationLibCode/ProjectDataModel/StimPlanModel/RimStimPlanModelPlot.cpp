@@ -170,7 +170,7 @@ void RimStimPlanModelPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelPlot::applyDataSource()
 {
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

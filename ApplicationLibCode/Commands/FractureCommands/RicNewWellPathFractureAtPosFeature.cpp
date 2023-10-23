@@ -50,11 +50,3 @@ void RicNewWellPathFractureAtPosFeature::setupActionLook( QAction* actionToSetup
     actionToSetup->setIcon( QIcon( ":/FractureSymbol16x16.png" ) );
     actionToSetup->setText( "Create Fracture at this Depth" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicNewWellPathFractureAtPosFeature::isCommandEnabled()
-{
-    return true;
-}

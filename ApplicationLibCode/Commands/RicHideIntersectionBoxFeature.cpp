@@ -32,7 +32,7 @@ CAF_CMD_SOURCE_INIT( RicHideIntersectionBoxFeature, "RicHideIntersectionBoxFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHideIntersectionBoxFeature::isCommandEnabled()
+bool RicHideIntersectionBoxFeature::isCommandEnabled() const
 {
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( !activeView ) return false;
@@ -44,11 +44,7 @@ bool RicHideIntersectionBoxFeature::isCommandEnabled()
     if ( !generalSelectionItem ) return false;
 
     RimBoxIntersection* intersectionBox = dynamic_cast<RimBoxIntersection*>( generalSelectionItem->m_object );
-    if ( intersectionBox )
-    {
-        return true;
-    }
-    return false;
+    return intersectionBox != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

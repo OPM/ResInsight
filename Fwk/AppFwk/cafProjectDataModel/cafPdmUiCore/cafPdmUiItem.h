@@ -188,7 +188,7 @@ bool PdmOptionItemInfo::findValues( const QList<PdmOptionItemInfo>& optionList,
     {
         QList<QVariant> valuesSelectedInField = fieldValue.toList();
 
-        if ( valuesSelectedInField.size() )
+        if ( !valuesSelectedInField.empty() )
         {
             // Create a list to be able to remove items as they are matched with values
             std::list<std::pair<QVariant, unsigned int>> optionVariantAndIndexPairs;
@@ -230,7 +230,7 @@ bool PdmOptionItemInfo::findValues( const QList<PdmOptionItemInfo>& optionList,
                 break;
             }
         }
-        return ( foundIndexes.size() > 0 );
+        return ( !foundIndexes.empty() );
     }
 }
 

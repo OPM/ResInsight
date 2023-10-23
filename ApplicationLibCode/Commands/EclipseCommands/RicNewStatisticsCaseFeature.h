@@ -38,11 +38,11 @@ class RicNewStatisticsCaseFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmUiItem*           selectedValidUIItem();
-    RimEclipseStatisticsCase* addStatisticalCalculation( caf::PdmUiItem* uiItem );
+    static caf::PdmUiItem*           selectedValidUIItem();
+    static RimEclipseStatisticsCase* addStatisticalCalculation( caf::PdmUiItem* uiItem );
 };

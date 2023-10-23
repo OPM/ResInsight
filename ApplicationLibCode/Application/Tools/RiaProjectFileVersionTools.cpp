@@ -66,7 +66,7 @@ void RiaProjectFileVersionTools::decodeVersionString( const QString& projectFile
 
     QStringList subStrings = projectFileVersion.split( "." );
 
-    if ( subStrings.size() > 0 )
+    if ( !subStrings.empty() )
     {
         *majorVersion = subStrings[0].toInt();
     }

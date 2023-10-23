@@ -64,14 +64,6 @@ QString RicImportSummaryCasesFeature::m_fileNameFilter = "*";
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryCasesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication*   app           = RiaGuiApplication::instance();
@@ -80,13 +72,11 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     QStringList          fileNames     = result.files;
     RiaDefines::FileType fileType      = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
 
-    std::vector<RimSummaryCase*> cases;
+    if ( fileNames.isEmpty() ) return;
 
-    if ( !fileNames.isEmpty() )
-    {
-        CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
-        auto [isOk, cases] = createSummaryCasesFromFiles( fileNames, createConfig );
-    }
+    CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = false, .allowDialogs = true };
+    auto [isOk, cases] = createSummaryCasesFromFiles( fileNames, createConfig );
+    if ( !isOk ) return;
 
     addSummaryCases( cases );
     if ( !cases.empty() )
@@ -108,10 +98,8 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
         mainPlotWindow->updateMultiPlotToolBar();
     }
 
-    std::vector<RimCase*> allCases;
-    app->project()->allCases( allCases );
-
-    if ( allCases.size() == 0 )
+    std::vector<RimCase*> allCases = app->project()->allGridCases();
+    if ( allCases.empty() )
     {
         RiuMainWindow::closeIfOpen();
     }
@@ -160,10 +148,8 @@ std::pair<bool, std::vector<RimSummaryCase*>> RicImportSummaryCasesFeature::crea
             mainPlotWindow->updateMultiPlotToolBar();
 
             // Close main window if there are no eclipse cases imported
-            std::vector<RimCase*> allCases;
-            app->project()->allCases( allCases );
-
-            if ( allCases.size() == 0 )
+            std::vector<RimCase*> allCases = app->project()->allGridCases();
+            if ( allCases.empty() )
             {
                 RiuMainWindow::closeIfOpen();
             }

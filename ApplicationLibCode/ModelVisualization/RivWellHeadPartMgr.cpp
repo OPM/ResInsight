@@ -78,7 +78,7 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t frameIndex, const caf::Displ
 
     RimSimWellInView* well = m_rimWell;
 
-    double characteristicCellSize = viewWithSettings()->ownerCase()->characteristicCellSize();
+    double characteristicCellSize = viewWithSettings()->characteristicCellSize();
 
     cvf::Vec3d whEndPos;
     cvf::Vec3d whStartPos;
@@ -290,20 +290,13 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t frameIndex, const caf::Displ
     // well disk labels are preferred since they have more info.
     if ( well->showWellLabel() && !well->name().isEmpty() && !well->showWellDisks() )
     {
-        cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
-
-        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont( font );
-        drawableText->setCheckPosVisible( false );
-        drawableText->setDrawBorder( false );
-        drawableText->setDrawBackground( false );
-        drawableText->setVerticalAlignment( cvf::TextDrawer::CENTER );
-        drawableText->setTextColor( simWellInViewCollection()->wellLabelColor() );
-
+        cvf::Font*  font      = RiaGuiApplication::instance()->defaultWellLabelFont();
         cvf::String cvfString = cvfqt::Utils::toString( m_rimWell->name() );
 
-        cvf::Vec3f textCoord( textPosition );
-        drawableText->addText( cvfString, textCoord );
+        auto drawableText = RivAnnotationTools::createDrawableTextNoBackground( font,
+                                                                                simWellInViewCollection()->wellLabelColor(),
+                                                                                m_rimWell->name().toStdString(),
+                                                                                cvf::Vec3f( textPosition ) );
 
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName( "RivWellHeadPartMgr: text " + cvfString );
@@ -314,7 +307,7 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t frameIndex, const caf::Displ
         part->setEffect( eff.p() );
         part->setPriority( RivPartPriority::PartType::Text );
 
-        part->setSourceInfo( new RivTextLabelSourceInfo( m_rimWell, cvfString, textCoord ) );
+        part->setSourceInfo( new RivTextLabelSourceInfo( m_rimWell, cvfString, cvf::Vec3f( textPosition ) ) );
 
         m_wellHeadLabelPart = part;
     }

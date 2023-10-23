@@ -18,6 +18,8 @@
 
 #include "RimCheckableObject.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCheckableObject, "RimCheckableObject" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
@@ -25,7 +27,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCheckableObject, "RimCheckableObject" ); //
 //--------------------------------------------------------------------------------------------------
 RimCheckableObject::RimCheckableObject()
 {
-    CAF_PDM_InitField( &m_isChecked, "IsChecked", true, "Active" );
+    CAF_PDM_InitScriptableField( &m_isChecked, "IsChecked", true, "Active" );
     m_isChecked.uiCapability()->setUiHidden( true );
 }
 

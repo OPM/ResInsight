@@ -145,12 +145,7 @@ void RimPlotAxisProperties::enableRangeSettings( bool enable )
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setNameForUnusedAxis()
 {
-    QString name = "Unused ";
-
-    if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        name += "Left";
-    else if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-        name += "Right";
+    QString name = "Unused " + m_plotAxis().text();
 
     m_objectName = name;
 }
@@ -183,18 +178,6 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions( cons
     else if ( fieldNeedingOptions == &m_titleFontSize || fieldNeedingOptions == &m_valuesFontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
-    else if ( fieldNeedingOptions == &m_plotAxis )
-    {
-        std::vector<RiaDefines::PlotAxis> plotAxes = { RiaDefines::PlotAxis::PLOT_AXIS_LEFT, RiaDefines::PlotAxis::PLOT_AXIS_RIGHT };
-
-        for ( auto plotAxis : plotAxes )
-        {
-            auto plotAxisEnum = caf::AppEnum<RiaDefines::PlotAxis>( plotAxis );
-
-            QString uiText = plotAxisEnum.uiText();
-            options.push_back( caf::PdmOptionItemInfo( uiText, plotAxisEnum.value() ) );
-        }
     }
 
     return options;
@@ -270,10 +253,10 @@ void RimPlotAxisProperties::setNameAndAxis( const QString& objectName, const QSt
     m_plotAxis      = axis;
     m_plotAxisIndex = axisIndex;
 
-    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) this->setUiIconFromResourceString( ":/LeftAxis16x16.png" );
-    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
-    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
-    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP ) this->setUiIconFromResourceString( ":/TopAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) setUiIconFromResourceString( ":/LeftAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) setUiIconFromResourceString( ":/RightAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) setUiIconFromResourceString( ":/BottomAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP ) setUiIconFromResourceString( ":/TopAxis16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -327,7 +310,7 @@ const QString RimPlotAxisProperties::axisTitleText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotAxis RimPlotAxisProperties::plotAxisType() const
+RiuPlotAxis RimPlotAxisProperties::plotAxis() const
 {
     return RiuPlotAxis( m_plotAxis.value(), m_plotAxisIndex );
 }
@@ -648,11 +631,11 @@ void RimPlotAxisProperties::setMajorTickmarkCount( LegendTickmarkCount count )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setAutoValueForMajorTickmarkCount( LegendTickmarkCount count )
+void RimPlotAxisProperties::setAutoValueForMajorTickmarkCount( LegendTickmarkCount count, bool notifyFieldChanged )
 {
     auto enumValue = static_cast<std::underlying_type_t<LegendTickmarkCount>>( count );
 
-    m_majorTickmarkCount.uiCapability()->setAutoValue( enumValue );
+    m_majorTickmarkCount.uiCapability()->setAutoValue( enumValue, notifyFieldChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -712,7 +695,7 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
     else if ( changedField == &m_plotAxis )
     {
         RiuPlotAxis oldPlotAxis = RiuPlotAxis( (RiaDefines::PlotAxis)oldValue.toInt(), m_plotAxisIndex );
-        axisPositionChanged.send( this, oldPlotAxis, plotAxisType() );
+        axisPositionChanged.send( this, oldPlotAxis, plotAxis() );
     }
     else
     {

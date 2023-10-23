@@ -81,7 +81,7 @@ void RimStreamlineGenerator::generateTracer( RigCell cell, double direction, QSt
         }
     }
 
-    while ( m_seeds.size() > 0 )
+    while ( !m_seeds.empty() )
     {
         const size_t                             cellIdx = m_seeds.top().m_cellIdx;
         const cvf::StructGridInterface::FaceType faceIdx = m_seeds.top().m_faceIdx;

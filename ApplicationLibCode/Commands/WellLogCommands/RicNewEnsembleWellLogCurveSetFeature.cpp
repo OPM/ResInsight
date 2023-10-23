@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicNewEnsembleWellLogCurveSetFeature, "RicNewEnsembleWellLo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewEnsembleWellLogCurveSetFeature::isCommandEnabled()
+bool RicNewEnsembleWellLogCurveSetFeature::isCommandEnabled() const
 {
     return caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr;
 }

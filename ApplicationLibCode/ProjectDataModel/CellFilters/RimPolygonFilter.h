@@ -73,7 +73,6 @@ public:
     RimPolygonFilter();
     ~RimPolygonFilter() override;
 
-    void setCase( RimCase* srcCase );
     void enableFilter( bool bEnable );
     void enableKFilter( bool bEnable );
 
@@ -89,14 +88,13 @@ public:
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
 
-    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) override;
+    void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void initAfterRead() override;
 
     QString fullName() const override;
 
@@ -123,7 +121,6 @@ private:
     caf::PdmChildArrayField<RimPolylineTarget*>        m_targets;
     caf::PdmField<caf::AppEnum<PolygonFilterModeType>> m_polyFilterMode;
     caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
-    caf::PdmPtrField<RimCase*>                         m_srcCase;
     caf::PdmField<bool>                                m_enableFiltering;
     caf::PdmField<bool>                                m_showLines;
     caf::PdmField<bool>                                m_showSpheres;

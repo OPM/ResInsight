@@ -153,7 +153,10 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
 
     if ( stimPlanModel->stimPlanModelTemplate()->usePressureTableForProperty( pressureCurveProperty ) )
     {
-        if ( !extractPressureDataFromTable( pressureCurveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues ) )
+        CAF_ASSERT( !targetTvds.empty() );
+        double minTvd = targetTvds[0];
+        double maxTvd = targetTvds[targetTvds.size() - 1];
+        if ( !extractPressureDataFromTable( pressureCurveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues, minTvd, maxTvd ) )
         {
             RiaLogging::error( "Unable to extract pressure data from table" );
             return false;
@@ -204,7 +207,7 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
             if ( useEqlnumForPressureInterpolation &&
                  !interpolateInitialPressureByEquilibrationRegion( curveProperty, stimPlanModel, timeStep, measuredDepthValues, tvDepthValues, values ) )
             {
-                RiaLogging::error( "Pressure interpolation by equilibration region failed." );
+                RiaLogging::warning( "Pressure interpolation by equilibration region failed." );
             }
 
             // Fill in regions where it was not possible top interpolate with equilibration regions.
@@ -223,7 +226,7 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
                                                                                                        initialPressureValues,
                                                                                                        values ) )
         {
-            RiaLogging::error( "Pressure interpolation by equilibration region failed." );
+            RiaLogging::warning( "Pressure interpolation by equilibration region failed." );
         }
     }
     else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
@@ -298,9 +301,10 @@ std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
         }
         else
         {
-            if ( !sourceValues.empty() )
+            // The last point is added without interpolation. But MD can be smaller than the source range which
+            // leads to startIndex equal to endIndex: leave these cases as inf.
+            if ( !sourceValues.empty() && md >= sourceMds[0] )
             {
-                // The last point is added without interpolation
                 value = sourceValues.back();
             }
         }
@@ -320,7 +324,9 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
                                                                        const RimStimPlanModel*   stimPlanModel,
                                                                        std::vector<double>&      values,
                                                                        std::vector<double>&      measuredDepthValues,
-                                                                       std::vector<double>&      tvDepthValues ) const
+                                                                       std::vector<double>&      tvDepthValues,
+                                                                       double                    minimumTvd,
+                                                                       double                    maximumTvd ) const
 {
     RimStimPlanModelTemplate* stimPlanModelTemplate = stimPlanModel->stimPlanModelTemplate();
     if ( !stimPlanModelTemplate ) return false;
@@ -354,6 +360,27 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
         }
 
         tvDepthValues.push_back( item->depth() );
+    }
+
+    // Make sure the full range of the extraction is covered by the table
+    bool needsExtrapolation = false;
+    if ( minimumTvd < tvDepthValues.front() )
+    {
+        tvDepthValues.insert( tvDepthValues.begin(), minimumTvd );
+        values.insert( values.begin(), std::numeric_limits<double>::infinity() );
+        needsExtrapolation = true;
+    }
+
+    if ( maximumTvd > tvDepthValues.back() )
+    {
+        tvDepthValues.push_back( maximumTvd );
+        values.push_back( std::numeric_limits<double>::infinity() );
+        needsExtrapolation = true;
+    }
+
+    if ( needsExtrapolation )
+    {
+        RiaInterpolationTools::interpolateMissingValues( tvDepthValues, values );
     }
 
     // Interpolate MDs from the tvd data from the table and well path geometry
@@ -762,8 +789,14 @@ bool RimStimPlanModelPressureCalculator::handleFaciesWithInitialPressure( const 
 
         for ( size_t i = 0; i < faciesValues.size(); i++ )
         {
-            // Use the values from initial pressure curve
-            int    faciesValue     = static_cast<int>( faciesValues[i] );
+            double rawFaciesValue = faciesValues[i];
+            if ( std::isinf( faciesValues[i] ) )
+            {
+                // Facies is only inf in the overburden: replace with default facies
+                rawFaciesValue = stimPlanModel->getDefaultForMissingOverburdenValue( RiaDefines::CurveProperty::FACIES );
+            }
+
+            int    faciesValue     = static_cast<int>( rawFaciesValue );
             double currentPressure = values[i];
             double initialPressure = initialPressureValues[i];
             auto   faciesConfig    = faciesWithInitialPressure.find( faciesValue );

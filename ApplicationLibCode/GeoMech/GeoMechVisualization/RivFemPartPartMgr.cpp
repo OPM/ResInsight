@@ -17,16 +17,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include <cstdlib>
-
 #include "RivFemPartPartMgr.h"
-
-#include "RivGeoMechPartMgr.h"
 
 #include "RiaPreferences.h"
 
 #include "RifGeoMechReaderInterface.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemScalarResultFrames.h"
@@ -38,6 +35,7 @@
 #include "RimRegularLegendConfig.h"
 
 #include "RivFemPickSourceInfo.h"
+#include "RivGeoMechPartMgr.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
@@ -60,6 +58,8 @@
 #include "cvfStructGrid.h"
 #include "cvfTransform.h"
 #include "cvfUniform.h"
+
+#include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -286,13 +286,7 @@ void RivFemPartPartMgr::updateCellResultColor( int timeStepIndex, int frameIndex
 
         if ( !caseData ) return;
 
-        RigFemResultAddress resVarAddress = cellResultColors->resultAddress();
-
-        // Do a "Hack" to show elm nodal and not nodal POR results
-        if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" )
-        {
-            resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
-        }
+        RigFemResultAddress resVarAddress = RigFemAddressDefines::getResultLookupAddress( cellResultColors->resultAddress() );
 
         const std::vector<float>& resultValues =
             caseData->femPartResults()->resultValues( resVarAddress, m_partIdx, timeStepIndex, frameIndex );
@@ -323,7 +317,7 @@ void RivFemPartPartMgr::updateCellResultColor( int timeStepIndex, int frameIndex
         vxCount = static_cast<int>( vxToResultMapping->size() );
         m_surfaceFacesTextureCoords->resize( vxCount );
 
-        if ( resultValues.size() == 0 )
+        if ( resultValues.empty() )
         {
             m_surfaceFacesTextureCoords->setAll( cvf::Vec2f( 0.0, 1.0f ) );
         }

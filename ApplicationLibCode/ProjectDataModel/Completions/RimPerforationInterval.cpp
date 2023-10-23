@@ -32,6 +32,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 
@@ -42,12 +44,12 @@ CAF_PDM_SOURCE_INIT( RimPerforationInterval, "Perforation" );
 //--------------------------------------------------------------------------------------------------
 RimPerforationInterval::RimPerforationInterval()
 {
-    CAF_PDM_InitObject( "Perforation", ":/PerforationInterval16x16.png" );
+    CAF_PDM_InitScriptableObject( "Perforation", ":/PerforationInterval16x16.png" );
 
-    CAF_PDM_InitField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD" );
-    CAF_PDM_InitField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD" );
-    CAF_PDM_InitField( &m_diameter, "Diameter", 0.216, "Diameter" );
-    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
+    CAF_PDM_InitScriptableField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD" );
+    CAF_PDM_InitScriptableField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD" );
+    CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.216, "Diameter" );
+    CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
 
     CAF_PDM_InitField( &m_startOfHistory_OBSOLETE, "StartOfHistory", true, "All Timesteps" );
     m_startOfHistory_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -238,7 +240,7 @@ void RimPerforationInterval::updateAllReferringTracks()
     {
         track->loadDataAndUpdate();
     }
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +322,7 @@ void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* change
         }
     }
 
-    this->updateAllReferringTracks();
+    updateAllReferringTracks();
 
     RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
@@ -331,7 +333,7 @@ void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    this->setName( QString( "%1 - %2" ).arg( m_startMD ).arg( m_endMD ) );
+    setName( QString( "%1 - %2" ).arg( m_startMD ).arg( m_endMD ) );
 }
 
 //--------------------------------------------------------------------------------------------------

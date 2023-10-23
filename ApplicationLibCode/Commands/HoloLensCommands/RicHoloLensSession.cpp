@@ -263,14 +263,14 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int metaDataSequenceNumbe
     else
     {
         // An empty server response means we should send all array referenced by the last sent meta data
-        if ( m_lastExtractionAllReferencedPacketIdsArr.size() > 0 )
+        if ( !m_lastExtractionAllReferencedPacketIdsArr.empty() )
         {
             arrayIdsToSend = m_lastExtractionAllReferencedPacketIdsArr;
             RiaLogging::info( "HoloLens: Empty server response, sending all arrays referenced by last meta data" );
         }
     }
 
-    if ( arrayIdsToSend.size() == 0 )
+    if ( arrayIdsToSend.empty() )
     {
         RiaLogging::info( "HoloLens: Nothing to do, no data requested by server" );
         return;

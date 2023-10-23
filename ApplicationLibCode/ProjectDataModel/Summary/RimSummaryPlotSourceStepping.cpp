@@ -32,7 +32,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryDataSourceStepping.h"
@@ -51,6 +50,8 @@
 
 #include <algorithm>
 #include <vector>
+
+using namespace RifEclipseSummaryAddressDefines;
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModifier" );
 
@@ -72,6 +73,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name" );
+    CAF_PDM_InitFieldNoDefault( &m_networkName, "NetworkName", "Network Name" );
     CAF_PDM_InitFieldNoDefault( &m_region, "Region", "Region" );
     CAF_PDM_InitFieldNoDefault( &m_vectorName, "VectorName", "Vector" );
 
@@ -252,43 +254,47 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
         }
         else
         {
-            RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
-            std::string                                  secondaryIdentifier;
+            SummaryCategory category = SummaryCategory::SUMMARY_INVALID;
+            std::string     secondaryIdentifier;
 
             if ( fieldNeedingOptions == &m_wellName )
             {
-                category = RifEclipseSummaryAddress::SUMMARY_WELL;
+                category = SummaryCategory::SUMMARY_WELL;
             }
             else if ( fieldNeedingOptions == &m_region )
             {
-                category = RifEclipseSummaryAddress::SUMMARY_REGION;
+                category = SummaryCategory::SUMMARY_REGION;
             }
             else if ( fieldNeedingOptions == &m_groupName )
             {
-                category = RifEclipseSummaryAddress::SUMMARY_GROUP;
+                category = SummaryCategory::SUMMARY_GROUP;
+            }
+            else if ( fieldNeedingOptions == &m_networkName )
+            {
+                category = SummaryCategory::SUMMARY_NETWORK;
             }
             else if ( fieldNeedingOptions == &m_cellBlock )
             {
-                category = RifEclipseSummaryAddress::SUMMARY_BLOCK;
+                category = SummaryCategory::SUMMARY_BLOCK;
             }
             else if ( fieldNeedingOptions == &m_wellSegment )
             {
                 secondaryIdentifier = m_wellName().toStdString();
-                category            = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
+                category            = SummaryCategory::SUMMARY_WELL_SEGMENT;
             }
             else if ( fieldNeedingOptions == &m_completion )
             {
                 secondaryIdentifier = m_wellName().toStdString();
-                category            = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
+                category            = SummaryCategory::SUMMARY_WELL_COMPLETION;
             }
             else if ( fieldNeedingOptions == &m_aquifer )
             {
-                category = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
+                category = SummaryCategory::SUMMARY_AQUIFER;
             }
 
             std::vector<QString> identifierTexts;
 
-            if ( category != RifEclipseSummaryAddress::SUMMARY_INVALID )
+            if ( category != SummaryCategory::SUMMARY_INVALID )
             {
                 identifierTexts = analyzer->identifierTexts( category, secondaryIdentifier );
             }
@@ -322,6 +328,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( m_sourceSteppingType );
 
     bool isAutoZoomAllowed = false;
+    bool doZoomAll         = false;
 
     if ( changedField == &m_stepDimension )
     {
@@ -353,6 +360,34 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     }
 
     bool triggerLoadDataAndUpdate = false;
+
+    auto updateEnsembleAddresses =
+        [&doZoomAll, &oldValue, &newValue]( const std::vector<RimEnsembleCurveSet*>& curveSets, SummaryCategory categoryToUpdate )
+    {
+        for ( auto curveSet : curveSets )
+        {
+            auto curveAdr = curveSet->curveAddress();
+
+            auto yAddressToModify = curveAdr.summaryAddressY();
+            auto xAddressToModify = curveAdr.summaryAddressX();
+
+            if ( categoryToUpdate != SummaryCategory::SUMMARY_INVALID )
+            {
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, categoryToUpdate, yAddressToModify );
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, categoryToUpdate, xAddressToModify );
+            }
+            else
+            {
+                RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, yAddressToModify );
+                RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, xAddressToModify );
+            }
+
+            curveSet->setCurveAddress( RiaSummaryCurveAddress( xAddressToModify, yAddressToModify ) );
+            curveSet->updateConnectedEditors();
+
+            doZoomAll = true;
+        }
+    };
 
     if ( changedField == &m_summaryCase )
     {
@@ -390,6 +425,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         m_wellName.uiCapability()->updateConnectedEditors();
         m_groupName.uiCapability()->updateConnectedEditors();
+        m_networkName.uiCapability()->updateConnectedEditors();
         m_region.uiCapability()->updateConnectedEditors();
         m_vectorName.uiCapability()->updateConnectedEditors();
     }
@@ -413,6 +449,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         m_wellName.uiCapability()->updateConnectedEditors();
         m_groupName.uiCapability()->updateConnectedEditors();
+        m_networkName.uiCapability()->updateConnectedEditors();
         m_region.uiCapability()->updateConnectedEditors();
         m_vectorName.uiCapability()->updateConnectedEditors();
     }
@@ -422,11 +459,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
         if ( dataSourceSteppingObject() )
         {
-            for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
-            {
-                auto adr = curveSet->summaryAddress();
-                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curveSet->setSummaryAddress( adr );
-            }
+            updateEnsembleAddresses( dataSourceSteppingObject()->curveSets(), SummaryCategory::SUMMARY_INVALID );
         }
 
         m_vectorName.uiCapability()->updateConnectedEditors();
@@ -436,63 +469,62 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField != &m_vectorName )
     {
-        RifEclipseSummaryAddress::SummaryVarCategory summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_INVALID;
+        SummaryCategory summaryCategoryToModify = SummaryCategory::SUMMARY_INVALID;
         if ( changedField == &m_wellName )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_WELL;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_WELL;
         }
         else if ( changedField == &m_region )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_REGION;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_REGION;
         }
         else if ( changedField == &m_groupName )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_GROUP;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_GROUP;
+        }
+        else if ( changedField == &m_networkName )
+        {
+            summaryCategoryToModify = SummaryCategory::SUMMARY_NETWORK;
         }
         else if ( changedField == &m_cellBlock )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_BLOCK;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_BLOCK;
         }
         else if ( changedField == &m_wellSegment )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_WELL_SEGMENT;
         }
         else if ( changedField == &m_completion )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_WELL_COMPLETION;
         }
         else if ( changedField == &m_aquifer )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
+            summaryCategoryToModify = SummaryCategory::SUMMARY_AQUIFER;
         }
 
-        if ( summaryCategoryToModify != RifEclipseSummaryAddress::SUMMARY_INVALID )
+        if ( summaryCategoryToModify != SummaryCategory::SUMMARY_INVALID )
         {
             for ( auto curve : curves )
             {
                 if ( isYAxisStepping() )
                 {
                     RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, &adr );
+                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, adr );
                     curve->setSummaryAddressY( adr );
                 }
 
                 if ( isXAxisStepping() )
                 {
                     RifEclipseSummaryAddress adr = curve->summaryAddressX();
-                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, &adr );
+                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, adr );
                     curve->setSummaryAddressX( adr );
                 }
             }
 
             if ( dataSourceSteppingObject() )
             {
-                for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
-                {
-                    auto adr = curveSet->summaryAddress();
-                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, &adr );
-                    curveSet->setSummaryAddress( adr );
-                }
+                updateEnsembleAddresses( dataSourceSteppingObject()->curveSets(), summaryCategoryToModify );
             }
 
             triggerLoadDataAndUpdate = true;
@@ -509,7 +541,15 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             summaryMultiPlot->updatePlots();
             summaryMultiPlot->updatePlotTitles();
 
-            if ( isAutoZoomAllowed ) summaryMultiPlot->zoomAllYAxes();
+            if ( doZoomAll )
+            {
+                summaryMultiPlot->zoomAll();
+            }
+            else if ( isAutoZoomAllowed )
+            {
+                // The time axis can be zoomed and will be used for all plots. Do not zoom time axis in this case.
+                summaryMultiPlot->zoomAllYAxes();
+            }
 
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateMultiPlotToolBar();
@@ -526,21 +566,6 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         if ( ensembleCurveColl )
         {
             ensembleCurveColl->updateConnectedEditors();
-        }
-
-        RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>( summaryPlot );
-        if ( summaryCrossPlot )
-        {
-            // Trigger update of curve collection (and summary toolbar in main window), as the visibility of combo
-            // boxes might have been changed due to the updates in this function
-            auto curveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
-            if ( curveCollection )
-            {
-                curveCollection->updateConnectedEditors();
-            }
-
-            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-            mainPlotWindow->updateMultiPlotToolBar();
         }
     }
 }
@@ -564,6 +589,9 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
             return &m_groupName;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK:
+            return &m_networkName;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
             return &m_region;
@@ -608,19 +636,51 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
         std::vector<RimSummaryCurve*> curves;
         if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
 
-        for ( auto curve : curves )
+        size_t maxAddrCount = 0;
+        int    maxAddrIndex = -1;
+
+        for ( size_t i = 0; i < curves.size(); i++ )
         {
+            auto curve = curves[i];
             if ( !curve ) continue;
 
             if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
             {
                 auto addresses = curve->summaryCaseY()->summaryReader()->allResultAddresses();
-                addressSet.insert( addresses.begin(), addresses.end() );
+
+                size_t addrCount = addresses.size();
+                if ( addrCount > maxAddrCount )
+                {
+                    maxAddrCount = addrCount;
+                    maxAddrIndex = (int)i;
+                }
             }
 
             if ( isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
             {
+                auto   addresses = curve->summaryCaseX()->summaryReader()->allResultAddresses();
+                size_t addrCount = addresses.size();
+                if ( addrCount > maxAddrCount )
+                {
+                    maxAddrCount = addrCount;
+                    maxAddrIndex = (int)i;
+                }
+            }
+        }
+
+        if ( maxAddrIndex >= 0 )
+        {
+            auto curve = curves[maxAddrIndex];
+
+            if ( isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
+            {
                 auto addresses = curve->summaryCaseX()->summaryReader()->allResultAddresses();
+                addressSet.insert( addresses.begin(), addresses.end() );
+            }
+
+            if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
+            {
+                auto addresses = curve->summaryCaseY()->summaryReader()->allResultAddresses();
                 addressSet.insert( addresses.begin(), addresses.end() );
             }
         }
@@ -640,7 +700,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesForCur
     {
         for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
         {
-            addresses.insert( curveSet->summaryAddress() );
+            addresses.insert( curveSet->summaryAddressY() );
         }
 
         std::vector<RimSummaryCurve*> curves;
@@ -729,7 +789,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
         RiaSummaryAddressAnalyzer analyzer;
         analyzer.appendAddresses( addressesForCurvesInPlot() );
 
-        RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;
+        SummaryCategory category = SummaryCategory::SUMMARY_INVALID;
 
         if ( !analyzer.categories().empty() )
         {
@@ -750,12 +810,12 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
 
                 if ( allCategoriesAreDependingOnWellName )
                 {
-                    category = RifEclipseSummaryAddress::SUMMARY_WELL;
+                    category = SummaryCategory::SUMMARY_WELL;
                 }
             }
         }
 
-        if ( category != RifEclipseSummaryAddress::SUMMARY_INVALID )
+        if ( category != SummaryCategory::SUMMARY_INVALID )
         {
             if ( analyzer.wellNames().size() == 1 )
             {
@@ -771,6 +831,14 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
                 m_groupName = txt;
 
                 fieldsCommonForAllCurves.push_back( &m_groupName );
+            }
+
+            if ( analyzer.networkNames().size() == 1 )
+            {
+                QString txt   = QString::fromStdString( *( analyzer.networkNames().begin() ) );
+                m_networkName = txt;
+
+                fieldsCommonForAllCurves.push_back( &m_networkName );
             }
 
             if ( analyzer.regionNumbers().size() == 1 )
@@ -978,65 +1046,55 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
     RiaSummaryAddressAnalyzer analyzer;
     analyzer.appendAddresses( addresses );
 
+    // Find the iterator to the string in the list of strings
+    auto getIdIterator = [direction]( const std::vector<QString>& ids, const QString& searchString ) -> decltype( ids.begin() )
+    {
+        auto found = std::find( ids.begin(), ids.end(), searchString );
+        if ( found != ids.end() )
+        {
+            if ( direction > 0 )
+                ++found;
+            else if ( found != ids.begin() )
+                --found;
+        }
+        return found;
+    };
+
     switch ( m_stepDimension() )
     {
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
         {
-            auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_WELL, "" );
-            auto& curName = addr.wellName();
-            auto  found   = std::find( ids.begin(), ids.end(), QString::fromStdString( curName ) );
-            if ( found != ids.end() )
-            {
-                if ( direction > 0 )
-                {
-                    found++;
-                }
-                else
-                {
-                    if ( found != ids.begin() ) found--;
-                }
-                if ( found != ids.end() ) addr.setWellName( ( *found ).toStdString() );
-            }
+            auto ids          = analyzer.identifierTexts( SummaryCategory::SUMMARY_WELL, "" );
+            auto searchString = QString::fromStdString( addr.wellName() );
+            auto found        = getIdIterator( ids, searchString );
+            if ( found != ids.end() ) addr.setWellName( ( *found ).toStdString() );
         }
         break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
         {
-            auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_GROUP, "" );
-            auto& curName = addr.groupName();
-            auto  found   = std::find( ids.begin(), ids.end(), QString::fromStdString( curName ) );
-            if ( found != ids.end() )
-            {
-                if ( direction > 0 )
-                {
-                    found++;
-                }
-                else
-                {
-                    if ( found != ids.begin() ) found--;
-                }
-                if ( found != ids.end() ) addr.setGroupName( ( *found ).toStdString() );
-            }
+            auto ids          = analyzer.identifierTexts( SummaryCategory::SUMMARY_GROUP, "" );
+            auto searchString = QString::fromStdString( addr.groupName() );
+            auto found        = getIdIterator( ids, searchString );
+            if ( found != ids.end() ) addr.setGroupName( ( *found ).toStdString() );
+        }
+        break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK:
+        {
+            auto ids          = analyzer.identifierTexts( SummaryCategory::SUMMARY_NETWORK, "" );
+            auto searchString = QString::fromStdString( addr.networkName() );
+            auto found        = getIdIterator( ids, searchString );
+            if ( found != ids.end() ) addr.setNetworkName( ( *found ).toStdString() );
         }
         break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
         {
-            auto    ids       = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_REGION, "" );
-            QString curRegion = QString::number( addr.regionNumber() );
-            auto    found     = std::find( ids.begin(), ids.end(), curRegion );
-            if ( found != ids.end() )
-            {
-                if ( direction > 0 )
-                {
-                    found++;
-                }
-                else
-                {
-                    if ( found != ids.begin() ) found--;
-                }
-                if ( found != ids.end() ) addr.setRegion( ( *found ).toInt() );
-            }
+            auto ids          = analyzer.identifierTexts( SummaryCategory::SUMMARY_REGION, "" );
+            auto searchString = QString::number( addr.regionNumber() );
+            auto found        = getIdIterator( ids, searchString );
+            if ( found != ids.end() ) addr.setRegion( ( *found ).toInt() );
         }
         break;
 
@@ -1044,69 +1102,33 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
         {
             auto options = optionsForQuantity( addresses );
 
-            std::vector<QString> values;
+            std::vector<QString> ids;
             for ( auto it = options.begin(); it != options.end(); it++ )
             {
-                values.push_back( it->second );
+                ids.push_back( it->second );
             }
 
-            QString qName = QString::fromStdString( addr.vectorName() );
-            auto    found = std::find( values.begin(), values.end(), qName );
-            if ( found != values.end() )
-            {
-                if ( direction > 0 )
-                {
-                    found++;
-                }
-                else
-                {
-                    if ( found != values.begin() ) found--;
-                }
-                if ( found != values.end() ) addr.setVectorName( ( *found ).toStdString() );
-            }
+            auto searchString = QString::fromStdString( addr.vectorName() );
+            auto found        = getIdIterator( ids, searchString );
+            if ( found != ids.end() ) addr.setVectorName( ( *found ).toStdString() );
         }
         break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
         {
-            auto ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_BLOCK, "" );
-            auto curName = addr.blockAsString();
-            auto found   = std::find( ids.begin(), ids.end(), QString::fromStdString( curName ) );
-            if ( found != ids.end() )
-            {
-                if ( direction > 0 )
-                {
-                    found++;
-                }
-                else
-                {
-                    if ( found != ids.begin() ) found--;
-                }
-                if ( found != ids.end() )
-                {
-                    addr.setCellIjk( ( *found ).toStdString() );
-                }
-            }
+            auto ids          = analyzer.identifierTexts( SummaryCategory::SUMMARY_BLOCK, "" );
+            auto searchString = QString::fromStdString( addr.blockAsString() );
+            auto found        = getIdIterator( ids, searchString );
+            if ( found != ids.end() ) addr.setCellIjk( ( *found ).toStdString() );
         }
         break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
         {
-            auto    ids   = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_AQUIFER, "" );
-            QString curAq = QString::number( addr.aquiferNumber() );
-            auto    found = std::find( ids.begin(), ids.end(), curAq );
-            if ( found != ids.end() )
-            {
-                if ( direction > 0 )
-                {
-                    found++;
-                }
-                else
-                {
-                    if ( found != ids.begin() ) found--;
-                }
-                if ( found != ids.end() ) addr.setAquiferNumber( ( *found ).toInt() );
-            }
+            auto ids          = analyzer.identifierTexts( SummaryCategory::SUMMARY_AQUIFER, "" );
+            auto searchString = QString::number( addr.aquiferNumber() );
+            auto found        = getIdIterator( ids, searchString );
+            if ( found != ids.end() ) addr.setAquiferNumber( ( *found ).toInt() );
         }
         break;
 
@@ -1137,6 +1159,10 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
             m_groupName = other->m_groupName();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK:
+            m_networkName = other->m_networkName();
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
@@ -1181,6 +1207,10 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
             m_groupName.setValueWithFieldChanged( stepIdentifier );
             break;
 
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK:
+            m_networkName.setValueWithFieldChanged( stepIdentifier );
+            break;
+
         case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
             m_vectorName.setValueWithFieldChanged( stepIdentifier );
             break;
@@ -1204,7 +1234,7 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
 //--------------------------------------------------------------------------------------------------
 std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std::set<RifEclipseSummaryAddress> addresses )
 {
-    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
+    SummaryCategory category = SummaryCategory::SUMMARY_FIELD;
 
     auto visibleCurveAddresses = addressesForCurvesInPlot();
     if ( !visibleCurveAddresses.empty() )
@@ -1237,7 +1267,7 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
 //--------------------------------------------------------------------------------------------------
 std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( RiaSummaryAddressAnalyzer* analyzser )
 {
-    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
+    SummaryCategory category = SummaryCategory::SUMMARY_FIELD;
 
     auto visibleCurveAddresses = addressesForCurvesInPlot();
     if ( !visibleCurveAddresses.empty() )
@@ -1275,13 +1305,13 @@ void RimSummaryPlotSourceStepping::updateVectorNameInCurves( std::vector<RimSumm
         if ( isYAxisStepping() )
         {
             auto adr = curve->summaryAddressY();
-            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curve->setSummaryAddressY( adr );
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, adr ) ) curve->setSummaryAddressY( adr );
         }
 
         if ( isXAxisStepping() )
         {
             auto adr = curve->summaryAddressX();
-            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curve->setSummaryAddressX( adr );
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, adr ) ) curve->setSummaryAddressX( adr );
         }
 
         if ( m_autoUpdateAppearance )
@@ -1426,6 +1456,7 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
     int         ensembleIdToMatch = -1;
     std::string wellNameToMatch;
     std::string groupNameToMatch;
+    std::string networkToMatch;
     int         regionToMatch = -1;
     std::string vectorToMatch;
     std::string blockToMatch;
@@ -1447,6 +1478,10 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
             groupNameToMatch = m_groupName().toStdString();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK:
+            networkToMatch = m_networkName().toStdString();
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
@@ -1504,6 +1539,10 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
                     isMatching = true;
                 }
                 else if ( !groupNameToMatch.empty() && a.groupName() == groupNameToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( !networkToMatch.empty() && a.networkName() == networkToMatch )
                 {
                     isMatching = true;
                 }

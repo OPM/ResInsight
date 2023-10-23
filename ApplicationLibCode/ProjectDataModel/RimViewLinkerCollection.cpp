@@ -82,7 +82,7 @@ void RimViewLinkerCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
         }
     }
 
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ void RimViewLinkerCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimViewLinkerCollection::initAfterRead()
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

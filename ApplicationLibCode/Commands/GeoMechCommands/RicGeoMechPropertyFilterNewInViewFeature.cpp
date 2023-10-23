@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicGeoMechPropertyFilterNewInViewFeature, "RicGeoMechProper
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicGeoMechPropertyFilterNewInViewFeature::isCommandEnabled()
+bool RicGeoMechPropertyFilterNewInViewFeature::isCommandEnabled() const
 {
     Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return false;

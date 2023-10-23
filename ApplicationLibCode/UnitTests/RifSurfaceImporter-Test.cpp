@@ -105,8 +105,8 @@ TEST( RifSurfaceImporter, GocadReadNoProperty )
     std::vector<QString> propNames  = gocadData.propertyNames();
     std::vector<float>   propValues = gocadData.propertyValues( "" );
 
-    EXPECT_TRUE( propNames.size() == 0 );
-    EXPECT_TRUE( propValues.size() == 0 );
+    EXPECT_TRUE( propNames.empty() );
+    EXPECT_TRUE( propValues.empty() );
 }
 
 TEST( RifSurfaceImporter, GocadReadNonExistingProperty )
@@ -122,7 +122,7 @@ TEST( RifSurfaceImporter, GocadReadNonExistingProperty )
 
     std::vector<float> propValues = gocadData.propertyValues( "NonExistingProperty" );
 
-    EXPECT_TRUE( propValues.size() == 0 );
+    EXPECT_TRUE( propValues.empty() );
 }
 
 TEST( RifSurfaceImporter, ReadWrongFileType )
@@ -221,7 +221,7 @@ TEST( RifSurfaceImporter, ReadTinyOpenWorksXyzFile )
     EXPECT_EQ( (size_t)15, vertices.size() );
     EXPECT_EQ( (size_t)24, indices.size() );
 
-    if ( indices.size() > 0 )
+    if ( !indices.empty() )
     {
         EXPECT_EQ( (size_t)0, indices.front() );
         EXPECT_EQ( (size_t)11, indices.back() );
@@ -249,7 +249,7 @@ TEST( RifSurfaceImporter, ReadLargeOpenWorksXyzFile )
     EXPECT_EQ( (size_t)60805, vertices.size() );
     EXPECT_EQ( (size_t)360792, indices.size() );
 
-    if ( indices.size() > 0 )
+    if ( !indices.empty() )
     {
         EXPECT_EQ( (size_t)0, indices.front() );
         EXPECT_EQ( (size_t)60802, indices.back() );

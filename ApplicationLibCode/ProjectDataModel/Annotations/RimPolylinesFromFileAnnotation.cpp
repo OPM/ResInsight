@@ -203,10 +203,10 @@ void RimPolylinesFromFileAnnotation::fieldChangedByUi( const caf::PdmFieldHandle
     if ( changedField == &m_polyLinesFileName )
     {
         QString errorMessage;
-        this->readPolyLinesFile( &errorMessage );
+        readPolyLinesFile( &errorMessage );
         if ( !errorMessage.isEmpty() )
         {
-            QString totalError = "\nError in: " + this->fileName() + "\n\t" + errorMessage;
+            QString totalError = "\nError in: " + fileName() + "\n\t" + errorMessage;
             RiaLogging::errorInMessageBox( nullptr, "Import Polylines", totalError );
         }
     }

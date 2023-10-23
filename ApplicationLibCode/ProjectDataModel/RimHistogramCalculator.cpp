@@ -343,7 +343,7 @@ RigHistogramData
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
             {
-                this->updateVisCellStatsIfNeeded( geoMechView );
+                updateVisCellStatsIfNeeded( geoMechView );
 
                 if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
                 {
@@ -418,7 +418,7 @@ void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView* eclipse
         QString resultName = resAddr.resultName();
 
         std::vector<RigEclipseResultAddress> addresses = sourcesForMultiPropertyResults( resultName );
-        if ( addresses.size() )
+        if ( !addresses.empty() )
         {
             cvf::ref<RigEclipseMultiPropertyStatCalc> multicalc = new RigEclipseMultiPropertyStatCalc();
 

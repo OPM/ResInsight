@@ -32,5 +32,4 @@ class RicCreateDuplicateTemplateInOtherUnitSystemFeature : public caf::CmdFeatur
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
 };

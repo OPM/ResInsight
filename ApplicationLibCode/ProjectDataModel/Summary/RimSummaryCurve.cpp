@@ -27,6 +27,7 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryDefines.h"
 #include "RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
@@ -39,7 +40,6 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
@@ -52,6 +52,7 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
+#include "cafAssert.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -86,9 +87,15 @@ RimSummaryCurve::RimSummaryCurve()
 
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
-    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesResampling, "Resampling", "Resampling" );
 
     // X Values
+
+    CAF_PDM_InitField( &m_xAxisType,
+                       "HorizontalAxisType",
+                       caf::AppEnum<RiaDefines::HorizontalAxisType>( RiaDefines::HorizontalAxisType::TIME ),
+                       "Axis Type" );
+
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryCase, "SummaryCaseX", "Case" );
     m_xValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden( true );
     m_xValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue( false );
@@ -116,7 +123,8 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
     m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_yPlotAxisProperties, "Axis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_xPlotAxisProperties, "XAxis", "Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
@@ -143,9 +151,24 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition RimSummaryCurve::curveDefinitionY() const
+RiaSummaryCurveDefinition RimSummaryCurve::curveDefinition() const
 {
-    return RiaSummaryCurveDefinition( summaryCaseY(), summaryAddressY(), isEnsembleCurve() );
+    RiaSummaryCurveDefinition curveDefinition( summaryCaseY(), summaryAddressY(), isEnsembleCurve() );
+    if ( m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+    {
+        curveDefinition.setSummaryCaseX( summaryCaseX() );
+        curveDefinition.setSummaryAddressX( summaryAddressX() );
+    }
+
+    return curveDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryCurveAddress RimSummaryCurve::curveAddress() const
+{
+    return RiaSummaryCurveAddress( summaryAddressX(), summaryAddressY() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,6 +202,8 @@ RimSummaryCase* RimSummaryCurve::summaryCaseY() const
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddressX() const
 {
+    if ( m_xAxisType == RiaDefines::HorizontalAxisType::TIME ) return RifEclipseSummaryAddress::timeAddress();
+
     return m_xValuesSummaryAddress->address();
 }
 
@@ -190,6 +215,28 @@ void RimSummaryCurve::setSummaryAddressX( const RifEclipseSummaryAddress& addres
     m_xValuesSummaryAddress->setAddress( address );
 
     // TODO: Should interpolation be computed similar to RimSummaryCurve::setSummaryAddressY
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setTopOrBottomAxisX( RiuPlotAxis plotAxis )
+{
+    CAF_ASSERT( plotAxis.isHorizontal() );
+
+    RimSummaryPlot* plot  = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+    m_xPlotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimSummaryCurve::axisX() const
+{
+    if ( m_xPlotAxisProperties )
+        return m_xPlotAxisProperties->plotAxis();
+    else
+        return RiuPlotAxis::defaultBottom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,7 +276,7 @@ void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& addres
 std::string RimSummaryCurve::unitNameY() const
 {
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
-    if ( reader ) return reader->unitName( this->summaryAddressY() );
+    if ( reader ) return reader->unitName( summaryAddressY() );
 
     return "";
 }
@@ -240,7 +287,7 @@ std::string RimSummaryCurve::unitNameY() const
 std::string RimSummaryCurve::unitNameX() const
 {
     RifSummaryReaderInterface* reader = valuesSummaryReaderX();
-    if ( reader ) return reader->unitName( this->summaryAddressX() );
+    if ( reader ) return reader->unitName( summaryAddressX() );
 
     return "";
 }
@@ -250,15 +297,13 @@ std::string RimSummaryCurve::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::valuesY() const
 {
-    std::vector<double> values;
-
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
 
-    if ( !reader ) return values;
+    if ( !reader ) return {};
 
     RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
-    reader->values( addr, &values );
 
+    auto [isOk, values] = reader->values( addr );
     if ( values.empty() ) return values;
 
     RimSummaryPlot* plot         = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -282,16 +327,6 @@ std::vector<double> RimSummaryCurve::valuesY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::applyCurveDefinitionY( const RiaSummaryCurveDefinition& curveDefinition )
-{
-    setSummaryCaseY( curveDefinition.summaryCase() );
-    setSummaryAddressY( curveDefinition.summaryAddress() );
-    setIsEnsembleCurve( curveDefinition.isEnsembleCurve() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::errorSummaryAddressY() const
 {
     auto addr = summaryAddressY();
@@ -304,18 +339,13 @@ RifEclipseSummaryAddress RimSummaryCurve::errorSummaryAddressY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::errorValuesY() const
 {
-    std::vector<double> values;
-
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
-
-    if ( !reader ) return values;
+    if ( !reader ) return {};
 
     RifEclipseSummaryAddress addr = errorSummaryAddressY();
-    if ( reader->hasAddress( addr ) )
-    {
-        reader->values( addr, &values );
-    }
+    if ( !reader->hasAddress( addr ) ) return {};
 
+    auto [isOk, values] = reader->values( addr );
     return values;
 }
 
@@ -324,17 +354,17 @@ std::vector<double> RimSummaryCurve::errorValuesY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::valuesX() const
 {
-    std::vector<double> values;
+    RifSummaryReaderInterface* reader = valuesSummaryReaderX();
+    if ( !reader ) return {};
 
-    if ( m_xValuesSummaryCase() && m_xValuesSummaryCase()->summaryReader() )
+    RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
+    if ( m_xValuesSummaryCase() )
     {
-        RifSummaryReaderInterface* reader = m_xValuesSummaryCase()->summaryReader();
-
-        RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
-        reader->values( addr, &values );
+        auto [isOk, values] = reader->values( addr );
+        return values;
     }
 
-    return values;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -398,9 +428,17 @@ void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTime
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition RimSummaryCurve::curveDefinitionX() const
+void RimSummaryCurve::setAxisTypeX( RiaDefines::HorizontalAxisType axisType )
 {
-    return RiaSummaryCurveDefinition( summaryCaseX(), summaryAddressX(), isEnsembleCurve() );
+    m_xAxisType = axisType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::HorizontalAxisType RimSummaryCurve::axisTypeX() const
+{
+    return m_xAxisType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -429,10 +467,12 @@ RimSummaryCase* RimSummaryCurve::summaryCaseX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
+    CAF_ASSERT( plotAxis.isVertical() );
+
     m_plotAxis_OBSOLETE = plotAxis.axis();
 
-    RimSummaryPlot* plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-    m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
+    RimSummaryPlot* plot  = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+    m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,8 +480,8 @@ void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimSummaryCurve::axisY() const
 {
-    if ( m_plotAxisProperties )
-        return m_plotAxisProperties->plotAxisType();
+    if ( m_yPlotAxisProperties )
+        return m_yPlotAxisProperties->plotAxis();
     else
         return RiuPlotAxis::defaultLeft();
 }
@@ -467,7 +507,7 @@ void RimSummaryCurve::setIsEnsembleCurve( bool isEnsembleCurve )
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions );
+    QList<caf::PdmOptionItemInfo> options = RimPlotCurve::calculateValueOptions( fieldNeedingOptions );
     if ( !options.isEmpty() ) return options;
 
     auto createOptionsForSummaryCase = []( RimSummaryCase* summaryCase, QList<caf::PdmOptionItemInfo>& options )
@@ -477,7 +517,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 
         options = RiaSummaryTools::optionsForSummaryCases( cases );
 
-        if ( options.size() > 0 )
+        if ( !options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
@@ -499,16 +539,22 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     {
         appendOptionItemsForSummaryAddresses( &options, m_xValuesSummaryCase() );
     }
-    else if ( fieldNeedingOptions == &m_plotAxisProperties )
+    else if ( fieldNeedingOptions == &m_yPlotAxisProperties )
     {
         auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::VERTICAL ) )
         {
-            if ( dynamic_cast<RimPlotAxisProperties*>( axis ) )
-            {
-                options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_xPlotAxisProperties )
+    {
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::HORIZONTAL ) )
+        {
+            options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
         }
     }
 
@@ -540,26 +586,8 @@ QString RimSummaryCurve::createCurveAutoName()
     }
 
     RimMultiSummaryPlotNameHelper multiNameHelper( plotNameHelpers );
-    QString curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
-    if ( curveName.isEmpty() )
-    {
-        curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), nullptr, nullptr );
-    }
 
-    if ( isCrossPlotCurve() )
-    {
-        QString curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
-        if ( curveNameX.isEmpty() )
-        {
-            curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), nullptr, nullptr );
-        }
-
-        if ( !curveName.isEmpty() || !curveNameX.isEmpty() )
-        {
-            curveName += " | " + curveNameX;
-        }
-    }
-
+    QString curveName = m_curveNameConfig->curveName( curveAddress(), currentPlotNameHelper, &multiNameHelper );
     if ( curveName.isEmpty() )
     {
         curveName = "Curve Name Placeholder";
@@ -594,96 +622,109 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isChecked() )
     {
-        std::vector<double> curveValuesY = this->valuesY();
+        std::vector<double> curveValuesY = valuesY();
 
         auto plot                = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->axisY() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( axisY() );
 
         bool shouldPopulateViewWithEmptyData = false;
 
-        if ( isCrossPlotCurve() )
+        if ( m_xAxisType == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
-            auto curveValuesX    = this->valuesX();
-            auto curveTimeStepsX = timeStepsX();
-
-            auto curveTimeStepsY = timeStepsY();
-
-            if ( curveValuesY.empty() || curveValuesX.empty() )
+            if ( m_xValuesSummaryAddress()->address().category() == SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
             {
-                shouldPopulateViewWithEmptyData = true;
+                // Read x and y values from ensemble statistics (not time steps are read)
+                if ( RifSummaryReaderInterface* reader = valuesSummaryReaderX() )
+                {
+                    auto [isOkX, curveValuesX] = reader->values( m_xValuesSummaryAddress->address() );
+                    auto [isOkY, curveValuesY] = reader->values( m_yValuesSummaryAddress->address() );
+                    setSamplesFromXYValues( curveValuesX, curveValuesY, useLogarithmicScale );
+                }
             }
             else
             {
-                RiaTimeHistoryCurveMerger curveMerger;
-                curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
-                curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
-                curveMerger.computeInterpolatedValues();
+                auto curveValuesX    = valuesX();
+                auto curveTimeStepsX = timeStepsX();
+                auto curveTimeStepsY = timeStepsY();
 
-                if ( curveMerger.allXValues().size() > 0 )
+                if ( curveValuesY.empty() || curveValuesX.empty() )
                 {
-                    this->setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
-                                                  curveMerger.interpolatedYValuesForAllXValues( 1 ),
-                                                  useLogarithmicScale );
+                    shouldPopulateViewWithEmptyData = true;
                 }
                 else
                 {
-                    shouldPopulateViewWithEmptyData = true;
+                    RiaTimeHistoryCurveMerger curveMerger;
+                    curveMerger.addCurveData( curveTimeStepsX, curveValuesX );
+                    curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
+                    curveMerger.computeInterpolatedValues();
+
+                    if ( !curveMerger.allXValues().empty() )
+                    {
+                        setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
+                                                curveMerger.interpolatedYValuesForAllXValues( 1 ),
+                                                useLogarithmicScale );
+                    }
+                    else
+                    {
+                        shouldPopulateViewWithEmptyData = true;
+                    }
                 }
             }
         }
         else
         {
-            std::vector<time_t> curveTimeStepsY = this->timeStepsY();
-            if ( curveTimeStepsY.size() > 0 && curveTimeStepsY.size() == curveValuesY.size() )
+            std::vector<time_t> curveTimeStepsY = timeStepsY();
+            if ( plot->timeAxisProperties() && !curveTimeStepsY.empty() && curveTimeStepsY.size() == curveValuesY.size() )
             {
                 if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
                 {
-                    auto reader = summaryCaseY()->summaryReader();
-                    if ( reader )
+                    RifEclipseSummaryAddress errAddress;
+                    std::vector<double>      errValues;
+
+                    if ( auto reader = valuesSummaryReaderY() )
                     {
-                        auto errAddress = reader->errorAddress( summaryAddressY() );
-                        if ( errAddress.isValid() )
+                        errAddress = reader->errorAddress( summaryAddressY() );
+                        errValues  = reader->values( errAddress ).second;
+                    }
+
+                    if ( errAddress.isValid() )
+                    {
+                        auto timeSteps = RiuQwtPlotCurve::fromTime_t( curveTimeStepsY );
+
+                        if ( !errValues.empty() )
                         {
-                            std::vector<double> errValues;
-                            reader->values( errAddress, &errValues );
+                            setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, useLogarithmicScale );
+                        }
+                        else
+                        {
+                            setSamplesFromXYValues( timeSteps, curveValuesY, useLogarithmicScale );
+                        }
+                    }
+                    else
+                    {
+                        if ( m_yValuesResampling() != RiaDefines::DateTimePeriod::NONE )
+                        {
+                            auto [resampledTimeSteps, resampledValues] =
+                                RiaSummaryTools::resampledValuesForPeriod( m_yValuesSummaryAddress->address(),
+                                                                           curveTimeStepsY,
+                                                                           curveValuesY,
+                                                                           m_yValuesResampling() );
 
-                            auto timeSteps = RiuQwtPlotCurve::fromTime_t( curveTimeStepsY );
+                            if ( !resampledValues.empty() && !resampledTimeSteps.empty() )
+                            {
+                                // When values are resampled, each time step value is reported at the end of each
+                                // resampling period. Insert a duplicate of the first value at the start of the time
+                                // series to make curve start at the very first reported time step.
 
-                            if ( !errValues.empty() )
-                            {
-                                this->setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, useLogarithmicScale );
-                            }
-                            else
-                            {
-                                this->setSamplesFromXYValues( timeSteps, curveValuesY, useLogarithmicScale );
+                                resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
+                                resampledValues.insert( resampledValues.begin(), resampledValues.front() );
+
+                                setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, useLogarithmicScale );
                             }
                         }
                         else
                         {
-                            if ( m_resampling() != RiaDefines::DateTimePeriod::NONE )
-                            {
-                                auto [resampledTimeSteps, resampledValues] =
-                                    RiaSummaryTools::resampledValuesForPeriod( m_yValuesSummaryAddress->address(),
-                                                                               curveTimeStepsY,
-                                                                               curveValuesY,
-                                                                               m_resampling() );
-
-                                if ( !resampledValues.empty() && !resampledTimeSteps.empty() )
-                                {
-                                    // When values are resampled, each time step value is reported at the end of each
-                                    // resampling period. Insert a duplicate of the first value at the start of the time
-                                    // series to make curve start at the very first reported time step.
-
-                                    resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
-                                    resampledValues.insert( resampledValues.begin(), resampledValues.front() );
-
-                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, useLogarithmicScale );
-                                }
-                            }
-                            else
-                            {
-                                this->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, useLogarithmicScale );
-                            }
+                            setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, useLogarithmicScale );
                         }
                     }
                 }
@@ -692,7 +733,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
 
                     std::vector<double> timeFromSimulationStart;
-                    if ( curveTimeStepsY.size() )
+                    if ( !curveTimeStepsY.empty() )
                     {
                         time_t startDate = curveTimeStepsY[0];
                         for ( const auto& date : curveTimeStepsY )
@@ -701,7 +742,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         }
                     }
 
-                    this->setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, useLogarithmicScale );
+                    setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, useLogarithmicScale );
                 }
             }
             else
@@ -714,7 +755,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( shouldPopulateViewWithEmptyData )
         {
-            this->setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), useLogarithmicScale );
+            setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), useLogarithmicScale );
         }
 
         if ( updateParentPlot && hasParentPlot() )
@@ -728,7 +769,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
         updateTimeAnnotations();
     }
 
-    if ( updateParentPlot ) updateAxisInPlot( axisY() );
+    if ( updateParentPlot ) updatePlotAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -747,7 +788,7 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
 {
     RimPlotCurve::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 
-    caf::IconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = uiIconProvider();
     if ( !iconProvider.valid() ) return;
 
     RimSummaryCurveCollection* coll = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
@@ -770,10 +811,10 @@ void RimSummaryCurve::initAfterRead()
 {
     RimStackablePlotCurve::initAfterRead();
 
-    if ( m_plotAxisProperties.value() == nullptr )
+    if ( m_yPlotAxisProperties.value() == nullptr )
     {
         auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
-        if ( plot ) m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+        if ( plot ) m_yPlotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
     }
 
     if ( m_isEnsembleCurve().isPartiallyTrue() )
@@ -798,7 +839,7 @@ double RimSummaryCurve::computeCurveZValue()
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED );
         }
-        else if ( sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
+        else if ( sumAddr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE );
         }
@@ -838,32 +879,45 @@ void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::hideXAxisGroup()
+{
+    m_showXAxisGroup = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimPlotCurve::updateFieldUiState();
 
+    bool isSummaryXHidden = ( m_xAxisType() != RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+
+    m_xValuesSummaryCase.uiCapability()->setUiHidden( isSummaryXHidden );
+    m_xValuesSummaryAddress.uiCapability()->setUiHidden( isSummaryXHidden );
+    m_xValuesSummaryAddressUiField.uiCapability()->setUiHidden( isSummaryXHidden );
+    m_xPushButtonSelectSummaryAddress.uiCapability()->setUiHidden( isSummaryXHidden );
+    m_xPlotAxisProperties.uiCapability()->setUiHidden( isSummaryXHidden );
+
     {
-        QString curveDataGroupName = "Summary Vector";
-        if ( isCrossPlotCurve() ) curveDataGroupName += " Y";
-        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "Summary Vector Y" );
+        QString          curveDataGroupName = "Summary Vector";
+        caf::PdmUiGroup* curveDataGroup     = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "curveDataGroupName" );
         curveDataGroup->add( &m_yValuesSummaryCase, { true, 3, 1 } );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { true, 2, 1 } );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
-        curveDataGroup->add( &m_resampling, { true, 3, 1 } );
-        curveDataGroup->add( &m_plotAxisProperties, { true, 3, 1 } );
-
-        if ( isCrossPlotCurve() )
-            m_showErrorBars = false;
-        else
-            curveDataGroup->add( &m_showErrorBars );
+        curveDataGroup->add( &m_yValuesResampling, { true, 3, 1 } );
+        curveDataGroup->add( &m_yPlotAxisProperties, { true, 3, 1 } );
+        curveDataGroup->add( &m_showErrorBars );
     }
 
-    if ( isCrossPlotCurve() )
+    if ( m_showXAxisGroup )
     {
-        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X" );
+        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X Axis" );
+        curveDataGroup->add( &m_xAxisType, { true, 3, 1 } );
         curveDataGroup->add( &m_xValuesSummaryCase, { true, 3, 1 } );
         curveDataGroup->add( &m_xValuesSummaryAddressUiField, { true, 2, 1 } );
         curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, { false, 1, 0 } );
+        curveDataGroup->add( &m_xPlotAxisProperties, { true, 3, 1 } );
     }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
@@ -882,7 +936,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         m_curveNameConfig->uiOrdering( uiConfigName, *nameGroup );
     }
 
-    uiOrdering.skipRemainingFields(); // For now.
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -917,7 +971,7 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setResampling( RiaDefines::DateTimePeriodEnum resampling )
 {
-    m_resampling = resampling;
+    m_yValuesResampling = resampling;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -941,9 +995,18 @@ RiaDefines::PhaseType RimSummaryCurve::phaseType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::isRegressionCurve() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::updatePlotAxis()
 {
-    updateAxisInPlot( axisY() );
+    updateYAxisInPlot( axisY() );
+    updateXAxisInPlot( axisX() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -967,15 +1030,17 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
 
     auto addressUiText = addr.uiText();
+    if ( !m_yValuesSummaryCase() )
+    {
+        return QString::fromStdString( addressUiText );
+    }
 
     if ( group && group->isEnsemble() )
     {
         return QString( "%1.%2.%3" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() ).arg( group->name() );
     }
-    else
-    {
-        return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() );
-    }
+
+    return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1055,7 +1120,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_yValuesSummaryAddress->setAddress( m_yValuesSummaryAddressUiField() );
 
-        this->calculateCurveInterpolationFromAddress();
+        calculateCurveInterpolationFromAddress();
 
         loadAndUpdate = true;
     }
@@ -1063,25 +1128,48 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_xValuesSummaryAddress->setAddress( m_xValuesSummaryAddressUiField() );
 
-        this->calculateCurveInterpolationFromAddress();
+        calculateCurveInterpolationFromAddress();
 
         loadAndUpdate = true;
     }
-    else if ( changedField == &m_resampling )
+    else if ( changedField == &m_yValuesResampling )
     {
+        loadAndUpdate = true;
+    }
+    else if ( &m_xAxisType == changedField )
+    {
+        if ( m_xAxisType() == RiaDefines::HorizontalAxisType::TIME )
+        {
+            m_xPlotAxisProperties = plot->timeAxisProperties();
+        }
+        else if ( m_xAxisType() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+        {
+            if ( !m_xValuesSummaryCase() )
+            {
+                m_xValuesSummaryCase = m_yValuesSummaryCase();
+                m_xValuesSummaryAddress->setAddress( m_yValuesSummaryAddress()->address() );
+            }
+
+            plot->findOrAssignPlotAxisX( this );
+        }
+        plot->updateAxes();
+        plot->updatePlotTitle();
         loadAndUpdate = true;
     }
     else if ( &m_showCurve == changedField )
     {
         plot->updateAxes();
         plot->updatePlotTitle();
-
-        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        mainPlotWindow->updateMultiPlotToolBar();
     }
-    else if ( changedField == &m_plotAxisProperties )
+    else if ( changedField == &m_yPlotAxisProperties )
     {
-        updateAxisInPlot( axisY() );
+        updateYAxisInPlot( axisY() );
+        plot->updateAxes();
+        dataChanged.send();
+    }
+    else if ( changedField == &m_xPlotAxisProperties )
+    {
+        updateXAxisInPlot( axisX() );
         plot->updateAxes();
         dataChanged.send();
     }
@@ -1097,7 +1185,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         plot->updateCaseNameHasChanged();
 
         // TODO: is it not ok to just set loadAndUpdate = true?
-        this->onLoadDataAndUpdate( true );
+        onLoadDataAndUpdate( true );
         dataChanged.send();
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
@@ -1122,10 +1210,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( dlg.exec() == QDialog::Accepted )
         {
             auto curveSelection = dlg.curveSelection();
-            if ( curveSelection.size() > 0 )
+            if ( !curveSelection.empty() )
             {
-                m_yValuesSummaryCase = curveSelection[0].summaryCase();
-                m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
+                m_yValuesSummaryCase = curveSelection[0].summaryCaseY();
+                m_yValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
 
                 crossPlotTestForMatchingTimeSteps = true;
                 loadAndUpdate                     = true;
@@ -1156,10 +1244,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( dlg.exec() == QDialog::Accepted )
         {
             auto curveSelection = dlg.curveSelection();
-            if ( curveSelection.size() > 0 )
+            if ( !curveSelection.empty() )
             {
-                m_xValuesSummaryCase = curveSelection[0].summaryCase();
-                m_xValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
+                m_xValuesSummaryCase = curveSelection[0].summaryCaseY();
+                m_xValuesSummaryAddress->setAddress( curveSelection[0].summaryAddressY() );
 
                 crossPlotTestForMatchingTimeSteps = true;
                 loadAndUpdate                     = true;
@@ -1171,10 +1259,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( crossPlotTestForMatchingTimeSteps )
     {
-        auto curveValuesX    = this->valuesX();
+        auto curveValuesX    = valuesX();
         auto curveTimeStepsX = timeStepsX();
 
-        auto curveValuesY    = this->valuesY();
+        auto curveValuesY    = valuesY();
         auto curveTimeStepsY = timeStepsY();
 
         if ( !curveValuesX.empty() && !curveValuesY.empty() )
@@ -1184,7 +1272,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             curveMerger.addCurveData( curveTimeStepsY, curveValuesY );
             curveMerger.computeInterpolatedValues();
 
-            if ( curveMerger.validIntervalsForAllXValues().size() == 0 )
+            if ( curveMerger.validIntervalsForAllXValues().empty() )
             {
                 QString description;
 
@@ -1233,7 +1321,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::loadAndUpdateDataAndPlot()
 {
-    this->loadDataAndUpdate( true );
+    loadDataAndUpdate( true );
 
     auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 

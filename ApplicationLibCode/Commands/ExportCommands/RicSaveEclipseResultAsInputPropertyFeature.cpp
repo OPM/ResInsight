@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT( RicSaveEclipseResultAsInputPropertyFeature, "RicSaveEclipse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveEclipseResultAsInputPropertyFeature::isCommandEnabled()
+bool RicSaveEclipseResultAsInputPropertyFeature::isCommandEnabled() const
 {
     return selectedEclipseCellColors() != nullptr || selectedEclipseView() != nullptr;
 }
@@ -47,7 +47,7 @@ RimEclipseView* RicSaveEclipseResultAsInputPropertyFeature::selectedEclipseView(
     std::vector<RimEclipseView*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         return selection[0];
     }
@@ -63,7 +63,7 @@ RimEclipseCellColors* RicSaveEclipseResultAsInputPropertyFeature::selectedEclips
     std::vector<RimEclipseCellColors*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         return selection[0];
     }
@@ -76,7 +76,7 @@ RimEclipseCellColors* RicSaveEclipseResultAsInputPropertyFeature::selectedEclips
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseResultAsInputPropertyFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RimEclipseCellColors* eclipseCellColors = selectedEclipseCellColors();
     if ( !eclipseCellColors )

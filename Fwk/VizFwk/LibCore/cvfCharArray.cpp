@@ -160,7 +160,7 @@ size_t CharArray::size() const
 //--------------------------------------------------------------------------------------------------
 const char* CharArray::ptr() const
 { 
-    CVF_ASSERT(m_data.size() > 0);
+    CVF_ASSERT(!m_data.empty());
     CVF_ASSERT(m_data[m_data.size() - 1] == '\0');
     
     return &m_data[0]; 
@@ -172,7 +172,7 @@ const char* CharArray::ptr() const
 //--------------------------------------------------------------------------------------------------
 char* CharArray::ptr()
 { 
-    CVF_ASSERT(m_data.size() > 0);
+    CVF_ASSERT(!m_data.empty());
     CVF_ASSERT(m_data[m_data.size() - 1] == '\0');
 
     return &m_data[0]; 

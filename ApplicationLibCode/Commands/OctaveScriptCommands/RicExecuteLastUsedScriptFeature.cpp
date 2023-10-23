@@ -44,14 +44,6 @@ QString RicExecuteLastUsedScriptFeature::lastUsedScriptPathKey()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExecuteLastUsedScriptFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicExecuteLastUsedScriptFeature::onActionTriggered( bool isChecked )
 {
     QSettings settings;

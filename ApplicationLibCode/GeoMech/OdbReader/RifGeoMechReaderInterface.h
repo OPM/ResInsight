@@ -47,8 +47,8 @@ public:
     virtual std::vector<double>      frameTimes( int stepIndex ) const                                  = 0;
     virtual int                      frameCount( int stepIndex ) const                                  = 0;
 
-    virtual std::vector<std::string> elementSetNames( int partIndex )          = 0;
-    virtual std::vector<size_t>      elementSet( int partIndex, int setIndex ) = 0;
+    virtual std::vector<std::string> elementSetNames( int partIndex, std::string partName )          = 0;
+    virtual std::vector<size_t>      elementSet( int partIndex, std::string partName, int setIndex ) = 0;
 
     virtual std::map<std::string, std::vector<std::string>> scalarNodeFieldAndComponentNames()             = 0;
     virtual std::map<std::string, std::vector<std::string>> scalarElementNodeFieldAndComponentNames()      = 0;

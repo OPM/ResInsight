@@ -81,7 +81,7 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
 
     CAF_PDM_InitField( &m_drawPlane, "DrawPlane", DrawPlaneEnum( VERTICAL_ABOVE ), "Draw Plane" );
     CAF_PDM_InitField( &m_color, "CurveColor", cvf::Color3f( 0.0f, 0.0f, 0.0f ), "Curve Color" );
-    this->uiCapability()->setUiTreeChildrenHidden( true );
+    uiCapability()->setUiTreeChildrenHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ std::pair<double, double> Rim3dWellLogCurve::findCurveValueRange()
 
     std::vector<double> values;
     std::vector<double> measuredDepths;
-    this->curveValuesAndMds( &values, &measuredDepths );
+    curveValuesAndMds( &values, &measuredDepths );
 
     for ( double value : values )
     {
@@ -244,7 +244,7 @@ void Rim3dWellLogCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
 {
     if ( m_minCurveDataValue == -std::numeric_limits<float>::infinity() && m_maxCurveDataValue == std::numeric_limits<float>::infinity() )
     {
-        this->resetMinMaxValues();
+        resetMinMaxValues();
     }
 }
 
@@ -253,7 +253,7 @@ void Rim3dWellLogCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::initAfterRead()
 {
-    this->createAutoName();
+    createAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------

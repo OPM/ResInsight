@@ -295,14 +295,6 @@ RimEclipseCase* RicCreateEnsembleWellLogFeature::loadEclipseCase( const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateEnsembleWellLogFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleWellLogFeature::onActionTriggered( bool isChecked )
 {
     openDialogAndExecuteCommand();

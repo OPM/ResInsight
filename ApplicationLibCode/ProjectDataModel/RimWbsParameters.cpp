@@ -23,7 +23,8 @@
 #include "RigGeoMechCaseData.h"
 
 #include "RimGeoMechCase.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogFileUtil.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -335,7 +336,7 @@ void RimWbsParameters::loadDataAndUpdate()
             assignValidSource( field, supportedSources( parameter ) );
         }
     }
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,11 +379,7 @@ void RimWbsParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 bool RimWbsParameters::hasLasFileWithChannel( const QString& channel ) const
 {
-    if ( m_wellPath && !RimWellLogFile::findMdAndChannelValuesForWellPath( m_wellPath, channel ).empty() )
-    {
-        return true;
-    }
-    return false;
+    return m_wellPath && !RimWellLogFileUtil::findMdAndChannelValuesForWellPath( *m_wellPath, channel ).empty();
 }
 
 //--------------------------------------------------------------------------------------------------

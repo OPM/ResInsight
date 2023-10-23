@@ -33,14 +33,6 @@ CAF_CMD_SOURCE_INIT( RicNewCustomObjectiveFunctionFeature, "RicNewCustomObjectiv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewCustomObjectiveFunctionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );

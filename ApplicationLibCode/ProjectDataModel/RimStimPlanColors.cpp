@@ -346,7 +346,7 @@ QString RimStimPlanColors::toResultName( const QString& resultNameAndUnit )
 {
     QStringList items = resultNameAndUnit.split( "[" );
 
-    if ( items.size() > 0 )
+    if ( !items.empty() )
     {
         return items[0].trimmed();
     }

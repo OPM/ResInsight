@@ -45,7 +45,7 @@ CAF_CMD_SOURCE_INIT( RicPasteEclipseCasesFeature, "RicPasteEclipseCasesFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteEclipseCasesFeature::isCommandEnabled()
+bool RicPasteEclipseCasesFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
@@ -53,7 +53,7 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
     std::vector<caf::PdmPointer<RimEclipseResultCase>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
 
-    if ( typedObjects.size() == 0 )
+    if ( typedObjects.empty() )
     {
         return false;
     }
@@ -61,9 +61,7 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup( destinationObject );
-    if ( gridCaseGroup ) return true;
-
-    return false;
+    return gridCaseGroup != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +77,7 @@ void RicPasteEclipseCasesFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    if ( objectGroup.objects.size() == 0 ) return;
+    if ( objectGroup.objects.empty() ) return;
 
     addCasesToGridCaseGroup( objectGroup, gridCaseGroup );
 
@@ -117,7 +115,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup& 
         }
     }
 
-    if ( resultCases.size() == 0 )
+    if ( resultCases.empty() )
     {
         return;
     }

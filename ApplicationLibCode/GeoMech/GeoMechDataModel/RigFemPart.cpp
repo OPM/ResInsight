@@ -125,6 +125,37 @@ const int* RigFemPart::connectivities( size_t elementIdx ) const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns state of success for fill element coordinates
+//--------------------------------------------------------------------------------------------------
+bool RigFemPart::fillElementCoordinates( size_t elementIdx, std::array<cvf::Vec3d, 8>& coordinates ) const
+{
+    const auto elemType         = elementType( elementIdx );
+    const int* elemConnectivity = connectivities( elementIdx );
+    const auto nodeCount        = RigFemTypes::elementNodeCount( elemType );
+
+    // Only handle element of hex for now - false success
+    if ( nodeCount != 8 ) return false;
+
+    // Retrieve the node indices
+    std::vector<int> nodeIndices;
+    for ( int i = 0; i < nodeCount; ++i )
+    {
+        const int nodeIdx = elemConnectivity[i];
+        nodeIndices.push_back( nodeIdx );
+    }
+
+    // Fill coordinates for each node
+    const auto& partNodes = nodes();
+    for ( int i = 0; i < (int)nodeIndices.size(); ++i )
+    {
+        coordinates[i].set( partNodes.coordinates[nodeIndices[i]] );
+    }
+
+    // Return true success
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPart::elementNodeResultIdx( int elementIdx, int elmLocalNodeIdx ) const
@@ -201,7 +232,7 @@ void RigFemPart::assertNodeToElmIndicesIsCalculated()
 {
     if ( m_nodeToElmRefs.size() != nodes().nodeIds.size() )
     {
-        this->calculateNodeToElmRefs();
+        calculateNodeToElmRefs();
     }
 }
 
@@ -248,7 +279,7 @@ void RigFemPart::assertElmNeighborsIsCalculated()
 {
     if ( m_elmNeighbors.size() != m_elementId.size() )
     {
-        this->calculateElmNeighbors();
+        calculateElmNeighbors();
     }
 }
 
@@ -264,12 +295,12 @@ void RigFemPart::calculateElmNeighbors()
                                 // parallelization
     std::vector<int> candidates; //
 
-    m_elmNeighbors.resize( this->elementCount() );
+    m_elmNeighbors.resize( elementCount() );
 
-    for ( int eIdx = 0; eIdx < this->elementCount(); ++eIdx )
+    for ( int eIdx = 0; eIdx < elementCount(); ++eIdx )
     {
-        RigElementType elmType  = this->elementType( eIdx );
-        const int*     elmNodes = this->connectivities( eIdx );
+        RigElementType elmType  = elementType( eIdx );
+        const int*     elmNodes = connectivities( eIdx );
 
         int faceCount     = RigFemTypes::elementFaceCount( elmType );
         int neighborCount = 0;
@@ -284,7 +315,7 @@ void RigFemPart::calculateElmNeighbors()
             candidates.clear();
             {
                 int                     firstNodeIdxOfFace = elmNodes[localFaceIndices[0]];
-                const std::vector<int>& candidates1        = this->elementsUsingNode( firstNodeIdxOfFace );
+                const std::vector<int>& candidates1        = elementsUsingNode( firstNodeIdxOfFace );
 
                 if ( !candidates1.empty() )
                 {
@@ -292,7 +323,7 @@ void RigFemPart::calculateElmNeighbors()
 
                     int thirdNodeIdxOfFace = elmNodes[localFaceIndices[3]];
 
-                    const std::vector<int>& candidates2 = this->elementsUsingNode( thirdNodeIdxOfFace );
+                    const std::vector<int>& candidates2 = elementsUsingNode( thirdNodeIdxOfFace );
 
                     // The candidates are sorted from smallest to largest, so we do a linear search to find the
                     // (two) common cells in the two arrays, and leaving this element out, we have one candidate left
@@ -325,7 +356,7 @@ void RigFemPart::calculateElmNeighbors()
                 }
             }
 
-            if ( candidates.size() )
+            if ( !candidates.empty() )
             {
                 fComp.setMainFace( elmNodes, localFaceIndices, faceNodeCount );
             }
@@ -335,8 +366,8 @@ void RigFemPart::calculateElmNeighbors()
             {
                 int nbcElmIdx = candidates[nbcIdx];
 
-                RigElementType nbcElmType  = this->elementType( nbcElmIdx );
-                const int*     nbcElmNodes = this->connectivities( nbcElmIdx );
+                RigElementType nbcElmType  = elementType( nbcElmIdx );
+                const int*     nbcElmNodes = connectivities( nbcElmIdx );
 
                 int  nbcFaceCount    = RigFemTypes::elementFaceCount( nbcElmType );
                 bool isNeighborFound = false;
@@ -376,10 +407,10 @@ void RigFemPart::calculateElmNeighbors()
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3f RigFemPart::faceNormal( int elmIdx, int faceIdx ) const
 {
-    const std::vector<cvf::Vec3f>& nodeCoordinates = this->nodes().coordinates;
+    const std::vector<cvf::Vec3f>& nodeCoordinates = nodes().coordinates;
 
-    RigElementType eType          = this->elementType( elmIdx );
-    const int*     elmNodeIndices = this->connectivities( elmIdx );
+    RigElementType eType          = elementType( elmIdx );
+    const int*     elmNodeIndices = connectivities( elmIdx );
 
     int        faceNodeCount              = 0;
     const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( eType, faceIdx, &faceNodeCount );
@@ -419,15 +450,15 @@ float RigFemPart::characteristicElementSize() const
         float sumMaxEdgeLength   = 0;
         for ( int elmIdx = 0; elmIdx < elementCount(); elmIdx++ )
         {
-            RigElementType eType = this->elementType( elmIdx );
+            RigElementType eType = elementType( elmIdx );
 
             if ( eType == elmType )
             {
-                const int* elementConn = this->connectivities( elmIdx );
-                cvf::Vec3f nodePos0    = this->nodes().coordinates[elementConn[0]];
-                cvf::Vec3f nodePos1    = this->nodes().coordinates[elementConn[1]];
-                cvf::Vec3f nodePos3    = this->nodes().coordinates[elementConn[3]];
-                cvf::Vec3f nodePos4    = this->nodes().coordinates[elementConn[4]];
+                const int* elementConn = connectivities( elmIdx );
+                cvf::Vec3f nodePos0    = nodes().coordinates[elementConn[0]];
+                cvf::Vec3f nodePos1    = nodes().coordinates[elementConn[1]];
+                cvf::Vec3f nodePos3    = nodes().coordinates[elementConn[3]];
+                cvf::Vec3f nodePos4    = nodes().coordinates[elementConn[4]];
 
                 float l1 = ( nodePos1 - nodePos0 ).length();
                 float l3 = ( nodePos3 - nodePos0 ).length();
@@ -529,11 +560,11 @@ void RigFemPart::ensureIntersectionSearchTreeIsBuilt() const
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPart::elementNodeResultCount() const
 {
-    int lastElmIdx = this->elementCount() - 1;
+    int lastElmIdx = elementCount() - 1;
     if ( lastElmIdx < 0 ) return 0;
-    RigElementType elmType          = this->elementType( lastElmIdx );
+    RigElementType elmType          = elementType( lastElmIdx );
     int            elmNodeCount     = RigFemTypes::elementNodeCount( elmType );
-    size_t         lastElmResultIdx = this->elementNodeResultIdx( lastElmIdx, elmNodeCount - 1 );
+    size_t         lastElmResultIdx = elementNodeResultIdx( lastElmIdx, elmNodeCount - 1 );
 
     return lastElmResultIdx + 1;
 }
@@ -606,4 +637,46 @@ void RigFemPart::setEnabled( bool enable )
 bool RigFemPart::enabled() const
 {
     return m_enabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::addElementSet( std::string name, const std::vector<size_t>& elementIds )
+{
+    m_elementSetNames.push_back( name );
+
+    std::map<size_t, size_t> idToIndex;
+
+    for ( size_t i = 0; i < m_elementId.size(); i++ )
+    {
+        idToIndex[m_elementId[i]] = i;
+    }
+
+    std::vector<size_t> elementIndexes;
+    elementIndexes.resize( elementIds.size() );
+
+    for ( size_t i = 0; i < elementIds.size(); i++ )
+    {
+        elementIndexes[i] = idToIndex[elementIds[i] + 1];
+    }
+
+    m_elementIndexSets.push_back( elementIndexes );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPart::elementSetNames() const
+{
+    return m_elementSetNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigFemPart::elementSet( int setIndex ) const
+{
+    if ( ( setIndex < 0 ) || ( setIndex >= (int)m_elementIndexSets.size() ) ) return {};
+    return m_elementIndexSets[setIndex];
 }

@@ -83,11 +83,11 @@ public:
     void evaluateForResults( const QList<ResSpec>& resultSpecification );
 
 private:
+    void addNamedResults( const QList<ResSpec>& resultSpecification );
     void addNamedResult( RigCaseCellResultsData*   cellResults,
                          RiaDefines::ResultCatType resultType,
                          const QString&            resultName,
                          size_t                    activeCellCount );
-    void buildSourceMetaData( RiaDefines::PorosityModelType poroModel, RiaDefines::ResultCatType resultType, const QString& resultName );
 
     enum StatisticsParamType
     {

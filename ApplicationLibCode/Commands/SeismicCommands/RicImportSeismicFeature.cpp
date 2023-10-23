@@ -18,6 +18,8 @@
 
 #include "RicImportSeismicFeature.h"
 
+#include "RicNewSeismicViewFeature.h"
+
 #include "RiaApplication.h"
 
 #include "RimOilField.h"
@@ -43,14 +45,6 @@ CAF_CMD_SOURCE_INIT( RicImportSeismicFeature, "RicImportSeismicFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSeismicFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportSeismicFeature::onActionTriggered( bool isChecked )
 {
     QString         filter     = "Seismic volumes (*.zgy *.vds);;SEG-Y files (*.sgy *.segy);;All Files (*.*)";
@@ -71,7 +65,7 @@ void RicImportSeismicFeature::onActionTriggered( bool isChecked )
     app->setLastUsedDialogDirectory( "SEISMIC_GRID", QFileInfo( fileName ).absolutePath() );
 
     auto  proj     = RimProject::current();
-    auto& seisColl = proj->activeOilField()->seismicCollection();
+    auto& seisColl = proj->activeOilField()->seismicDataCollection();
 
     if ( !seisColl ) return;
 
@@ -83,6 +77,8 @@ void RicImportSeismicFeature::onActionTriggered( bool isChecked )
     if ( newData )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( newData );
+
+        RicNewSeismicViewFeature::createInitialViewIfNeeded( newData );
     }
 }
 

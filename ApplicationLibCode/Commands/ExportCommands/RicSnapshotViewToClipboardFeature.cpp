@@ -68,17 +68,9 @@ QString RicSnapshotViewToClipboardFeature::text()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSnapshotViewToClipboardFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToClipboardFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RimViewWindow* viewWindow = RiaGuiApplication::activeViewWindow();
 

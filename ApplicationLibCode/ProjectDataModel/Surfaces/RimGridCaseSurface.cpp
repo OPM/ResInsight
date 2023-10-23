@@ -310,13 +310,12 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
 
                 size_t      currentCellIndex = grid->cellIndexFromIJK( i, j, zeroBasedLayerIndex );
                 const auto& cell             = grid->cell( currentCellIndex );
+
                 if ( cell.isInvalid() ) continue;
 
-                if ( !m_includeInactiveCells() && activeCells )
-                {
-                    auto reservoirCellIndex = grid->reservoirCellIndex( currentCellIndex );
-                    if ( !activeCells->isActive( reservoirCellIndex ) ) continue;
-                }
+                bool skipInactiveCells = !m_includeInactiveCells();
+                if ( m_watertight ) skipInactiveCells = false;
+                if ( skipInactiveCells && activeCells && !activeCells->isActive( currentCellIndex ) ) continue;
 
                 cvf::Vec3d currentCornerVerts[8];
 
@@ -595,7 +594,8 @@ bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d
 QString RimGridCaseSurface::fullName() const
 {
     QString retval = RimSurface::fullName();
-    retval += " - K:";
+    if ( !retval.isEmpty() ) retval += " - ";
+    retval += "K:";
     retval += QString::number( m_oneBasedSliceIndex );
     return retval;
 }

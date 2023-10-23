@@ -19,19 +19,19 @@
 #pragma once
 
 #include "cvfObject.h"
-
 #include <cvfVector3.h>
+
 #include <vector>
 
 namespace cvf
 {
 class DrawableGeo;
-}
+} // namespace cvf
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RivPolylineGenerator : public cvf::Object
+class RivPolylineGenerator
 {
 public:
     static cvf::ref<cvf::DrawableGeo> createLineAlongPolylineDrawable( const std::vector<cvf::Vec3d>& polyLine, bool closeLine = false );
@@ -40,4 +40,6 @@ public:
 
     static cvf::ref<cvf::DrawableGeo> createPointsFromPolylineDrawable( const std::vector<cvf::Vec3d>& polyLine );
     static cvf::ref<cvf::DrawableGeo> createPointsFromPolylineDrawable( const std::vector<std::vector<cvf::Vec3d>>& polyLines );
+
+    static cvf::ref<cvf::DrawableGeo> createSetOfLines( const std::vector<std::vector<cvf::Vec3d>>& lines );
 };

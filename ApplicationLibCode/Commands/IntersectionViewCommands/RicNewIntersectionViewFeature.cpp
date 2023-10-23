@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewIntersectionViewFeature, "RicNewIntersectionViewFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewIntersectionViewFeature::isCommandEnabled()
+bool RicNewIntersectionViewFeature::isCommandEnabled() const
 {
     std::set<RimExtrudedCurveIntersection*> objects = selectedIntersections();
 

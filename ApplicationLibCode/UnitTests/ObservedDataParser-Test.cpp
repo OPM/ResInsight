@@ -612,7 +612,7 @@ TEST( RifColumnBasedRsmspecParserTest, TestTableValues )
     RifColumnBasedUserData userData;
     userData.parse( data );
 
-    RifEclipseSummaryAddress adr( RifEclipseSummaryAddress::SUMMARY_WELL, "WOPR", -1, -1, "", "P-15P", -1, "", -1, -1, -1, -1, false, -1 );
+    auto adr = RifEclipseSummaryAddress::wellAddress( "WOPR", "P-15P", -1 );
 
     QDateTime firstTimeStep = RiaQDateTimeTools::addDays( RiaQDateTimeTools::epoch(), 1.0 );
     auto      timeSteps     = userData.timeSteps( adr );
@@ -991,7 +991,7 @@ TEST( RifKeywordBasedRsmspecParserTest, TestAddressCreation )
     RifEclipseSummaryAddress address = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantityName, headerColumn );
 
     EXPECT_TRUE( address.isValid() );
-    EXPECT_EQ( address.category(), RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR );
+    EXPECT_EQ( address.category(), RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR );
     EXPECT_EQ( address.uiText(), "LCABC:lgrName:wellName:12,14,16" );
 }
 

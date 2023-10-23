@@ -58,11 +58,9 @@ public:
 
     QString quantityName() const;
 
-    void ensureCalculationIdIsAssigned();
-
     RiaDefines::PhaseType addressPhaseType() const;
 
-    QString keywordForCategory( RifEclipseSummaryAddress::SummaryVarCategory category ) const;
+    QString keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category ) const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -70,12 +68,13 @@ protected:
     QString iconResourceText() const;
 
 private:
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_category;
 
     caf::PdmField<QString> m_vectorName;
     caf::PdmField<int>     m_regionNumber;
     caf::PdmField<int>     m_regionNumber2;
     caf::PdmField<QString> m_groupName;
+    caf::PdmField<QString> m_networkName;
     caf::PdmField<QString> m_wellName;
     caf::PdmField<int>     m_wellSegmentNumber;
     caf::PdmField<QString> m_lgrName;

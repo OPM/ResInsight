@@ -220,7 +220,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
             const std::vector<double>* flowrateJ = flowrateJatAllTimeSteps[timeStep - 1];
             const std::vector<double>* flowrateK = flowrateKatAllTimeSteps[timeStep - 1];
 
-            if ( flowrateI->size() > 0 && flowrateJ->size() > 0 && flowrateK->size() > 0 )
+            if ( !flowrateI->empty() && !flowrateJ->empty() && !flowrateK->empty() )
             {
                 distributeNeighbourCellFlow( mainGrid,
                                              caseToApply,
@@ -234,7 +234,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
 
         const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep - 1];
 
-        if ( flowrateNNC && flowrateNNC->size() > 0 )
+        if ( flowrateNNC && !flowrateNNC->empty() )
         {
             distributeNNCflow( connections, caseToApply, summedTracersAtAllTimesteps[timeStep - 1], flowrateNNC, totoalFlowrateIntoCell );
         }

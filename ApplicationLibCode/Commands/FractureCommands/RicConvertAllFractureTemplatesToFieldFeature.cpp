@@ -71,11 +71,3 @@ void RicConvertAllFractureTemplatesToFieldFeature::setupActionLook( QAction* act
 {
     actionToSetup->setText( "Convert All Ellipse Fracture Templates to Field" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicConvertAllFractureTemplatesToFieldFeature::isCommandEnabled()
-{
-    return true;
-}

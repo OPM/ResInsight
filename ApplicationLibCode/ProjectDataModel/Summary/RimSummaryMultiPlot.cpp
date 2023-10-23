@@ -108,7 +108,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     : duplicatePlot( this )
 {
     CAF_PDM_InitObject( "Multi Summary Plot", ":/SummaryPlotLight16x16.png" );
-    this->setDeletable( true );
+    setDeletable( true );
 
     CAF_PDM_InitField( &m_autoPlotTitle, "AutoPlotTitle", true, "Auto Plot Title" );
     CAF_PDM_InitField( &m_autoSubPlotTitle, "AutoSubPlotTitle", true, "Auto Sub Plot Title" );
@@ -374,19 +374,19 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
 {
     nameHelper->clear();
 
-    std::vector<RifEclipseSummaryAddress>  addresses;
+    std::vector<RiaSummaryCurveAddress>    addresses;
     std::vector<RimSummaryCase*>           sumCases;
     std::vector<RimSummaryCaseCollection*> ensembleCases;
 
     for ( RimSummaryCurve* curve : allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
     {
-        addresses.push_back( curve->summaryAddressY() );
+        addresses.push_back( curve->curveAddress() );
         sumCases.push_back( curve->summaryCaseY() );
     }
 
     for ( auto curveSet : curveSets() )
     {
-        addresses.push_back( curveSet->summaryAddress() );
+        addresses.push_back( curveSet->curveAddress() );
         ensembleCases.push_back( curveSet->summaryCaseCollection() );
     }
 
@@ -798,22 +798,6 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         analyzer.appendAddresses( addresses );
     }
 
-    auto rangeAggregation = AxisRangeAggregation::NONE;
-    if ( analyzer.quantities().size() == 1 && summaryPlots().size() > 1 )
-    {
-        // Many plots, single summary vector
-        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
-    }
-
-    if ( !analyzer.wellNames().empty() )
-    {
-        rangeAggregation = AxisRangeAggregation::WELLS;
-    }
-    else if ( !analyzer.regionNumbers().empty() )
-    {
-        rangeAggregation = AxisRangeAggregation::REGIONS;
-    }
-
     auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
     if ( analyzer.wellNames().size() == 1 )
     {
@@ -832,6 +816,10 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     {
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
     }
+    else if ( analyzer.networkNames().size() == 1 )
+    {
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::NETWORK;
+    }
     else if ( analyzer.regionNumbers().size() == 1 )
     {
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
@@ -845,8 +833,14 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK;
     }
 
-    m_axisRangeAggregation = rangeAggregation;
     m_sourceStepping->setStepDimension( stepDimension );
+
+    // Previously, when the stepping dimension was set to 'well' for range aggregation, it was based on all wells. If one of the wells had
+    // extreme values and was not visible, it would set the y-range to match the extreme value, making some curves invisible. We have now
+    // changed the default setting to use visible subplots to determine the y-range aggregation.
+    // https://github.com/OPM/ResInsight/issues/10543
+
+    m_axisRangeAggregation = AxisRangeAggregation::SUB_PLOTS;
 
     setAutoValueStates();
 }
@@ -870,7 +864,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
 
     for ( auto p : summaryPlots() )
     {
-        for ( auto ax : p->plotYAxes() )
+        for ( auto ax : p->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
         {
             ax->setAutoZoomIfNoCustomRangeIsSet();
         }
@@ -884,7 +878,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         // gather current min/max values for each category (axis label)
         for ( auto plot : summaryPlots() )
         {
-            for ( auto axis : plot->plotYAxes() )
+            for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
             {
                 double minVal = axis->visibleRangeMin();
                 double maxVal = axis->visibleRangeMax();
@@ -906,7 +900,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         // set all plots to use the global min/max values for each category
         for ( auto plot : summaryPlots() )
         {
-            for ( auto axis : plot->plotYAxes() )
+            for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
             {
                 auto [minVal, maxVal] = axisRanges[axis->objectName()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
@@ -950,14 +944,14 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 {
     auto readValues = []( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr )
     {
-        std::vector<double> values;
         if ( summaryCase && summaryCase->summaryReader() )
         {
             RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-            reader->values( addr, &values );
+            auto [isOk, values]               = reader->values( addr );
+            return values;
         }
 
-        return values;
+        return std::vector<double>();
     };
 
     auto findMinMaxForSummaryCase = [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues )
@@ -1086,11 +1080,11 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
     {
         std::map<RiuPlotAxis, std::pair<double, double>> axisRanges;
 
-        for ( auto axis : plot->plotYAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
         {
             for ( auto curve : plot->summaryCurves() )
             {
-                if ( curve->axisY() == axis->plotAxisType() )
+                if ( curve->axisY() == axis->plotAxis() )
                 {
                     std::vector<RimSummaryCase*>          summaryCases = summaryCasesForCurve( curve, m_axisRangeAggregation() );
                     std::vector<RifEclipseSummaryAddress> addresses    = addressesForCurve( curve, m_axisRangeAggregation() );
@@ -1099,14 +1093,14 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
                     auto [minimum, maximum] = findMinMaxForAddressesInSummaryCases( addresses, summaryCases, onlyPositiveValues );
 
-                    if ( axisRanges.count( axis->plotAxisType() ) == 0 )
+                    if ( axisRanges.count( axis->plotAxis() ) == 0 )
                     {
-                        axisRanges[axis->plotAxisType()] = std::make_pair( minimum, maximum );
+                        axisRanges[axis->plotAxis()] = std::make_pair( minimum, maximum );
                     }
                     else
                     {
-                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
-                        axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
+                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxis()];
+                        axisRanges[axis->plotAxis()]   = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
             }
@@ -1115,7 +1109,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
             {
                 if ( !curveSet->summaryCaseCollection() ) continue;
 
-                if ( curveSet->axisY() == axis->plotAxisType() )
+                if ( curveSet->axisY() == axis->plotAxis() )
                 {
                     double minimum( std::numeric_limits<double>::infinity() );
                     double maximum( -std::numeric_limits<double>::infinity() );
@@ -1138,24 +1132,24 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                         }
                     }
 
-                    if ( axisRanges.count( axis->plotAxisType() ) == 0 )
+                    if ( axisRanges.count( axis->plotAxis() ) == 0 )
                     {
-                        axisRanges[axis->plotAxisType()] = std::make_pair( minimum, maximum );
+                        axisRanges[axis->plotAxis()] = std::make_pair( minimum, maximum );
                     }
                     else
                     {
-                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
-                        axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
+                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxis()];
+                        axisRanges[axis->plotAxis()]   = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
             }
         }
 
         // set all plots to use the global min/max values for each category
-        for ( auto axis : plot->plotYAxes() )
+        for ( auto axis : plot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
         {
-            auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
-            if ( RiaDefines::isVertical( axis->plotAxisType().axis() ) && !std::isinf( minVal ) && !std::isinf( maxVal ) )
+            auto [minVal, maxVal] = axisRanges[axis->plotAxis()];
+            if ( RiaDefines::isVertical( axis->plotAxis().axis() ) && !std::isinf( minVal ) && !std::isinf( maxVal ) )
             {
                 axis->setAutoZoom( false );
 
@@ -1221,7 +1215,7 @@ void RimSummaryMultiPlot::setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot
     auto timeAxisProp = summaryPlot->timeAxisProperties();
     if ( timeAxisProp ) timeAxisProp->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
 
-    for ( auto plotAxis : summaryPlot->plotYAxes() )
+    for ( auto plotAxis : summaryPlot->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
     {
         plotAxis->enableAutoValueMinMax( enableAutoValueMinMax );
         plotAxis->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
@@ -1275,23 +1269,24 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
         bool canShowOneAxisTitlePerRow = analyzer.isSingleQuantityIgnoreHistory() && ( m_axisRangeAggregation() != AxisRangeAggregation::NONE );
 
+        const bool notifyFieldChanged = false;
+
         for ( auto p : summaryPlots() )
         {
-            auto timeAxisProp = p->timeAxisProperties();
-
-            auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
-                                                       : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
-
-            timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount );
-
-            for ( auto* axisProp : p->plotYAxes() )
+            if ( auto timeAxisProp = p->timeAxisProperties() )
             {
-                if ( !axisProp ) continue;
+                auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
+                                                           : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
 
+                timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
+            }
+
+            for ( auto* axisProp : p->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
+            {
                 auto tickMarkCount = ( rowsPerPage() == 1 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
                                                             : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
 
-                axisProp->setAutoValueForMajorTickmarkCount( tickMarkCount );
+                axisProp->setAutoValueForMajorTickmarkCount( tickMarkCount, notifyFieldChanged );
 
                 axisProp->computeAndSetAutoValueForScaleFactor();
 
@@ -1317,10 +1312,8 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
     {
         for ( auto p : summaryPlots() )
         {
-            for ( auto* axisProp : p->plotYAxes() )
+            for ( auto* axisProp : p->plotAxes( RimPlotAxisProperties::Orientation::ANY ) )
             {
-                if ( !axisProp ) continue;
-
                 axisProp->computeAndSetAutoValueForScaleFactor();
                 axisProp->setShowUnitText( true );
                 axisProp->setShowDescription( true );
@@ -1598,7 +1591,7 @@ void RimSummaryMultiPlot::appendCurveByStepping( int direction )
 
         for ( auto curveSet : plot->curveSets() )
         {
-            auto address  = curveSet->summaryAddress();
+            auto address  = curveSet->summaryAddressY();
             auto sumEns   = curveSet->summaryCaseCollection();
             int  sumEnsId = sumEns->ensembleId();
             if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )

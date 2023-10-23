@@ -23,6 +23,7 @@
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigCellGeometryTools.h"
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -150,7 +151,17 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
     {
         cvf::CellRangeFilter cellRangeFilter;
         view()->cellFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, 0 );
-        RivFemElmVisibilityCalculator::computeRangeVisibility( cellGridIdxVisibility.p(), m_femPart.p(), cellRangeFilter );
+
+        cvf::UByteArray indexIncludeVis = ( *cellGridIdxVisibility.p() );
+        cvf::UByteArray indexExcludeVis = ( *cellGridIdxVisibility.p() );
+        view()->cellFilterCollection()->updateCellVisibilityByIndex( &indexIncludeVis, &indexExcludeVis, 0 );
+
+        RivFemElmVisibilityCalculator::computeRangeVisibility( cellGridIdxVisibility.p(),
+                                                               m_femPart.p(),
+                                                               cellRangeFilter,
+                                                               &indexIncludeVis,
+                                                               &indexExcludeVis,
+                                                               view()->cellFilterCollection()->hasActiveIncludeIndexFilters() );
     }
     if ( view()->propertyFilterCollection()->isActive() )
     {
@@ -173,7 +184,7 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
 cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox( int timeStep, int frameIndex ) const
 {
     RigFemResultAddress          porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL,
-                                    "POR-Bar",
+                                    RigFemAddressDefines::porBar(),
                                     view()->cellResult()->resultComponentName().toStdString() );
     RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
@@ -274,7 +285,7 @@ std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
 
     if ( m_limitToPorePressureRegions )
     {
-        resAddr = RigFemResultAddress( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
+        resAddr = RigFemAddressDefines::elementNodalPorBarAddress();
     }
 
     std::vector<double> cellResults = generateResultsFromAddress( resAddr, mapCellVisibility, view()->currentTimeStep() );
@@ -361,14 +372,14 @@ std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( 
     if ( !resultAddress.isValid() )
     {
         wasInvalid    = true;
-        resultAddress = RigFemResultAddress( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
+        resultAddress = RigFemAddressDefines::elementNodalPorBarAddress();
     }
 
     if ( resultAddress.fieldName == "PP" )
     {
-        resultAddress.fieldName = "POR-Bar"; // More likely to be in memory than POR
+        resultAddress.fieldName = RigFemAddressDefines::porBar(); // More likely to be in memory than POR
     }
-    if ( resultAddress.fieldName == "POR-Bar" )
+    if ( resultAddress.fieldName == RigFemAddressDefines::porBar() )
     {
         resultAddress.resultPosType = RIG_ELEMENT_NODAL;
     }
@@ -531,7 +542,7 @@ std::vector<double> RimGeoMechContourMapProjection::gridCellValues( RigFemResult
     for ( size_t globalCellIdx = 0; globalCellIdx < static_cast<size_t>( m_femPart->elementCount() ); ++globalCellIdx )
     {
         RigElementType elmType = m_femPart->elementType( globalCellIdx );
-        if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+        if ( elmType != HEX8 && elmType != HEX8P ) continue;
 
         if ( resAddr.resultPosType == RIG_ELEMENT )
         {

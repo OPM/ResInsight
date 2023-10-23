@@ -26,6 +26,7 @@ CAF_PDM_SOURCE_INIT( RimUserDefinedFilter, "UserDefinedFilter" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimUserDefinedFilter::RimUserDefinedFilter()
+    : RimCellFilter( RimCellFilter::RANGE )
 {
     CAF_PDM_InitObject( "User Defined Filter", ":/CellFilter_UserDefined.png" );
     CAF_PDM_InitFieldNoDefault( &m_individualCellIndices, "IndividualCellIndices", "Cells", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
@@ -85,7 +86,7 @@ void RimUserDefinedFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeF
 
     if ( gridIndex != m_gridIndex ) return;
 
-    if ( this->filterMode() == RimCellFilter::INCLUDE )
+    if ( filterMode() == RimCellFilter::INCLUDE )
     {
         for ( const auto& cellIndex : m_individualCellIndices() )
         {

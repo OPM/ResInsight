@@ -129,7 +129,7 @@ RimEclipseCase::RimEclipseCase()
     m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
-    this->setReservoirData( nullptr );
+    setReservoirData( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,15 +151,15 @@ RimEclipseCase::~RimEclipseCase()
             RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
             if ( plotCollection )
             {
-                plotCollection->removeExtractors( this->eclipseCaseData() );
+                plotCollection->removeExtractors( eclipseCaseData() );
             }
         }
     }
 
-    if ( this->eclipseCaseData() )
+    if ( eclipseCaseData() )
     {
         // At this point, we assume that memory should be released
-        CVF_ASSERT( this->eclipseCaseData()->refCount() == 1 );
+        CVF_ASSERT( eclipseCaseData()->refCount() == 1 );
     }
 }
 
@@ -217,7 +217,7 @@ cvf::Color3f RimEclipseCase::defaultWellColor( const QString& wellName )
         cvf::Color3ubArray     wellColors             = colorTable.color3ubArray();
         cvf::Color3ubArray     interpolatedWellColors = wellColors;
 
-        const cvf::Collection<RigSimWellData>& simWellData = this->eclipseCaseData()->wellResults();
+        const cvf::Collection<RigSimWellData>& simWellData = eclipseCaseData()->wellResults();
         if ( simWellData.size() > 1 )
         {
             interpolatedWellColors = caf::ColorTable::interpolateColorArray( wellColors, simWellData.size() );
@@ -665,7 +665,7 @@ void RimEclipseCase::computeCachedData()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseCase::parentCaseCollection()
 {
-    return dynamic_cast<RimCaseCollection*>( this->parentField()->ownerObject() );
+    return dynamic_cast<RimCaseCollection*>( parentField()->ownerObject() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -708,8 +708,8 @@ void RimEclipseCase::loadAndSynchronizeInputProperties( bool importGridOrFaultDa
 {
     // Make sure we actually have reservoir data
 
-    CVF_ASSERT( this->eclipseCaseData() );
-    CVF_ASSERT( this->eclipseCaseData()->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
+    CVF_ASSERT( eclipseCaseData() );
+    CVF_ASSERT( eclipseCaseData()->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
 
     // Then read the properties from all the files referenced by the InputReservoir
 
@@ -778,7 +778,7 @@ void RimEclipseCase::createDisplayModelAndUpdateAllViews()
 void RimEclipseCase::setReservoirData( RigEclipseCaseData* eclipseCase )
 {
     m_rigEclipseCase = eclipseCase;
-    if ( this->eclipseCaseData() )
+    if ( eclipseCaseData() )
     {
         m_fractureModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
         m_matrixModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
@@ -1092,7 +1092,7 @@ QStringList RimEclipseCase::timeStepStrings() const
         int timeStepCount = static_cast<int>( cellResultData->maxTimeStepCount() );
         for ( int i = 0; i < timeStepCount; i++ )
         {
-            stringList += this->timeStepName( i );
+            stringList += timeStepName( i );
         }
     }
 

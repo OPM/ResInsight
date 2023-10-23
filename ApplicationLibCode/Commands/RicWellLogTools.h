@@ -30,7 +30,7 @@ class Rim3dView;
 class Rim3dWellLogCurveCollection;
 class RimWellLogExtractionCurve;
 class RimWellLogFileChannel;
-class RimWellLogFileCurve;
+class RimWellLogLasFileCurve;
 class RimWellLogRftCurve;
 class RimWellLogTrack;
 class RimWellLogWbsCurve;
@@ -51,10 +51,10 @@ public:
     static bool              hasRftDataForWell( const QString& wellName );
     static bool              isWellPathOrSimWellSelectedInView();
     static void addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels );
-    static RimWellPath*         selectedWellPathWithLogFile();
-    static RimWellPath*         findWellPathWithLogFileFromSelection();
-    static RimWellLogRftCurve*  addRftCurve( RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow = true );
-    static RimWellLogFileCurve* addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow = true );
+    static RimWellPath*            selectedWellPathWithLogFile();
+    static RimWellPath*            findWellPathWithLogFileFromSelection();
+    static RimWellLogRftCurve*     addRftCurve( RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow = true );
+    static RimWellLogLasFileCurve* addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow = true );
 
     static RimWellLogExtractionCurve* addWellLogExtractionCurve( RimWellLogTrack*        plotTrack,
                                                                  RimCase*                rimCase,

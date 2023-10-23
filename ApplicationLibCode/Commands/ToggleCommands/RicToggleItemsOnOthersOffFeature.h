@@ -37,12 +37,12 @@ class RicToggleItemsOnOthersOffFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmFieldHandle*               commonParentForAllSelections( const std::vector<caf::PdmObject*>& selectedObjects );
-    std::vector<caf::PdmObjectHandle*> childObjects( caf::PdmFieldHandle* parent );
-    caf::PdmField<bool>*               objectToggleField( caf::PdmObjectHandle* objectHandle );
+    static caf::PdmFieldHandle*               commonParentForAllSelections( const std::vector<caf::PdmObject*>& selectedObjects );
+    static std::vector<caf::PdmObjectHandle*> childObjects( caf::PdmFieldHandle* parent );
+    static caf::PdmField<bool>*               objectToggleField( caf::PdmObjectHandle* objectHandle );
 };

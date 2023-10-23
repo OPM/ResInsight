@@ -63,14 +63,21 @@ public:
     void setReadOnlyLastFrame( bool onlyLast );
     bool readOnlyLastFrame() const;
 
+    std::vector<std::pair<QString, QDateTime>> allTimeSteps() const;
+
+    static void timeStepOptions( QList<caf::PdmOptionItemInfo>& options,
+                                 const caf::PdmFieldHandle*     timestepField,
+                                 std::vector<QDateTime>         availableTimeSteps,
+                                 std::vector<QDateTime>         selectedTimeSteps,
+                                 TimeStepFilterTypeEnum         filterType );
+
 protected:
     void initAfterRead() override;
 
 private:
     static QDateTime incrementDateTime( const QDateTime& dateTime, TimeStepFilterTypeEnum filterType, int interval );
 
-    std::vector<std::pair<QString, QDateTime>> allTimeSteps() const;
-    std::vector<int>                           filteredTimeStepIndicesFromUi() const;
+    std::vector<int> filteredTimeStepIndicesFromUi() const;
 
     void                  updateFieldVisibility();
     RimEclipseResultCase* parentEclipseResultCase() const;

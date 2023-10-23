@@ -35,14 +35,6 @@ CAF_CMD_SOURCE_INIT( RicNewGridSurfaceFeature, "RicNewGridSurfaceFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewGridSurfaceFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewGridSurfaceFeature::onActionTriggered( bool isChecked )
 {
     RimProject* proj = RimProject::current();

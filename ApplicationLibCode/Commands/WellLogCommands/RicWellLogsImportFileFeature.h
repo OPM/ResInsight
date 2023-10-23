@@ -23,7 +23,7 @@
 
 #include <vector>
 
-class RimWellLogFile;
+class RimWellLogLasFile;
 
 //==================================================================================================
 ///
@@ -31,11 +31,10 @@ class RimWellLogFile;
 class RicWellLogsImportFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-    static std::vector<RimWellLogFile*> importWellLogFiles( const QStringList& wellLogFilePaths, QStringList* errorMessages );
-    static QStringList                  wellLogFileNameFilters();
+    static std::vector<RimWellLogLasFile*> importWellLogFiles( const QStringList& wellLogFilePaths, QStringList* errorMessages );
+    static QStringList                     wellLogFileNameFilters();
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

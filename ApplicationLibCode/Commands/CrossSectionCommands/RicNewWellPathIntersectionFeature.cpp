@@ -45,14 +45,6 @@ RicNewWellPathIntersectionFeature::RicNewWellPathIntersectionFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellPathIntersectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewWellPathIntersectionFeature::onActionTriggered( bool isChecked )
 {
     RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();

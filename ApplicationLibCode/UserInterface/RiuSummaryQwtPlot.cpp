@@ -81,15 +81,9 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     connect( m_plotWidget, SIGNAL( customContextMenuRequested( QPoint ) ), this, SLOT( showContextMenu( QPoint ) ) );
 
     // LeftButton for the zooming
-    m_zoomerLeft = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
-    m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->initMousePattern( 1 );
-
-    // Attach a zoomer for the right axis
-    m_zoomerRight = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
-    m_zoomerRight->setAxes( QwtAxis::XTop, QwtAxis::YRight );
-    m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerRight->initMousePattern( 1 );
+    m_plotZoomer = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
+    m_plotZoomer->setTrackerMode( QwtPicker::AlwaysOff );
+    m_plotZoomer->initMousePattern( 1 );
 
     // MidButton for the panning
     QwtPlotPanner* panner = new QwtPlotPanner( m_plotWidget->qwtPlot()->canvas() );
@@ -98,8 +92,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     m_wheelZoomer = new RiuQwtPlotWheelZoomer( m_plotWidget->qwtPlot() );
 
     connect( m_wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
-    connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
-    connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
+    connect( m_plotZoomer, SIGNAL( zoomed() ), SLOT( onZoomedSlot() ) );
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
 
     setDefaults();
@@ -150,7 +143,7 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
 {
     RiaDefines::Orientation orientation = RiaDefines::Orientation::HORIZONTAL;
-    if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+    if ( axisProperties->plotAxis().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
         orientation = RiaDefines::Orientation::VERTICAL;
     }
@@ -194,7 +187,7 @@ void RiuSummaryQwtPlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 bool RiuSummaryQwtPlot::isZoomerActive() const
 {
-    return m_zoomerLeft->isActiveAndValid() || m_zoomerRight->isActiveAndValid();
+    return m_plotZoomer->isActiveAndValid();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,8 +195,7 @@ bool RiuSummaryQwtPlot::isZoomerActive() const
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::endZoomOperations()
 {
-    m_zoomerLeft->endZoomOperation();
-    m_zoomerRight->endZoomOperation();
+    m_plotZoomer->endZoomOperation();
 }
 
 //--------------------------------------------------------------------------------------------------

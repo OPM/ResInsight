@@ -82,12 +82,24 @@ public:
     cvf::ref<RigWellLogCurveData> calculateResampledCurveData( double newMeasuredDepthStepSize ) const;
     cvf::ref<RigWellLogCurveData> calculateResampledCurveData( RiaDefines::DepthTypeEnum  resamplingDepthType,
                                                                const std::vector<double>& depths ) const;
-    void                          interpolateSegment( RiaDefines::DepthTypeEnum                                 resamplingDepthType,
-                                                      double                                                    depthValue,
-                                                      size_t                                                    firstIndex,
-                                                      std::vector<double>&                                      xValues,
-                                                      std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& resampledDepths,
-                                                      const double                                              eps ) const;
+
+    // Made static due to unit testing
+    static void createAndAddInterpolatedSegmentValueAndDepths( std::vector<double>&                                      resampledValues,
+                                                               std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& resampledDepths,
+                                                               RiaDefines::DepthTypeEnum resamplingDepthType,
+                                                               double                    targetDepthValue,
+                                                               size_t                    firstIndex,
+                                                               size_t                    secondIndex,
+                                                               const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& originalDepths,
+                                                               const std::vector<double>& propertyValues,
+                                                               double                     eps );
+
+    // Made static due to unit testing
+    static std::pair<std::vector<double>, std::map<RiaDefines::DepthTypeEnum, std::vector<double>>>
+        createResampledValuesAndDepths( RiaDefines::DepthTypeEnum                                       resamplingDepthType,
+                                        const std::vector<double>&                                      targetDepths,
+                                        const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& originalDepths,
+                                        const std::vector<double>&                                      propertyValues );
 
 private:
     void calculateIntervalsOfContinousValidValues();

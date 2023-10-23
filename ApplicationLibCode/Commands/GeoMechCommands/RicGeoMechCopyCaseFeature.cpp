@@ -38,14 +38,6 @@ CAF_CMD_SOURCE_INIT( RicGeoMechCopyCaseFeature, "RicGeoMechCopyCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicGeoMechCopyCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicGeoMechCopyCaseFeature::onActionTriggered( bool isChecked )
 {
     RimGeoMechModels* coll = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGeoMechModels>();

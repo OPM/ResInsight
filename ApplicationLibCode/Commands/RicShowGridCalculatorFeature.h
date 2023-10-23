@@ -37,7 +37,6 @@ private:
     static RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
     static void                     hideGridCalculatorDialog();
 
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

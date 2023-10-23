@@ -168,9 +168,7 @@ bool RicfCreateMultipleFractures::validateArguments() const
 {
     bool valid = m_caseId >= 0 && m_templateId >= 0;
 
-    if ( valid ) return true;
-
-    return false;
+    return valid;
 }
 
 //--------------------------------------------------------------------------------------------------

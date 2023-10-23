@@ -306,7 +306,7 @@ std::vector<RigCompletionData>
         const RigFractureGrid* fractureGrid = fracture->fractureGrid();
         if ( !fractureGrid ) continue;
 
-        bool useFiniteConductivityInFracture = ( fracTemplate->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY );
+        bool useFiniteConductivityInFracture = fracTemplate->useFiniteConductivityInFracture();
 
         // If finite cond chosen and conductivity not present in stimplan file, do not calculate trans for this fracture
         if ( useFiniteConductivityInFracture && !checkForStimPlanConductivity( fracTemplate, fracture ) )
@@ -331,11 +331,14 @@ std::vector<RigCompletionData>
         if ( useFiniteConductivityInFracture )
         {
             calculateInternalFractureTransmissibilities( fractureGrid, cDarcyInCorrectUnit, transCondenser );
-        }
-
-        if ( useFiniteConductivityInFracture )
-        {
-            calculateFractureToWellTransmissibilities( fracTemplate, fractureGrid, fracture, cDarcyInCorrectUnit, wellPathGeometry, transCondenser );
+            bool useInfiniteWellPI = fracTemplate->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY_INFINITE_WELL_PI;
+            calculateFractureToWellTransmissibilities( fracTemplate,
+                                                       fractureGrid,
+                                                       fracture,
+                                                       cDarcyInCorrectUnit,
+                                                       wellPathGeometry,
+                                                       transCondenser,
+                                                       useInfiniteWellPI );
         }
 
         /////
@@ -454,8 +457,8 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
 
             if ( summaryCase && summaryCase->summaryReader() )
             {
-                std::vector<double> values;
-                if ( summaryCase->summaryReader()->values( wbhpPressureAddress, &values ) )
+                auto [isOk, values] = summaryCase->summaryReader()->values( wbhpPressureAddress );
+                if ( isOk )
                 {
                     std::vector<time_t> summaryTimeSteps = summaryCase->summaryReader()->timeSteps( wbhpPressureAddress );
                     CVF_ASSERT( values.size() == summaryTimeSteps.size() );
@@ -581,13 +584,16 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                                                   gsl::not_null<const RimFracture*>         fracture,
                                                                                   double                            cDarcyInCorrectUnit,
                                                                                   gsl::not_null<const RigWellPath*> wellPathGeometry,
-                                                                                  RigTransmissibilityCondenser&     transCondenser )
+                                                                                  RigTransmissibilityCondenser&     transCondenser,
+                                                                                  bool                              useInfiniteWellPI )
 {
     // If fracture has orientation Azimuth (without user-defined perforation length) or Transverse,
     // assume only radial inflow
     bool useRadialInflow =
         ( fracTemplate->orientationType() == RimFractureTemplate::AZIMUTH && !fracTemplate->useUserDefinedPerforationLength() ) ||
         fracTemplate->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH;
+
+    const double infiniteWellTrans = 1000000.0;
 
     if ( useRadialInflow )
     {
@@ -602,6 +608,11 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                                                                   fracture->wellRadius(),
                                                                                                   fracTemplate->skinFactor(),
                                                                                                   cDarcyInCorrectUnit );
+
+        if ( useInfiniteWellPI )
+        {
+            radialTrans = infiniteWellTrans;
+        }
 
         transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
                                                     { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex },
@@ -650,6 +661,11 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                                                                    fracTemplate->skinFactor(),
                                                                                                    cDarcyInCorrectUnit,
                                                                                                    fracture->wellRadius() );
+            }
+
+            if ( useInfiniteWellPI && linearTrans > 0.0 )
+            {
+                linearTrans = infiniteWellTrans;
             }
 
             transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },

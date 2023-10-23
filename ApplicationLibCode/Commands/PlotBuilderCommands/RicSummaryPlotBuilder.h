@@ -27,6 +27,7 @@ class RimSummaryPlot;
 class RimEnsembleCurveSet;
 class RimSummaryCurve;
 class RimSummaryMultiPlot;
+class RiaSummaryCurveAddress;
 
 namespace caf
 {
@@ -90,10 +91,20 @@ public:
                                        const std::vector<RimSummaryCase*>&           summaryCases,
                                        const std::vector<RimSummaryCaseCollection*>& ensembles );
 
+    static RimSummaryPlot* createCrossPlot( const std::vector<RiaSummaryCurveAddress>&    addresses,
+                                            const std::vector<RimSummaryCase*>&           summaryCases,
+                                            const std::vector<RimSummaryCaseCollection*>& ensembles );
+
     static void appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
                                     const std::set<RifEclipseSummaryAddress>&     addresses,
                                     const std::vector<RimSummaryCase*>&           summaryCases,
                                     const std::vector<RimSummaryCaseCollection*>& ensembles );
+
+    static RimEnsembleCurveSet*
+        addNewEnsembleCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCaseCollection* ensemble );
+
+    static RimSummaryCurve*
+        addNewSummaryCurve( RimSummaryPlot* summaryPlot, const RiaSummaryCurveAddress& curveAddress, RimSummaryCase* summaryCase );
 
 private:
     std::set<RifEclipseSummaryAddress>     m_addresses;

@@ -269,7 +269,7 @@ void RimRftTopologyCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 {
     RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
-    this->loadDataAndUpdate( true );
+    loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ void RimRftTopologyCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+    RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     if ( m_summaryCase )
     {

@@ -32,8 +32,12 @@ public:
     static RiuPlotAxis defaultRight();
     static RiuPlotAxis defaultTop();
     static RiuPlotAxis defaultBottom();
+    static RiuPlotAxis defaultBottomForSummaryVectors();
 
     RiaDefines::PlotAxis axis() const;
+
+    bool isHorizontal() const;
+    bool isVertical() const;
 
     int index() const;
 

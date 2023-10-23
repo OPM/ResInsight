@@ -160,9 +160,7 @@ RimEclipseCase* RiaSocketServer::findReservoir( int caseId )
         RimProject* project = RimProject::current();
         if ( !project ) return nullptr;
 
-        std::vector<RimCase*> cases;
-        project->allCases( cases );
-
+        std::vector<RimCase*> cases = project->allGridCases();
         for ( size_t i = 0; i < cases.size(); i++ )
         {
             if ( cases[i]->caseId() == currCaseId )
@@ -211,7 +209,7 @@ bool RiaSocketServer::readCommandFromOctave()
         args.push_back( arg );
     }
 
-    CVF_ASSERT( args.size() > 0 );
+    CVF_ASSERT( !args.empty() );
 
     // Create the actual RiaSocketCommand object that will interpret the socket data
 
@@ -346,11 +344,11 @@ void RiaSocketServer::handleNextPendingConnection()
 
         if ( m_currentClient->bytesAvailable() )
         {
-            bool isFinished = this->readCommandFromOctave();
+            bool isFinished = readCommandFromOctave();
             if ( isFinished )
             {
                 // Call ourselves recursively until there are none left, or until it can not be processed in one go.
-                this->handleNextPendingConnection();
+                handleNextPendingConnection();
             }
         }
     }

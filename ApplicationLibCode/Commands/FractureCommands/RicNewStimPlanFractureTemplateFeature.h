@@ -42,7 +42,6 @@ protected:
     static std::vector<RimStimPlanFractureTemplate*> createNewTemplates();
     void                                             onActionTriggered( bool isChecked ) override;
     void                                             setupActionLook( QAction* actionToSetup ) override;
-    bool                                             isCommandEnabled() override;
 
     static QString fileFilter();
     static QString title();

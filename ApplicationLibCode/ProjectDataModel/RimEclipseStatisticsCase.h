@@ -74,6 +74,8 @@ public:
 
     void populateResultSelectionAfterLoadingGrid();
 
+    void setSourceProperties( RiaDefines::ResultCatType propertyType, const std::vector<QString>& propertyNames );
+
 private:
     void scheduleACTIVEGeometryRegenOnReservoirViews();
 

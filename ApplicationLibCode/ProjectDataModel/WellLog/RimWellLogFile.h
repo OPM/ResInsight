@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2023-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,18 +18,14 @@
 
 #pragma once
 
-#include "RigWellLogFile.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
 
-#include <QDateTime>
+#include <QString>
 
 class RimWellLogFileChannel;
 class RimWellPath;
-
-class QString;
 
 //==================================================================================================
 ///
@@ -40,59 +35,18 @@ class RimWellLogFile : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
-    const static QDateTime DEFAULT_DATE_TIME;
-
 public:
     RimWellLogFile();
     ~RimWellLogFile() override;
 
-    static RimWellLogFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
+    virtual void                                setFileName( const QString& fileName );
+    virtual QString                             fileName() const;
+    virtual std::vector<RimWellLogFileChannel*> wellLogChannels() const;
 
-    void    setFileName( const QString& fileName );
-    QString fileName() const { return m_fileName().path(); }
-    QString name() const { return m_name; }
+    virtual std::vector<std::pair<double, double>>
+        findMdAndChannelValuesForWellPath( const RimWellPath& wellPath, const QString& channelName, QString* unitString = nullptr ) = 0;
 
-    bool readFile( QString* errorMessage );
-
-    QString   wellName() const;
-    QDateTime date() const;
-
-    RigWellLogFile*                     wellLogFileData() { return m_wellLogDataFile.p(); }
-    std::vector<RimWellLogFileChannel*> wellLogChannels() const;
-
-    bool hasFlowData() const;
-
-    enum WellFlowCondition
-    {
-        WELL_FLOW_COND_RESERVOIR,
-        WELL_FLOW_COND_STANDARD
-    };
-
-    RimWellLogFile::WellFlowCondition wellFlowRateCondition() const { return m_wellFlowCondition(); }
-
-    static std::vector<std::pair<double, double>>
-        findMdAndChannelValuesForWellPath( const RimWellPath* wellPath, const QString& channelName, QString* unitString = nullptr );
-
-private:
-    void setupBeforeSave() override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
-    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
-
-    static bool isDateValid( const QDateTime dateTime );
-
+protected:
     caf::PdmChildArrayField<RimWellLogFileChannel*> m_wellLogChannelNames;
-
-private:
-    cvf::ref<RigWellLogFile>                       m_wellLogDataFile;
-    caf::PdmField<QString>                         m_wellName;
-    caf::PdmField<caf::FilePath>                   m_fileName;
-    caf::PdmField<QString>                         m_name;
-    caf::PdmField<QDateTime>                       m_date;
-    bool                                           m_lasFileHasValidDate;
-    caf::PdmField<caf::AppEnum<WellFlowCondition>> m_wellFlowCondition;
-
-    caf::PdmField<QString> m_invalidDateMessage;
+    caf::PdmField<caf::FilePath>                    m_fileName;
 };

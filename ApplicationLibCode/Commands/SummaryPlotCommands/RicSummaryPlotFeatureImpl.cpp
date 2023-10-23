@@ -310,7 +310,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                                                 &summaryAddressFilters,
                                                                 &gridResultAddressFilters );
 
-    if ( summaryAddressFilters.size() )
+    if ( !summaryAddressFilters.empty() )
     {
         RimSummaryCaseCollection* ensemble = nullptr;
 
@@ -368,7 +368,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
     // Grid Cell Result vectors
 
-    if ( gridResultAddressFilters.size() )
+    if ( !gridResultAddressFilters.empty() )
     {
         // Todo: Use identical grid case import if -e -c or -cl
 
@@ -415,7 +415,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                 }
             }
 
-            if ( createdCurves.size() )
+            if ( !createdCurves.empty() )
             {
                 RimSummaryPlot* newPlot = new RimSummaryPlot();
                 newPlot->enableAutoPlotTitle( true );
@@ -471,7 +471,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
                     if ( isEnsembleMode ) ++curveColorIndex;
 
-                    if ( createdCurves.size() )
+                    if ( !createdCurves.empty() )
                     {
                         RimSummaryPlot* newPlot = new RimSummaryPlot();
                         newPlot->enableAutoPlotTitle( true );
@@ -553,7 +553,7 @@ RimEnsembleCurveSet* RicSummaryPlotFeatureImpl::createCurveSet( RimSummaryCaseCo
     auto curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryCaseCollection( ensemble );
-    curveSet->setSummaryAddressAndStatisticsFlag( addr );
+    curveSet->setSummaryAddressYAndStatisticsFlag( addr );
 
     if ( ensembleColoringStyle == EnsembleColoringType::PARAMETER || ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )
     {
@@ -633,7 +633,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
             if ( historyCurve ) createdCurves.push_back( historyCurve );
         }
 
-        if ( createdCurves.size() || createdEnsembleCurveSets.size() )
+        if ( !createdCurves.empty() || !createdEnsembleCurveSets.empty() )
         {
             RimSummaryPlot* newPlot = new RimSummaryPlot();
             newPlot->enableAutoPlotTitle( true );

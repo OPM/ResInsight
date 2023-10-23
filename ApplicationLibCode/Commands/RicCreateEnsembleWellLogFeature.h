@@ -38,7 +38,6 @@ public:
     static RimEclipseCase* loadEclipseCase( const QString& fileName );
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

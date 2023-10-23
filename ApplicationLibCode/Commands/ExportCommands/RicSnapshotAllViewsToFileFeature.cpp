@@ -90,9 +90,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
 
     RiaLogging::info( QString( "Exporting snapshot of all views to %1" ).arg( snapshotFolderName ) );
 
-    std::vector<RimCase*> projectCases;
-    project->allCases( projectCases );
-
+    std::vector<RimCase*> projectCases = project->allGridCases();
     for ( size_t i = 0; i < projectCases.size(); i++ )
     {
         RimCase* cas = projectCases[i];
@@ -143,14 +141,6 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicSnapshotAllViewsToFileFeature::isCommandEnabled()
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

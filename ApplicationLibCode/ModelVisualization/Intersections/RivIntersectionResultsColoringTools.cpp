@@ -32,6 +32,7 @@
 #include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
@@ -223,12 +224,8 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors( const R
                                                                          cvf::Part*       intersectionFacesPart,
                                                                          cvf::Vec2fArray* intersectionFacesTextureCoords )
 {
-    RigGeoMechCaseData* caseData = nullptr;
-    RigFemResultAddress resVarAddress;
-    {
-        caseData      = geomResultDef->ownerCaseData();
-        resVarAddress = geomResultDef->resultAddress();
-    }
+    RigGeoMechCaseData* caseData      = geomResultDef->ownerCaseData();
+    RigFemResultAddress resVarAddress = RigFemAddressDefines::getResultLookupAddress( geomResultDef->resultAddress() );
 
     if ( !caseData ) return;
 
@@ -291,12 +288,6 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors( const R
     }
     else
     {
-        // Do a "Hack" to show elm nodal and not nodal POR results
-
-        if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" )
-        {
-            resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
-        }
         bool isElementNodalResult = !( resVarAddress.resultPosType == RIG_NODAL );
 
         if ( caseData->femPartResults()->partCount() == 1 )
@@ -377,7 +368,7 @@ void RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoo
 {
     textureCoords->resize( triangleToCellIdx.size() * 3 );
 
-    if ( resultValues.size() == 0 )
+    if ( resultValues.empty() )
     {
         textureCoords->setAll( cvf::Vec2f( 0.0, 1.0f ) );
     }

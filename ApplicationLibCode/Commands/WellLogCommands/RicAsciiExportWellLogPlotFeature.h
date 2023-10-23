@@ -37,7 +37,6 @@ public:
     static bool exportAsciiForWellLogPlot( const QString& fileName, const RimWellLogPlot* wellLogPlot );
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

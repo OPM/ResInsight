@@ -85,7 +85,7 @@ public:
     caf::PdmField<QString> title;
     caf::PdmField<bool>    showTitle;
 
-    RiuPlotAxis           plotAxisType() const override;
+    RiuPlotAxis           plotAxis() const override;
     AxisTitlePositionType titlePosition() const override;
     int                   titleFontSize() const override;
     int                   valuesFontSize() const override;
@@ -135,7 +135,7 @@ public:
 
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
-    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count );
+    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count, bool notifyFieldChanged );
     void                enableAutoValueForMajorTickmarkCount( bool enable );
 
     const QString objectName() const override;

@@ -98,17 +98,8 @@ void RivTextAnnotationPartMgr::buildParts( const caf::DisplayCoordTransform* dis
     {
         std::vector<cvf::Vec3d> points = { anchorPosition, labelPosition };
 
-        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( points );
-
-        cvf::ref<cvf::Part> part = new cvf::Part;
+        auto part = RivAnnotationTools::createPartFromPolyline( anchorLineColor, points );
         part->setName( "RivTextAnnotationPartMgr" );
-        part->setDrawable( drawableGeo.p() );
-
-        caf::MeshEffectGenerator colorEffgen( anchorLineColor );
-        cvf::ref<cvf::Effect>    eff = colorEffgen.generateUnCachedEffect();
-
-        part->setEffect( eff.p() );
-        part->setPriority( RivPartPriority::PartType::MeshLines );
         part->setSourceInfo( new RivObjectSourceInfo( rimAnnotation() ) );
 
         m_linePart = part;
@@ -116,30 +107,14 @@ void RivTextAnnotationPartMgr::buildParts( const caf::DisplayCoordTransform* dis
 
     // Text part
     {
-        auto                        font         = RiaFontCache::getFont( fontSize );
-        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont( font.p() );
-        drawableText->setCheckPosVisible( false );
-        drawableText->setUseDepthBuffer( true );
-        drawableText->setDrawBorder( true );
-        drawableText->setDrawBackground( true );
-        drawableText->setVerticalAlignment( cvf::TextDrawer::BASELINE );
-        drawableText->setBackgroundColor( backgroundColor );
-        drawableText->setBorderColor( RiaColorTools::computeOffsetColor( backgroundColor, 0.3f ) );
-        drawableText->setTextColor( fontColor );
+        auto font = RiaFontCache::getFont( fontSize );
 
+        auto drawableText =
+            RivAnnotationTools::createDrawableText( font.p(), fontColor, backgroundColor, text.toStdString(), cvf::Vec3f( labelPosition ) );
+
+        auto        part      = RivAnnotationTools::createPart( drawableText.p() );
         cvf::String cvfString = cvfqt::Utils::toString( text );
-
-        cvf::Vec3f textCoord( labelPosition );
-        drawableText->addText( cvfString, textCoord );
-
-        cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName( "RivTextAnnotationPartMgr: " + cvfString );
-        part->setDrawable( drawableText.p() );
-
-        cvf::ref<cvf::Effect> eff = new cvf::Effect();
-        part->setEffect( eff.p() );
-        part->setPriority( RivPartPriority::PartType::MeshLines );
 
         m_labelPart = part;
     }
@@ -182,10 +157,8 @@ bool RivTextAnnotationPartMgr::isTextInBoundingBox( const cvf::BoundingBox& boun
     if ( !coll ) return false;
 
     auto effectiveBoundingBox = RiaBoundingBoxTools::inflate( boundingBox, 3 );
-    if ( effectiveBoundingBox.contains( getAnchorPointInDomain( coll->snapAnnotations(), coll->annotationPlaneZ() ) ) ||
-         effectiveBoundingBox.contains( getLabelPointInDomain( coll->snapAnnotations(), coll->annotationPlaneZ() ) ) )
-        return true;
-    return false;
+    return effectiveBoundingBox.contains( getAnchorPointInDomain( coll->snapAnnotations(), coll->annotationPlaneZ() ) ) ||
+           effectiveBoundingBox.contains( getLabelPointInDomain( coll->snapAnnotations(), coll->annotationPlaneZ() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

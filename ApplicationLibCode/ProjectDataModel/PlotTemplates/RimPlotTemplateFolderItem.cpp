@@ -131,7 +131,7 @@ void RimPlotTemplateFolderItem::setFolderPath( const QString& path )
     m_folderName.v().setPath( path );
 
     QFileInfo fi( path );
-    this->uiCapability()->setUiName( fi.baseName() );
+    uiCapability()->setUiName( fi.baseName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ void RimPlotTemplateFolderItem::searchForFileAndFolderNames( int levelsLeft )
         return;
     }
 
-    QDir myDir( this->m_folderName().path() );
+    QDir myDir( m_folderName().path() );
     if ( !myDir.isReadable() )
     {
         return;

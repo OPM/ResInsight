@@ -71,6 +71,14 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForFi
         {
             fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
         }
+        else if ( fieldTypeName.indexOf( "PdmProxyValueField" ) != -1 && fieldTypeName.indexOf( "std::vector" ) != -1 &&
+                  fieldTypeName.indexOf( "QString" ) != -1 )
+        {
+            // The PdmUiTreeSelectionEditor is the default editor for PdmProxyValueField<std::vector<QString>>, but does
+            // not work for proxy fields. Use setUiEditorTypeName() to override the default editor.
+            // https://github.com/OPM/ResInsight/issues/10483
+            fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
+        }
         else if ( field->toUiBasedQVariant().type() != QVariant::List )
         {
             // Handle a single value field with valueOptions: Make a combobox

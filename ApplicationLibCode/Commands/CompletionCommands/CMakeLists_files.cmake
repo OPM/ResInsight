@@ -12,6 +12,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportValveTemplatesFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -28,6 +29,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportValveTemplatesFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicEditScriptFeature, "RicEditScriptFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEditScriptFeature::isCommandEnabled()
+bool RicEditScriptFeature::isCommandEnabled() const
 {
     std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
     return !selection.empty();

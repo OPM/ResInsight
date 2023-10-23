@@ -25,14 +25,6 @@ CAF_CMD_SOURCE_INIT( RicImportRoffCaseFeature, "RicImportRoffCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportRoffCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportRoffCaseFeature::onActionTriggered( bool isChecked )
 {
     RicImportGeneralDataFeature::openFileDialog( RiaDefines::ImportFileType::ROFF_FILE );

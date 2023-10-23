@@ -25,6 +25,14 @@ double roundToClosestPowerOfTenFloor( double value );
 double computeTenExponentCeil( double value );
 double computeTenExponentFloor( double value );
 
-double roundToNumSignificantDigits( double value, double numSignificantDigits );
+double roundToNumSignificantDigitsFloor( double value, double numSignificantDigits );
+double roundToNumSignificantDigitsCeil( double value, double numSignificantDigits );
+
+enum class RoundToSignificantDigitsMode
+{
+    CEIL,
+    FLOOR
+};
+double roundToNumSignificantDigits( double value, double numSignificantDigits, RoundToSignificantDigitsMode mode );
 
 }; // namespace RiaNumericalTools

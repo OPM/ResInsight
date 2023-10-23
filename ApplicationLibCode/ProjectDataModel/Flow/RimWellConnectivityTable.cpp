@@ -20,6 +20,7 @@
 
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaWellFlowDefines.h"
 
 #include "RigAccWellFlowCalculator.h"
@@ -39,7 +40,7 @@
 #include "RimSimWellInView.h"
 #include "RimTools.h"
 #include "RimWellAllocationTools.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPlotTools.h"
 
 #include "RiuMatrixPlotWidget.h"
@@ -125,7 +126,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3D View" );
-    CAF_PDM_InitFieldNoDefault( &m_viewFilterType, "ViewFilterType", "Filter type" );
+    CAF_PDM_InitFieldNoDefault( &m_viewFilterType, "ViewFilterType", "    Filter type" );
 
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution" );
     m_flowDiagSolution.uiCapability()->setUiHidden( true );
@@ -214,8 +215,7 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
     auto eclView = simWell->firstAncestorOrThisOfType<RimEclipseView>();
     auto eclCase = simWell->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
-    m_cellFilterView = eclView;
-    m_case           = eclCase;
+    m_case = eclCase;
 
     // Set valid single time step and time step range selections based on case
     setValidTimeStepSelectionsForCase();
@@ -678,6 +678,9 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
     m_matrixPlotWidget->setAxisTitleFontSize( axisTitleFontSize() );
     m_matrixPlotWidget->setAxisLabelFontSize( axisLabelFontSize() );
 
+    const auto windowTitle = RiaStdStringTools::removeHtmlTags( createTableTitle().toStdString() );
+    m_matrixPlotWidget->setWindowTitle( QString::fromStdString( windowTitle ) );
+
     m_matrixPlotWidget->createPlot();
 }
 
@@ -916,8 +919,8 @@ std::vector<QString> RimWellConnectivityTable::getProductionWellNamesAtTimeSteps
 //--------------------------------------------------------------------------------------------------
 QString RimWellConnectivityTable::createTableTitle() const
 {
-    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
-    RimWellLogFile::WellFlowCondition condition = RimWellLogFile::WELL_FLOW_COND_RESERVOIR;
+    RiaDefines::EclipseUnitSystem        unitSet   = m_case->eclipseCaseData()->unitsType();
+    RimWellLogLasFile::WellFlowCondition condition = RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR;
 
     auto timeSampleValueTypeText = [&]() -> QString
     {

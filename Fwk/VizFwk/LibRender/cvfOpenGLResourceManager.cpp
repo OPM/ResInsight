@@ -82,7 +82,7 @@ OpenGLResourceManager::~OpenGLResourceManager()
     CVF_ASSERT(bufferObjectMemoryUsage() == 0);
     CVF_ASSERT(bufferObjectCount() == 0);
 
-    CVF_ASSERT(m_oglResources.size() == 0);
+    CVF_ASSERT(m_oglResources.empty());
 
     CVF_ASSERT(m_textShaderProgram.isNull());
     CVF_ASSERT(m_nudgeShaderProgram.isNull());

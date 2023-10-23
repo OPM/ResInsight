@@ -17,16 +17,18 @@ from Definitions_pb2 import Empty
 import Project_pb2_grpc
 import Project_pb2
 import PdmObject_pb2
-from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase
+from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase, Reservoir
+
+from typing import Optional, List
 
 
 @add_method(Project)
-def __custom_init__(self, pb2_object, channel):
+def __custom_init__(self, pb2_object, channel: grpc.Channel) -> None:
     self._project_stub = Project_pb2_grpc.ProjectStub(self._channel)
 
 
 @add_static_method(Project)
-def create(channel):
+def create(channel: grpc.Channel) -> Project:
     project_stub = Project_pb2_grpc.ProjectStub(channel)
     pb2_object = project_stub.GetPdmObject(Empty())
     return Project(pb2_object, channel)
@@ -56,13 +58,13 @@ def save(self, path=""):
 
 
 @add_method(Project)
-def close(self):
+def close(self) -> None:
     """Close the current project (and open new blank project)"""
     self._execute_command(closeProject=Empty())
 
 
 @add_method(Project)
-def load_case(self, path, grid_only=False):
+def load_case(self: Project, path: str, grid_only: bool = False) -> Reservoir:
     """Load a new grid case from the given file path
 
     Arguments:
@@ -77,7 +79,7 @@ def load_case(self, path, grid_only=False):
 
 
 @add_method(Project)
-def selected_cases(self):
+def selected_cases(self) -> List[Case]:
     """Get a list of all grid cases selected in the project tree
 
     Returns:
@@ -91,17 +93,17 @@ def selected_cases(self):
 
 
 @add_method(Project)
-def cases(self):
+def cases(self: Project) -> List[Reservoir]:
     """Get a list of all grid cases in the project
 
     Returns:
         A list of :class:`rips.generated.generated_classes.Case`
     """
-    return self.descendants(Case)
+    return self.descendants(Reservoir)
 
 
 @add_method(Project)
-def case(self, case_id):
+def case(self: Project, case_id: int) -> Optional[Reservoir]:
     """Get a specific grid case from the provided case Id
 
     Arguments:

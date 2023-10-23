@@ -110,7 +110,7 @@ Texture::~Texture()
 void Texture::setFromImage(TextureImage* image)
 {
     CVF_ASSERT(textureType() == TEXTURE_2D || textureType() == TEXTURE_RECTANGLE);
-    CVF_ASSERT(m_cubeMapImages.size() == 0);
+    CVF_ASSERT(m_cubeMapImages.empty());
     CVF_ASSERT(image);
 
     forgetCurrentOglTexture();
@@ -133,7 +133,7 @@ void Texture::setCubeMapImage(CubeMapFace face, TextureImage* cubeMapImage)
     forgetCurrentOglTexture();
     m_image = NULL;
 
-    if (m_cubeMapImages.size() == 0)
+    if (m_cubeMapImages.empty())
     {
         m_cubeMapImages.resize(6);
 
@@ -175,7 +175,7 @@ TextureImage* Texture::cubeMapImage(CubeMapFace face)
 void Texture::setSize(uint width, uint height)
 {
     CVF_ASSERT(m_image.isNull());
-    CVF_ASSERT(m_cubeMapImages.size() == 0);
+    CVF_ASSERT(m_cubeMapImages.empty());
 
     forgetCurrentOglTexture();
     clearImages();
@@ -322,7 +322,7 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
 
         case TEXTURE_CUBE_MAP:
         {
-            if (m_cubeMapImages.size() == 0)
+            if (m_cubeMapImages.empty())
             {
                 uint i;
                 for (i = 0; i < 6; i++)

@@ -74,12 +74,7 @@ public:
             }
         }
 
-        if ( !m_viewsToLink.empty() )
-        {
-            return true;
-        }
-
-        return false;
+        return !m_viewsToLink.empty();
     }
 
     void execute() { RicLinkVisibleViewsFeature::linkViews( m_viewsToLink ); }
@@ -93,7 +88,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicLinkViewFeature::isCommandEnabled()
+bool RicLinkViewFeature::isCommandEnabled() const
 {
     RicLinkViewFeatureImpl cmdImpl;
     return cmdImpl.prepareToExecute();

@@ -61,7 +61,7 @@ public:
     PdmUiToolBarEditor( const QString& title, QMainWindow* mainWindow );
     ~PdmUiToolBarEditor() override;
 
-    bool isEditorDataValid( const std::vector<caf::PdmFieldHandle*>& fields ) const;
+    bool isEditorDataEqualAndValid( const std::vector<caf::PdmFieldHandle*>& fields ) const;
     void setFields( std::vector<caf::PdmFieldHandle*>& fields );
     void clear();
 

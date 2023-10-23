@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicRenamePlotTemplateFeature, "RicRenamePlotTemplateFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRenamePlotTemplateFeature::isCommandEnabled()
+bool RicRenamePlotTemplateFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems( uiItems );

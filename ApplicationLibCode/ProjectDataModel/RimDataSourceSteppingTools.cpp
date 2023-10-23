@@ -74,92 +74,103 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                              oldValue,
-                                                          const QVariant&                              newValue,
-                                                          RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                          RifEclipseSummaryAddress*                    adr )
+bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                                  oldValue,
+                                                          const QVariant&                                  newValue,
+                                                          RifEclipseSummaryAddressDefines::SummaryCategory category,
+                                                          RifEclipseSummaryAddress&                        adr )
 {
-    if ( !adr ) return false;
-
-    if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();
 
-        if ( adr->regionNumber() == oldInt )
+        if ( adr.regionNumber() == oldInt )
         {
-            adr->setRegion( newInt );
+            adr.setRegion( newInt );
 
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER )
     {
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();
 
-        if ( adr->aquiferNumber() == oldInt )
+        if ( adr.aquiferNumber() == oldInt )
         {
-            adr->setAquiferNumber( newInt );
+            adr.setAquiferNumber( newInt );
 
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
 
-        if ( adr->groupName() == oldString )
+        if ( adr.groupName() == oldString )
         {
-            adr->setGroupName( newString );
+            adr.setGroupName( newString );
 
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
 
-        if ( adr->wellName() == oldString )
+        if ( adr.networkName() == oldString )
         {
-            adr->setWellName( newString );
+            adr.setNetworkName( newString );
 
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_BLOCK || category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
-        if ( adr->blockAsString() == oldString )
+
+        if ( adr.wellName() == oldString )
         {
-            adr->setCellIjk( newString );
+            adr.setWellName( newString );
 
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK ||
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
-        if ( adr->formatUiTextRegionToRegion() == oldString )
+        if ( adr.blockAsString() == oldString )
+        {
+            adr.setCellIjk( newString );
+
+            return true;
+        }
+    }
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
+    {
+        std::string oldString = oldValue.toString().toStdString();
+        std::string newString = newValue.toString().toStdString();
+        if ( adr.formatUiTextRegionToRegion() == oldString )
         {
             auto [region1, region2] = RifEclipseSummaryAddress::regionToRegionPairFromUiText( newString );
-            adr->setRegion( region1 );
-            adr->setRegion2( region2 );
+            adr.setRegion( region1 );
+            adr.setRegion2( region2 );
 
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT )
     {
         int oldInt = oldValue.toInt();
         int newInt = newValue.toInt();
-        if ( adr->wellSegmentNumber() == oldInt )
+        if ( adr.wellSegmentNumber() == oldInt )
         {
-            adr->setWellSegmentNumber( newInt );
+            adr.setWellSegmentNumber( newInt );
 
             return true;
         }
@@ -171,48 +182,14 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( const QVariant&           oldValue,
-                                                                            const QVariant&           newValue,
-                                                                            RifEclipseSummaryAddress* adr )
+bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress& adr )
 {
-    if ( !adr ) return false;
-
     std::string oldString = oldValue.toString().toStdString();
     std::string newString = newValue.toString().toStdString();
 
-    if ( adr->vectorName() == oldString )
+    if ( adr.vectorName() == oldString )
     {
-        adr->setVectorName( newString );
-
-        return true;
-    }
-
-    std::string correspondingOldString = RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( oldString );
-    std::string correspondingNewString = RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( newString );
-
-    if ( adr->vectorName() == correspondingOldString )
-    {
-        adr->setVectorName( correspondingNewString );
-
-        return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr )
-{
-    if ( !adr ) return false;
-
-    std::string oldString = oldValue.toString().toStdString();
-    std::string newString = newValue.toString().toStdString();
-
-    if ( adr->vectorName() == oldString )
-    {
-        adr->setVectorName( newString );
+        adr.setVectorName( newString );
 
         return true;
     }

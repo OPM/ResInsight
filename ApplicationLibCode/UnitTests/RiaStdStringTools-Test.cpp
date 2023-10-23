@@ -128,6 +128,28 @@ TEST( RiaStdStringToolsTest, RightTrimString )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, RemoveWhitespace )
+{
+    std::vector<std::pair<std::string, std::string>> testData = {
+        std::make_pair( "   bla  ", "bla" ),
+        std::make_pair( "bla ", "bla" ),
+        std::make_pair( " bla", "bla" ),
+        std::make_pair( "\tbla", "bla" ),
+        std::make_pair( "\tbla \n\t ,bla", "bla,bla" ),
+        std::make_pair( "\tbla\v", "bla" ),
+        std::make_pair( "bla", "bla" ),
+        std::make_pair( "", "" ),
+    };
+
+    for ( auto [input, expectedText] : testData )
+    {
+        EXPECT_EQ( RiaStdStringTools::removeWhitespace( input ), expectedText );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RiaStdStringToolsTest, DISABLED_PerformanceConversion )
 {
     size_t      itemCount     = 1000000;

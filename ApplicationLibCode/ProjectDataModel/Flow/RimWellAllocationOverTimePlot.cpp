@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaStdStringTools.h"
 
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
@@ -39,7 +40,7 @@
 #include "RimSimWellInView.h"
 #include "RimStackablePlotCurve.h"
 #include "RimWellAllocationTools.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPlotTools.h"
 
 #include "RiuContextMenuLauncher.h"
@@ -54,6 +55,8 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include "qwt_scale_draw.h"
 
 CAF_PDM_SOURCE_INIT( RimWellAllocationOverTimePlot, "RimWellAllocationOverTimePlot" );
 
@@ -267,9 +270,7 @@ RiuPlotWidget* RimWellAllocationOverTimePlot::doCreatePlotViewWidget( QWidget* m
     // Remove event filter to disable unwanted highlighting on left click in plot.
     plotWidget->removeEventFilter();
 
-    caf::CmdFeatureMenuBuilder menuBuilder;
-    menuBuilder << "RicShowPlotDataFeature";
-    new RiuContextMenuLauncher( plotWidget, menuBuilder );
+    new RiuContextMenuLauncher( m_plotWidget, { "RicShowPlotDataFeature" } );
 
     m_plotWidget = plotWidget;
     RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(),
@@ -281,6 +282,16 @@ RiuPlotWidget* RimWellAllocationOverTimePlot::doCreatePlotViewWidget( QWidget* m
     // Workaround: Enable axis title for bottom axis to activate correct font size for date axis
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+
+    if ( auto qwtPlot = m_plotWidget->qwtPlot() )
+    {
+        auto scaleDraw = qwtPlot->axisScaleDraw( QwtAxis::XBottom );
+        if ( scaleDraw )
+        {
+            scaleDraw->setLabelRotation( 30.0 );
+        }
+    }
+
     m_plotWidget->insertLegend( RiuPlotWidget::Legend::RIGHT );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "[Date]" );
@@ -393,7 +404,10 @@ void RimWellAllocationOverTimePlot::updateFromWell()
     QString newDescription = descriptionText + ", " + valueTypeText;
 
     setDescription( newDescription );
-    m_plotWidget->setWindowTitle( newDescription );
+
+    const auto windowTitle = RiaStdStringTools::removeHtmlTags( newDescription.toStdString() );
+    m_plotWidget->setWindowTitle( QString::fromStdString( windowTitle ) );
+
     m_plotWidget->setPlotTitle( descriptionText + "<br>" + valueTypeText + "</br>" );
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), valueTypeText );
 
@@ -625,7 +639,7 @@ void RimWellAllocationOverTimePlot::fieldChangedByUi( const caf::PdmFieldHandle*
         }
 
         std::set<QString> sortedWellNames = findSortedWellNames();
-        if ( !sortedWellNames.size() )
+        if ( sortedWellNames.empty() )
             m_wellName = "";
         else if ( sortedWellNames.count( m_wellName() ) == 0 )
         {
@@ -693,7 +707,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationOverTimePlot::calculateValueOptio
         {
             options.push_back( caf::PdmOptionItemInfo( name, name, false, simWellIcon ) );
         }
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
@@ -748,13 +762,13 @@ cvf::Color3f RimWellAllocationOverTimePlot::getTracerColor( const QString& trace
 //--------------------------------------------------------------------------------------------------
 QString RimWellAllocationOverTimePlot::getValueTypeText() const
 {
-    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
-    RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
-                                                                     : RimWellLogFile::WELL_FLOW_COND_STANDARD;
+    RiaDefines::EclipseUnitSystem        unitSet   = m_case->eclipseCaseData()->unitsType();
+    RimWellLogLasFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR
+                                                                        : RimWellLogLasFile::WELL_FLOW_COND_STANDARD;
 
     if ( m_flowValueType == FlowValueType::FLOW_RATE_PERCENTAGE )
     {
-        QString conditionText = condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
+        QString conditionText = condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
         return QString( "Percentage of %1 Flow Rate [%]" ).arg( conditionText );
     }
     if ( m_flowValueType == FlowValueType::FLOW_RATE )
@@ -771,7 +785,7 @@ QString RimWellAllocationOverTimePlot::getValueTypeText() const
     }
     if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE )
     {
-        QString conditionText = condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
+        QString conditionText = condition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
         return QString( "Accumulated %1 Flow Volume Allocation [%]" ).arg( conditionText );
     }
 
@@ -794,7 +808,7 @@ QString RimWellAllocationOverTimePlot::dateFormatString() const
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
 {
-    if ( m_case == nullptr || m_case->timeStepDates().size() == 0 )
+    if ( m_case == nullptr || m_case->timeStepDates().empty() )
     {
         return;
     }

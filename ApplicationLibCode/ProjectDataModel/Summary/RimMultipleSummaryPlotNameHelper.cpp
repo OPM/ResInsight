@@ -49,17 +49,15 @@ QString RimMultiSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
+bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleCurve() const
 {
     int plotCountWithSingleQuantity = 0;
     for ( auto nameHelper : m_nameHelpers )
     {
-        if ( nameHelper->isPlotDisplayingSingleVectorName() ) plotCountWithSingleQuantity++;
+        if ( nameHelper->isPlotDisplayingSingleCurve() ) plotCountWithSingleQuantity++;
     }
 
-    if ( plotCountWithSingleQuantity == 1 ) return true;
-
-    return false;
+    return plotCountWithSingleQuantity == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,6 +74,14 @@ bool RimMultiSummaryPlotNameHelper::isWellNameInTitle() const
 bool RimMultiSummaryPlotNameHelper::isGroupNameInTitle() const
 {
     return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isGroupNameInTitle(); } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMultiSummaryPlotNameHelper::isNetworkInTitle() const
+{
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isNetworkInTitle(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,14 +127,14 @@ bool RimMultiSummaryPlotNameHelper::isCompletionInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RimMultiSummaryPlotNameHelper::vectorNames() const
+std::vector<std::string> RimMultiSummaryPlotNameHelper::vectorNames() const
 {
-    std::set<std::string> allNames;
+    std::vector<std::string> allNames;
 
     for ( auto nameHelper : m_nameHelpers )
     {
         auto nameHelperVectorNames = nameHelper->vectorNames();
-        allNames.insert( nameHelperVectorNames.begin(), nameHelperVectorNames.end() );
+        allNames.insert( allNames.end(), nameHelperVectorNames.begin(), nameHelperVectorNames.end() );
     }
 
     return allNames;
@@ -154,7 +160,7 @@ std::string RimMultiSummaryPlotNameHelper::titleVectorName() const
 {
     for ( auto nameHelper : m_nameHelpers )
     {
-        if ( nameHelper->isPlotDisplayingSingleVectorName() ) return nameHelper->titleVectorName();
+        if ( nameHelper->isPlotDisplayingSingleCurve() ) return nameHelper->titleVectorName();
     }
 
     return "";
@@ -181,6 +187,19 @@ std::string RimMultiSummaryPlotNameHelper::titleGroupName() const
     for ( auto nameHelper : m_nameHelpers )
     {
         if ( nameHelper->isGroupNameInTitle() ) return nameHelper->titleGroupName();
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimMultiSummaryPlotNameHelper::titleNetwork() const
+{
+    for ( auto nameHelper : m_nameHelpers )
+    {
+        if ( nameHelper->isNetworkInTitle() ) return nameHelper->titleNetwork();
     }
 
     return "";

@@ -59,7 +59,7 @@ RimSeismicData::RimSeismicData()
     , m_fileDataRange( 0, 0 )
     , m_activeDataRange( 0, 0 )
 {
-    CAF_PDM_InitObject( "SeismicData", ":/Seismic16x16.png" );
+    CAF_PDM_InitObject( "SeismicData", ":/SeismicData24x24.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "SeismicUserDecription", "Name" );
 
@@ -143,14 +143,6 @@ void RimSeismicData::logError( QString msg )
 {
     if ( m_nErrorsLogged < 4 ) RiaLogging::error( msg );
     m_nErrorsLogged++;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSeismicData::initAfterRead()
-{
-    updateMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,6 +493,16 @@ std::pair<double, double> RimSeismicData::dataRangeMinMax() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicData::ensureFileReaderIsInitialized()
+{
+    if ( !openFileIfNotOpen() ) return;
+
+    updateMetaData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::shared_ptr<ZGYAccess::SeismicSliceData>
     RimSeismicData::sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber, double zMin, double zMax )
 {
@@ -585,7 +587,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
             auto trace = m_filereader->trace( iline, xline, zMinIndex, zSize );
 
-            if ( trace->size() != zSize )
+            if ( trace == nullptr || trace->size() != zSize )
             {
                 memset( pOut, 0, zSize * sizeof( float ) );
             }
@@ -614,7 +616,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
             auto trace = m_filereader->trace( iline, xline, zMinIndex, zSize );
 
-            if ( trace->size() != zSize )
+            if ( trace == nullptr || trace->size() != zSize )
             {
                 memset( pOut, 0, zSize * sizeof( float ) );
             }

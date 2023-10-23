@@ -210,6 +210,7 @@ void RimGridCrossPlot::reattachAllCurves()
         for ( auto dataSet : m_crossPlotDataSets )
         {
             dataSet->detachAllCurves();
+            dataSet->detachAllRegressionCurves();
             if ( dataSet->isChecked() )
             {
                 dataSet->setParentPlotNoReplot( m_plotWidget );
@@ -336,6 +337,7 @@ void RimGridCrossPlot::detachAllCurves()
     for ( auto dataSet : m_crossPlotDataSets() )
     {
         dataSet->detachAllCurves();
+        dataSet->detachAllRegressionCurves();
     }
 }
 
@@ -417,7 +419,7 @@ QString RimGridCrossPlot::generateInfoBoxText() const
         }
         infoText += QString( "</ol>" );
     }
-    else if ( curveInfoTexts.size() > 0 )
+    else if ( !curveInfoTexts.empty() )
     {
         infoText += curveInfoTexts.front();
     }
@@ -475,7 +477,7 @@ RiuPlotWidget* RimGridCrossPlot::doCreatePlotViewWidget( QWidget* mainWindowPare
 
         updateCurveNamesAndPlotTitle();
 
-        this->connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
+        connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
     }
     return m_plotWidget;
 }
@@ -621,7 +623,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
 
     if ( m_plotWidget )
     {
-        QString plotTitle = this->createAutoName();
+        QString plotTitle = createAutoName();
         m_plotWidget->setPlotTitle( plotTitle );
         m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     }
@@ -639,8 +641,8 @@ void RimGridCrossPlot::swapAxes()
 
     QString     tmpName  = xAxisProperties->objectName();
     QString     tmpTitle = xAxisProperties->axisTitleText();
-    RiuPlotAxis tmpAxis  = xAxisProperties->plotAxisType();
-    xAxisProperties->setNameAndAxis( yAxisProperties->objectName(), yAxisProperties->axisTitleText(), yAxisProperties->plotAxisType().axis() );
+    RiuPlotAxis tmpAxis  = xAxisProperties->plotAxis();
+    xAxisProperties->setNameAndAxis( yAxisProperties->objectName(), yAxisProperties->axisTitleText(), yAxisProperties->plotAxis().axis() );
     yAxisProperties->setNameAndAxis( tmpName, tmpTitle, tmpAxis.axis() );
 
     m_xAxisProperties.removeChild( xAxisProperties );
@@ -853,7 +855,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         axisParameterString = yAxisParameterString();
     }
 
-    RiuPlotAxis axis = axisProperties->plotAxisType();
+    RiuPlotAxis axis = axisProperties->plotAxis();
     if ( axisProperties->isActive() )
     {
         m_plotWidget->enableAxis( axis, true );
@@ -1026,6 +1028,7 @@ void RimGridCrossPlot::cleanupBeforeClose()
     for ( auto dataSet : m_crossPlotDataSets() )
     {
         dataSet->detachAllCurves();
+        dataSet->detachAllRegressionCurves();
     }
 
     if ( m_plotWidget )

@@ -136,7 +136,7 @@ bool Riu3dSelectionManager::isEmpty( int role ) const
 {
     const std::vector<RiuSelectionItem*>& s = m_selection[role];
 
-    return s.size() == 0;
+    return s.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

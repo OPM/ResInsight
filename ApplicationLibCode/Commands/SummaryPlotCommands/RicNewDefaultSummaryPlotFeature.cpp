@@ -93,7 +93,7 @@ RimSummaryPlot* RicNewDefaultSummaryPlotFeature::createFromSummaryCases( const s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
+bool RicNewDefaultSummaryPlotFeature::isCommandEnabled() const
 {
     RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
     if ( multiPlot )

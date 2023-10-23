@@ -355,10 +355,10 @@ void RimViewLinker::setMasterView( Rim3dView* view )
     if ( previousViewController )
     {
         delete previousViewController;
-        this->m_viewControllers.removeChild( nullptr );
+        m_viewControllers.removeChild( nullptr );
     }
 
-    this->removeOverrides();
+    removeOverrides();
 
     m_masterView = view;
 
@@ -623,7 +623,7 @@ void RimViewLinker::addDependentView( Rim3dView* view )
     if ( !view->viewController() )
     {
         RimViewController* viewContr = new RimViewController;
-        this->m_viewControllers.push_back( viewContr );
+        m_viewControllers.push_back( viewContr );
 
         viewContr->setManagedView( view );
     }

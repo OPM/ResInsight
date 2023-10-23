@@ -27,6 +27,9 @@
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicSection.h"
+#include "RimSurface.h"
+#include "RimSurfaceCollection.h"
+#include "RimTools.h"
 
 #include "RivSeismicSectionPartMgr.h"
 
@@ -34,6 +37,7 @@
 #include "cvfModelBasicList.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSeismicSectionCollection, "SeismicSectionCollection" );
 
@@ -48,6 +52,11 @@ RimSeismicSectionCollection::RimSeismicSectionCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_seismicSections, "SeismicSections", "SeismicSections" );
     m_seismicSections.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitField( &m_surfaceIntersectionLinesScaleFactor, "SurfaceIntersectionLinesScaleFactor", 5.0, "Line Scale Factor ( >= 1.0 )" );
+
+    CAF_PDM_InitFieldNoDefault( &m_surfacesWithVisibleSurfaceLines, "SurfacesWithVisibleSurfaceLines", "Surface Lines" );
+    m_surfacesWithVisibleSurfaceLines.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     setName( "Seismic Sections" );
 }
@@ -72,7 +81,7 @@ RimSeismicSection* RimSeismicSectionCollection::addNewSection( RiaDefines::Seism
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        const auto& coll = proj->activeOilField()->seismicCollection().p();
+        const auto& coll = proj->activeOilField()->seismicDataCollection().p();
         for ( auto* c : coll->seismicData() )
         {
             if ( c->boundingBox()->intersects( view->domainBoundingBox() ) )
@@ -137,6 +146,10 @@ caf::PdmFieldHandle* RimSeismicSectionCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    auto grp = uiOrdering.addNewGroup( "Surface Intersection Lines" );
+    grp->add( &m_surfaceIntersectionLinesScaleFactor );
+    grp->add( &m_surfacesWithVisibleSurfaceLines );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -158,6 +171,8 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
 {
     if ( !isChecked() ) return;
 
+    auto visibleSurfaces = m_surfacesWithVisibleSurfaceLines().ptrReferencedObjectsByType();
+
     for ( auto& section : m_seismicSections )
     {
         if ( section->isChecked() )
@@ -165,6 +180,8 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
             if ( section->seismicData() != nullptr )
             {
                 section->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
+
+                section->partMgr()->appendSurfaceIntersectionLines( model, transform, m_surfaceIntersectionLinesScaleFactor(), visibleSurfaces );
             }
             section->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
         }
@@ -178,10 +195,12 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == objectToggleField() )
+    if ( changedField == &m_surfaceIntersectionLinesScaleFactor )
     {
-        updateView();
+        m_surfaceIntersectionLinesScaleFactor = std::max( 1.0, m_surfaceIntersectionLinesScaleFactor() );
     }
+
+    updateView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,6 +262,43 @@ void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::setSurfacesVisible( const std::vector<RimSurface*>& surfaces )
+{
+    for ( auto surface : surfaces )
+    {
+        if ( std::find( m_surfacesWithVisibleSurfaceLines.begin(), m_surfacesWithVisibleSurfaceLines.end(), surface ) ==
+             m_surfacesWithVisibleSurfaceLines.end() )
+        {
+            m_surfacesWithVisibleSurfaceLines.push_back( surface );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimSeismicSectionCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_surfacesWithVisibleSurfaceLines )
+    {
+        // If a surface is deleted, we need to remove it from the list of surfaces with visible surface lines
+        m_surfacesWithVisibleSurfaceLines.removePtr( nullptr );
+
+        auto surfaceCollection = RimTools::surfaceCollection();
+        for ( auto surface : surfaceCollection->surfaces() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( surface->fullName(), surface ) );
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
@@ -266,5 +322,5 @@ bool RimSeismicSectionCollection::shouldBeVisibleInTree() const
     RimProject* proj = RimProject::current();
     if ( proj == nullptr ) return false;
 
-    return !proj->activeOilField()->seismicCollection()->isEmpty();
+    return !proj->activeOilField()->seismicDataCollection()->isEmpty();
 }

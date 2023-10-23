@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include <string>
 #include <unordered_map>
@@ -31,7 +31,7 @@ class RiuSummaryQuantityNameInfoProvider
 public:
     static RiuSummaryQuantityNameInfoProvider* instance();
 
-    RifEclipseSummaryAddress::SummaryVarCategory identifyCategory( const std::string& vectorName );
+    RifEclipseSummaryAddressDefines::SummaryCategory identifyCategory( const std::string& vectorName );
 
     std::string longNameFromVectorName( const std::string& vectorName, bool returnVectorNameIfNotFound = false ) const;
 
@@ -40,24 +40,24 @@ private:
     {
     public:
         RiuSummaryQuantityInfo()
-            : category( RifEclipseSummaryAddress::SUMMARY_INVALID )
+            : category( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID )
         {
         }
-        RiuSummaryQuantityInfo( RifEclipseSummaryAddress::SummaryVarCategory category, const std::string& longName )
+        RiuSummaryQuantityInfo( RifEclipseSummaryAddressDefines::SummaryCategory category, const std::string& longName )
             : category( category )
             , longName( longName )
         {
         }
 
-        RifEclipseSummaryAddress::SummaryVarCategory category;
-        std::string                                  longName;
+        RifEclipseSummaryAddressDefines::SummaryCategory category;
+        std::string                                      longName;
     };
 
 private:
     RiuSummaryQuantityNameInfoProvider();
 
-    RiuSummaryQuantityInfo                       quantityInfo( const std::string& vectorName, bool exactMatch = false ) const;
-    RifEclipseSummaryAddress::SummaryVarCategory categoryFromVectorName( const std::string& vectorName, bool exactMatch = false ) const;
+    RiuSummaryQuantityInfo                           quantityInfo( const std::string& vectorName, bool exactMatch = false ) const;
+    RifEclipseSummaryAddressDefines::SummaryCategory categoryFromVectorName( const std::string& vectorName, bool exactMatch = false ) const;
 
     static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoForEclipseKeywords();
     static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoFor6xKeywords();

@@ -21,9 +21,8 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "RimPlot.h"
+#include "RimPlotAxisProperties.h"
 #include "RimSummaryDataSourceStepping.h"
 
 #include "RiuQwtPlotWidget.h"
@@ -62,6 +61,8 @@ class RimPlotTemplateFileItem;
 class RimSummaryPlotSourceStepping;
 class RimTimeAxisAnnotation;
 class RiaSummaryCurveDefinition;
+class RifEclipseSummaryAddress;
+class RiaSummaryCurveAddress;
 
 class QwtInterval;
 class QwtPlotCurve;
@@ -87,7 +88,7 @@ public:
     caf::Signal<bool>            autoTitleChanged;
 
 public:
-    RimSummaryPlot( bool isCrossPlot = false );
+    RimSummaryPlot();
     ~RimSummaryPlot() override;
 
     void    setDescription( const QString& description );
@@ -176,7 +177,7 @@ public:
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
 
-    virtual RimSummaryPlotSourceStepping* sourceSteppingObjectForKeyEventHandling() const;
+    RimSummaryPlotSourceStepping* sourceSteppingObjectForKeyEventHandling() const;
 
     void           setAutoScaleXEnabled( bool enabled ) override;
     void           setAutoScaleYEnabled( bool enabled ) override;
@@ -202,12 +203,12 @@ public:
     std::vector<RimEnsembleCurveSet*>               curveSets() const override;
     std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
-    std::vector<RimPlotAxisPropertiesInterface*> plotAxes() const;
-    std::vector<RimPlotAxisProperties*>          plotYAxes() const;
+    std::vector<RimPlotAxisProperties*> plotAxes( RimPlotAxisProperties::Orientation orientation ) const;
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
-
-    RimPlotAxisProperties* addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
+    RimPlotAxisProperties*          addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
+    RimPlotAxisProperties*          addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
+    void                            findOrAssignPlotAxisX( RimSummaryCurve* curve );
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 
@@ -239,8 +240,6 @@ private:
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
     void connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis );
-
-    RimPlotAxisProperties* addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -294,13 +293,20 @@ private:
                               RiuPlotAxis               oldPlotAxis,
                               RiuPlotAxis               newPlotAxis );
 
+    std::vector<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
+
     void timeAxisSettingsChanged( const caf::SignalEmitter* emitter );
     void timeAxisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter );
 
+    void ensureRequiredAxisObjectsForCurves();
     void assignPlotAxis( RimSummaryCurve* curve );
+    void assignYPlotAxis( RimSummaryCurve* curve );
+    void assignXPlotAxis( RimSummaryCurve* curve );
 
-    RimSummaryCurve*     addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
-    RimEnsembleCurveSet* addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
+    RimSummaryCurve* addNewCurve( const RifEclipseSummaryAddress& address,
+                                  RimSummaryCase*                 summaryCase,
+                                  const RifEclipseSummaryAddress& addressX,
+                                  RimSummaryCase*                 summaryCaseX );
 
     void updateStackedCurveData();
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
@@ -314,6 +320,8 @@ private:
     CurveInfo handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
+
+    static RiuPlotAxis plotAxisForTime();
 
 private:
 #ifdef USE_QTCHARTS
@@ -341,8 +349,6 @@ private:
 
     std::unique_ptr<RiuSummaryPlot>   m_summaryPlot;
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
-
-    bool m_isCrossPlot;
 
     std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;

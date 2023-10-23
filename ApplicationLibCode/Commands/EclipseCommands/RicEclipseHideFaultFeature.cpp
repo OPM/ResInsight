@@ -18,23 +18,15 @@
 
 #include "RicEclipseHideFaultFeature.h"
 
-#include "RicEclipsePropertyFilterFeatureImpl.h"
-#include "RicEclipsePropertyFilterNewExec.h"
-
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 
 #include "RigFault.h"
 #include "RigMainGrid.h"
-
-#include "cafCmdExecCommandManager.h"
-#include "cvfStructGrid.h"
 
 #include <QAction>
 
@@ -43,15 +35,13 @@ CAF_CMD_SOURCE_INIT( RicEclipseHideFaultFeature, "RicEclipseHideFaultFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseHideFaultFeature::isCommandEnabled()
+bool RicEclipseHideFaultFeature::isCommandEnabled() const
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if ( !view ) return false;
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
-    if ( !eclView ) return false;
-
-    return true;
+    return eclView != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

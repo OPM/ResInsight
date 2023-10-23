@@ -19,11 +19,10 @@
 #include "RimSurfaceIntersectionBand.h"
 
 #include "RimAnnotationLineAppearance.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceIntersectionCurve.h"
+#include "RimTools.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -194,7 +193,7 @@ QList<caf::PdmOptionItemInfo> RimSurfaceIntersectionBand::calculateValueOptions(
 
     if ( fieldNeedingOptions == &m_surfaces )
     {
-        RimSurfaceCollection* surfColl = RimProject::current()->activeOilField()->surfaceCollection();
+        RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
 
         RimSurfaceIntersectionCurve::appendOptionItemsForSources( 0, surfColl, false, options );
     }

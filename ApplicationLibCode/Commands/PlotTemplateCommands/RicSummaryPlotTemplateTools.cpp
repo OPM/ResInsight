@@ -250,13 +250,13 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
         auto summaryCurves = summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS );
         for ( const auto& curve : summaryCurves )
         {
-            auto fieldHandle = curve->findField( RicSummaryPlotTemplateTools::summaryCaseFieldKeyword() );
-            if ( fieldHandle )
+            auto summaryCaseHandle = curve->findField( RicSummaryPlotTemplateTools::summaryCaseFieldKeyword() );
+            if ( summaryCaseHandle )
             {
                 bool          conversionOk      = false;
                 const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
 
-                auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                auto referenceString = summaryCaseHandle->xmlCapability()->referenceString();
                 int  indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
 
                 if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedSummaryCases.size() ) )
@@ -266,12 +266,37 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
                 }
             }
 
+            auto summaryCaseXHandle = curve->findField( RicSummaryPlotTemplateTools::summaryCaseXFieldKeyword() );
+            if ( summaryCaseXHandle )
+            {
+                bool          conversionOk      = false;
+                const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryCaseX();
+
+                auto referenceString = summaryCaseXHandle->xmlCapability()->referenceString();
+                int  indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
+
+                if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedSummaryCases.size() ) )
+                {
+                    auto summaryCase = selectedSummaryCases[static_cast<int>( indexValue )];
+                    curve->setSummaryCaseX( summaryCase );
+                }
+            }
+
             // Replace placeholders with object names from selection
             auto curveAdr = curve->summaryAddressY();
             setPlaceholderWellName( &curveAdr, wellNames );
             setPlaceholderGroupName( &curveAdr, groupNames );
             setPlaceholderRegion( &curveAdr, regions );
             curve->setSummaryAddressY( curveAdr );
+
+            if ( curve->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
+            {
+                auto curveAdr = curve->summaryAddressX();
+                setPlaceholderWellName( &curveAdr, wellNames );
+                setPlaceholderGroupName( &curveAdr, groupNames );
+                setPlaceholderRegion( &curveAdr, regions );
+                curve->setSummaryAddressX( curveAdr );
+            }
         }
 
         for ( const auto& curveSet : summaryPlot->curveSets() )
@@ -295,11 +320,16 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
             }
 
             // Replace placeholders with object names from selection
-            auto curveAdr = curveSet->summaryAddress();
-            setPlaceholderWellName( &curveAdr, wellNames );
-            setPlaceholderGroupName( &curveAdr, groupNames );
-            setPlaceholderRegion( &curveAdr, regions );
-            curveSet->setSummaryAddressAndStatisticsFlag( curveAdr );
+            auto adr       = curveSet->curveAddress();
+            auto curveAdrY = adr.summaryAddressY();
+            setPlaceholderWellName( &curveAdrY, wellNames );
+            setPlaceholderGroupName( &curveAdrY, groupNames );
+            setPlaceholderRegion( &curveAdrY, regions );
+            auto curveAdrX = adr.summaryAddressX();
+            setPlaceholderWellName( &curveAdrX, wellNames );
+            setPlaceholderGroupName( &curveAdrX, groupNames );
+            setPlaceholderRegion( &curveAdrX, regions );
+            curveSet->setCurveAddress( RiaSummaryCurveAddress( curveAdrX, curveAdrY ) );
         }
     }
 }
@@ -496,6 +526,14 @@ QString RicSummaryPlotTemplateTools::summaryCaseFieldKeyword()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::summaryCaseXFieldKeyword()
+{
+    return "SummaryCaseX";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::summaryGroupFieldKeyword()
 {
     return "SummaryGroup";
@@ -507,6 +545,14 @@ QString RicSummaryPlotTemplateTools::summaryGroupFieldKeyword()
 QString RicSummaryPlotTemplateTools::placeholderTextForSummaryCase()
 {
     return "__CASE_NAME__";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::placeholderTextForSummaryCaseX()
+{
+    return "__CASE_NAME_X__";
 }
 
 //--------------------------------------------------------------------------------------------------

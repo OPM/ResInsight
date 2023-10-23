@@ -56,7 +56,7 @@
         QString              iconResourceName;                                                       \
         QString              toolTip;                                                                \
         QString              whatsThis;                                                              \
-        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                 \
+        if ( !arguments.empty() ) iconResourceName = arguments[0];                                   \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                          \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                        \
                                                                                                      \
@@ -76,7 +76,7 @@
         QString              iconResourceName;                                                                \
         QString              toolTip;                                                                         \
         QString              whatsThis;                                                                       \
-        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                          \
+        if ( !arguments.empty() ) iconResourceName = arguments[0];                                            \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                                   \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                 \
                                                                                                               \
@@ -95,7 +95,7 @@
         QString              iconResourceName;                                                              \
         QString              toolTip;                                                                       \
         QString              whatsThis;                                                                     \
-        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                        \
+        if ( !arguments.empty() ) iconResourceName = arguments[0];                                          \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                                 \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                               \
                                                                                                             \
@@ -115,7 +115,7 @@
         QString              iconResourceName;                                                                      \
         QString              toolTip;                                                                               \
         QString              whatsThis;                                                                             \
-        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                                \
+        if ( !arguments.empty() ) iconResourceName = arguments[0];                                                  \
         if ( arguments.size() > 1 ) toolTip = arguments[1];                                                         \
         if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                       \
                                                                                                                     \

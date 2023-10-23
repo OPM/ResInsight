@@ -30,7 +30,6 @@ class RicOpenInTextEditorFeature : public caf::CmdFeature
     static void openFileInTextEditor( const QString& filePath, QObject* parent );
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

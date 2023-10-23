@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include <set>
 
@@ -32,12 +32,13 @@ class RicNewSummaryTableFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 private:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    const std::set<RifEclipseSummaryAddress::SummaryVarCategory> m_enabledCategories = { RifEclipseSummaryAddress::SUMMARY_WELL,
-                                                                                         RifEclipseSummaryAddress::SUMMARY_REGION,
-                                                                                         RifEclipseSummaryAddress::SUMMARY_GROUP };
+    const std::set<RifEclipseSummaryAddressDefines::SummaryCategory> m_enabledCategories =
+        { RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL,
+          RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION,
+          RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP };
 };

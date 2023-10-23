@@ -41,14 +41,6 @@ CAF_CMD_SOURCE_INIT( RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathsImportSsihubFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app = RiaApplication::instance();
@@ -115,7 +107,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
     if ( QDialog::Accepted == wellImportwizard.exec() )
     {
         QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
-        if ( wellPaths.size() > 0 )
+        if ( !wellPaths.empty() )
         {
             QStringList errorMessages;
             app->addWellPathsToModel( wellPaths, &errorMessages );

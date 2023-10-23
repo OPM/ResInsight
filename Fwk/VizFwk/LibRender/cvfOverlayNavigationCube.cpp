@@ -196,7 +196,7 @@ void OverlayNavigationCube::render(OpenGLContext* oglContext, const Vec2i& posit
         createAxisGeometry(software);
     }
 
-    if (m_cubeGeos.size() == 0)
+    if (m_cubeGeos.empty())
     {
         createCubeGeos();
 
@@ -228,7 +228,7 @@ void OverlayNavigationCube::render(OpenGLContext* oglContext, const Vec2i& posit
         }
     }
 
-    if (m_2dGeos.size() == 0)
+    if (m_2dGeos.empty())
     {
         create2dGeos();
     }

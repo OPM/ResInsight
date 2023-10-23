@@ -6,7 +6,7 @@ import random
 
 class RetryPolicy(abc.ABC):
     @abc.abstractmethod
-    def sleep(self, retry_num):
+    def sleep(self, retry_num: int) -> None:
         """
         How long to sleep in milliseconds.
         :param retry_num: the number of retry (starting from zero)
@@ -14,14 +14,14 @@ class RetryPolicy(abc.ABC):
         assert retry_num >= 0
 
     @abc.abstractmethod
-    def time_out_message(self):
+    def time_out_message(self) -> str:
         """
         Generate a error message for user on time out.
         """
         pass
 
     @abc.abstractmethod
-    def num_retries(self):
+    def num_retries(self) -> int:
         """
         Max number retries.
         """
@@ -29,29 +29,34 @@ class RetryPolicy(abc.ABC):
 
 
 class FixedRetryPolicy(RetryPolicy):
-    def __init__(self, sleep_time=1000, max_num_retries=10):
+    def __init__(self, sleep_time: int = 1000, max_num_retries: int = 10):
         """
         Create a fixed time retry policy.
         :param sleep_time: time to sleep in milliseconds.
         :param max_num_retries: max number of retries.
         """
-        self.sleep_time = sleep_time
-        self.max_num_retries = max_num_retries
+        self.sleep_time: int = sleep_time
+        self.max_num_retries: int = max_num_retries
 
-    def sleep(self, retry_num):
+    def sleep(self, retry_num: int) -> None:
         time.sleep(self.sleep_time / 1000)
 
-    def time_out_message(self):
+    def time_out_message(self) -> str:
         return "Tried {} times with {} milliseconds apart.".format(
             self.max_num_retries, self.sleep_time
         )
 
-    def num_retries(self):
+    def num_retries(self) -> int:
         return self.max_num_retries
 
 
 class ExponentialBackoffRetryPolicy(RetryPolicy):
-    def __init__(self, min_backoff=200, max_backoff=10000, max_num_retries=20):
+    def __init__(
+        self,
+        min_backoff: int = 200,
+        max_backoff: int = 10000,
+        max_num_retries: int = 20,
+    ):
         """
         Create a truncated exponential backoff policy.
         See: https://en.wikipedia.org/wiki/Exponential_backoff
@@ -59,12 +64,12 @@ class ExponentialBackoffRetryPolicy(RetryPolicy):
         :param max_backoff: maximum time to sleep in milliseconds.
         :param max_num_retries: max number of retries.
         """
-        self.min_backoff = min_backoff
-        self.max_backoff = max_backoff
-        self.max_num_retries = max_num_retries
-        self.multiplier = 2
+        self.min_backoff: int = min_backoff
+        self.max_backoff: int = max_backoff
+        self.max_num_retries: int = max_num_retries
+        self.multiplier: int = 2
 
-    def sleep(self, retry_num):
+    def sleep(self, retry_num: int) -> None:
         # Add a random component to avoid synchronized retries
         wiggle = random.randint(0, 100)
         sleep_ms = min(
@@ -72,12 +77,12 @@ class ExponentialBackoffRetryPolicy(RetryPolicy):
         )
         time.sleep(sleep_ms / 1000)
 
-    def time_out_message(self):
+    def time_out_message(self) -> str:
         return (
             "Tried {} times with increasing delay (from {} to {} milliseconds).".format(
                 self.max_num_retries, self.min_backoff, self.max_backoff
             )
         )
 
-    def num_retries(self):
+    def num_retries(self) -> int:
         return self.max_num_retries

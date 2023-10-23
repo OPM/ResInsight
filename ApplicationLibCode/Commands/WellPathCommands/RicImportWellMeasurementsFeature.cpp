@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicImportWellMeasurementsFeature, "RicImportWellMeasurement
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportWellMeasurementsFeature::isCommandEnabled()
+bool RicImportWellMeasurementsFeature::isCommandEnabled() const
 {
     return ( RicWellMeasurementImportTools::selectedWellPathCollection() != nullptr );
 }
@@ -58,7 +58,7 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
                                                                           defaultDir,
                                                                           "Well Measurements (*.csv);;All Files (*.*)" );
 
-    if ( wellPathFilePaths.size() < 1 ) return;
+    if ( wellPathFilePaths.empty() ) return;
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );

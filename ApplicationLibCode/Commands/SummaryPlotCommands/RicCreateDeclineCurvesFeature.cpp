@@ -37,10 +37,9 @@ CAF_CMD_SOURCE_INIT( RicCreateDeclineCurvesFeature, "RicCreateDeclineCurvesFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateDeclineCurvesFeature::isCommandEnabled()
+bool RicCreateDeclineCurvesFeature::isCommandEnabled() const
 {
-    RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
-    return ( selectedPlot && !RiaSummaryTools::isSummaryCrossPlot( selectedPlot ) );
+    return caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,11 +91,7 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
     RimSummaryDeclineCurve* newCurve = new RimSummaryDeclineCurve();
     CVF_ASSERT( newCurve );
 
-    newCurve->setSummaryCaseX( sourceCurve->summaryCaseX() );
-    newCurve->setSummaryAddressX( sourceCurve->summaryAddressX() );
-
-    newCurve->setSummaryCaseY( sourceCurve->summaryCaseY() );
-    newCurve->setSummaryAddressY( sourceCurve->summaryAddressY() );
+    RiaSummaryTools::copyCurveDataSources( *newCurve, *sourceCurve );
 
     newCurve->setDeclineCurveType( declineCurveType );
 
@@ -105,7 +100,8 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
 
     summaryPlot->addCurveAndUpdate( newCurve );
 
-    newCurve->updateDefaultValues();
+    RiaSummaryTools::copyCurveAxisData( *newCurve, *sourceCurve );
+
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 

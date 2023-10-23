@@ -37,7 +37,7 @@ public:
     static void deleteObservedRmuRftData( const std::vector<RimObservedFmuRftData*>& data );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

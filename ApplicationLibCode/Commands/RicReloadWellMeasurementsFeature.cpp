@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT( RicReloadWellMeasurementsFeature, "RicReloadWellMeasurement
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadWellMeasurementsFeature::isCommandEnabled()
+bool RicReloadWellMeasurementsFeature::isCommandEnabled() const
 {
     std::vector<RimWellMeasurementFilePath*> filePaths;
     caf::SelectionManager::instance()->objectsByType( &filePaths );

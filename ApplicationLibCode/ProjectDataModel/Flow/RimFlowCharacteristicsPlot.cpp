@@ -102,7 +102,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     CAF_PDM_InitField( &m_minCommunication, "MinCommunication", 0.0, "Min Communication" );
     CAF_PDM_InitField( &m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]" );
 
-    this->m_showWindow = false;
+    m_showWindow = false;
     setAsPlotMdiWindow();
     setDeletable( true );
 }
@@ -186,7 +186,7 @@ void RimFlowCharacteristicsPlot::updateCurrentTimeStep()
 
     if ( m_currentlyPlottedTimeSteps == calculatedTimesteps ) return;
 
-    this->onLoadDataAndUpdate();
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -599,7 +599,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     // All fields update plot
 
-    this->onLoadDataAndUpdate();
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -702,6 +702,15 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
         }
 
         m_timeStepToFlowResultMap = timeStepToFlowResultMap;
+
+        if ( m_case() )
+        {
+            m_flowCharPlotWidget->setCaseName( m_case()->caseUserDescription() );
+        }
+        else
+        {
+            m_flowCharPlotWidget->setCaseName( "" );
+        }
 
         m_flowCharPlotWidget->setLorenzCurve( timeStepStrings, timeStepDates, lorenzVals );
 

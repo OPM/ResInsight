@@ -30,6 +30,8 @@ class RifCsvDataTableFormatter
 public:
     RifCsvDataTableFormatter( QTextStream& out, const QString fieldSeparator = "," );
 
+    void setUseQuotes( bool useQuotes );
+
     RifCsvDataTableFormatter& header( const std::vector<RifTextDataTableColumn>& tableHeader );
     RifCsvDataTableFormatter& add( const QString& str );
     RifCsvDataTableFormatter& add( double num );
@@ -47,4 +49,5 @@ private:
     std::vector<RifTextDataTableLine>   m_buffer;
     std::vector<QString>                m_lineBuffer;
     QString                             m_fieldSeparator;
+    bool                                m_useQuotes;
 };

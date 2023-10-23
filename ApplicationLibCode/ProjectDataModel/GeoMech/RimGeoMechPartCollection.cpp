@@ -182,7 +182,7 @@ std::pair<bool, bool> RimGeoMechPartCollection::needsReloadOrRebuildUpdate( int 
         bool missingDisplacement = false;
         for ( const auto& part : m_parts )
         {
-            missingDisplacement = missingDisplacement || ( part->displacements().size() == 0 );
+            missingDisplacement = missingDisplacement || ( part->displacements().empty() );
         }
 
         rebuild = rebuild || missingDisplacement;

@@ -39,7 +39,7 @@ RicSaveProjectFeature::RicSaveProjectFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicSaveProjectFeature::execute()
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     bool    worked = false;
     QString errorMessage;
@@ -58,14 +58,6 @@ caf::PdmScriptResponse RicSaveProjectFeature::execute()
     }
 
     return caf::PdmScriptResponse();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicSaveProjectFeature::isCommandEnabled()
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

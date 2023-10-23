@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
 #include "RifEclipseUserDataParserTools.h"
 
 #include <QDateTime>
@@ -50,7 +49,9 @@ public:
     RifCsvUserDataParser( QString* errorText = nullptr );
     virtual ~RifCsvUserDataParser();
 
-    bool parse( const AsciiDataParseOptions& parseOptions, const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
+    bool             parse( const AsciiDataParseOptions&                         parseOptions,
+                            const std::map<QString, QString>&                    nameMapping = {},
+                            const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
     const TableData& tableData() const;
 
     const Column* columnInfo( size_t columnIndex ) const;
@@ -77,8 +78,10 @@ private:
     bool             parseColumnInfo( QTextStream*                                         dataStream,
                                       const AsciiDataParseOptions&                         parseOptions,
                                       std::vector<Column>*                                 columnInfoList,
+                                      const std::map<QString, QString>&                    nameMapping = {},
                                       const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
     bool             parseColumnBasedData( const AsciiDataParseOptions&                         parseOptions,
+                                           const std::map<QString, QString>&                    nameMapping = {},
                                            const std::map<QString, std::pair<QString, double>>& unitMapping = {} );
     bool             parseLineBasedData();
     static QDateTime tryParseDateTime( const std::string& colData, const QString& format );

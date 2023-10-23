@@ -35,7 +35,7 @@ class RiuComparisonViewMover : public QObject
 public:
     RiuComparisonViewMover( caf::Viewer* viewer );
 
-    virtual bool eventFilter( QObject* watched, QEvent* event ) override;
+    bool eventFilter( QObject* watched, QEvent* event ) override;
 
     void paintMoverHandles( QPainter* painter );
 

@@ -22,6 +22,7 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmPtrArrayField.h"
 
 #include <vector>
 
@@ -29,6 +30,7 @@ class RimRegularLegendConfig;
 class RimSeismicSection;
 class Rim3dView;
 class RiuViewer;
+class RimSurface;
 
 namespace cvf
 {
@@ -70,11 +72,14 @@ public:
     std::vector<RimRegularLegendConfig*> legendConfigs();
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
+    void setSurfacesVisible( const std::vector<RimSurface*>& surfaces );
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
@@ -83,4 +88,7 @@ protected:
 private:
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmChildArrayField<RimSeismicSection*> m_seismicSections;
+
+    caf::PdmField<double>              m_surfaceIntersectionLinesScaleFactor;
+    caf::PdmPtrArrayField<RimSurface*> m_surfacesWithVisibleSurfaceLines;
 };

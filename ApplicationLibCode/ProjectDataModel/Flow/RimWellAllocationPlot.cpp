@@ -45,7 +45,7 @@
 #include "RimWellAllocationTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPlotTools.h"
@@ -120,7 +120,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiTreeHidden( true );
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
-    this->setAsPlotMdiWindow();
+    setAsPlotMdiWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
     m_accumulatedWellFlowPlot->setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
@@ -337,10 +337,6 @@ void RimWellAllocationPlot::updateFromWell()
                     accFlow = ( m_flowType == ACCUMULATED ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
                                                           : wfCalculator->tracerFlowPrConnection( tracerName, brIdx ) );
 
-                    // Insert the first depth position again, to add a <maxdepth, 0.0> value pair
-                    curveDepthValues.insert( curveDepthValues.begin(), curveDepthValues[0] );
-                    accFlow.insert( accFlow.begin(), 0.0 );
-
                     if ( m_flowType == ACCUMULATED && brIdx == 0 && !accFlow.empty() ) // Add fictitious point to -1
                                                                                        // for first branch
                     {
@@ -444,9 +440,9 @@ void RimWellAllocationPlot::updateFromWell()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack )
 {
-    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
-    RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
-                                                                     : RimWellLogFile::WELL_FLOW_COND_STANDARD;
+    RiaDefines::EclipseUnitSystem        unitSet   = m_case->eclipseCaseData()->unitsType();
+    RimWellLogLasFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR
+                                                                        : RimWellLogLasFile::WELL_FLOW_COND_STANDARD;
 
     QString axisTitle = RimWellPlotTools::flowPlotAxisTitle( condition, unitSet );
     plotTrack->setPropertyValueAxisTitle( axisTitle );
@@ -473,6 +469,8 @@ void RimWellAllocationPlot::addStackedCurve( const QString&             tracerNa
     {
         curve->setColor( getTracerColor( tracerName ) );
     }
+
+    curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
 
     plotTrack->addCurve( curve );
 
@@ -633,7 +631,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( cons
 
     if ( fieldNeedingOptions == &m_wellName )
     {
-        std::set<QString> sortedWellNames = this->findSortedWellNames();
+        std::set<QString> sortedWellNames = findSortedWellNames();
 
         caf::IconProvider simWellIcon( ":/Well.svg" );
         for ( const QString& wname : sortedWellNames )
@@ -641,7 +639,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( cons
             options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
@@ -650,7 +648,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( cons
     {
         RimTools::timeStepsForCase( m_case, &options );
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", -1 ) );
         }
@@ -757,7 +755,7 @@ void RimWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
         }
 
         std::set<QString> sortedWellNames = findSortedWellNames();
-        if ( !sortedWellNames.size() )
+        if ( sortedWellNames.empty() )
             m_wellName = "";
         else if ( sortedWellNames.count( m_wellName() ) == 0 )
         {

@@ -19,9 +19,14 @@
 
 #include "RiuQwtPlotCurve.h"
 
+#include "RiaColorTools.h"
 #include "RiaCurveDataTools.h"
 #include "RiaImageTools.h"
 
+#include "RimPlotCurve.h"
+#include "RimPlotRectAnnotation.h"
+
+#include "RiuQwtPlotRectAnnotation.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuQwtSymbol.h"
@@ -32,9 +37,11 @@
 #include "qwt_painter.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_intervalcurve.h"
+#include "qwt_plot_marker.h"
 #include "qwt_point_mapper.h"
 #include "qwt_scale_map.h"
 #include "qwt_symbol.h"
+#include "qwt_text.h"
 #include "qwt_weeding_curve_fitter.h"
 
 #include <cmath>
@@ -48,17 +55,19 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& ti
     , QwtPlotCurve( title )
     , m_showErrorBars( false )
 {
-    this->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
-    this->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
-    this->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
+    setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
+    setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
+    setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
 
-    this->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
     m_qwtCurveErrorBars = new QwtPlotIntervalCurve();
     m_qwtCurveErrorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );
     m_qwtCurveErrorBars->setSymbol( new QwtIntervalSymbol( QwtIntervalSymbol::Bar ) );
     m_qwtCurveErrorBars->setItemAttribute( QwtPlotItem::Legend, false );
     m_qwtCurveErrorBars->setZ( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ERROR_BARS ) );
+
+    m_qwtPlotRectAnnotation = new RiuQwtPlotRectAnnotation;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +79,9 @@ RiuQwtPlotCurve::~RiuQwtPlotCurve()
 
     delete m_qwtCurveErrorBars;
     m_qwtCurveErrorBars = nullptr;
+
+    delete m_qwtPlotRectAnnotation;
+    m_qwtPlotRectAnnotation = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,7 +197,7 @@ void RiuQwtPlotCurve::drawSymbols( QPainter*          painter,
         pointsToDisplay = points;
     }
 
-    if ( pointsToDisplay.size() > 0 )
+    if ( !pointsToDisplay.empty() )
     {
         symbol.drawSymbols( painter, pointsToDisplay );
 
@@ -322,6 +334,30 @@ void RiuQwtPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
     {
         m_qwtCurveErrorBars->attach( m_plotWidget->qwtPlot() );
     }
+
+    if ( m_ownerRimCurve )
+    {
+        auto rectAnnotations = m_ownerRimCurve->rectAnnotations();
+        if ( !rectAnnotations.empty() )
+        {
+            auto [minX, maxX] = rectAnnotations[0]->rangeX();
+            auto [minY, maxY] = rectAnnotations[0]->rangeY();
+            m_qwtPlotRectAnnotation->setInterval( minX, maxX, minY, maxY );
+            QColor brushColor( RiaColorTools::toQColor( rectAnnotations[0]->color() ) );
+            brushColor.setAlphaF( rectAnnotations[0]->transparency() );
+            QBrush brush( brushColor );
+            m_qwtPlotRectAnnotation->setBrush( brush );
+            QColor penColor( RiaColorTools::toQColor( rectAnnotations[0]->color() ) );
+
+            QPen pen( penColor );
+            m_qwtPlotRectAnnotation->setPen( pen );
+
+            m_qwtPlotRectAnnotation->setText( rectAnnotations[0]->text() );
+            m_qwtPlotRectAnnotation->attach( m_plotWidget->qwtPlot() );
+
+            m_qwtPlotRectAnnotation->setVisible( rectAnnotations[0]->isChecked() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,6 +367,7 @@ void RiuQwtPlotCurve::detach()
 {
     QwtPlotCurve::detach();
     m_qwtCurveErrorBars->detach();
+    m_qwtPlotRectAnnotation->detach();
 }
 
 //--------------------------------------------------------------------------------------------------

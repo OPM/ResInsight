@@ -85,10 +85,12 @@ RifCsvUserDataParser::~RifCsvUserDataParser()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parse( const AsciiDataParseOptions& parseOptions, const std::map<QString, std::pair<QString, double>>& unitMapping )
+bool RifCsvUserDataParser::parse( const AsciiDataParseOptions&                         parseOptions,
+                                  const std::map<QString, QString>&                    nameMapping,
+                                  const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     if ( determineCsvLayout() == LineBased ) return parseLineBasedData();
-    return parseColumnBasedData( parseOptions, unitMapping );
+    return parseColumnBasedData( parseOptions, nameMapping, unitMapping );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,6 +307,7 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
 bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                                         dataStream,
                                             const AsciiDataParseOptions&                         parseOptions,
                                             std::vector<Column>*                                 columnInfoList,
+                                            const std::map<QString, QString>&                    nameMapping,
                                             const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool headerFound = false;
@@ -381,19 +384,38 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
 
             QString unit;
 
-            // Check if unit is part of the column name in parentheses, e.g. "VECTOR (unit)".
-            QRegExp exp( "\\((.*)\\)" );
-            if ( exp.indexIn( colName ) >= 0 )
+            // Find unit from column header text
+            // "VECTOR_NAME (unit)"
+            // "VECTOR_NAME [unit]"
             {
-                // "VECTOR (unit)" ==> "(unit)"
-                QString fullCapture = exp.cap( 0 );
-                // "VECTOR (unit)" ==> "unit"
-                QString unitCapture = exp.cap( 1 );
+                // "VECTORNAME (unit)" ==> "(unit)"
+                QRegExp exp( "[[]([^]]+)[]]" );
+                if ( exp.indexIn( colName ) >= 0 )
+                {
+                    QString fullCapture = exp.cap( 0 );
+                    QString unitCapture = exp.cap( 1 );
 
-                unit = unitCapture;
+                    unit    = unitCapture;
+                    colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
+                }
+            }
 
-                // Remove unit from name
-                colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
+            {
+                // "VECTOR_NAME [unit]" ==> "[unit]"
+                QRegExp exp( "[(]([^)]+)[)]" );
+                if ( exp.indexIn( colName ) >= 0 )
+                {
+                    QString fullCapture = exp.cap( 0 );
+                    QString unitCapture = exp.cap( 1 );
+
+                    unit    = unitCapture;
+                    colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( colName.remove( fullCapture ) );
+                }
+            }
+
+            if ( auto it = nameMapping.find( colName ); it != nameMapping.end() )
+            {
+                colName = it->second;
             }
 
             if ( iCol < names.size() )
@@ -411,9 +433,9 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
             RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
 
             // Create address of a give category if provided
-            if ( parseOptions.defaultCategory == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL )
+            if ( parseOptions.defaultCategory == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
                 addr = RifEclipseSummaryAddress::wellAddress( colName.toStdString(), nameFromData.toStdString() );
-            else if ( parseOptions.defaultCategory == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD )
+            else if ( parseOptions.defaultCategory == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD )
                 addr = RifEclipseSummaryAddress::fieldAddress( colName.toStdString() );
 
             double scaleFactor = 1.0;
@@ -440,6 +462,7 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
 ///
 //--------------------------------------------------------------------------------------------------
 bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions&                         parseOptions,
+                                                 const std::map<QString, QString>&                    nameMapping,
                                                  const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool errors = false;
@@ -454,7 +477,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions&   
     QTextStream* dataStream = openDataStream();
 
     // Parse header
-    if ( !parseColumnInfo( dataStream, parseOptions, &columnInfoList, unitMapping ) )
+    if ( !parseColumnInfo( dataStream, parseOptions, &columnInfoList, nameMapping, unitMapping ) )
     {
         if ( m_errorText ) m_errorText->append( "CSV import: Failed to parse header columns" );
         return false;

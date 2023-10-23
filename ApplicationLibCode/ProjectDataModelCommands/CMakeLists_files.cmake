@@ -24,6 +24,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcThermalFractureTemplate.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcIntersection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseStatisticsCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcIdenticalGridCaseGroup.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcPressureTable.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -52,6 +55,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcThermalFractureTemplate.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcIntersection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcEclipseStatisticsCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcIdenticalGridCaseGroup.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcPressureTable.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

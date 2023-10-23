@@ -60,7 +60,7 @@ void RiuQPlainTextEdit::keyPressEvent( QKeyEvent* e )
 //--------------------------------------------------------------------------------------------------
 void RiuQPlainTextEdit::slotCopyContentToClipboard()
 {
-    QTextCursor cursor( this->textCursor() );
+    QTextCursor cursor( textCursor() );
 
     QString textForClipboard;
 
@@ -75,7 +75,7 @@ void RiuQPlainTextEdit::slotCopyContentToClipboard()
 
     if ( textForClipboard.isEmpty() )
     {
-        textForClipboard = this->toPlainText();
+        textForClipboard = toPlainText();
     }
 
     if ( !textForClipboard.isEmpty() )
@@ -93,7 +93,7 @@ void RiuQPlainTextEdit::slotCopyContentToClipboard()
 //--------------------------------------------------------------------------------------------------
 void RiuQPlainTextEdit::slotSelectAll()
 {
-    this->selectAll();
+    selectAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ void RiuQPlainTextEdit::slotExportToFile()
     {
         QString defaultDir = RicAsciiExportSummaryPlotFeature::defaultExportDir();
         auto    fileName   = RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog( dialog->description(), defaultDir );
-        RicAsciiExportSummaryPlotFeature::exportTextToFile( fileName, this->toPlainText() );
+        RicAsciiExportSummaryPlotFeature::exportTextToFile( fileName, toPlainText() );
     }
 }
 
@@ -197,7 +197,7 @@ RiuTabbedTextDialog::RiuTabbedTextDialog( RiuTabbedTextProvider* textProvider, Q
     connect( m_tabWidget, SIGNAL( currentChanged( int ) ), this, SLOT( slotTabChanged( int ) ) );
 
     CVF_ASSERT( m_textProvider->isValid() );
-    this->setWindowTitle( m_textProvider->description() );
+    setWindowTitle( m_textProvider->description() );
 
     for ( int tabIndex = 0; tabIndex < m_textProvider->tabCount(); ++tabIndex )
     {

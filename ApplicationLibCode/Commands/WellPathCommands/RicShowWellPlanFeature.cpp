@@ -32,20 +32,11 @@ CAF_CMD_SOURCE_INIT( RicShowWellPlanFeature, "RicShowWellPlanFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
-///
-/// RicShowPlotDataFeature
-///
-///
 //--------------------------------------------------------------------------------------------------
-bool RicShowWellPlanFeature::isCommandEnabled()
+bool RicShowWellPlanFeature::isCommandEnabled() const
 {
     auto selectedWellPaths = caf::selectedObjectsByType<RimModeledWellPath*>();
-    if ( selectedWellPaths.size() > 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return !selectedWellPaths.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,11 +44,10 @@ bool RicShowWellPlanFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowWellPlanFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     std::vector<RimModeledWellPath*> selectedWellPaths = caf::selectedObjectsByType<RimModeledWellPath*>();
-
-    if ( selectedWellPaths.size() == 0 )
+    if ( selectedWellPaths.empty() )
     {
         return;
     }

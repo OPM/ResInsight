@@ -112,9 +112,7 @@ void RimAnnotationGroupCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
     if ( changedField == &m_isActive )
     {
         updateUiIconFromToggleField();
-
-        auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
-        if ( coll ) coll->scheduleRedrawOfRelevantViews();
+        updateViews();
     }
 }
 
@@ -124,4 +122,22 @@ void RimAnnotationGroupCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
 caf::PdmFieldHandle* RimAnnotationGroupCollection::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationGroupCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationGroupCollection::updateViews()
+{
+    auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
+    if ( coll ) coll->scheduleRedrawOfRelevantViews();
 }

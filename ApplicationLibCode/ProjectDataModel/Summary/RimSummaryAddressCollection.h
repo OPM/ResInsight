@@ -44,6 +44,7 @@ public:
         WELL_FOLDER,
         GROUP_FOLDER,
         REGION_FOLDER,
+        NETWORK_FOLDER,
         BLOCK,
         SUMMARY_CASE,
         AQUIFER,

@@ -73,7 +73,7 @@ RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 void RicCreateWellTargetsPickEventHandler::registerAsPickEventHandler()
 {
-    RiaGuiApplication::instance()->setOverrideCursor( Qt::CrossCursor );
+    QApplication::setOverrideCursor( Qt::CrossCursor );
     Ric3dViewPickEventHandler::registerAsPickEventHandler();
 }
 
@@ -82,7 +82,7 @@ void RicCreateWellTargetsPickEventHandler::registerAsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 {
-    RiaGuiApplication::instance()->restoreOverrideCursor();
+    QApplication::restoreOverrideCursor();
 }
 
 //--------------------------------------------------------------------------------------------------

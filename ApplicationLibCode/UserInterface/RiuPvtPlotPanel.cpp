@@ -202,7 +202,7 @@ void RiuPvtPlotWidget::plotCurves( RiaDefines::EclipseUnitSystem                
         for ( size_t i = 0; i < curveArr.size(); i++ )
         {
             const RigFlowDiagSolverInterface::PvtCurve& curve = curveArr[i];
-            if ( curve.phase == RigFlowDiagSolverInterface::PvtCurve::OIL && curve.pressureVals.size() > 0 && curve.yVals.size() > 0 )
+            if ( curve.phase == RigFlowDiagSolverInterface::PvtCurve::OIL && !curve.pressureVals.empty() && !curve.yVals.empty() )
             {
                 xVals.push_back( curve.pressureVals[0] );
                 yVals.push_back( curve.yVals[0] );

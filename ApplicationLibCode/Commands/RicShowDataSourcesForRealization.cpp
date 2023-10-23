@@ -39,7 +39,7 @@ void RicShowDataSourcesForRealization::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowDataSourcesForRealization::isCommandChecked()
+bool RicShowDataSourcesForRealization::isCommandChecked() const
 {
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
@@ -55,7 +55,7 @@ bool RicShowDataSourcesForRealization::isCommandChecked()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowDataSourcesForRealization::isCommandEnabled()
+bool RicShowDataSourcesForRealization::isCommandEnabled() const
 {
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );

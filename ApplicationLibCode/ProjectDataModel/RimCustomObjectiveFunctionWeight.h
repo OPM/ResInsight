@@ -20,7 +20,6 @@
 
 #include "RimObjectiveFunction.h"
 
-#include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
 #include "RifSummaryReaderInterface.h"
 
@@ -36,6 +35,7 @@ class RimEnsembleCurveSet;
 class RimSummaryCase;
 class RimSummaryAddress;
 class RimCustomObjectiveFunction;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///

@@ -30,21 +30,23 @@ public:
 
     QString plotTitle() const override;
 
-    bool isPlotDisplayingSingleVectorName() const override;
+    bool isPlotDisplayingSingleCurve() const override;
     bool isWellNameInTitle() const override;
     bool isGroupNameInTitle() const override;
+    bool isNetworkInTitle() const override;
     bool isRegionInTitle() const override;
     bool isCaseInTitle() const override;
     bool isBlockInTitle() const override;
     bool isSegmentInTitle() const override;
     bool isCompletionInTitle() const override;
 
-    std::set<std::string> vectorNames() const override;
-    QString               caseName() const override;
+    std::vector<std::string> vectorNames() const override;
+    QString                  caseName() const override;
 
     std::string titleVectorName() const override;
     std::string titleWellName() const override;
     std::string titleGroupName() const override;
+    std::string titleNetwork() const override;
     std::string titleRegion() const override;
     std::string titleBlock() const override;
     std::string titleSegment() const override;

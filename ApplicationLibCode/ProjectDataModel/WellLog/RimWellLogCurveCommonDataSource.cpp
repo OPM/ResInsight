@@ -34,7 +34,7 @@
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogRftCurve.h"
@@ -331,7 +331,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
     for ( RimWellLogCurve* curve : curves )
     {
         auto* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
-        auto* fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
+        auto* fileCurve       = dynamic_cast<RimWellLogLasFileCurve*>( curve );
         auto* flowRateCurve   = dynamic_cast<RimWellFlowRateCurve*>( curve );
         auto* rftCurve        = dynamic_cast<RimWellLogRftCurve*>( curve );
 
@@ -382,7 +382,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
         else if ( rftCurve )
         {
             if ( rftCurve->summaryCase() ) m_uniqueSummaryCases.insert( rftCurve->summaryCase() );
-            if ( rftCurve->eclipseResultCase() ) m_uniqueCases.insert( rftCurve->eclipseResultCase() );
+            if ( rftCurve->eclipseCase() ) m_uniqueCases.insert( rftCurve->eclipseCase() );
             m_uniqueWellNames.insert( rftCurve->wellName() );
 
             auto adr = rftCurve->rftAddress();
@@ -445,7 +445,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
         }
         if ( m_uniqueBranchDetection.size() == 1u )
         {
-            setBranchDetectionToApply( *m_uniqueBranchDetection.begin() == true ? caf::Tristate::State::True : caf::Tristate::State::False );
+            setBranchDetectionToApply( *m_uniqueBranchDetection.begin() ? caf::Tristate::State::True : caf::Tristate::State::False );
         }
         if ( m_uniqueWellNames.size() == 1u )
         {
@@ -460,7 +460,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
 
     if ( m_uniqueWbsSmoothing.size() == 1u )
     {
-        setWbsSmoothingToApply( *m_uniqueWbsSmoothing.begin() == true ? caf::Tristate::State::True : caf::Tristate::State::False );
+        setWbsSmoothingToApply( *m_uniqueWbsSmoothing.begin() ? caf::Tristate::State::True : caf::Tristate::State::False );
     }
 
     if ( m_uniqueWbsSmoothingThreshold.size() == 1u )
@@ -502,7 +502,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks()
         std::vector<RimWellLogCurve*> curves = parentPlot->descendantsIncludingThisOfType<RimWellLogCurve>();
         std::vector<RimWellLogTrack*> tracks = parentPlot->descendantsIncludingThisOfType<RimWellLogTrack>();
 
-        this->analyseCurvesAndTracks( curves, tracks );
+        analyseCurvesAndTracks( curves, tracks );
     }
 }
 
@@ -515,7 +515,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
     std::set<RimWellLogPlot*> plots;
     for ( RimWellLogCurve* curve : curves )
     {
-        auto* fileCurve        = dynamic_cast<RimWellLogFileCurve*>( curve );
+        auto* fileCurve        = dynamic_cast<RimWellLogLasFileCurve*>( curve );
         auto* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( curve );
         auto* measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( curve );
         auto* rftCurve         = dynamic_cast<RimWellLogRftCurve*>( curve );
@@ -527,7 +527,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 fileCurve->setWellPath( wellPathToApply() );
                 if ( !fileCurve->wellLogChannelUiName().isEmpty() )
                 {
-                    RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
+                    RimWellLogLasFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
                     fileCurve->setWellLogFile( logFile );
                     auto parentPlot = fileCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                     plots.insert( parentPlot );
@@ -705,7 +705,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges()
         auto curves = parentPlot->descendantsIncludingThisOfType<RimWellLogCurve>();
         auto tracks = parentPlot->descendantsIncludingThisOfType<RimWellLogTrack>();
 
-        this->applyDataSourceChanges( curves, tracks );
+        applyDataSourceChanges( curves, tracks );
 
         // plot->loadDataAndUpdate() has been called in applyDataSourceChanges(), and this is required before the visibility of tracks and
         // curves can be updated. However, if the visibility of curves changes, another loadDataAndUpdate() is required to calculate zoom
@@ -845,7 +845,7 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandl
         m_wbsSmoothing.v() = caf::Tristate::State::True;
     }
 
-    this->applyDataSourceChanges();
+    applyDataSourceChanges();
 
     if ( changedField == &m_rftWellName )
     {
@@ -862,7 +862,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogCurveCommonDataSource::calculateValueOpt
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    this->analyseCurvesAndTracks();
+    analyseCurvesAndTracks();
 
     if ( fieldNeedingOptions == &m_case )
     {

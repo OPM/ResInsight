@@ -51,7 +51,7 @@ size_t RigActiveCellInfo::reservoirCellCount() const
 //--------------------------------------------------------------------------------------------------
 bool RigActiveCellInfo::isActive( size_t reservoirCellIndex ) const
 {
-    if ( m_cellIndexToResultIndex.size() == 0 )
+    if ( m_cellIndexToResultIndex.empty() )
     {
         return true;
     }

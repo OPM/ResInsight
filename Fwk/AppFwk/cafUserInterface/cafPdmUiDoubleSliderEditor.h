@@ -35,39 +35,20 @@
 //##################################################################################################
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiSliderTools.h"
 
 #include <QLabel>
 #include <QLineEdit>
 #include <QPointer>
 #include <QSlider>
 #include <QString>
-#include <QWidget>
+
+class QWidget;
 
 namespace caf
 {
-//==================================================================================================
-///
-//==================================================================================================
-class PdmUiDoubleSliderEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    PdmUiDoubleSliderEditorAttribute()
-    {
-        m_minimum                       = 0;
-        m_maximum                       = 10;
-        m_decimals                      = 6;
-        m_sliderTickCount               = 2000;
-        m_delaySliderUpdateUntilRelease = false;
-    }
-
-public:
-    double m_minimum;
-    double m_maximum;
-    int    m_decimals;
-    int    m_sliderTickCount;
-    bool   m_delaySliderUpdateUntilRelease;
-};
 
 //==================================================================================================
 ///
@@ -78,8 +59,8 @@ class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiDoubleSliderEditor() {}
-    ~PdmUiDoubleSliderEditor() override {}
+    PdmUiDoubleSliderEditor();
+    ~PdmUiDoubleSliderEditor() override;
 
 protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
@@ -92,11 +73,7 @@ protected slots:
     void slotSliderReleased();
 
 private:
-    void updateSliderPosition( double value );
     void writeValueToField( double value );
-
-    int    convertToSliderValue( double value );
-    double convertFromSliderValue( int sliderValue );
 
 private:
     QPointer<QLineEdit>       m_lineEdit;

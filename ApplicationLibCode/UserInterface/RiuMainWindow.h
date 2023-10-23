@@ -200,6 +200,7 @@ private:
     QToolButton* m_memoryUsedButton;
     QLabel*      m_memoryTotalStatus;
     QTimer*      m_memoryRefreshTimer;
+    QLabel*      m_versionInfo;
 
     // Menu and action slots
 private slots:

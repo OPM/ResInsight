@@ -139,7 +139,7 @@ void RimMdiWindowController::setupBeforeSave()
 {
     if ( viewWidget() && getMainWindow() )
     {
-        this->setMdiWindowGeometry( getMainWindow()->windowGeometryForViewer( viewWidget() ) );
+        setMdiWindowGeometry( getMainWindow()->windowGeometryForViewer( viewWidget() ) );
     }
 }
 
@@ -157,7 +157,7 @@ void RimMdiWindowController::updateViewerWidget()
         {
             QMdiSubWindow* viewWindow = mainWindow->createViewWindow();
             QWidget*       viewWidget = viewPdmObject()->createViewWidget( viewWindow );
-            mainWindow->initializeViewer( viewWindow, viewWidget, this->mdiWindowGeometry() );
+            mainWindow->initializeViewer( viewWindow, viewWidget, mdiWindowGeometry() );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
         }
@@ -168,7 +168,7 @@ void RimMdiWindowController::updateViewerWidget()
     {
         if ( viewWidget() )
         {
-            this->setMdiWindowGeometry( mainWindow->windowGeometryForViewer( viewWidget() ) );
+            setMdiWindowGeometry( mainWindow->windowGeometryForViewer( viewWidget() ) );
 
             mainWindow->removeViewer( viewWidget() );
 

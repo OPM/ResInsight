@@ -520,7 +520,7 @@ bool RiuDragDrop::handleGridCaseGroupDrop( Qt::DropAction action, caf::PdmObject
 bool RiuDragDrop::handleMultiPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& draggedObjects, RimMultiPlot* multiPlot, int insertAtPosition )
 {
     std::vector<RimPlot*> plots = RiuTypedPdmObjects<RimPlot>::typedObjectsFromGroup( draggedObjects );
-    if ( plots.size() > 0 )
+    if ( !plots.empty() )
     {
         if ( action == Qt::MoveAction )
         {
@@ -542,7 +542,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
 {
     std::vector<RimWellLogFileChannel*> wellLogFileChannels =
         RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup( draggedObjects );
-    if ( wellLogFileChannels.size() > 0 )
+    if ( !wellLogFileChannels.empty() )
     {
         if ( action == Qt::CopyAction )
         {
@@ -552,7 +552,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
     }
 
     std::vector<RimWellLogCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogCurve>::typedObjectsFromGroup( draggedObjects );
-    if ( wellLogPlotCurves.size() > 0 )
+    if ( !wellLogPlotCurves.empty() )
     {
         if ( action == Qt::MoveAction )
         {
@@ -573,7 +573,7 @@ bool RiuDragDrop::handleWellLogPlotDrop( Qt::DropAction       action,
                                          int                  insertAtPosition )
 {
     std::vector<RimWellLogTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogTrack>::typedObjectsFromGroup( draggedObjects );
-    if ( wellLogPlotTracks.size() > 0 )
+    if ( !wellLogPlotTracks.empty() )
     {
         if ( action == Qt::MoveAction )
         {
@@ -591,7 +591,7 @@ bool RiuDragDrop::handleWellLogPlotDrop( Qt::DropAction       action,
 bool RiuDragDrop::handleSummaryPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimSummaryPlot* summaryPlot, int insertAtPosition )
 {
     std::vector<RimSummaryCurve*> summaryCurves = RiuTypedPdmObjects<RimSummaryCurve>::typedObjectsFromGroup( objectGroup );
-    if ( summaryCurves.size() > 0 )
+    if ( !summaryCurves.empty() )
     {
         if ( action == Qt::MoveAction )
         {
@@ -611,7 +611,7 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction            act
 {
     std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
-    if ( action != Qt::MoveAction || summaryCases.size() == 0 ) return false;
+    if ( action != Qt::MoveAction || summaryCases.empty() ) return false;
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
@@ -646,7 +646,7 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
 {
     std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
-    if ( action != Qt::MoveAction || summaryCases.size() == 0 ) return false;
+    if ( action != Qt::MoveAction || summaryCases.empty() ) return false;
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
@@ -718,7 +718,7 @@ bool RiuDragDrop::handleSurfaceCollectionDrop( Qt::DropAction action, int row, c
 {
     std::vector<RimSurface*> surfaces = RiuTypedPdmObjects<RimSurface>::typedObjectsFromGroup( objectGroup );
 
-    if ( action != Qt::MoveAction || surfaces.size() == 0 ) return false;
+    if ( action != Qt::MoveAction || surfaces.empty() ) return false;
 
     for ( RimSurface* surface : surfaces )
     {

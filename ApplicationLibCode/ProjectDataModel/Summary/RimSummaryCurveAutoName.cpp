@@ -68,6 +68,39 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCurveAutoName::curveName( const RiaSummaryCurveAddress& summaryCurveAddress,
+                                            const RimSummaryNameHelper*   currentNameHelper,
+                                            const RimSummaryNameHelper*   plotNameHelper ) const
+{
+    QString name;
+
+    {
+        auto nameForY = curveNameY( summaryCurveAddress.summaryAddressY(), currentNameHelper, plotNameHelper );
+        if ( nameForY.isEmpty() )
+        {
+            nameForY = curveNameY( summaryCurveAddress.summaryAddressY(), nullptr, nullptr );
+        }
+
+        name += nameForY;
+    }
+
+    if ( summaryCurveAddress.summaryAddressX().category() != SummaryCategory::SUMMARY_TIME )
+    {
+        auto nameForX = curveNameX( summaryCurveAddress.summaryAddressX(), currentNameHelper, plotNameHelper );
+        if ( nameForX.isEmpty() )
+        {
+            nameForX = curveNameX( summaryCurveAddress.summaryAddressX(), nullptr, nullptr );
+        }
+
+        if ( nameForX != name ) name += " | " + nameForX;
+    }
+
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& summaryAddress,
                                              const RimSummaryNameHelper*     currentNameHelper,
                                              const RimSummaryNameHelper*     plotNameHelper ) const
@@ -193,7 +226,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     if ( m_vectorName || m_longVectorName )
     {
-        bool skipSubString = currentNameHelper && currentNameHelper->vectorNames().size() == 1;
+        bool skipSubString = currentNameHelper && currentNameHelper->isPlotDisplayingSingleCurve();
         if ( !skipSubString )
         {
             if ( m_longVectorName() )
@@ -215,7 +248,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
             }
         }
 
-        if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
+        if ( summaryAddress.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_ENSEMBLE_STATISTICS )
         {
             text = summaryAddress.vectorName();
         }
@@ -265,7 +298,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
 {
     switch ( summaryAddress.category() )
     {
-        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER:
         {
             if ( m_aquiferNumber )
             {
@@ -274,7 +307,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION:
         {
             if ( m_regionNumber )
             {
@@ -287,7 +320,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION:
         {
             if ( m_regionNumber )
             {
@@ -297,7 +330,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_GROUP:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP:
         {
             if ( m_groupName )
             {
@@ -310,12 +343,22 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK:
+        {
+            bool skipSubString = nameHelper && nameHelper->isNetworkInTitle();
+            if ( !skipSubString )
+            {
+                if ( !text.empty() ) text += ":";
+                text += summaryAddress.networkName();
+            }
+        }
+        break;
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL:
         {
             appendWellName( text, summaryAddress, nameHelper );
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION:
         {
             appendWellName( text, summaryAddress, nameHelper );
 
@@ -331,13 +374,13 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_LGR:
         {
             appendLgrName( text, summaryAddress );
             appendWellName( text, summaryAddress, nameHelper );
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR:
         {
             appendLgrName( text, summaryAddress );
             appendWellName( text, summaryAddress, nameHelper );
@@ -354,7 +397,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT:
         {
             appendWellName( text, summaryAddress, nameHelper );
 
@@ -369,7 +412,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK:
         {
             if ( m_completion )
             {
@@ -383,7 +426,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK_LGR:
         {
             appendLgrName( text, summaryAddress );
 
@@ -410,7 +453,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* chang
     // NOTE: The curve filter is parent object of a summary curve, and the update is supposed to update
     // the first parent, not the grandparent. This is the reason for not using firstAncestorOrThisOfType()
 
-    RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( this->parentField()->ownerObject() );
+    RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( parentField()->ownerObject() );
     if ( summaryCurve )
     {
         summaryCurve->updateCurveNameAndUpdatePlotLegendAndTitle();
@@ -419,7 +462,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* chang
         return;
     }
 
-    RicSummaryPlotEditorUi* curveCreator = dynamic_cast<RicSummaryPlotEditorUi*>( this->parentField()->ownerObject() );
+    RicSummaryPlotEditorUi* curveCreator = dynamic_cast<RicSummaryPlotEditorUi*>( parentField()->ownerObject() );
     if ( curveCreator )
     {
         curveCreator->updateCurveNames();
@@ -429,7 +472,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* chang
     }
 
     {
-        auto ensembleCurveSet = dynamic_cast<RimEnsembleCurveSet*>( this->parentField()->ownerObject() );
+        auto ensembleCurveSet = dynamic_cast<RimEnsembleCurveSet*>( parentField()->ownerObject() );
         if ( ensembleCurveSet )
         {
             ensembleCurveSet->updateAllTextInPlot();

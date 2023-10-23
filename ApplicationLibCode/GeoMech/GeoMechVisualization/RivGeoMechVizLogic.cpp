@@ -63,7 +63,7 @@ RivGeoMechVizLogic::~RivGeoMechVizLogic()
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechVizLogic::appendNoAnimPartsToModel( cvf::ModelBasicList* model )
 {
-    this->appendPartsToModel( -1, model );
+    appendPartsToModel( -1, model );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ void RivGeoMechVizLogic::updateStaticCellColors( int viewerStepIndex )
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechVizLogic::scheduleGeometryRegen( RivCellSetEnum geometryType )
 {
-    this->scheduleRegenOfDirectlyDependentGeometry( geometryType );
+    scheduleRegenOfDirectlyDependentGeometry( geometryType );
 
     bool resultsOk = ( m_geomechView->geoMechCase() && m_geomechView->geoMechCase()->geoMechData() &&
                        m_geomechView->geoMechCase()->geoMechData()->femPartResults() );
@@ -149,7 +149,7 @@ void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry( RivCellSetEnu
 {
     if ( geometryType == RANGE_FILTERED )
     {
-        this->scheduleGeometryRegen( PROPERTY_FILTERED );
+        scheduleGeometryRegen( PROPERTY_FILTERED );
     }
 }
 
@@ -239,7 +239,19 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         {
             cvf::CellRangeFilter cellRangeFilter;
             m_geomechView->cellFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, femPartIdx );
-            RivFemElmVisibilityCalculator::computeRangeVisibility( elmVisibility.p(), caseData->femParts()->part( femPartIdx ), cellRangeFilter );
+
+            auto femPart = caseData->femParts()->part( femPartIdx );
+
+            cvf::UByteArray indexIncludeVisibility( femPart->elementCount() );
+            cvf::UByteArray indexExcludeVisibility( femPart->elementCount() );
+            m_geomechView->cellFilterCollection()->updateCellVisibilityByIndex( &indexIncludeVisibility, &indexExcludeVisibility, femPartIdx );
+
+            RivFemElmVisibilityCalculator::computeRangeVisibility( elmVisibility.p(),
+                                                                   femPart,
+                                                                   cellRangeFilter,
+                                                                   &indexIncludeVisibility,
+                                                                   &indexExcludeVisibility,
+                                                                   m_geomechView->cellFilterCollection()->hasActiveIncludeIndexFilters() );
         }
         else if ( pMgrKey.geometryType() == PROPERTY_FILTERED )
         {

@@ -134,30 +134,17 @@ QString RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( const QSt
 //--------------------------------------------------------------------------------------------------
 void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEclipseSummary )
 {
-    const std::set<RifEclipseSummaryAddress>& addresses = readerEclipseSummary->allResultAddresses();
+    const auto addresses = readerEclipseSummary->allResultAddresses();
 
-    for ( int category = 0; category < RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR; category++ )
+    for ( const auto& catAddresse : addresses )
     {
-        RifEclipseSummaryAddress::SummaryVarCategory categoryEnum = RifEclipseSummaryAddress::SummaryVarCategory( category );
-
-        std::vector<RifEclipseSummaryAddress> catAddresses = RiaSummaryAddressAnalyzer::addressesForCategory( addresses, categoryEnum );
-
-        if ( !catAddresses.empty() )
-        {
-            std::cout << caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText( categoryEnum ).toStdString()
-                      << " count : " << catAddresses.size() << std::endl;
-
-            for ( const auto& catAddresse : catAddresses )
-            {
-                std::cout << catAddresse.vectorName() << " " << catAddresse.regionNumber() << " " << catAddresse.regionNumber2() << " "
-                          << catAddresse.groupName() << " " << catAddresse.wellName() << " " << catAddresse.wellSegmentNumber() << " "
-                          << catAddresse.lgrName() << " " << catAddresse.cellI() << " " << catAddresse.cellJ() << " " << catAddresse.cellK()
-                          << std::endl;
-            }
-
-            std::cout << std::endl;
-        }
+        std::cout << catAddresse.vectorName() << " " << catAddresse.regionNumber() << " " << catAddresse.regionNumber2() << " "
+                  << catAddresse.groupName() << " " << catAddresse.wellName() << " " << catAddresse.wellSegmentNumber() << " "
+                  << catAddresse.lgrName() << " " << catAddresse.cellI() << " " << catAddresse.cellJ() << " " << catAddresse.cellK()
+                  << std::endl;
     }
+
+    std::cout << std::endl;
 }
 
 //--------------------------------------------------------------------------------------------------

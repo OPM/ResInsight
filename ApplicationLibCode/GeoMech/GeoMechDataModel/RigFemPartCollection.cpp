@@ -42,7 +42,7 @@ void RigFemPartCollection::addFemPart( RigFemPart* part )
     size_t globalElementOffset      = 0;
     size_t globalNodeOffset         = 0;
     size_t globalConnectivityOffset = 0;
-    if ( m_femParts.size() > 0 )
+    if ( !m_femParts.empty() )
     {
         size_t lastIndex = m_femParts.size() - 1;
         globalElementOffset += m_femParts[lastIndex]->elementCount();

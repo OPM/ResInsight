@@ -38,7 +38,7 @@ RiuVfpQwtPlot::RiuVfpQwtPlot( RimVfpPlot* plot, QWidget* parent /*= nullptr*/ )
 
     // Remove event filter to disable unwanted highlighting
     // on left click in plot.
-    removeEventFilter( this );
+    QEventLoop::removeEventFilter( this );
     canvas()->removeEventFilter( this );
 }
 
@@ -56,7 +56,7 @@ void RiuVfpQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 
     menuBuilder.appendToMenu( &menu );
 
-    if ( menu.actions().size() > 0 )
+    if ( !menu.actions().empty() )
     {
         menu.exec( event->globalPos() );
     }

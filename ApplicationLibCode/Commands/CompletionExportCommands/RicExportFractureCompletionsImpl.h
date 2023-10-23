@@ -125,7 +125,8 @@ private:
                                                            gsl::not_null<const RimFracture*>         fracture,
                                                            double                                    cDarcyInCorrectUnit,
                                                            gsl::not_null<const RigWellPath*>         wellPathGeometry,
-                                                           RigTransmissibilityCondenser&             transCondenser );
+                                                           RigTransmissibilityCondenser&             transCondenser,
+                                                           bool                                      useInfiniteWellPI );
 
     static std::map<size_t, double> calculateMatrixToWellTransmissibilities( RigTransmissibilityCondenser& transCondenser );
 

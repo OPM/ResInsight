@@ -90,7 +90,7 @@ void RimOilFieldEntry::initAfterRead()
 {
     updateEnabledState();
 
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void RimOilFieldEntry::initAfterRead()
 void RimOilFieldEntry::updateEnabledState()
 {
     bool wellsReadOnly = !selected;
-    if ( this->isUiReadOnly() )
+    if ( isUiReadOnly() )
     {
         wellsReadOnly = true;
     }

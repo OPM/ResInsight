@@ -53,7 +53,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogExtractionCurveFeature, "RicNewWellLogExtracti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogExtractionCurveFeature::isCommandEnabled()
+bool RicNewWellLogExtractionCurveFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
@@ -133,8 +133,6 @@ void RicNewWellLogExtractionCurveFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogExtractionCurveFeature::caseAvailable()
 {
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     return !cases.empty();
 }

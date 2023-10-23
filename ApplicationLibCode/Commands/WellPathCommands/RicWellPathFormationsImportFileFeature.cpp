@@ -37,14 +37,6 @@ CAF_CMD_SOURCE_INIT( RicWellPathFormationsImportFileFeature, "RicWellPathFormati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathFormationsImportFileFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path formations files
@@ -55,7 +47,7 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
                                                                                     defaultDir,
                                                                                     "Well Picks (*.csv);;All Files (*.*)" );
 
-    if ( wellPathFormationsFilePaths.size() < 1 ) return;
+    if ( wellPathFormationsFilePaths.empty() ) return;
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELLPATHFORMATIONS_DIR", QFileInfo( wellPathFormationsFilePaths.last() ).absolutePath() );
@@ -73,7 +65,7 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
 
         if ( !oilField ) return;
 
-        if ( oilField->wellPathCollection->allWellPaths().size() > 0 )
+        if ( !oilField->wellPathCollection->allWellPaths().empty() )
         {
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
             if ( wellPath )

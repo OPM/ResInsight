@@ -43,7 +43,7 @@ class RigWellPath;
 class RimFileWellPath;
 class RimEclipseView;
 class RimProject;
-class RimWellLogFile;
+class RimWellLogLasFile;
 class RimWellPath;
 class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
@@ -114,8 +114,8 @@ public:
     void         addWellPaths( const std::vector<RimWellPath*> incomingWellPaths );
     void         addWellPath( gsl::not_null<RimWellPath*> wellPath );
 
-    std::vector<RimWellLogFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
-    void                         addWellPathFormations( const QStringList& filePaths );
+    std::vector<RimWellLogLasFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
+    void                            addWellPathFormations( const QStringList& filePaths );
 
     void scheduleRedrawAffectedViews();
 

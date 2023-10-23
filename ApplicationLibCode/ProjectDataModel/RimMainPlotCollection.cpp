@@ -20,6 +20,7 @@
 #include "RimMainPlotCollection.h"
 
 #include "RiaPlotCollectionScheduler.h"
+#include "RiaSummaryDefines.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
@@ -42,6 +43,8 @@
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCrossPlotCollection.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryDataSourceStepping.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
@@ -98,8 +101,8 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_correlationPlotCollection, "CorrelationPlotCollection", "Correlation Plots" );
     m_correlationPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots" );
-    m_summaryCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection_OBSOLETE, "SummaryCrossPlotCollection", "Summary Cross Plots" );
+    m_summaryCrossPlotCollection_OBSOLETE.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryTableCollection, "SummaryTableCollection", "Summary Tables" );
     m_summaryTableCollection.uiCapability()->setUiTreeHidden( true );
@@ -129,20 +132,20 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_ensembleFractureStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 #endif
 
-    m_wellLogPlotCollection            = new RimWellLogPlotCollection();
-    m_rftPlotCollection                = new RimRftPlotCollection();
-    m_pltPlotCollection                = new RimPltPlotCollection();
-    m_summaryMultiPlotCollection       = new RimSummaryMultiPlotCollection();
-    m_summaryCrossPlotCollection       = new RimSummaryCrossPlotCollection();
-    m_summaryTableCollection           = new RimSummaryTableCollection();
-    m_flowPlotCollection               = new RimFlowPlotCollection();
-    m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
-    m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
-    m_multiPlotCollection              = new RimMultiPlotCollection;
-    m_analysisPlotCollection           = new RimAnalysisPlotCollection;
-    m_correlationPlotCollection        = new RimCorrelationPlotCollection;
-    m_stimPlanModelPlotCollection      = new RimStimPlanModelPlotCollection;
-    m_vfpPlotCollection                = new RimVfpPlotCollection();
+    m_wellLogPlotCollection               = new RimWellLogPlotCollection();
+    m_rftPlotCollection                   = new RimRftPlotCollection();
+    m_pltPlotCollection                   = new RimPltPlotCollection();
+    m_summaryMultiPlotCollection          = new RimSummaryMultiPlotCollection();
+    m_summaryCrossPlotCollection_OBSOLETE = new RimSummaryCrossPlotCollection();
+    m_summaryTableCollection              = new RimSummaryTableCollection();
+    m_flowPlotCollection                  = new RimFlowPlotCollection();
+    m_gridCrossPlotCollection             = new RimGridCrossPlotCollection;
+    m_saturationPressurePlotCollection    = new RimSaturationPressurePlotCollection;
+    m_multiPlotCollection                 = new RimMultiPlotCollection;
+    m_analysisPlotCollection              = new RimAnalysisPlotCollection;
+    m_correlationPlotCollection           = new RimCorrelationPlotCollection;
+    m_stimPlanModelPlotCollection         = new RimStimPlanModelPlotCollection;
+    m_vfpPlotCollection                   = new RimVfpPlotCollection();
 #ifdef USE_QTCHARTS
     m_gridStatisticsPlotCollection             = new RimGridStatisticsPlotCollection;
     m_ensembleFractureStatisticsPlotCollection = new RimEnsembleFractureStatisticsPlotCollection;
@@ -176,17 +179,48 @@ RimMainPlotCollection* RimMainPlotCollection::current()
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::initAfterRead()
 {
-    std::vector<RimSummaryPlot*> plotsToMove;
-    for ( auto singlePlot : m_summaryPlotCollection_OBSOLETE()->plots() )
     {
-        plotsToMove.push_back( singlePlot );
+        std::vector<RimSummaryPlot*> plotsToMove;
+        for ( auto singlePlot : m_summaryPlotCollection_OBSOLETE()->plots() )
+        {
+            plotsToMove.push_back( singlePlot );
+        }
+
+        for ( auto singlePlot : plotsToMove )
+        {
+            m_summaryPlotCollection_OBSOLETE()->removePlot( singlePlot );
+
+            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( singlePlot );
+        }
     }
 
-    for ( auto singlePlot : plotsToMove )
+    // Move cross plots into summary plot collection
+    auto crossPlots = m_summaryCrossPlotCollection_OBSOLETE->plots();
+    for ( auto crossPlot : crossPlots )
     {
-        m_summaryPlotCollection_OBSOLETE()->removePlot( singlePlot );
+        m_summaryCrossPlotCollection_OBSOLETE->removePlot( crossPlot );
 
-        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( singlePlot );
+        auto* summaryMultiPlot = new RimSummaryMultiPlot;
+        summaryMultiPlot->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( m_summaryMultiPlotCollection->multiPlots().size() + 1 ) );
+        summaryMultiPlot->setAsPlotMdiWindow();
+        m_summaryMultiPlotCollection->addSummaryMultiPlot( summaryMultiPlot );
+
+        // We want to convert RimSummaryCrossPlot into a RimSummaryPlot. The cross plot is derived from RimSummaryPlot, but we need to
+        // create a new RimSummaryPlot to be able to store the PDM object as a RimSummaryPlot instead of RimSummaryCrossPlot
+        auto summaryPlot = new RimSummaryPlot;
+        summaryMultiPlot->addPlot( summaryPlot );
+
+        for ( auto curve : crossPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+        {
+            crossPlot->removeCurve( curve );
+
+            if ( curve->summaryCaseX() != nullptr ) curve->setAxisTypeX( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR );
+
+            summaryPlot->insertCurve( curve, std::numeric_limits<size_t>::max() );
+            summaryPlot->findOrAssignPlotAxisX( curve );
+        }
+
+        delete crossPlot;
     }
 }
 
@@ -235,14 +269,6 @@ RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection() const
 RimSummaryMultiPlotCollection* RimMainPlotCollection::summaryMultiPlotCollection() const
 {
     return m_summaryMultiPlotCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection() const
-{
-    return m_summaryCrossPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -475,7 +501,6 @@ std::vector<RimPlotCollection*> RimMainPlotCollection::allPlotCollections() cons
     std::vector<RimPlotCollection*> plotCollections;
     plotCollections.push_back( wellLogPlotCollection() );
     plotCollections.push_back( summaryMultiPlotCollection() );
-    plotCollections.push_back( summaryCrossPlotCollection() );
     plotCollections.push_back( summaryTableCollection() );
     plotCollections.push_back( gridCrossPlotCollection() );
     plotCollections.push_back( analysisPlotCollection() );

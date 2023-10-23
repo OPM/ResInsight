@@ -27,14 +27,6 @@ CAF_CMD_SOURCE_INIT( RicNewPolylineSeismicSectionFeature, "RicNewPolylineSeismic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPolylineSeismicSectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewPolylineSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
     RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_POLYLINE );
@@ -45,6 +37,6 @@ void RicNewPolylineSeismicSectionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SeismicSection16x16.png" ) );
     actionToSetup->setText( "New Polyline Section" );
 }

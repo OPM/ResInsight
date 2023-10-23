@@ -37,14 +37,6 @@ CAF_CMD_SOURCE_INIT( RicImportElasticPropertiesFeature, "RicImportElasticPropert
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportElasticPropertiesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportElasticPropertiesFeature::onActionTriggered( bool isChecked )
 {
     RimStimPlanModelTemplate* stimPlanModelTemplate =

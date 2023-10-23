@@ -73,12 +73,13 @@
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSeismicDataCollection.h"
+#include "RimSeismicView.h"
+#include "RimSeismicViewCollection.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryTableCollection.h"
 #include "RimSurfaceCollection.h"
@@ -90,7 +91,7 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -234,7 +235,7 @@ RimProject::RimProject()
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back( new RimOilField );
 
-    this->setUiHidden( true );
+    setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,10 +306,10 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 void RimProject::beforeInitAfterRead()
 {
-    this->distributePathsFromGlobalPathList();
+    distributePathsFromGlobalPathList();
 
     // Create an empty oil field in case the project did not contain one
-    if ( oilFields.size() < 1 )
+    if ( oilFields.empty() )
     {
         oilFields.push_back( new RimOilField );
     }
@@ -406,9 +407,9 @@ RimMainPlotCollection* RimProject::mainPlotCollection() const
 //--------------------------------------------------------------------------------------------------
 bool RimProject::writeProjectFile()
 {
-    this->transferPathsToGlobalPathList();
-    bool couldOpenFile = this->writeFile();
-    this->distributePathsFromGlobalPathList();
+    transferPathsToGlobalPathList();
+    bool couldOpenFile = writeFile();
+    distributePathsFromGlobalPathList();
 
     return couldOpenFile;
 }
@@ -475,9 +476,9 @@ bool RimProject::isProjectFileVersionEqualOrOlderThan( const QString& otherProje
 void RimProject::setProjectFileNameAndUpdateDependencies( const QString& projectFileName )
 {
     // Extract the filename of the project file when it was saved
-    QString oldProjectFileName = this->fileName;
+    QString oldProjectFileName = fileName;
     // Replace with the new actual filename
-    this->fileName = projectFileName;
+    fileName = projectFileName;
 
     QFileInfo fileInfo( projectFileName );
     QString   newProjectPath = fileInfo.path();
@@ -552,94 +553,6 @@ std::vector<RimCase*> RimProject::allGridCases() const
 {
     std::vector<RimCase*> cases;
 
-    // TODO: Move code from allCases here
-    allCases( cases );
-
-    return cases;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
-{
-    if ( reservoirCase )
-    {
-        std::vector<RimCase*> cases = this->descendantsIncludingThisOfType<RimCase>();
-        for ( RimCase* rimCase : cases )
-        {
-            m_nextValidCaseId = std::max( m_nextValidCaseId, rimCase->caseId() + 1 );
-        }
-
-        reservoirCase->setCaseId( m_nextValidCaseId++ );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
-{
-    if ( caseGroup )
-    {
-        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups = this->descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
-
-        for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
-        {
-            m_nextValidCaseGroupId = std::max( m_nextValidCaseGroupId, existingCaseGroup->groupId() + 1 );
-        }
-
-        caseGroup->groupId = m_nextValidCaseGroupId++;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::assignViewIdToView( Rim3dView* view )
-{
-    if ( view )
-    {
-        if ( m_nextValidViewId < 0 )
-        {
-            std::vector<Rim3dView*> views = this->descendantsIncludingThisOfType<Rim3dView>();
-
-            for ( Rim3dView* existingView : views )
-            {
-                m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
-            }
-        }
-
-        view->setId( m_nextValidViewId++ );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
-{
-    if ( plotWindow )
-    {
-        if ( m_nextValidPlotId < 0 )
-        {
-            std::vector<RimPlotWindow*> plotWindows = this->descendantsIncludingThisOfType<RimPlotWindow>();
-
-            for ( RimPlotWindow* existingPlotWindow : plotWindows )
-            {
-                m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
-            }
-        }
-
-        plotWindow->setId( m_nextValidPlotId++ );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// TODO: This function is deprecated, use allGridCases()
-//--------------------------------------------------------------------------------------------------
-void RimProject::allCases( std::vector<RimCase*>& cases ) const
-{
     for ( size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++ )
     {
         RimOilField* oilField = oilFields[oilFieldIdx];
@@ -684,6 +597,85 @@ void RimProject::allCases( std::vector<RimCase*>& cases ) const
             }
         }
     }
+
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
+{
+    if ( reservoirCase )
+    {
+        std::vector<RimCase*> cases = descendantsIncludingThisOfType<RimCase>();
+        for ( RimCase* rimCase : cases )
+        {
+            m_nextValidCaseId = std::max( m_nextValidCaseId, rimCase->caseId() + 1 );
+        }
+
+        reservoirCase->setCaseId( m_nextValidCaseId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
+{
+    if ( caseGroup )
+    {
+        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups = descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
+
+        for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
+        {
+            m_nextValidCaseGroupId = std::max( m_nextValidCaseGroupId, existingCaseGroup->groupId() + 1 );
+        }
+
+        caseGroup->groupId = m_nextValidCaseGroupId++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignViewIdToView( Rim3dView* view )
+{
+    if ( view )
+    {
+        if ( m_nextValidViewId < 0 )
+        {
+            std::vector<Rim3dView*> views = descendantsIncludingThisOfType<Rim3dView>();
+
+            for ( Rim3dView* existingView : views )
+            {
+                m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
+            }
+        }
+
+        view->setId( m_nextValidViewId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
+{
+    if ( plotWindow )
+    {
+        if ( m_nextValidPlotId < 0 )
+        {
+            std::vector<RimPlotWindow*> plotWindows = descendantsIncludingThisOfType<RimPlotWindow>();
+
+            for ( RimPlotWindow* existingPlotWindow : plotWindows )
+            {
+                m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
+            }
+        }
+
+        plotWindow->setId( m_nextValidPlotId++ );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -707,7 +699,7 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
         }
 
         auto& observedDataColl = oilField->observedDataCollection();
-        if ( observedDataColl != nullptr && observedDataColl->allObservedSummaryData().size() > 0 )
+        if ( observedDataColl != nullptr && !observedDataColl->allObservedSummaryData().empty() )
         {
             auto observedData = observedDataColl->allObservedSummaryData();
             sumCases.insert( sumCases.end(), observedData.begin(), observedData.end() );
@@ -752,8 +744,7 @@ RimSummaryCaseMainCollection* RimProject::firstSummaryCaseMainCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::allNotLinkedViews( std::vector<Rim3dView*>& views )
 {
-    std::vector<RimCase*> cases;
-    allCases( cases );
+    std::vector<RimCase*> cases = allGridCases();
 
     std::vector<Rim3dView*> alreadyLinkedViews;
     if ( viewLinkerCollection->viewLinker() )
@@ -794,8 +785,7 @@ void RimProject::allNotLinkedViews( std::vector<Rim3dView*>& views )
 //--------------------------------------------------------------------------------------------------
 void RimProject::allViews( std::vector<Rim3dView*>& views ) const
 {
-    std::vector<RimCase*> cases;
-    allCases( cases );
+    std::vector<RimCase*> cases = allGridCases();
 
     for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
     {
@@ -811,6 +801,18 @@ void RimProject::allViews( std::vector<Rim3dView*>& views ) const
             }
         }
     }
+
+    for ( size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++ )
+    {
+        RimOilField* oilField = oilFields[oilFieldIdx];
+        if ( !oilField ) continue;
+        if ( !oilField->seismicViewCollection() ) continue;
+
+        for ( auto seisview : oilField->seismicViewCollection()->views() )
+        {
+            views.push_back( seisview );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -818,8 +820,7 @@ void RimProject::allViews( std::vector<Rim3dView*>& views ) const
 //--------------------------------------------------------------------------------------------------
 void RimProject::allVisibleViews( std::vector<Rim3dView*>& views ) const
 {
-    std::vector<RimCase*> cases;
-    allCases( cases );
+    std::vector<RimCase*> cases = allGridCases();
 
     for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
     {
@@ -843,7 +844,7 @@ void RimProject::allVisibleViews( std::vector<Rim3dView*>& views ) const
 void RimProject::allVisibleGridViews( std::vector<RimGridView*>& views ) const
 {
     std::vector<Rim3dView*> visibleViews;
-    this->allVisibleViews( visibleViews );
+    allVisibleViews( visibleViews );
     for ( Rim3dView* view : visibleViews )
     {
         RimGridView* gridView = dynamic_cast<RimGridView*>( view );
@@ -856,8 +857,7 @@ void RimProject::allVisibleGridViews( std::vector<RimGridView*>& views ) const
 //--------------------------------------------------------------------------------------------------
 void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 {
-    std::vector<RimCase*> cases;
-    allCases( cases );
+    std::vector<RimCase*> cases = allGridCases();
     for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )
     {
         RimCase* rimCase = cases[caseIdx];
@@ -869,6 +869,15 @@ void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
             views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
         }
     }
+
+    auto seismicViewCollection = activeOilField()->seismicViewCollection();
+    if ( seismicViewCollection )
+    {
+        for ( auto seisview : seismicViewCollection->views() )
+        {
+            seisview->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -877,7 +886,7 @@ void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 void RimProject::allOilFields( std::vector<RimOilField*>& allOilFields ) const
 {
     allOilFields.clear();
-    for ( const auto& oilField : this->oilFields )
+    for ( const auto& oilField : oilFields )
     {
         allOilFields.push_back( oilField );
     }
@@ -910,8 +919,7 @@ const RimOilField* RimProject::activeOilField() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::computeUtmAreaOfInterest()
 {
-    std::vector<RimCase*> cases;
-    allCases( cases );
+    std::vector<RimCase*> cases = allGridCases();
 
     cvf::BoundingBox projectBB;
 
@@ -1041,13 +1049,13 @@ RimDialogData* RimProject::dialogData() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimProject::eclipseCases() const
 {
-    std::vector<RimEclipseCase*> allCases;
+    std::vector<RimEclipseCase*> allGridCases;
     for ( const auto& oilField : oilFields )
     {
         const auto& cases = oilField->analysisModels->cases;
-        allCases.insert( allCases.end(), cases.begin(), cases.end() );
+        allGridCases.insert( allGridCases.end(), cases.begin(), cases.end() );
     }
-    return allCases;
+    return allGridCases;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1111,6 +1119,14 @@ RimWellPath* RimProject::wellPathFromSimWellName( const QString& simWellName, in
     {
         if ( QString::compare( path->associatedSimulationWellName(), simWellName ) == 0 &&
              ( branchIndex < 0 || path->associatedSimulationWellBranch() == branchIndex ) )
+        {
+            return path;
+        }
+    }
+
+    for ( RimWellPath* const path : allWellPaths() )
+    {
+        if ( QString::compare( path->name(), simWellName ) == 0 )
         {
             return path;
         }
@@ -1315,8 +1331,7 @@ std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimProject::commonUnitSystemForAllCases() const
 {
-    std::vector<RimCase*> rimCases;
-    allCases( rimCases );
+    std::vector<RimCase*> rimCases = allGridCases();
 
     RiaDefines::EclipseUnitSystem commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 
@@ -1404,11 +1419,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( m_mainPlotCollection->correlationPlotCollection() )
             {
                 uiTreeOrdering.add( m_mainPlotCollection->correlationPlotCollection() );
-            }
-
-            if ( m_mainPlotCollection->summaryCrossPlotCollection() )
-            {
-                uiTreeOrdering.add( m_mainPlotCollection->summaryCrossPlotCollection() );
             }
 
             if ( m_mainPlotCollection->summaryTableCollection() )
@@ -1520,7 +1530,12 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
-            if ( oilField->seismicCollection() ) uiTreeOrdering.add( oilField->seismicCollection() );
+            if ( oilField->seismicDataCollection() )
+            {
+                auto child = uiTreeOrdering.add( "Seismic", ":/Seismic16x16.png" );
+                child->add( oilField->seismicDataCollection() );
+                child->add( oilField->seismicViewCollection() );
+            }
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() ) uiTreeOrdering.add( oilField->completionTemplateCollection() );
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );

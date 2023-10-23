@@ -148,6 +148,7 @@ list(
   ProjectDataModelCommands/CommandRouter/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake
   ModelVisualization/CMakeLists_files.cmake
+  ModelVisualization/Faults/CMakeLists_files.cmake
   ModelVisualization/GridBox/CMakeLists_files.cmake
   ModelVisualization/Intersections/CMakeLists_files.cmake
   ModelVisualization/Seismic/CMakeLists_files.cmake
@@ -202,7 +203,7 @@ list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
 # Configure include directories if opm-common.lib is downloaded and linked
 # without building from source
 #
-if(NOT BUILD_FROM_SOURCE)
+if(NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
   list(APPEND RI_PUBLIC_INCLUDES
        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/opm-common
   )
@@ -395,6 +396,7 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
          ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech
          ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
+         ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Faults
          ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
          ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
          ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Seismic

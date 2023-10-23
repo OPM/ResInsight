@@ -202,7 +202,7 @@ void RicExportSelectedWellPathsFeature::exportWellPathsToFile( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportSelectedWellPathsFeature::isCommandEnabled()
+bool RicExportSelectedWellPathsFeature::isCommandEnabled() const
 {
     std::vector<RimWellPath*> wellPaths = caf::selectedObjectsByTypeStrict<RimWellPath*>();
 

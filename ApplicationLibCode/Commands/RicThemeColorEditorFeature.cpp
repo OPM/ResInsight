@@ -42,14 +42,6 @@ CAF_CMD_SOURCE_INIT( RicThemeColorEditorFeature, "RicThemeColorEditorFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicThemeColorEditorFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
 {
     RiaDefines::ThemeEnum theme = RiaGuiApplication::instance()->preferences()->guiTheme();

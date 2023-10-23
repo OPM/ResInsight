@@ -26,14 +26,14 @@ TEST( DISABLED_RifReaderEclipseRftTest, TestRifEclipseRftAddress )
     {
         std::vector<double> values;
         reader.values( address, &values );
-        EXPECT_TRUE( values.size() > 0 );
+        EXPECT_TRUE( !values.empty() );
     }
 
-    ASSERT_TRUE( addresses.size() > 0 );
+    ASSERT_TRUE( !addresses.empty() );
 
     std::vector<double> values;
     reader.values( *addresses.begin(), &values );
-    ASSERT_TRUE( values.size() > 0 );
+    ASSERT_TRUE( !values.empty() );
 
     std::cout << "First value: " << values.front() << ", last value: " << values.back() << std::endl;
 }

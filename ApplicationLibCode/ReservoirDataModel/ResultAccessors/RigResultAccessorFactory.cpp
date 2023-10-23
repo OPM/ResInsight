@@ -361,7 +361,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromResultAddr
         resultValues = &( scalarSetResults[timeStepIndex] );
     }
 
-    if ( !resultValues || resultValues->size() == 0 )
+    if ( !resultValues || resultValues->empty() )
     {
         return new RigHugeValResultAccessor;
     }

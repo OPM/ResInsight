@@ -190,7 +190,7 @@ bool RimFaultInViewCollection::hideNNCsWhenNoResultIsAvailable() const
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 
     if ( &m_faultLabelColor == changedField )
     {
@@ -307,7 +307,7 @@ void RimFaultInViewCollection::syncronizeFaults()
     // Find corresponding fault from data model, or create a new
     for ( size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx )
     {
-        RimFaultInView* rimFault = this->findFaultByName( rigFaults[fIdx]->name() );
+        RimFaultInView* rimFault = findFaultByName( rigFaults[fIdx]->name() );
 
         if ( !rimFault )
         {

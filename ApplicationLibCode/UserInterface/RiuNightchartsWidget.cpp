@@ -64,19 +64,19 @@ void RiuNightchartsWidget::updateSizePolicy()
 {
     if ( m_showPie && m_showLegend )
     {
-        this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+        setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     }
     else if ( m_showPie && !m_showLegend )
     {
-        this->setSizePolicy( QSizePolicy::Maximum, QSizePolicy::Maximum );
+        setSizePolicy( QSizePolicy::Maximum, QSizePolicy::Maximum );
     }
     else if ( !m_showPie && m_showLegend )
     {
-        this->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+        setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     }
     else
     {
-        this->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+        setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     }
 }
 
@@ -108,7 +108,7 @@ QSize RiuNightchartsWidget::sizeHint() const
 
     if ( m_showLegend )
     {
-        int lineHeight = this->fontMetrics().height();
+        int lineHeight = fontMetrics().height();
         int lineCount  = m_chart.pieceCount();
 
         int exactLegendHeight = ( lineCount + lineCount - 1 ) * lineHeight;
@@ -158,8 +158,8 @@ void RiuNightchartsWidget::paintEvent( QPaintEvent* e )
         legendMargin = 0;
     }
 
-    int w = ( this->width() - 2 * m_marginLeft - legendWidth - legendMargin );
-    int h = ( this->height() - 2 * m_marginTop );
+    int w = ( width() - 2 * m_marginLeft - legendWidth - legendMargin );
+    int h = ( height() - 2 * m_marginTop );
 
     int size = ( w < h ) ? w : h;
 
@@ -184,7 +184,7 @@ void RiuNightchartsWidget::paintEvent( QPaintEvent* e )
 void RiuNightchartsWidget::addItem( const QString& name, const QColor& color, float value )
 {
     m_chart.addPiece( name, color, value );
-    int textWidth = this->fontMetrics().boundingRect( name + " (00 %)" ).width();
+    int textWidth = fontMetrics().boundingRect( name + " (00 %)" ).width();
 
     m_maxNameWidth = textWidth > m_maxNameWidth ? textWidth : m_maxNameWidth;
 }

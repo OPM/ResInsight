@@ -59,14 +59,6 @@ void RicOpenInTextEditorFeature::openFileInTextEditor( const QString& filePath, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicOpenInTextEditorFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicOpenInTextEditorFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmUiItem*> uiItems;

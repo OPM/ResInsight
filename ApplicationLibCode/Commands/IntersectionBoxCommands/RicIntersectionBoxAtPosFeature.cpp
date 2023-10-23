@@ -41,14 +41,6 @@ CAF_CMD_SOURCE_INIT( RicIntersectionBoxAtPosFeature, "RicIntersectionBoxAtPosFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicIntersectionBoxAtPosFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
 {
     RimGridView* activeView                 = RiaApplication::instance()->activeGridView();

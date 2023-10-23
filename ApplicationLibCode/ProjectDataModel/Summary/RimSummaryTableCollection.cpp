@@ -20,7 +20,6 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
@@ -129,7 +128,7 @@ RimSummaryTable* RimSummaryTableCollection::createDefaultSummaryTable()
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryTable* RimSummaryTableCollection::createSummaryTableFromCategoryAndVectorName( RimSummaryCase* summaryCase,
-                                                                                         RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                                                         RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                                                          const QString& vectorName )
 {
     RimSummaryTable* table = new RimSummaryTable();

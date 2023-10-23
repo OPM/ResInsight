@@ -60,7 +60,7 @@ void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryPlotFeature::isCommandEnabled()
+bool RicPasteSummaryPlotFeature::isCommandEnabled() const
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
@@ -69,7 +69,7 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled()
     auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot>();
     if ( !multiPlot ) return false;
 
-    return RicPasteSummaryPlotFeature::summaryPlots().size() > 0;
+    return !RicPasteSummaryPlotFeature::summaryPlots().empty();
 }
 
 //--------------------------------------------------------------------------------------------------

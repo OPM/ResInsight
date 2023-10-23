@@ -235,7 +235,7 @@ public:
             std::vector<RimCase*> cases;
             if ( argCaseGroupId == -1 )
             {
-                proj->allCases( cases );
+                cases = proj->allGridCases();
             }
             else
             {

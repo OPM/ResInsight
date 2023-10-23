@@ -364,9 +364,9 @@ void RivGridBoxGenerator::createGridBoxFaceParts()
     m_gridBoxFaceParts.clear();
 
     CVF_ASSERT( m_displayCoordsBoundingBox.isValid() );
-    CVF_ASSERT( m_displayCoordsXValues.size() > 0 );
-    CVF_ASSERT( m_displayCoordsYValues.size() > 0 );
-    CVF_ASSERT( m_displayCoordsZValues.size() > 0 );
+    CVF_ASSERT( !m_displayCoordsXValues.empty() );
+    CVF_ASSERT( !m_displayCoordsYValues.empty() );
+    CVF_ASSERT( !m_displayCoordsZValues.empty() );
 
     cvf::Vec3d min = m_displayCoordsBoundingBox.min();
     cvf::Vec3d max = m_displayCoordsBoundingBox.max();
@@ -456,9 +456,9 @@ void RivGridBoxGenerator::createGridBoxLegendParts()
     m_gridBoxLegendParts.clear();
 
     CVF_ASSERT( m_displayCoordsBoundingBox.isValid() );
-    CVF_ASSERT( m_displayCoordsXValues.size() > 0 );
-    CVF_ASSERT( m_displayCoordsYValues.size() > 0 );
-    CVF_ASSERT( m_displayCoordsZValues.size() > 0 );
+    CVF_ASSERT( !m_displayCoordsXValues.empty() );
+    CVF_ASSERT( !m_displayCoordsYValues.empty() );
+    CVF_ASSERT( !m_displayCoordsZValues.empty() );
 
     for ( int edge = POS_Z_POS_X; edge <= NEG_X_NEG_Y; edge++ )
     {

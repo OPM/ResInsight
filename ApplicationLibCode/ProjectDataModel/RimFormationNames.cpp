@@ -159,5 +159,5 @@ QString RimFormationNames::layerZoneTableFileName()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateUiTreeName()
 {
-    this->uiCapability()->setUiName( fileNameWoPath() );
+    uiCapability()->setUiName( fileNameWoPath() );
 }

@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 
-#include "RiaNumericalTools.h"
 #include "RiaTestDataDirectory.h"
 #include "RifColorLegendData.h"
 #include "RigFormationNames.h"
@@ -83,48 +82,4 @@ TEST( RifColorLegendData, ReadLYRFileWithColorHTML )
     EXPECT_EQ( 1.0f, formationColor.r() );
     EXPECT_EQ( 0.0f, formationColor.g() );
     EXPECT_EQ( 0.0f, formationColor.b() );
-}
-
-TEST( RiaNumericalTools, LogTenFunctions )
-{
-    {
-        // Negative values will return zero
-        double value = -0.0015;
-
-        auto exponentCeil = RiaNumericalTools::computeTenExponentCeil( value );
-        EXPECT_EQ( 0.0f, exponentCeil );
-
-        auto exponentFloor = RiaNumericalTools::computeTenExponentFloor( value );
-        EXPECT_EQ( 0.0f, exponentFloor );
-    }
-
-    {
-        double value = 0.15;
-
-        auto exponentCeil = RiaNumericalTools::computeTenExponentCeil( value );
-        EXPECT_EQ( 0.0f, exponentCeil );
-
-        auto exponentFloor = RiaNumericalTools::computeTenExponentFloor( value );
-        EXPECT_EQ( -1.0f, exponentFloor );
-    }
-
-    {
-        double value = 1.5;
-
-        auto exponentCeil = RiaNumericalTools::computeTenExponentCeil( value );
-        EXPECT_EQ( 1.0f, exponentCeil );
-
-        auto exponentFloor = RiaNumericalTools::computeTenExponentFloor( value );
-        EXPECT_EQ( 0.0f, exponentFloor );
-    }
-
-    {
-        double value = 15;
-
-        auto exponentCeil = RiaNumericalTools::computeTenExponentCeil( value );
-        EXPECT_EQ( 2.0f, exponentCeil );
-
-        auto exponentFloor = RiaNumericalTools::computeTenExponentFloor( value );
-        EXPECT_EQ( 1.0f, exponentFloor );
-    }
 }

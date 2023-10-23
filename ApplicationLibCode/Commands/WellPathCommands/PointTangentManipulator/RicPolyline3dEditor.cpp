@@ -54,7 +54,7 @@ RicPolyline3dEditor::~RicPolyline3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicPolyline3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    auto* pickerInterface = dynamic_cast<RimPolylinePickerInterface*>( this->pdmObject() );
+    auto* pickerInterface = dynamic_cast<RimPolylinePickerInterface*>( pdmObject() );
 
     for ( auto targetEditor : m_targetEditors )
     {

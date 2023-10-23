@@ -501,7 +501,7 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     uiOrdering.add( &m_show3DManipulator );
 
-    this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+    defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -564,21 +564,21 @@ void RimBoxIntersection::updateVisibility()
     if ( m_singlePlaneState == PLANE_STATE_X )
     {
         m_maxXCoord.uiCapability()->setUiReadOnly( true );
-        this->setUiIconFromResourceString( QString( ":/IntersectionXPlane16x16.png" ) );
+        setUiIconFromResourceString( QString( ":/IntersectionXPlane16x16.png" ) );
     }
     else if ( m_singlePlaneState == PLANE_STATE_Y )
     {
         m_maxYCoord.uiCapability()->setUiReadOnly( true );
-        this->setUiIconFromResourceString( QString( ":/IntersectionYPlane16x16.png" ) );
+        setUiIconFromResourceString( QString( ":/IntersectionYPlane16x16.png" ) );
     }
     else if ( m_singlePlaneState == PLANE_STATE_Z )
     {
         m_maxDepth.uiCapability()->setUiReadOnly( true );
-        this->setUiIconFromResourceString( QString( ":/IntersectionZPlane16x16.png" ) );
+        setUiIconFromResourceString( QString( ":/IntersectionZPlane16x16.png" ) );
     }
     else
     {
-        this->setUiIconFromResourceString( QString( ":/IntersectionBox16x16.png" ) );
+        setUiIconFromResourceString( QString( ":/IntersectionBox16x16.png" ) );
     }
 }
 

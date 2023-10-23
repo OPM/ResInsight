@@ -30,7 +30,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteWellMeasurementFilePathFeature, "RicDeleteWellMeas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteWellMeasurementFilePathFeature::isCommandEnabled()
+bool RicDeleteWellMeasurementFilePathFeature::isCommandEnabled() const
 {
     std::vector<RimWellMeasurementFilePath*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );

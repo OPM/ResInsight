@@ -41,14 +41,6 @@ CAF_CMD_SOURCE_INIT( RicIntersectionBoxZSliceFeature, "RicIntersectionBoxZSliceF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicIntersectionBoxZSliceFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxZSliceFeature::onActionTriggered( bool isChecked )
 {
     RicIntersectionFeatureImpl::createIntersectionBoxSlize( "Z-slice (Intersection box)", RimBoxIntersection::PLANE_STATE_Z );

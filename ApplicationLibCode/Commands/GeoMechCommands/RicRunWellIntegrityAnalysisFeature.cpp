@@ -86,7 +86,7 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    if ( RiaPreferencesGeoMech::current()->waitBeforeRunWIA() )
+    if ( RiaPreferencesGeoMech::current()->waitBeforeRun() )
     {
         runProgress.setProgressDescription( "Waiting for input file modifications." );
 
@@ -143,12 +143,4 @@ void RicRunWellIntegrityAnalysisFeature::setupActionLook( QAction* actionToSetup
 {
     actionToSetup->setIcon( QIcon( ":/WellIntAnalysis.png" ) );
     actionToSetup->setText( "Run..." );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicRunWellIntegrityAnalysisFeature::isCommandEnabled()
-{
-    return true;
 }

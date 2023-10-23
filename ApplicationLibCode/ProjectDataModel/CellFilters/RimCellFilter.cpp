@@ -21,7 +21,12 @@
 #include "RigReservoirGridTools.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimEclipseCase.h"
+#include "RimGeoMechCase.h"
+#include "RimTools.h"
 #include "RimViewController.h"
+
+#include "cafPdmUiComboBoxEditor.h"
 
 #include "cvfStructGridGeometryGenerator.h"
 
@@ -42,8 +47,9 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCellFilter, "CellFilter", "CellFilter" ); /
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellFilter::RimCellFilter()
+RimCellFilter::RimCellFilter( FilterDefinitionType defType )
     : filterChanged( this )
+    , m_filterDefinitionType( defType )
 {
     CAF_PDM_InitObject( "Cell Filter" );
 
@@ -51,9 +57,14 @@ RimCellFilter::RimCellFilter()
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case" );
+    m_srcCase.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterType", "Filter Type" );
 
     CAF_PDM_InitField( &m_gridIndex, "GridIndex", 0, "Grid" );
+    m_gridIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
     CAF_PDM_InitField( &m_propagateToSubGrids, "PropagateToSubGrids", true, "Apply to Subgrids" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
@@ -133,6 +144,46 @@ bool RimCellFilter::isFilterEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimCellFilter::isRangeFilter() const
+{
+    return m_filterDefinitionType == FilterDefinitionType::RANGE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::isIndexFilter() const
+{
+    return m_filterDefinitionType == FilterDefinitionType::INDEX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::setCase( RimCase* srcCase )
+{
+    m_srcCase = srcCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimCellFilter::eclipseCase() const
+{
+    return dynamic_cast<RimEclipseCase*>( m_srcCase() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimCellFilter::geoMechCase() const
+{
+    return dynamic_cast<RimGeoMechCase*>( m_srcCase() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateActiveState( bool isControlled )
 {
     m_isActive.uiCapability()->setUiReadOnly( isControlled );
@@ -175,7 +226,7 @@ bool RimCellFilter::propagateToSubGrids() const
 //--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateIconState()
 {
-    caf::IconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = uiIconProvider();
 
     if ( !iconProvider.valid() ) return;
 
@@ -190,7 +241,7 @@ void RimCellFilter::updateIconState()
 
     iconProvider.setActive( m_isActive && !m_isActive.uiCapability()->isUiReadOnly() );
 
-    this->setUiIcon( iconProvider );
+    setUiIcon( iconProvider );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,6 +260,11 @@ void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add( &m_name );
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
+
+    if ( geoMechCase() != nullptr )
+    {
+        m_gridIndex.uiCapability()->setUiName( "Part" );
+    }
     group->add( &m_gridIndex );
 
     bool readOnlyState = isFilterControlled();
@@ -252,27 +308,12 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::P
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( &m_gridIndex == fieldNeedingOptions )
+    if ( fieldNeedingOptions == &m_gridIndex )
     {
-        auto rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
-
-        for ( int gIdx = 0; gIdx < RigReservoirGridTools::gridCount( rimCase ); ++gIdx )
-        {
-            QString gridName;
-
-            gridName += RigReservoirGridTools::gridName( rimCase, gIdx );
-            if ( gIdx == 0 )
-            {
-                if ( gridName.isEmpty() )
-                    gridName += "Main Grid";
-                else
-                    gridName += " (Main Grid)";
-            }
-
-            caf::PdmOptionItemInfo item( gridName, (int)gIdx );
-            options.push_back( item );
-        }
+        RimTools::eclipseGridOptionItems( &options, eclipseCase() );
+        RimTools::geoMechPartOptionItems( &options, geoMechCase() );
     }
+
     return options;
 }
 

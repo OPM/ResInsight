@@ -34,8 +34,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlot.h"
-#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -63,14 +61,6 @@ std::vector<RimSummaryCase*> RiaSummaryTools::singleTopLevelSummaryCases()
     if ( summaryCaseMainCollection() ) return summaryCaseMainCollection()->topLevelSummaryCases();
 
     return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlotCollection* RiaSummaryTools::summaryCrossPlotCollection()
-{
-    return RimMainPlotCollection::current()->summaryCrossPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,11 +112,6 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, co
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RiaSummaryTools::parentSummaryPlot( caf::PdmObject* object )
 {
-    if ( parentCrossPlot( object ) )
-    {
-        return nullptr;
-    }
-
     if ( object )
     {
         return object->firstAncestorOrThisOfType<RimSummaryPlot>();
@@ -159,40 +144,6 @@ RimSummaryMultiPlot* RiaSummaryTools::parentSummaryMultiPlot( caf::PdmObject* ob
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlot* RiaSummaryTools::parentCrossPlot( caf::PdmObject* object )
-{
-    if ( object )
-    {
-        return object->firstAncestorOrThisOfType<RimSummaryCrossPlot>();
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlotCollection* RiaSummaryTools::parentCrossPlotCollection( caf::PdmObject* object )
-{
-    if ( object )
-    {
-        return object->firstAncestorOrThisOfType<RimSummaryCrossPlotCollection>();
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaSummaryTools::isSummaryCrossPlot( const RimSummaryPlot* plot )
-{
-    return dynamic_cast<const RimSummaryCrossPlot*>( plot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -353,4 +304,27 @@ QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForSummaryCases( const std
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::copyCurveDataSources( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve )
+{
+    curve.setSummaryAddressX( otherCurve.summaryAddressX() );
+    curve.setSummaryCaseX( otherCurve.summaryCaseX() );
+
+    curve.setSummaryAddressY( otherCurve.summaryAddressY() );
+    curve.setSummaryCaseY( otherCurve.summaryCaseY() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve )
+{
+    curve.setAxisTypeX( otherCurve.axisTypeX() );
+    curve.setTopOrBottomAxisX( otherCurve.axisX() );
+
+    curve.setLeftOrRightAxisY( otherCurve.axisY() );
 }

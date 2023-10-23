@@ -77,14 +77,13 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimTools.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
@@ -380,7 +379,7 @@ RimViewWindow* RiaGuiApplication::activePlotWindow() const
     if ( m_mainPlotWindow )
     {
         QList<QMdiSubWindow*> subwindows = m_mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        if ( subwindows.size() > 0 )
+        if ( !subwindows.empty() )
         {
             viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
         }
@@ -454,8 +453,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
     if ( progOpt->option( "help" ) || progOpt->option( "?" ) )
     {
-        this->showFormattedTextInMessageBoxOrConsole( "The current command line options in ResInsight are:\n" +
-                                                      this->commandLineParameterHelp() );
+        showFormattedTextInMessageBoxOrConsole( "The current command line options in ResInsight are:\n" + commandLineParameterHelp() );
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
@@ -513,7 +511,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
     {
         CVF_ASSERT( o.valueCount() == 1 );
         QString regressionTestPath = cvfqt::Utils::toQString( o.value( 0 ) );
-        RiaRegressionTestRunner::instance()->updateRegressionTest( regressionTestPath );
+        RiaRegressionTestRunner::updateRegressionTest( regressionTestPath );
         return ApplicationStatus::EXIT_COMPLETED;
     }
 
@@ -954,10 +952,8 @@ void RiaGuiApplication::createMainWindow()
 {
     CVF_ASSERT( m_mainWindow == nullptr );
 
-    if ( RiaPreferences::current()->useUndoRedo() )
-    {
-        caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
-    }
+    // Always enable undo/redo framework, as multi-select operations perform significantly better with it enabled
+    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
 
     m_mainWindow     = new RiuMainWindow;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
@@ -982,10 +978,8 @@ void RiaGuiApplication::createMainPlotWindow()
 {
     CVF_ASSERT( m_mainPlotWindow == nullptr );
 
-    if ( RiaPreferences::current()->useUndoRedo() )
-    {
-        caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
-    }
+    // Always enable undo/redo framework, as multi-select operations perform significantly better with it enabled
+    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
 
     m_mainPlotWindow = std::make_unique<RiuPlotMainWindow>();
     m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );
@@ -1060,7 +1054,7 @@ RimViewWindow* RiaGuiApplication::activeViewWindow()
         RiuPlotMainWindow* mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( mainWindowWidget );
 
         QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        if ( subwindows.size() > 0 )
+        if ( !subwindows.empty() )
         {
             viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
         }
@@ -1374,7 +1368,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
         fontObject->updateFonts();
     }
 
-    if ( this->project() )
+    if ( project() )
     {
         std::vector<RimViewWindow*> allViewWindows = project()->descendantsIncludingThisOfType<RimViewWindow>();
 
@@ -1545,7 +1539,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
 //--------------------------------------------------------------------------------------------------
 int RiaGuiApplication::applicationResolution()
 {
-    return RiaGuiApplication::instance()->desktop()->logicalDpiX();
+    return QApplication::desktop()->logicalDpiX();
 }
 
 //--------------------------------------------------------------------------------------------------

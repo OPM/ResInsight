@@ -33,10 +33,9 @@ CAF_CMD_SOURCE_INIT( RicAdd3dWellLogFileCurveFeature, "RicAdd3dWellLogFileCurveF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAdd3dWellLogFileCurveFeature::isCommandEnabled()
+bool RicAdd3dWellLogFileCurveFeature::isCommandEnabled() const
 {
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     if ( cases.empty() ) return false;
 
     return ( RicWellLogTools::findWellPathWithLogFileFromSelection() != nullptr );

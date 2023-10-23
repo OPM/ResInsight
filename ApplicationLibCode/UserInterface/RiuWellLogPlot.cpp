@@ -128,9 +128,9 @@ bool RiuWellLogPlot::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::reinsertScrollbar()
 {
-    QList<QPointer<RiuPlotWidget>> plotWidgets = this->visiblePlotWidgets();
-    int                            colCount    = this->m_gridLayout->columnCount();
-    int                            rowCount    = this->m_gridLayout->rowCount();
+    QList<QPointer<RiuPlotWidget>> plotWidgets = visiblePlotWidgets();
+    int                            colCount    = m_gridLayout->columnCount();
+    int                            rowCount    = m_gridLayout->rowCount();
 
     if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
     {

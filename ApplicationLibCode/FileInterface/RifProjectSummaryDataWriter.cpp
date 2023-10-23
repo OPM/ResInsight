@@ -59,8 +59,7 @@ void RifProjectSummaryDataWriter::importFromSourceSummaryReader( const RifSummar
             m_startTime = { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
         }
 
-        std::vector<double> values;
-        reader->values( summaryAddress, &values );
+        auto [isOk, values] = reader->values( summaryAddress );
 
         const auto& unitString = reader->unitName( summaryAddress );
 

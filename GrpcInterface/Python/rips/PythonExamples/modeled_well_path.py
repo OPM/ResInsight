@@ -32,3 +32,16 @@ coord = [1054.28, 250, -50]
 target = geometry.append_well_target(coord)
 
 well_path.append_perforation_interval(3300, 3350, 0.2, 0.76)
+
+
+# Update skin factor of the perforation
+perforation_coll = well_path.completions().perforations()
+perforation = perforation_coll.perforations()[0]
+new_skin_factor = 0.9
+print(
+    "Changing perforation skin factor from {} to {}.".format(
+        perforation.skin_factor, new_skin_factor
+    )
+)
+perforation.skin_factor = new_skin_factor
+perforation.update()

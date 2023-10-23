@@ -34,7 +34,7 @@ RiuQwtPlotItemGroup::RiuQwtPlotItemGroup()
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotItemGroup::~RiuQwtPlotItemGroup()
 {
-    this->detach();
+    detach();
     for ( QwtPlotItem* item : m_plotItems )
     {
         delete item;

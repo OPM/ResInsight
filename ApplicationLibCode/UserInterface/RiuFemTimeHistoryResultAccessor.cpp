@@ -180,7 +180,7 @@ void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
             {
                 const std::vector<float>& scalarResults =
                     m_geoMechCaseData->femPartResults()->resultValues( *m_femResultAddress, static_cast<int>( m_gridIndex ), stepIdx, frameIdx );
-                if ( scalarResults.size() )
+                if ( !scalarResults.empty() )
                 {
                     float scalarValue = scalarResults[scalarResultIndex];
 

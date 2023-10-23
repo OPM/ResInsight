@@ -38,7 +38,7 @@ public:
         createPlot( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep, const RimWbsParameters* parameters = nullptr );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

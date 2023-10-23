@@ -192,6 +192,8 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitField( &csvTextExportFieldSeparator, "csvTextExportFieldSeparator", QString( "," ), "CSV Text Export Field Separator" );
 
+    CAF_PDM_InitFieldNoDefault( &m_gridModelReader, "gridModelReader", "Grid Model Reader" );
+
     CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings" );
     m_readerSettings = new RifReaderSettings;
     CAF_PDM_InitFieldNoDefault( &m_dateFormat, "dateFormat", "Date Format" );
@@ -307,7 +309,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
         caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->validator = new RiaValidRegExpValidator( RiaPreferences::current()->defaultMultiLateralWellNamePattern() );
+            myAttr->validator = new RiaValidRegExpValidator( RiaPreferences::defaultMultiLateralWellNamePattern() );
         }
     }
     else if ( field == &m_defaultScaleFactorZ )
@@ -357,6 +359,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( uiConfigName == RiaPreferences::tabNameGrid() )
     {
+        uiOrdering.add( &m_gridModelReader );
+
         caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
         newCaseBehaviourGroup->add( &autocomputeDepthRelatedProperties );
         newCaseBehaviourGroup->add( &loadAndShowSoil );
@@ -627,6 +631,14 @@ QStringList RiaPreferences::tabNames()
 const RifReaderSettings* RiaPreferences::readerSettings() const
 {
     return m_readerSettings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::GridModelReader RiaPreferences::gridModelReader() const
+{
+    return m_gridModelReader();
 }
 
 //--------------------------------------------------------------------------------------------------

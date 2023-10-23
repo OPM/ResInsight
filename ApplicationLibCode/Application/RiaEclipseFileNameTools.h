@@ -35,6 +35,7 @@ public:
         ECLIPSE_DATA,
         ECLIPSE_GRID,
         ECLIPSE_EGRID,
+        ECLIPSE_INIT,
         ECLIPSE_UNRST,
         ECLIPSE_SMSPEC,
         ECLIPSE_UNSMRY,

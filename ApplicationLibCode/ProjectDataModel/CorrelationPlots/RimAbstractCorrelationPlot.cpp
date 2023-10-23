@@ -33,10 +33,12 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -53,7 +55,7 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     : m_selectMultipleVectors( false )
 {
     CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png" );
-    this->setDeletable( true );
+    setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector" );
     m_selectedVarsUiField.xmlCapability()->disableIO();
@@ -91,6 +93,8 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     CAF_PDM_InitField( &m_editCaseFilter, "EditCaseFilter", false, "Edit" );
     m_editCaseFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editCaseFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    m_analyserOfSelectedCurveDefs = std::make_unique<RiaSummaryCurveDefinitionAnalyser>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,8 +165,8 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
                     m_dataSources.push_back( plotEntry );
                 }
                 connectAllCaseSignals();
-                this->loadDataAndUpdate();
-                this->updateConnectedEditors();
+                loadDataAndUpdate();
+                updateConnectedEditors();
             }
         }
 
@@ -170,17 +174,17 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     }
     else if ( changedField == &m_timeStep )
     {
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
+        loadDataAndUpdate();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_showPlotTitle || changedField == &m_useAutoPlotTitle || changedField == &m_description )
     {
-        this->updatePlotTitle();
+        updatePlotTitle();
     }
     else if ( changedField == &m_labelFontSize || changedField == &m_axisTitleFontSize || changedField == &m_axisValueFontSize ||
               changedField == &m_legendFontSize || changedField == &m_titleFontSize )
     {
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
     else if ( changedField == &m_timeStepFilter )
     {
@@ -196,17 +200,17 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         m_timeStep = allDateTimes[filteredTimeStepIndices.back()];
 
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_curveSetForFiltering )
     {
         connectCurveFilterSignals();
 
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
     else if ( changedField == &m_useCaseFilter )
     {
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
     else if ( changedField == &m_editCaseFilter )
     {
@@ -363,21 +367,16 @@ std::vector<RiaSummaryCurveDefinition> RimAbstractCorrelationPlot::curveDefiniti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinitionAnalyser* RimAbstractCorrelationPlot::getOrCreateSelectedCurveDefAnalyser()
+RiaSummaryCurveDefinitionAnalyser* RimAbstractCorrelationPlot::getOrCreateSelectedCurveDefAnalyser() const
 {
-    if ( !m_analyserOfSelectedCurveDefs )
-    {
-        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
-    }
-
-    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( curveDefinitions() );
     return m_analyserOfSelectedCurveDefs.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses()
+std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
@@ -392,7 +391,7 @@ std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCaseCollection*> RimAbstractCorrelationPlot::ensembles()
+std::set<RimSummaryCaseCollection*> RimAbstractCorrelationPlot::ensembles() const
 {
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
     return analyserOfSelectedCurveDefs->m_ensembles;
@@ -554,6 +553,8 @@ RiuPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* main
     {
         m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
         updatePlotTitle();
+
+        new RiuContextMenuLauncher( m_plotWidget, { "RicShowPlotDataFeature" } );
     }
 
     return m_plotWidget;

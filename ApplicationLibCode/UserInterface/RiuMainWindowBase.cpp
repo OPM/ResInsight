@@ -620,7 +620,7 @@ ads::CDockAreaWidget* RiuMainWindowBase::addTabbedWidgets( std::vector<ads::CDoc
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setDefaultDockLayout()
 {
-    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    QAction* action = dynamic_cast<QAction*>( sender() );
     if ( action )
     {
         QString layoutName = action->text();
@@ -636,7 +636,7 @@ void RiuMainWindowBase::setDefaultDockLayout()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setDockLayout()
 {
-    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    QAction* action = dynamic_cast<QAction*>( sender() );
     if ( action )
     {
         QString layoutName = action->text();
@@ -649,7 +649,7 @@ void RiuMainWindowBase::setDockLayout()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::deleteDockLayout()
 {
-    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    QAction* action = dynamic_cast<QAction*>( sender() );
     if ( action )
     {
         QString name = action->text();
@@ -742,7 +742,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     {
         QMenu* layoutsMenu      = m_windowMenu->addMenu( "Use Window Layout" );
         QMenu* deleteLayoutMenu = nullptr;
-        if ( names.size() > 0 ) deleteLayoutMenu = m_windowMenu->addMenu( "Delete Window Layout" );
+        if ( !names.empty() ) deleteLayoutMenu = m_windowMenu->addMenu( "Delete Window Layout" );
 
         for ( auto& defLayout : defaultNames )
         {
@@ -750,7 +750,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
             connect( defLayoutAction, SIGNAL( triggered() ), this, SLOT( setDefaultDockLayout() ) );
         }
 
-        if ( defaultNames.size() > 0 ) layoutsMenu->addSeparator();
+        if ( !defaultNames.empty() ) layoutsMenu->addSeparator();
 
         for ( auto& layout : names )
         {

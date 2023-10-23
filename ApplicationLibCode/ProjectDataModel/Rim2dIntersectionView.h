@@ -84,7 +84,6 @@ protected:
     void            onClampCurrentTimestep() override;
     void            onUpdateDisplayModelForCurrentTimeStep() override;
     void            onUpdateStaticCellColors() override;
-    void            onUpdateScaleTransform() override;
     cvf::Transform* scaleTransform() override;
     void            onResetLegendsInViewer() override;
     void            onLoadDataAndUpdate() override;

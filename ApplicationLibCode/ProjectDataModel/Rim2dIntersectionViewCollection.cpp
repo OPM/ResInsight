@@ -109,7 +109,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
         }
     }
 
-    if ( doUpdate ) this->updateConnectedEditors();
+    if ( doUpdate ) updateConnectedEditors();
 
     auto rimCase = firstAncestorOrThisOfType<RimCase>();
 

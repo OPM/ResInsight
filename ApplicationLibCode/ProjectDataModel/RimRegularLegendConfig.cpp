@@ -258,11 +258,11 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         {
             if ( m_userDefinedMaxValue == m_userDefinedMaxValue.defaultValue() && m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
             {
-                m_userDefinedMaxValue = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMax, m_precision );
+                m_userDefinedMaxValue = RiaNumericalTools::roundToNumSignificantDigitsCeil( m_globalAutoMax, m_precision );
             }
             if ( m_userDefinedMinValue == m_userDefinedMinValue.defaultValue() && m_globalAutoMin != cvf::UNDEFINED_DOUBLE )
             {
-                m_userDefinedMinValue = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMin, m_precision );
+                m_userDefinedMinValue = RiaNumericalTools::roundToNumSignificantDigitsFloor( m_globalAutoMin, m_precision );
             }
         }
         updateFieldVisibility();
@@ -325,6 +325,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         if ( changedField != &m_showLegend )
         {
             crossPlotCurveSet->destroyCurves();
+            crossPlotCurveSet->destroyRegressionCurves();
         }
 
         crossPlotCurveSet->loadDataAndUpdate( true );
@@ -336,7 +337,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         rftPlot->onLegendDefinitionChanged();
     }
 
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -380,6 +381,21 @@ void RimRegularLegendConfig::sendChangedSignal( const caf::PdmFieldHandle* chang
     }
 }
 
+auto computeAdjustedMinMax = []( double minimum, double maximum, double precision ) -> std::pair<double, double>
+{
+    const double threshold = 1e-9;
+
+    if ( std::fabs( maximum - minimum ) < threshold )
+    {
+        return std::make_pair( minimum, maximum );
+    }
+
+    auto adjustedMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( minimum, precision );
+    auto adjustedMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( maximum, precision );
+
+    return std::make_pair( adjustedMin, adjustedMax );
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -402,24 +418,21 @@ void RimRegularLegendConfig::updateLegend()
 
     if ( m_rangeMode == RangeModeType::AUTOMATIC_ALLTIMESTEPS )
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMin, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMax, m_precision );
+        std::tie( adjustedMin, adjustedMax ) = computeAdjustedMinMax( m_globalAutoMin, m_globalAutoMax, m_precision );
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
     }
     else if ( m_rangeMode == RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_localAutoMin, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_localAutoMax, m_precision );
+        std::tie( adjustedMin, adjustedMax ) = computeAdjustedMinMax( m_localAutoMin, m_localAutoMax, m_precision );
 
         posClosestToZero = m_localAutoPosClosestToZero;
         negClosestToZero = m_localAutoNegClosestToZero;
     }
     else
     {
-        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_userDefinedMinValue, m_precision );
-        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_userDefinedMaxValue, m_precision );
+        std::tie( adjustedMin, adjustedMax ) = computeAdjustedMinMax( m_userDefinedMinValue, m_userDefinedMaxValue, m_precision );
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
@@ -625,17 +638,8 @@ void RimRegularLegendConfig::disableAllTimeStepsRange( bool doDisable )
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setAutomaticRanges( double globalMin, double globalMax, double localMin, double localMax )
 {
-    double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( globalMin, m_precision );
-    double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( globalMax, m_precision );
-
-    double candidateLocalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( localMin, m_precision );
-    double candidateLocalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( localMax, m_precision );
-
-    m_globalAutoMin = candidateGlobalAutoMin;
-    m_globalAutoMax = candidateGlobalAutoMax;
-
-    m_localAutoMin = candidateLocalAutoMin;
-    m_localAutoMax = candidateLocalAutoMax;
+    std::tie( m_globalAutoMin, m_globalAutoMax ) = computeAdjustedMinMax( globalMin, globalMax, m_precision );
+    std::tie( m_localAutoMin, m_localAutoMax )   = computeAdjustedMinMax( localMin, localMax, m_precision );
 
     updateLegend();
 }
@@ -666,7 +670,7 @@ void RimRegularLegendConfig::initAfterRead()
 
     updateFieldVisibility();
 
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,7 +701,7 @@ void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateFieldVisibility()
 {
-    bool showRangeItems = m_mappingMode == MappingType::CATEGORY_INTEGER ? false : true;
+    bool showRangeItems = m_mappingMode != MappingType::CATEGORY_INTEGER;
 
     m_numLevels.uiCapability()->setUiHidden( !showRangeItems );
     m_precision.uiCapability()->setUiHidden( !showRangeItems );
@@ -754,7 +758,7 @@ void RimRegularLegendConfig::onRecreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::Font* font      = RiaApplication::instance()->sceneFont( this->fontSize() );
+    cvf::Font* font      = RiaApplication::instance()->sceneFont( fontSize() );
     m_scalarMapperLegend = new caf::OverlayScalarMapperLegend( font );
     m_categoryLegend     = new caf::CategoryLegend( font, m_categoryMapper.p() );
 
@@ -940,7 +944,7 @@ QString RimRegularLegendConfig::categoryNameFromCategoryValue( double categoryRe
 {
     if ( categoryResultValue == HUGE_VAL ) return "Undefined";
 
-    if ( m_categoryNames.size() > 0 )
+    if ( !m_categoryNames.empty() )
     {
         for ( size_t categoryIndex = 0; categoryIndex < m_categories.size(); categoryIndex++ )
         {
@@ -1067,9 +1071,9 @@ RimLegendConfig::RangeModeType RimRegularLegendConfig::rangeMode() const
 void RimRegularLegendConfig::setUiValuesFromLegendConfig( const RimRegularLegendConfig* otherLegendConfig )
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
-    this->readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
-    this->resolveReferencesRecursively();
-    this->updateLegend();
+    readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
+    resolveReferencesRecursively();
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1142,7 +1146,7 @@ RimColorLegend* RimRegularLegendConfig::mapToColorLegend( ColorRangesType colorT
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateFonts()
 {
-    int  pointSize = this->fontSize();
+    int  pointSize = fontSize();
     auto font      = RiaApplication::instance()->sceneFont( pointSize );
 
     m_scalarMapperLegend = new caf::OverlayScalarMapperLegend( font );

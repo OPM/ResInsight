@@ -25,7 +25,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteSubPlotCtxFeature, "RicDeleteSubPlotCtxFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteSubPlotCtxFeature::isCommandEnabled()
+bool RicDeleteSubPlotCtxFeature::isCommandEnabled() const
 {
     return true;
 }

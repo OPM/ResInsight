@@ -41,7 +41,7 @@ class RivIntersectionGeometryGeneratorInterface;
 class RivSurfacePartMgr : public cvf::Object
 {
 public:
-    explicit RivSurfacePartMgr( RimSurfaceInView* surface );
+    explicit RivSurfacePartMgr( RimSurfaceInView* surface, bool nativeOnly = false );
 
     void updateNativeSurfaceColors();
     void updateCellResultColor( int timeStepIndex );
@@ -53,10 +53,14 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const;
 
+    bool isNativePartMgr() const;
+
 private:
     void generatePartGeometry();
 
     void generateNativePartGeometry();
+
+    bool m_useNativePartsOnly;
 
     cvf::ref<RivSurfaceIntersectionGeometryGenerator> m_intersectionGenerator;
 

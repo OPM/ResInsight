@@ -68,6 +68,10 @@
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimScriptCollection.h"
+#include "RimSeismicData.h"
+#include "RimSeismicDataCollection.h"
+#include "RimSeismicView.h"
+#include "RimSeismicViewCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanModel.h"
@@ -81,7 +85,7 @@
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
@@ -207,8 +211,14 @@ const char* RiaApplication::getVersionStringApp( bool includeCrtInfo )
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::enableDevelopmentFeatures()
 {
-    QString environmentVar = QProcessEnvironment::systemEnvironment().value( "RESINSIGHT_DEVEL", QString( "0" ) );
-    return environmentVar.toInt() == 1;
+    static int envValue = -999;
+    if ( envValue == -999 )
+    {
+        QString environmentVar = QProcessEnvironment::systemEnvironment().value( "RESINSIGHT_DEVEL", QString( "0" ) );
+        envValue               = environmentVar.toInt();
+    }
+
+    return envValue == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +355,7 @@ bool RiaApplication::openFile( const QString& fileName )
     {
         loadingSucceded = loadProject( fileName );
     }
-    else if ( fileType == RiaDefines::ImportFileType::GEOMECH_ODB_FILE )
+    else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_GEOMECH_FILE ) )
     {
         loadingSucceded   = openOdbCaseFromFile( fileName );
         lastUsedDialogTag = "GEOMECH_MODEL";
@@ -421,7 +431,7 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath( QString proje
     }
     else
     {
-        absolutePath = this->lastUsedDialogDirectory( "BINARY_GRID" );
+        absolutePath = lastUsedDialogDirectory( "BINARY_GRID" );
     }
 
     QDir projectDir( absolutePath );
@@ -518,7 +528,6 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         }
     }
 
-    // Add well paths for each oil field
     for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
     {
         RimOilField* oilField = m_project->oilFields[oilFieldIdx];
@@ -528,8 +537,16 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
             oilField->wellPathCollection = std::make_unique<RimWellPathCollection>();
         }
 
+        // Initialize well paths
         oilField->wellPathCollection->loadDataAndUpdate();
         oilField->ensembleWellLogsCollection->loadDataAndUpdate();
+
+        // Initialize seismic data
+        auto& seisDataColl = oilField->seismicDataCollection();
+        for ( auto seismicData : seisDataColl->seismicData() )
+        {
+            seismicData->ensureFileReaderIsInitialized();
+        }
     }
 
     {
@@ -598,8 +615,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
     // Now load the ReservoirViews for the cases
     // Add all "native" cases in the project
-    std::vector<RimCase*> casesToLoad;
-    m_project->allCases( casesToLoad );
+    std::vector<RimCase*> casesToLoad = m_project->allGridCases();
     {
         caf::ProgressInfo caseProgress( casesToLoad.size(), "Reading Cases" );
 
@@ -645,7 +661,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                         }
                     }
 
-                    this->setActiveReservoirView( riv );
+                    setActiveReservoirView( riv );
 
                     RimGridView* rigv = dynamic_cast<RimGridView*>( riv );
                     if ( rigv ) rigv->cellFilterCollection()->updateIconState();
@@ -667,6 +683,14 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     for ( RimCase* cas : casesToLoad )
     {
         cas->intersectionViewCollection()->syncFromExistingIntersections( false );
+    }
+
+    for ( RimOilField* oilField : m_project->oilFields )
+    {
+        for ( auto seisView : oilField->seismicViewCollection()->views() )
+        {
+            seisView->loadDataAndUpdate();
+        }
     }
 
     // Init summary case groups
@@ -784,12 +808,7 @@ bool RiaApplication::saveProjectAs( const QString& fileName, gsl::not_null<QStri
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::hasValidProjectFileExtension( const QString& fileName )
 {
-    if ( fileName.contains( ".rsp", Qt::CaseInsensitive ) || fileName.contains( ".rip", Qt::CaseInsensitive ) )
-    {
-        return true;
-    }
-
-    return false;
+    return fileName.contains( ".rsp", Qt::CaseInsensitive ) || fileName.contains( ".rip", Qt::CaseInsensitive );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,7 +943,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, gsl::not_null<QStringList*> errorMessages )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
+    if ( m_project == nullptr || m_project->oilFields.empty() ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
     if ( oilField == nullptr ) return {};
@@ -953,7 +972,7 @@ std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> we
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormationsFilePaths )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return;
+    if ( m_project == nullptr || m_project->oilFields.empty() ) return;
 
     RimOilField* oilField = m_project->activeOilField();
     if ( oilField == nullptr ) return;
@@ -976,10 +995,10 @@ void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormat
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well log file paths (LAS files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QString>&       wellLogFilePaths,
-                                                                 gsl::not_null<QStringList*> errorMessages )
+std::vector<RimWellLogLasFile*> RiaApplication::addWellLogsToModel( const QList<QString>&       wellLogFilePaths,
+                                                                    gsl::not_null<QStringList*> errorMessages )
 {
-    if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
+    if ( m_project == nullptr || m_project->oilFields.empty() ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
     if ( oilField == nullptr ) return {};
@@ -991,7 +1010,7 @@ std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QSt
         m_project->updateConnectedEditors();
     }
 
-    std::vector<RimWellLogFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths, errorMessages );
+    std::vector<RimWellLogLasFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths, errorMessages );
 
     oilField->wellPathCollection->updateConnectedEditors();
 
@@ -1221,10 +1240,10 @@ void RiaApplication::applyPreferences()
     m_defaultAnnotationFont = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::ANNOTATION_FONT] );
     m_defaultWellLabelFont  = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::WELL_LABEL_FONT] );
 
-    if ( this->project() )
+    if ( project() )
     {
-        this->project()->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
-        this->project()->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
+        project()->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
+        project()->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
 
         project()->scriptCollection()->updateConnectedEditors();
         project()->rootPlotTemplateItem()->updateConnectedEditors();

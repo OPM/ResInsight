@@ -62,6 +62,7 @@ RimSummaryCalculation::RimSummaryCalculation()
     CAF_PDM_InitObject( "RimSummaryCalculation", ":/octave.png", "Calculation", "" );
 
     CAF_PDM_InitField( &m_distributeToOtherItems, "DistributeToOtherItems", true, "Distribute to other items (wells, groups, ..)" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_distributeToOtherItems );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,18 +201,15 @@ bool RimSummaryCalculation::detectCyclicCalculation( int id, std::set<int>& ids 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimSummaryCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimUserDefinedCalculation::defineEditorAttribute( field, uiConfigName, attribute );
+    RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
 
-    if ( field == &m_distributeToOtherItems )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->setWordWrap( true );
-        }
-    }
+    // Adjust the layout to avoid a lot of unused white space in dialog
+    m_description.uiCapability()->setUiHidden( true );
+    m_expression.uiCapability()->setUiName( "Expression" );
+    m_expression.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_unit.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,43 +237,45 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
     QVariant oldValue;
     QVariant newValue;
     bool     isHandledBySteppingTools = false;
-    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.wellName() );
         newValue                 = QString::fromStdString( address.wellName() );
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
         oldValue                 = firstVariable.summaryAddress.regionNumber();
         newValue                 = address.regionNumber();
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.groupName() );
         newValue                 = QString::fromStdString( address.groupName() );
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER )
     {
         oldValue                 = firstVariable.summaryAddress.aquiferNumber();
         newValue                 = address.aquiferNumber();
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION || category == RifEclipseSummaryAddress::SUMMARY_BLOCK )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION ||
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.blockAsString() );
         newValue                 = QString::fromStdString( address.blockAsString() );
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC || category == RifEclipseSummaryAddress::SUMMARY_FIELD ||
-              category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_MISC ||
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD ||
+              category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED )
     {
         // No need to do anything for these types
         return;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.formatUiTextRegionToRegion() );
         newValue                 = QString::fromStdString( address.formatUiTextRegionToRegion() );
@@ -292,7 +292,7 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         {
             if ( v.summaryAddress.category() == address.category() )
             {
-                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, address.category(), &v.summaryAddress );
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, address.category(), v.summaryAddress );
             }
         }
     }
@@ -332,8 +332,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 
         RiaSummaryCurveDefinition curveDef( summaryCase, v.summaryAddress, false );
 
-        std::vector<double> curveValues;
-        RiaSummaryCurveDefinition::resultValues( curveDef, &curveValues );
+        std::vector<double> curveValues = RiaSummaryCurveDefinition::resultValues( curveDef );
 
         std::vector<time_t> curveTimeSteps = RiaSummaryCurveDefinition::timeSteps( curveDef );
 
@@ -368,7 +367,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 
     if ( evaluatedOk )
     {
-        if ( timeHistoryCurveMerger.validIntervalsForAllXValues().size() > 0 )
+        if ( !timeHistoryCurveMerger.validIntervalsForAllXValues().empty() )
         {
             size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().front().first;
             size_t lastValidTimeStep  = timeHistoryCurveMerger.validIntervalsForAllXValues().back().second + 1;
@@ -491,17 +490,17 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculationAddress>
-    RimSummaryCalculation::allAddressesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                    const std::set<RifEclipseSummaryAddress>&    allResultAddresses ) const
+    RimSummaryCalculation::allAddressesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category,
+                                                    const std::set<RifEclipseSummaryAddress>&        allResultAddresses ) const
 {
     std::vector<RimSummaryCalculationAddress> addresses;
 
     std::string name = shortName().toStdString();
-    if ( category == RifEclipseSummaryAddress::SUMMARY_FIELD )
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD )
     {
         addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::fieldAddress( name, m_id ) ) );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER )
     {
         std::set<int> uniqueNumbers;
         std::for_each( allResultAddresses.begin(),
@@ -513,15 +512,23 @@ std::vector<RimSummaryCalculationAddress>
             addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::aquiferAddress( name, num, m_id ) ) );
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_MISC )
     {
         addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::miscAddress( name, m_id ) ) );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK )
     {
-        addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::networkAddress( name, m_id ) ) );
+        std::set<std::string> uniqueNames;
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr ) { uniqueNames.insert( addr.networkName() ); } );
+
+        for ( auto networkName : uniqueNames )
+        {
+            addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::networkAddress( name, networkName, m_id ) ) );
+        }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
         std::set<std::string> uniqueWellNames;
         std::for_each( allResultAddresses.begin(),
@@ -533,7 +540,7 @@ std::vector<RimSummaryCalculationAddress>
             addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::wellAddress( name, wellName, m_id ) ) );
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP )
     {
         std::set<std::string> uniqueGroupNames;
         std::for_each( allResultAddresses.begin(),
@@ -545,7 +552,7 @@ std::vector<RimSummaryCalculationAddress>
             addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::groupAddress( name, groupName, m_id ) ) );
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
         std::set<int> uniqueRegionNumbers;
         std::for_each( allResultAddresses.begin(),
@@ -557,7 +564,7 @@ std::vector<RimSummaryCalculationAddress>
             addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionAddress( name, regionNumber, m_id ) ) );
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
     {
         std::set<std::pair<int, int>> uniqueRegionNumbers;
         std::for_each( allResultAddresses.begin(),
@@ -570,7 +577,7 @@ std::vector<RimSummaryCalculationAddress>
             addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionToRegionAddress( name, r1, r2, m_id ) ) );
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED )
     {
         addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::importedAddress( name, m_id ) ) );
     }
@@ -585,40 +592,40 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
 {
     std::string name = shortName().toStdString();
 
-    RifEclipseSummaryAddress::SummaryVarCategory category = address.category();
-    if ( category == RifEclipseSummaryAddress::SUMMARY_FIELD )
+    RifEclipseSummaryAddressDefines::SummaryCategory category = address.category();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD )
     {
         return RifEclipseSummaryAddress::fieldAddress( name, m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER )
     {
         return RifEclipseSummaryAddress::aquiferAddress( name, address.aquiferNumber(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_MISC )
     {
         return RifEclipseSummaryAddress::miscAddress( name, m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK )
     {
-        return RifEclipseSummaryAddress::networkAddress( name, m_id );
+        return RifEclipseSummaryAddress::networkAddress( name, address.networkName(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
         return RifEclipseSummaryAddress::wellAddress( name, address.wellName(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP )
     {
         return RifEclipseSummaryAddress::groupAddress( name, address.groupName(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
         return RifEclipseSummaryAddress::regionAddress( name, address.regionNumber(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION )
     {
         return RifEclipseSummaryAddress::regionToRegionAddress( name, address.regionNumber(), address.regionNumber2(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
+    else if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_IMPORTED )
     {
         return RifEclipseSummaryAddress::importedAddress( name, m_id );
     }

@@ -123,14 +123,6 @@ void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateEnsembleSurfaceFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 {
     openDialogAndExecuteCommand();

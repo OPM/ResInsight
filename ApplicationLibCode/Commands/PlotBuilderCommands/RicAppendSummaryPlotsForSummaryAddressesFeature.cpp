@@ -61,7 +61,7 @@ void RicAppendSummaryPlotsForSummaryAddressesFeature::appendPlotsForAddresses( R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendSummaryPlotsForSummaryAddressesFeature::isCommandEnabled()
+bool RicAppendSummaryPlotsForSummaryAddressesFeature::isCommandEnabled() const
 {
     return !selectedAddresses().empty();
 }

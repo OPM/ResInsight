@@ -36,19 +36,14 @@ CAF_CMD_SOURCE_INIT( RicShowLinkOptionsFeature, "RicShowLinkOptionsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowLinkOptionsFeature::isCommandEnabled()
+bool RicShowLinkOptionsFeature::isCommandEnabled() const
 {
     Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return false;
 
     RimViewController* viewController = activeView->viewController();
 
-    if ( viewController )
-    {
-        return true;
-    }
-
-    return false;
+    return viewController != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

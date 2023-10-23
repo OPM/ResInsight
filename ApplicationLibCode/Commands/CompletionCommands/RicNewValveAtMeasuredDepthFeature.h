@@ -30,5 +30,5 @@ class RicNewValveAtMeasuredDepthFeature : public caf::CmdFeature
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
 };

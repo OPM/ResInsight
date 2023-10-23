@@ -165,7 +165,7 @@ bool RimFileSurface::loadDataFromFile()
 {
     std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> surface;
 
-    QString filePath = this->surfaceFilePath();
+    QString filePath = surfaceFilePath();
     if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
     {
         surface = RifSurfaceImporter::readPetrelFile( filePath );
@@ -187,7 +187,5 @@ bool RimFileSurface::loadDataFromFile()
     m_vertices       = surface.first;
     m_tringleIndices = surface.second;
 
-    if ( m_vertices.empty() || m_tringleIndices.empty() ) return false;
-
-    return true;
+    return !( m_vertices.empty() || m_tringleIndices.empty() );
 }

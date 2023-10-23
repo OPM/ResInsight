@@ -51,19 +51,19 @@ CAF_CMD_SOURCE_INIT( RicOpenSummaryPlotEditorFeature, "RicOpenSummaryPlotEditorF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
+bool RicOpenSummaryPlotEditorFeature::isCommandEnabled() const
 {
     RimSummaryMultiPlot*                  multiPlot               = nullptr;
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
 
     std::vector<RimSummaryCase*> selectedCases = caf::selectedObjectsByType<RimSummaryCase*>();
-    if ( selectedCases.size() > 0 ) return true;
+    if ( !selectedCases.empty() ) return true;
 
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
-    if ( selectedGroups.size() > 0 ) return true;
+    if ( !selectedGroups.empty() ) return true;
 
     std::vector<RimSummaryMultiPlotCollection*> selectedPlotCollections = caf::selectedObjectsByType<RimSummaryMultiPlotCollection*>();
-    if ( selectedPlotCollections.size() > 0 ) return true;
+    if ( !selectedPlotCollections.empty() ) return true;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !selObj ) return false;
@@ -84,9 +84,7 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
     auto summaryCaseColl = dynamic_cast<RimSummaryCaseCollection*>( selObj );
     auto obsColl         = dynamic_cast<RimObservedDataCollection*>( selObj );
 
-    if ( summaryCase || summaryCaseColl || obsColl ) return true;
-
-    return false;
+    return summaryCase || summaryCaseColl || obsColl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +151,7 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
 
     if ( multiPlot )
     {
-        if ( multiPlot->summaryPlots().size() > 0 )
+        if ( !multiPlot->summaryPlots().empty() )
         {
             dialog->updateFromSummaryPlot( multiPlot->summaryPlots()[0] );
         }

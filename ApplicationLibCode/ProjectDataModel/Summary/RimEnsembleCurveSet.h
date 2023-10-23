@@ -24,7 +24,10 @@
 
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
+#include "RiaSummaryCurveAddress.h"
+#include "RiaSummaryDefines.h"
 
+#include "RimEnsembleCrossPlotStatisticsCase.h"
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleCurveSetInterface.h"
 #include "RimTimeStepFilter.h"
@@ -32,6 +35,8 @@
 #include "RigEnsembleParameter.h"
 
 #include "RiuPlotAxis.h"
+#include "RiuPlotCurveSymbol.h"
+#include "RiuQwtPlotCurveDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -63,6 +68,7 @@ class RiuSummaryVectorSelectionDialog;
 class RiuPlotWidget;
 class RiuPlotCurve;
 class RimPlotAxisPropertiesInterface;
+class RimSummaryAddressSelector;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -80,11 +86,19 @@ public:
     using ColorMode          = RimEnsembleCurveSetColorManager::ColorMode;
     using ColorModeEnum      = RimEnsembleCurveSetColorManager::ColorModeEnum;
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
+    using LineStyle          = caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>;
+    using PointSymbol        = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>;
 
     enum class ParameterSorting
     {
         ABSOLUTE_VALUE,
         ALPHABETICALLY
+    };
+
+    enum class AppearanceMode
+    {
+        DEFAULT,
+        CUSTOM
     };
 
 public:
@@ -109,9 +123,11 @@ public:
     void addCurve( RimSummaryCurve* curve );
     void deleteCurve( RimSummaryCurve* curve );
 
-    void                          setSummaryAddress( RifEclipseSummaryAddress address );
-    void                          setSummaryAddressAndStatisticsFlag( RifEclipseSummaryAddress address );
-    RifEclipseSummaryAddress      summaryAddress() const;
+    void                          setSummaryAddressY( RifEclipseSummaryAddress address );
+    void                          setCurveAddress( RiaSummaryCurveAddress address );
+    void                          setSummaryAddressYAndStatisticsFlag( RifEclipseSummaryAddress address );
+    RifEclipseSummaryAddress      summaryAddressY() const;
+    RiaSummaryCurveAddress        curveAddress() const;
     std::vector<RimSummaryCurve*> curves() const;
 
     int ensembleId() const;
@@ -160,6 +176,8 @@ public:
     bool hasP90Data() const override;
     bool hasMeanData() const override;
 
+    const RimEnsembleStatistics* statisticsOptions() const;
+
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCaseCollection* summaryCaseGroup );
@@ -173,8 +191,13 @@ public:
 
     std::vector<cvf::Color3f> generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const;
 
-    RiuPlotAxis axisY() const;
-    void        setLeftOrRightAxisY( RiuPlotAxis plotAxis );
+    RiuPlotAxis                    axisY() const;
+    RiuPlotAxis                    axisX() const;
+    void                           setLeftOrRightAxisY( RiuPlotAxis plotAxis );
+    void                           setBottomOrTopAxisX( RiuPlotAxis plotAxis );
+    bool                           isXAxisSummaryVector() const;
+    RiaDefines::HorizontalAxisType xAxisType() const;
+    void                           findOrAssignBottomAxisX( RiuPlotAxis plotAxis );
 
 protected:
     void initAfterRead() override;
@@ -188,7 +211,7 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QList<caf::PdmOptionItemInfo>          calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    std::set<time_t>                       allAvailableTimeSteps();
+    std::set<time_t>                       allAvailableTimeSteps() const;
     std::set<RimSummaryCase*>              timestepDefiningSourceCases();
     RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
@@ -198,6 +221,7 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     void updatePlotAxis();
 
@@ -217,6 +241,11 @@ private:
     void setTransparentCurveColor();
     void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 
+    void setSummaryAddressX( RifEclipseSummaryAddress address );
+
+    std::pair<time_t, time_t> fullTimeStepRange() const;
+    std::pair<time_t, time_t> selectedTimeStepRange() const;
+
 private:
     caf::PdmField<bool>                       m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
@@ -229,6 +258,9 @@ private:
     caf::PdmField<bool>                           m_yPushButtonSelectSummaryAddress;
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
+    caf::PdmField<caf::AppEnum<RiaDefines::HorizontalAxisType>> m_xAxisType;
+    caf::PdmChildField<RimSummaryAddressSelector*>              m_xAddressSelector;
+
     caf::PdmField<ColorModeEnum>                                       m_colorMode;
     caf::PdmField<cvf::Color3f>                                        m_mainEnsembleColor;
     caf::PdmField<cvf::Color3f>                                        m_colorForRealizations;
@@ -236,19 +268,29 @@ private:
     caf::PdmField<QString>                                             m_ensembleParameter;
     caf::PdmField<caf::AppEnum<RimEnsembleCurveSet::ParameterSorting>> m_ensembleParameterSorting;
 
+    caf::PdmField<caf::AppEnum<AppearanceMode>> m_useCustomAppearance;
+    caf::PdmField<LineStyle>                    m_lineStyle;
+    caf::PdmField<PointSymbol>                  m_pointSymbol;
+    caf::PdmField<int>                          m_symbolSize;
+
+    caf::PdmField<caf::AppEnum<AppearanceMode>> m_statisticsUseCustomAppearance;
+    caf::PdmField<LineStyle>                    m_statisticsLineStyle;
+    caf::PdmField<PointSymbol>                  m_statisticsPointSymbol;
+    caf::PdmField<int>                          m_statisticsSymbolSize;
+
     caf::PdmChildArrayField<RimSummaryAddress*>   m_objectiveValuesSummaryAddresses;
     caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;
     caf::PdmField<bool>                           m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmPtrField<RimCustomObjectiveFunction*> m_customObjectiveFunction;
-    caf::PdmField<time_t>                         m_minTimeStep;
-    caf::PdmField<time_t>                         m_maxTimeStep;
+    caf::PdmField<int>                            m_minTimeSliderPosition;
+    caf::PdmField<int>                            m_maxTimeSliderPosition;
     caf::PdmField<QDate>                          m_minDateRange;
     caf::PdmField<QDate>                          m_maxDateRange;
     caf::PdmField<TimeStepFilterEnum>             m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>>         m_selectedTimeSteps;
 
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
-    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
+    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_yPlotAxisProperties;
 
     caf::PdmChildField<RimRegularLegendConfig*>           m_legendConfig;
     caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;
@@ -268,7 +310,8 @@ private:
     QPointer<RiuDraggableOverlayFrame> m_filterOverlayFrame;
     QPointer<RiuDraggableOverlayFrame> m_objectiveFunctionOverlayFrame;
 
-    std::unique_ptr<RimEnsembleStatisticsCase> m_ensembleStatCase;
+    std::unique_ptr<RimEnsembleStatisticsCase>          m_ensembleStatCaseY;
+    std::unique_ptr<RimEnsembleCrossPlotStatisticsCase> m_ensembleStatCaseXY;
 
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
 

@@ -420,10 +420,9 @@ void PdmUiTreeViewQModel::updateEditorsForSubTree( PdmUiTreeOrdering* root )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<QModelIndex> PdmUiTreeViewQModel::allIndicesRecursive( const QModelIndex& current ) const
+void PdmUiTreeViewQModel::allIndicesRecursiveImpl( const QModelIndex& current, std::list<QModelIndex>& modelList ) const
 {
-    std::list<QModelIndex> currentAndDescendants;
-    currentAndDescendants.push_back( current );
+    modelList.insert( modelList.end(), current );
 
     int rows = rowCount( current );
     int cols = columnCount( current );
@@ -431,11 +430,21 @@ std::list<QModelIndex> PdmUiTreeViewQModel::allIndicesRecursive( const QModelInd
     {
         for ( int col = 0; col < cols; ++col )
         {
-            QModelIndex            childIndex = index( row, col, current );
-            std::list<QModelIndex> subList    = allIndicesRecursive( childIndex );
-            currentAndDescendants.insert( currentAndDescendants.end(), subList.begin(), subList.end() );
+            QModelIndex childIndex = index( row, col, current );
+            allIndicesRecursiveImpl( childIndex, modelList );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<QModelIndex> PdmUiTreeViewQModel::allIndicesRecursive( const QModelIndex& current ) const
+{
+    std::list<QModelIndex> currentAndDescendants;
+
+    allIndicesRecursiveImpl( current, currentAndDescendants );
+
     return currentAndDescendants;
 }
 

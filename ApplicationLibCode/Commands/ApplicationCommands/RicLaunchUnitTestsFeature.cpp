@@ -28,17 +28,9 @@ CAF_CMD_SOURCE_INIT( RicLaunchUnitTestsFeature, "RicLaunchUnitTestsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicLaunchUnitTestsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicLaunchUnitTestsFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaApplication::instance()->launchUnitTestsWithConsole();
 }

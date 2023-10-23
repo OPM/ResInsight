@@ -16,7 +16,7 @@ CAF_CMD_SOURCE_INIT( RicNewValveFeature, "RicNewValveFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewValveFeature::isCommandEnabled()
+bool RicNewValveFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
     caf::SelectionManager::instance()->selectedItems( allSelectedItems );

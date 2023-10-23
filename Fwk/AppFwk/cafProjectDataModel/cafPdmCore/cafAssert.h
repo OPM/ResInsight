@@ -7,7 +7,7 @@
 #define CAF_ASSERT( expr )                                                                                   \
     do                                                                                                       \
     {                                                                                                        \
-        if ( !( expr ) )                                                                                     \
+        if ( !( expr ) ) /* NOLINT */                                                                        \
         {                                                                                                    \
             std::cout << __FILE__ << ":" << __LINE__ << ": CAF_ASSERT(" << #expr << ") failed" << std::endl; \
             std::abort();                                                                                    \

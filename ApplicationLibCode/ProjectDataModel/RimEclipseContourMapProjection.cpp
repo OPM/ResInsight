@@ -165,10 +165,10 @@ double RimEclipseContourMapProjection::sampleSpacing() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::clearGridMappingAndRedraw()
 {
-    this->clearGridMapping();
-    this->updateConnectedEditors();
-    this->generateResultsIfNecessary( view()->currentTimeStep() );
-    this->updateLegend();
+    clearGridMapping();
+    updateConnectedEditors();
+    generateResultsIfNecessary( view()->currentTimeStep() );
+    updateLegend();
 
     RimEclipseView* parentView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
     parentView->scheduleCreateDisplayModelAndRedraw();

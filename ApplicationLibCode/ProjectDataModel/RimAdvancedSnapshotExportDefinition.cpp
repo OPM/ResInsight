@@ -104,10 +104,8 @@ QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::calculateValu
 
         std::vector<Rim3dView*> views;
 
-        RimProject*           proj = RimProject::current();
-        std::vector<RimCase*> cases;
-        proj->allCases( cases );
-
+        RimProject*           proj  = RimProject::current();
+        std::vector<RimCase*> cases = proj->allGridCases();
         for ( RimCase* rimCase : cases )
         {
             for ( Rim3dView* rimView : rimCase->views() )
