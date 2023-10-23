@@ -20,7 +20,7 @@
 
 #include "RiaLogging.h"
 
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -41,7 +41,7 @@ RimEnsembleWellLogs::RimEnsembleWellLogs()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogs::removeWellLogFile( RimWellLogFile* summaryCase )
+void RimEnsembleWellLogs::removeWellLogFile( RimWellLogLasFile* summaryCase )
 {
     m_wellLogFiles.removeChild( summaryCase );
 }
@@ -49,7 +49,7 @@ void RimEnsembleWellLogs::removeWellLogFile( RimWellLogFile* summaryCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogs::addWellLogFile( RimWellLogFile* summaryCase )
+void RimEnsembleWellLogs::addWellLogFile( RimWellLogLasFile* summaryCase )
 {
     m_wellLogFiles.push_back( summaryCase );
 }
@@ -57,7 +57,7 @@ void RimEnsembleWellLogs::addWellLogFile( RimWellLogFile* summaryCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimEnsembleWellLogs::wellLogFiles() const
+std::vector<RimWellLogLasFile*> RimEnsembleWellLogs::wellLogFiles() const
 {
     return m_wellLogFiles().childrenByType();
 }

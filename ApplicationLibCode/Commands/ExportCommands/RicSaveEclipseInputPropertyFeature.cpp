@@ -43,7 +43,7 @@ CAF_CMD_SOURCE_INIT( RicSaveEclipseInputPropertyFeature, "RicSaveEclipseInputPro
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveEclipseInputPropertyFeature::isCommandEnabled()
+bool RicSaveEclipseInputPropertyFeature::isCommandEnabled() const
 {
     return selectedInputProperty() != nullptr;
 }
@@ -53,7 +53,7 @@ bool RicSaveEclipseInputPropertyFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RimEclipseInputProperty* inputProperty = selectedInputProperty();
     if ( !inputProperty ) return;
@@ -155,5 +155,5 @@ RimEclipseInputProperty* RicSaveEclipseInputPropertyFeature::selectedInputProper
     std::vector<RimEclipseInputProperty*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    return selection.size() > 0 ? selection[0] : nullptr;
+    return !selection.empty() ? selection[0] : nullptr;
 }

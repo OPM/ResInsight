@@ -36,14 +36,6 @@ CAF_CMD_SOURCE_INIT( RicExportStimPlanModelToFileFeature, "RicExportStimPlanMode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportStimPlanModelToFileFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicExportStimPlanModelToFileFeature::onActionTriggered( bool isChecked )
 {
     RimStimPlanModel* stimPlanModel = caf::SelectionManager::instance()->selectedItemOfType<RimStimPlanModel>();

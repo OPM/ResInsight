@@ -66,7 +66,7 @@ void RicSelectCaseOrEnsembleUi::setEnsembleSelectionMode( bool ensembleMode )
     else
     {
         std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
-        if ( cases.size() > 0 ) m_selectedSummaryCase = cases.front();
+        if ( !cases.empty() ) m_selectedSummaryCase = cases.front();
     }
 }
 

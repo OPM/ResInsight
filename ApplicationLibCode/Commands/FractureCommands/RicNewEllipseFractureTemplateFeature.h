@@ -44,5 +44,4 @@ protected:
     static RimEllipseFractureTemplate* createNewTemplate();
     void                               onActionTriggered( bool isChecked ) override;
     void                               setupActionLook( QAction* actionToSetup ) override;
-    bool                               isCommandEnabled() override;
 };

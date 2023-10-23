@@ -89,7 +89,7 @@ void RimCommandExecuteScript::redo()
         QStringList arguments = app->octaveArguments();
 
         arguments.append( "--eval" );
-        arguments << this->scriptText();
+        arguments << scriptText();
 
         RiaApplication::instance()->launchProcess( octavePath, arguments, app->octaveProcessEnvironment() );
     }
@@ -210,11 +210,11 @@ void RimCommandIssueFieldChanged::redo()
     RiaApplication* app     = RiaApplication::instance();
     PdmObject*      project = app->project();
 
-    caf::PdmObjectHandle* pdmObject = findObjectByName( project, this->objectName );
+    caf::PdmObjectHandle* pdmObject = findObjectByName( project, objectName );
 
     if ( pdmObject )
     {
-        caf::PdmFieldHandle* fieldHandle = findFieldByKeyword( pdmObject, this->fieldName );
+        caf::PdmFieldHandle* fieldHandle = findFieldByKeyword( pdmObject, fieldName );
 
         if ( fieldHandle && fieldHandle->uiCapability() )
         {
@@ -222,7 +222,7 @@ void RimCommandIssueFieldChanged::redo()
             CVF_ASSERT( valueField );
 
             QVariant oldValue = valueField->toQVariant();
-            QVariant newValue( this->fieldValueToApply );
+            QVariant newValue( fieldValueToApply );
 
             valueField->setFromQVariant( newValue );
 

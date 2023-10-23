@@ -28,14 +28,13 @@
 class RimSummaryPlot;
 class RimSummaryMultiPlot;
 class RimSummaryMultiPlotCollection;
-class RimSummaryCrossPlot;
-class RimSummaryCrossPlotCollection;
 class RimSummaryCaseMainCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimSummaryTable;
 class RimSummaryTableCollection;
 class RimObservedDataCollection;
+class RimSummaryCurve;
 
 class RifEclipseSummaryAddress;
 
@@ -53,7 +52,6 @@ class PdmOptionItemInfo;
 class RiaSummaryTools
 {
 public:
-    static RimSummaryCrossPlotCollection* summaryCrossPlotCollection();
     static RimSummaryCaseMainCollection*  summaryCaseMainCollection();
     static RimSummaryMultiPlotCollection* summaryMultiPlotCollection();
     static RimObservedDataCollection*     observedDataCollection();
@@ -65,10 +63,6 @@ public:
     static RimSummaryPlot*                parentSummaryPlot( caf::PdmObject* object );
     static RimSummaryMultiPlot*           parentSummaryMultiPlot( caf::PdmObject* object );
     static RimSummaryMultiPlotCollection* parentSummaryPlotCollection( caf::PdmObject* object );
-
-    static RimSummaryCrossPlot*           parentCrossPlot( caf::PdmObject* object );
-    static RimSummaryCrossPlotCollection* parentCrossPlotCollection( caf::PdmObject* object );
-    static bool                           isSummaryCrossPlot( const RimSummaryPlot* plot );
 
     static RimSummaryTable*           parentSummaryTable( caf::PdmObject* object );
     static RimSummaryTableCollection* parentSummaryTableCollection( caf::PdmObject* object );
@@ -88,4 +82,7 @@ public:
 
     static QList<caf::PdmOptionItemInfo> optionsForAllSummaryCases();
     static QList<caf::PdmOptionItemInfo> optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases );
+
+    static void copyCurveDataSources( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
+    static void copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
 };

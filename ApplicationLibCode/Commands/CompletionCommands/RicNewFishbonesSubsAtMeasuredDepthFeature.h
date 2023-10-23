@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RicNewFishbonesSubsFeature.h"
 
 //==================================================================================================
 ///
@@ -27,8 +27,14 @@ class RicNewFishbonesSubsAtMeasuredDepthFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-protected:
+private:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
+
+    void createFishbones( const RicFishbonesSystemParameters& customParameters );
+
+    void onDrillingStandard();
+    void onDrillingExtended();
+    void onAcidJetting();
 };

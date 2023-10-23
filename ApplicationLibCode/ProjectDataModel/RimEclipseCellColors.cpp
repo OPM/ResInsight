@@ -54,17 +54,17 @@ RimEclipseCellColors::RimEclipseCellColors()
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Cell Result", ":/CellResult.png", "", "", "CellColors", "Eclipse Cell Colors class" );
 
     CAF_PDM_InitFieldNoDefault( &obsoleteField_legendConfig, "LegendDefinition", "Color Legend" );
-    this->obsoleteField_legendConfig.xmlCapability()->setIOWritable( false );
+    obsoleteField_legendConfig.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfigData, "ResultVarLegendDefinitionList", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend" );
-    this->m_ternaryLegendConfig = new RimTernaryLegendConfig();
+    m_ternaryLegendConfig = new RimTernaryLegendConfig();
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfigPtrField, "LegendDefinitionPtrField", "Color Legend PtrField" );
 
     // Make sure we have a created legend for the default/undefined result variable
-    changeLegendConfig( this->resultVariable() );
+    changeLegendConfig( resultVariable() );
 
     m_useDiscreteLogLevels = false;
 }
@@ -89,21 +89,21 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     RimEclipseResultDefinition::fieldChangedByUi( changedField, oldValue, newValue );
 
     // Update of legend config must happen after RimEclipseResultDefinition::fieldChangedByUi(), as this function
-    // modifies this->resultVariable()
+    // modifies resultVariable()
     if ( changedField == &m_resultVariableUiField )
     {
         if ( oldValue != newValue )
         {
-            changeLegendConfig( this->resultVariableUiName() );
+            changeLegendConfig( resultVariableUiName() );
         }
 
-        RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>( this->parentField()->ownerObject() );
+        RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>( parentField()->ownerObject() );
         if ( faultColors )
         {
             faultColors->updateConnectedEditors();
         }
 
-        RimCellEdgeColors* cellEdgeColors = dynamic_cast<RimCellEdgeColors*>( this->parentField()->ownerObject() );
+        RimCellEdgeColors* cellEdgeColors = dynamic_cast<RimCellEdgeColors*>( parentField()->ownerObject() );
         if ( cellEdgeColors )
         {
             cellEdgeColors->updateConnectedEditors();
@@ -122,20 +122,20 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
     {
         QString legendResultVariable;
 
-        if ( this->m_legendConfigPtrField() )
+        if ( m_legendConfigPtrField() )
         {
-            legendResultVariable = this->m_legendConfigPtrField()->resultVariableName();
+            legendResultVariable = m_legendConfigPtrField()->resultVariableName();
         }
 
-        if ( !this->m_legendConfigPtrField() || legendResultVariable != resultVarNameOfNewLegend )
+        if ( !m_legendConfigPtrField() || legendResultVariable != resultVarNameOfNewLegend )
         {
             bool found = false;
             for ( size_t i = 0; i < m_legendConfigData.size(); i++ )
             {
                 if ( m_legendConfigData[i]->resultVariableName() == resultVarNameOfNewLegend )
                 {
-                    this->m_legendConfigPtrField = m_legendConfigData[i];
-                    found                        = true;
+                    m_legendConfigPtrField = m_legendConfigData[i];
+                    found                  = true;
                     break;
                 }
             }
@@ -145,14 +145,13 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
                 int caseId = 0;
                 if ( eclipseCase() ) caseId = eclipseCase()->caseId();
 
-                auto newLegend =
-                    createLegendForResult( caseId, resultVarNameOfNewLegend, this->m_useDiscreteLogLevels, this->hasCategoryResult() );
+                auto newLegend = createLegendForResult( caseId, resultVarNameOfNewLegend, m_useDiscreteLogLevels, hasCategoryResult() );
 
                 newLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
 
                 m_legendConfigData.push_back( newLegend );
 
-                this->m_legendConfigPtrField = newLegend;
+                m_legendConfigPtrField = newLegend;
             }
         }
     }
@@ -187,9 +186,9 @@ void RimEclipseCellColors::initAfterRead()
 {
     RimEclipseResultDefinition::initAfterRead();
 
-    if ( this->m_legendConfigPtrField() && this->m_legendConfigPtrField()->resultVariableName() == "" )
+    if ( m_legendConfigPtrField() && m_legendConfigPtrField()->resultVariableName() == "" )
     {
-        this->m_legendConfigPtrField()->resultVariableName = this->resultVariable();
+        m_legendConfigPtrField()->resultVariableName = resultVariable();
     }
 
     if ( obsoleteField_legendConfig )
@@ -206,7 +205,7 @@ void RimEclipseCellColors::initAfterRead()
         m_legendConfigPtrField = obsoleteLegend;
     }
 
-    changeLegendConfig( this->resultVariable() );
+    changeLegendConfig( resultVariable() );
 
     updateIconState();
 }
@@ -229,7 +228,7 @@ void RimEclipseCellColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( this->resultVariable() == RiaResultNames::ternarySaturationResultName() )
+    if ( resultVariable() == RiaResultNames::ternarySaturationResultName() )
     {
         uiTreeOrdering.add( m_ternaryLegendConfig() );
     }
@@ -251,7 +250,7 @@ void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeO
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendCategorySettings()
 {
-    changeLegendConfig( this->resultVariableUiName() );
+    changeLegendConfig( resultVariableUiName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,7 +285,7 @@ void RimEclipseCellColors::setReservoirView( RimEclipseView* ownerReservoirView 
     m_reservoirView = ownerReservoirView;
     if ( ownerReservoirView )
     {
-        this->setEclipseCase( ownerReservoirView->eclipseCase() );
+        setEclipseCase( ownerReservoirView->eclipseCase() );
     }
 }
 
@@ -303,7 +302,7 @@ RimEclipseView* RimEclipseCellColors::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateRangesForEmbeddedLegends( int currentTimeStep )
 {
-    this->updateRangesForExplicitLegends( legendConfig(), m_ternaryLegendConfig(), currentTimeStep );
+    updateRangesForExplicitLegends( legendConfig(), m_ternaryLegendConfig(), currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,7 +312,7 @@ void RimEclipseCellColors::setResultVariable( const QString& val )
 {
     RimEclipseResultDefinition::setResultVariable( val );
 
-    this->changeLegendConfig( val );
+    changeLegendConfig( val );
 }
 
 //--------------------------------------------------------------------------------------------------

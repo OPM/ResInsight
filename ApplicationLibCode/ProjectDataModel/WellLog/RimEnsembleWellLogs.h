@@ -22,7 +22,7 @@
 
 #include "cafPdmChildArrayField.h"
 
-class RimWellLogFile;
+class RimWellLogLasFile;
 
 //==================================================================================================
 ///
@@ -33,13 +33,13 @@ class RimEnsembleWellLogs : public RimNamedObject
 
 public:
     RimEnsembleWellLogs();
-    void removeWellLogFile( RimWellLogFile* wellLogFile );
-    void addWellLogFile( RimWellLogFile* wellLogFile );
+    void removeWellLogFile( RimWellLogLasFile* wellLogFile );
+    void addWellLogFile( RimWellLogLasFile* wellLogFile );
 
-    std::vector<RimWellLogFile*> wellLogFiles() const;
+    std::vector<RimWellLogLasFile*> wellLogFiles() const;
 
     void loadDataAndUpdate();
 
 private:
-    caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
+    caf::PdmChildArrayField<RimWellLogLasFile*> m_wellLogFiles;
 };

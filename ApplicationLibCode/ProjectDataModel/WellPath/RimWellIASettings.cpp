@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferencesGeoMech.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigWellPath.h"
 #include "RigWellPathGeometryTools.h"
 
@@ -94,7 +95,7 @@ RimWellIASettings::RimWellIASettings()
     CAF_PDM_InitField( &m_boxValid, "boxValid", false, "Model box is valid" );
     m_boxValid.uiCapability()->setUiHidden( true );
 
-    this->setDeletable( true );
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +146,7 @@ void RimWellIASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         updateVisualization();
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -476,7 +477,12 @@ bool RimWellIASettings::updateResInsightParameters()
         }
     }
 
-    double ppValue = dataAccess.interpolatedResultValue( "POR-Bar", "", RigFemResultPosEnum::RIG_NODAL, position, 0, 0 );
+    double ppValue = dataAccess.interpolatedResultValue( QString::fromStdString( RigFemAddressDefines::porBar() ),
+                                                         "",
+                                                         RigFemResultPosEnum::RIG_NODAL,
+                                                         position,
+                                                         0,
+                                                         0 );
     if ( std::isfinite( ppValue ) )
     {
         initialStress->addParameter( "PP", ppValue * 100000.0 );

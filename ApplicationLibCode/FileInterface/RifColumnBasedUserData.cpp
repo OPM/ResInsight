@@ -72,28 +72,31 @@ bool RifColumnBasedUserData::parse( const QString& data, QString* errorText )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifColumnBasedUserData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifColumnBasedUserData::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
+    std::vector<double> values;
+
     auto search = m_mapFromAddressToResultIndex.find( resultAddress );
+
     if ( search != m_mapFromAddressToResultIndex.end() )
     {
         std::pair<size_t, size_t> tableColIndices = search->second;
 
         const Column* ci = m_parser->columnInfo( tableColIndices.first, tableColIndices.second );
-        if ( !ci ) return false;
+        if ( !ci ) return { false, {} };
 
         if ( !ci->values.empty() )
         {
-            values->reserve( ci->values.size() );
+            values.reserve( ci->values.size() );
 
             for ( const auto& v : ci->values )
             {
-                values->push_back( v );
+                values.push_back( v );
             }
         }
     }
 
-    return true;
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------

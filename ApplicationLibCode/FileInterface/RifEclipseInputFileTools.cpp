@@ -38,6 +38,7 @@
 #include "RigEclipseResultAddress.h"
 #include "RigFault.h"
 #include "RigMainGrid.h"
+#include "RigResultAccessorFactory.h"
 
 #include "cafProgressInfo.h"
 
@@ -241,9 +242,9 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
         max = cvf::Vec3st( mainGrid->cellCountI() - 1, mainGrid->cellCountJ() - 1, mainGrid->cellCountK() - 1 );
     }
 
-    int ecl_nx = static_cast<int>( ( max.x() - min.x() ) * refinement.x() + 1 );
-    int ecl_ny = static_cast<int>( ( max.y() - min.y() ) * refinement.y() + 1 );
-    int ecl_nz = static_cast<int>( ( max.z() - min.z() ) * refinement.z() + 1 );
+    int ecl_nx = static_cast<int>( ( max.x() - min.x() + 1 ) * refinement.x() );
+    int ecl_ny = static_cast<int>( ( max.y() - min.y() + 1 ) * refinement.y() );
+    int ecl_nz = static_cast<int>( ( max.z() - min.z() + 1 ) * refinement.z() );
 
     CVF_ASSERT( ecl_nx > 0 && ecl_ny > 0 && ecl_nz > 0 );
 
@@ -273,36 +274,21 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
 
     const size_t* cellMappingECLRi = RifReaderEclipseOutput::eclipseCellIndexMapping();
 
-    int incrementalIndex = 0;
-    for ( size_t k = min.z() * refinement.z(); k <= max.z() * refinement.z(); ++k )
-    {
-        size_t mainK = k / refinement.z();
-        size_t k0    = k - min.z() * refinement.z();
-        for ( size_t j = min.y() * refinement.y(); j <= max.y() * refinement.y(); ++j )
-        {
-            size_t mainJ = j / refinement.y();
-            size_t j0    = j - min.y() * refinement.y();
-            for ( size_t i = min.x() * refinement.x(); i <= max.x() * refinement.x(); ++i )
-            {
-                size_t mainI = i / refinement.x();
-                size_t i0    = i - min.x() * refinement.x();
+    int outputCellIndex = 0;
 
-                size_t mainIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
+    for ( size_t k = 0; k <= max.z() - min.z(); ++k )
+    {
+        for ( size_t j = 0; j <= max.y() - min.y(); ++j )
+        {
+            for ( size_t i = 0; i <= max.x() - min.x(); ++i )
+            {
+                size_t mainIndex = mainGrid->cellIndexFromIJK( min.x() + i, min.y() + j, min.z() + k );
 
                 int active = activeCellInfo->isActive( mainIndex ) ? 1 : 0;
                 if ( active && cellVisibilityOverrideForActnum )
                 {
                     active = ( *cellVisibilityOverrideForActnum )[mainIndex];
                 }
-
-                int* ecl_cell_coords = new int[5];
-                ecl_cell_coords[0]   = (int)( i0 + 1 );
-                ecl_cell_coords[1]   = (int)( j0 + 1 );
-                ecl_cell_coords[2]   = (int)( k0 + 1 );
-                ecl_cell_coords[3]   = incrementalIndex++;
-                ecl_cell_coords[4]   = active;
-                ecl_coords.push_back( ecl_cell_coords );
-
                 std::array<cvf::Vec3d, 8> cellCorners;
                 mainGrid->cellCornerVertices( mainIndex, cellCorners.data() );
 
@@ -316,25 +302,40 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
 
                 auto refinedCoords = RiaCellDividingTools::createHexCornerCoords( cellCorners, refinement.x(), refinement.y(), refinement.z() );
 
-                size_t subI     = i % refinement.x();
-                size_t subJ     = j % refinement.y();
-                size_t subK     = k % refinement.z();
-                size_t subIndex = subI + subJ * refinement.x() + subK * refinement.x() * refinement.y();
-
-                float* ecl_cell_corners = new float[24];
-                for ( size_t cIdx = 0; cIdx < 8; ++cIdx )
+                for ( size_t subK = 0; subK < refinement.z(); ++subK )
                 {
-                    cvf::Vec3d cellCorner                            = refinedCoords[subIndex * 8 + cIdx];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3]     = cellCorner[0];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 1] = cellCorner[1];
-                    ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 2] = -cellCorner[2];
+                    for ( size_t subJ = 0; subJ < refinement.y(); ++subJ )
+                    {
+                        for ( size_t subI = 0; subI < refinement.x(); ++subI )
+                        {
+                            int* ecl_cell_coords = new int[5];
+                            ecl_cell_coords[0]   = static_cast<int>( i * refinement.x() + subI + 1 );
+                            ecl_cell_coords[1]   = static_cast<int>( j * refinement.y() + subJ + 1 );
+                            ecl_cell_coords[2]   = static_cast<int>( k * refinement.z() + subK + 1 );
+                            ecl_cell_coords[3]   = outputCellIndex++;
+                            ecl_cell_coords[4]   = active;
+                            ecl_coords.push_back( ecl_cell_coords );
+
+                            size_t subIndex = subI + subJ * refinement.x() + subK * refinement.x() * refinement.y();
+
+                            float* ecl_cell_corners = new float[24];
+                            for ( size_t cIdx = 0; cIdx < 8; ++cIdx )
+                            {
+                                const auto cellCorner                            = refinedCoords[subIndex * 8 + cIdx];
+                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3]     = cellCorner[0];
+                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 1] = cellCorner[1];
+                                ecl_cell_corners[cellMappingECLRi[cIdx] * 3 + 2] = -cellCorner[2];
+                            }
+                            ecl_corners.push_back( ecl_cell_corners );
+                        }
+                    }
                 }
-                ecl_corners.push_back( ecl_cell_corners );
             }
         }
-        if ( incrementalIndex % cellProgressInterval == 0 )
+
+        if ( outputCellIndex % cellProgressInterval == 0 )
         {
-            progress.setProgress( incrementalIndex / cellsPerOriginal );
+            progress.setProgress( outputCellIndex / cellsPerOriginal );
         }
     }
 
@@ -411,19 +412,30 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
 
     caf::ProgressInfo progress( keywords.size(), "Saving Keywords" );
 
+    auto allResultAddresses = cellResultsData->existingResults();
+
+    auto findResultAddress = [&allResultAddresses]( const QString& keyword ) -> RigEclipseResultAddress
+    {
+        for ( const auto& adr : allResultAddresses )
+        {
+            if ( adr.resultName() == keyword )
+            {
+                return adr;
+            }
+        }
+
+        return {};
+    };
+
     for ( const QString& keyword : keywords )
     {
-        std::vector<double> resultValues;
-
-        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, keyword );
+        RigEclipseResultAddress resAddr = findResultAddress( keyword );
         if ( !cellResultsData->hasResultEntry( resAddr ) ) continue;
 
         cellResultsData->ensureKnownResultLoaded( resAddr );
-
         CVF_ASSERT( !cellResultsData->cellScalarResults( resAddr ).empty() );
 
-        resultValues = cellResultsData->cellScalarResults( resAddr )[0];
-        CVF_ASSERT( !resultValues.empty() );
+        std::vector<double> resultValues = cellResultsData->cellScalarResults( resAddr )[0];
         if ( resultValues.empty() ) continue;
 
         double defaultExportValue = 0.0;
@@ -431,6 +443,11 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         {
             defaultExportValue = 1.0;
         }
+
+        RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+
+        // Create result accessor object for main grid at time step zero (static result date is always at first time step
+        auto resultAcc = RigResultAccessorFactory::createFromResultAddress( eclipseCase, 0, porosityModel, 0, resAddr );
 
         std::vector<double> filteredResults;
         filteredResults.reserve( resultValues.size() );
@@ -445,12 +462,13 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
                 {
                     size_t mainI = i / refinement.x();
 
-                    size_t mainIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
+                    size_t reservoirCellIndex = mainGrid->cellIndexFromIJK( mainI, mainJ, mainK );
 
-                    size_t resIndex = activeCells->cellResultIndex( mainIndex );
+                    size_t resIndex = activeCells->cellResultIndex( reservoirCellIndex );
                     if ( resIndex != cvf::UNDEFINED_SIZE_T )
                     {
-                        filteredResults.push_back( resultValues[resIndex] );
+                        auto value = resultAcc->cellScalarGlobIdx( reservoirCellIndex );
+                        filteredResults.push_back( value );
                     }
                     else
                     {
@@ -1088,7 +1106,7 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( Q
             int firstQuote = line.indexOf( "'" );
             int lastQuote  = line.lastIndexOf( "'" );
 
-            if ( !( firstQuote < 0 || lastQuote < 0 || firstQuote == lastQuote ) )
+            if ( firstQuote >= 0 && lastQuote >= 0 && firstQuote != lastQuote )
             {
                 QDir currentFileFolder;
                 {
@@ -1163,16 +1181,15 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(
-    const QString&                                  keyword,
-    const QString&                                  keywordToStopParsing,
-    QFile&                                          file,
-    qint64                                          startPos,
-    const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
-    QStringList*                                    keywordDataContent,
-    std::vector<QString>*                           filenamesContainingKeyword,
-    bool*                                           isStopParsingKeywordDetected,
-    const QString&                                  faultIncludeFileAbsolutePathPrefix /* rename to includeStatementAbsolutePathPrefix */ )
+bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( const QString& keyword,
+                                                                                const QString& keywordToStopParsing,
+                                                                                const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
+                                                                                const QString&        includeStatementAbsolutePathPrefix,
+                                                                                QFile&                file,
+                                                                                qint64                startPos,
+                                                                                QStringList&          keywordDataContent,
+                                                                                std::vector<QString>& filenamesContainingKeyword,
+                                                                                bool&                 isStopParsingKeywordDetected )
 {
     QString line;
 
@@ -1195,10 +1212,7 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(
 
         if ( !keywordToStopParsing.isEmpty() && line.startsWith( keywordToStopParsing, Qt::CaseInsensitive ) )
         {
-            if ( isStopParsingKeywordDetected )
-            {
-                *isStopParsingKeywordDetected = true;
-            }
+            isStopParsingKeywordDetected = true;
 
             return false;
         }
@@ -1217,7 +1231,7 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(
             int firstQuote = line.indexOf( "'" );
             int lastQuote  = line.lastIndexOf( "'" );
 
-            if ( !( firstQuote < 0 || lastQuote < 0 || firstQuote == lastQuote ) )
+            if ( firstQuote >= 0 && lastQuote >= 0 && firstQuote != lastQuote )
             {
                 QDir currentFileFolder;
                 {
@@ -1238,7 +1252,7 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(
                 if ( includeFilename.startsWith( '/' ) )
                 {
                     // Absolute UNIX path, prefix on Windows
-                    includeFilename = faultIncludeFileAbsolutePathPrefix + includeFilename;
+                    includeFilename = includeStatementAbsolutePathPrefix + includeFilename;
                 }
 #endif
 
@@ -1249,17 +1263,15 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(
                     QFile   includeFile( absoluteFilename );
                     if ( includeFile.open( QFile::ReadOnly ) )
                     {
-                        // qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
-
                         if ( !readKeywordAndParseIncludeStatementsRecursively( keyword,
                                                                                keywordToStopParsing,
+                                                                               pathAliasDefinitions,
+                                                                               includeStatementAbsolutePathPrefix,
                                                                                includeFile,
                                                                                0,
-                                                                               pathAliasDefinitions,
                                                                                keywordDataContent,
                                                                                filenamesContainingKeyword,
-                                                                               isStopParsingKeywordDetected,
-                                                                               faultIncludeFileAbsolutePathPrefix ) )
+                                                                               isStopParsingKeywordDetected ) )
                         {
                             qDebug() << "Error when parsing include file : " << absoluteFilename;
                         }
@@ -1272,11 +1284,11 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(
             if ( !line.contains( "/" ) )
             {
                 readKeywordDataContent( file, file.pos(), keywordDataContent, isStopParsingKeywordDetected );
-                filenamesContainingKeyword->push_back( file.fileName() );
+                filenamesContainingKeyword.push_back( file.fileName() );
             }
         }
 
-        if ( isStopParsingKeywordDetected && *isStopParsingKeywordDetected )
+        if ( isStopParsingKeywordDetected )
         {
             continueParsing = false;
         }
@@ -1294,7 +1306,7 @@ bool RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected )
+void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 filePos, QStringList& textContent, bool& isStopParsingKeywordDetected )
 {
     if ( !data.seek( filePos ) )
     {
@@ -1322,11 +1334,7 @@ void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 fileP
         else if ( line.startsWith( editKeyword, Qt::CaseInsensitive ) )
         {
             // End parsing when edit keyword is detected
-
-            if ( isEditKeywordDetected )
-            {
-                *isEditKeywordDetected = true;
-            }
+            isStopParsingKeywordDetected = true;
 
             return;
         }
@@ -1338,7 +1346,7 @@ void RifEclipseInputFileTools::readKeywordDataContent( QFile& data, qint64 fileP
 
         if ( !line.isEmpty() )
         {
-            textContent->push_back( line );
+            textContent.push_back( line );
         }
 
     } while ( !data.atEnd() );
@@ -1351,7 +1359,7 @@ RiaDefines::EclipseUnitSystem RifEclipseInputFileTools::readUnitSystem( QFile& f
 {
     bool        stopParsing = false;
     QStringList unitText;
-    readKeywordDataContent( file, gridunitPos, &unitText, &stopParsing );
+    readKeywordDataContent( file, gridunitPos, unitText, stopParsing );
     for ( QString unitString : unitText )
     {
         if ( unitString.contains( "FEET", Qt::CaseInsensitive ) )
@@ -1417,6 +1425,31 @@ bool RifEclipseInputFileTools::hasGridData( const QString& fileName )
                                          []( const auto& keywordAndValue ) { return keywordAndValue.keyword == "COORD"; } );
 
     return coordKeywordItr != keywordAndValues.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RifEclipseInputFileTools::readKeywordContentFromFile( const QString& keyword, const QString& keywordToStopParsing, QFile& file )
+{
+    std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+    const QString                            includeStatementAbsolutePathPrefix;
+    const qint64                             startPositionInFile = 0;
+    QStringList                              keywordContent;
+    std::vector<QString>                     fileNamesContainingKeyword;
+    bool                                     isStopParsingKeywordDetected = false;
+
+    RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
+                                                                               keywordToStopParsing,
+                                                                               pathAliasDefinitions,
+                                                                               includeStatementAbsolutePathPrefix,
+                                                                               file,
+                                                                               startPositionInFile,
+                                                                               keywordContent,
+                                                                               fileNamesContainingKeyword,
+                                                                               isStopParsingKeywordDetected );
+
+    return keywordContent;
 }
 
 //--------------------------------------------------------------------------------------------------

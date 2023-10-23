@@ -30,6 +30,7 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
 #include "RimSurfaceResultDefinition.h"
@@ -158,7 +159,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         }
         else
         {
-            this->addSurface( newSurface );
+            addSurface( newSurface );
             surfacesToLoad.push_back( newSurface );
             ++newSurfCount;
         }
@@ -169,7 +170,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         RiaLogging::warning( "Import Surfaces : Could not import the following files:\n" + errorMessages );
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     updateViews( surfacesToLoad, showLegend );
 
@@ -194,7 +195,7 @@ void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces, bo
         surface->reloadData();
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     updateViews( surfaces, showLegend );
 }
@@ -227,7 +228,7 @@ RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surface
         retsurf = surface;
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     return retsurf;
 }
@@ -241,7 +242,6 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
     s->setCase( sourceCase );
 
     s->setOneBasedIndex( oneBasedSliceIndex );
-    s->setUserDescription( "Surface" );
 
     if ( !s->onLoadData() )
     {
@@ -251,7 +251,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
 
     m_surfaces.push_back( s );
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     std::vector<RimSurface*> surfacesToRefresh;
     surfacesToRefresh.push_back( s );
@@ -299,18 +299,21 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
 {
     RimProject* proj = RimProject::current();
 
+    // Make sure the tree items are synchronized
     std::vector<Rim3dView*> views;
     proj->allViews( views );
-
-    // Make sure the tree items are synchronized
-
     for ( auto view : views )
     {
-        auto gridView = dynamic_cast<RimGridView*>( view );
-        if ( gridView ) gridView->updateSurfacesInViewTreeItems();
+        view->updateSurfacesInViewTreeItems();
+
+        if ( auto gridView = dynamic_cast<RimGridView*>( view ) )
+        {
+            auto seismicCollection = gridView->seismicSectionCollection();
+            seismicCollection->setSurfacesVisible( surfsToReload );
+        }
     }
 
-    std::set<RimGridView*> viewsNeedingUpdate;
+    std::set<Rim3dView*> viewsNeedingUpdate;
 
     for ( auto surf : surfsToReload )
     {
@@ -320,7 +323,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
             surfInView->clearGeometry();
             surfInView->surfaceResultDefinition()->legendConfig()->setShowLegend( showLegend );
 
-            auto gridView = surfInView->firstAncestorOrThisOfType<RimGridView>();
+            auto gridView = surfInView->firstAncestorOrThisOfType<Rim3dView>();
             if ( gridView ) viewsNeedingUpdate.insert( gridView );
         }
     }
@@ -346,9 +349,9 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::updateViews()
 {
-    RimProject*               proj = RimProject::current();
-    std::vector<RimGridView*> views;
-    proj->allVisibleGridViews( views );
+    RimProject*             proj = RimProject::current();
+    std::vector<Rim3dView*> views;
+    proj->allViews( views );
 
     // Make sure the tree items are synchronized
 
@@ -477,7 +480,7 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
 void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
 {
     m_subCollections.push_back( subcoll );
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     updateViews();
 
@@ -515,7 +518,7 @@ void RimSurfaceCollection::deleteSubCollection( const QString& name )
 //--------------------------------------------------------------------------------------------------
 bool RimSurfaceCollection::containsSurface()
 {
-    bool containsSurface = ( surfaces().size() > 0 );
+    bool containsSurface = ( !surfaces().empty() );
 
     for ( auto coll : m_subCollections )
     {

@@ -20,6 +20,7 @@
 
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
@@ -73,7 +74,7 @@ RimSummaryTable::RimSummaryTable()
     m_vector.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_category, "Categories", "Category" );
     m_category.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    m_category = RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL;
+    m_category = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL;
 
     CAF_PDM_InitFieldNoDefault( &m_resamplingSelection, "ResamplingSelection", "Date Resampling" );
     m_resamplingSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -86,6 +87,7 @@ RimSummaryTable::RimSummaryTable()
 
     // Table settings
     CAF_PDM_InitField( &m_showValueLabels, "ShowValueLabels", false, "Show Value Labels" );
+    CAF_PDM_InitField( &m_maxTimeLabelCount, "MaxTimeLabelCount", 20, "Maximum Time Label Count" );
 
     // Font control
     CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
@@ -126,7 +128,7 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
 {
     const auto summaryCases = getToplevelSummaryCases();
     m_case                  = nullptr;
-    m_category              = RifEclipseSummaryAddress::SUMMARY_WELL;
+    m_category              = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL;
     m_vector                = "";
 
     m_tableName = createTableName();
@@ -148,9 +150,9 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
-                                                           RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                           const QString&                               vectorName )
+void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*                                  summaryCase,
+                                                           RifEclipseSummaryAddressDefines::SummaryCategory category,
+                                                           const QString&                                   vectorName )
 {
     m_case      = summaryCase;
     m_category  = category;
@@ -283,6 +285,10 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
         onLoadDataAndUpdate();
     }
+    else if ( changedField == &m_maxTimeLabelCount )
+    {
+        onLoadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,6 +329,7 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     fontGroup->add( &m_axisTitleFontSize );
     fontGroup->add( &m_axisLabelFontSize );
     fontGroup->add( &m_valueLabelFontSize );
+    fontGroup->add( &m_maxTimeLabelCount );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -347,15 +354,15 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_category )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(
-                                                       RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL ),
-                                                   RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(
-                                                       RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP ),
-                                                   RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(
-                                                       RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION ),
-                                                   RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::uiText(
+                                                       RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ),
+                                                   RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::uiText(
+                                                       RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ),
+                                                   RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::uiText(
+                                                       RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION ),
+                                                   RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION ) );
     }
     else if ( fieldNeedingOptions == &m_vector && m_case )
     {
@@ -464,6 +471,10 @@ void RimSummaryTable::onLoadDataAndUpdate()
     m_matrixPlotWidget->setLegendFontSize( legendFontSize() );
     m_matrixPlotWidget->setAxisTitleFontSize( axisTitleFontSize() );
     m_matrixPlotWidget->setAxisLabelFontSize( axisLabelFontSize() );
+    m_matrixPlotWidget->setMaxColumnLabelCount( m_maxTimeLabelCount() );
+
+    const auto windowTitle = RiaStdStringTools::removeHtmlTags( title.toStdString() );
+    m_matrixPlotWidget->setWindowTitle( QString::fromStdString( windowTitle ) );
 
     m_matrixPlotWidget->createPlot();
 }
@@ -592,7 +603,7 @@ QString RimSummaryTable::dateFormatString() const
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReader( const RifSummaryReaderInterface* summaryReader,
-                                                                                   RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                                                   RifEclipseSummaryAddressDefines::SummaryCategory category,
                                                                                    const QString& vector ) const
 {
     if ( !summaryReader ) return {};
@@ -611,13 +622,13 @@ std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReade
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
-                                                                       RifEclipseSummaryAddress::SummaryVarCategory category ) const
+std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*                 summaryReader,
+                                                                       RifEclipseSummaryAddressDefines::SummaryCategory category ) const
 {
     if ( !summaryReader ) return {};
-    if ( category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL &&
-         category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP &&
-         category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
+    if ( category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL &&
+         category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP &&
+         category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
         return {};
     }
@@ -638,15 +649,15 @@ std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const Rif
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryTable::getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const
 {
-    if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL )
+    if ( address.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
     {
         return QString::fromStdString( address.wellName() );
     }
-    else if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP )
+    else if ( address.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP )
     {
         return QString::fromStdString( address.groupName() );
     }
-    else if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
+    else if ( address.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION )
     {
         return QString( "Region %1" ).arg( address.regionNumber() );
     }
@@ -671,11 +682,10 @@ void RimSummaryTable::createTableData()
     m_tableData                = TableData();
     m_tableData.thresholdValue = m_thresholdValue();
 
+    if ( !m_case ) return;
+
     const auto summaryReader = m_case->summaryReader();
-    if ( !summaryReader )
-    {
-        return;
-    }
+    if ( !summaryReader ) return;
 
     // Create time step value for vectors with no values above threshold
     const time_t invalidTimeStep = 0;
@@ -685,8 +695,7 @@ void RimSummaryTable::createTableData()
     QString    unitName;
     for ( const auto& adr : summaryAddresses )
     {
-        std::vector<double> values;
-        summaryReader->values( adr, &values );
+        auto [isOk, values]                    = summaryReader->values( adr );
         const std::vector<time_t> timeSteps    = summaryReader->timeSteps( adr );
         const QString             vectorName   = QString::fromStdString( adr.vectorName() );
         const QString             categoryName = getCategoryNameFromAddress( adr );

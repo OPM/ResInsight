@@ -36,9 +36,9 @@
 #include "RimTools.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
@@ -134,7 +134,7 @@ RimWellBoreStabilityPlot* RicNewWellBoreStabilityPlotFeature::createPlot( RimGeo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled()
+bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled() const
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if ( !view ) return false;

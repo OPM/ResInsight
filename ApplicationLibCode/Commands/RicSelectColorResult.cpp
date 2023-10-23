@@ -54,7 +54,7 @@ void RicSelectColorResult::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSelectColorResult::isCommandEnabled()
+bool RicSelectColorResult::isCommandEnabled() const
 {
     if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 

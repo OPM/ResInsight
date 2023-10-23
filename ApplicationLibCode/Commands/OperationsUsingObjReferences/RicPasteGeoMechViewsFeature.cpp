@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicPasteGeoMechViewsFeature, "RicPasteGeoMechViewsFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteGeoMechViewsFeature::isCommandEnabled()
+bool RicPasteGeoMechViewsFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
@@ -46,7 +46,7 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
     std::vector<caf::PdmPointer<RimGeoMechView>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
 
-    if ( typedObjects.size() == 0 )
+    if ( typedObjects.empty() )
     {
         return false;
     }
@@ -54,9 +54,7 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimGeoMechCase* geoMechCase = RicPasteFeatureImpl::findGeoMechCase( destinationObject );
-    if ( geoMechCase ) return true;
-
-    return false;
+    return geoMechCase != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +70,7 @@ void RicPasteGeoMechViewsFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    if ( objectGroup.objects.size() == 0 ) return;
+    if ( objectGroup.objects.empty() ) return;
 
     std::vector<caf::PdmPointer<RimGeoMechView>> geomViews;
     objectGroup.objectsByType( &geomViews );

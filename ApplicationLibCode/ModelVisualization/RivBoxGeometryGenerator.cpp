@@ -51,7 +51,7 @@ cvf::ref<cvf::Part> RivBoxGeometryGenerator::createBoxFromVertices( const std::v
     cvf::ref<cvf::Vec3fArray> cvfVertices = new cvf::Vec3fArray;
     cvfVertices->assign( boxVertices );
 
-    if ( !( cvfVertices.notNull() && cvfVertices->size() != 0 ) ) return nullptr;
+    if ( !cvfVertices.notNull() || cvfVertices->size() == 0 ) return nullptr;
 
     geo->setVertexArray( cvfVertices.p() );
 

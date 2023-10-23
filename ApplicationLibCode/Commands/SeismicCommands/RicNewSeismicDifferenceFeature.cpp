@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicNewSeismicDifferenceFeature, "RicNewSeismicDifferenceFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSeismicDifferenceFeature::isCommandEnabled()
+bool RicNewSeismicDifferenceFeature::isCommandEnabled() const
 {
     auto size = selectedSeismic().size();
     return size == 2;
@@ -51,7 +51,7 @@ bool RicNewSeismicDifferenceFeature::isCommandEnabled()
 void RicNewSeismicDifferenceFeature::onActionTriggered( bool isChecked )
 {
     auto  proj     = RimProject::current();
-    auto& seisColl = proj->activeOilField()->seismicCollection();
+    auto& seisColl = proj->activeOilField()->seismicDataCollection();
     if ( !seisColl ) return;
 
     auto seismicInput = selectedSeismic();

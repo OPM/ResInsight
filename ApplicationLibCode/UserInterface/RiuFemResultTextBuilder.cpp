@@ -19,6 +19,7 @@
 
 #include "RiuFemResultTextBuilder.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemClosestResultIndexCalculator.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -105,7 +106,7 @@ QString RiuFemResultTextBuilder::mainResultText()
 
     if ( !text.isEmpty() ) text += "\n";
 
-    QString topoText = this->geometrySelectionText( "\n" );
+    QString topoText = geometrySelectionText( "\n" );
     text += topoText;
     appendDetails( text, formationDetails() );
     text += "\n";
@@ -197,7 +198,7 @@ QString RiuFemResultTextBuilder::gridResultDetails()
     {
         RigGeoMechCaseData* eclipseCaseData = m_geomResDef->geoMechCase()->geoMechData();
 
-        this->appendTextFromResultColors( eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_frameIndex, m_geomResDef, &text );
+        appendTextFromResultColors( eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_frameIndex, m_geomResDef, &text );
 
         if ( !text.isEmpty() )
         {
@@ -270,7 +271,7 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
     {
         const std::vector<float>& scalarResults =
             geomData->femPartResults()->resultValues( resultDefinition->resultAddress(), gridIndex, timeStepIndex, frameIndex );
-        if ( scalarResults.size() )
+        if ( !scalarResults.empty() )
         {
             caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultDefinition->resultPositionType();
             resultInfoText->append( resPosAppEnum.uiText() + ", " );
@@ -289,8 +290,9 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
                 {
                     float scalarValue = std::numeric_limits<float>::infinity();
                     int   nodeIdx     = elementConn[lNodeIdx];
-                    if ( resultDefinition->resultPositionType() == RIG_NODAL || ( resultDefinition->resultPositionType() == RIG_DIFFERENTIALS &&
-                                                                                  resultDefinition->resultFieldName() == "POR-Bar" ) )
+                    if ( resultDefinition->resultPositionType() == RIG_NODAL ||
+                         ( resultDefinition->resultPositionType() == RIG_DIFFERENTIALS &&
+                           resultDefinition->resultFieldName() == QString::fromStdString( RigFemAddressDefines::porBar() ) ) )
                     {
                         scalarValue = scalarResults[nodeIdx];
                     }
@@ -396,7 +398,7 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
         const std::vector<float>& scalarResults =
             geomData->femPartResults()->resultValues( resultColors->resultAddress(), m_gridIndex, m_timeStepIndex, m_frameIndex );
 
-        if ( scalarResults.size() && m_displayCoordView )
+        if ( !scalarResults.empty() && m_displayCoordView )
         {
             RigFemPart*         femPart              = geomData->femParts()->part( m_gridIndex );
             RigFemResultPosEnum activeResultPosition = resultColors->resultPositionType();

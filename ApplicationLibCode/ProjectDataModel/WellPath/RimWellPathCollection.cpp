@@ -44,7 +44,7 @@
 #include "RimProject.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
@@ -169,7 +169,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
         if ( wellPath )
         {
-            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
+            for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 if ( wellLogFile )
                 {
@@ -195,7 +195,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
     rebuildWellPathNodes();
 
-    this->sortWellsByName();
+    sortWellsByName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,16 +352,16 @@ void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringList& filePaths, QStringList* errorMessages )
+std::vector<RimWellLogLasFile*> RimWellPathCollection::addWellLogs( const QStringList& filePaths, QStringList* errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
-    std::vector<RimWellLogFile*> logFileInfos;
+    std::vector<RimWellLogLasFile*> logFileInfos;
 
     foreach ( QString filePath, filePaths )
     {
-        QString         errorMessage;
-        RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile( filePath, &errorMessage );
+        QString            errorMessage;
+        RimWellLogLasFile* logFileInfo = RimWellLogLasFile::readWellLogFile( filePath, &errorMessage );
         if ( !errorMessage.isEmpty() )
         {
             errorMessages->push_back( errorMessage );
@@ -380,7 +380,7 @@ std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringLi
         }
     }
 
-    this->sortWellsByName();
+    sortWellsByName();
     updateAllRequiredEditors();
 
     return logFileInfos;
@@ -432,7 +432,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
         RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
     }
 
-    this->sortWellsByName();
+    sortWellsByName();
     updateAllRequiredEditors();
 }
 

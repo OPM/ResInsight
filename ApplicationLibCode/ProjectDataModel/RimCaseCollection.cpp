@@ -49,7 +49,7 @@ RimCaseCollection::~RimCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
 {
-    return dynamic_cast<RimIdenticalGridCaseGroup*>( this->parentField()->ownerObject() );
+    return dynamic_cast<RimIdenticalGridCaseGroup*>( parentField()->ownerObject() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -50,6 +50,13 @@ public:
         NUMBER_FORMAT_SCIENTIFIC
     };
 
+    enum class Orientation
+    {
+        HORIZONTAL,
+        VERTICAL,
+        ANY
+    };
+
 public:
     caf::Signal<bool>                                             logarithmicChanged;
     caf::Signal<RimPlotAxisProperties*, RiuPlotAxis, RiuPlotAxis> axisPositionChanged;
@@ -73,7 +80,7 @@ public:
     const QString objectName() const override;
     const QString axisTitleText() const override;
 
-    RiuPlotAxis plotAxisType() const override;
+    RiuPlotAxis plotAxis() const override;
     bool        useAutoTitle() const;
 
     void setShowDescription( bool enable );
@@ -123,7 +130,7 @@ public:
 
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
-    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count );
+    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count, bool notifyFieldChanged );
     void                enableAutoValueForMajorTickmarkCount( bool enable );
 
     void enableAutoValueForAllFields( bool enable );

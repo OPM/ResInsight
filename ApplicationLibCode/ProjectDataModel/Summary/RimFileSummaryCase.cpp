@@ -92,7 +92,7 @@ QString RimFileSummaryCase::summaryHeaderFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimFileSummaryCase::caseName() const
 {
-    QFileInfo caseFileName( this->summaryHeaderFilename() );
+    QFileInfo caseFileName( summaryHeaderFilename() );
 
     return caseFileName.completeBaseName();
 }
@@ -103,7 +103,7 @@ QString RimFileSummaryCase::caseName() const
 void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger )
 {
     m_fileSummaryReader =
-        RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger );
+        RimFileSummaryCase::findRelatedFilesAndCreateReader( summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger );
 
     m_multiSummaryReader = new RifMultipleSummaryReaders;
     m_multiSummaryReader->addReader( m_fileSummaryReader.p() );

@@ -30,14 +30,6 @@ CAF_CMD_SOURCE_INIT( RicCreateMultiPlotFromSelectionFeature, "RicCreateMultiPlot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateMultiPlotFromSelectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
 {
     QString fileName = RicSummaryPlotTemplateTools::selectPlotTemplatePath();

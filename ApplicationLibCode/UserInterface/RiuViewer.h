@@ -79,7 +79,7 @@ public:
     RiuViewer( const RiuViewer& ) = delete;
 
     void                      clearRimView();
-    void                      setDefaultView();
+    void                      setDefaultView( const cvf::Vec3d& dir, const cvf::Vec3d& up );
     cvf::Vec3d                pointOfInterest();
     void                      setPointOfInterest( cvf::Vec3d poi );
     void                      setOwnerReservoirView( RiuViewerToViewInterface* owner );

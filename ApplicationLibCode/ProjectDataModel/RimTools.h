@@ -34,9 +34,13 @@ namespace caf
 class PdmOptionItemInfo;
 }
 
+class RimGeoMechCase;
+class RimEclipseCase;
 class RimWellPathCollection;
 class RimCase;
 class RimWellPath;
+class RimSurfaceCollection;
+class RimFaultInViewCollection;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,13 +62,20 @@ public:
     static void wellPathWithFormations( std::vector<RimWellPath*>* wellPaths );
     static void caseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void eclipseGridOptionItems( QList<caf::PdmOptionItemInfo>* options, RimEclipseCase* eCase );
     static void geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void geoMechPartOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase );
+    static void geoMechElementSetOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase, int partId );
     static void colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly = false );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options );
 
+    static void faultOptionItems( QList<caf::PdmOptionItemInfo>* options, RimFaultInViewCollection* coll );
+
     static RimWellPathCollection* wellPathCollection();
     static RimWellPath*           firstWellPath();
+
+    static RimSurfaceCollection* surfaceCollection();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 

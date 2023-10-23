@@ -93,7 +93,7 @@ int UiListViewModelPdm::columnCount( const QModelIndex& parent /*= QModelIndex( 
 //--------------------------------------------------------------------------------------------------
 void UiListViewModelPdm::computeColumnCount()
 {
-    if ( m_editorAttribute.fieldNames.size() > 0 )
+    if ( !m_editorAttribute.fieldNames.empty() )
     {
         m_columnCount = m_editorAttribute.fieldNames.size();
     }
@@ -139,7 +139,7 @@ QVariant caf::UiListViewModelPdm::data( const QModelIndex& index, int role /*= Q
                 {
                     size_t fieldIndex = 0;
 
-                    if ( m_editorAttribute.fieldNames.size() > 0 )
+                    if ( !m_editorAttribute.fieldNames.empty() )
                     {
                         QString fieldName = m_editorAttribute.fieldNames[index.column()];
                         for ( size_t i = 0; i < fields.size(); i++ )

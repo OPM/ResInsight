@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddressDefines.h"
+
 #include "RimAbstractPlotCollection.h"
 #include "RimSummaryTable.h"
 
@@ -49,9 +51,9 @@ public:
     void                          removeTable( RimSummaryTable* table );
 
     RimSummaryTable* createDefaultSummaryTable();
-    RimSummaryTable* createSummaryTableFromCategoryAndVectorName( RimSummaryCase*                              summaryCase,
-                                                                  RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                                  const QString&                               vectorName );
+    RimSummaryTable* createSummaryTableFromCategoryAndVectorName( RimSummaryCase*                                  summaryCase,
+                                                                  RifEclipseSummaryAddressDefines::SummaryCategory category,
+                                                                  const QString&                                   vectorName );
 
 private:
     caf::PdmChildArrayField<RimSummaryTable*> m_summaryTables;

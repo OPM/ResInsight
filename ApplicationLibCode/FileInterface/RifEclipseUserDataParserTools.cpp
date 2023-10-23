@@ -87,11 +87,7 @@ bool RifEclipseUserDataParserTools::isLineSkippable( const std::string& line )
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::isAComment( const std::string& word )
 {
-    if ( word.find( "--" ) != std::string::npos )
-    {
-        return true;
-    }
-    return false;
+    return word.find( "--" ) != std::string::npos;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,8 +181,7 @@ bool RifEclipseUserDataParserTools::isANumber( const std::string& line )
     try
     {
         auto value = std::stod( line );
-        if ( std::isinf( value ) || std::isnan( value ) ) return false;
-        return true;
+        return !( std::isinf( value ) || std::isnan( value ) );
     }
     catch ( ... )
     {
@@ -215,12 +210,7 @@ std::vector<std::string> RifEclipseUserDataParserTools::headerReader( std::strin
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::hasTimeUnit( const std::string& word )
 {
-    if ( word == "DAYS" || word == "DAY" || word == "YEARS" || word == "YEAR" || word == "DATE" || word == "DATES" )
-    {
-        return true;
-    }
-
-    return false;
+    return word == "DAYS" || word == "DAY" || word == "YEARS" || word == "YEAR" || word == "DATE" || word == "DATES";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,12 +258,7 @@ bool RifEclipseUserDataParserTools::isValidTableData( size_t columnCount, const 
         }
     }
 
-    if ( columnsWithDate == 1 && doubleValues.size() == columnCount - 1 )
-    {
-        return true;
-    }
-
-    return false;
+    return columnsWithDate == 1 && doubleValues.size() == columnCount - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,7 +318,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream& s
             else
             {
                 std::vector<std::string> words = splitLineAndRemoveComments( firstLine );
-                if ( words.size() > 0 )
+                if ( !words.empty() )
                 {
                     allHeaderRows.push_back( words );
                 }
@@ -364,7 +349,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream& s
 
         if ( rowWords.size() == columnCount )
         {
-            if ( unitNames.size() == 0 )
+            if ( unitNames.empty() )
             {
                 for ( const std::string& word : rowWords )
                 {
@@ -376,7 +361,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream& s
                 }
             }
 
-            if ( scaleFactors.size() == 0 )
+            if ( scaleFactors.empty() )
             {
                 std::vector<double> values;
 
@@ -408,7 +393,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream& s
         std::vector<std::string>              parserErrors;
         std::vector<std::vector<std::string>> tableHeaderText =
             RifEclipseUserDataKeywordTools::buildColumnHeaderText( quantityNames, headerRows, &parserErrors );
-        if ( parserErrors.size() > 0 )
+        if ( !parserErrors.empty() )
         {
             if ( errorText ) errorText->insert( errorText->end(), parserErrors.begin(), parserErrors.end() );
 
@@ -419,7 +404,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream& s
         for ( size_t i = 0; i < tableHeaderText.size(); i++ )
         {
             auto columnText = tableHeaderText[i];
-            if ( columnText.size() == 0 )
+            if ( columnText.empty() )
             {
                 if ( errorText ) errorText->push_back( "Detected column with no content" );
                 continue;
@@ -586,11 +571,11 @@ std::vector<std::vector<std::string>> RifEclipseUserDataParserTools::splitIntoCo
 {
     std::vector<std::vector<std::string>> headerLinesPerColumn;
 
-    if ( headerLines.size() > 0 )
+    if ( !headerLines.empty() )
     {
         std::vector<size_t> columnOffsets = RifEclipseUserDataParserTools::columnIndexForWords( headerLines[0] );
 
-        if ( columnOffsets.size() > 0 )
+        if ( !columnOffsets.empty() )
         {
             headerLinesPerColumn.resize( columnOffsets.size() );
 
@@ -655,7 +640,7 @@ std::vector<Column> RifEclipseUserDataParserTools::columnInfoFromColumnHeaders( 
 
     for ( auto columnLines : columnData )
     {
-        if ( columnLines.size() == 0 ) continue;
+        if ( columnLines.empty() ) continue;
 
         std::string vectorName = columnLines[0];
         std::string unit;
@@ -721,7 +706,7 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps( const
         return tables;
     }
 
-    if ( tables[0].columnInfos().size() == 0 ) return tables;
+    if ( tables[0].columnInfos().empty() ) return tables;
 
     QDateTime firstTableStartTime;
     for ( auto c : tables[0].columnInfos() )
@@ -771,7 +756,7 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps( const
             }
         }
 
-        if ( tables[i].columnInfos().size() > 0 && tables[i].columnInfos()[0].itemCount() == itemsInFirstTable && isDatesEqual )
+        if ( !tables[i].columnInfos().empty() && tables[i].columnInfos()[0].itemCount() == itemsInFirstTable && isDatesEqual )
         {
             for ( auto& c : tables[i].columnInfos() )
             {
@@ -796,7 +781,7 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps( const
 std::string RifEclipseUserDataParserTools::trimString( const std::string& s )
 {
     auto sCopy = s.substr( 0, s.find_last_not_of( ' ' ) + 1 );
-    if ( sCopy.size() > 0 )
+    if ( !sCopy.empty() )
     {
         sCopy = sCopy.substr( sCopy.find_first_not_of( ' ' ) );
     }

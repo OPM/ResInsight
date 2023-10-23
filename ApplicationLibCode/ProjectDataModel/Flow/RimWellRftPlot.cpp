@@ -25,6 +25,8 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
 
+#include "RicImportGridModelFromSummaryCaseFeature.h"
+
 #include "RifReaderEclipseRft.h"
 
 #include "RigCaseCellResultsData.h"
@@ -46,9 +48,9 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogRftCurve.h"
@@ -57,6 +59,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 #include "RimWellPltPlot.h"
+#include "RimWellRftEnsembleCurveSet.h"
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuAbstractOverlayContentFrame.h"
@@ -121,6 +124,10 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetEclipseCase,
+                                "EclipseResultCase",
+                                "Grid Model For MD",
+                                "Grid model used to compute measured depth using well path geometry" );
 
     // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
     // It was developed for regular well log plots and requires some more work for RFT plots.
@@ -133,7 +140,7 @@ RimWellRftPlot::RimWellRftPlot()
 
     setPlotTitleVisible( true );
 
-    this->setAsPlotMdiWindow();
+    setAsPlotMdiWindow();
     m_isOnLoad = true;
 }
 
@@ -202,9 +209,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
             if ( !formationNamesCase )
             {
                 /// Set default case. Todo : Use the first of the selected cases in the plot
-                std::vector<RimCase*> cases;
-                proj->allCases( cases );
-
+                std::vector<RimCase*> cases = proj->allGridCases();
                 if ( !cases.empty() )
                 {
                     formationNamesCase = cases[0];
@@ -263,10 +268,10 @@ void RimWellRftPlot::applyInitialSelections()
         sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
     }
 
-    std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
+    std::vector<RimWellLogLasFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
     if ( !wellLogFiles.empty() )
     {
-        for ( RimWellLogFile* const wellLogFile : wellLogFiles )
+        for ( RimWellLogLasFile* const wellLogFile : wellLogFiles )
         {
             sourcesToSelect.push_back( RifDataSourceForRftPlt( wellLogFile ) );
         }
@@ -494,7 +499,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             plotTrack->addCurve( curve );
 
             auto rftCase = curveDefToAdd.address().eclCase();
-            curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( rftCase ) );
+            curve->setEclipseCase( rftCase );
 
             RifEclipseRftAddress address = RifEclipseRftAddress::createAddress( simWellName,
                                                                                 curveDefToAdd.timeStep(),
@@ -527,18 +532,29 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED ) );
             applyCurveAppearance( curve );
         }
-        else if ( m_showEnsembleCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
+        else if ( ( !curveDefToAdd.address().ensemble() || m_showEnsembleCurves ) &&
+                  curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
         {
             auto curve = new RimWellLogRftCurve();
             plotTrack->addCurve( curve );
-            auto rftCase = curveDefToAdd.address().summaryCase();
-            curve->setSummaryCase( rftCase );
+            auto summaryCase = curveDefToAdd.address().summaryCase();
+            curve->setSummaryCase( summaryCase );
             curve->setEnsemble( curveDefToAdd.address().ensemble() );
-            curve->setObservedFmuRftData( this->findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
+            curve->setObservedFmuRftData( findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
             RifEclipseRftAddress address = RifEclipseRftAddress::createAddress( m_wellPathNameOrSimWellName,
                                                                                 curveDefToAdd.timeStep(),
                                                                                 RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
+
+            // A summary case address can optionally contain an Eclipse case used to compute the TVD/MD for a well path
+            // https://github.com/OPM/ResInsight/issues/10501
+            auto eclipeCase = curveDefToAdd.address().eclCase();
+            if ( curveDefToAdd.address().ensemble() )
+            {
+                auto curveSet = findEnsembleCurveSet( curveDefToAdd.address().ensemble() );
+                if ( curveSet ) eclipeCase = curveSet->eclipseCase();
+            }
+            curve->setEclipseCase( eclipeCase );
 
             double zValue = 1.0;
             if ( !curveDefToAdd.address().ensemble() )
@@ -558,9 +574,11 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
         else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
         {
-            RimSummaryCaseCollection*      ensemble = curveDefToAdd.address().ensemble();
+            RimSummaryCaseCollection* ensemble = curveDefToAdd.address().ensemble();
+            auto                      curveSet = findEnsembleCurveSet( ensemble );
+
             std::set<RifEclipseRftAddress> rftAddresses =
-                ensemble->rftStatisticsReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() );
+                curveSet->statisticsEclipseRftReader()->eclipseRftAddresses( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() );
             for ( const auto& rftAddress : rftAddresses )
             {
                 if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 )
@@ -577,8 +595,9 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     auto curve = new RimWellLogRftCurve();
                     plotTrack->addCurve( curve );
                     curve->setEnsemble( ensemble );
+                    curve->setEclipseCase( curveSet->eclipseCase() );
                     curve->setRftAddress( rftAddress );
-                    curve->setObservedFmuRftData( this->findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
+                    curve->setObservedFmuRftData( findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
                     curve->setZOrder( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE ) );
                     applyCurveAppearance( curve );
                     auto                              symbol   = statisticsCurveSymbolFromAddress( rftAddress );
@@ -592,6 +611,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     QString label  = uiText.replace( ": Pressure", "" );
                     curve->setSymbolLabel( label );
                     curve->setLineThickness( 3 );
+                    curve->setShowInLegend( !m_showEnsembleCurves );
                 }
             }
         }
@@ -635,12 +655,12 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
         else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
-            RimWellLogFile* const wellLogFile = curveDefToAdd.address().wellLogFile();
-            RimWellPath* const    wellPath    = RimWellPlotTools::wellPathFromWellLogFile( wellLogFile );
+            RimWellLogLasFile* const wellLogFile = curveDefToAdd.address().wellLogFile();
+            RimWellPath* const       wellPath    = RimWellPlotTools::wellPathFromWellLogFile( wellLogFile );
             if ( wellLogFile != nullptr )
             {
                 RimWellLogFileChannel* pressureChannel = RimWellPlotTools::getPressureChannelFromWellFile( wellLogFile );
-                auto                   curve           = new RimWellLogFileCurve();
+                auto                   curve           = new RimWellLogLasFileCurve();
 
                 plotTrack->addCurve( curve );
                 curve->setWellPath( wellPath );
@@ -675,7 +695,7 @@ std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSourcesExpanded() co
     {
         if ( addr.sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
-            for ( RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ) )
+            for ( RimWellLogLasFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ) )
             {
                 sources.push_back( RifDataSourceForRftPlt( wellLogFile ) );
             }
@@ -788,6 +808,13 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
 
         options = RiaSimWellBranchTools::valueOptionsForBranchIndexField( simulationWellBranches );
     }
+    else if ( fieldNeedingOptions == &m_ensembleCurveSetEclipseCase )
+    {
+        RimTools::caseOptionItems( &options );
+
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
+
     return options;
 }
 
@@ -842,8 +869,9 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
         {
             if ( summaryCase->rftReader() && summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
             {
-                auto parentEnsemble = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
-                auto addr           = RifDataSourceForRftPlt( summaryCase, parentEnsemble );
+                auto eclipeGridModel = RicImportGridModelFromSummaryCaseFeature::gridModelFromSummaryCase( summaryCase );
+                auto parentEnsemble  = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+                auto addr            = RifDataSourceForRftPlt( summaryCase, parentEnsemble, eclipeGridModel );
 
                 auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
                 item.setLevel( 1 );
@@ -953,10 +981,21 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     {
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_showStatisticsCurves || changedField == &m_showEnsembleCurves || changedField == &m_showErrorInObservedData )
     {
+        updateFormationsOnPlot();
+        syncCurvesFromUiSelection();
+    }
+    else if ( changedField == &m_ensembleCurveSetEclipseCase )
+    {
+        for ( RimWellRftEnsembleCurveSet* curveSet : m_ensembleCurveSets() )
+        {
+            curveSet->setEclipseCase( m_ensembleCurveSetEclipseCase );
+        }
+
+        createEnsembleCurveSets();
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
     }
@@ -1007,6 +1046,11 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword( "Sources", "Sources" );
     sourcesGroup->add( &m_selectedSources );
+
+    if ( !m_ensembleCurveSets.empty() )
+    {
+        uiOrdering.add( &m_ensembleCurveSetEclipseCase );
+    }
 
     caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroupWithKeyword( "Time Steps", "TimeSteps" );
     timeStepsGroup->add( &m_selectedTimeSteps );

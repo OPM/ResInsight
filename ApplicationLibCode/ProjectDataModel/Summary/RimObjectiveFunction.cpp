@@ -123,11 +123,9 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
                     const std::vector<time_t>& allTimeSteps           = readerInterface->timeSteps( vectorSummaryAddressDiff );
                     std::vector<size_t>        timeStepsForEvaluation = timeStepIndicesForEvaluation( allTimeSteps, timeConfig );
 
-                    std::vector<double> summaryDiffValues;
-                    std::vector<double> summaryHistoryValues;
-
-                    if ( readerInterface->values( vectorSummaryAddressDiff, &summaryDiffValues ) &&
-                         readerInterface->values( vectorSummaryAddressHistory, &summaryHistoryValues ) )
+                    auto [summaryDiffOk, summaryDiffValues]       = readerInterface->values( vectorSummaryAddressDiff );
+                    auto [summaryHistoryOk, summaryHistoryValues] = readerInterface->values( vectorSummaryAddressHistory );
+                    if ( summaryDiffOk && summaryHistoryOk )
                     {
                         const double functionValue = computeFunctionValue( summaryDiffValues, summaryHistoryValues, timeStepsForEvaluation );
 
@@ -155,7 +153,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
                 }
             }
 
-            if ( m_normalizeByNumberOfVectors && vectorSummaryAddresses.size() > 0 )
+            if ( m_normalizeByNumberOfVectors && !vectorSummaryAddresses.empty() )
             {
                 aggregatedObjectiveFunctionValue /= vectorSummaryAddresses.size();
             }
@@ -211,7 +209,7 @@ QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 bool RimObjectiveFunction::operator<( const RimObjectiveFunction& other ) const
 {
-    return this->shortName() < other.shortName();
+    return shortName() < other.shortName();
 }
 
 //--------------------------------------------------------------------------------------------------

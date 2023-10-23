@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicCreateUserDefinedPolylinesAnnotationFeature, "RicCreateU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateUserDefinedPolylinesAnnotationFeature::isCommandEnabled()
+bool RicCreateUserDefinedPolylinesAnnotationFeature::isCommandEnabled() const
 {
     auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
     auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();

@@ -20,7 +20,7 @@
 #include "WellLogCommands/RicWellLogsImportFileFeature.h"
 
 #include "RiaApplication.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -100,12 +100,12 @@ caf::PdmScriptResponse RicfImportWellLogFiles::execute()
 
     if ( !wellLogFilePaths.empty() )
     {
-        std::vector<RimWellLogFile*> importedWellLogFiles =
+        std::vector<RimWellLogLasFile*> importedWellLogFiles =
             RicWellLogsImportFileFeature::importWellLogFiles( wellLogFilePaths, &warningMessages );
         if ( !importedWellLogFiles.empty() )
         {
             RicfImportWellLogFilesResult* result = new RicfImportWellLogFilesResult;
-            for ( RimWellLogFile* wellLogFile : importedWellLogFiles )
+            for ( RimWellLogLasFile* wellLogFile : importedWellLogFiles )
             {
                 result->wellPathNames.v().push_back( wellLogFile->wellName() );
             }

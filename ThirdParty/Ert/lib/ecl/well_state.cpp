@@ -390,7 +390,9 @@ well_type_enum well_state_translate_ecl_type_int(int int_type) {
     type = ECL_WELL_WATER_INJECTOR;
     break;
   default:
-    util_abort("%s: Invalid type value %d\n",__func__ , int_type);
+      // See https://github.com/OPM/ResInsight/issues/10493
+      // util_abort("%s: Invalid type value %d\n",__func__ , int_type);
+      break;
   }
   return type;
 }

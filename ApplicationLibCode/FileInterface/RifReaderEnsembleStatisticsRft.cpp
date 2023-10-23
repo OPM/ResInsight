@@ -18,20 +18,25 @@
 
 #include "RifReaderEnsembleStatisticsRft.h"
 
-#include "RiaCurveMerger.h"
-#include "RiaWeightedMeanCalculator.h"
+#include "RiaExtractionTools.h"
+
+#include "RigEclipseWellLogExtractor.h"
 #include "RigStatisticsMath.h"
+#include "RigWellPath.h"
 
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimTools.h"
 
 #include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEnsembleStatisticsRft::RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection )
+RifReaderEnsembleStatisticsRft::RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection,
+                                                                RimEclipseCase*                 eclipseCase )
     : m_summaryCaseCollection( summaryCaseCollection )
+    , m_eclipseCase( eclipseCase )
 {
 }
 
@@ -40,6 +45,8 @@ RifReaderEnsembleStatisticsRft::RifReaderEnsembleStatisticsRft( const RimSummary
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderEnsembleStatisticsRft::eclipseRftAddresses()
 {
+    if ( !m_summaryCaseCollection ) return {};
+
     std::set<RifEclipseRftAddress> allAddresses;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
     {
@@ -78,7 +85,10 @@ std::set<RifEclipseRftAddress> RifReaderEnsembleStatisticsRft::eclipseRftAddress
 //--------------------------------------------------------------------------------------------------
 void RifReaderEnsembleStatisticsRft::values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values )
 {
-    CAF_ASSERT( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::TVD ||
+    if ( !m_summaryCaseCollection ) return;
+
+    CAF_ASSERT( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::MD ||
+                rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::TVD ||
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN ||
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10 ||
                 rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 ||
@@ -88,7 +98,7 @@ void RifReaderEnsembleStatisticsRft::values( const RifEclipseRftAddress& rftAddr
     auto it = m_cachedValues.find( rftAddress );
     if ( it == m_cachedValues.end() )
     {
-        calculateStatistics( rftAddress );
+        calculateStatistics( rftAddress.wellName(), rftAddress.timeStep() );
     }
     *values = m_cachedValues[rftAddress];
 }
@@ -98,6 +108,8 @@ void RifReaderEnsembleStatisticsRft::values( const RifEclipseRftAddress& rftAddr
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QString& wellName )
 {
+    if ( !m_summaryCaseCollection ) return {};
+
     std::set<QDateTime> allTimeSteps;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
     {
@@ -116,6 +128,8 @@ std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QS
 std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QString& wellName,
                                                                         const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
+    if ( !m_summaryCaseCollection ) return {};
+
     std::set<QDateTime> allTimeSteps;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
     {
@@ -135,6 +149,8 @@ std::set<QDateTime>
     RifReaderEnsembleStatisticsRft::availableTimeSteps( const QString&                                               wellName,
                                                         const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
+    if ( !m_summaryCaseCollection ) return {};
+
     std::set<QDateTime> allTimeSteps;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
     {
@@ -152,6 +168,8 @@ std::set<QDateTime>
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEnsembleStatisticsRft::availableWellLogChannels( const QString& wellName )
 {
+    if ( !m_summaryCaseCollection ) return {};
+
     std::set<RifEclipseRftAddress::RftWellLogChannelType> allWellLogChannels;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
     {
@@ -170,6 +188,8 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEnsembleStatistic
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RifReaderEnsembleStatisticsRft::wellNames()
 {
+    if ( !m_summaryCaseCollection ) return {};
+
     std::set<QString> allWellNames;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
     {
@@ -185,47 +205,97 @@ std::set<QString> RifReaderEnsembleStatisticsRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAddress& rftAddress )
+void RifReaderEnsembleStatisticsRft::calculateStatistics( const QString& wellName, const QDateTime& timeStep )
 {
-    const QString&       wellName = rftAddress.wellName();
-    const QDateTime&     timeStep = rftAddress.timeStep();
-    RifEclipseRftAddress depthAddress =
-        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
-    RifEclipseRftAddress pressAddress =
-        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+    if ( !m_summaryCaseCollection ) return;
 
-    RifEclipseRftAddress p10Address =
-        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10 );
-    RifEclipseRftAddress p50Address =
-        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 );
-    RifEclipseRftAddress p90Address =
-        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90 );
-    RifEclipseRftAddress meanAddress =
-        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN );
+    using ChannelType                 = RifEclipseRftAddress::RftWellLogChannelType;
+    RifEclipseRftAddress pressAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE );
+    RifEclipseRftAddress tvdAddress   = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
 
-    RiaCurveMerger<double> curveMerger;
-
-    RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
-
-    for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
+    RigEclipseWellLogExtractor* extractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellName, m_eclipseCase );
+    if ( extractor )
     {
-        RifReaderRftInterface* reader = summaryCase->rftReader();
-        if ( reader )
+        // Create a well log extractor if a well path and an Eclipse case is defined
+        // Use the extractor to compute measured depth for RFT cells
+        // The TVD values is extracted from the first summary case
+
+        RifEclipseRftAddress              mdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::MD );
+        RiaCurveMerger<double>            curveMerger;
+        RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
+
+        for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
         {
-            std::vector<double> depths;
+            auto reader = summaryCase->rftReader();
+            if ( !reader ) continue;
+
             std::vector<double> pressures;
-            reader->values( depthAddress, &depths );
             reader->values( pressAddress, &pressures );
-            if ( !depths.empty() && !pressures.empty() )
+
+            std::vector<double> measuredDepths = reader->computeMeasuredDepth( wellName, timeStep, extractor );
+
+            if ( !measuredDepths.empty() && !pressures.empty() )
             {
-                dataSetSizeCalc.addValueAndWeight( depths.size(), 1.0 );
-                curveMerger.addCurveData( depths, pressures );
+                dataSetSizeCalc.addValueAndWeight( measuredDepths.size(), 1.0 );
+                curveMerger.addCurveData( measuredDepths, pressures );
             }
         }
-    }
-    curveMerger.computeInterpolatedValues( false );
 
-    clearData( wellName, timeStep );
+        extractStatisticsFromCurveMerger( wellName, timeStep, mdAddress, curveMerger, dataSetSizeCalc, extractor->wellPathGeometry() );
+    }
+    else
+    {
+        // Compute statistics based on TVD depths. No measured depth can be estimated.
+        // This concept works well for vertical wells, but does not work for horizontal wells.
+
+        RiaCurveMerger<double>            curveMerger;
+        RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
+        RifEclipseRftAddress              tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
+
+        for ( RimSummaryCase* summaryCase : m_summaryCaseCollection->allSummaryCases() )
+        {
+            auto reader = summaryCase->rftReader();
+            if ( !reader ) continue;
+
+            std::vector<double> pressures;
+            reader->values( pressAddress, &pressures );
+
+            std::vector<double> tvdDepths;
+            reader->values( tvdAddress, &tvdDepths );
+
+            if ( !tvdDepths.empty() && !pressures.empty() )
+            {
+                dataSetSizeCalc.addValueAndWeight( tvdDepths.size(), 1.0 );
+                curveMerger.addCurveData( tvdDepths, pressures );
+            }
+        }
+
+        extractStatisticsFromCurveMerger( wellName, timeStep, tvdAddress, curveMerger, dataSetSizeCalc, nullptr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Compute statistics for values, either based on measured depth or TVD
+//--------------------------------------------------------------------------------------------------
+void RifReaderEnsembleStatisticsRft::extractStatisticsFromCurveMerger( const QString&                     wellName,
+                                                                       const QDateTime&                   timeStep,
+                                                                       RifEclipseRftAddress               depthAddress,
+                                                                       RiaCurveMerger<double>&            curveMerger,
+                                                                       RiaWeightedMeanCalculator<size_t>& dataSetSizeCalc,
+                                                                       const RigWellPath*                 wellPathGeometry )
+{
+    using ChannelType = RifEclipseRftAddress::RftWellLogChannelType;
+
+    CAF_ASSERT( depthAddress.wellLogChannel() == ChannelType::MD || depthAddress.wellLogChannel() == ChannelType::TVD );
+
+    auto p10Address  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P10 );
+    auto p50Address  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P50 );
+    auto p90Address  = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_P90 );
+    auto meanAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::PRESSURE_MEAN );
+
+    clearCache( wellName, timeStep );
+
+    curveMerger.computeInterpolatedValues( false );
 
     const std::vector<double>& allDepths = curveMerger.allXValues();
     if ( !allDepths.empty() )
@@ -248,6 +318,14 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
 
             m_cachedValues[depthAddress].push_back( allDepths[depthIdx] );
 
+            if ( wellPathGeometry && ( depthAddress.wellLogChannel() == ChannelType::MD ) )
+            {
+                // Compute corresponding TVD for given MD
+                auto tvdAddress = RifEclipseRftAddress::createAddress( wellName, timeStep, ChannelType::TVD );
+                auto tvdDepth   = wellPathGeometry->interpolatedPointAlongWellPath( allDepths[depthIdx] );
+                m_cachedValues[tvdAddress].push_back( -tvdDepth.z() );
+            }
+
             if ( p10 != HUGE_VAL ) m_cachedValues[p10Address].push_back( p10 );
             if ( p50 != HUGE_VAL ) m_cachedValues[p50Address].push_back( p50 );
             if ( p90 != HUGE_VAL ) m_cachedValues[p90Address].push_back( p90 );
@@ -259,7 +337,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEnsembleStatisticsRft::clearData( const QString& wellName, const QDateTime& timeStep )
+void RifReaderEnsembleStatisticsRft::clearCache( const QString& wellName, const QDateTime& timeStep )
 {
     for ( auto it = m_cachedValues.begin(); it != m_cachedValues.end(); )
     {

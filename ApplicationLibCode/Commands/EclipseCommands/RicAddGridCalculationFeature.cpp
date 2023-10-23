@@ -30,14 +30,6 @@ CAF_CMD_SOURCE_INIT( RicAddGridCalculationFeature, "RicAddGridCalculationFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAddGridCalculationFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicAddGridCalculationFeature::onActionTriggered( bool isChecked )
 {
     auto address = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultAddress>();

@@ -199,7 +199,7 @@ QImage RimTofAccumulatedPhaseFractionsPlot::snapshotWindowContent()
 void RimTofAccumulatedPhaseFractionsPlot::setDescription( const QString& description )
 {
     m_userName = description;
-    this->updateMdiWindowTitle();
+    updateMdiWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------

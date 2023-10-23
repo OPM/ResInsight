@@ -57,7 +57,7 @@ public:
     void loadData();
     void clearGeometry();
 
-    void appendPartsToModel( cvf::ModelBasicList* surfaceVizModel, cvf::Transform* scaleTransform );
+    void appendPartsToModel( cvf::ModelBasicList* surfaceVizModel, cvf::Transform* scaleTransform, bool onlyNativeParts = false );
     void updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex );
     void applySingleColorEffect();
 

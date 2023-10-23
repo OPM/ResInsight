@@ -35,5 +35,5 @@ public:
     RifRevealCsvSectionSummaryReader();
     ~RifRevealCsvSectionSummaryReader() override;
 
-    bool parse( const QString& fileName, RifEclipseSummaryAddress::SummaryVarCategory defaultCategory, QString* errorText = nullptr );
+    bool parse( const QString& fileName, RifEclipseSummaryAddressDefines::SummaryCategory defaultCategory, QString* errorText = nullptr );
 };

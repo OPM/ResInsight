@@ -65,10 +65,10 @@ void RimCsvUserData::createSummaryReaderInterface()
 {
     m_multiSummaryReader = nullptr;
 
-    if ( caf::Utils::fileExists( this->summaryHeaderFilename() ) )
+    if ( caf::Utils::fileExists( summaryHeaderFilename() ) )
     {
         RifCsvUserData* csvUserData = new RifCsvUserData();
-        if ( csvUserData->parse( this->summaryHeaderFilename(), m_parseOptions->parseOptions(), &m_errorText ) )
+        if ( csvUserData->parse( summaryHeaderFilename(), m_parseOptions->parseOptions(), &m_errorText ) )
         {
             m_summaryReader = csvUserData;
 

@@ -81,7 +81,7 @@ void RicHoloLensAutoExportToSharingServerFeature::triggerUpdateSession()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensAutoExportToSharingServerFeature::isCommandEnabled()
+bool RicHoloLensAutoExportToSharingServerFeature::isCommandEnabled() const
 {
     return isSessionValid();
 }
@@ -126,7 +126,7 @@ void RicHoloLensAutoExportToSharingServerFeature::setupActionLook( QAction* acti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensAutoExportToSharingServerFeature::isCommandChecked()
+bool RicHoloLensAutoExportToSharingServerFeature::isCommandChecked() const
 {
     return isActive();
 }
@@ -137,12 +137,5 @@ bool RicHoloLensAutoExportToSharingServerFeature::isCommandChecked()
 bool RicHoloLensAutoExportToSharingServerFeature::isSessionValid() const
 {
     RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
-    if ( session && session->isSessionValid() )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return session && session->isSessionValid();
 }

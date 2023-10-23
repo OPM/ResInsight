@@ -42,6 +42,14 @@ RiaPreferencesGeoMech::RiaPreferencesGeoMech()
     m_geomechWIACommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechWIACommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRMDefaultXML, "geomechFRMDefaultXML", "Default Parameter XML File" );
+    m_geomechFRMDefaultXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_geomechFRMDefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRMCommand, "geomechFRMCommand", "Command to run" );
+    m_geomechFRMCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_geomechFRMCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     CAF_PDM_InitField( &m_keepTemporaryFiles, "keepTemporaryFile", false, "Keep temporary parameter files (for debugging)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_keepTemporaryFiles );
 
@@ -65,17 +73,14 @@ void RiaPreferencesGeoMech::appendItems( caf::PdmUiOrdering& uiOrdering ) const
     caf::PdmUiGroup* wellIAGroup = uiOrdering.addNewGroup( "Well Integrity Analysis" );
     wellIAGroup->add( &m_geomechWIACommand );
     wellIAGroup->add( &m_geomechWIADefaultXML );
-    wellIAGroup->add( &m_waitForInputFileEdit );
+
+    caf::PdmUiGroup* faultRMGroup = uiOrdering.addNewGroup( "Fault Reactivation Modeling" );
+    faultRMGroup->add( &m_geomechFRMCommand );
+    faultRMGroup->add( &m_geomechFRMDefaultXML );
 
     caf::PdmUiGroup* commonGroup = uiOrdering.addNewGroup( "Common Settings" );
     commonGroup->add( &m_keepTemporaryFiles );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPreferencesGeoMech::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
+    commonGroup->add( &m_waitForInputFileEdit );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,6 +102,22 @@ QString RiaPreferencesGeoMech::geomechWIADefaultXML() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferencesGeoMech::geomechFRMCommand() const
+{
+    return m_geomechFRMCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesGeoMech::geomechFRMDefaultXML() const
+{
+    return m_geomechFRMDefaultXML;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaPreferencesGeoMech::keepTemporaryFiles() const
 {
     return m_keepTemporaryFiles;
@@ -105,7 +126,7 @@ bool RiaPreferencesGeoMech::keepTemporaryFiles() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferencesGeoMech::waitBeforeRunWIA() const
+bool RiaPreferencesGeoMech::waitBeforeRun() const
 {
     return m_waitForInputFileEdit;
 }
@@ -118,6 +139,17 @@ bool RiaPreferencesGeoMech::validateWIASettings() const
     QStringList files;
     files << geomechWIACommand();
     files << geomechWIADefaultXML();
+
+    return filesExists( files );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesGeoMech::validateFRMSettings() const
+{
+    QStringList files;
+    files << geomechFRMCommand();
 
     return filesExists( files );
 }

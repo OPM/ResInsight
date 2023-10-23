@@ -113,7 +113,7 @@ void RigEclipseMultiPropertyStatCalc::uniqueValues( size_t timeStepIndex, std::s
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseMultiPropertyStatCalc::timeStepCount()
 {
-    if ( m_nativeStatisticsCalculators.size() > 0 )
+    if ( !m_nativeStatisticsCalculators.empty() )
     {
         return m_nativeStatisticsCalculators[0]->timeStepCount();
     }
@@ -129,6 +129,6 @@ void RigEclipseMultiPropertyStatCalc::addNativeStatisticsCalculator( RigCaseCell
 {
     if ( eclipseResultAddress.isValid() )
     {
-        this->addStatisticsCalculator( new RigEclipseNativeStatCalc( cellResultsData, eclipseResultAddress ) );
+        addStatisticsCalculator( new RigEclipseNativeStatCalc( cellResultsData, eclipseResultAddress ) );
     }
 }

@@ -91,7 +91,7 @@ std::vector<time_t> RifOpmHdf5Summary::timeSteps( const RifEclipseSummaryAddress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmHdf5Summary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifOpmHdf5Summary::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( m_eSmry && m_hdf5Reader )
     {
@@ -103,14 +103,13 @@ bool RifOpmHdf5Summary::values( const RifEclipseSummaryAddress& resultAddress, s
 
             if ( smspecIndex != std::numeric_limits<size_t>::max() )
             {
-                *values = m_hdf5Reader->values( vectorName, static_cast<int>( smspecIndex ) );
-
-                return true;
+                std::vector<double> values = m_hdf5Reader->values( vectorName, static_cast<int>( smspecIndex ) );
+                return { true, values };
             }
         }
     }
 
-    return false;
+    return { false, {} };
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -118,12 +118,12 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportToLasFileFeature::isCommandEnabled()
+bool RicExportToLasFileFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
 
-    return RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves().size() > 0;
+    return !RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,12 +131,12 @@ bool RicExportToLasFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
     std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
-    if ( curves.size() == 0 ) return;
+    if ( curves.empty() ) return;
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_LOGS_DIR" );
 

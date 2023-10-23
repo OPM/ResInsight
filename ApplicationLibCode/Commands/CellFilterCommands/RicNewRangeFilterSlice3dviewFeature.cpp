@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicNewRangeFilterSlice3dviewFeature, "RicNewRangeFilterSlic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRangeFilterSlice3dviewFeature::isCommandEnabled()
+bool RicNewRangeFilterSlice3dviewFeature::isCommandEnabled() const
 {
     RimGridView* view = RiaApplication::instance()->activeGridView();
     if ( !view ) return false;

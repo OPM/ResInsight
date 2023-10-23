@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryMultiPlotFeature, "RicPasteSummaryMultiPlotF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryMultiPlotFeature::isCommandEnabled()
+bool RicPasteSummaryMultiPlotFeature::isCommandEnabled() const
 {
     auto multiPlots = caf::selectedObjectsByTypeStrict<RimSummaryMultiPlot*>();
     return !multiPlots.empty();

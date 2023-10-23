@@ -21,7 +21,7 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bo
     bool setUiValueDirectly = false;
 
     // Check whether we are handling selections of values or actual values
-    if ( m_optionEntryCache.size() )
+    if ( !m_optionEntryCache.empty() )
     {
         // This has an option based GUI, the uiValue is only indexes into the m_optionEntryCache
         if ( uiValue.type() == QVariant::UInt )
@@ -125,7 +125,7 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bo
 template <typename FieldType>
 QVariant PdmFieldUiCap<FieldType>::uiValue() const
 {
-    if ( m_optionEntryCache.size() )
+    if ( !m_optionEntryCache.empty() )
     {
         QVariant                  uiBasedQVariant = toUiBasedQVariant();
         std::vector<unsigned int> indexesToFoundOptions;
@@ -190,12 +190,12 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
 
     // If we got no options, use the options defined by the type. Normally only caf::AppEnum type
 
-    if ( !m_optionEntryCache.size() )
+    if ( m_optionEntryCache.empty() )
     {
         m_optionEntryCache = PdmUiFieldSpecialization<typename FieldType::FieldDataType>::valueOptions( m_field->value() );
     }
 
-    if ( m_optionEntryCache.size() && isAutoAddingOptionFromValue() )
+    if ( !m_optionEntryCache.empty() && isAutoAddingOptionFromValue() )
     {
         // Make sure the options contain the field values, event though they not necessarily
         // is supplied as possible options by the application. This is a convenience making sure

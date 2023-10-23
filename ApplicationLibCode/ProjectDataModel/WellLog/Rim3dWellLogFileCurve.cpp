@@ -18,11 +18,11 @@
 
 #include "Rim3dWellLogFileCurve.h"
 
-#include "RigWellLogFile.h"
+#include "RigWellLogLasFile.h"
 
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurveNameConfig.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurveNameConfig.h"
 #include "RimWellPath.h"
 
 #include <QFileInfo>
@@ -46,7 +46,7 @@ Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
     CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
-    m_nameConfig = new RimWellLogFileCurveNameConfig();
+    m_nameConfig = new RimWellLogLasFileCurveNameConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ void Rim3dWellLogFileCurve::curveValuesAndMds( std::vector<double>* values, std:
 
     if ( m_wellLogFile )
     {
-        RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
+        RigWellLogLasFile* wellLogFile = m_wellLogFile->wellLogFileData();
         if ( wellLogFile )
         {
             *values              = wellLogFile->values( m_wellLogChannelName );
@@ -135,7 +135,7 @@ QString Rim3dWellLogFileCurve::createAutoName() const
             channelNameAvailable = true;
         }
 
-        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
+        RigWellLogLasFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFileData() : nullptr;
 
         if ( wellLogFile )
         {
@@ -181,8 +181,8 @@ void Rim3dWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 {
     if ( changedField == &m_wellLogFile || changedField == &m_wellLogChannelName )
     {
-        this->resetMinMaxValues();
-        this->updateConnectedEditors();
+        resetMinMaxValues();
+        updateConnectedEditors();
     }
     Rim3dWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 }
@@ -211,7 +211,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions( cons
             }
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
         }
@@ -223,7 +223,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions( cons
 
         if ( wellPath && !wellPath->wellLogFiles().empty() )
         {
-            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
+            for ( RimWellLogLasFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 QFileInfo fileInfo( wellLogFile->fileName() );
                 options.push_back( caf::PdmOptionItemInfo( fileInfo.baseName(), wellLogFile ) );

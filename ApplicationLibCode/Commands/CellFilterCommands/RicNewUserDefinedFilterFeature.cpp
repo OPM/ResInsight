@@ -33,14 +33,6 @@ CAF_CMD_SOURCE_INIT( RicNewUserDefinedFilterFeature, "RicNewUserDefinedFilterFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewUserDefinedFilterFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
 {
     // Find the selected Cell Filter Collection
@@ -64,5 +56,5 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
 void RicNewUserDefinedFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_UserDefined.png" ) );
-    actionToSetup->setText( "New User Defined Filter" );
+    actionToSetup->setText( "New User Defined IJK Filter" );
 }

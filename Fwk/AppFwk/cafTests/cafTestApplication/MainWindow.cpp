@@ -41,6 +41,7 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafPdmUiTreeView.h"
+#include "cafPdmUiValueRangeEditor.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -956,6 +957,9 @@ public:
         CAF_PDM_InitField( &m_filePath, "FilePath", QString( "" ), "Filename", "", "", "" );
         CAF_PDM_InitField( &m_longText, "LongText", QString( "Test text" ), "Long Text", "", "", "" );
 
+        CAF_PDM_InitField( &m_minMaxSlider, "MinMaxSlider", std::make_pair( 2.5, 10.1 ), "Min max slider", "", "", "" );
+        m_minMaxSlider.uiCapability()->setUiEditorTypeName( caf::PdmUiValueRangeEditor::uiEditorTypeName() );
+
         CAF_PDM_InitFieldNoDefault( &m_multiSelectList, "MultiSelect", "Selection List", "", "List", "This is a multi selection list" );
         CAF_PDM_InitFieldNoDefault( &m_objectList, "ObjectList", "Objects list Field", "", "List", "This is a list of PdmObjects" );
         CAF_PDM_InitFieldNoDefault( &m_objectListOfSameType,
@@ -983,6 +987,8 @@ public:
     {
         uiOrdering.add( &m_applyAutoOnChildObjectFields );
         uiOrdering.add( &m_updateAutoValues );
+
+        uiOrdering.add( &m_minMaxSlider );
 
         uiOrdering.add( &m_objectListOfSameType );
         uiOrdering.add( &m_ptrField );
@@ -1040,6 +1046,8 @@ public:
     caf::PdmField<QString> m_textField;
 
     caf::PdmField<QString> m_filePath;
+
+    caf::PdmField<std::pair<double, double>> m_minMaxSlider;
 
     caf::PdmField<QString>              m_longText;
     caf::PdmField<std::vector<QString>> m_multiSelectList;

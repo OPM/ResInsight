@@ -73,6 +73,5 @@ private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
     QwtPlotMarker*                         m_selectedPointMarker;
 
-    QPointer<RiuQwtPlotZoomer> m_zoomerLeft;
-    QPointer<RiuQwtPlotZoomer> m_zoomerRight;
+    QPointer<RiuQwtPlotZoomer> m_plotZoomer;
 };

@@ -49,14 +49,6 @@ CAF_CMD_SOURCE_INIT( RicNewMultiPhaseRftSegmentPlotFeature, "RicNewMultiPhaseRft
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewMultiPhaseRftSegmentPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
 {
     auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase() );

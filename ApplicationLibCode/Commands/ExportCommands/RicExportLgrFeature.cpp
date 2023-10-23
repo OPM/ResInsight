@@ -292,8 +292,7 @@ RicExportLgrUi*
 
     if ( !featureUi->caseToApply() && !defaultCase )
     {
-        std::vector<RimCase*> cases;
-        app->project()->allCases( cases );
+        std::vector<RimCase*> cases = app->project()->allGridCases();
         for ( auto c : cases )
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
@@ -760,7 +759,7 @@ std::vector<RigCompletionDataGridCell> RicExportLgrFeature::allIntersectedCells(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportLgrFeature::isCommandEnabled()
+bool RicExportLgrFeature::isCommandEnabled() const
 {
     std::vector<RimWellPathCompletions*> completions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
     std::vector<RimWellPath*>            wellPaths   = caf::selectedObjectsByTypeStrict<RimWellPath*>();

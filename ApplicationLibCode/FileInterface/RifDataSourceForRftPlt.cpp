@@ -18,7 +18,6 @@
 
 #include "RifDataSourceForRftPlt.h"
 
-#include "RifReaderEclipseRft.h"
 #include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
@@ -27,7 +26,7 @@
 #include "RimPressureDepthData.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 
 #include "cafAppEnum.h"
 #include "cvfAssert.h"
@@ -75,7 +74,7 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimWellLogFile* wellLogFile )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimWellLogLasFile* wellLogFile )
 {
     m_sourceType  = SourceType::OBSERVED_LAS_FILE;
     m_wellLogFile = wellLogFile;
@@ -93,11 +92,12 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble, RimEclipseCase* eclipseCase )
 {
     m_sourceType  = SourceType::SUMMARY_RFT;
     m_summaryCase = summaryCase;
     m_ensemble    = ensemble;
+    m_eclCase     = eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,37 +232,6 @@ auto RifDataSourceForRftPlt::operator<=>( const RifDataSourceForRftPlt& addr2 ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderRftInterface* RifDataSourceForRftPlt::rftReader() const
-{
-    if ( m_sourceType == SourceType::GRID_MODEL_CELL_DATA || m_sourceType == SourceType::RFT_SIM_WELL_DATA )
-    {
-        // TODO: Consider changing to RimEclipseResultCase to avoid casting
-        auto eclResCase = dynamic_cast<RimEclipseResultCase*>( eclCase() );
-
-        if ( eclResCase ) return eclResCase->rftReader();
-    }
-    else if ( m_sourceType == SourceType::SUMMARY_RFT )
-    {
-        if ( m_summaryCase ) return m_summaryCase->rftReader();
-    }
-    else if ( m_sourceType == SourceType::ENSEMBLE_RFT )
-    {
-        if ( m_ensemble ) return m_ensemble->rftStatisticsReader();
-    }
-    else if ( m_sourceType == SourceType::OBSERVED_FMU_RFT )
-    {
-        if ( m_observedFmuRftData ) return m_observedFmuRftData->rftReader();
-    }
-    else if ( m_sourceType == SourceType::OBSERVED_PRESSURE_DEPTH )
-    {
-        if ( m_pressureDepthData ) return m_pressureDepthData->rftReader();
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection* RifDataSourceForRftPlt::ensemble() const
 {
     return m_ensemble;
@@ -279,7 +248,7 @@ RimSummaryCase* RifDataSourceForRftPlt::summaryCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RifDataSourceForRftPlt::wellLogFile() const
+RimWellLogLasFile* RifDataSourceForRftPlt::wellLogFile() const
 {
     return m_wellLogFile;
 }

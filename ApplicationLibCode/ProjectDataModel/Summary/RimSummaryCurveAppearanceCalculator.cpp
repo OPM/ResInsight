@@ -56,12 +56,7 @@ void caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType>::set
 //--------------------------------------------------------------------------------------------------
 bool isExcplicitHandled( char secondChar )
 {
-    if ( secondChar == 'W' || secondChar == 'O' || secondChar == 'G' || secondChar == 'V' )
-    {
-        return true;
-    }
-
-    return false;
+    return secondChar == 'W' || secondChar == 'O' || secondChar == 'G' || secondChar == 'V';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -418,16 +413,16 @@ void RimSummaryCurveAppearanceCalculator::init( const std::vector<RiaSummaryCurv
 
     for ( const RiaSummaryCurveDefinition& curveDef : curveDefinitions )
     {
-        if ( curveDef.summaryCase() ) m_caseToAppearanceIdxMap[curveDef.summaryCase()] = -1;
-        if ( !curveDef.summaryAddress().wellName().empty() ) m_welToAppearanceIdxMap[curveDef.summaryAddress().wellName()] = -1;
-        if ( !curveDef.summaryAddress().groupName().empty() ) m_grpToAppearanceIdxMap[curveDef.summaryAddress().groupName()] = -1;
-        if ( !( curveDef.summaryAddress().regionNumber() == -1 ) ) m_regToAppearanceIdxMap[curveDef.summaryAddress().regionNumber()] = -1;
+        if ( curveDef.summaryCaseY() ) m_caseToAppearanceIdxMap[curveDef.summaryCaseY()] = -1;
+        if ( !curveDef.summaryAddressY().wellName().empty() ) m_welToAppearanceIdxMap[curveDef.summaryAddressY().wellName()] = -1;
+        if ( !curveDef.summaryAddressY().groupName().empty() ) m_grpToAppearanceIdxMap[curveDef.summaryAddressY().groupName()] = -1;
+        if ( !( curveDef.summaryAddressY().regionNumber() == -1 ) ) m_regToAppearanceIdxMap[curveDef.summaryAddressY().regionNumber()] = -1;
 
-        if ( !curveDef.summaryAddress().vectorName().empty() )
+        if ( !curveDef.summaryAddressY().vectorName().empty() )
         {
-            std::string varname = curveDef.summaryAddress().vectorName();
+            std::string varname = curveDef.summaryAddressY().vectorName();
 
-            if ( curveDef.summaryAddress().isHistoryVector() )
+            if ( curveDef.summaryAddressY().isHistoryVector() )
             {
                 varname = varname.substr( 0, varname.size() - 1 );
             }
@@ -701,7 +696,7 @@ std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryWellName
 
             for ( auto& address : allAddresses )
             {
-                if ( address.category() == RifEclipseSummaryAddress::SUMMARY_WELL )
+                if ( address.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
                 {
                     summaryWellNames.insert( address.wellName() );
                 }

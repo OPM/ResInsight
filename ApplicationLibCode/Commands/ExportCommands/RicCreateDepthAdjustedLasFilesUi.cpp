@@ -24,8 +24,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -179,8 +179,7 @@ void RicCreateDepthAdjustedLasFilesUi::setDefaultValues()
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<RimCase*> allCases;
-        proj->allCases( allCases );
+        std::vector<RimCase*> allCases = proj->allGridCases();
         if ( !allCases.empty() ) selectedCase = allCases[0];
 
         std::vector<RimWellPath*> allWellPaths = proj->activeOilField()->wellPathCollection->allWellPaths();

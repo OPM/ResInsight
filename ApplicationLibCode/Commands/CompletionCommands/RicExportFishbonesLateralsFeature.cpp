@@ -123,12 +123,7 @@ void RicExportFishbonesLateralsFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportFishbonesLateralsFeature::isCommandEnabled()
+bool RicExportFishbonesLateralsFeature::isCommandEnabled() const
 {
-    if ( selectedFishbonesCollection() )
-    {
-        return true;
-    }
-
-    return false;
+    return selectedFishbonesCollection() != nullptr;
 }

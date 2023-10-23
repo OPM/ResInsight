@@ -390,13 +390,13 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle*
             {
                 exportParameters = EXPORT_TO_SEPARATE_FILE_PER_RESULT;
             }
-            this->updateConnectedEditors();
+            updateConnectedEditors();
         }
     }
     else if ( changedField == &exportGridBox )
     {
         applyBoundaryDefaults();
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
 }
 
@@ -408,37 +408,33 @@ QList<caf::PdmOptionItemInfo> RicExportEclipseSectorModelUi::calculateValueOptio
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &selectedKeywords )
     {
-        RigCaseCellResultsData*       resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        QList<caf::PdmOptionItemInfo> allOptions =
-            RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType::STATIC_NATIVE, resultData );
+        RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+        std::vector<RiaDefines::ResultCatType> exportTypes = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                               RiaDefines::ResultCatType::GENERATED,
+                                                               RiaDefines::ResultCatType::INPUT_PROPERTY };
+
+        QList<caf::PdmOptionItemInfo> allOptions;
+
+        for ( const auto resultCategory : exportTypes )
+        {
+            auto options = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( resultCategory, resultData );
+            allOptions.append( options );
+        }
 
         std::set<QString> mainKeywords = RicExportEclipseSectorModelUi::mainKeywords();
         for ( const caf::PdmOptionItemInfo& option : allOptions )
         {
             if ( mainKeywords.count( option.optionUiText() ) )
             {
-                if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, option.optionUiText() ) ) )
-                {
-                    options.push_back( option );
-                }
+                options.push_back( option );
             }
         }
         for ( const caf::PdmOptionItemInfo& option : allOptions )
         {
             if ( !mainKeywords.count( option.optionUiText() ) && option.optionUiText() != "None" )
             {
-                if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, option.optionUiText() ) ) )
-                {
-                    if ( option.optionUiText() == "ACTNUM" && exportGrid() )
-                    {
-                        if ( exportParameters() != EXPORT_TO_GRID_FILE )
-                            options.push_back( caf::PdmOptionItemInfo( "ACTNUM (included in Grid File)", "ACTNUM" ) );
-                    }
-                    else
-                    {
-                        options.push_back( option );
-                    }
-                }
+                options.push_back( option );
             }
         }
     }

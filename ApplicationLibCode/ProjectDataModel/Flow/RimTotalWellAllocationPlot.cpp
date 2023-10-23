@@ -156,7 +156,7 @@ QImage RimTotalWellAllocationPlot::snapshotWindowContent()
 void RimTotalWellAllocationPlot::setDescription( const QString& description )
 {
     m_userName = description;
-    this->updateMdiWindowTitle();
+    updateMdiWindowTitle();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -171,6 +171,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     // Scaling
     CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScale", 1.0, "Well Head Scale" );
+    CAF_PDM_InitField( &wellHeadPositionScaleFactor, "WellHeadPositionScaleFactor", 0.1, "Well Head Position Scale" );
     CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 0.1, "Pipe Radius Scale " );
     CAF_PDM_InitField( &spheresScaleFactor, "CellCenterSphereScale", 0.2, "Sphere Radius Scale" );
 
@@ -266,14 +267,7 @@ void RimSimWellInViewCollection::setShowWellCellsState( bool enable )
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInViewCollection::showWellCells()
 {
-    if ( m_showWellCells().isFalse() )
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return !m_showWellCells().isFalse();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,11 +275,11 @@ bool RimSimWellInViewCollection::showWellCells()
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView* RimSimWellInViewCollection::findWell( QString name )
 {
-    for ( size_t i = 0; i < this->wells().size(); ++i )
+    for ( size_t i = 0; i < wells().size(); ++i )
     {
-        if ( this->wells()[i]->name() == name )
+        if ( wells()[i]->name() == name )
         {
-            return this->wells()[i];
+            return wells()[i];
         }
     }
     return nullptr;
@@ -296,13 +290,13 @@ RimSimWellInView* RimSimWellInViewCollection::findWell( QString name )
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInViewCollection::hasVisibleWellCells()
 {
-    if ( !this->isActive() ) return false;
-    if ( this->wells().size() == 0 ) return false;
+    if ( !isActive() ) return false;
+    if ( wells().empty() ) return false;
 
     bool hasCells = false;
-    for ( size_t i = 0; !hasCells && i < this->wells().size(); ++i )
+    for ( size_t i = 0; !hasCells && i < wells().size(); ++i )
     {
-        RimSimWellInView* well = this->wells()[i];
+        RimSimWellInView* well = wells()[i];
         if ( well && well->simWellData() && ( ( well->showWell() && well->showWellCells() ) ) )
         {
             for ( size_t tIdx = 0; !hasCells && tIdx < well->simWellData()->m_wellCellsTimeSteps.size(); ++tIdx )
@@ -316,11 +310,9 @@ bool RimSimWellInViewCollection::hasVisibleWellCells()
         }
     }
 
-    if ( !hasCells ) return false;
-
     // Todo: Handle range filter intersection
 
-    return true;
+    return hasCells;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,8 +320,8 @@ bool RimSimWellInViewCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInViewCollection::hasVisibleWellPipes()
 {
-    if ( !this->isActive() ) return false;
-    if ( this->wells().size() == 0 ) return false;
+    if ( !isActive() ) return false;
+    if ( wells().empty() ) return false;
 
     return true;
 }
@@ -341,7 +333,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( &isActive == changedField )
     {
-        this->updateUiIconFromToggleField();
+        updateUiIconFromToggleField();
     }
 
     if ( &m_showWellLabel == changedField )
@@ -447,9 +439,10 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
-        else if ( &pipeCrossSectionVertexCount == changedField || &pipeScaleFactor == changedField || &wellHeadScaleFactor == changedField ||
-                  &m_showWellHead == changedField || &isAutoDetectingBranches == changedField || &wellHeadPosition == changedField ||
-                  &wellLabelColor == changedField || &wellPipeCoordType == changedField || &m_showWellPipe == changedField )
+        else if ( &pipeCrossSectionVertexCount == changedField || &pipeScaleFactor == changedField ||
+                  &wellHeadScaleFactor == changedField || &wellHeadPositionScaleFactor == changedField || &m_showWellHead == changedField ||
+                  &isAutoDetectingBranches == changedField || &wellHeadPosition == changedField || &wellLabelColor == changedField ||
+                  &wellPipeCoordType == changedField || &m_showWellPipe == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -521,7 +514,7 @@ QList<caf::PdmOptionItemInfo> RimSimWellInViewCollection::calculateValueOptions(
                 auto addresses = summaryCase->summaryReader()->allResultAddresses();
                 for ( auto addr : addresses )
                 {
-                    if ( addr.category() == RifEclipseSummaryAddress::SUMMARY_WELL )
+                    if ( addr.category() == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL )
                     {
                         summaries.insert( addr.vectorName() );
                     }
@@ -658,6 +651,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
 
     caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup( "Size Scaling" );
     sizeScalingGroup->add( &wellHeadScaleFactor );
+    sizeScalingGroup->add( &wellHeadPositionScaleFactor );
     sizeScalingGroup->add( &pipeScaleFactor );
     sizeScalingGroup->add( &spheresScaleFactor );
 
@@ -819,7 +813,7 @@ void RimSimWellInViewCollection::scheduleIsWellPipesVisibleRecalculation()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::calculateWellGeometryVisibility( size_t frameIndex )
 {
-    if ( m_framesOfResultWellPipeVisibilities.size() > frameIndex && m_framesOfResultWellPipeVisibilities[frameIndex].size() ) return;
+    if ( m_framesOfResultWellPipeVisibilities.size() > frameIndex && !m_framesOfResultWellPipeVisibilities[frameIndex].empty() ) return;
 
     if ( m_framesOfResultWellPipeVisibilities.size() <= frameIndex ) m_framesOfResultWellPipeVisibilities.resize( frameIndex + 1 );
 

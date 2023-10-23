@@ -36,13 +36,13 @@ class RicNewSummaryMultiPlotFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimSummaryMultiPlotCollection* selectedCollection( std::vector<caf::PdmUiItem*>& items );
+    static RimSummaryMultiPlotCollection* selectedCollection( std::vector<caf::PdmUiItem*>& items );
 
-    bool selectedCases( std::vector<RimSummaryCase*>*           selectedIndividualSummaryCases,
-                        std::vector<RimSummaryCaseCollection*>* selectedEnsembles );
+    static bool selectedCases( std::vector<RimSummaryCase*>*           selectedIndividualSummaryCases,
+                               std::vector<RimSummaryCaseCollection*>* selectedEnsembles );
 };

@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorShearSlipIndicator.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -66,7 +67,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearSlipIndicator::calculat
     // Pore pressure
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* porePressureDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "POR-Bar", "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                    RigFemResultAddress( resVarAddr.resultPosType, RigFemAddressDefines::porBar(), "" ) );
     stepCountProgress.incrementProgress();
 
     // Total vertical stress (ST.S33)

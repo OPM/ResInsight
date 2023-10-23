@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include <QString>
 
@@ -29,6 +30,7 @@
 
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RiaSummaryCurveAddress;
 
 //==================================================================================================
 ///
@@ -37,19 +39,34 @@ class RiaSummaryCurveDefinition
 {
 public:
     RiaSummaryCurveDefinition();
-    explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress, bool isEnsembleCurve );
-    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress );
+    explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCaseY, const RifEclipseSummaryAddress& summaryAddressY, bool isEnsembleCurve );
+    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddressY );
+    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RiaSummaryCurveAddress& summaryCurveAddress );
 
-    RimSummaryCase*                 summaryCase() const;
-    const RifEclipseSummaryAddress& summaryAddress() const;
-    RimSummaryCaseCollection*       ensemble() const;
-    bool                            isEnsembleCurve() const;
-    void                            setSummaryAddress( const RifEclipseSummaryAddress& address );
+    // X and Y Axis
+    RimSummaryCaseCollection* ensemble() const;
+    void                      setEnsemble( RimSummaryCaseCollection* ensemble );
+
+    // Y Axis
+    RimSummaryCase*          summaryCaseY() const;
+    RifEclipseSummaryAddress summaryAddressY() const;
+    bool                     isEnsembleCurve() const;
+    void                     setSummaryAddressY( const RifEclipseSummaryAddress& address );
+
+    // X Axis
+    void                     setSummaryCaseX( RimSummaryCase* summaryCase );
+    void                     setSummaryAddressX( const RifEclipseSummaryAddress& summaryAddress );
+    RimSummaryCase*          summaryCaseX() const;
+    RifEclipseSummaryAddress summaryAddressX() const;
+
+    RiaSummaryCurveAddress summaryCurveAddress() const;
+
+    void setIdentifierText( SummaryCategory category, const std::string& name );
 
     bool operator<( const RiaSummaryCurveDefinition& other ) const;
 
     // TODO: Consider moving to a separate tools class
-    static void                resultValues( const RiaSummaryCurveDefinition& curveDefinition, gsl::not_null<std::vector<double>*> values );
+    static std::vector<double> resultValues( const RiaSummaryCurveDefinition& curveDefinition );
     static std::vector<time_t> timeSteps( const RiaSummaryCurveDefinition& curveDefinition );
 
     QString curveDefinitionText() const;
@@ -57,8 +74,10 @@ public:
     static QString curveDefinitionText( const QString& caseName, const RifEclipseSummaryAddress& summaryAddress );
 
 private:
-    RimSummaryCase*           m_summaryCase;
-    RifEclipseSummaryAddress  m_summaryAddress;
+    RimSummaryCase*           m_summaryCaseY;
+    RifEclipseSummaryAddress  m_summaryAddressY;
+    RimSummaryCase*           m_summaryCaseX;
+    RifEclipseSummaryAddress  m_summaryAddressX;
     RimSummaryCaseCollection* m_ensemble;
     bool                      m_isEnsembleCurve;
 };

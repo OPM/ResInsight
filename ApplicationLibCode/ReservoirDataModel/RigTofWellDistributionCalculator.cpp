@@ -159,7 +159,7 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
 //--------------------------------------------------------------------------------------------------
 void RigTofWellDistributionCalculator::groupSmallContributions( double smallContribThreshold )
 {
-    if ( m_tofInIncreasingOrder.size() == 0 )
+    if ( m_tofInIncreasingOrder.empty() )
     {
         return;
     }

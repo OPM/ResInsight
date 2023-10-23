@@ -308,7 +308,7 @@ void RimStreamlineInViewCollection::mappingRange( double& min, double& max ) con
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer )
 {
-    if ( m_isActive() && ( m_streamlines.size() > 0 ) && m_legendConfig->showLegend() )
+    if ( m_isActive() && ( !m_streamlines.empty() ) && m_legendConfig->showLegend() )
     {
         QString title = "Streamlines: \n";
         title += m_phases().uiText() + " flow\n";
@@ -432,7 +432,7 @@ void RimStreamlineInViewCollection::findStartCells( int                         
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::updateStreamlines()
 {
-    bool bNeedRedraw = ( m_streamlines.size() > 0 );
+    bool bNeedRedraw = ( !m_streamlines.empty() );
 
     // get the view
     auto eclView = firstAncestorOrThisOfType<RimEclipseView>();

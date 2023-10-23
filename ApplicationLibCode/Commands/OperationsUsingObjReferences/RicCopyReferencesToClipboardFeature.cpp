@@ -50,7 +50,7 @@ CAF_CMD_SOURCE_INIT( RicCopyReferencesToClipboardFeature, "RicCopyReferencesToCl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopyReferencesToClipboardFeature::isCommandEnabled()
+bool RicCopyReferencesToClipboardFeature::isCommandEnabled() const
 {
     return isAnyCopyableObjectSelected();
 }
@@ -60,7 +60,7 @@ bool RicCopyReferencesToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCopyReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     if ( !isAnyCopyableObjectSelected() ) return;
 

@@ -32,7 +32,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -42,14 +42,6 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicCreateDepthAdjustedLasFilesFeature, "RicCreateDepthAdjustedLasFilesFeature" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicCreateDepthAdjustedLasFilesFeature::isCommandEnabled()
-{
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -74,7 +66,7 @@ void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
         {
             RimCase*                  selectedCase             = featureUi.selectedCase();
             RimWellPath*              sourceWell               = featureUi.sourceWell();
-            RimWellLogFile*           soureWellLogFile         = featureUi.wellLogFile();
+            RimWellLogLasFile*        soureWellLogFile         = featureUi.wellLogFile();
             std::vector<RimWellPath*> destinationWells         = featureUi.destinationWells().ptrReferencedObjectsByType();
             std::vector<QString>      selectedResultProperties = featureUi.selectedResultProperties();
             QString                   exportFolder             = featureUi.exportFolder();
@@ -123,7 +115,7 @@ void RicCreateDepthAdjustedLasFilesFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEclipseCase( RimEclipseCase*                 eclipseCase,
                                                                                            RimWellPath*                    sourceWell,
-                                                                                           RimWellLogFile*                 soureWellLogFile,
+                                                                                           RimWellLogLasFile*              soureWellLogFile,
                                                                                            const std::vector<RimWellPath*> destinationWells,
                                                                                            const std::vector<QString>& selectedResultProperties,
                                                                                            const QString& exportFolder )
@@ -152,7 +144,7 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEc
 //--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromGeoMechCase( RimGeoMechCase*                 geoMechCase,
                                                                                            RimWellPath*                    sourceWell,
-                                                                                           RimWellLogFile*                 soureWellLogFile,
+                                                                                           RimWellLogLasFile*              soureWellLogFile,
                                                                                            const std::vector<RimWellPath*> destinationWells,
                                                                                            const std::vector<QString>& selectedResultProperties,
                                                                                            const QString& exportFolder )

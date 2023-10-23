@@ -402,7 +402,7 @@ public:
             }
         }
 
-        if ( !m_requestedTimesteps.size() )
+        if ( m_requestedTimesteps.empty() )
         {
             server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
                                       RiaSocketServer::tr( "No time steps specified" ) );
@@ -415,7 +415,7 @@ public:
 
         if ( server->currentClient()->bytesAvailable() )
         {
-            return this->interpretMore( server, server->currentClient() );
+            return interpretMore( server, server->currentClient() );
         }
 
         return false;

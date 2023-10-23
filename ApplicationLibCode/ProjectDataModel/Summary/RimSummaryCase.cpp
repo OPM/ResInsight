@@ -101,8 +101,8 @@ void RimSummaryCase::setSummaryHeaderFileName( const QString& fileName )
 {
     m_summaryHeaderFilename = fileName;
 
-    this->updateAutoShortName();
-    this->updateTreeItemName();
+    updateAutoShortName();
+    updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ void RimSummaryCase::copyFrom( const RimSummaryCase& rhs )
     m_summaryHeaderFilename     = rhs.m_summaryHeaderFilename;
     m_isObservedData            = rhs.m_isObservedData;
 
-    this->updateTreeItemName();
+    updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ void RimSummaryCase::copyFrom( const RimSummaryCase& rhs )
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCase::operator<( const RimSummaryCase& rhs ) const
 {
-    return this->caseName() < rhs.caseName();
+    return caseName() < rhs.caseName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,7 +280,7 @@ void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateTreeItemName()
 {
-    this->setUiName( displayCaseName() );
+    setUiName( displayCaseName() );
 }
 
 //--------------------------------------------------------------------------------------------------

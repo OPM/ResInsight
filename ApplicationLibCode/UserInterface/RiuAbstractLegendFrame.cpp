@@ -48,7 +48,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
     LayoutInfo layout( QSize( 200, 200 ) ); // Use default size
     layoutInfo( &layout );
 
-    QFontMetrics fontMetrics( this->font() );
+    QFontMetrics fontMetrics( font() );
     QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
 
     int preferredContentHeight = titleRect.height() + labelCount() * layout.lineSpacing + 1.0 * layout.lineSpacing;
@@ -80,7 +80,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     LayoutInfo layout( QSize( 200, 200 ) ); // Use default size
     layoutInfo( &layout );
 
-    QFontMetrics fontMetrics( this->font() );
+    QFontMetrics fontMetrics( font() );
 
     int preferredHeight = 0;
     int titleWidth      = 0;
@@ -123,7 +123,7 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
 
     painter->save();
 
-    painter->setFont( this->font() );
+    painter->setFont( font() );
     painter->translate( targetRect.topLeft() );
     QPoint titlePos( layout.margins.left(), layout.margins.top() );
     {
@@ -132,7 +132,7 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
         painter->setPen( QPen( textColor ) );
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
-        td.setDefaultFont( this->font() );
+        td.setDefaultFont( font() );
         QString formattedTitle = m_title;
         td.setHtml(
             QString( "<body><font color='%1'>%2</font></body>" ).arg( textColor.name() ).arg( formattedTitle.replace( "\n", "<br />" ) ) );
@@ -148,7 +148,7 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
         painter->setPen( QPen( textColor ) );
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
-        td.setDefaultFont( this->font() );
+        td.setDefaultFont( font() );
         td.setHtml( QString( "<body><font color='%1'>%2</font></body>" ).arg( textColor.name() ).arg( tickLabel.second ) );
         td.drawContents( painter );
         painter->restore();

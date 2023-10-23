@@ -445,12 +445,22 @@ mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
 if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
   FetchContent_Declare(
     ri-dependencies
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/custom-opm-common.zip
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.08/custom-opm-common.zip
   )
   FetchContent_Populate(ri-dependencies)
-  list(APPEND EXTERNAL_LINK_LIBRARIES
-       ${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib
+
+  add_library(custom-opm-common STATIC IMPORTED)
+  set_target_properties(
+    custom-opm-common
+    PROPERTIES IMPORTED_CONFIGURATIONS "Debug;Release"
+               IMPORTED_LOCATION_DEBUG
+               "${ri-dependencies_SOURCE_DIR}/custom-opm-common_debug.lib"
+               IMPORTED_LOCATION_RELEASE
+               "${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib"
   )
+
+  list(APPEND EXTERNAL_LINK_LIBRARIES custom-opm-common)
+
   message(STATUS "opm-common: Enabled use of precompiled library")
 else()
   add_subdirectory(ThirdParty/custom-opm-common)
@@ -703,7 +713,6 @@ add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
-option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
 

@@ -35,14 +35,6 @@ CAF_CMD_SOURCE_INIT( RicImportRevealSummaryCaseFeature, "RicImportRevealSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportRevealSummaryCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportRevealSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app     = RiaApplication::instance();

@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorBarConverted.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -52,10 +53,20 @@ RigFemPartResultCalculatorBarConverted::~RigFemPartResultCalculatorBarConverted(
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorBarConverted::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    // TODO: split in multiple classes??
-    if ( m_fieldName == "POR-Bar" )
+    if ( resVarAddr.normalizeByHydrostaticPressure() )
     {
-        return ( ( resVarAddr.fieldName == "POR-Bar" ) && ( resVarAddr.resultPosType == RIG_NODAL ) &&
+        // Normalize by hydrostatic pressure is done in RigFemPartResultCalculatorNormalized
+        // Return false here to avoid double normalization
+        //
+        // https: // github.com/OPM/ResInsight/issues/9507
+
+        return false;
+    }
+
+    // TODO: split in multiple classes??
+    if ( m_fieldName == RigFemAddressDefines::porBar() )
+    {
+        return ( ( resVarAddr.fieldName == RigFemAddressDefines::porBar() ) && ( resVarAddr.resultPosType == RIG_NODAL ) &&
                  !( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" ) );
     }
     else

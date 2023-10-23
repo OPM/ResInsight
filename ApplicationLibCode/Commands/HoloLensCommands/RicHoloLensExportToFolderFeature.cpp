@@ -44,14 +44,6 @@ CAF_CMD_SOURCE_INIT( RicHoloLensExportToFolderFeature, "RicHoloLensExportToFolde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensExportToFolderFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicHoloLensExportToFolderFeature::onActionTriggered( bool isChecked )
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();

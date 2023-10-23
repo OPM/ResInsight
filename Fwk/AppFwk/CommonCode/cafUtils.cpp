@@ -190,12 +190,12 @@ bool Utils::getSaveDirectoryAndCheckOverwriteFiles( const QString& defaultDir, s
         }
     }
 
-    if ( filesToOverwrite.size() == 0 )
+    if ( filesToOverwrite.empty() )
     {
         overWriteFiles = true;
         return overWriteFiles;
     }
-    else if ( filesToOverwrite.size() > 0 )
+    else if ( !filesToOverwrite.empty() )
     {
         QMessageBox msgBox;
 

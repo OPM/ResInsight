@@ -30,14 +30,6 @@ CAF_CMD_SOURCE_INIT( RicLaunchRegressionTestsFeature, "RicLaunchRegressionTestsF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicLaunchRegressionTestsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicLaunchRegressionTestsFeature::onActionTriggered( bool isChecked )
 {
     RiaRegressionTestRunner::instance()->executeRegressionTests();
@@ -71,14 +63,6 @@ void RicLaunchRegressionTestDialogFeature::showRegressionTestDialog()
 
         RiaRegressionTestRunner::instance()->executeRegressionTests();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicLaunchRegressionTestDialogFeature::isCommandEnabled()
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

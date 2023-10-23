@@ -39,7 +39,6 @@
 
 #include "cvfObject.h"
 #include "cvfArray.h"
-#include "cvfOpenGLTypes.h"
 
 namespace cvf {
 

@@ -30,10 +30,27 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuContextMenuLauncher::RiuContextMenuLauncher( QWidget* widget, const caf::CmdFeatureMenuBuilder& commandIds )
+RiuContextMenuLauncher::RiuContextMenuLauncher( QWidget* widget, const caf::CmdFeatureMenuBuilder& menuBuilder )
     : QObject( widget )
-    , m_menuBuilder( commandIds )
+    , m_menuBuilder( menuBuilder )
 {
+    widget->installEventFilter( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuContextMenuLauncher::RiuContextMenuLauncher( QWidget* widget, const QStringList& commandIds )
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    for ( const auto& cmd : commandIds )
+    {
+        menuBuilder << cmd;
+    }
+
+    m_menuBuilder = menuBuilder;
+
     widget->installEventFilter( this );
 }
 
@@ -47,7 +64,7 @@ bool RiuContextMenuLauncher::eventFilter( QObject* watchedObject, QEvent* event 
         QMenu menu;
         m_menuBuilder.appendToMenu( &menu );
 
-        if ( menu.actions().size() > 0 )
+        if ( !menu.actions().empty() )
         {
             QContextMenuEvent* cme = static_cast<QContextMenuEvent*>( event );
             CVF_ASSERT( cme );

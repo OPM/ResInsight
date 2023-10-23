@@ -60,7 +60,7 @@ bool RicNewDerivedEnsembleFeature::showWarningDialogWithQuestion()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewDerivedEnsembleFeature::isCommandEnabled()
+bool RicNewDerivedEnsembleFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCaseMainCollection*> mainColls = caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
     std::vector<RimSummaryCaseCollection*>     ensembles = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
@@ -84,7 +84,7 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
         {
             std::vector<RimSummaryCaseCollection*> ensembles = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
 
-            if ( ensembles.size() >= 1 ) newEnsemble->setEnsemble1( ensembles[0] );
+            if ( !ensembles.empty() ) newEnsemble->setEnsemble1( ensembles[0] );
             if ( ensembles.size() == 2 )
             {
                 newEnsemble->setEnsemble2( ensembles[1] );

@@ -52,6 +52,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryDeclineCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryRegressionAnalysisCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressSelector.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCrossPlotStatisticsCase.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -108,6 +110,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryDeclineCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryRegressionAnalysisCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressSelector.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCrossPlotStatisticsCase.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

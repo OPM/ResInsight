@@ -52,24 +52,9 @@ const RigWellResultFrame* RigSimWellData::wellResultFrame( size_t resultTimeStep
 void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices( const std::vector<QDateTime>& simulationTimeSteps )
 {
     m_resultTimeStepIndexToWellTimeStepIndex.clear();
-    if ( m_wellCellsTimeSteps.size() == 0 ) return;
+    if ( m_wellCellsTimeSteps.empty() ) return;
 
     m_resultTimeStepIndexToWellTimeStepIndex.resize( simulationTimeSteps.size(), cvf::UNDEFINED_SIZE_T );
-
-    if ( false )
-    {
-        qDebug() << "Well TimeStamps";
-        for ( size_t i = 0; i < m_wellCellsTimeSteps.size(); i++ )
-        {
-            qDebug() << m_wellCellsTimeSteps[i].timestamp().toString();
-        }
-
-        qDebug() << "Result TimeStamps";
-        for ( size_t i = 0; i < simulationTimeSteps.size(); i++ )
-        {
-            qDebug() << simulationTimeSteps[i].toString();
-        }
-    }
 
     size_t wellTimeStepIndex = 0;
     for ( size_t resultTimeStepIndex = 0; resultTimeStepIndex < simulationTimeSteps.size(); resultTimeStepIndex++ )
@@ -150,7 +135,7 @@ bool operator==( const RigWellResultPoint& p1, const RigWellResultPoint& p2 )
 //--------------------------------------------------------------------------------------------------
 void RigSimWellData::computeStaticWellCellPath() const
 {
-    if ( m_wellCellsTimeSteps.size() == 0 ) return;
+    if ( m_wellCellsTimeSteps.empty() ) return;
 
     // Mapping of Branch ERT ID to ResultPoint list
     std::map<int, std::list<RigWellResultPoint>> staticWellBranches;
@@ -305,6 +290,14 @@ void RigSimWellData::setMultiSegmentWell( bool isMultiSegmentWell )
 bool RigSimWellData::isMultiSegmentWell() const
 {
     return m_isMultiSegmentWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSimWellData::setWellName( const QString& wellName )
+{
+    m_wellName = wellName;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -62,7 +62,7 @@ bool RiuRmsNavigation::handleInputEvent( QInputEvent* inputEvent )
 
             if ( me->button() == Qt::MiddleButton && isRotationEnabled() )
             {
-                this->pickAndSetPointOfInterest( me->x(), me->y() );
+                pickAndSetPointOfInterest( me->x(), me->y() );
 
                 m_trackball->startNavigation( cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY );
                 m_isNavigating                  = true;
@@ -138,7 +138,7 @@ bool RiuRmsNavigation::handleInputEvent( QInputEvent* inputEvent )
                     if ( m_isZooming )
                     {
                         int delta = -3 * ( m_lastPosY - me->y() );
-                        this->zoomAlongRay( m_zoomRay.p(), delta );
+                        zoomAlongRay( m_zoomRay.p(), delta );
                         m_lastPosX = me->x();
                         m_lastPosY = me->y();
                     }

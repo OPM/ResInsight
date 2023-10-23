@@ -30,14 +30,6 @@ CAF_CMD_SOURCE_INIT( RicRefreshScriptsFeature, "RicRefreshScriptsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRefreshScriptsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicRefreshScriptsFeature::onActionTriggered( bool isChecked )
 {
     refreshScriptFolders();

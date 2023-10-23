@@ -57,14 +57,7 @@ RivBoxIntersectionGeometryGenerator::~RivBoxIntersectionGeometryGenerator()
 //--------------------------------------------------------------------------------------------------
 bool RivBoxIntersectionGeometryGenerator::isAnyGeometryPresent() const
 {
-    if ( m_triangleVxes->size() == 0 )
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return m_triangleVxes->size() != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +82,7 @@ cvf::ref<cvf::DrawableGeo> RivBoxIntersectionGeometryGenerator::generateSurface(
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivBoxIntersectionGeometryGenerator::createMeshDrawable()
 {
-    if ( !( m_cellBorderLineVxes.notNull() && m_cellBorderLineVxes->size() != 0 ) ) return nullptr;
+    if ( !m_cellBorderLineVxes.notNull() || m_cellBorderLineVxes->size() == 0 ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_cellBorderLineVxes.p() );

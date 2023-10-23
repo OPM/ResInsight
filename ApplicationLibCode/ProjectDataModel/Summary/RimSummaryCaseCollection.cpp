@@ -28,6 +28,9 @@
 
 #include "RicfCommandObject.h"
 
+#include "RifReaderRftInterface.h"
+#include "RifSummaryReaderInterface.h"
+
 #include "RimAnalysisPlotDataEntry.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
@@ -35,10 +38,6 @@
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
-
-#include "RifReaderEclipseRft.h"
-#include "RifReaderEnsembleStatisticsRft.h"
-#include "RifSummaryReaderInterface.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -134,8 +133,6 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_dataVectorFolders.uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
     m_dataVectorFolders.xmlCapability()->disableIO();
-
-    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
 
     m_commonAddressCount = 0;
 }
@@ -409,20 +406,12 @@ std::set<QDateTime> RimSummaryCaseCollection::rftTimeStepsForWell( const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
-{
-    return m_statisticsEclipseRftReader.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
 {
     if ( m_cachedSortedEnsembleParameters.empty() )
     {
         std::set<QString> paramSet;
-        for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+        for ( RimSummaryCase* rimCase : allSummaryCases() )
         {
             if ( rimCase->caseRealizationParameters() != nullptr )
             {
@@ -437,7 +426,7 @@ std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsem
         m_cachedSortedEnsembleParameters.reserve( paramSet.size() );
         for ( const QString& parameterName : paramSet )
         {
-            auto ensembleParameter = this->createEnsembleParameter( parameterName );
+            auto ensembleParameter = createEnsembleParameter( parameterName );
             m_cachedSortedEnsembleParameters.push_back( ensembleParameter );
         }
         RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
@@ -534,11 +523,10 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 
         if ( !summaryCase->caseRealizationParameters() ) continue;
 
-        std::vector<double> values;
-
         double closestValue    = std::numeric_limits<double>::infinity();
         time_t closestTimeStep = 0;
-        if ( reader->values( address, &values ) )
+        auto [isOk, values]    = reader->values( address );
+        if ( isOk )
         {
             const std::vector<time_t>& timeSteps = reader->timeSteps( address );
             for ( size_t i = 0; i < timeSteps.size(); ++i )
@@ -620,7 +608,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 std::vector<RigEnsembleParameter> RimSummaryCaseCollection::alphabeticEnsembleParameters() const
 {
     std::set<QString> paramSet;
-    for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+    for ( RimSummaryCase* rimCase : allSummaryCases() )
     {
         if ( rimCase->caseRealizationParameters() != nullptr )
         {
@@ -636,7 +624,7 @@ std::vector<RigEnsembleParameter> RimSummaryCaseCollection::alphabeticEnsemblePa
     sortedEnsembleParameters.reserve( paramSet.size() );
     for ( const QString& parameterName : paramSet )
     {
-        sortedEnsembleParameters.push_back( this->createEnsembleParameter( parameterName ) );
+        sortedEnsembleParameters.push_back( createEnsembleParameter( parameterName ) );
     }
     return sortedEnsembleParameters;
 }
@@ -978,8 +966,7 @@ void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& ad
     {
         if ( !s->summaryReader() ) continue;
 
-        std::vector<double> values;
-        s->summaryReader()->values( address, &values );
+        auto [isOk, values] = s->summaryReader()->values( address );
         if ( values.empty() ) continue;
 
         const auto [min, max] = std::minmax_element( values.begin(), values.end() );
@@ -1145,7 +1132,7 @@ int RimSummaryCaseCollection::ensembleId() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCaseCollection::hasEnsembleParameters() const
 {
-    for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+    for ( RimSummaryCase* rimCase : allSummaryCases() )
     {
         if ( rimCase->caseRealizationParameters() != nullptr )
         {

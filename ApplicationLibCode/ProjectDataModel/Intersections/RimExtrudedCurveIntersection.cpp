@@ -627,7 +627,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
         }
     }
 
-    this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+    defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -761,10 +761,12 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
             if ( ownerCase && ownerCase->activeCellsBoundingBox().isValid() )
             {
                 size_t dummy;
+                double dummyDouble;
                 lines[0] = RigWellPath::clipPolylineStartAboveZ( lines[0],
                                                                  ownerCase->activeCellsBoundingBox().max().z(),
-                                                                 &horizontalProjectedLengthAlongWellPathToClipPoint,
-                                                                 &dummy );
+                                                                 horizontalProjectedLengthAlongWellPathToClipPoint,
+                                                                 dummyDouble,
+                                                                 dummy );
             }
         }
     }
@@ -1161,7 +1163,7 @@ cvf::Vec3d RimExtrudedCurveIntersection::extrusionDirection() const
 
     if ( m_direction() == RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_HORIZONTAL )
     {
-        std::vector<std::vector<cvf::Vec3d>> lines = this->polyLines();
+        std::vector<std::vector<cvf::Vec3d>> lines = polyLines();
         if ( !lines.empty() && lines[0].size() > 1 )
         {
             std::vector<cvf::Vec3d> firstLine = lines[0];

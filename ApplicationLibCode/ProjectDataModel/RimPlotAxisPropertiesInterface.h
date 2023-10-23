@@ -56,7 +56,7 @@ public:
     virtual std::vector<RimPlotAxisAnnotation*> annotations() const                                   = 0;
     virtual void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) = 0;
     virtual void                                removeAllAnnotations()                                = 0;
-    virtual RiuPlotAxis                         plotAxisType() const                                  = 0;
+    virtual RiuPlotAxis                         plotAxis() const                                      = 0;
 
     virtual double visibleRangeMin() const = 0;
     virtual double visibleRangeMax() const = 0;

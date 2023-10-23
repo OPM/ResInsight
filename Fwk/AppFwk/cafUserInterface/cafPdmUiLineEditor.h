@@ -102,7 +102,7 @@ class PdmUiLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    PdmUiLineEdit( QWidget* parent );
+    PdmUiLineEdit( QWidget* parent, bool avoidSendingEnterEvent );
     void setAvoidSendingEnterEventToParentWidget( bool avoidSendingEnter );
 
 protected:

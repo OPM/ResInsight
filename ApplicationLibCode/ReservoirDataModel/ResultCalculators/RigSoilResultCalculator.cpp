@@ -81,7 +81,7 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
     if ( scalarIndexSWAT != cvf::UNDEFINED_SIZE_T )
     {
         const std::vector<double>& swatForTimeStep = m_resultsData->cellScalarResults( SWATAddr, timeStepIndex );
-        if ( swatForTimeStep.size() > 0 )
+        if ( !swatForTimeStep.empty() )
         {
             soilResultValueCount = swatForTimeStep.size();
             soilTimeStepCount    = m_resultsData->infoForEachResultIndex()[scalarIndexSWAT].timeStepInfos().size();
@@ -91,7 +91,7 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
     if ( scalarIndexSGAS != cvf::UNDEFINED_SIZE_T )
     {
         const std::vector<double>& sgasForTimeStep = m_resultsData->cellScalarResults( SGASAddr, timeStepIndex );
-        if ( sgasForTimeStep.size() > 0 )
+        if ( !sgasForTimeStep.empty() )
         {
             soilResultValueCount = qMax( soilResultValueCount, sgasForTimeStep.size() );
 
@@ -104,7 +104,7 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
     size_t soilResultScalarIndex = m_resultsData->findScalarResultIndexFromAddress( resVarAddr );
     m_resultsData->m_cellScalarResults[soilResultScalarIndex].resize( soilTimeStepCount );
 
-    if ( m_resultsData->cellScalarResults( resVarAddr, timeStepIndex ).size() > 0 )
+    if ( !m_resultsData->cellScalarResults( resVarAddr, timeStepIndex ).empty() )
     {
         // Data is computed and allocated, nothing more to do
         return;
@@ -119,7 +119,7 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
     if ( scalarIndexSWAT != cvf::UNDEFINED_SIZE_T )
     {
         swatForTimeStep = &( m_resultsData->cellScalarResults( SWATAddr, timeStepIndex ) );
-        if ( swatForTimeStep->size() == 0 )
+        if ( swatForTimeStep->empty() )
         {
             swatForTimeStep = nullptr;
         }
@@ -128,7 +128,7 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
     if ( scalarIndexSGAS != cvf::UNDEFINED_SIZE_T )
     {
         sgasForTimeStep = &( m_resultsData->cellScalarResults( SGASAddr, timeStepIndex ) );
-        if ( sgasForTimeStep->size() == 0 )
+        if ( sgasForTimeStep->empty() )
         {
             sgasForTimeStep = nullptr;
         }
@@ -137,7 +137,7 @@ void RigSoilResultCalculator::calculate( const RigEclipseResultAddress& resVarAd
     if ( scalarIndexSSOL != cvf::UNDEFINED_SIZE_T )
     {
         ssolForTimeStep = &( m_resultsData->cellScalarResults( SSOLAddr, timeStepIndex ) );
-        if ( ssolForTimeStep->size() == 0 )
+        if ( ssolForTimeStep->empty() )
         {
             ssolForTimeStep = nullptr;
         }

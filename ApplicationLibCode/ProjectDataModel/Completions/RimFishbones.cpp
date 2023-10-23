@@ -152,7 +152,7 @@ bool RimFishbones::isActive() const
 //--------------------------------------------------------------------------------------------------
 QString RimFishbones::generatedName() const
 {
-    caf::PdmChildArrayField<RimFishbones*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( this->parentField() );
+    caf::PdmChildArrayField<RimFishbones*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( parentField() );
     CVF_ASSERT( container );
 
     size_t index = container->indexOf( this ) + 1;
@@ -169,6 +169,18 @@ void RimFishbones::setMeasuredDepthAndCount( double startMD, double spacing, int
 
     computeRangesAndLocations();
     computeRotationAngles();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbones::setSystemParameters( int lateralsPerSub, double lateralLength, double holeDiameter, double buildAngle, int icdsPerSub )
+{
+    m_lateralCountPerSub = lateralsPerSub;
+    m_lateralLength      = QString::number( lateralLength );
+    m_pipeProperties->setHoleDiameter( holeDiameter );
+    m_lateralBuildAngle = buildAngle;
+    m_icdCount          = icdsPerSub;
 }
 
 //--------------------------------------------------------------------------------------------------

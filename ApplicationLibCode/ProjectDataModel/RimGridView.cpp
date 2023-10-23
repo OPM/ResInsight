@@ -19,7 +19,6 @@
 #include "RimGridView.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimAnnotationInViewCollection.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
@@ -28,7 +27,6 @@
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSeismicSectionCollection.h"
@@ -142,8 +140,8 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
     if ( m_currentReservoirCellVisibility.isNull() )
     {
         m_currentReservoirCellVisibility = new cvf::UByteArray;
-        this->calculateCurrentTotalCellVisibility( m_currentReservoirCellVisibility.p(), m_currentTimeStep() );
-        this->cellVisibilityChanged.send();
+        calculateCurrentTotalCellVisibility( m_currentReservoirCellVisibility.p(), m_currentTimeStep() );
+        cellVisibilityChanged.send();
     }
 
     return m_currentReservoirCellVisibility;
@@ -210,7 +208,7 @@ void RimGridView::cellFiltersUpdated()
 //--------------------------------------------------------------------------------------------------
 RimCellFilterCollection* RimGridView::cellFilterCollection()
 {
-    if ( this->viewController() && this->viewController()->isCellFiltersControlled() && m_overrideCellFilterCollection )
+    if ( viewController() && viewController()->isCellFiltersControlled() && m_overrideCellFilterCollection )
     {
         return m_overrideCellFilterCollection;
     }
@@ -225,7 +223,7 @@ RimCellFilterCollection* RimGridView::cellFilterCollection()
 //--------------------------------------------------------------------------------------------------
 const RimCellFilterCollection* RimGridView::cellFilterCollection() const
 {
-    if ( this->viewController() && this->viewController()->isCellFiltersControlled() && m_overrideCellFilterCollection )
+    if ( viewController() && viewController()->isCellFiltersControlled() && m_overrideCellFilterCollection )
     {
         return m_overrideCellFilterCollection;
     }
@@ -233,14 +231,6 @@ const RimCellFilterCollection* RimGridView::cellFilterCollection() const
     {
         return m_cellFilterCollection;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimAnnotationInViewCollection* RimGridView::annotationCollection() const
-{
-    return m_annotationCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,10 +256,10 @@ void RimGridView::setOverrideCellFilterCollection( RimCellFilterCollection* rfc 
         m_cellFilterCollection()->uiCapability()->updateConnectedEditors();
     }
 
-    this->scheduleGeometryRegen( RANGE_FILTERED );
-    this->scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
+    scheduleGeometryRegen( RANGE_FILTERED );
+    scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
 
-    this->scheduleCreateDisplayModelAndRedraw();
+    scheduleCreateDisplayModelAndRedraw();
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -291,7 +281,7 @@ void RimGridView::replaceCellFilterCollectionWithOverride()
 
     m_cellFilterCollection = overrideRfc;
 
-    this->uiCapability()->updateConnectedEditors();
+    uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,7 +289,7 @@ void RimGridView::replaceCellFilterCollectionWithOverride()
 //--------------------------------------------------------------------------------------------------
 bool RimGridView::isGridVisualizationMode() const
 {
-    return this->m_gridCollection->isActive();
+    return m_gridCollection->isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,10 +358,10 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
                 RivSingleCellPartGenerator partGen( geomSelItem->m_resultDefinition->geoMechCase(),
                                                     geomSelItem->m_gridIndex,
                                                     geomSelItem->m_cellIndex,
-                                                    this->ownerCase()->displayModelOffset() );
+                                                    ownerCase()->displayModelOffset() );
 
                 cvf::ref<cvf::Part> part = partGen.createPart( geomSelItem->m_color );
-                part->setTransform( this->scaleTransform() );
+                part->setTransform( scaleTransform() );
 
                 parts->push_back( part.p() );
             }
@@ -389,10 +379,10 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
                 RivSingleCellPartGenerator partGen( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData(),
                                                     eclipseSelItem->m_gridIndex,
                                                     eclipseSelItem->m_gridLocalCellIndex,
-                                                    this->ownerCase()->displayModelOffset() );
+                                                    ownerCase()->displayModelOffset() );
 
                 cvf::ref<cvf::Part> part = partGen.createPart( eclipseSelItem->m_color );
-                part->setTransform( this->scaleTransform() );
+                part->setTransform( scaleTransform() );
 
                 parts->push_back( part.p() );
             }
@@ -405,7 +395,7 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
 //--------------------------------------------------------------------------------------------------
 void RimGridView::onClearReservoirCellVisibilitiesIfNecessary()
 {
-    if ( this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters() )
+    if ( propertyFilterCollection() && propertyFilterCollection()->hasActiveDynamicFilters() )
     {
         m_currentReservoirCellVisibility = nullptr;
     }
@@ -477,8 +467,7 @@ void RimGridView::updateWellMeasurements()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::updateSurfacesInViewTreeItems()
 {
-    RimProject*           proj     = RimProject::current();
-    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+    RimSurfaceCollection* surfColl = RimTools::surfaceCollection();
 
     if ( surfColl && surfColl->containsSurface() )
     {
@@ -495,7 +484,7 @@ void RimGridView::updateSurfacesInViewTreeItems()
         delete m_surfaceCollection;
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -539,19 +528,24 @@ void RimGridView::appendIntersectionsToModel( bool cellFiltersActive, bool prope
 
         if ( m_intersectionCollection->shouldApplyCellFiltersToIntersections() && ( cellFiltersActive || propertyFiltersActive ) )
         {
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
-
             if ( !propertyFiltersActive )
             {
                 cvf::UByteArray visibleCells;
                 calculateCellVisibility( &visibleCells, { RANGE_FILTERED_WELL_CELLS, RANGE_FILTERED } );
                 m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep(), &visibleCells );
             }
+
+            // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
+            // appendPartsToModel() after appendDynamicPartsToModel()
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
         }
         else
         {
-            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
             m_intersectionCollection->appendDynamicPartsToModel( m_intersectionVizModel.p(), scaleTransform(), currentTimeStep() );
+
+            // NB! Geometry objects are recreated in appendDynamicPartsToModel(), always call
+            // appendPartsToModel() after appendDynamicPartsToModel()
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
         }
         m_intersectionVizModel->updateBoundingBoxesRecursive();
         nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );

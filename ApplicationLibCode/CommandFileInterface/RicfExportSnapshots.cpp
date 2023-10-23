@@ -89,7 +89,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     QByteArray curState = mainWnd->dockManager()->saveState( 0 );
     mainWnd->dockManager()->restoreState( RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
 
-    RiaGuiApplication::instance()->processEvents();
+    QApplication::processEvents();
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
 
@@ -131,7 +131,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
         RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir, activateWidget, m_prefix, m_viewId(), fileSuffix );
     }
 
-    RiaGuiApplication::instance()->processEvents();
+    QApplication::processEvents();
 
     mainWnd->dockManager()->restoreState( curState );
 

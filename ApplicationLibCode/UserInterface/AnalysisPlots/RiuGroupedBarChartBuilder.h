@@ -50,6 +50,8 @@ public:
     void addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation, int maxBarCount = -1 );
     void setLabelFontSize( int labelPointSize );
 
+    QString plotContentAsText() const;
+
 private:
     double midPoint( double v1, double v2 ) { return v1 + 0.5 * ( v2 - 1.0 - v1 ); }
 

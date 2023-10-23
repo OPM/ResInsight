@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicPasteEclipseViewsFeature, "RicPasteEclipseViewsFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteEclipseViewsFeature::isCommandEnabled()
+bool RicPasteEclipseViewsFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
@@ -60,9 +60,7 @@ bool RicPasteEclipseViewsFeature::isCommandEnabled()
     if ( gridCaseGroup ) return false;
 
     RimEclipseCase* eclipseCase = RicPasteFeatureImpl::findEclipseCase( destinationObject );
-    if ( eclipseCase ) return true;
-
-    return false;
+    return eclipseCase != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

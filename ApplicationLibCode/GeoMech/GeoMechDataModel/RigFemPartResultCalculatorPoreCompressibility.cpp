@@ -20,6 +20,7 @@
 
 #include "RiaEclipseUnitTools.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -78,7 +79,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
         return result;
     };
 
-    RigFemScalarResultFrames* srcPORDataFrames = loadFrameLambda( RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
+    RigFemScalarResultFrames* srcPORDataFrames = loadFrameLambda( RigFemAddressDefines::nodalPorBarAddress() );
 
     // Volumetric Strain
     RigFemScalarResultFrames* srcEVDataFrames = loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "NE", "EV" ) );

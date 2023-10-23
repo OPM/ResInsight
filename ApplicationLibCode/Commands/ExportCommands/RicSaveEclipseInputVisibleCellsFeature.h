@@ -35,7 +35,7 @@ public:
     static void executeCommand( RimEclipseView* view, const RicSaveEclipseInputVisibleCellsUi& exportSettings, const QString& logPrefix );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
@@ -51,7 +51,7 @@ class RicSaveEclipseInputActiveVisibleCellsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

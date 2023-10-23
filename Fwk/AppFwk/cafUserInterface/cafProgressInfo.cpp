@@ -474,7 +474,7 @@ void ProgressInfoStatic::start( size_t maxProgressValue, const QString& title, b
 
     QProgressDialog* dialog = progressDialog();
 
-    if ( !maxProgressStack_v.size() )
+    if ( maxProgressStack_v.empty() )
     {
         // progressDialog()->setWindowModality(Qt::ApplicationModal);
         if ( dialog )
@@ -630,8 +630,8 @@ void ProgressInfoStatic::finished()
     std::vector<size_t>& progressSpanStack_v = progressSpanStack();
     std::vector<size_t>& maxProgressStack_v  = maxProgressStack();
 
-    CAF_ASSERT( maxProgressStack_v.size() && progressStack_v.size() && progressSpanStack_v.size() &&
-                titleStack().size() && descriptionStack().size() );
+    CAF_ASSERT( !maxProgressStack_v.empty() && !progressStack_v.empty() && !progressSpanStack_v.empty() &&
+                !titleStack().empty() && !descriptionStack().empty() );
 
     // Set progress to max value, and leave it there until somebody touches the progress again
 

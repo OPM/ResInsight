@@ -38,21 +38,23 @@ public:
 
     QString aggregatedPlotTitle( const RimSummaryNameHelper& summaryMultiPlotNameHelper ) const;
 
-    virtual bool isPlotDisplayingSingleVectorName() const = 0;
-    virtual bool isWellNameInTitle() const                = 0;
-    virtual bool isGroupNameInTitle() const               = 0;
-    virtual bool isRegionInTitle() const                  = 0;
-    virtual bool isCaseInTitle() const                    = 0;
-    virtual bool isBlockInTitle() const                   = 0;
-    virtual bool isSegmentInTitle() const                 = 0;
-    virtual bool isCompletionInTitle() const              = 0;
+    virtual bool isPlotDisplayingSingleCurve() const = 0;
+    virtual bool isWellNameInTitle() const           = 0;
+    virtual bool isGroupNameInTitle() const          = 0;
+    virtual bool isNetworkInTitle() const            = 0;
+    virtual bool isRegionInTitle() const             = 0;
+    virtual bool isCaseInTitle() const               = 0;
+    virtual bool isBlockInTitle() const              = 0;
+    virtual bool isSegmentInTitle() const            = 0;
+    virtual bool isCompletionInTitle() const         = 0;
 
-    virtual std::set<std::string> vectorNames() const = 0;
-    virtual QString               caseName() const    = 0;
+    virtual std::vector<std::string> vectorNames() const = 0;
+    virtual QString                  caseName() const    = 0;
 
     virtual std::string titleVectorName() const = 0;
     virtual std::string titleWellName() const   = 0;
     virtual std::string titleGroupName() const  = 0;
+    virtual std::string titleNetwork() const    = 0;
     virtual std::string titleRegion() const     = 0;
     virtual std::string titleBlock() const      = 0;
     virtual std::string titleSegment() const    = 0;

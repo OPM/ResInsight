@@ -69,7 +69,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
         QString     line     = stream.readLine();
         QStringList lineSegs = line.split( "'" );
 
-        if ( lineSegs.size() == 0 ) continue; // Empty line
+        if ( lineSegs.empty() ) continue; // Empty line
         if ( lineSegs.size() == 1 ) continue; // No name present. Comment line ?
         if ( lineSegs.size() == 2 )
         {

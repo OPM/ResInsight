@@ -47,7 +47,7 @@
 #include "RimStimPlanModelElasticPropertyCalculator.h"
 #include "RimStimPlanModelTemplate.h"
 #include "RimTools.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -159,6 +159,13 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         return false;
     }
 
+    QString defaultFacies = stimPlanModelTemplate->defaultFacies();
+    if ( defaultFacies.isEmpty() )
+    {
+        RiaLogging::error( QString( "No default facies defined when extracting elastic properties." ) );
+        return false;
+    }
+
     RimColorLegend* colorLegend = faciesProperties->colorLegend();
     if ( !colorLegend )
     {
@@ -169,7 +176,7 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     RimElasticProperties* elasticProperties = stimPlanModelTemplate->elasticProperties();
     if ( !elasticProperties )
     {
-        RiaLogging::error( QString( "No elastic properties found weh extracting elastic properties." ) );
+        RiaLogging::error( QString( "No elastic properties found when extracting elastic properties." ) );
         return false;
     }
 

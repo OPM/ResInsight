@@ -40,14 +40,6 @@ CAF_CMD_SOURCE_INIT( RicCreateGridCrossPlotFeature, "RicCreateGridCrossPlotFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateGridCrossPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
 {
     RimGridCrossPlotCollection* collection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlotCollection>();

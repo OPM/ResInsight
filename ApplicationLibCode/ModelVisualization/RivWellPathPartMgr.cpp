@@ -55,6 +55,7 @@
 #include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
+#include "RivAnnotationSourceInfo.h"
 #include "RivBoxGeometryGenerator.h"
 #include "RivDrawableSpheres.h"
 #include "RivFishbonesSubsPartMgr.h"
@@ -151,7 +152,7 @@ bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClip
 
     if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
 
-    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::ALL_ON && m_rimWellPath->showWellPath() == false ) return false;
+    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::ALL_ON && !m_rimWellPath->showWellPath() ) return false;
 
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return false;
 
@@ -235,7 +236,10 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
                 cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( attribute );
 
                 cvf::Collection<cvf::Part> parts;
-                geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, attribute->defaultComponentColor() );
+                RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts,
+                                                                                   displayCoords,
+                                                                                   radii,
+                                                                                   attribute->defaultComponentColor() );
                 for ( auto part : parts )
                 {
                     part->setSourceInfo( objectSourceInfo.p() );
@@ -267,7 +271,10 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
                 cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( attribute );
 
                 cvf::Collection<cvf::Part> parts;
-                geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, attribute->defaultComponentColor() );
+                RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts,
+                                                                                   displayCoords,
+                                                                                   radii,
+                                                                                   attribute->defaultComponentColor() );
                 for ( auto part : parts )
                 {
                     part->setSourceInfo( objectSourceInfo.p() );
@@ -351,7 +358,7 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
             // Use the view legend config to find color, if only one type of measurement is selected.
             cvf::Color3f color = cvf::Color3f( wellMeasurementInView->legendConfig()->scalarMapper()->mapToColor( wellMeasurement->value() ) );
 
-            geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
+            RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
             for ( auto part : parts )
             {
                 part->setSourceInfo( objectSourceInfo.p() );
@@ -620,14 +627,16 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     m_pipeGeomGenerator->setCrossSectionVertexCount( wellPathCollection->wellPathCrossSectionVertexCount() );
 
     double horizontalLengthAlongWellToClipPoint = 0.0;
+    double measuredDepthAtFirstClipPoint        = 0.0;
     size_t idxToFirstVisibleSegment             = 0;
     if ( wellPathCollection->wellPathClip )
     {
         double maxZClipHeight     = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
         clippedWellPathCenterLine = RigWellPath::clipPolylineStartAboveZ( wellpathCenterLine,
                                                                           maxZClipHeight,
-                                                                          &horizontalLengthAlongWellToClipPoint,
-                                                                          &idxToFirstVisibleSegment );
+                                                                          horizontalLengthAlongWellToClipPoint,
+                                                                          measuredDepthAtFirstClipPoint,
+                                                                          idxToFirstVisibleSegment );
     }
     else
     {
@@ -694,6 +703,32 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         cvf::ref<cvf::Effect>    eff = gen.generateCachedEffect();
 
         m_centerLinePart->setEffect( eff.p() );
+
+        if ( m_rimWellPath->measuredDepthLabelInterval().has_value() && clippedWellPathCenterLine.size() > 2 )
+        {
+            const double distanceBetweenLabels = m_rimWellPath->measuredDepthLabelInterval().value();
+
+            // Create a round number as start for measured depth label
+            const double startMeasuredDepth =
+                ( static_cast<int>( measuredDepthAtFirstClipPoint / distanceBetweenLabels ) + 1 ) * distanceBetweenLabels;
+
+            std::vector<std::string> labelTexts;
+            std::vector<cvf::Vec3d>  labelDisplayCoords;
+
+            double measuredDepth = startMeasuredDepth;
+            while ( measuredDepth < wellPathGeometry->measuredDepths().back() )
+            {
+                labelTexts.push_back( std::to_string( static_cast<int>( measuredDepth ) ) );
+                auto domainCoord = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
+
+                auto displayCoord = displayCoordTransform->transformToDisplayCoord( domainCoord );
+                labelDisplayCoords.push_back( displayCoord );
+
+                measuredDepth += distanceBetweenLabels;
+            }
+
+            m_centerLinePart->setSourceInfo( new RivAnnotationSourceInfo( labelTexts, labelDisplayCoords ) );
+        }
     }
 
     // Generate label with well-path name at a position that is slightly offset towards the end of the well path
@@ -708,21 +743,13 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 
-        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont( font );
-        drawableText->setCheckPosVisible( false );
-        drawableText->setDrawBorder( false );
-        drawableText->setDrawBackground( false );
-        drawableText->setVerticalAlignment( cvf::TextDrawer::CENTER );
-        drawableText->setTextColor( wellPathCollection->wellPathLabelColor() );
-
-        cvf::String cvfString = cvfqt::Utils::toString( m_rimWellPath->name() );
-
-        cvf::Vec3f textCoord( textPosition );
-        drawableText->addText( cvfString, textCoord );
+        auto drawableText = RivAnnotationTools::createDrawableTextNoBackground( font,
+                                                                                wellPathCollection->wellPathLabelColor(),
+                                                                                m_rimWellPath->name().toStdString(),
+                                                                                cvf::Vec3f( textPosition ) );
 
         cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName( "RivWellHeadPartMgr: text " + cvfString );
+        part->setName( "RivWellHeadPartMgr: text " + m_rimWellPath->name().toStdString() );
         part->setDrawable( drawableText.p() );
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
@@ -730,7 +757,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         part->setEffect( eff.p() );
         part->setPriority( RivPartPriority::Text );
 
-        part->setSourceInfo( new RivTextLabelSourceInfo( m_rimWellPath, cvfString, textCoord ) );
+        part->setSourceInfo( new RivTextLabelSourceInfo( m_rimWellPath, m_rimWellPath->name().toStdString(), cvf::Vec3f( textPosition ) ) );
 
         m_wellLabelPart = part;
     }

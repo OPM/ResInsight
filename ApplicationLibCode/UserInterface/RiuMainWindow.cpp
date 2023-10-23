@@ -156,12 +156,16 @@ RiuMainWindow::RiuMainWindow()
 
     initializeGuiNewProjectLoaded();
 
+    QString versionText = RiaApplication::getVersionStringApp( false );
+
+    m_versionInfo           = new QLabel( versionText );
     m_memoryCriticalWarning = new QLabel( "" );
     m_memoryUsedButton      = new QToolButton( nullptr );
     m_memoryTotalStatus     = new QLabel( "" );
 
     m_memoryUsedButton->setDefaultAction( caf::CmdFeatureManager::instance()->action( "RicShowMemoryCleanupDialogFeature" ) );
 
+    statusBar()->addPermanentWidget( m_versionInfo );
     statusBar()->addPermanentWidget( m_memoryCriticalWarning );
     statusBar()->addPermanentWidget( m_memoryUsedButton );
     statusBar()->addPermanentWidget( m_memoryTotalStatus );
@@ -316,7 +320,7 @@ void RiuMainWindow::closeEvent( QCloseEvent* event )
             return;
         }
     }
-    this->saveWinGeoAndDockToolBarLayout();
+    saveWinGeoAndDockToolBarLayout();
     QMainWindow::closeEvent( event );
 }
 
@@ -880,7 +884,7 @@ void RiuMainWindow::setResultInfo( const QString& info ) const
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::refreshViewActions()
 {
-    this->slotRefreshViewActions();
+    slotRefreshViewActions();
 }
 
 //==================================================================================================
@@ -1802,7 +1806,7 @@ void RiuMainWindow::updateMemoryUsage()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::showProcessMonitorDockPanel()
 {
-    RiuDockWidgetTools::showDockWidget( this->dockManager(), RiuDockWidgetTools::mainWindowProcessMonitorName() );
+    RiuDockWidgetTools::showDockWidget( dockManager(), RiuDockWidgetTools::mainWindowProcessMonitorName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2010,7 +2014,7 @@ void RiuMainWindow::customMenuRequested( const QPoint& pos )
 
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
     // Since we might get this signal from different treeViews, we need to map the position accordingly.
-    QObject*   senderObj = this->sender();
+    QObject*   senderObj = sender();
     QTreeView* treeView  = dynamic_cast<QTreeView*>( senderObj );
     if ( treeView )
     {

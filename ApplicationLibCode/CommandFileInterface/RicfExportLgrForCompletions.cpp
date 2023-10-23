@@ -35,7 +35,6 @@
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
-#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldScriptingCapability.h"
 
 #include <QStringList>
@@ -90,9 +89,6 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "LGR" );
     }
 
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    auto                    feature = dynamic_cast<RicExportLgrFeature*>( commandManager->getCommandFeature( "RicExportLgrFeature" ) );
-
     RimEclipseCase* eclipseCase = TOOLS::caseFromId( m_caseId() );
     if ( !eclipseCase )
     {
@@ -104,16 +100,16 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     caf::VecIjk lgrCellCounts( m_refinementI, m_refinementJ, m_refinementK );
     QStringList wellsIntersectingOtherLgrs;
 
-    feature->exportLgrsForWellPaths( exportFolder,
-                                     wellPaths,
-                                     eclipseCase,
-                                     m_timeStep,
-                                     lgrCellCounts,
-                                     m_splitType(),
-                                     { RigCompletionData::CompletionType::PERFORATION,
-                                       RigCompletionData::CompletionType::FRACTURE,
-                                       RigCompletionData::CompletionType::FISHBONES },
-                                     &wellsIntersectingOtherLgrs );
+    RicExportLgrFeature::exportLgrsForWellPaths( exportFolder,
+                                                 wellPaths,
+                                                 eclipseCase,
+                                                 m_timeStep,
+                                                 lgrCellCounts,
+                                                 m_splitType(),
+                                                 { RigCompletionData::CompletionType::PERFORATION,
+                                                   RigCompletionData::CompletionType::FRACTURE,
+                                                   RigCompletionData::CompletionType::FISHBONES },
+                                                 &wellsIntersectingOtherLgrs );
 
     caf::PdmScriptResponse response;
     if ( !wellsIntersectingOtherLgrs.empty() )

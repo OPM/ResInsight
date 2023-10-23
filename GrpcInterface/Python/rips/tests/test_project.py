@@ -54,10 +54,6 @@ def test_well_log_plots(rips_instance, initialize_test):
             assert plot2.depth_type == "TRUE_VERTICAL_DEPTH_RKB"
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"),
-    reason="Brugge is currently exceptionally slow on Linux",
-)
 def test_loadGridCaseGroup(rips_instance, initialize_test):
     case_paths = []
     case_paths.append(dataroot.PATH + "/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID")

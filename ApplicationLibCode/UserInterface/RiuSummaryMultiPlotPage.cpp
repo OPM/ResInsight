@@ -70,10 +70,10 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
     int nCells = cols * rows;
     reservePlaceholders( nCells - nPlots );
 
-    QList<QPointer<QLabel>>                   subTitles    = this->subTitlesForVisiblePlots();
-    QList<QPointer<RiuQwtPlotLegend>>         legends      = this->legendsForVisiblePlots();
-    QList<QPointer<RiuDraggableOverlayFrame>> legendFrames = this->legendFramesForVisiblePlots();
-    QList<QPointer<RiuPlotWidget>>            plotWidgets  = this->visiblePlotWidgets();
+    QList<QPointer<QLabel>>                   subTitles    = subTitlesForVisiblePlots();
+    QList<QPointer<RiuQwtPlotLegend>>         legends      = legendsForVisiblePlots();
+    QList<QPointer<RiuDraggableOverlayFrame>> legendFrames = legendFramesForVisiblePlots();
+    QList<QPointer<RiuPlotWidget>>            plotWidgets  = visiblePlotWidgets();
 
     m_visibleIndexToPositionMapping.clear();
 

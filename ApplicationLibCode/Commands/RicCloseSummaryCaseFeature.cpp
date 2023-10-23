@@ -111,12 +111,12 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCloseSummaryCaseFeature::isCommandEnabled()
+bool RicCloseSummaryCaseFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() == 0 )
+    if ( selection.empty() )
     {
         return false;
     }
@@ -138,7 +138,7 @@ void RicCloseSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    CVF_ASSERT( selection.size() > 0 );
+    CVF_ASSERT( !selection.empty() );
 
     RicCloseSummaryCaseFeature::deleteSummaryCases( selection );
 }

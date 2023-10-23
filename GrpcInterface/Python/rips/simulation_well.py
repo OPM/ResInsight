@@ -8,21 +8,27 @@ import SimulationWell_pb2_grpc
 
 import Properties_pb2
 import Properties_pb2_grpc
+import PdmObject_pb2
 
 from .resinsight_classes import SimulationWell
 
+from .case import Case
 from .pdmobject import PdmObjectBase, add_method
 
-import rips.case
+from typing import List, Optional
 
 
 @add_method(SimulationWell)
-def __custom_init__(self, pb2_object, channel):
-    self._simulation_well_stub = SimulationWell_pb2_grpc.SimulationWellStub(channel)
+def __custom_init__(
+    self: SimulationWell, pb2_object: PdmObject_pb2.PdmObject, channel: grpc.Channel
+) -> None:
+    self.__simulation_well_stub = SimulationWell_pb2_grpc.SimulationWellStub(channel)
 
 
 @add_method(SimulationWell)
-def status(self, timestep):
+def status(
+    self: SimulationWell, timestep: int
+) -> List[SimulationWell_pb2.SimulationWellStatus]:
     """Get simulation well status
 
      **SimulationWellStatus class description**::
@@ -39,11 +45,13 @@ def status(self, timestep):
     sim_well_request = SimulationWell_pb2.SimulationWellRequest(
         case_id=self.case().id, well_name=self.name, timestep=timestep
     )
-    return self._simulation_well_stub.GetSimulationWellStatus(sim_well_request)
+    return self.__simulation_well_stub.GetSimulationWellStatus(sim_well_request)
 
 
 @add_method(SimulationWell)
-def cells(self, timestep):
+def cells(
+    self: SimulationWell, timestep: int
+) -> List[SimulationWell_pb2.SimulationWellCellInfo]:
     """Get reservoir cells the simulation well is defined for
 
      **SimulationWellCellInfo class description**::
@@ -66,9 +74,9 @@ def cells(self, timestep):
     sim_well_request = SimulationWell_pb2.SimulationWellRequest(
         case_id=self.case().id, well_name=self.name, timestep=timestep
     )
-    return self._simulation_well_stub.GetSimulationWellCells(sim_well_request).data
+    return self.__simulation_well_stub.GetSimulationWellCells(sim_well_request).data
 
 
 @add_method(SimulationWell)
-def case(self):
-    return self.ancestor(rips.case.Case)
+def case(self: SimulationWell) -> Optional[Case]:
+    return self.ancestor(Case)

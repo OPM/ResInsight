@@ -49,7 +49,7 @@ CAF_CMD_SOURCE_INIT( ToggleItemsOffFeature, "cafToggleItemsOffFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ToggleItemsOffFeature::isCommandEnabled()
+bool ToggleItemsOffFeature::isCommandEnabled() const
 {
     return ToggleItemsFeatureImpl::isToggleCommandsAvailable();
 }

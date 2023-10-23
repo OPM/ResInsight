@@ -41,5 +41,4 @@ protected:
     static RimValveTemplate* createNewValveTemplate();
     void                     onActionTriggered( bool isChecked ) override;
     void                     setupActionLook( QAction* actionToSetup ) override;
-    bool                     isCommandEnabled() override;
 };

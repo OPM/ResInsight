@@ -205,11 +205,11 @@ void RimTernaryLegendConfig::updateLegend()
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::setAutomaticRanges( TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax )
 {
-    double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( globalMin, precision );
-    double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( globalMax, precision );
+    double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( globalMin, precision );
+    double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( globalMax, precision );
 
-    double candidateLocalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( localMin, precision );
-    double candidateLocalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( localMax, precision );
+    double candidateLocalAutoMin = RiaNumericalTools::roundToNumSignificantDigitsFloor( localMin, precision );
+    double candidateLocalAutoMax = RiaNumericalTools::roundToNumSignificantDigitsCeil( localMax, precision );
 
     m_globalAutoMin[ternaryIndex] = candidateGlobalAutoMin;
     m_globalAutoMax[ternaryIndex] = candidateGlobalAutoMax;
@@ -242,8 +242,8 @@ void RimTernaryLegendConfig::onRecreateLegend()
 void RimTernaryLegendConfig::setUiValuesFromLegendConfig( const RimTernaryLegendConfig* otherLegendConfig )
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
-    this->readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
-    this->updateLegend();
+    readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

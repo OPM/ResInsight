@@ -69,6 +69,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultReactivationModel.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -82,6 +83,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
+#include "RimGeoMechModels.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
@@ -116,6 +118,7 @@
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicSectionCollection.h"
+#include "RimSeismicViewCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -131,8 +134,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlot.h"
-#include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
@@ -153,8 +154,8 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellIASettings.h"
 #include "RimWellLogCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
@@ -268,6 +269,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseCasesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewStatisticsCaseFeature";
+        }
+        else if ( dynamic_cast<RimGeoMechModels*>( firstUiItem ) )
+        {
+            menuBuilder << "RicImportGeoMechCaseFeature";
+            menuBuilder << "Separator";
         }
         else if ( dynamic_cast<RimEclipseStatisticsCase*>( firstUiItem ) )
         {
@@ -470,6 +476,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewStimPlanModelPlotFeature";
             menuBuilder << "RicExportStimPlanModelToFileFeature";
         }
+        else if ( dynamic_cast<RimFaultReactivationModel*>( firstUiItem ) )
+        {
+            menuBuilder << "RicRunFaultReactModelingFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicShowFaultReactModelFeature";
+            menuBuilder << "RicExportInpFileFeature";
+        }
         else if ( dynamic_cast<RimPressureTable*>( firstUiItem ) )
         {
             menuBuilder << "RicNewPressureTableItemFeature";
@@ -485,7 +498,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAdd3dWellLogFileCurveFeature";
             menuBuilder << "RicAdd3dWellLogRftCurveFeature";
         }
-        else if ( dynamic_cast<RimWellLogFile*>( firstUiItem ) )
+        else if ( dynamic_cast<RimWellLogLasFile*>( firstUiItem ) )
         {
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
@@ -610,12 +623,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewPlotDataFilterFeature";
         }
-        else if ( dynamic_cast<RimSummaryCrossPlotCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicPasteSummaryCrossPlotFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicNewSummaryCrossPlotFeature";
-        }
         else if ( dynamic_cast<RimSummaryTableCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSummaryTableFeature";
@@ -681,12 +688,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
         }
-        else if ( dynamic_cast<RimSummaryPlot*>( firstUiItem ) ) // This is also the definition for RimSummaryCrossPlot
+        else if ( dynamic_cast<RimSummaryPlot*>( firstUiItem ) )
         {
-            RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>( firstUiItem );
-
             menuBuilder << "RicPasteSummaryCurveFeature";
-            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "RicPasteSummaryPlotFeature";
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
             menuBuilder << "RicPasteEnsembleCurveSetFeature";
@@ -695,16 +699,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicDuplicateSummaryPlotFeature";
             menuBuilder << "RicSplitMultiPlotFeature";
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
-            menuBuilder << "RicDuplicateSummaryCrossPlotFeature";
-            menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewPlotAxisPropertiesFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
+            menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
-
-            // Export is not supported for cross plot
-            if ( !summaryCrossPlot ) menuBuilder << "RicAsciiExportSummaryPlotFeature";
-
+            menuBuilder << "RicAsciiExportSummaryPlotFeature";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
@@ -716,7 +716,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryCurve*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
-            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
 
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCurveFeature";
@@ -724,7 +723,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicCreateDeclineCurvesFeature";
             menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
-            menuBuilder << "RicDuplicateSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicSetSourceSteppingSummaryCurveFeature";
             menuBuilder << "RicClearSourceSteppingSummaryCurveFeature";
@@ -739,7 +737,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryCurveCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
-            menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCurveFeature";
@@ -758,6 +755,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicClearSourceSteppingEnsembleCurveSetFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewEnsembleCurveFilterFeature";
+            menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
         }
         else if ( dynamic_cast<RimCustomObjectiveFunctionCollection*>( firstUiItem ) )
         {
@@ -796,7 +794,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicNewDerivedEnsembleFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder.addSeparator();
@@ -817,7 +814,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder.addSeparator();
@@ -953,6 +949,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimValveTemplateCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewValveTemplateFeature";
+            menuBuilder << "RicImportValveTemplatesFeature";
         }
         else if ( dynamic_cast<RimValveTemplate*>( firstUiItem ) )
         {
@@ -1034,6 +1031,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewPolygonFilterFeature";
             menuBuilder << "RicNewUserDefinedFilterFeature";
+            menuBuilder << "RicNewUserDefinedIndexFilterFeature";
+            menuBuilder << "RicNewCellIndexFilterFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewCellRangeFilterFeature";
             menuBuilder.subMenuStart( "Slice Filters" );
@@ -1054,6 +1053,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSeismicDataCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicImportSeismicFeature";
+        }
+        else if ( dynamic_cast<RimSeismicViewCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewSeismicViewFeature";
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) || dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
         {
@@ -1098,6 +1101,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
+            menuBuilder << "RicCreateCrossPlotFeature";
         }
         else if ( dynamic_cast<RimPlotAxisPropertiesInterface*>( firstUiItem ) )
         {
@@ -1161,7 +1165,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicOpenSummaryPlotEditorFeature";
         menuBuilder << "RicNewDerivedEnsembleFeature";
-        menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";
         menuBuilder.addSeparator();
@@ -1237,14 +1240,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSummaryPlot*>( firstUiItem ) )
         {
-            RimSummaryCrossPlot* summaryCrossPlot = dynamic_cast<RimSummaryCrossPlot*>( firstUiItem );
-            if ( !summaryCrossPlot )
-            {
-                menuBuilder << "RicAsciiExportSummaryPlotFeature";
-            }
+            menuBuilder << "RicAsciiExportSummaryPlotFeature";
         }
         else if ( dynamic_cast<RimSeismicData*>( firstUiItem ) )
         {
+            menuBuilder << "RicNewSeismicViewFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewSeismicDifferenceFeature";
         }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) )
@@ -1288,6 +1289,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendSummaryPlotsForSummaryAddressesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryTableFeature";
+            menuBuilder << "RicCreateCrossPlotFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )
@@ -1419,7 +1421,7 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu( caf::CmdF
         std::vector<RimCase*> cases;
         ruiMainWindow->selectedCases( cases );
 
-        if ( cases.size() > 0 )
+        if ( !cases.empty() )
         {
             menuBuilder.subMenuStart( "Execute script" );
 

@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-
 #include <QPointer>
 #include <QString>
 

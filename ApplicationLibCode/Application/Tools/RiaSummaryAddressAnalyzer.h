@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiaSummaryCurveAddress.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include <set>
@@ -39,19 +40,23 @@ public:
 
     void appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
     void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
+    void appendAddresses( const std::vector<RiaSummaryCurveAddress>& addresses );
 
     void clear();
 
-    std::set<std::string> quantities() const;
-    std::set<std::string> quantityNamesWithHistory() const;
-    std::set<std::string> quantityNamesNoHistory() const;
+    std::vector<std::string> quantities() const;
+    std::set<std::string>    quantityNamesWithHistory() const;
+    std::set<std::string>    quantityNamesNoHistory() const;
 
     bool isSingleQuantityIgnoreHistory() const;
+
+    bool onlyCrossPlotCurves() const;
 
     std::string quantityNameForTitle() const;
 
     std::set<std::string> wellNames() const;
     std::set<std::string> groupNames() const;
+    std::set<std::string> networkNames() const;
     std::set<int>         regionNumbers() const;
 
     std::set<std::string> wellCompletions( const std::string& wellName ) const;
@@ -59,17 +64,18 @@ public:
     std::set<std::string> blocks() const;
     std::set<int>         aquifers() const;
 
-    std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories() const;
-    std::vector<std::vector<RifEclipseSummaryAddress>>     addressesGroupedByObject() const;
+    std::set<RifEclipseSummaryAddressDefines::SummaryCategory> categories() const;
+    std::vector<std::vector<RifEclipseSummaryAddress>>         addressesGroupedByObject() const;
 
-    std::vector<QString> identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category, const std::string& secondaryIdentifier ) const;
+    std::vector<QString> identifierTexts( RifEclipseSummaryAddressDefines::SummaryCategory category,
+                                          const std::string&                               secondaryIdentifier ) const;
 
-    static std::vector<RifEclipseSummaryAddress> addressesForCategory( const std::set<RifEclipseSummaryAddress>&    addresses,
-                                                                       RifEclipseSummaryAddress::SummaryVarCategory category );
+    static std::vector<RifEclipseSummaryAddress> addressesForCategory( const std::set<RifEclipseSummaryAddress>&        addresses,
+                                                                       RifEclipseSummaryAddressDefines::SummaryCategory category );
 
     static std::string correspondingHistorySummaryCurveName( const std::string& curveName );
 
-    std::set<std::string> vectorNamesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category );
+    std::set<std::string> vectorNamesForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category );
 
 private:
     void assignCategoryToQuantities() const;
@@ -79,26 +85,29 @@ private:
 
     static std::set<std::string> keysInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
     static std::set<int>         keysInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
-    static std::set<RifEclipseSummaryAddress::SummaryVarCategory>
-        keysInMap( const std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::set<std::string>>& map );
+    static std::set<RifEclipseSummaryAddressDefines::SummaryCategory>
+        keysInMap( const std::map<RifEclipseSummaryAddressDefines::SummaryCategory, std::set<std::string>>& map );
 
     static std::vector<std::vector<RifEclipseSummaryAddress>> valuesInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
 
     static std::vector<std::vector<RifEclipseSummaryAddress>> valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
 
 private:
-    std::set<std::string>         m_quantities;
+    std::vector<std::string>      m_quantities;
     mutable std::set<std::string> m_quantitiesWithMatchingHistory;
     mutable std::set<std::string> m_quantitiesNoMatchingHistory;
 
     std::vector<RifEclipseSummaryAddress>                m_otherCategory;
     std::multimap<std::string, RifEclipseSummaryAddress> m_wellNames;
     std::multimap<std::string, RifEclipseSummaryAddress> m_groupNames;
+    std::multimap<std::string, RifEclipseSummaryAddress> m_networkNames;
     std::multimap<int, RifEclipseSummaryAddress>         m_regionNumbers;
     std::set<std::pair<std::string, std::string>>        m_wellCompletions;
     std::set<std::pair<std::string, int>>                m_wellSegmentNumbers;
     std::multimap<std::string, RifEclipseSummaryAddress> m_blocks;
     std::multimap<int, RifEclipseSummaryAddress>         m_aquifers;
 
-    std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::set<std::string>> m_categories;
+    std::map<RifEclipseSummaryAddressDefines::SummaryCategory, std::set<std::string>> m_categories;
+
+    bool m_onlyCrossPlotCurves;
 };

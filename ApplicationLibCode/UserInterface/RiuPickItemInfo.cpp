@@ -112,9 +112,9 @@ bool RiuPickItemInfo::operator<( const RiuPickItemInfo& other ) const
     {
         return m_distanceAlongRay < other.distanceAlongRay();
     }
-    else if ( this->polygonOffsetUnit() != other.polygonOffsetUnit() )
+    else if ( polygonOffsetUnit() != other.polygonOffsetUnit() )
     {
-        return this->polygonOffsetUnit() < other.polygonOffsetUnit();
+        return polygonOffsetUnit() < other.polygonOffsetUnit();
     }
     else if ( m_faceIdx != other.faceIdx() )
     {

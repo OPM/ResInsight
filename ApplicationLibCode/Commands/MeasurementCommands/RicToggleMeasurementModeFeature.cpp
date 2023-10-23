@@ -46,7 +46,7 @@ void RicToggleMeasurementModeFeature::refreshActionLook()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicToggleMeasurementModeFeature::isCommandEnabled()
+bool RicToggleMeasurementModeFeature::isCommandEnabled() const
 {
     return activeView() != nullptr;
 }
@@ -95,7 +95,7 @@ void RicToggleMeasurementModeFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicToggleMeasurementModeFeature::isCommandChecked()
+bool RicToggleMeasurementModeFeature::isCommandChecked() const
 {
     auto meas = measurement();
     if ( meas )
@@ -181,7 +181,7 @@ void RicTogglePolyMeasurementModeFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicTogglePolyMeasurementModeFeature::isCommandChecked()
+bool RicTogglePolyMeasurementModeFeature::isCommandChecked() const
 {
     auto meas = measurement();
     if ( meas )

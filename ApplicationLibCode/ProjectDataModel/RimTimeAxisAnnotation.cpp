@@ -63,7 +63,7 @@ void RimTimeAxisAnnotation::setTime( time_t time )
 
     m_name = RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( time ), dateTimeFormatString );
 
-    this->setAnnotationType( AnnotationType::LINE );
+    setAnnotationType( AnnotationType::LINE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime )
                  .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( startTime ), dateTimeFormatString ) )
                  .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( endTime ), dateTimeFormatString ) );
 
-    this->setAnnotationType( AnnotationType::RANGE );
+    setAnnotationType( AnnotationType::RANGE );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -60,14 +60,6 @@ CAF_CMD_SOURCE_INIT( RicImportEnsembleFeature, "RicImportEnsembleFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportEnsembleFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName = "ENSEMBLE_FILES";
@@ -139,9 +131,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
         RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
-    std::vector<RimCase*> allCases;
-    RiaApplication::instance()->project()->allCases( allCases );
-
+    std::vector<RimCase*> allCases = RiaApplication::instance()->project()->allGridCases();
     if ( allCases.empty() )
     {
         RiuMainWindow::closeIfOpen();

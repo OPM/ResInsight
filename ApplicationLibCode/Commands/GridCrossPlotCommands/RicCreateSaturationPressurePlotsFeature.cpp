@@ -110,23 +110,14 @@ std::vector<RimSaturationPressurePlot*> RicCreateSaturationPressurePlotsFeature:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateSaturationPressurePlotsFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked )
 {
     RimSaturationPressurePlotCollection* collection = RimMainPlotCollection::current()->saturationPressurePlotCollection();
 
     std::vector<RimEclipseResultCase*> eclipseCases;
     {
-        RiaApplication*       app = RiaApplication::instance();
-        std::vector<RimCase*> cases;
-        app->project()->allCases( cases );
+        RiaApplication*       app   = RiaApplication::instance();
+        std::vector<RimCase*> cases = app->project()->allGridCases();
         for ( auto* rimCase : cases )
         {
             auto erc = dynamic_cast<RimEclipseResultCase*>( rimCase );

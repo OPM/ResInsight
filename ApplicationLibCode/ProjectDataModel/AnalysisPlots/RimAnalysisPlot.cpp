@@ -25,12 +25,6 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTextStringTools.h"
 
-#include "RiuGroupedBarChartBuilder.h"
-#include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotTools.h"
-#include "RiuSummaryQwtPlot.h"
-#include "RiuSummaryVectorSelectionDialog.h"
-
 #include "RifSummaryReaderInterface.h"
 
 #include "RimAnalysisPlotDataEntry.h"
@@ -43,12 +37,20 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
+#include "RiuContextMenuLauncher.h"
+#include "RiuGroupedBarChartBuilder.h"
+#include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotTools.h"
+#include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorSelectionDialog.h"
+
 #include "qwt_column_symbol.h"
 #include "qwt_legend.h"
 #include "qwt_painter.h"
 #include "qwt_plot_barchart.h"
 #include "qwt_scale_draw.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiActionPushButtonEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -64,25 +66,25 @@ namespace caf
 template <>
 void caf::AppEnum<RimAnalysisPlot::SortGroupType>::setUp()
 {
-    addItem( RimAnalysisPlot::NONE, "NONE", "None" );
-    addItem( RimAnalysisPlot::SUMMARY_ITEM, "SUMMARY_ITEM", "Summary Item" );
-    addItem( RimAnalysisPlot::VECTOR, "VECTOR", "Vector" );
-    addItem( RimAnalysisPlot::CASE, "CASE", "Case" );
-    addItem( RimAnalysisPlot::ENSEMBLE, "ENSEMBLE", "Ensemble" );
-    addItem( RimAnalysisPlot::VALUE, "VALUE", "Value" );
-    addItem( RimAnalysisPlot::ABS_VALUE, "ABS_VALUE", "abs(Value)" );
-    addItem( RimAnalysisPlot::OTHER_VALUE, "OTHER_VALUE", "Other Value" );
-    addItem( RimAnalysisPlot::ABS_OTHER_VALUE, "ABS_OTHER_VALUE", "abs(Other Value)" );
-    addItem( RimAnalysisPlot::TIME_STEP, "TIME_STEP", "Time Step" );
-    setDefault( RimAnalysisPlot::NONE );
+    addItem( RimAnalysisPlot::SortGroupType::NONE, "NONE", "None" );
+    addItem( RimAnalysisPlot::SortGroupType::SUMMARY_ITEM, "SUMMARY_ITEM", "Summary Item" );
+    addItem( RimAnalysisPlot::SortGroupType::VECTOR, "VECTOR", "Vector" );
+    addItem( RimAnalysisPlot::SortGroupType::CASE, "CASE", "Case" );
+    addItem( RimAnalysisPlot::SortGroupType::ENSEMBLE, "ENSEMBLE", "Ensemble" );
+    addItem( RimAnalysisPlot::SortGroupType::VALUE, "VALUE", "Value" );
+    addItem( RimAnalysisPlot::SortGroupType::ABS_VALUE, "ABS_VALUE", "abs(Value)" );
+    addItem( RimAnalysisPlot::SortGroupType::OTHER_VALUE, "OTHER_VALUE", "Other Value" );
+    addItem( RimAnalysisPlot::SortGroupType::ABS_OTHER_VALUE, "ABS_OTHER_VALUE", "abs(Other Value)" );
+    addItem( RimAnalysisPlot::SortGroupType::TIME_STEP, "TIME_STEP", "Time Step" );
+    setDefault( RimAnalysisPlot::SortGroupType::NONE );
 }
 
 template <>
 void caf::AppEnum<RimAnalysisPlot::BarOrientation>::setUp()
 {
-    addItem( RimAnalysisPlot::BARS_HORIZONTAL, "BARS_HORIZONTAL", "Horizontal" );
-    addItem( RimAnalysisPlot::BARS_VERTICAL, "BARS_VERTICAL", "Vertical" );
-    setDefault( RimAnalysisPlot::BARS_VERTICAL );
+    addItem( RimAnalysisPlot::BarOrientation::BARS_HORIZONTAL, "BARS_HORIZONTAL", "Horizontal" );
+    addItem( RimAnalysisPlot::BarOrientation::BARS_VERTICAL, "BARS_VERTICAL", "Vertical" );
+    setDefault( RimAnalysisPlot::BarOrientation::BARS_VERTICAL );
 }
 } // namespace caf
 
@@ -92,7 +94,6 @@ CAF_PDM_SOURCE_INIT( RimAnalysisPlot, "AnalysisPlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimAnalysisPlot::RimAnalysisPlot()
-    : RimPlot()
 {
     CAF_PDM_InitObject( "Analysis Plot", ":/AnalysisPlot16x16.png" );
 
@@ -137,7 +138,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_valueSortOperation, "ValueSortOperation", "Sort by Value" );
 
     CAF_PDM_InitFieldNoDefault( &m_sortGroupForColors, "groupForColors", "Coloring Using" );
-    m_sortGroupForColors = RimAnalysisPlot::CASE;
+    m_sortGroupForColors = RimAnalysisPlot::SortGroupType::CASE;
     m_showPlotLegends    = false;
 
     CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top" );
@@ -172,6 +173,8 @@ RimAnalysisPlot::RimAnalysisPlot()
     connectAxisSignals( m_valueAxisProperties() );
     m_plotDataFilterCollection->filtersChanged.connect( this, &RimAnalysisPlot::onFiltersChanged );
     setDeletable( true );
+
+    m_analyserOfSelectedCurveDefs = std::make_unique<RiaSummaryCurveDefinitionAnalyser>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +191,7 @@ RimAnalysisPlot::~RimAnalysisPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::updateCaseNameHasChanged()
 {
-    this->onLoadDataAndUpdate();
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,7 +208,7 @@ RimPlotDataFilterCollection* RimAnalysisPlot::plotDataFilterCollection() const
 void RimAnalysisPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
     m_analysisPlotDataSelection.deleteChildren();
-    for ( auto curveDef : curveDefinitions )
+    for ( const auto& curveDef : curveDefinitions )
     {
         auto dataEntry = new RimAnalysisPlotDataEntry();
         dataEntry->setFromCurveDefinition( curveDef );
@@ -235,11 +238,11 @@ void RimAnalysisPlot::setTimeSteps( const std::vector<time_t>& timeSteps )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses()
+std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
-    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = updateAndGetCurveAnalyzer();
 
     for ( RimSummaryCase* sumCase : analyserOfSelectedCurveDefs->m_singleSummaryCases )
     {
@@ -253,11 +256,11 @@ std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RigEnsembleParameter> RimAnalysisPlot::ensembleParameters()
+std::set<RigEnsembleParameter> RimAnalysisPlot::ensembleParameters() const
 {
     std::set<RigEnsembleParameter> ensembleParms;
 
-    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = updateAndGetCurveAnalyzer();
 
     std::set<RimSummaryCaseCollection*> ensembles;
 
@@ -281,7 +284,7 @@ std::set<RigEnsembleParameter> RimAnalysisPlot::ensembleParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEnsembleParameter RimAnalysisPlot::ensembleParameter( const QString& ensembleParameterName )
+RigEnsembleParameter RimAnalysisPlot::ensembleParameter( const QString& ensembleParameterName ) const
 {
     std::set<RigEnsembleParameter> ensembleParms = ensembleParameters();
     for ( const RigEnsembleParameter& eParam : ensembleParms )
@@ -289,7 +292,7 @@ RigEnsembleParameter RimAnalysisPlot::ensembleParameter( const QString& ensemble
         if ( eParam.name == ensembleParameterName ) return eParam;
     }
 
-    return RigEnsembleParameter();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,7 +303,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
                                               const std::vector<QDateTime>&             timeRangeOrSelection,
                                               bool                                      useAbsValue,
                                               double*                                   minVal,
-                                              double*                                   maxVal )
+                                              double*                                   maxVal ) const
 {
     double min = std::numeric_limits<double>::infinity();
     double max = useAbsValue ? 0.0 : -std::numeric_limits<double>::infinity();
@@ -341,12 +344,10 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
 
         if ( reader->hasAddress( address ) )
         {
-            std::vector<double> values;
-            reader->values( address, &values );
-
+            auto [isOk, values]                  = reader->values( address );
             const std::vector<time_t>& timesteps = reader->timeSteps( address );
 
-            if ( timesteps.size() && values.size() )
+            if ( !timesteps.empty() && !values.empty() )
             {
                 if ( timeStepSourceType == RimPlotDataFilterItem::LAST_TIMESTEP )
                 {
@@ -392,13 +393,13 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
                     if ( !historyAddr.isHistoryVector() ) historyAddr.setVectorName( address.vectorName() + "H" );
 
                     const std::vector<time_t>& historyTimesteps = reader->timeSteps( historyAddr );
-                    if ( historyTimesteps.size() )
+                    if ( !historyTimesteps.empty() )
                     {
                         min = minOrAbsMin( min, values[historyTimesteps.size() - 1] );
                         max = maxOrAbsMax( max, values[historyTimesteps.size() - 1] );
                     }
                 }
-                else if ( selectedTimesteps.size() )
+                else if ( !selectedTimesteps.empty() )
                 {
                     std::vector<size_t> selectedTimestepIndices = RimAnalysisPlot::findTimestepIndices( selectedTimesteps, timesteps );
 
@@ -421,13 +422,13 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::onFiltersChanged( const caf::SignalEmitter* emitter )
 {
-    this->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<time_t> RimAnalysisPlot::selectedTimeSteps()
+std::vector<time_t> RimAnalysisPlot::selectedTimeSteps() const
 {
     std::vector<time_t> selectedTimeTTimeSteps;
     for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
@@ -453,7 +454,7 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         dlg.enableMultiSelect( true );
         dlg.enableIndividualEnsembleCaseSelection( true );
         dlg.hideEnsembles();
-        dlg.setCurveSelection( this->curveDefinitions() );
+        dlg.setCurveSelection( curveDefinitions() );
 
         if ( dlg.exec() == QDialog::Accepted )
         {
@@ -475,10 +476,10 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_selectedTimeSteps.v().clear();
 
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
 
-    this->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -492,9 +493,9 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     selVectorsGrp->add( &m_referenceCase, { true, 3, 2 } );
 
     QString vectorNames;
-    if ( getOrCreateSelectedCurveDefAnalyser() )
+    if ( updateAndGetCurveAnalyzer() )
     {
-        for ( const std::string& vectorName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
+        for ( const std::string& vectorName : updateAndGetCurveAnalyzer()->m_vectorNames )
         {
             vectorNames += QString::fromStdString( vectorName ) + ", ";
         }
@@ -634,16 +635,16 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_valueSortOperation )
     {
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( NONE ), NONE ) );
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( VALUE ), VALUE ) );
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( ABS_VALUE ), ABS_VALUE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SortGroupType::NONE ), SortGroupType::NONE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SortGroupType::VALUE ), SortGroupType::VALUE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SortGroupType::ABS_VALUE ), SortGroupType::ABS_VALUE ) );
     }
     else if ( fieldNeedingOptions == &m_majorGroupType || fieldNeedingOptions == &m_mediumGroupType ||
               fieldNeedingOptions == &m_minorGroupType || fieldNeedingOptions == &m_sortGroupForColors )
     {
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( NONE ), NONE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SortGroupType::NONE ), SortGroupType::NONE ) );
         QStringList currentSummaryItems;
-        for ( auto summaryAddr : getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses )
+        for ( const auto& summaryAddr : updateAndGetCurveAnalyzer()->m_summaryAdresses )
         {
             currentSummaryItems.push_back( QString::fromStdString( summaryAddr.itemUiText() ) );
         }
@@ -656,13 +657,13 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
                 exampleString = exampleString.left( 13 ) + "...";
             }
 
-            QString summaryItemText = QString( "%1 (%2)" ).arg( SortGroupAppEnum::uiText( SUMMARY_ITEM ) ).arg( exampleString );
-            options.push_back( caf::PdmOptionItemInfo( summaryItemText, SUMMARY_ITEM ) );
+            QString summaryItemText = QString( "%1 (%2)" ).arg( SortGroupAppEnum::uiText( SortGroupType::SUMMARY_ITEM ) ).arg( exampleString );
+            options.push_back( caf::PdmOptionItemInfo( summaryItemText, SortGroupType::SUMMARY_ITEM ) );
         }
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( VECTOR ), VECTOR ) );
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( CASE ), CASE ) );
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( ENSEMBLE ), ENSEMBLE ) );
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( TIME_STEP ), TIME_STEP ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SortGroupType::VECTOR ), SortGroupType::VECTOR ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SortGroupType::CASE ), SortGroupType::CASE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SortGroupType::ENSEMBLE ), SortGroupType::ENSEMBLE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SortGroupType::TIME_STEP ), SortGroupType::TIME_STEP ) );
     }
     else if ( fieldNeedingOptions == &m_referenceCase )
     {
@@ -693,7 +694,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<time_t> RimAnalysisPlot::allAvailableTimeSteps()
+std::set<time_t> RimAnalysisPlot::allAvailableTimeSteps() const
 {
     std::set<time_t> timeStepUnion;
 
@@ -715,9 +716,9 @@ std::set<time_t> RimAnalysisPlot::allAvailableTimeSteps()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCase*> RimAnalysisPlot::timestepDefiningSourceCases()
+std::set<RimSummaryCase*> RimAnalysisPlot::timestepDefiningSourceCases() const
 {
-    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = updateAndGetCurveAnalyzer();
     std::set<RimSummaryCase*>          timeStepDefiningSumCases    = analyserOfSelectedCurveDefs->m_singleSummaryCases;
     for ( auto ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
@@ -731,9 +732,9 @@ std::set<RimSummaryCase*> RimAnalysisPlot::timestepDefiningSourceCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RimSummaryCase*> RimAnalysisPlot::allSourceCases()
+std::set<RimSummaryCase*> RimAnalysisPlot::allSourceCases() const
 {
-    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = updateAndGetCurveAnalyzer();
     std::set<RimSummaryCase*>          allSumCases                 = analyserOfSelectedCurveDefs->m_singleSummaryCases;
 
     return allSumCases;
@@ -762,7 +763,7 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    getOrCreateSelectedCurveDefAnalyser();
+    updateAndGetCurveAnalyzer();
 
     if ( m_plotWidget )
     {
@@ -775,12 +776,12 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
         addDataToChartBuilder( chartBuilder );
 
         chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(),
-                                        m_barOrientation == BARS_HORIZONTAL ? Qt::Horizontal : Qt::Vertical,
+                                        m_barOrientation == BarOrientation::BARS_HORIZONTAL ? Qt::Horizontal : Qt::Vertical,
                                         m_useTopBarsFilter() ? m_maxBarCount : -1 );
 
         if ( m_showPlotLegends && m_plotWidget->qwtPlot()->legend() == nullptr )
         {
-            QwtLegend* legend = new QwtLegend( m_plotWidget );
+            auto* legend = new QwtLegend( m_plotWidget );
             m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::RightLegend );
         }
         else if ( !m_showPlotLegends )
@@ -792,8 +793,8 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
         m_plotWidget->updateLegend();
     }
 
-    this->updateAxes();
-    this->updatePlotTitle();
+    updateAxes();
+    updatePlotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -828,6 +829,8 @@ RiuPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParen
     if ( !m_plotWidget )
     {
         m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+
+        new RiuContextMenuLauncher( m_plotWidget, { "RicShowPlotDataFeature" } );
     }
 
     return m_plotWidget;
@@ -865,7 +868,7 @@ void RimAnalysisPlot::updateAxes()
     if ( !m_plotWidget ) return;
 
     RiuPlotAxis axis = RiuPlotAxis::defaultLeft();
-    if ( m_barOrientation == BARS_HORIZONTAL )
+    if ( m_barOrientation == BarOrientation::BARS_HORIZONTAL )
     {
         axis = RiuPlotAxis::defaultBottom();
         m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), false );
@@ -900,7 +903,7 @@ void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
     caf::PdmObject* itemToSelect = nullptr;
     if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
-        if ( m_barOrientation == BARS_VERTICAL )
+        if ( m_barOrientation == BarOrientation::BARS_VERTICAL )
         {
             itemToSelect = m_valueAxisProperties;
         }
@@ -911,7 +914,7 @@ void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
     }
     else if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
-        if ( m_barOrientation == BARS_HORIZONTAL )
+        if ( m_barOrientation == BarOrientation::BARS_HORIZONTAL )
         {
             itemToSelect = m_valueAxisProperties;
         }
@@ -922,6 +925,17 @@ void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
     }
 
     RiuPlotMainWindowTools::selectOrToggleObject( itemToSelect, toggle );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimAnalysisPlot::asciiDataForPlotExport() const
+{
+    RiuGroupedBarChartBuilder chartBuilder;
+    addDataToChartBuilder( chartBuilder );
+
+    return chartBuilder.plotContentAsText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -950,21 +964,21 @@ QString RimAnalysisPlot::assignGroupingText( RimAnalysisPlot::SortGroupType  sor
 
     switch ( sortGroup )
     {
-        case RimAnalysisPlot::SUMMARY_ITEM:
+        case RimAnalysisPlot::SortGroupType::SUMMARY_ITEM:
         {
-            RifEclipseSummaryAddress addr = dataEntry.summaryAddress();
+            RifEclipseSummaryAddress addr = dataEntry.summaryAddressY();
             groupingText                  = QString::fromStdString( addr.itemUiText() );
         }
         break;
-        case RimAnalysisPlot::CASE:
+        case RimAnalysisPlot::SortGroupType::CASE:
         {
-            if ( dataEntry.summaryCase() )
+            if ( dataEntry.summaryCaseY() )
             {
-                groupingText = dataEntry.summaryCase()->displayCaseName();
+                groupingText = dataEntry.summaryCaseY()->displayCaseName();
             }
         }
         break;
-        case RimAnalysisPlot::ENSEMBLE:
+        case RimAnalysisPlot::SortGroupType::ENSEMBLE:
         {
             if ( dataEntry.ensemble() )
             {
@@ -972,14 +986,14 @@ QString RimAnalysisPlot::assignGroupingText( RimAnalysisPlot::SortGroupType  sor
             }
         }
         break;
-        case RimAnalysisPlot::VECTOR:
+        case RimAnalysisPlot::SortGroupType::VECTOR:
         {
-            RifEclipseSummaryAddress addr = dataEntry.summaryAddress();
+            RifEclipseSummaryAddress addr = dataEntry.summaryAddressY();
 
             groupingText = QString::fromStdString( addr.vectorName() );
         }
         break;
-        case RimAnalysisPlot::TIME_STEP:
+        case RimAnalysisPlot::SortGroupType::TIME_STEP:
         {
             groupingText = timestepString;
         }
@@ -1019,7 +1033,7 @@ std::vector<size_t> RimAnalysisPlot::findTimestepIndices( std::vector<time_t> se
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
+std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs() const
 {
     std::vector<RiaSummaryCurveDefinition> dataDefinitions = curveDefinitions();
 
@@ -1030,11 +1044,11 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
     for ( const auto& curveDef : dataDefinitions )
     {
-        if ( curveDef.summaryCase() )
+        if ( curveDef.summaryCaseY() )
         {
-            filteredSumCases.insert( curveDef.summaryCase() );
+            filteredSumCases.insert( curveDef.summaryCaseY() );
 
-            RifEclipseSummaryAddress address = curveDef.summaryAddress();
+            RifEclipseSummaryAddress address = curveDef.summaryAddressY();
 
             address.setVectorName( "" ); // Vector name set to "" in order to store only unique summary items
             filteredSummaryItems.insert( address );
@@ -1054,8 +1068,8 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
     for ( const RiaSummaryCurveDefinition& curveDefCandidate : dataDefinitions )
     {
-        RimSummaryCase*          sumCase = curveDefCandidate.summaryCase();
-        RifEclipseSummaryAddress addr    = curveDefCandidate.summaryAddress();
+        RimSummaryCase*          sumCase = curveDefCandidate.summaryCaseY();
+        RifEclipseSummaryAddress addr    = curveDefCandidate.summaryAddressY();
         addr.setVectorName( "" );
 
         if ( filteredSumCases.count( sumCase ) && filteredSummaryItems.count( addr ) )
@@ -1073,7 +1087,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
 void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                                    std::set<RimSummaryCase*>*          filteredSumCases,
-                                   std::set<RifEclipseSummaryAddress>* filteredSummaryItems )
+                                   std::set<RifEclipseSummaryAddress>* filteredSummaryItems ) const
 {
     if ( !filter->isActive() || !filter->isValid() ) return;
 
@@ -1089,7 +1103,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
         {
             sumItemsToKeep = ( *filteredSummaryItems ); // Not filtering items
 
-            RigEnsembleParameter eParam = this->ensembleParameter( filter->ensembleParameterName() );
+            RigEnsembleParameter eParam = ensembleParameter( filter->ensembleParameterName() );
 
             for ( auto sumCase : ( *filteredSumCases ) )
             {
@@ -1154,7 +1168,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
         }
         else if ( filter->consideredTimeStepsType() == RimPlotDataFilterItem::PLOT_SOURCE_TIMESTEPS )
         {
-            selectedTimesteps = this->selectedTimeSteps();
+            selectedTimesteps = selectedTimeSteps();
         }
 
         std::function<void( double )> storeResultCoreLambda;
@@ -1174,8 +1188,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
                 if ( reader->hasAddress( addrToFilterValue ) )
                 {
-                    std::vector<double> values;
-                    reader->values( addrToFilterValue, &values );
+                    auto [isOk, values]                  = reader->values( addrToFilterValue );
                     const std::vector<time_t>& timesteps = reader->timeSteps( addrToFilterValue );
 
                     if ( filter->consideredTimeStepsType() == RimPlotDataFilterItem::ALL_TIMESTEPS )
@@ -1187,7 +1200,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                             storeResultCoreLambda( value );
                         }
                     }
-                    else if ( timesteps.size() )
+                    else if ( !timesteps.empty() )
                     {
                         std::vector<size_t> selectedTimestepIndices;
 
@@ -1200,7 +1213,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                             size_t timeStepIdx = timesteps.size() - 1;
                             selectedTimestepIndices.push_back( timeStepIdx );
                         }
-                        else if ( selectedTimesteps.size() )
+                        else if ( !selectedTimesteps.empty() )
                         {
                             selectedTimestepIndices = RimAnalysisPlot::findTimestepIndices( selectedTimesteps, timesteps );
                         }
@@ -1211,7 +1224,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                             if ( !historyAddr.isHistoryVector() ) historyAddr.setVectorName( addrToFilterValue.vectorName() + "H" );
 
                             std::vector<time_t> historyTimesteps = reader->timeSteps( historyAddr );
-                            if ( historyTimesteps.size() )
+                            if ( !historyTimesteps.empty() )
                             {
                                 selectedTimestepIndices = RimAnalysisPlot::findTimestepIndices( { historyTimesteps.back() }, timesteps );
                             }
@@ -1402,7 +1415,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder )
+void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder ) const
 {
     std::vector<time_t> selectedTimesteps;
     for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
@@ -1421,8 +1434,8 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
     for ( const RiaSummaryCurveDefinition& curveDef : barDataDefinitions )
     {
-        if ( !curveDef.summaryCase() ) continue;
-        RifSummaryReaderInterface* reader = curveDef.summaryCase()->summaryReader();
+        if ( !curveDef.summaryCaseY() ) continue;
+        RifSummaryReaderInterface* reader = curveDef.summaryCaseY()->summaryReader();
 
         if ( !reader ) continue;
 
@@ -1437,18 +1450,19 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
                                                                referenceCaseReader,
                                                                -1,
                                                                DerivedSummaryOperator::DERIVED_OPERATOR_SUB,
-                                                               curveDef.summaryAddress() );
+                                                               curveDef.summaryAddressY() );
             timeSteps.swap( timeAndValues.first );
             values.swap( timeAndValues.second );
         }
         else
         {
-            timeSteps = reader->timeSteps( curveDef.summaryAddress() );
+            timeSteps = reader->timeSteps( curveDef.summaryAddressY() );
 
-            reader->values( curveDef.summaryAddress(), &values );
+            auto [isOk, readValues] = reader->values( curveDef.summaryAddressY() );
+            values.swap( readValues );
         }
 
-        if ( !( timeSteps.size() && values.size() ) ) continue;
+        if ( timeSteps.empty() || values.empty() ) continue;
 
         // Find selected timestep indices
 
@@ -1484,10 +1498,10 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
             switch ( m_valueSortOperation() )
             {
-                case VALUE:
+                case SortGroupType::VALUE:
                     sortValue = value;
                     break;
-                case ABS_VALUE:
+                case SortGroupType::ABS_VALUE:
                     sortValue = fabs( value );
                     break;
             }
@@ -1500,17 +1514,17 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
                 QStringList barTextComponents;
                 if ( m_useVectorNameInBarText )
                 {
-                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().vectorName() );
+                    barTextComponents += QString::fromStdString( curveDef.summaryAddressY().vectorName() );
                 }
 
                 if ( m_useSummaryItemInBarText )
                 {
-                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().itemUiText() );
+                    barTextComponents += QString::fromStdString( curveDef.summaryAddressY().itemUiText() );
                 }
 
-                if ( m_useCaseInBarText && curveDef.summaryCase() )
+                if ( m_useCaseInBarText && curveDef.summaryCaseY() )
                 {
-                    barTextComponents += curveDef.summaryCase()->displayCaseName();
+                    barTextComponents += curveDef.summaryCaseY()->displayCaseName();
                 }
 
                 if ( m_useEnsembleInBarText && curveDef.ensemble() )
@@ -1540,22 +1554,22 @@ void RimAnalysisPlot::updatePlotTitle()
         QString autoTitle;
         QString separator = ", ";
 
-        if ( getOrCreateSelectedCurveDefAnalyser()->m_ensembles.size() == 1 )
+        if ( updateAndGetCurveAnalyzer()->m_ensembles.size() == 1 )
         {
-            autoTitle += ( *getOrCreateSelectedCurveDefAnalyser()->m_ensembles.begin() )->name();
+            autoTitle += ( *updateAndGetCurveAnalyzer()->m_ensembles.begin() )->name();
         }
 
-        if ( getOrCreateSelectedCurveDefAnalyser()->m_singleSummaryCases.size() == 1 )
+        if ( updateAndGetCurveAnalyzer()->m_singleSummaryCases.size() == 1 )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
-            autoTitle += ( *getOrCreateSelectedCurveDefAnalyser()->m_singleSummaryCases.begin() )->displayCaseName();
+            autoTitle += ( *updateAndGetCurveAnalyzer()->m_singleSummaryCases.begin() )->displayCaseName();
         }
-        else if ( getOrCreateSelectedCurveDefAnalyser()->m_singleSummaryCases.size() > 1 )
+        else if ( updateAndGetCurveAnalyzer()->m_singleSummaryCases.size() > 1 )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
 
             QStringList caseNameList;
-            for ( auto summaryCase : getOrCreateSelectedCurveDefAnalyser()->m_singleSummaryCases )
+            for ( auto summaryCase : updateAndGetCurveAnalyzer()->m_singleSummaryCases )
             {
                 caseNameList.push_back( summaryCase->displayCaseName() );
             }
@@ -1572,13 +1586,13 @@ void RimAnalysisPlot::updatePlotTitle()
             }
         }
 
-        if ( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.size() == 1 )
+        if ( updateAndGetCurveAnalyzer()->m_summaryAdresses.size() == 1 )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
-            autoTitle += QString::fromStdString( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.begin()->itemUiText() );
+            autoTitle += QString::fromStdString( updateAndGetCurveAnalyzer()->m_summaryAdresses.begin()->itemUiText() );
         }
 
-        for ( std::string quantName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
+        for ( const std::string& quantName : updateAndGetCurveAnalyzer()->m_vectorNames )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
             autoTitle += QString::fromStdString( quantName );
@@ -1620,13 +1634,10 @@ void RimAnalysisPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefAnalyser()
+RiaSummaryCurveDefinitionAnalyser* RimAnalysisPlot::updateAndGetCurveAnalyzer() const
 {
-    if ( !m_analyserOfSelectedCurveDefs )
-    {
-        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
-    }
-    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( curveDefinitions() );
+
     return m_analyserOfSelectedCurveDefs.get();
 }
 
@@ -1636,7 +1647,7 @@ RiaSummaryCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefA
 std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefs;
-    for ( auto dataEntry : m_analysisPlotDataSelection )
+    for ( const auto& dataEntry : m_analysisPlotDataSelection )
     {
         curveDefs.push_back( dataEntry->curveDefinition() );
     }
@@ -1680,7 +1691,7 @@ void RimAnalysisPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder )
+void RimAnalysisPlot::buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder ) const
 {
     chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R1", "", 0.4 );
     chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R2", "", 0.45 );
@@ -1749,7 +1760,7 @@ void RimAnalysisPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase )
 {
-    for ( auto existingEntry : m_analysisPlotDataSelection )
+    for ( const auto& existingEntry : m_analysisPlotDataSelection )
     {
         if ( existingEntry->summaryCase() == summaryCase )
         {
@@ -1767,7 +1778,7 @@ void RimAnalysisPlot::onCaseRemoved( const SignalEmitter* emitter, RimSummaryCas
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::connectAllCaseSignals()
 {
-    for ( auto dataEntry : m_analysisPlotDataSelection )
+    for ( const auto& dataEntry : m_analysisPlotDataSelection )
     {
         if ( dataEntry->ensemble() )
         {

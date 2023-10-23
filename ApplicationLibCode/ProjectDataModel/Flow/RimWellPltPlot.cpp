@@ -48,9 +48,9 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlotNameConfig.h"
@@ -134,7 +134,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_nameConfig->setCustomName( "PLT Plot" );
     setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
 
-    this->setAsPlotMdiWindow();
+    setAsPlotMdiWindow();
     m_doInitAfterLoad       = false;
     m_isOnLoad              = true;
     m_plotLegendsHorizontal = false;
@@ -178,10 +178,10 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 
     QString axisTitle;
     if ( m_useReservoirConditionCurves )
-        axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet );
+        axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR, unitSet );
     if ( m_useReservoirConditionCurves && m_useStandardConditionCurves ) axisTitle += " | ";
     if ( m_useStandardConditionCurves )
-        axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet );
+        axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogLasFile::WELL_FLOW_COND_STANDARD, unitSet );
 
     plotTrack->setPropertyValueAxisTitle( axisTitle );
 
@@ -229,9 +229,7 @@ void RimWellPltPlot::updateFormationsOnPlot() const
             {
                 /// Set default case. Todo : Use the first of the selected cases in the
                 /// plot
-                std::vector<RimCase*> cases;
-                proj->allCases( cases );
-
+                std::vector<RimCase*> cases = proj->allGridCases();
                 if ( !cases.empty() )
                 {
                     formationNamesCase = cases[0];
@@ -295,20 +293,16 @@ class RigRftResultPointCalculator : public RigResultPointCalculator
 public:
     RigRftResultPointCalculator( const QString& wellPathName, RimEclipseResultCase* eclCase, QDateTime m_timeStep )
     {
-        RifEclipseRftAddress gasRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                                                   m_timeStep,
-                                                                                   RifEclipseRftAddress::RftWellLogChannelType::GRAT );
-        RifEclipseRftAddress oilRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                                                   m_timeStep,
-                                                                                   RifEclipseRftAddress::RftWellLogChannelType::ORAT );
-        RifEclipseRftAddress watRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                                                   m_timeStep,
-                                                                                   RifEclipseRftAddress::RftWellLogChannelType::WRAT );
+        const auto wellNameForRft = RimWellPlotTools::simWellName( wellPathName );
 
-        std::vector<caf::VecIjk> rftIndices;
-        eclCase->rftReader()->cellIndices( gasRateAddress, &rftIndices );
-        if ( rftIndices.empty() ) eclCase->rftReader()->cellIndices( oilRateAddress, &rftIndices );
-        if ( rftIndices.empty() ) eclCase->rftReader()->cellIndices( watRateAddress, &rftIndices );
+        RifEclipseRftAddress gasRateAddress =
+            RifEclipseRftAddress::createAddress( wellNameForRft, m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::GRAT );
+        RifEclipseRftAddress oilRateAddress =
+            RifEclipseRftAddress::createAddress( wellNameForRft, m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::ORAT );
+        RifEclipseRftAddress watRateAddress =
+            RifEclipseRftAddress::createAddress( wellNameForRft, m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::WRAT );
+
+        std::vector<caf::VecIjk> rftIndices = eclCase->rftReader()->cellIndices( wellNameForRft, m_timeStep );
         if ( rftIndices.empty() ) return;
 
         std::vector<double> gasRates;
@@ -539,7 +533,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     const std::vector<double>& depthValues = wfTotalAccumulator.pseudoLengthFromTop( 0 );
 
-                    QString curveUnitText = RimWellPlotTools::flowUnitText( RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet );
+                    QString curveUnitText = RimWellPlotTools::flowUnitText( RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR, unitSet );
 
                     const std::vector<double> accFlow = wfTotalAccumulator.accumulatedTracerFlowPrPseudoLength( RIG_FLOW_TOTAL_NAME, 0 );
                     addStackedCurve( curveName + ", " + RIG_FLOW_TOTAL_NAME + " " + curveUnitText,
@@ -580,7 +574,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                             else if ( tracerName == RIG_FLOW_WATER_NAME )
                                 flowPhase = FLOW_PHASE_WATER;
                             QString curveUnitText =
-                                RimWellPlotTools::curveUnitText( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase );
+                                RimWellPlotTools::curveUnitText( RimWellLogLasFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase );
 
                             const std::vector<double>& accFlow = wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength( tracerName, 0 );
                             addStackedCurve( curveName + ", " + tracerName + " " + curveUnitText,
@@ -599,14 +593,14 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         {
             if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
             {
-                RimWellLogFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();
+                RimWellLogLasFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();
 
-                if ( ( m_useStandardConditionCurves() && flowCondition == RimWellLogFile::WELL_FLOW_COND_STANDARD ) ||
-                     ( m_useReservoirConditionCurves() && flowCondition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ) )
+                if ( ( m_useStandardConditionCurves() && flowCondition == RimWellLogLasFile::WELL_FLOW_COND_STANDARD ) ||
+                     ( m_useReservoirConditionCurves() && flowCondition == RimWellLogLasFile::WELL_FLOW_COND_RESERVOIR ) )
                 {
                     using ChannelValNameIdxTuple = std::tuple<double, QString, int>;
 
-                    RigWellLogFile* wellLogFileData = sourceDef.wellLogFile()->wellLogFileData();
+                    RigWellLogLasFile* wellLogFileData = sourceDef.wellLogFile()->wellLogFileData();
 
                     QStringList channelNames = wellLogFileData->wellLogChannelNames();
 

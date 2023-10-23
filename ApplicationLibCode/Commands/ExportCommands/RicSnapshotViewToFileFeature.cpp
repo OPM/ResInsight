@@ -227,14 +227,6 @@ QString RicSnapshotViewToFileFeature::text()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSnapshotViewToFileFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::onActionTriggered( bool isChecked )
 {
     // Get active view window before displaying the file selection dialog

@@ -78,7 +78,7 @@ PdmUiToolBarEditor::~PdmUiToolBarEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiToolBarEditor::isEditorDataValid( const std::vector<caf::PdmFieldHandle*>& fields ) const
+bool PdmUiToolBarEditor::isEditorDataEqualAndValid( const std::vector<caf::PdmFieldHandle*>& fields ) const
 {
     if ( m_fields.size() == fields.size() && m_fieldViews.size() == fields.size() )
     {

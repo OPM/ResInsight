@@ -26,6 +26,7 @@
 #include "RicfCommandObject.h"
 #include "RifOdbReader.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -170,15 +171,15 @@ RimGeoMechCase::~RimGeoMechCase()
             RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
             if ( plotCollection )
             {
-                plotCollection->removeExtractors( this->geoMechData() );
+                plotCollection->removeExtractors( geoMechData() );
             }
         }
     }
 
-    if ( this->geoMechData() )
+    if ( geoMechData() )
     {
         // At this point, we assume that memory should be released
-        CVF_ASSERT( this->geoMechData()->refCount() == 1 );
+        CVF_ASSERT( geoMechData()->refCount() == 1 );
     }
 }
 
@@ -203,11 +204,11 @@ const RigGeoMechCaseData* RimGeoMechCase::geoMechData() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::reloadDataAndUpdate()
 {
-    if ( this->geoMechData() )
+    if ( geoMechData() )
     {
         m_geoMechCaseData = nullptr;
         std::string errMsg;
-        if ( this->openGeoMechCase( &errMsg ) == CASE_OPEN_ERROR )
+        if ( openGeoMechCase( &errMsg ) == CASE_OPEN_ERROR )
         {
             RiaLogging::error( QString::fromStdString( errMsg ) );
         }
@@ -268,7 +269,7 @@ RimGeoMechCase* RimGeoMechCase::createCopy( const QString& newInputFileName )
     RimProject* project = RimProject::current();
 
     RimGeoMechCase* copycase =
-        dynamic_cast<RimGeoMechCase*>( this->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        dynamic_cast<RimGeoMechCase*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( copycase );
 
     QFileInfo filenameInfo( newInputFileName );
@@ -288,7 +289,7 @@ RimGeoMechCase* RimGeoMechCase::createCopy( const QString& newInputFileName )
 RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase( std::string* errorMessage )
 {
     // If read already, return
-    if ( this->m_geoMechCaseData.notNull() ) return CASE_OPEN_OK;
+    if ( m_geoMechCaseData.notNull() ) return CASE_OPEN_OK;
 
     if ( !caf::Utils::fileExists( m_caseFileName().path() ) )
     {
@@ -495,7 +496,7 @@ cvf::BoundingBox RimGeoMechCase::reservoirBoundingBox()
 {
     cvf::BoundingBox boundingBox;
 
-    RigGeoMechCaseData* rigCaseData = this->geoMechData();
+    RigGeoMechCaseData* rigCaseData = geoMechData();
     if ( rigCaseData && rigCaseData->femPartResults() && rigCaseData->femParts() )
     {
         for ( int p = 0; p < rigCaseData->femParts()->partCount(); p++ )
@@ -503,8 +504,8 @@ cvf::BoundingBox RimGeoMechCase::reservoirBoundingBox()
             RigFemPart*           femPart     = rigCaseData->femParts()->part( p );
             const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
 
-            RigFemResultAddress       porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
-            const std::vector<float>& resultValues = rigCaseData->femPartResults()->resultValues( porBarAddr, p, 0, 0 );
+            const std::vector<float>& resultValues =
+                rigCaseData->femPartResults()->resultValues( RigFemAddressDefines::elementNodalPorBarAddress(), p, 0, 0 );
 
             for ( int i = 0; i < femPart->elementCount(); ++i )
             {
@@ -592,7 +593,7 @@ void RimGeoMechCase::addElementPropertyFiles( const std::vector<caf::FilePath>& 
         }
     }
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     if ( m_geoMechCaseData.notNull() )
     {
@@ -686,10 +687,10 @@ void RimGeoMechCase::setApplyTimeFilter( bool applyTimeFilter )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimGeoMechCase::displayModelOffset() const
 {
-    auto bb = this->allCellsBoundingBox();
+    auto bb = allCellsBoundingBox();
     if ( bb.isValid() )
     {
-        return this->allCellsBoundingBox().min();
+        return allCellsBoundingBox().min();
     }
 
     return cvf::Vec3d::ZERO;

@@ -44,13 +44,13 @@ CAF_CMD_SOURCE_INIT( RicExportFaultsFeature, "RicExportFaultsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportFaultsFeature::isCommandEnabled()
+bool RicExportFaultsFeature::isCommandEnabled() const
 {
     std::vector<RimFaultInView*> selectedFaults;
 
     caf::SelectionManager::instance()->objectsByType( &selectedFaults );
 
-    return ( selectedFaults.size() > 0 );
+    return ( !selectedFaults.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,13 +58,13 @@ bool RicExportFaultsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportFaultsFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     std::vector<RimFaultInView*> selectedFaults;
 
     caf::SelectionManager::instance()->objectsByType( &selectedFaults );
 
-    if ( selectedFaults.size() == 0 ) return;
+    if ( selectedFaults.empty() ) return;
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULTS" );
 

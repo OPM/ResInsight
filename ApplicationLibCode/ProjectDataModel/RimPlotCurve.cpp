@@ -26,8 +26,8 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimNameConfig.h"
+#include "RimPlotRectAnnotation.h"
 #include "RimProject.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
@@ -135,6 +135,8 @@ RimPlotCurve::RimPlotCurve()
     m_additionalDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_additionalDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitFieldNoDefault( &m_rectAnnotations, "RectAnnotation", "Plot Rect Annotations" );
+
     m_plotCurve  = nullptr;
     m_parentPlot = nullptr;
 }
@@ -159,7 +161,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
 {
     if ( changedField == &m_showCurve )
     {
-        this->updateCurveVisibility();
+        updateCurveVisibility();
         if ( m_showCurve() ) loadDataAndUpdate( false );
         visibilityChanged.send( m_showCurve() );
     }
@@ -189,7 +191,6 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         updateCurveAppearance();
     }
 
-    RiuPlotMainWindowTools::refreshToolbars();
     replotParentPlot();
 }
 
@@ -279,16 +280,16 @@ void RimPlotCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurvePresentation( bool updatePlotLegendAndTitle )
 {
-    this->updateCurveVisibility();
+    updateCurveVisibility();
 
     if ( updatePlotLegendAndTitle )
     {
-        this->updateCurveNameAndUpdatePlotLegendAndTitle();
-        this->updatePlotTitle();
+        updateCurveNameAndUpdatePlotLegendAndTitle();
+        updatePlotTitle();
     }
     else
     {
-        this->updateCurveNameNoLegendUpdate();
+        updateCurveNameNoLegendUpdate();
     }
 
     updateCurveAppearance();
@@ -327,7 +328,7 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
     {
         // Find all plot windows above this object upwards in the object hierarchy. Use the top most plot window as the
         // root to find all plot curves.
-        auto parentPlots = this->allAncestorsOfType<RimPlotWindow>();
+        auto parentPlots = allAncestorsOfType<RimPlotWindow>();
 
         if ( !parentPlots.empty() )
         {
@@ -402,11 +403,11 @@ void RimPlotCurve::updateCurveName()
 {
     if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
-        m_curveName = this->createCurveAutoName();
+        m_curveName = createCurveAutoName();
     }
     else if ( m_namingMethod == RiaDefines::ObjectNamingMethod::TEMPLATE )
     {
-        m_curveName = this->createCurveNameFromTemplate( m_curveNameTemplateText );
+        m_curveName = createCurveNameFromTemplate( m_curveNameTemplateText );
     }
 
     if ( !m_legendEntryText().isEmpty() )
@@ -575,20 +576,9 @@ void RimPlotCurve::checkAndApplyDefaultFillColor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::isCrossPlotCurve() const
-{
-    auto crossPlot = firstAncestorOrThisOfType<RimSummaryCrossPlot>();
-    if ( crossPlot ) return true;
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::loadDataAndUpdate( bool updateParentPlot )
 {
-    this->onLoadDataAndUpdate( updateParentPlot );
+    onLoadDataAndUpdate( updateParentPlot );
     if ( updateParentPlot )
     {
         dataChanged.send();
@@ -875,9 +865,17 @@ void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateAxisInPlot( RiuPlotAxis plotAxis )
+void RimPlotCurve::updateYAxisInPlot( RiuPlotAxis plotAxis )
 {
     if ( m_plotCurve ) m_plotCurve->setYAxis( plotAxis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateXAxisInPlot( RiuPlotAxis plotAxis )
+{
+    if ( m_plotCurve ) m_plotCurve->setXAxis( plotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1029,7 +1027,7 @@ void RimPlotCurve::updateCurveAppearance()
     QColor fillColor = RiaColorTools::toQColor( m_curveAppearance->fillColor() );
 
     fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
-    QBrush fillBrush( fillColor, m_curveAppearance->fillStyle() );
+    QBrush fillBrush( fillColor, fillStyle() );
     m_plotCurve->setAppearance( m_curveAppearance->lineStyle(),
                                 m_curveAppearance->interpolation(),
                                 m_curveAppearance->lineThickness(),
@@ -1143,6 +1141,14 @@ std::vector<RimPlotCurve*> RimPlotCurve::additionalDataSources() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPlotRectAnnotation*> RimPlotCurve::rectAnnotations() const
+{
+    return m_rectAnnotations.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
 {
     if ( !plotWidget ) return;
@@ -1203,7 +1209,7 @@ void RimPlotCurve::detach( bool deletePlotCurve )
         }
     }
 
-    m_parentPlot->scheduleReplot();
+    if ( m_parentPlot ) m_parentPlot->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------

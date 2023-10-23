@@ -33,14 +33,6 @@ CAF_CMD_SOURCE_INIT( RicNewCustomObjectiveFunctionWeightFeature, "RicNewCustomOb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewCustomObjectiveFunctionWeightFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );

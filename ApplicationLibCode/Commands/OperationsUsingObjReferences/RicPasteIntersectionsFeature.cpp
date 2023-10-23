@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicPasteIntersectionsFeature, "RicPasteIntersectionsFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteIntersectionsFeature::isCommandEnabled()
+bool RicPasteIntersectionsFeature::isCommandEnabled() const
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
@@ -54,12 +54,7 @@ bool RicPasteIntersectionsFeature::isCommandEnabled()
 
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
-    if ( findIntersectionCollection( destinationObject ) )
-    {
-        return true;
-    }
-
-    return false;
+    return findIntersectionCollection( destinationObject ) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +71,7 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    if ( objectGroup.objects.size() == 0 ) return;
+    if ( objectGroup.objects.empty() ) return;
 
     std::vector<caf::PdmPointer<RimExtrudedCurveIntersection>> intersectionObjects;
     objectGroup.objectsByType( &intersectionObjects );

@@ -584,17 +584,15 @@ bool RigWellPath::isAnyPointInsideBoundingBox( const std::vector<cvf::Vec3d>& po
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ( const std::vector<cvf::Vec3d>& polyLine,
-                                                              double                         maxZ,
-                                                              double*                        horizontalLengthAlongWellToClipPoint,
-                                                              size_t*                        indexToFirstVisibleSegment )
+                                                              const double                   maxZ,
+                                                              double&                        horizontalLengthAlongWellToClipPoint,
+                                                              double&                        measuredDepthAtFirstClipPoint,
+                                                              size_t&                        indexToFirstVisibleSegment )
 {
-    CVF_ASSERT( horizontalLengthAlongWellToClipPoint );
-    CVF_ASSERT( indexToFirstVisibleSegment );
-
     // Find first visible point, and accumulate distance along wellpath
 
-    *horizontalLengthAlongWellToClipPoint = 0.0;
-    *indexToFirstVisibleSegment           = cvf::UNDEFINED_SIZE_T;
+    horizontalLengthAlongWellToClipPoint = 0.0;
+    indexToFirstVisibleSegment           = cvf::UNDEFINED_SIZE_T;
 
     size_t firstVisiblePointIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -605,8 +603,10 @@ std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ( const std::vector<
             if ( vxIdx > 0 )
             {
                 cvf::Vec3d segment = polyLine[vxIdx] - polyLine[vxIdx - 1];
-                segment[2]         = 0.0;
-                *horizontalLengthAlongWellToClipPoint += segment.length();
+                measuredDepthAtFirstClipPoint += segment.length();
+
+                segment[2] = 0.0;
+                horizontalLengthAlongWellToClipPoint += segment.length();
             }
         }
         else
@@ -635,16 +635,16 @@ std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ( const std::vector<
         {
             cvf::Vec3d segment = intersection - polyLine[firstVisiblePointIndex - 1];
             segment[2]         = 0.0;
-            *horizontalLengthAlongWellToClipPoint += segment.length();
+            horizontalLengthAlongWellToClipPoint += segment.length();
 
             clippedPolyLine.push_back( intersection );
         }
 
-        *indexToFirstVisibleSegment = firstVisiblePointIndex - 1;
+        indexToFirstVisibleSegment = firstVisiblePointIndex - 1;
     }
     else
     {
-        *indexToFirstVisibleSegment = 0;
+        indexToFirstVisibleSegment = 0;
     }
 
     // Add the rest of the polyline

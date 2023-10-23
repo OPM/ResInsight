@@ -65,7 +65,7 @@ caf::PdmFieldHandle* RimFaultInView::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFaultInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 
     if ( &faultColor == changedField || &showFault == changedField )
     {
@@ -83,7 +83,7 @@ void RimFaultInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RimFaultInView::initAfterRead()
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void RimFaultInView::setFaultGeometry( const RigFault* faultGeometry )
 {
     m_rigFault = faultGeometry;
 
-    this->name = faultGeometry->name();
+    name = faultGeometry->name();
 }
 
 //--------------------------------------------------------------------------------------------------

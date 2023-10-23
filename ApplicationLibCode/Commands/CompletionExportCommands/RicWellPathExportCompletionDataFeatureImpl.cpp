@@ -36,6 +36,7 @@
 #include "RicWellPathFractureTextReportFeatureImpl.h"
 
 #include "RifTextDataTableFormatter.h"
+#include "RifThermalToStimPlanFractureXmlOutput.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -60,6 +61,7 @@
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimThermalFractureTemplate.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -138,6 +140,29 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             {
                 fractureTransmissibilityExportInformationStream =
                     std::make_unique<QTextStream>( &fractureTransmissibilityExportInformationFile );
+            }
+
+            // Extra debugging for thermal fractures
+            if ( exportSettings.includeFractures() )
+            {
+                for ( RimWellPath* wellPath : wellPaths )
+                {
+                    std::vector<RimWellPath*> allWellPathLaterals = wellPath->allWellPathLaterals();
+                    for ( auto wellPathLateral : allWellPathLaterals )
+                    {
+                        for ( auto& frac : wellPathLateral->fractureCollection()->activeFractures() )
+                        {
+                            if ( RimThermalFractureTemplate* fractureTemplate =
+                                     dynamic_cast<RimThermalFractureTemplate*>( frac->fractureTemplate() ) )
+                            {
+                                QString name            = frac->name();
+                                QString fractureXmlPath = QDir( exportSettings.folder ).absoluteFilePath( name + ".xml" );
+
+                                RifThermalToStimPlanFractureXmlOutput::writeToFile( fractureTemplate, fractureXmlPath );
+                            }
+                        }
+                    }
+                }
             }
         }
 

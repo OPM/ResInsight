@@ -56,11 +56,9 @@ CAF_CMD_SOURCE_INIT( RicSaveMultiPlotTemplateFeature, "RicSaveMultiPlotTemplateF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveMultiPlotTemplateFeature::isCommandEnabled()
+bool RicSaveMultiPlotTemplateFeature::isCommandEnabled() const
 {
-    if ( selectedSummaryPlot() ) return true;
-
-    return false;
+    return selectedSummaryPlot() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +95,7 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
     plot->storeStepDimensionFromToolbar();
 
     QString ext = ".rpt";
-    if ( selectedSummaryPlot()->curveSets().size() > 0 ) ext = ".erpt";
+    if ( !selectedSummaryPlot()->curveSets().empty() ) ext = ".erpt";
 
     QString fileName = settings.filePath() + "/" + settings.name() + ext;
     if ( !fileName.isEmpty() )
@@ -185,6 +183,28 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         {
+            std::set<QString> sourceStrings;
+
+            const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseXFieldKeyword();
+            for ( const auto& curve : summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+            {
+                if ( curve->axisTypeX() != RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) continue;
+
+                auto fieldHandle = curve->findField( summaryFieldKeyword );
+                if ( fieldHandle )
+                {
+                    auto reference = caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, curve->summaryCaseX() );
+
+                    sourceStrings.insert( reference );
+                }
+
+                addresses.push_back( curve->summaryAddressX() );
+            }
+
+            replaceStrings( sourceStrings, summaryFieldKeyword, RicSummaryPlotTemplateTools::placeholderTextForSummaryCaseX(), objectAsText );
+        }
+
+        {
             std::set<QString> ensembleReferenceStrings;
 
             const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldKeyword();
@@ -198,7 +218,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                     ensembleReferenceStrings.insert( reference );
                 }
 
-                addresses.push_back( curveSet->summaryAddress() );
+                addresses.push_back( curveSet->summaryAddressY() );
             }
 
             replaceStrings( ensembleReferenceStrings,
@@ -221,7 +241,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         replaceStrings( sourceStrings,
-                        dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_WELL ),
+                        dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ),
                         RicSummaryPlotTemplateTools::placeholderTextForWell(),
                         objectAsText );
     }
@@ -235,7 +255,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         replaceStrings( sourceStrings,
-                        dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_GROUP ),
+                        dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ),
                         RicSummaryPlotTemplateTools::placeholderTextForGroup(),
                         objectAsText );
     }
@@ -253,7 +273,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             // Encode placeholder index. Use negative values below -1 to represent a placeholder index
             int index = -( i + 2 );
 
-            QString fieldKeyword             = dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_REGION );
+            QString fieldKeyword             = dummy.keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION );
             QString sourceString             = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( regionNumbers[i] );
             QString replacementTextWithIndex = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( index );
 

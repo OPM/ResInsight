@@ -91,7 +91,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
 
     m_visibleFracturePolygons.clear();
 
-    double characteristicCellSize = eclView.ownerCase()->characteristicCellSize();
+    double characteristicCellSize = eclView.characteristicCellSize();
 
     cvf::Collection<cvf::Part> parts;
     RimMeshFractureTemplate*   stimPlanFracTemplate = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
@@ -928,7 +928,7 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEcli
     auto displayCoordTransform = activeView.displayCoordTransform();
     if ( displayCoordTransform.isNull() ) return;
 
-    double characteristicCellSize = activeView.ownerCase()->characteristicCellSize();
+    double characteristicCellSize = activeView.characteristicCellSize();
     double wellPathRadius         = 1.0;
 
     {
@@ -1141,8 +1141,8 @@ std::vector<cvf::Vec3f> RivWellFracturePartMgr::transformToFractureDisplayCoords
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::buildDrawableGeoFromTriangles( const std::vector<cvf::uint>&  triangleIndices,
                                                                                   const std::vector<cvf::Vec3f>& nodeCoords )
 {
-    CVF_ASSERT( triangleIndices.size() > 0 );
-    CVF_ASSERT( nodeCoords.size() > 0 );
+    CVF_ASSERT( !triangleIndices.empty() );
+    CVF_ASSERT( !nodeCoords.empty() );
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
 

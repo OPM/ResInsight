@@ -442,7 +442,7 @@ void Variant::swap(Variant& other)
 //--------------------------------------------------------------------------------------------------
 void Variant::assignData(const void* pointerToData, size_t dataSizeInBytes)
 {
-    CVF_ASSERT(m_arrayData.size() == 0);
+    CVF_ASSERT(m_arrayData.empty());
 
     m_data.assign(reinterpret_cast<const ubyte*>(pointerToData), reinterpret_cast<const ubyte*>(pointerToData) + dataSizeInBytes);
     CVF_ASSERT(m_data.size() == dataSizeInBytes);

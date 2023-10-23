@@ -59,9 +59,7 @@ bool RimCellFilterInterval::isIncluded( size_t val ) const
 
     size_t tmp = val - m_minIncludeVal;
 
-    if ( m_valid && ( tmp % m_step == 0 ) ) return true;
-
-    return false;
+    return m_valid && ( tmp % m_step == 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +82,7 @@ RimCellFilterIntervalTool::~RimCellFilterIntervalTool()
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilterIntervalTool::isNumberIncluded( size_t number ) const
 {
-    if ( m_intervals.size() == 0 ) return m_includeAllByDefault;
+    if ( m_intervals.empty() ) return m_includeAllByDefault;
 
     number = number + 1;
 

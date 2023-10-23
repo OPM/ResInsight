@@ -25,7 +25,7 @@
 
 class QString;
 
-class RimWellLogFile;
+class RimWellLogLasFile;
 
 class RigWellLogIndexDepthOffset;
 
@@ -65,15 +65,15 @@ public:
     bool hasP90Data() const;
     bool hasMeanData() const;
 
-    void calculate( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName, DepthEqualization depthEqualization );
+    void calculate( const std::vector<RimWellLogLasFile*>& sumCases, const QString& wellLogChannelName, DepthEqualization depthEqualization );
 
-    static std::shared_ptr<RigWellLogIndexDepthOffset> calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles );
+    static std::shared_ptr<RigWellLogIndexDepthOffset> calculateIndexDepthOffset( const std::vector<RimWellLogLasFile*>& wellLogFiles );
 
     void clearData();
 
 private:
-    void calculate( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName );
-    void calculateByKLayer( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName );
+    void calculate( const std::vector<RimWellLogLasFile*>& sumCases, const QString& wellLogChannelName );
+    void calculateByKLayer( const std::vector<RimWellLogLasFile*>& sumCases, const QString& wellLogChannelName );
 
     QString                   m_logChannelUnitString;
     RiaDefines::DepthUnitType m_depthUnit;

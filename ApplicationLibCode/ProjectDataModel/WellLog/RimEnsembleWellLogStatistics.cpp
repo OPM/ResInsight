@@ -26,10 +26,10 @@
 #include "RiaWellLogUnitTools.h"
 
 #include "RigStatisticsMath.h"
-#include "RigWellLogFile.h"
 #include "RigWellLogIndexDepthOffset.h"
+#include "RigWellLogLasFile.h"
 
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 
 #include "cafAppEnum.h"
 
@@ -66,9 +66,9 @@ RimEnsembleWellLogStatistics::RimEnsembleWellLogStatistics()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>& wellLogFiles,
-                                              const QString&                      wellLogChannelName,
-                                              DepthEqualization                   depthEqualization )
+void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFile*>& wellLogFiles,
+                                              const QString&                         wellLogChannelName,
+                                              DepthEqualization                      depthEqualization )
 {
     if ( depthEqualization == DepthEqualization::NONE )
     {
@@ -83,19 +83,19 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>& wellLogFiles, const QString& wellLogChannelName )
+void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogLasFile*>& wellLogFiles, const QString& wellLogChannelName )
 {
     RiaCurveMerger<double> curveMerger;
     RiaCurveMerger<double> tvdCurveMerger;
 
     RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
 
-    for ( RimWellLogFile* wellLogFile : wellLogFiles )
+    for ( RimWellLogLasFile* wellLogFile : wellLogFiles )
     {
         QString errorMessage;
         if ( wellLogFile->readFile( &errorMessage ) )
         {
-            RigWellLogFile*           fileData        = wellLogFile->wellLogFileData();
+            RigWellLogLasFile*        fileData        = wellLogFile->wellLogFileData();
             RiaDefines::DepthUnitType depthUnitInFile = fileData->depthUnit();
             if ( m_depthUnit != RiaDefines::DepthUnitType::UNIT_NONE && m_depthUnit != depthUnitInFile )
             {
@@ -184,7 +184,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellLogFile*>& wellLogFiles, const QString& wellLogChannelName )
+void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellLogLasFile*>& wellLogFiles, const QString& wellLogChannelName )
 {
     std::shared_ptr<RigWellLogIndexDepthOffset> offsets = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
     if ( !offsets ) return;
@@ -192,12 +192,12 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
     std::map<int, std::vector<double>> topValues;
     std::map<int, std::vector<double>> bottomValues;
 
-    for ( RimWellLogFile* wellLogFile : wellLogFiles )
+    for ( RimWellLogLasFile* wellLogFile : wellLogFiles )
     {
         QString errorMessage;
         if ( wellLogFile->readFile( &errorMessage ) )
         {
-            RigWellLogFile* fileData = wellLogFile->wellLogFileData();
+            RigWellLogLasFile* fileData = wellLogFile->wellLogFileData();
 
             std::vector<double> kIndexValues = fileData->values( RiaResultNames::indexKResultName() );
             std::vector<double> values       = fileData->values( wellLogChannelName );
@@ -280,7 +280,7 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
 ///
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<RigWellLogIndexDepthOffset>
-    RimEnsembleWellLogStatistics::calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles )
+    RimEnsembleWellLogStatistics::calculateIndexDepthOffset( const std::vector<RimWellLogLasFile*>& wellLogFiles )
 {
     std::map<int, double> sumTopMds;
     std::map<int, double> sumTopTvds;
@@ -295,12 +295,12 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
 
     std::vector<std::vector<double>> topValues;
 
-    for ( RimWellLogFile* wellLogFile : wellLogFiles )
+    for ( RimWellLogLasFile* wellLogFile : wellLogFiles )
     {
         QString errorMessage;
         if ( wellLogFile->readFile( &errorMessage ) )
         {
-            RigWellLogFile* fileData = wellLogFile->wellLogFileData();
+            RigWellLogLasFile* fileData = wellLogFile->wellLogFileData();
 
             std::vector<double> depths       = fileData->depthValues();
             std::vector<double> tvdDepths    = fileData->tvdMslValues();

@@ -32,7 +32,8 @@ class QWidget;
 class RiuContextMenuLauncher : public QObject
 {
 public:
-    explicit RiuContextMenuLauncher( QWidget* widget, const caf::CmdFeatureMenuBuilder& commandIds );
+    explicit RiuContextMenuLauncher( QWidget* widget, const caf::CmdFeatureMenuBuilder& menuBuilder );
+    explicit RiuContextMenuLauncher( QWidget* widget, const QStringList& commandIds );
 
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;

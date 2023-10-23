@@ -44,8 +44,8 @@ class RimEnsembleCurveFilterCollection;
 class RimEnsembleStatistics;
 class RimEnsembleStatisticsCase;
 class RimWellLogCurve;
-class RimWellLogFileCurve;
-class RimWellLogFile;
+class RimWellLogLasFileCurve;
+class RimWellLogLasFile;
 class RimPlotCurveAppearance;
 
 class RigWellPathFormations;
@@ -100,9 +100,9 @@ public:
 
     void updateAllTextInPlot();
 
-    std::vector<RimWellLogFile*> filterEnsembleCases( const std::vector<RimWellLogFile*>& sumCases );
-    void                         disableStatisticCurves();
-    bool                         isFiltered() const;
+    std::vector<RimWellLogLasFile*> filterEnsembleCases( const std::vector<RimWellLogLasFile*>& sumCases );
+    void                            disableStatisticCurves();
+    bool                            isFiltered() const;
 
     void updateEditors() override;
     void updateAllCurves() override;
@@ -130,9 +130,9 @@ public:
     bool hasPropertyInFile( const QString& property ) const;
 
 private:
-    void updateEnsembleCurves( const std::vector<RimWellLogFile*>& curves );
-    void updateStatisticsCurves( const std::vector<RimWellLogFile*>& curves );
-    bool updateStatistics( const std::vector<RimWellLogFile*>& sumCases );
+    void updateEnsembleCurves( const std::vector<RimWellLogLasFile*>& curves );
+    void updateStatisticsCurves( const std::vector<RimWellLogLasFile*>& curves );
+    bool updateStatistics( const std::vector<RimWellLogLasFile*>& sumCases );
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -150,8 +150,8 @@ private:
 
     void updateCurveColors();
 
-    bool            isSameRealization( RimSummaryCase* summaryCase, RimWellLogFile* wellLogFile ) const;
-    RimSummaryCase* findMatchingSummaryCase( RimWellLogFileCurve* wellLogCurve ) const;
+    bool            isSameRealization( RimSummaryCase* summaryCase, RimWellLogLasFile* wellLogFile ) const;
+    RimSummaryCase* findMatchingSummaryCase( RimWellLogLasFileCurve* wellLogCurve ) const;
 
     void connectEnsembleCurveSetFilterSignals();
     void onFilterSourceChanged( const caf::SignalEmitter* emitter );

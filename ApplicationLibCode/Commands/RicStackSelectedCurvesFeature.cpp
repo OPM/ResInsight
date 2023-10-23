@@ -97,7 +97,7 @@ caf::PdmScriptResponse RicStackSelectedCurvesFeature::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicStackSelectedCurvesFeature::isCommandEnabled()
+bool RicStackSelectedCurvesFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );

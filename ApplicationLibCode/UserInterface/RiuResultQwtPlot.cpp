@@ -88,10 +88,10 @@ void RiuResultQwtPlot::addCurve( const RimCase*                rimCase,
     plotCurve->attach( this );
     m_plotCurves.push_back( plotCurve );
 
-    this->setAxisScale( QwtAxis::XTop, QwtDate::toDouble( dateTimes.front() ), QwtDate::toDouble( dateTimes.back() ) );
-    this->applyFontSizes( false );
+    setAxisScale( QwtAxis::XTop, QwtDate::toDouble( dateTimes.front() ), QwtDate::toDouble( dateTimes.back() ) );
+    applyFontSizes( false );
 
-    this->replot();
+    replot();
 
     int caseId = rimCase->caseId();
 
@@ -165,7 +165,7 @@ void RiuResultQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 
     menuBuilder << "RicNewGridTimeHistoryCurveFeature";
 
-    const int curveCount = this->itemList( QwtPlotItem::Rtti_PlotCurve ).count();
+    const int curveCount = itemList( QwtPlotItem::Rtti_PlotCurve ).count();
 
     QAction* act = menu.addAction( "Show Plot Data", this, SLOT( slotCurrentPlotDataInTextDialog() ) );
     act->setEnabled( curveCount > 0 );
@@ -201,7 +201,7 @@ void RiuResultQwtPlot::setDefaults()
     // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.
     QwtLegend* legend = new QwtLegend( this );
-    this->insertLegend( legend, BottomLegend );
+    insertLegend( legend, BottomLegend );
 }
 
 //--------------------------------------------------------------------------------------------------

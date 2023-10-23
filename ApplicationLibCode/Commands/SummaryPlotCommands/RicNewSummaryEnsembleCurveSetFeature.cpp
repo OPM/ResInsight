@@ -89,7 +89,7 @@ std::vector<RimEnsembleCurveSet*> RicNewSummaryEnsembleCurveSetFeature::addDefau
                     RimEnsembleCurveSetColorManager::cycledEnsembleColorRange( static_cast<int>( colorIndex ) ) ) );
 
                 curveSet->setSummaryCaseCollection( ensemble );
-                curveSet->setSummaryAddressAndStatisticsFlag( addr );
+                curveSet->setSummaryAddressYAndStatisticsFlag( addr );
                 auto filter = curveSet->filterCollection()->addFilter();
                 filter->setActive( false );
 
@@ -139,7 +139,7 @@ RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled()
+bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled() const
 {
     bool summaryPlotSelected = selectedSummaryPlot();
     if ( summaryPlotSelected )

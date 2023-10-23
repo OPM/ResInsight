@@ -64,7 +64,7 @@ RimTensorResults::RimTensorResults()
     CAF_PDM_InitObject( "Element Tensor Results", ":/CellResult.png" );
 
     CAF_PDM_InitFieldNoDefault( &arrowColorLegendConfig, "LegendDefinition", "Color Legend" );
-    this->arrowColorLegendConfig = new RimRegularLegendConfig();
+    arrowColorLegendConfig = new RimRegularLegendConfig();
     arrowColorLegendConfig.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_resultFieldName, "ResultVariable", QString( "ST" ), "Value" );

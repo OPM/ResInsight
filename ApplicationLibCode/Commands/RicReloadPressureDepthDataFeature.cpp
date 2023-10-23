@@ -31,14 +31,6 @@ CAF_CMD_SOURCE_INIT( RicReloadPressureDepthDataFeature, "RicReloadPressureDepthD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadPressureDepthDataFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicReloadPressureDepthDataFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimPressureDepthData*> pressureDepthDataObjects;

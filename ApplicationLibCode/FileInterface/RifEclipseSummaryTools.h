@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RifEclipseSummaryAddress.h"
 
 #include "ert/ecl/ecl_sum.hpp"
 

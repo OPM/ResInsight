@@ -47,7 +47,7 @@ CAF_CMD_SOURCE_INIT( RicReplaceCaseFeature, "RicReplaceCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReplaceCaseFeature::isCommandEnabled()
+bool RicReplaceCaseFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmObject*> selectedFormationNamesCollObjs;
     caf::SelectionManager::instance()->objectsByType( &selectedFormationNamesCollObjs );

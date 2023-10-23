@@ -44,14 +44,6 @@ CAF_CMD_SOURCE_INIT( RicImportSummaryGroupFeature, "RicImportSummaryGroupFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportSummaryGroupFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app           = RiaGuiApplication::instance();
@@ -75,10 +67,8 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
         mainPlotWindow->updateMultiPlotToolBar();
     }
 
-    std::vector<RimCase*> allCases;
-    app->project()->allCases( allCases );
-
-    if ( allCases.size() == 0 )
+    std::vector<RimCase*> allCases = app->project()->allGridCases();
+    if ( allCases.empty() )
     {
         RiuMainWindow::closeIfOpen();
     }

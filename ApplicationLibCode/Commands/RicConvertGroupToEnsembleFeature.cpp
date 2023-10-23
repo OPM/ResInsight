@@ -45,7 +45,7 @@ CAF_CMD_SOURCE_INIT( RicConvertGroupToEnsembleFeature, "RicConvertGroupToEnsembl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicConvertGroupToEnsembleFeature::isCommandEnabled()
+bool RicConvertGroupToEnsembleFeature::isCommandEnabled() const
 {
     const auto& selGroups = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
     if ( selGroups.empty() ) return false;

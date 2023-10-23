@@ -38,14 +38,14 @@ CAF_CMD_SOURCE_INIT( RicDeleteScriptPathFeature, "RicDeleteScriptPathFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteScriptPathFeature::isCommandEnabled()
+bool RicDeleteScriptPathFeature::isCommandEnabled() const
 {
     std::vector<RimScriptCollection*> selection = RicScriptFeatureImpl::selectedScriptCollections();
     if ( selection.size() == 1 )
     {
         if ( selection.front()->directory().isEmpty() ) return false;
     }
-    return selection.size() > 0;
+    return !selection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ bool RicDeleteScriptPathFeature::isCommandEnabled()
 void RicDeleteScriptPathFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
-    RimScriptCollection*              scriptCollection      = calcScriptCollections.size() > 0 ? calcScriptCollections[0] : nullptr;
+    RimScriptCollection*              scriptCollection      = !calcScriptCollections.empty() ? calcScriptCollections[0] : nullptr;
     if ( scriptCollection )
     {
         QString toBeRemoved = scriptCollection->directory;

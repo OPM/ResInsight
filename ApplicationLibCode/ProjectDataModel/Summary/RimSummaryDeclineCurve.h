@@ -56,8 +56,6 @@ public:
     // X Axis functions
     std::vector<double> valuesX() const override;
 
-    void updateDefaultValues();
-
 protected:
     void updateTimeAnnotations() override;
 
@@ -93,12 +91,19 @@ private:
 
     double computePredictedValue( double initialProductionRate, double initialDeclineRate, double timeSinceStart, bool isAccumulatedResult ) const;
 
+    std::pair<time_t, time_t> fullTimeStepRange() const;
+    std::pair<time_t, time_t> selectedTimeStepRange() const;
+
+private:
     caf::PdmField<caf::AppEnum<DeclineCurveType>> m_declineCurveType;
     caf::PdmField<int>                            m_predictionYears;
     caf::PdmField<double>                         m_hyperbolicDeclineConstant;
-    caf::PdmField<time_t>                         m_minTimeStep;
-    caf::PdmField<time_t>                         m_maxTimeStep;
-    caf::PdmField<bool>                           m_showTimeSelectionInPlot;
+
+    // Time step range defined in the range [0..100] as time_t can hold values that do not fit into int used by QSpinBox
+    caf::PdmField<int> m_minTimeSliderPosition;
+    caf::PdmField<int> m_maxTimeSliderPosition;
+
+    caf::PdmField<bool> m_showTimeSelectionInPlot;
 
     caf::PdmPointer<RimTimeAxisAnnotation> m_timeRangeAnnotation;
 };

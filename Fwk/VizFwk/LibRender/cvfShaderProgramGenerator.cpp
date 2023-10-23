@@ -168,7 +168,7 @@ void ShaderProgramGenerator::configureStandardHeadlightTexture()
 //--------------------------------------------------------------------------------------------------
 ref<ShaderProgram> ShaderProgramGenerator::generate()
 {
-    CVF_ASSERT((m_vertexCodes.size() > 0) && (m_fragmentCodes.size() > 0));
+    CVF_ASSERT((!m_vertexCodes.empty()) && (!m_fragmentCodes.empty()));
 
     ShaderSourceCombiner vertexCombiner(m_vertexCodes, m_vertexNames);
     ShaderSourceCombiner fragmentCombiner(m_fragmentCodes, m_fragmentNames);
@@ -185,7 +185,7 @@ ref<ShaderProgram> ShaderProgramGenerator::generate()
     prog->addShader(vertexShader.p());
     prog->addShader(fragmentShader.p());
 
-    if (m_geometryCodes.size() > 0)
+    if (!m_geometryCodes.empty())
     {
         ShaderSourceCombiner geometryCombiner(m_geometryCodes, m_geometryNames);
         String geometrySource = geometryCombiner.combinedSource();
@@ -316,7 +316,7 @@ uint ShaderSourceCombiner::findVersion(const String& shaderCode)
     String firstLine = shaderCode.subString(0, firstNewline);
     std::vector<String> firstLineArr = firstLine.split(" ");
 
-    if (firstLineArr.size() == 0)
+    if (firstLineArr.empty())
     {
         return 0;
     }

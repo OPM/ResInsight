@@ -124,7 +124,7 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                 QString line = stream.readLine();
                 if ( !line.startsWith( "*" ) )
                 {
-                    if ( collectedCols.size() > 0 && collectedCols.size() != 8 )
+                    if ( !collectedCols.empty() && collectedCols.size() != 8 )
                     {
                         if ( dataBlockFound )
                         {

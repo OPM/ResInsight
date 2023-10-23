@@ -21,44 +21,34 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RimSummaryCase.h"
 
-class RifEnsembleStatisticsReader;
-class RimEnsembleCurveSet;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleStatisticsCase : public RimSummaryCase
+class RimEnsembleStatisticsCase : public RimSummaryCase, public RifSummaryReaderInterface
 {
 public:
-    RimEnsembleStatisticsCase( RimEnsembleCurveSet* curveSet );
+    bool hasP10Data() const;
+    bool hasP50Data() const;
+    bool hasP90Data() const;
+    bool hasMeanData() const;
 
-    const std::vector<time_t>& timeSteps() const;
-    const std::vector<double>& p10() const;
-    const std::vector<double>& p50() const;
-    const std::vector<double>& p90() const;
-    const std::vector<double>& mean() const;
+    QString                       caseName() const override;
+    void                          createSummaryReaderInterface() override;
+    RifSummaryReaderInterface*    summaryReader() override;
+    RiaDefines::EclipseUnitSystem unitSystem() const override;
 
-    bool hasP10Data() const { return !m_p10Data.empty(); }
-    bool hasP50Data() const { return !m_p50Data.empty(); }
-    bool hasP90Data() const { return !m_p90Data.empty(); }
-    bool hasMeanData() const { return !m_meanData.empty(); }
-
-    QString                    caseName() const override;
-    void                       createSummaryReaderInterface() override;
-    RifSummaryReaderInterface* summaryReader() override;
-
-    const RimEnsembleCurveSet* curveSet() const;
-
-    void                          calculate( const std::vector<RimSummaryCase*>& sumCases, bool includeIncompleteCurves );
-    RiaDefines::EclipseUnitSystem unitSystem() const;
-
-private:
     void calculate( const std::vector<RimSummaryCase*>& sumCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
-    void                                clearData();
+
+    std::vector<time_t>                  timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
+    std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
+    std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
+
     static std::vector<RimSummaryCase*> validSummaryCases( const std::vector<RimSummaryCase*>& allSumCases,
                                                            const RifEclipseSummaryAddress&     inputAddress,
                                                            bool                                includeIncompleteCurves );
@@ -67,12 +57,14 @@ private:
     static RiaDefines::DateTimePeriod   findBestResamplingPeriod( time_t minTimeStep, time_t maxTimeStep );
 
 private:
-    std::unique_ptr<RifEnsembleStatisticsReader> m_statisticsReader;
-    RimEnsembleCurveSet*                         m_curveSet;
+    void clearData();
 
+private:
     std::vector<time_t> m_timeSteps;
     std::vector<double> m_p10Data;
     std::vector<double> m_p50Data;
     std::vector<double> m_p90Data;
     std::vector<double> m_meanData;
+
+    caf::PdmPointer<RimSummaryCase> m_firstSummaryCase;
 };

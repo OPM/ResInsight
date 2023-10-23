@@ -360,7 +360,7 @@ caf::PdmFieldHandle* RimGridCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimGridCollection::syncFromMainEclipseGrid()
 {
-    auto mainGrid = this->mainEclipseGrid();
+    auto mainGrid = mainEclipseGrid();
     if ( mainGrid )
     {
         m_mainGrid->setName( "Main Grid" );
@@ -490,7 +490,7 @@ const RigMainGrid* RimGridCollection::mainEclipseGrid() const
 //--------------------------------------------------------------------------------------------------
 bool RimGridCollection::hasPersistentLgrs() const
 {
-    auto mainGrid = this->mainEclipseGrid();
+    auto mainGrid = mainEclipseGrid();
     if ( !mainGrid ) return false;
 
     for ( size_t i = 1; i < mainGrid->gridCount(); i++ )
@@ -506,7 +506,7 @@ bool RimGridCollection::hasPersistentLgrs() const
 //--------------------------------------------------------------------------------------------------
 bool RimGridCollection::hasTemporaryLgrs() const
 {
-    auto mainGrid = this->mainEclipseGrid();
+    auto mainGrid = mainEclipseGrid();
     if ( !mainGrid ) return false;
 
     for ( size_t i = 1; i < mainGrid->gridCount(); i++ )

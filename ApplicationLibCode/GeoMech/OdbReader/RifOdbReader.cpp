@@ -71,7 +71,7 @@ public:
         }
         else if ( precision == odb_Enum::DOUBLE_PRECISION )
         {
-            if ( m_data.size() < 1 )
+            if ( m_data.empty() )
             {
                 int dataSize = m_bulkData.length() * m_bulkData.width();
                 m_data.resize( dataSize );
@@ -322,8 +322,8 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
 
     caf::ProgressInfo modelProgress( instanceRepository.size() * (size_t)( 2 + 4 ), "Reading Odb Parts" );
 
-    int instanceCount = 0;
-    for ( iter.first(); !iter.isDone(); iter.next(), instanceCount++ )
+    int partIdx = 0;
+    for ( iter.first(); !iter.isDone(); iter.next(), partIdx++ )
     {
         modelProgress.setProgressDescription( QString( iter.currentKey().cStr() ) + ": Reading Nodes" );
         m_nodeIdToIdxMaps.push_back( std::map<int, int>() );
@@ -404,7 +404,14 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
             }
         }
 
-        femPart->setElementPartId( femParts->partCount() );
+        // read element sets
+        auto setNames = elementSetNames( partIdx, femPart->name() );
+        for ( int setIndex = 0; setIndex < (int)setNames.size(); setIndex++ )
+        {
+            femPart->addElementSet( setNames[setIndex], elementSet( partIdx, femPart->name(), setIndex ) );
+        }
+
+        femPart->setElementPartId( partIdx );
         femParts->addFemPart( femPart );
 
         modelProgress.incrementProgress();
@@ -448,7 +455,7 @@ std::vector<std::string> RifOdbReader::filteredStepNames() const
     for ( sIter.first(); !sIter.isDone(); sIter.next() )
     {
         std::string stepName( sIter.currentValue().name().CStr() );
-        if ( this->isTimeStepIncludedByFilter( stepIndex++ ) )
+        if ( isTimeStepIncludedByFilter( stepIndex++ ) )
         {
             stepNames.push_back( stepName );
         }
@@ -468,7 +475,7 @@ std::vector<double> RifOdbReader::frameTimes( int stepIndex ) const
 
     odb_StepList stepList = stepRepository.stepList();
 
-    int stepFileIndex = this->timeStepIndexOnFile( stepIndex );
+    int stepFileIndex = timeStepIndexOnFile( stepIndex );
 
     odb_Step& step = stepList.Get( stepFileIndex );
 
@@ -507,7 +514,7 @@ int RifOdbReader::frameCount( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifOdbReader::elementSetNames( int partIndex )
+std::vector<std::string> RifOdbReader::elementSetNames( int partIndex, std::string partInstanceName )
 {
     CVF_ASSERT( m_odb != NULL );
 
@@ -533,7 +540,16 @@ std::vector<std::string> RifOdbReader::elementSetNames( int partIndex )
                 for ( setIt.first(); !setIt.isDone(); setIt.next() )
                 {
                     const odb_Set& set = setIt.currentValue();
-                    setNames.push_back( set.name().CStr() );
+
+                    auto names = set.instanceNames();
+                    for ( int i = 0; i < names.size(); i++ )
+                    {
+                        if ( names[i].CStr() == partInstanceName )
+                        {
+                            setNames.push_back( set.name().CStr() );
+                            break;
+                        }
+                    }
                 }
 
                 break;
@@ -549,17 +565,14 @@ std::vector<std::string> RifOdbReader::elementSetNames( int partIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RifOdbReader::elementSet( int partIndex, int setIndex )
+std::vector<size_t> RifOdbReader::elementSet( int partIndex, std::string partName, int setIndex )
 {
     CVF_ASSERT( m_odb != NULL );
 
-    std::vector<std::string> setNames     = elementSetNames( partIndex );
-    const odb_Assembly&      rootAssembly = m_odb->constRootAssembly();
+    const odb_Assembly& rootAssembly = m_odb->constRootAssembly();
+    const odb_Set&      set          = rootAssembly.elementSets()[odb_String( m_partElementSetNames[partIndex][setIndex].c_str() )];
 
-    const odb_Set&     set           = rootAssembly.elementSets()[odb_String( setNames[setIndex].c_str() )];
-    odb_SequenceString instanceNames = set.instanceNames();
-
-    const odb_SequenceElement& setElements  = set.elements( instanceNames[partIndex] );
+    const odb_SequenceElement& setElements  = set.elements( partName.c_str() );
     int                        elementCount = setElements.size();
 
     std::vector<size_t> elementIndexes;
@@ -607,8 +620,8 @@ const odb_Frame& RifOdbReader::stepFrame( int stepIndex, int frameIndex ) const
     const odb_StepRepository& stepRepository = m_odb->steps();
     const odb_StepList&       stepList       = stepRepository.stepList();
 
-    int stepFileIndex  = this->timeStepIndexOnFile( stepIndex );
-    int fileFrameIndex = this->frameIndexOnFile( frameIndex );
+    int stepFileIndex  = timeStepIndexOnFile( stepIndex );
+    int fileFrameIndex = frameIndexOnFile( frameIndex );
 
     const odb_Step&          step       = stepList.ConstGet( stepFileIndex );
     const odb_SequenceFrame& stepFrames = step.frames();
@@ -707,7 +720,7 @@ size_t RifOdbReader::resultItemCount( const std::string& fieldName, int partInde
 size_t RifOdbReader::componentsCount( const std::string& fieldName, ResultPosition position )
 {
     std::vector<std::string> compNames = componentNames( RifOdbResultKey( position, fieldName ) );
-    return compNames.size() > 0 ? compNames.size() : 1;
+    return !compNames.empty() ? compNames.size() : 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -885,7 +898,7 @@ void RifOdbReader::readElementNodeField( const std::string&                field
     const odb_SequenceFieldBulkData& seqFieldBulkData    = fieldOutput.bulkDataBlocks();
 
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
-    CVF_ASSERT( elementIdToIdxMap.size() > 0 );
+    CVF_ASSERT( !elementIdToIdxMap.empty() );
 
     int numBlocks = seqFieldBulkData.size();
     for ( int block = 0; block < numBlocks; block++ )
@@ -957,7 +970,7 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
     const odb_SequenceFieldBulkData& seqFieldBulkData    = fieldOutput.bulkDataBlocks();
 
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
-    CVF_ASSERT( elementIdToIdxMap.size() > 0 );
+    CVF_ASSERT( !elementIdToIdxMap.empty() );
 
     int numBlocks = seqFieldBulkData.size();
     for ( int block = 0; block < numBlocks; block++ )

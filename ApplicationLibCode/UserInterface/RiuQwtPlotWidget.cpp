@@ -78,7 +78,8 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : RiuPlotWidget( plotDefinition, parent )
-    , m_titleRenderingFlags( Qt::AlignHCenter | Qt::TextSingleLine )
+    , m_titleRenderingFlags( Qt::AlignHCenter | Qt::TextWordWrap )
+    , m_titleFontSize( -1 )
 {
     auto* layout = new QVBoxLayout;
     layout->setContentsMargins( 0, 0, 0, 0 );
@@ -211,7 +212,7 @@ void RiuQwtPlotWidget::setAxisTitleEnabled( RiuPlotAxis axis, bool enable )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setPlotTitle( const QString& plotTitle )
 {
-    m_plotTitle = plotTitle;
+    m_plotTitleText = plotTitle;
     applyPlotTitleToQwt();
 }
 
@@ -220,7 +221,7 @@ void RiuQwtPlotWidget::setPlotTitle( const QString& plotTitle )
 //--------------------------------------------------------------------------------------------------
 const QString& RiuQwtPlotWidget::plotTitle() const
 {
-    return m_plotTitle;
+    return m_plotTitleText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,20 +246,9 @@ bool RiuQwtPlotWidget::plotTitleEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setPlotTitleFontSize( int titleFontSize )
 {
-    auto  title = m_plot->title();
-    QFont font  = title.font();
-    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
-    title.setFont( font );
-    title.setRenderFlags( title.renderFlags() | Qt::TextWordWrap );
-    m_plot->setTitle( title );
-}
+    m_titleFontSize = titleFontSize;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setPlotTitleRenderingFlags( int flags )
-{
-    m_titleRenderingFlags = flags;
+    applyPlotTitleToQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -359,7 +349,8 @@ void RiuQwtPlotWidget::setAxisRange( RiuPlotAxis axis, double min, double max )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisInverted( RiuPlotAxis axis, bool isInverted )
 {
-    m_plot->axisScaleEngine( toQwtPlotAxis( axis ) )->setAttribute( QwtScaleEngine::Inverted, isInverted );
+    auto scaleEngine = m_plot->axisScaleEngine( toQwtPlotAxis( axis ) );
+    if ( scaleEngine ) scaleEngine->setAttribute( QwtScaleEngine::Inverted, isInverted );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -676,14 +667,19 @@ void RiuQwtPlotWidget::keyPressEvent( QKeyEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::applyPlotTitleToQwt()
 {
-    QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
-    QwtText plotTitle        = m_plot->title();
-    plotTitle.setRenderFlags( m_titleRenderingFlags );
-    if ( plotTitleToApply != plotTitle.text() )
+    QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitleText : QString( "" );
+    QwtText qwtText          = m_plot->title();
+    qwtText.setRenderFlags( m_titleRenderingFlags );
+    if ( m_titleFontSize > 0 )
     {
-        plotTitle.setText( plotTitleToApply );
-        m_plot->setTitle( plotTitle );
+        QFont font = qwtText.font();
+        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_titleFontSize ) );
+        qwtText.setFont( font );
     }
+    qwtText.setText( plotTitleToApply );
+
+    // Always set the title, as Qwt does not do anything if the text is the same
+    m_plot->setTitle( qwtText );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1036,11 +1032,17 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             double zValue = plotCurve->z();
             if ( closestItems.count( plotCurve ) > 0 )
             {
-                auto saturation = 1.0;
-                auto value      = 1.0;
-                auto hue        = curveColor.hueF();
+                auto highlightColor = curveColor;
 
-                auto highlightColor = QColor::fromHsvF( hue, saturation, value );
+                const double threshold = 0.05;
+                if ( curveColor.hsvHueF() > threshold || curveColor.saturationF() > threshold )
+                {
+                    auto saturation = 1.0;
+                    auto value      = 1.0;
+                    auto hue        = curveColor.hueF();
+
+                    highlightColor = QColor::fromHsvF( hue, saturation, value );
+                }
 
                 existingPen.setColor( highlightColor );
                 existingPen.setWidth( penWidth + highlightItemWidthAdjustment() );

@@ -53,6 +53,8 @@ public:
     ~RimWellPathAicdParameters() override;
     bool isValid() const;
 
+    void setValue( AICDParameters parameter, double value );
+
     bool                                isOpen() const;
     std::array<double, AICD_NUM_PARAMS> doubleValues() const;
 

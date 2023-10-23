@@ -294,6 +294,8 @@ RimWellLogTrack::RimWellLogTrack()
 RimWellLogTrack::~RimWellLogTrack()
 {
     m_curves.deleteChildren();
+
+    deleteViewWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -933,7 +935,7 @@ void RimWellLogTrack::updateLegend()
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogTrack::asciiDataForPlotExport() const
 {
-    QString out = "\n" + this->description() + "\n";
+    QString out = "\n" + description() + "\n";
 
     std::vector<QString>             curveNames;
     std::vector<double>              curveDepths;
@@ -1431,16 +1433,16 @@ void RimWellLogTrack::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        this->updateWellPathAttributesCollection();
-        this->updateWellPathAttributesOnPlot();
+        updateWellPathAttributesCollection();
+        updateWellPathAttributesOnPlot();
         m_plotWidget->updateLegend();
 
-        this->updateAxisScaleEngine();
-        this->updateRegionAnnotationsOnPlot();
-        this->updatePropertyValueZoom();
+        updateAxisScaleEngine();
+        updateRegionAnnotationsOnPlot();
+        updatePropertyValueZoom();
     }
 
-    this->updatePropertyValueAxisAndGridTickIntervals();
+    updatePropertyValueAxisAndGridTickIntervals();
     m_majorTickIntervalPropertyAxis.uiCapability()->setUiHidden( !m_explicitTickIntervalsPropertyValueAxis() );
     m_minorTickIntervalPropertyAxis.uiCapability()->setUiHidden( !m_explicitTickIntervalsPropertyValueAxis() );
 
@@ -1765,7 +1767,7 @@ void RimWellLogTrack::updateParentPlotZoom()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateEditors()
 {
-    this->updateConnectedEditors();
+    updateConnectedEditors();
     RimPlotWindow* plotWindow = firstAncestorOrThisOfTypeAsserted<RimPlotWindow>();
     plotWindow->updateConnectedEditors();
 }
@@ -1775,7 +1777,7 @@ void RimWellLogTrack::updateEditors()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setVisiblePropertyValueRange( double minValue, double maxValue )
 {
-    this->setAutoScalePropertyValuesEnabled( false );
+    setAutoScalePropertyValuesEnabled( false );
     m_visiblePropertyValueRangeMin = minValue;
     m_visiblePropertyValueRangeMax = maxValue;
 }
@@ -2569,7 +2571,7 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor( RimWellLogP
 
     std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches( simWellName, useBranchDetection );
 
-    if ( wellPaths.size() == 0 ) return nullptr;
+    if ( wellPaths.empty() ) return nullptr;
 
     CVF_ASSERT( branchIndex >= 0 && branchIndex < static_cast<int>( wellPaths.size() ) );
 
@@ -2878,9 +2880,9 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     {
         if ( m_formationWellPathForSourceWellPath == nullptr ) return;
 
-        if ( !( plot->depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH ||
-                plot->depthType() == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
-                plot->depthType() == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ) )
+        if ( plot->depthType() != RiaDefines::DepthTypeEnum::MEASURED_DEPTH &&
+             plot->depthType() != RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
+             plot->depthType() != RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
         {
             return;
         }
@@ -3176,7 +3178,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
             curveData.md  = geoMechWellLogExtractor->cellIntersectionMDs();
             curveData.tvd = geoMechWellLogExtractor->cellIntersectionTVDs();
 
-            RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geoMechWellLogExtractor );
+            RimWellLogExtractionCurve::findAndLoadWbsParametersFromFiles( wellPath, geoMechWellLogExtractor );
             RimWellBoreStabilityPlot* wbsPlot = firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
             if ( wbsPlot )
             {

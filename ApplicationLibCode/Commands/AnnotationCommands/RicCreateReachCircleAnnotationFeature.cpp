@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicCreateReachCircleAnnotationFeature, "RicCreateReachCircl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateReachCircleAnnotationFeature::isCommandEnabled()
+bool RicCreateReachCircleAnnotationFeature::isCommandEnabled() const
 {
     auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
     auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();

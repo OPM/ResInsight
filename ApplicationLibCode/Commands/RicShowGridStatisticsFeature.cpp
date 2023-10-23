@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicShowGridStatisticsFeature, "RicShowGridStatisticsFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowGridStatisticsFeature::isCommandEnabled()
+bool RicShowGridStatisticsFeature::isCommandEnabled() const
 {
     if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 

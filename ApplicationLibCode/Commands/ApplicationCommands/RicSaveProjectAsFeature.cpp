@@ -42,21 +42,13 @@ RicSaveProjectAsFeature::RicSaveProjectAsFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicSaveProjectAsFeature::execute()
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
     QString errorMessage;
     if ( !RiaApplication::instance()->saveProjectAs( m_filePath(), &errorMessage ) )
     {
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
     return caf::PdmScriptResponse();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicSaveProjectAsFeature::isCommandEnabled()
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

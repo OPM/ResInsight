@@ -126,17 +126,17 @@ void RimAsciiDataCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+    RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     if ( isChecked() )
     {
-        std::vector<time_t> dateTimes = this->timeSteps();
-        std::vector<double> values    = this->yValues();
+        std::vector<time_t> dateTimes = timeSteps();
+        std::vector<double> values    = yValues();
 
         auto plot                = firstAncestorOrThisOfType<RimSummaryPlot>();
-        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->yAxis() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( yAxis() );
 
-        if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
+        if ( !dateTimes.empty() && dateTimes.size() == values.size() )
         {
             if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
             {
@@ -147,7 +147,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
 
                 std::vector<double> times;
-                if ( dateTimes.size() )
+                if ( !dateTimes.empty() )
                 {
                     time_t startDate = dateTimes[0];
                     for ( time_t& date : dateTimes )
@@ -197,7 +197,7 @@ void RimAsciiDataCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateQwtPlotAxis()
 {
-    if ( m_plotCurve ) updateAxisInPlot( this->yAxis() );
+    if ( m_plotCurve ) updateYAxisInPlot( yAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

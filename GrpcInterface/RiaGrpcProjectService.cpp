@@ -111,9 +111,7 @@ grpc::Status RiaGrpcProjectService::GetAllCases( grpc::ServerContext* context,
                                                  const rips::Empty*   request,
                                                  rips::CaseInfoArray* reply )
 {
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     if ( cases.empty() )
     {
         return Status( grpc::NOT_FOUND, "No cases found" );

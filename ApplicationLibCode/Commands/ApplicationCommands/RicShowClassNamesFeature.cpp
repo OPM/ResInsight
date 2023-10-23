@@ -30,14 +30,6 @@ CAF_CMD_SOURCE_INIT( RicShowClassNamesFeature, "RicShowClassNamesFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowClassNamesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicShowClassNamesFeature::onActionTriggered( bool isChecked )
 {
     RiaPreferences::current()->systemPreferences()->setAppendClassNameToUiText( isChecked );
@@ -59,7 +51,7 @@ void RicShowClassNamesFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowClassNamesFeature::isCommandChecked()
+bool RicShowClassNamesFeature::isCommandChecked() const
 {
     return RiaPreferences::current()->systemPreferences()->appendClassNameToUiText();
 }

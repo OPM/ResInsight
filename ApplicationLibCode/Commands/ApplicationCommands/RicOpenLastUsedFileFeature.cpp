@@ -30,14 +30,6 @@ CAF_CMD_SOURCE_INIT( RicOpenLastUsedFileFeature, "RicOpenLastUsedFileFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicOpenLastUsedFileFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicOpenLastUsedFileFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();

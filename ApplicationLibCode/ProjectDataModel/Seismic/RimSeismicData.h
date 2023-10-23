@@ -69,9 +69,10 @@ public:
 
     std::pair<double, double> dataRangeMinMax() const override;
 
+    void ensureFileReaderIsInitialized();
+
 protected:
     void updateMetaData();
-    void initAfterRead() override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 

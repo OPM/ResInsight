@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellLogPlotTrackFeature, "RicNewWellLogPlotTrackFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogPlotTrackFeature::isCommandEnabled()
+bool RicNewWellLogPlotTrackFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() || RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() )
     {
@@ -84,5 +84,5 @@ RimWellLogPlot* RicNewWellLogPlotTrackFeature::selectedWellLogPlot()
 {
     std::vector<RimWellLogPlot*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    return selection.size() > 0 ? selection[0] : nullptr;
+    return !selection.empty() ? selection[0] : nullptr;
 }

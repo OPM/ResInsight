@@ -33,7 +33,7 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimMainPlotCollection.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 
@@ -114,7 +114,7 @@ LasDepthValueAndIndexPerKLayer
 //--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase*                        selectedCase,
                                                                          RimWellPath*                    sourceWell,
-                                                                         RimWellLogFile*                 soureWellLogFile,
+                                                                         RimWellLogLasFile*              soureWellLogFile,
                                                                          const std::vector<RimWellPath*> destinationWells,
                                                                          const std::vector<QString>&     selectedResultProperties,
                                                                          const QString&                  exportFolder,
@@ -188,7 +188,7 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QSt
                                                                        const std::vector<double>&                    tvdMslValues,
                                                                        const std::vector<double>&                    tvdRkbValues,
                                                                        const std::map<QString, std::vector<double>>& propertyMap,
-                                                                       const RigWellLogFile*                         sourceWellLogData,
+                                                                       const RigWellLogLasFile*                      sourceWellLogData,
                                                                        const QString&                                exportFolder )
 {
     const auto depthUnitText    = createDepthUnitText( sourceWellLogData->depthUnit() );
@@ -393,7 +393,7 @@ std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>
 //--------------------------------------------------------------------------------------------------
 std::map<QString, std::vector<double>>
     RicCreateDepthAdjustedLasFilesImpl::createDefaultPropertyMap( const std::vector<QString>& selectedProperties,
-                                                                  const RigWellLogFile*       wellLogFile )
+                                                                  const RigWellLogLasFile*    wellLogFile )
 {
     const QStringList lasDepthNames = QStringList(
         { RiaDefines::propertyNameMeasuredDepth(), RiaDefines::propertyNameTvdMslDepth(), RiaDefines::propertyNameTvdRkbDepth() } );

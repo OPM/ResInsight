@@ -29,7 +29,7 @@
 #include "RimTools.h"
 #include "RimWbsParameters.h"
 #include "RimWellLogCurveCommonDataSource.h"
-#include "RimWellLogFile.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotNameConfig.h"
 
 #include "cafPdmBase.h"
@@ -132,13 +132,7 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     legendGroup->setCollapsedByDefault();
     RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, true );
 
-    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
-    fontGroup->setCollapsedByDefault();
-    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
-
-    fontGroup->add( &m_subTitleFontSize );
-    fontGroup->add( &m_axisTitleFontSize );
-    fontGroup->add( &m_axisValueFontSize );
+    RimDepthTrackPlot::uiOrderingForFonts( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -163,7 +157,7 @@ void RimWellBoreStabilityPlot::childFieldChangedByUi( const caf::PdmFieldHandle*
     }
     else if ( changedChildField == &m_wbsParameters )
     {
-        this->loadDataAndUpdate();
+        loadDataAndUpdate();
     }
 }
 
@@ -211,5 +205,5 @@ void RimWellBoreStabilityPlot::applyDataSource()
     m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
     m_wbsParameters->setFrameIndex( -1 );
 
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }

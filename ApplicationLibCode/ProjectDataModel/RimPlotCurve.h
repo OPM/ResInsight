@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "RimPlotCurveAppearance.h"
 
 #include "RiaCurveDataTools.h"
@@ -28,6 +26,7 @@
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtSymbol.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
@@ -39,6 +38,8 @@
 
 class RiuPlotCurve;
 class RiuPlotWidget;
+class RimPlotRectAnnotation;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
@@ -75,7 +76,7 @@ public:
     void                                setSymbolSize( int sizeInPixels );
     void                                setLineThickness( int thickness );
     void                                resetAppearance();
-    Qt::BrushStyle                      fillStyle() const;
+    virtual Qt::BrushStyle              fillStyle() const;
     void                                setFillStyle( Qt::BrushStyle brushStyle );
     void                                setFillColor( const cvf::Color3f& fillColor );
 
@@ -95,7 +96,7 @@ public:
 
     void            setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod );
     QString         curveName() const;
-    virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
+    virtual QString curveExportDescription( const RifEclipseSummaryAddress& address ) const;
     virtual QString createCurveNameFromTemplate( const QString& templateText );
 
     void setCustomName( const QString& customName );
@@ -114,7 +115,6 @@ public:
     void         setErrorBarsVisible( bool isVisible );
 
     virtual void updateCurveAppearance();
-    bool         isCrossPlotCurve() const;
     virtual void updateUiIconFromPlotSymbol();
     virtual bool hasParentPlot() const;
 
@@ -138,6 +138,8 @@ public:
     void reattach();
     bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
     void deletePlotCurve();
+
+    std::vector<RimPlotRectAnnotation*> rectAnnotations() const;
 
 protected:
     virtual QString createCurveAutoName() = 0;
@@ -183,7 +185,8 @@ protected:
     virtual void clearErrorBars();
     void         checkAndApplyDefaultFillColor();
 
-    virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
+    void updateYAxisInPlot( RiuPlotAxis plotAxis );
+    void updateXAxisInPlot( RiuPlotAxis plotAxis );
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
@@ -208,7 +211,8 @@ protected:
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
 
-    caf::PdmPtrArrayField<RimPlotCurve*> m_additionalDataSources;
+    caf::PdmPtrArrayField<RimPlotCurve*>            m_additionalDataSources;
+    caf::PdmChildArrayField<RimPlotRectAnnotation*> m_rectAnnotations;
 
     QPointer<RiuPlotWidget> m_parentPlot;
     RiuPlotCurve*           m_plotCurve;

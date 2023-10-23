@@ -56,7 +56,9 @@ void caf::AppEnum<RimFractureTemplate::FracConductivityEnum>::setUp()
 {
     addItem( RimFractureTemplate::INFINITE_CONDUCTIVITY, "InfiniteConductivity", "Infinite Conductivity" );
     addItem( RimFractureTemplate::FINITE_CONDUCTIVITY, "FiniteConductivity", "Finite Conductivity" );
-
+    addItem( RimFractureTemplate::FINITE_CONDUCTIVITY_INFINITE_WELL_PI,
+             "FiniteConductivityInfiniteWellPI",
+             "Finite Conductivity, Infinite Well PI" );
     setDefault( RimFractureTemplate::INFINITE_CONDUCTIVITY );
 }
 
@@ -505,7 +507,7 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
         m_perforationLength.uiCapability()->setUiHidden( hidePerforationLength );
     }
 
-    if ( m_conductivityType == FINITE_CONDUCTIVITY )
+    if ( useFiniteConductivityInFracture() )
     {
         m_wellDiameter.uiCapability()->setUiHidden( false );
     }
@@ -877,7 +879,7 @@ void RimFractureTemplate::loadDataAndUpdateGeometryHasChanged()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFracture*> RimFractureTemplate::fracturesUsingThisTemplate() const
 {
-    return this->objectsWithReferringPtrFieldsOfType<RimFracture>();
+    return objectsWithReferringPtrFieldsOfType<RimFracture>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -947,6 +949,15 @@ const RimFractureContainment* RimFractureTemplate::fractureContainment() const
 RimFractureTemplate::FracConductivityEnum RimFractureTemplate::conductivityType() const
 {
     return m_conductivityType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::useFiniteConductivityInFracture() const
+{
+    return conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY ||
+           conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY_INFINITE_WELL_PI;
 }
 
 //--------------------------------------------------------------------------------------------------

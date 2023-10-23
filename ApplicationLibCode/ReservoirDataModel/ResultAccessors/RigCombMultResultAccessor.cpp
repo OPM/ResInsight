@@ -169,5 +169,5 @@ double RigCombMultResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) cons
 double RigCombMultResultAccessor::cellFaceScalarGlobIdx( size_t globCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     size_t gridLocalCellIndex = m_grid->mainGrid()->cell( globCellIndex ).gridLocalCellIndex();
-    return this->cellFaceScalar( gridLocalCellIndex, faceId );
+    return cellFaceScalar( gridLocalCellIndex, faceId );
 }

@@ -162,14 +162,7 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
         // TOOD: Consider rewrite, as RigWellLogCurveData can do logarithmic filtering
 
         bool useLogarithmicScale = false;
-        this->setPropertyValuesWithMdAndTVD( values,
-                                             measuredDepthValues,
-                                             tvDepthValues,
-                                             rkbDiff,
-                                             depthUnit,
-                                             !performDataSmoothing,
-                                             useLogarithmicScale,
-                                             xUnits );
+        setPropertyValuesWithMdAndTVD( values, measuredDepthValues, tvDepthValues, rkbDiff, depthUnit, !performDataSmoothing, useLogarithmicScale, xUnits );
     }
 }
 
@@ -179,7 +172,7 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 QString RimStimPlanModelCurve::createCurveAutoName()
 {
     QString textWithLineFeed = caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() ).trimmed();
-    if ( m_curveProperty == RiaDefines::CurveProperty::PRESSURE || m_curveProperty == RiaDefines::CurveProperty::STRESS )
+    if ( ( m_curveProperty == RiaDefines::CurveProperty::PRESSURE || m_curveProperty == RiaDefines::CurveProperty::STRESS ) && m_stimPlanModel )
     {
         // Append date for pressure
         QString pressureDate = m_stimPlanModel->pressureDate();

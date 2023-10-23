@@ -90,7 +90,7 @@ void RiuScalarMapperLegendFrame::setScalarMapper( cvf::ScalarMapper* scalarMappe
 //--------------------------------------------------------------------------------------------------
 void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
 {
-    QFontMetrics fontMetrics( this->font() );
+    QFontMetrics fontMetrics( font() );
     QStringList  titleLines = RiaTextStringTools::splitSkipEmptyParts( m_title, "\n" );
 
     layout->charHeight        = fontMetrics.height();
@@ -208,9 +208,9 @@ QRect RiuScalarMapperLegendFrame::labelRect( const LayoutInfo& layout, int index
 {
     const int posX = layout.tickEndX + layout.tickTextLeadSpace;
 
-    QString labelI = this->label( index );
+    QString labelI = label( index );
 
-    int width  = this->fontMetrics().boundingRect( labelI ).width() + 4;
+    int width  = fontMetrics().boundingRect( labelI ).width() + 4;
     int height = layout.lineSpacing;
 
     int posY = layout.colorBarRect.bottom() - layout.tickYPixelPos[index];

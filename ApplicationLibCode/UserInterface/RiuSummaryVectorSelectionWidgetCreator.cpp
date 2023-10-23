@@ -37,7 +37,7 @@ RiuSummaryVectorSelectionWidgetCreator::RiuSummaryVectorSelectionWidgetCreator()
 {
     m_summaryAddressSelection = std::unique_ptr<RiuSummaryVectorSelectionUi>( new RiuSummaryVectorSelectionUi() );
 
-    this->setPdmObject( m_summaryAddressSelection.get() );
+    setPdmObject( m_summaryAddressSelection.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ RiuSummaryVectorSelectionWidgetCreator::RiuSummaryVectorSelectionWidgetCreator()
 //--------------------------------------------------------------------------------------------------
 RiuSummaryVectorSelectionWidgetCreator::~RiuSummaryVectorSelectionWidgetCreator()
 {
-    this->setPdmObject( nullptr );
+    setPdmObject( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int      
         {
             caf::PdmUiFieldHandle* field = dynamic_cast<caf::PdmUiFieldHandle*>( uiItems[i] );
 
-            caf::PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor( this->widget(), field, uiConfigName );
+            caf::PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor( widget(), field, uiConfigName );
 
             if ( fieldEditor )
             {
@@ -165,7 +165,7 @@ void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int      
 
                 if ( fieldCombinedWidget )
                 {
-                    fieldCombinedWidget->setParent( this->widget() );
+                    fieldCombinedWidget->setParent( widget() );
                     layout->insertWidget( currentWidgetIndex++, fieldCombinedWidget );
                 }
                 else
@@ -179,7 +179,7 @@ void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int      
                         QWidget* fieldLabelWidget = fieldEditor->labelWidget();
                         if ( fieldLabelWidget )
                         {
-                            fieldLabelWidget->setParent( this->widget() );
+                            fieldLabelWidget->setParent( widget() );
 
                             layout->insertWidget( currentWidgetIndex++, fieldLabelWidget );
 
@@ -194,8 +194,8 @@ void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int      
 
                     if ( fieldEditorWidget )
                     {
-                        fieldEditorWidget->setParent( this->widget() ); // To make sure this widget has the current
-                                                                        // group box as parent.
+                        fieldEditorWidget->setParent( widget() ); // To make sure this widget has the current
+                                                                  // group box as parent.
 
                         layout->insertWidget( currentWidgetIndex++, fieldEditorWidget );
                     }
@@ -212,7 +212,7 @@ void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int      
 //--------------------------------------------------------------------------------------------------
 QMinimizePanel* RiuSummaryVectorSelectionWidgetCreator::createGroupBoxWithContent( caf::PdmUiGroup* group, const QString& uiConfigName )
 {
-    QMinimizePanel* groupBox = findOrCreateGroupBox( this->widget(), group, uiConfigName );
+    QMinimizePanel* groupBox = findOrCreateGroupBox( widget(), group, uiConfigName );
 
     recursivelyConfigureAndUpdateUiOrderingInGridLayout( *group, groupBox->contentFrame(), uiConfigName );
     return groupBox;

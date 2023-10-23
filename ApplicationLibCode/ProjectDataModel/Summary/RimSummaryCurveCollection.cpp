@@ -24,7 +24,6 @@
 
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
@@ -127,9 +126,12 @@ void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle
 {
     if ( childArray == &m_curves )
     {
-        for ( RimSummaryCurve* curve : m_curves )
+        for ( auto obj : updatedObjects )
         {
-            curve->updateCurveAppearance();
+            if ( auto curve = dynamic_cast<RimSummaryCurve*>( obj ) )
+            {
+                curve->updateCurveAppearance();
+            }
         }
 
         auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
@@ -381,12 +383,6 @@ void RimSummaryCurveCollection::setCurrentSummaryCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryCurveCollection::fieldsToShowInToolbar()
 {
-    auto parentCrossPlot = firstAncestorOrThisOfType<RimSummaryCrossPlot>();
-    if ( parentCrossPlot )
-    {
-        return m_unionSourceStepping->fieldsToShowInToolbar();
-    }
-
     return m_ySourceStepping()->fieldsToShowInToolbar();
 }
 
@@ -445,6 +441,21 @@ RimSummaryPlotSourceStepping* RimSummaryCurveCollection::sourceSteppingObject( R
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RiaDefines::HorizontalAxisType> RimSummaryCurveCollection::horizontalAxisTypes() const
+{
+    std::set<RiaDefines::HorizontalAxisType> axisTypes;
+
+    for ( const auto& curve : m_curves )
+    {
+        axisTypes.insert( curve->axisTypeX() );
+    }
+
+    return axisTypes;
 }
 
 //--------------------------------------------------------------------------------------------------

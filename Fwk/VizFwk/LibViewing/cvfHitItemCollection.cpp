@@ -114,7 +114,7 @@ const HitItem* HitItemCollection::item(size_t index) const
 //--------------------------------------------------------------------------------------------------
 HitItem* HitItemCollection::firstItem() 
 {
-    if (m_items.size() > 0)
+    if (!m_items.empty())
     {
         return m_items.at(0).p();
     }
@@ -130,7 +130,7 @@ HitItem* HitItemCollection::firstItem()
 //--------------------------------------------------------------------------------------------------
 const HitItem* HitItemCollection::firstItem() const
 {
-    if (m_items.size() > 0)
+    if (!m_items.empty())
     {
         return m_items.at(0).p();
     }

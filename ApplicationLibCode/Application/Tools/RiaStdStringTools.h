@@ -33,6 +33,7 @@ public:
     static std::string trimString( const std::string& s );
     static std::string rightTrimString( const std::string& s );
     static std::string leftTrimString( const std::string& s );
+    static std::string removeWhitespace( const std::string& line );
 
     static bool isNumber( const std::string& s, char decimalPoint );
 
@@ -54,6 +55,8 @@ public:
     static std::string              joinStrings( const std::vector<std::string>& s, char delimiter );
 
     static int computeEditDistance( const std::string& x, const std::string& y );
+
+    static std::string removeHtmlTags( const std::string& s );
 
 private:
     template <class Container>

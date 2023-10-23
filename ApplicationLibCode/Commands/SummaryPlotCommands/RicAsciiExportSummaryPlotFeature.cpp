@@ -45,17 +45,9 @@ CAF_CMD_SOURCE_INIT( RicAsciiExportSummaryPlotFeature, "RicAsciiExportSummaryPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportSummaryPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     std::vector<RimSummaryPlot*> selectedSummaryPlots;
     caf::SelectionManager::instance()->objectsByType( &selectedSummaryPlots );

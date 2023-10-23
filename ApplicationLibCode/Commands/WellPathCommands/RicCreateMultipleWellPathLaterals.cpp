@@ -48,14 +48,6 @@ CAF_CMD_SOURCE_INIT( RicCreateMultipleWellPathLaterals, "RicCreateMultipleWellPa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateMultipleWellPathLaterals::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateMultipleWellPathLaterals::onActionTriggered( bool isChecked )
 {
     m_ui = std::make_unique<RicCreateMultipleWellPathLateralsUi>();

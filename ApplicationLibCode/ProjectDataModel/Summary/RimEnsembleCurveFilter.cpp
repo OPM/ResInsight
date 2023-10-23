@@ -346,11 +346,11 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
     else if ( changedField == &m_filterMode )
     {
-        if ( m_objectiveValuesSummaryAddresses.size() == 0 )
+        if ( m_objectiveValuesSummaryAddresses.empty() )
         {
             RimSummaryAddress* summaryAddress = new RimSummaryAddress();
 
-            RifEclipseSummaryAddress candidateAdr = parentCurveSet()->summaryAddress();
+            RifEclipseSummaryAddress candidateAdr = parentCurveSet()->summaryAddressY();
 
             auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.vectorName() );
             candidateAdr.setVectorName( nativeQuantityName );
@@ -391,10 +391,10 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-                    summaryAddress->setAddress( address.summaryAddress() );
+                    summaryAddress->setAddress( address.summaryAddressY() );
                     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
-                this->loadDataAndUpdate();
+                loadDataAndUpdate();
             }
         }
 
@@ -651,8 +651,8 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) ) m_lowerLimit = eParam.minValue;
             if ( RiaCurveDataTools::isValidValue( eParam.maxValue, false ) ) m_upperLimit = eParam.maxValue;
 
-            if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) ) m_minValue = m_lowerLimit;
-            if ( forceDefault || !( m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit ) ) m_maxValue = m_upperLimit;
+            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
+            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
 
             m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
@@ -675,8 +675,8 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             m_lowerLimit = minObjValue;
             m_upperLimit = maxObjValue;
 
-            if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) ) m_minValue = m_lowerLimit;
-            if ( forceDefault || !( m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit ) ) m_maxValue = m_upperLimit;
+            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
+            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
 
             m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
@@ -691,8 +691,8 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             m_lowerLimit = minMaxValues.first;
             m_upperLimit = minMaxValues.second;
 
-            if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) ) m_minValue = m_lowerLimit;
-            if ( forceDefault || !( m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit ) ) m_maxValue = m_upperLimit;
+            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
+            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
 
             m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );

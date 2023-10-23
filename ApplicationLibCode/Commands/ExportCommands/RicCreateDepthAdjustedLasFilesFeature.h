@@ -23,7 +23,7 @@
 class RimEclipseCase;
 class RimGeoMechCase;
 class RimWellPath;
-class RimWellLogFile;
+class RimWellLogLasFile;
 
 //==================================================================================================
 ///
@@ -36,21 +36,20 @@ public:
     RicCreateDepthAdjustedLasFilesFeature() = default;
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     void createDepthAdjustedWellLogFileFromEclipseCase( RimEclipseCase*                 eclipseCase,
                                                         RimWellPath*                    sourceWell,
-                                                        RimWellLogFile*                 soureWellLogFile,
+                                                        RimWellLogLasFile*              soureWellLogFile,
                                                         const std::vector<RimWellPath*> destinationWells,
                                                         const std::vector<QString>&     selectedResultProperties,
                                                         const QString&                  exportFolder );
 
     void createDepthAdjustedWellLogFileFromGeoMechCase( RimGeoMechCase*                 geoMechCase,
                                                         RimWellPath*                    sourceWell,
-                                                        RimWellLogFile*                 soureWellLogFile,
+                                                        RimWellLogLasFile*              soureWellLogFile,
                                                         const std::vector<RimWellPath*> destinationWells,
                                                         const std::vector<QString>&     selectedResultProperties,
                                                         const QString&                  exportFolder );

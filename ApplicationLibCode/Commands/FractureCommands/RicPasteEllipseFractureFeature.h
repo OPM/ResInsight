@@ -35,7 +35,7 @@ class RicPasteEllipseFractureFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 private:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

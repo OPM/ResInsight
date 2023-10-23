@@ -34,7 +34,7 @@ CAF_CMD_SOURCE_INIT( RicEclipsePropertyFilterNewFeature, "RicEclipsePropertyFilt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipsePropertyFilterNewFeature::isCommandEnabled()
+bool RicEclipsePropertyFilterNewFeature::isCommandEnabled() const
 {
     std::vector<RimEclipsePropertyFilterCollection*> filterCollections =
         RicEclipsePropertyFilterFeatureImpl::selectedPropertyFilterCollections();

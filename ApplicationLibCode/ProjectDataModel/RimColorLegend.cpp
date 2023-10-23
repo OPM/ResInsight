@@ -24,6 +24,7 @@
 #include "RimColorLegendItem.h"
 
 #include "cafPdmFieldReorderCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 #include <algorithm>
 
@@ -34,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RimColorLegend, "ColorLegend" );
 //--------------------------------------------------------------------------------------------------
 RimColorLegend::RimColorLegend()
 {
-    CAF_PDM_InitObject( "ColorLegend", ":/Legend.png" );
+    CAF_PDM_InitScriptableObject( "ColorLegend", ":/Legend.png" );
 
     CAF_PDM_InitField( &m_colorLegendName, "ColorLegendName", QString( "" ), "Color Legend Name" );
 
@@ -127,7 +128,7 @@ void RimColorLegend::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RimColorLegend::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    this->setUiIcon( paletteIconProvider() );
+    setUiIcon( paletteIconProvider() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,7 +182,7 @@ caf::IconProvider RimColorLegend::paletteIconProvider() const
 //--------------------------------------------------------------------------------------------------
 void RimColorLegend::onColorLegendItemHasChanged()
 {
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 
     std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
 

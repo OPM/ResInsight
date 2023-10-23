@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicMoveItemsToTopFeature, "RicMoveItemsToTopFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMoveItemsToTopFeature::isCommandEnabled()
+bool RicMoveItemsToTopFeature::isCommandEnabled() const
 {
     using namespace caf;
 

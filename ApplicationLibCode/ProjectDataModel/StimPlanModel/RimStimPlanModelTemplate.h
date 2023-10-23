@@ -139,8 +139,7 @@ private:
     void nonNetLayersChanged( const caf::SignalEmitter* emitter );
     void pressureTableChanged( const caf::SignalEmitter* emitter );
 
-    double      computeDefaultStressDepth() const;
-    static bool shouldProbablyUseInitialPressure( const QString& faciesName );
+    double computeDefaultStressDepth() const;
 
     caf::PdmField<int>                        m_id;
     caf::PdmPtrField<RimEclipseCase*>         m_dynamicEclipseCase;

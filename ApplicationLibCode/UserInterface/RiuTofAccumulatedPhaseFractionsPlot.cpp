@@ -220,7 +220,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setDefaults()
     // The legend will be deleted in the destructor of the plot or when
     // another legend is inserted.
     QwtLegend* legend = new QwtLegend( this );
-    this->insertLegend( legend, BottomLegend );
+    insertLegend( legend, BottomLegend );
 }
 
 //--------------------------------------------------------------------------------------------------

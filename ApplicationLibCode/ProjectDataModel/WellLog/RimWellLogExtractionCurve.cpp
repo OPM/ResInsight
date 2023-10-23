@@ -53,8 +53,9 @@
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogFileUtil.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
@@ -305,29 +306,29 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
 
         clearGeneratedSimWellPaths();
 
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     else if ( changedField == &m_wellPath )
     {
         if ( m_wellPath() == m_refWellPath() ) m_refWellPath = nullptr;
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     else if ( ( changedField == &m_refWellPath ) || ( changedField == &m_timeStep ) || ( changedField == &m_trajectoryType ) ||
               ( changedField == &m_geomPartId ) )
     {
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
     else if ( ( changedField == &m_branchDetection ) || ( changedField == &m_branchIndex ) || ( changedField == &m_simWellName ) )
     {
         clearGeneratedSimWellPaths();
 
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
 
     if ( changedField == &m_addCaseNameToCurveName || changedField == &m_addPropertyToCurveName ||
          changedField == &m_addWellNameToCurveName || changedField == &m_addTimestepToCurveName || changedField == &m_addDateToCurveName )
     {
-        this->uiCapability()->updateConnectedEditors();
+        uiCapability()->updateConnectedEditors();
         updateCurveNameAndUpdatePlotLegendAndTitle();
     }
 }
@@ -376,7 +377,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
-            this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+            RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
             if ( isUsingPseudoLength )
             {
@@ -475,25 +476,25 @@ void RimWellLogExtractionCurve::extractData( bool*                        isUsin
 
         if ( curveData.tvDepthValues.empty() )
         {
-            this->setPropertyValuesAndDepths( curveData.values,
-                                              curveData.measuredDepthValues,
-                                              RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                              0.0,
-                                              curveData.depthUnit,
-                                              !performDataSmoothing,
-                                              useLogarithmicScale,
-                                              curveData.xUnits );
+            setPropertyValuesAndDepths( curveData.values,
+                                        curveData.measuredDepthValues,
+                                        RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                        0.0,
+                                        curveData.depthUnit,
+                                        !performDataSmoothing,
+                                        useLogarithmicScale,
+                                        curveData.xUnits );
         }
         else
         {
-            this->setPropertyValuesWithMdAndTVD( curveData.values,
-                                                 curveData.measuredDepthValues,
-                                                 curveData.tvDepthValues,
-                                                 curveData.rkbDiff,
-                                                 curveData.depthUnit,
-                                                 !performDataSmoothing,
-                                                 useLogarithmicScale,
-                                                 curveData.xUnits );
+            setPropertyValuesWithMdAndTVD( curveData.values,
+                                           curveData.measuredDepthValues,
+                                           curveData.tvDepthValues,
+                                           curveData.rkbDiff,
+                                           curveData.depthUnit,
+                                           !performDataSmoothing,
+                                           useLogarithmicScale,
+                                           curveData.xUnits );
         }
     }
     else
@@ -659,7 +660,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
             return curveData;
         }
 
-        findAndLoadWbsParametersFromLasFiles( m_wellPath(), wellExtractor.p() );
+        findAndLoadWbsParametersFromFiles( m_wellPath(), wellExtractor.p() );
         RimWellBoreStabilityPlot* wbsPlot = firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
         if ( wbsPlot )
         {
@@ -863,7 +864,7 @@ void RimWellLogExtractionCurve::mapPropertyValuesFromReferenceWell( std::vector<
 //--------------------------------------------------------------------------------------------------
 /// Search well path for LAS-files containing Well Bore Stability data and set them in the extractor.
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor )
+void RimWellLogExtractionCurve::findAndLoadWbsParametersFromFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor )
 {
     auto allParams = RigWbsParameter::allParameters();
     for ( const RigWbsParameter& parameter : allParams )
@@ -872,7 +873,7 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
 
         QString                                lasUnits;
         std::vector<std::pair<double, double>> lasFileValues =
-            RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress, &lasUnits );
+            RimWellLogFileUtil::findMdAndChannelValuesForWellPath( *wellPath, lasAddress, &lasUnits );
         if ( !lasFileValues.empty() )
         {
             QString extractorUnits = RigGeoMechWellLogExtractor::parameterInputUnits( parameter );
@@ -888,6 +889,8 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
                 RiaLogging::error( errMsg );
             }
         }
+
+        // csv
     }
 }
 
@@ -982,7 +985,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions( 
     QList<caf::PdmOptionItemInfo> options;
 
     options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
-    if ( options.size() > 0 ) return options;
+    if ( !options.empty() ) return options;
 
     if ( fieldNeedingOptions == &m_wellPath )
     {
@@ -1003,19 +1006,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions( 
     }
     else if ( fieldNeedingOptions == &m_geomPartId && m_case )
     {
-        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
-        if ( !geomCase || !geomCase->geoMechData() || !geomCase->geoMechData()->femParts() ) return options;
-
-        const auto femParts = geomCase->geoMechData()->femParts();
-        for ( int i = 0; i < femParts->partCount(); ++i )
-        {
-            const auto name = femParts->part( i )->name();
-            options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( name ), i ) );
-        }
+        RimTools::geoMechPartOptionItems( &options, dynamic_cast<RimGeoMechCase*>( m_case.value() ) );
     }
     else if ( fieldNeedingOptions == &m_simWellName )
     {
-        std::set<QString> sortedWellNames = this->sortedSimWellNames();
+        std::set<QString> sortedWellNames = sortedSimWellNames();
 
         caf::IconProvider simWellIcon( ":/Well.svg" );
         for ( const QString& wname : sortedWellNames )
@@ -1337,12 +1332,7 @@ bool RimWellLogExtractionCurve::branchDetection() const
 bool RimWellLogExtractionCurve::isEclipseCurve() const
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    if ( eclipseCase )
-    {
-        return true;
-    }
-
-    return false;
+    return eclipseCase != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

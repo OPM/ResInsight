@@ -51,6 +51,7 @@
 
 #include "RiuGeoMechXfTensorResultAccessor.h"
 
+#include "RivAnnotationSourceInfo.h"
 #include "RivExtrudedCurveIntersectionGeometryGenerator.h"
 #include "RivExtrudedCurveIntersectionSourceInfo.h"
 #include "RivIntersectionHexGridInterface.h"
@@ -231,7 +232,7 @@ void RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMech
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCells )
+void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry( cvf::UByteArray* visibleCells, cvf::Transform* scaleTransform )
 {
     if ( m_intersectionGenerator.isNull() ) return;
 
@@ -324,7 +325,7 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry( cvf::UByteArray*
 
     applySingleColorEffect();
 
-    createAnnotationSurfaceParts( useBufferObjects );
+    createAnnotationSurfaceParts( useBufferObjects, scaleTransform );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -601,7 +602,7 @@ void RivExtrudedCurveIntersectionPartMgr::createExtrusionDirParts( bool useBuffe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool useBufferObjects )
+void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool useBufferObjects, cvf::Transform* scaleTransform )
 {
     m_annotationParts.clear();
 
@@ -619,9 +620,10 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
 
         auto part = createCurvePart( polylines,
                                      useBufferObjects,
-                                     surface->userDescription(),
+                                     surface->fullName(),
                                      curve->lineAppearance()->color(),
-                                     curve->lineAppearance()->thickness() );
+                                     curve->lineAppearance()->thickness(),
+                                     scaleTransform );
 
         if ( part.notNull() ) m_annotationParts.push_back( part.p() );
     }
@@ -645,18 +647,20 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
         {
             auto part = createCurvePart( polylineA,
                                          useBufferObjects,
-                                         surface1->userDescription(),
+                                         surface1->fullName(),
                                          band->lineAppearance()->color(),
-                                         band->lineAppearance()->thickness() );
+                                         band->lineAppearance()->thickness(),
+                                         scaleTransform );
 
             if ( part.notNull() ) m_annotationParts.push_back( part.p() );
         }
         {
             auto part = createCurvePart( polylineB,
                                          useBufferObjects,
-                                         surface2->userDescription(),
+                                         surface2->fullName(),
                                          band->lineAppearance()->color(),
-                                         band->lineAppearance()->thickness() );
+                                         band->lineAppearance()->thickness(),
+                                         scaleTransform );
 
             if ( part.notNull() ) m_annotationParts.push_back( part.p() );
         }
@@ -730,7 +734,8 @@ cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const 
                                                                           bool                           useBufferObjects,
                                                                           const QString&                 description,
                                                                           const cvf::Color3f&            color,
-                                                                          float                          lineWidth )
+                                                                          float                          lineWidth,
+                                                                          cvf::Transform*                scaleTransform )
 {
     auto polylineGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( polylines );
     if ( polylineGeo.notNull() )
@@ -761,6 +766,31 @@ cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const 
         eff->setRenderState( polyOffset.p() );
 
         part->setEffect( eff.p() );
+
+        if ( part.notNull() && scaleTransform )
+        {
+            // The polylines are defined in the display coordinate system without Z-scaling. The z-scaling is applied to the visualization
+            // parts using Part::setTransform(Transform* transform)
+            // The annotation objects are defined by display coordinates, so apply the Z-scaling to the coordinates
+
+            std::vector<cvf::Vec3d> displayCoords;
+            const auto&             mat = scaleTransform->worldTransform();
+
+            for ( const auto& p : polylines )
+            {
+                displayCoords.push_back( p.getTransformedPoint( mat ) );
+            }
+
+            // Add annotation info to be used to display label in Rim3dView::onViewNavigationChanged()
+            // Set the source info on one part only, as this data is only used for display of labels
+            auto annoObj = new RivAnnotationSourceInfo( description.toStdString(), displayCoords );
+            annoObj->setLabelPositionStrategyHint( RivAnnotationTools::LabelPositionStrategy::RIGHT );
+            annoObj->setShowColor( true );
+            annoObj->setColor( color );
+
+            part->setSourceInfo( annoObj );
+        }
+
         return part;
     }
 

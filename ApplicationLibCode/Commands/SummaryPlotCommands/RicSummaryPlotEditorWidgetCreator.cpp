@@ -48,7 +48,7 @@ RicSummaryPlotEditorWidgetCreator::RicSummaryPlotEditorWidgetCreator( QWidget* p
 
     m_summaryCurveCreator.reset( new RicSummaryPlotEditorUi() );
 
-    this->setPdmObject( m_summaryCurveCreator.get() );
+    setPdmObject( m_summaryCurveCreator.get() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,7 +213,7 @@ QMinimizePanel* RicSummaryPlotEditorWidgetCreator::getOrCreateCurveTreeGroup()
 {
     if ( !m_curvesPanel )
     {
-        m_curvesPanel = new QMinimizePanel( this->widget() );
+        m_curvesPanel = new QMinimizePanel( widget() );
         m_curvesPanel->setTitle( "Curves" );
         QVBoxLayout* curvesLayout = new QVBoxLayout( m_curvesPanel->contentFrame() );
 
@@ -271,7 +271,7 @@ void RicSummaryPlotEditorWidgetCreator::configureAndUpdateFields( int           
         {
             caf::PdmUiFieldHandle* field = dynamic_cast<caf::PdmUiFieldHandle*>( uiItems[i] );
 
-            caf::PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor( this->widget(), field, uiConfigName );
+            caf::PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor( widget(), field, uiConfigName );
 
             if ( fieldEditor )
             {
@@ -280,7 +280,7 @@ void RicSummaryPlotEditorWidgetCreator::configureAndUpdateFields( int           
 
                 if ( fieldCombinedWidget )
                 {
-                    fieldCombinedWidget->setParent( this->widget() );
+                    fieldCombinedWidget->setParent( widget() );
                     layout->insertWidget( currentWidgetIndex++, fieldCombinedWidget );
                 }
                 else
@@ -294,7 +294,7 @@ void RicSummaryPlotEditorWidgetCreator::configureAndUpdateFields( int           
                         QWidget* fieldLabelWidget = fieldEditor->labelWidget();
                         if ( fieldLabelWidget )
                         {
-                            fieldLabelWidget->setParent( this->widget() );
+                            fieldLabelWidget->setParent( widget() );
 
                             layout->insertWidget( currentWidgetIndex++, fieldLabelWidget );
 
@@ -309,8 +309,8 @@ void RicSummaryPlotEditorWidgetCreator::configureAndUpdateFields( int           
 
                     if ( fieldEditorWidget )
                     {
-                        fieldEditorWidget->setParent( this->widget() ); // To make sure this widget has the current
-                                                                        // group box as parent.
+                        fieldEditorWidget->setParent( widget() ); // To make sure this widget has the current
+                                                                  // group box as parent.
 
                         layout->insertWidget( currentWidgetIndex++, fieldEditorWidget );
                     }
@@ -327,7 +327,7 @@ void RicSummaryPlotEditorWidgetCreator::configureAndUpdateFields( int           
 //--------------------------------------------------------------------------------------------------
 QMinimizePanel* RicSummaryPlotEditorWidgetCreator::createGroupBoxWithContent( caf::PdmUiGroup* group, const QString& uiConfigName )
 {
-    QMinimizePanel* groupBox = findOrCreateGroupBox( this->widget(), group, uiConfigName );
+    QMinimizePanel* groupBox = findOrCreateGroupBox( widget(), group, uiConfigName );
 
     recursivelyConfigureAndUpdateUiOrderingInGridLayout( *group, groupBox->contentFrame(), uiConfigName );
     return groupBox;

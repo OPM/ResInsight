@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicAppendSummaryCurvesForSummaryCasesFeature, "RicAppendSum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendSummaryCurvesForSummaryCasesFeature::isCommandEnabled()
+bool RicAppendSummaryCurvesForSummaryCasesFeature::isCommandEnabled() const
 {
     return !selectedCases().empty();
 }

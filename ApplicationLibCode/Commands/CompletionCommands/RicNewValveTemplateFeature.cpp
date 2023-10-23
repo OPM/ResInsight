@@ -120,11 +120,3 @@ void RicNewValveTemplateFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setIcon( QIcon( ":/ICDValve16x16.png" ) );
     actionToSetup->setText( "New Valve Template" );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicNewValveTemplateFeature::isCommandEnabled()
-{
-    return true;
-}

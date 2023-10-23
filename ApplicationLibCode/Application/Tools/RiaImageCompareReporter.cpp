@@ -59,7 +59,7 @@ std::string removeCommonStart( const std::string& mask, const std::string& filen
 //--------------------------------------------------------------------------------------------------
 void RiaImageCompareReporter::generateHTMLReport( const std::string& fileName, const std::string& diff2htmlHeaderText )
 {
-    if ( m_directorySets.size() == 0 ) return;
+    if ( m_directorySets.empty() ) return;
 
     std::ofstream output( fileName.c_str() );
     if ( !output )

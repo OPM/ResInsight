@@ -266,7 +266,7 @@ void RicCreateMultipleFracturesFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateMultipleFracturesFeature::isCommandEnabled()
+bool RicCreateMultipleFracturesFeature::isCommandEnabled() const
 {
     std::vector<RimWellPath*> selWells = caf::selectedObjectsByTypeStrict<RimWellPath*>();
     return !selWells.empty();

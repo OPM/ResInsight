@@ -22,13 +22,11 @@
 #include <string>
 #include <vector>
 
+#include "RifEclipseSummaryAddressDefines.h"
+using namespace RifEclipseSummaryAddressDefines;
+
 class QTextStream;
 class QString;
-
-#define ENSEMBLE_STAT_P10_QUANTITY_NAME "P10"
-#define ENSEMBLE_STAT_P50_QUANTITY_NAME "P50"
-#define ENSEMBLE_STAT_P90_QUANTITY_NAME "P90"
-#define ENSEMBLE_STAT_MEAN_QUANTITY_NAME "MEAN"
 
 //==================================================================================================
 //
@@ -37,61 +35,25 @@ class QString;
 class RifEclipseSummaryAddress
 {
 public:
-    // Based on list in ecl_smspec.c and list of types taken from Eclipse Reference Manual ecl_rm_2011.1.pdf
-    enum SummaryVarCategory : int8_t
-    {
-        SUMMARY_INVALID,
-        SUMMARY_FIELD,
-        SUMMARY_AQUIFER,
-        SUMMARY_NETWORK,
-        SUMMARY_MISC,
-        SUMMARY_REGION,
-        SUMMARY_REGION_2_REGION,
-        SUMMARY_GROUP,
-        SUMMARY_WELL,
-        SUMMARY_WELL_COMPLETION,
-        SUMMARY_WELL_LGR,
-        SUMMARY_WELL_COMPLETION_LGR,
-        SUMMARY_WELL_SEGMENT,
-        SUMMARY_BLOCK,
-        SUMMARY_BLOCK_LGR,
-        SUMMARY_IMPORTED,
-        SUMMARY_ENSEMBLE_STATISTICS
-    };
-
-    enum SummaryIdentifierType
-    {
-        INPUT_REGION_NUMBER,
-        INPUT_REGION_2_REGION,
-        INPUT_WELL_NAME,
-        INPUT_GROUP_NAME,
-        INPUT_CELL_IJK,
-        INPUT_LGR_NAME,
-        INPUT_SEGMENT_NUMBER,
-        INPUT_AQUIFER_NUMBER,
-        INPUT_VECTOR_NAME,
-        INPUT_ID
-    };
-
-public:
     RifEclipseSummaryAddress();
 
-    RifEclipseSummaryAddress( SummaryVarCategory category,
+    RifEclipseSummaryAddress( SummaryCategory    category,
                               const std::string& vectorName,
-                              int16_t            regionNumber,
-                              int16_t            regionNumber2,
+                              int                regionNumber,
+                              int                regionNumber2,
                               const std::string& groupName,
+                              const std::string& networkName,
                               const std::string& wellName,
-                              int16_t            wellSegmentNumber,
+                              int                wellSegmentNumber,
                               const std::string& lgrName,
-                              int32_t            cellI,
-                              int32_t            cellJ,
-                              int32_t            cellK,
-                              int16_t            aquiferNumber,
+                              int                cellI,
+                              int                cellJ,
+                              int                cellK,
+                              int                aquiferNumber,
                               bool               isErrorResult,
-                              int32_t            id );
+                              int                id );
 
-    RifEclipseSummaryAddress( SummaryVarCategory category, std::map<SummaryIdentifierType, std::string>& identifiers );
+    RifEclipseSummaryAddress( SummaryCategory category, std::map<SummaryIdentifierType, std::string>& identifiers );
 
     // Static specialized creation methods
 
@@ -100,7 +62,7 @@ public:
 
     static RifEclipseSummaryAddress fieldAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress aquiferAddress( const std::string& vectorName, int aquiferNumber, int calculationId = -1 );
-    static RifEclipseSummaryAddress networkAddress( const std::string& vectorName, int calculationId = -1 );
+    static RifEclipseSummaryAddress networkAddress( const std::string& vectorName, const std::string& networkName, int calculationId = -1 );
     static RifEclipseSummaryAddress miscAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress regionAddress( const std::string& vectorName, int regionNumber, int calculationId = -1 );
     static RifEclipseSummaryAddress
@@ -127,54 +89,59 @@ public:
     static RifEclipseSummaryAddress importedAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& vectorName, const std::string& datavectorName );
 
+    // Special address when time is used as x-axis
+    static RifEclipseSummaryAddress timeAddress();
+
     static std::string generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,
                                                     const std::string                            jointString = "; " );
 
-    static bool isDependentOnWellName( SummaryVarCategory category );
+    static bool isDependentOnWellName( RifEclipseSummaryAddressDefines::SummaryCategory category );
 
     // Access methods
 
-    SummaryVarCategory category() const { return m_variableCategory; }
-    const std::string& vectorName() const { return m_vectorName; }
-    bool               isHistoryVector() const;
+    SummaryCategory category() const;
+    std::string     vectorName() const;
+    bool            isHistoryVector() const;
 
-    int regionNumber() const { return m_regionNumber; }
-    int regionNumber2() const { return m_regionNumber2; }
+    int regionNumber() const;
+    int regionNumber2() const;
 
-    const std::string& groupName() const { return m_groupName; }
-    const std::string& wellName() const { return m_wellName; }
-    int                wellSegmentNumber() const { return m_wellSegmentNumber; }
-    const std::string& lgrName() const { return m_lgrName; }
-    int                cellI() const { return m_cellI; }
-    int                cellJ() const { return m_cellJ; }
-    int                cellK() const { return m_cellK; }
-    int                aquiferNumber() const { return m_aquiferNumber; }
-    int                id() const { return m_id; }
-    std::string        blockAsString() const;
+    std::string groupName() const;
+    std::string networkName() const;
+    std::string wellName() const;
+    int         wellSegmentNumber() const;
+    std::string lgrName() const;
+    int         cellI() const;
+    int         cellJ() const;
+    int         cellK() const;
+    int         aquiferNumber() const;
+    int         id() const;
+    std::string blockAsString() const;
 
-    const std::string ensembleStatisticsVectorName() const;
+    std::string ensembleStatisticsVectorName() const;
 
     // Derived properties
 
     std::string uiText() const;
     std::string itemUiText() const;
-    std::string addressComponentUiText( RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput ) const;
+    std::string addressComponentUiText( SummaryIdentifierType itemTypeInput ) const;
     bool        isUiTextMatchingFilterText( const QString& filterString ) const;
 
     bool isValid() const;
-    void setVectorName( const std::string& vectorName ) { m_vectorName = vectorName; }
-    void setWellName( const std::string& wellName ) { m_wellName = wellName; }
-    void setGroupName( const std::string& groupName ) { m_groupName = groupName; }
-    void setRegion( int region ) { m_regionNumber = (int16_t)region; }
-    void setRegion2( int region2 ) { m_regionNumber2 = (int16_t)region2; }
-    void setAquiferNumber( int aquiferNumber ) { m_aquiferNumber = (int16_t)aquiferNumber; }
+    void setVectorName( const std::string& vectorName );
+    void setWellName( const std::string& wellName );
+    void setGroupName( const std::string& groupName );
+    void setNetworkName( const std::string& networkName );
+    void setRegion( int region );
+    void setRegion2( int region2 );
+    void setAquiferNumber( int aquiferNumber );
     void setCellIjk( const std::string& uiText );
-    void setWellSegmentNumber( int segment ) { m_wellSegmentNumber = (int16_t)segment; }
+    void setWellSegmentNumber( int segment );
 
-    void setAsErrorResult() { m_isErrorResult = true; }
-    bool isErrorResult() const { return m_isErrorResult; }
+    void setAsErrorResult();
+    bool isErrorResult() const;
 
-    void setId( int id ) { m_id = id; }
+    void setId( int id );
 
     bool hasAccumulatedData() const;
 
@@ -183,36 +150,33 @@ public:
     auto operator<=>( const RifEclipseSummaryAddress& rhs ) const = default;
 
     bool isCalculated() const;
+    bool isTime() const;
 
-    std::string                        formatUiTextRegionToRegion() const;
-    static std::pair<int16_t, int16_t> regionToRegionPairFromUiText( const std::string& s );
+    std::string                formatUiTextRegionToRegion() const;
+    static std::pair<int, int> regionToRegionPairFromUiText( const std::string& s );
 
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 
-    bool                                         isValidEclipseCategory() const;
-    static std::tuple<int32_t, int32_t, int32_t> ijkTupleFromUiText( const std::string& s );
+    bool                             isValidEclipseCategory() const;
+    static std::tuple<int, int, int> ijkTupleFromUiText( const std::string& s );
+    void                             setCellIjk( std::tuple<int, int, int> ijk );
+    void                             setCellIjk( int i, int j, int k );
 
 private:
     // The ordering the variables are defined in defines how the objects get sorted. Members defined first will be
     // evaluated first. This concept is used by <=> operator.
 
-    SummaryVarCategory m_variableCategory;
-    std::string        m_vectorName;
-    std::string        m_wellName;
-    std::string        m_groupName;
-    std::string        m_lgrName;
-    int32_t            m_cellK;
-    int32_t            m_cellJ;
-    int32_t            m_cellI;
-    int16_t            m_regionNumber;
-    int16_t            m_regionNumber2;
-    int16_t            m_wellSegmentNumber;
-    int16_t            m_aquiferNumber;
-    bool               m_isErrorResult;
-    int32_t            m_id;
+    SummaryCategory m_category;
+    std::string     m_vectorName;
+    std::string     m_name;
+    std::string     m_lgrName;
+    int             m_number0;
+    int             m_number1;
+    int             m_number2;
+    bool            m_isErrorResult;
+    int             m_id;
 };
 
 QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj );
-
 QTextStream& operator>>( QTextStream& str, RifEclipseSummaryAddress& sobj );

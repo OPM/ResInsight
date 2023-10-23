@@ -334,7 +334,7 @@ cvf::Vec2ui RimContourMapProjection::numberOfElementsIJ() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RimContourMapProjection::numberOfVerticesIJ() const
 {
-    cvf::Vec2ui mapSize = this->numberOfElementsIJ();
+    cvf::Vec2ui mapSize = numberOfElementsIJ();
     mapSize.x() += 1u;
     mapSize.y() += 1u;
     return mapSize;
@@ -635,12 +635,8 @@ bool RimContourMapProjection::geometryNeedsUpdating() const
 //--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::resultRangeIsValid() const
 {
-    if ( m_minResultAllTimeSteps == std::numeric_limits<double>::infinity() ||
-         m_maxResultAllTimeSteps == -std::numeric_limits<double>::infinity() )
-    {
-        return false;
-    }
-    return true;
+    return m_minResultAllTimeSteps != std::numeric_limits<double>::infinity() &&
+           m_maxResultAllTimeSteps != -std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1550,7 +1546,7 @@ double RimContourMapProjection::calculateValueAtVertex( uint vi, uint vj ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, double>> RimContourMapProjection::cellsAtIJ( uint i, uint j ) const
 {
-    size_t cellIndex = this->cellIndexFromIJ( i, j );
+    size_t cellIndex = cellIndexFromIJ( i, j );
     if ( cellIndex < m_projected3dGridIndices.size() )
     {
         return m_projected3dGridIndices[cellIndex];

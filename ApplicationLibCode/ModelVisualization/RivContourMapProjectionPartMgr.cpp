@@ -78,7 +78,7 @@ void RivContourMapProjectionPartMgr::appendPickPointVisToModel( cvf::ModelBasicL
     {
         caf::MeshEffectGenerator meshEffectGen( cvf::Color3::MAGENTA );
         meshEffectGen.setLineWidth( 1.0f );
-        meshEffectGen.createAndConfigurePolygonOffsetRenderState( caf::PO_2 );
+        caf::MeshEffectGenerator::createAndConfigurePolygonOffsetRenderState( caf::PO_2 );
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
         cvf::ref<cvf::Part> part = new cvf::Part;
@@ -153,7 +153,7 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
                 {
                     caf::MeshEffectGenerator meshEffectGen( lineColor );
                     meshEffectGen.setLineWidth( 1.0f );
-                    meshEffectGen.createAndConfigurePolygonOffsetRenderState( caf::PO_1 );
+                    caf::MeshEffectGenerator::createAndConfigurePolygonOffsetRenderState( caf::PO_1 );
 
                     cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
@@ -302,7 +302,7 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>>
                 lineBBox.add( displayVertex2 );
 
                 bool addOriginalSegment = true;
-                if ( labelBBoxes.size() > 0 )
+                if ( !labelBBoxes.empty() )
                 {
                     for ( const cvf::BoundingBox& existingBBox : labelBBoxes[i] )
                     {

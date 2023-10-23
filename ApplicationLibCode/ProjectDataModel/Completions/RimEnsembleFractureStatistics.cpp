@@ -290,7 +290,7 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
 
 #ifdef USE_QTCHARTS
         // Update referring plots
-        std::vector<caf::PdmObjectHandle*> referringObjects = this->objectsWithReferringPtrFields();
+        std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
         for ( caf::PdmObjectHandle* obj : referringObjects )
         {
             auto plot = dynamic_cast<RimEnsembleFractureStatisticsPlot*>( obj );

@@ -20,6 +20,9 @@
 
 #include "RimAbstractCorrelationPlot.h"
 
+#include "RiaCurveDataTools.h"
+#include "RiaSummaryCurveDefinition.h"
+
 #include "cafAppEnum.h"
 
 class RimRegularLegendConfig;
@@ -27,6 +30,48 @@ class RimSummaryAddress;
 
 class RiuGroupedBarChartBuilder;
 class RiuPlotItem;
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+template <typename KeyType, typename ValueType>
+class CorrelationMatrixRowOrColumn
+{
+public:
+    CorrelationMatrixRowOrColumn( const KeyType& key, const std::vector<double>& correlations, const std::vector<ValueType>& values )
+        : m_key( key )
+        , m_correlations( correlations )
+        , m_values( values )
+        , m_correlationSum( 0.0 )
+        , m_correlationAbsSum( 0.0 )
+    {
+        bool anyValid = false;
+        for ( auto value : correlations )
+        {
+            if ( RiaCurveDataTools::isValidValue( value, false ) )
+            {
+                m_correlationSum += value;
+                m_correlationAbsSum += std::abs( value );
+                anyValid = true;
+            }
+        }
+        if ( !anyValid )
+        {
+            m_correlationSum    = std::numeric_limits<double>::infinity();
+            m_correlationAbsSum = std::numeric_limits<double>::infinity();
+        }
+    }
+
+    KeyType                m_key;
+    std::vector<double>    m_correlations;
+    std::vector<ValueType> m_values;
+    double                 m_correlationSum;
+    double                 m_correlationAbsSum;
+};
+
+using CorrelationMatrixColumn = CorrelationMatrixRowOrColumn<QString, RiaSummaryCurveDefinition>;
+using CorrelationMatrixRow    = CorrelationMatrixRowOrColumn<RiaSummaryCurveDefinition, QString>;
 
 //==================================================================================================
 ///
@@ -60,6 +105,7 @@ public:
     bool                    showTopNCorrelations() const;
     int                     topNFilterCount() const;
     bool                    isCurveHighlightSupported() const override;
+    QString                 asciiDataForPlotExport() const override;
 
 private:
     // Overridden PDM methods
@@ -94,4 +140,6 @@ private:
 
     std::map<size_t, QString> m_paramLabels;
     std::map<size_t, QString> m_resultLabels;
+
+    std::vector<CorrelationMatrixRow> m_valuesForTextReport;
 };

@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorGamma.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -88,7 +89,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorGamma::calculate( int partIn
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcPORDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemAddressDefines::nodalPorBarAddress() );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     stepCountProgress.incrementProgress();

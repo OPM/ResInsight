@@ -49,7 +49,7 @@ CAF_CMD_SOURCE_INIT( RicPasteAsciiDataToSummaryPlotFeature, "RicPasteAsciiDataTo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
+bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled() const
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
@@ -84,7 +84,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
 
     std::vector<RimAsciiDataCurve*> curves = parseCurves( text, pasteOptions );
 
-    if ( curves.size() > 0 )
+    if ( !curves.empty() )
     {
         if ( !summaryPlot )
         {

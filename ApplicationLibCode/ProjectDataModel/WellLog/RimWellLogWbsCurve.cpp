@@ -101,6 +101,6 @@ void RimWellLogWbsCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
     if ( changedField == &m_smoothCurve || changedField == &m_smoothingThreshold || changedField == &m_maximumCurvePointInterval )
     {
-        this->loadDataAndUpdate( true );
+        loadDataAndUpdate( true );
     }
 }

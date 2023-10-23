@@ -209,7 +209,7 @@ size_t RimAnnotationCollection::lineBasedAnnotationsCount() const
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollection::updateViewAnnotationCollections()
 {
-    auto views = gridViewsContainingAnnotations();
+    auto views = viewsContainingAnnotations();
 
     for ( const auto* view : views )
     {

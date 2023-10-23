@@ -30,17 +30,9 @@ CAF_CMD_SOURCE_INIT( RicExitApplicationFeature, "RicExitApplicationFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExitApplicationFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicExitApplicationFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
     if ( !app->askUserToSaveModifiedProject() ) return;

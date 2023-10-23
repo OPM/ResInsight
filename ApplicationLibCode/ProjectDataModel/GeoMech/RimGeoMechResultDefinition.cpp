@@ -25,6 +25,7 @@
 
 #include "RifGeoMechReaderInterface.h"
 
+#include "RigFemAddressDefines.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultCalculatorStressAnisotropy.h"
@@ -351,7 +352,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     }
 
     // Get the possible property filter owner
-    auto propFilter        = dynamic_cast<RimGeoMechPropertyFilter*>( this->parentField()->ownerObject() );
+    auto propFilter        = dynamic_cast<RimGeoMechPropertyFilter*>( parentField()->ownerObject() );
     auto view              = firstAncestorOrThisOfType<RimGridView>();
     auto curve             = firstAncestorOrThisOfType<RimPlotCurve>();
     auto rim3dWellLogCurve = firstAncestorOrThisOfType<Rim3dWellLogCurve>();
@@ -361,7 +362,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
          &m_normalizationAirGap == changedField || &m_referenceTimeStep == changedField || &m_isChecked == changedField )
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split( QRegExp( "\\s+" ) );
-        if ( fieldComponentNames.size() > 0 )
+        if ( !fieldComponentNames.empty() )
         {
             m_resultPositionType = m_resultPositionTypeUiField;
             if ( m_resultPositionType() == RIG_FORMATION_NAMES )
@@ -400,7 +401,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
             if ( dynamic_cast<RimGeoMechCellColors*>( this ) )
             {
-                this->updateLegendCategorySettings();
+                updateLegendCategorySettings();
 
                 if ( view )
                 {
@@ -566,17 +567,17 @@ void RimGeoMechResultDefinition::loadResult()
 {
     if ( m_geomCase && m_geomCase->geoMechData() )
     {
-        if ( this->resultAddress().fieldName == RiaResultNames::wbsFGResult().toStdString() ||
-             this->resultAddress().fieldName == RiaResultNames::wbsSFGResult().toStdString() )
+        if ( resultAddress().fieldName == RiaResultNames::wbsFGResult().toStdString() ||
+             resultAddress().fieldName == RiaResultNames::wbsSFGResult().toStdString() )
         {
             RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, std::string( "ST" ), "" );
-            RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, std::string( "POR-Bar" ), "" );
+            RigFemResultAddress porBarResAddr = RigFemAddressDefines::elementNodalPorBarAddress();
             m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( stressResAddr );
             m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( porBarResAddr );
         }
         else
         {
-            m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( this->resultAddress() );
+            m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( resultAddress() );
         }
     }
 }
@@ -598,7 +599,7 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
     if ( resultPositionType() == RIG_DIFFERENTIALS )
     {
         RigFemResultPosEnum resultPositionType = RIG_ELEMENT_NODAL;
-        if ( resultFieldName().toStdString() == "POR-Bar" )
+        if ( resultFieldName().toStdString() == RigFemAddressDefines::porBar() )
         {
             resultPositionType = RIG_NODAL;
         }
@@ -730,7 +731,7 @@ bool RimGeoMechResultDefinition::hasResult()
         RigFemPartResultsCollection* results = caseData->femPartResults();
         if ( results )
         {
-            return results->assertResultsLoaded( this->resultAddress() );
+            return results->assertResultsLoaded( resultAddress() );
         }
     }
     return false;
@@ -789,34 +790,39 @@ QString RimGeoMechResultDefinition::resultVariableName() const
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::currentResultUnits() const
 {
-    RigFemResultAddress rigFemResultAddress = this->resultAddress();
+    RigFemResultAddress rigFemResultAddress = resultAddress();
 
     if ( RigFemPartResultCalculatorStressAnisotropy::isAnisotropyResult( rigFemResultAddress ) )
     {
         return RiaWellLogUnitTools<double>::noUnitString();
     }
 
-    if ( this->resultFieldName() == "SE" || this->resultFieldName() == "ST" || this->resultFieldName() == "POR-Bar" ||
-         this->resultFieldName() == "SM" || this->resultFieldName() == "SEM" || this->resultFieldName() == "Q" )
+    if ( resultFieldName() == "SE" || resultFieldName() == "ST" ||
+         resultFieldName() == QString::fromStdString( RigFemAddressDefines::porBar() ) || resultFieldName() == "SM" ||
+         resultFieldName() == "SEM" || resultFieldName() == "Q" )
     {
-        auto componentName = this->resultComponentName();
+        auto componentName = resultComponentName();
         if ( componentName.endsWith( "azi" ) || componentName.endsWith( "inc" ) )
         {
             return "Deg";
         }
 
+        if ( rigFemResultAddress.normalizeByHydrostaticPressure() )
+        {
+            return "sg";
+        }
+
         return "Bar";
     }
-    else if ( this->resultFieldName() == "MODULUS" )
+    else if ( resultFieldName() == "MODULUS" )
     {
         return "GPa";
     }
-    else if ( this->resultFieldName() == "COMPRESSIBILITY" &&
-              ( this->resultComponentName() == "PORE" || this->resultComponentName() == "VERTICAL" ) )
+    else if ( resultFieldName() == "COMPRESSIBILITY" && ( resultComponentName() == "PORE" || resultComponentName() == "VERTICAL" ) )
     {
         return "1/GPa";
     }
-    else if ( this->resultFieldName() == "PORO-PERM" && this->resultComponentName() == "PERM" )
+    else if ( resultFieldName() == "PORO-PERM" && resultComponentName() == "PERM" )
     {
         return "mD";
     }
@@ -824,7 +830,7 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         for ( auto resultName : RiaResultNames::wbsDerivedResultNames() )
         {
-            if ( resultName == this->resultFieldName() )
+            if ( resultName == resultFieldName() )
             {
                 return RiaWellLogUnitTools<double>::sg_emwUnitString();
             }
@@ -876,7 +882,7 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName( QString resultFi
     if ( resultFieldName == "E" ) newName = "NativeAbaqus Strain";
     if ( resultFieldName == "S" ) newName = "NativeAbaqus Stress";
     if ( resultFieldName == "NE" ) newName = "E"; // Make NE and NS appear as E and SE
-    if ( resultFieldName == "POR-Bar" ) newName = "POR"; // POR-Bar appear as POR
+    if ( resultFieldName == QString::fromStdString( RigFemAddressDefines::porBar() ) ) newName = "POR"; // POR-Bar appear as POR
     if ( resultFieldName == "MODULUS" ) newName = "Young's Modulus";
     if ( resultFieldName == "RATIO" ) newName = "Poisson's Ratio";
     if ( resultFieldName == "UCS" ) newName = "UCS bar/ 100";
@@ -889,7 +895,7 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName( QString resultFi
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::normalizableResultSelected() const
 {
-    return RigFemPartResultsCollection::isNormalizableResult( this->resultAddress() );
+    return RigFemPartResultsCollection::isNormalizableResult( resultAddress() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -897,7 +903,7 @@ bool RimGeoMechResultDefinition::normalizableResultSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::referenceCaseDependentResultSelected() const
 {
-    return RigFemPartResultsCollection::isReferenceCaseDependentResult( this->resultAddress() );
+    return RigFemPartResultsCollection::isReferenceCaseDependentResult( resultAddress() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,7 +930,7 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
                                                             const QString&          legendHeading,
                                                             int                     viewerStepIndex )
 {
-    if ( !this->ownerCaseData() || !( this->resultAddress().isValid() ) )
+    if ( !ownerCaseData() || !( resultAddress().isValid() ) )
     {
         return;
     }
@@ -934,10 +940,10 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     double globalMin, globalMax;
     double globalPosClosestToZero, globalNegClosestToZero;
 
-    RigGeoMechCaseData* gmCase = this->ownerCaseData();
+    RigGeoMechCaseData* gmCase = ownerCaseData();
     CVF_ASSERT( gmCase );
 
-    RigFemResultAddress resVarAddress = this->resultAddress();
+    RigFemResultAddress resVarAddress = resultAddress();
 
     auto [stepIdx, frameIdx] = gmCase->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerStepIndex );
 
@@ -950,18 +956,17 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );
     legendConfigToUpdate->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
 
-    if ( this->hasCategoryResult() )
+    if ( hasCategoryResult() )
     {
         std::vector<QString> fnVector = gmCase->femPartResults()->formationNames();
         legendConfigToUpdate->setNamedCategories( fnVector );
     }
 
-    QString legendTitle = legendHeading + caf::AppEnum<RigFemResultPosEnum>( this->resultPositionType() ).uiText() + "\n" +
-                          this->resultFieldUiName();
+    QString legendTitle = legendHeading + caf::AppEnum<RigFemResultPosEnum>( resultPositionType() ).uiText() + "\n" + resultFieldUiName();
 
-    if ( !this->resultComponentUiName().isEmpty() )
+    if ( !resultComponentUiName().isEmpty() )
     {
-        legendTitle += ", " + this->resultComponentUiName();
+        legendTitle += ", " + resultComponentUiName();
     }
 
     QString unitString = currentResultUnits();
@@ -970,9 +975,9 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
         legendTitle += QString( " [%1]" ).arg( unitString );
     }
 
-    if ( !this->diffResultUiShortName().isEmpty() )
+    if ( !diffResultUiShortName().isEmpty() )
     {
-        legendTitle += QString( "\nTime Diff:\n%1" ).arg( this->diffResultUiShortName() );
+        legendTitle += QString( "\nTime Diff:\n%1" ).arg( diffResultUiShortName() );
     }
 
     legendConfigToUpdate->setTitle( legendTitle );
@@ -983,5 +988,5 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::isBiotCoefficientDependent() const
 {
-    return ( this->resultFieldName() == "COMPRESSIBILITY" || this->resultFieldName() == "PORO-PERM" );
+    return ( resultFieldName() == "COMPRESSIBILITY" || resultFieldName() == "PORO-PERM" );
 }

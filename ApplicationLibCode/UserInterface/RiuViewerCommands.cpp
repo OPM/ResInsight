@@ -60,7 +60,9 @@
 #include "RimLegendConfig.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimSeismicDataInterface.h"
 #include "RimSeismicSection.h"
+#include "RimSeismicView.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimSurfaceInView.h"
@@ -171,6 +173,8 @@ void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBu
         RimProject::current()->allViews( views );
         for ( auto view : views )
         {
+            if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
+
             if ( view != mainGridView )
             {
                 validComparisonViews.push_back( view );
@@ -262,6 +266,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
 
     // Check type of view
+
+    RimSeismicView* seisView = dynamic_cast<RimSeismicView*>( mainOrComparisonView );
+    if ( seisView )
+    {
+        // no context menu support in seismic views, yet
+        return;
+    }
 
     RimGridView*           gridView  = dynamic_cast<RimGridView*>( mainOrComparisonView );
     Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>( mainOrComparisonView );
@@ -426,16 +437,20 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                     menuBuilder.addSeparator();
 
                     QString      faultName = fault->name();
-                    QVariantList hideFaultList;
+                    QVariantList faultDataList;
                     qulonglong   currentCellIndex = m_currentCellIndex;
-                    hideFaultList.push_back( currentCellIndex );
-                    hideFaultList.push_back( m_currentFaceIndex );
+                    faultDataList.push_back( currentCellIndex );
+                    faultDataList.push_back( m_currentFaceIndex );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicEclipseHideFaultFeature", QString( "Hide " ) + faultName, hideFaultList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicEclipseHideFaultFeature", QString( "Hide " ) + faultName, faultDataList );
 
                     menuBuilder.addCmdFeatureWithUserData( "RicEclipseShowOnlyFaultFeature",
                                                            QString( "Show " ) + faultName + QString( " - Others Off" ),
                                                            QVariant( fault->name() ) );
+
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewFaultReactModelingFeature",
+                                                           QString( "New Fault Re-activation Model" ),
+                                                           faultDataList );
 
                     menuBuilder.addSeparator();
                 }
@@ -1211,7 +1226,15 @@ bool RiuViewerCommands::handleOverlayItemPicking( int winPosX, int winPosY )
             {
                 if ( legendConfig && legendConfig->titledOverlayFrame() == pickedOverlayItem )
                 {
-                    RiuMainWindow::instance()->selectAsCurrentItem( legendConfig );
+                    auto seisInterface = legendConfig->firstAncestorOfType<RimSeismicDataInterface>();
+                    if ( seisInterface != nullptr )
+                    {
+                        RiuMainWindow::instance()->selectAsCurrentItem( seisInterface );
+                    }
+                    else
+                    {
+                        RiuMainWindow::instance()->selectAsCurrentItem( legendConfig );
+                    }
 
                     return true;
                 }

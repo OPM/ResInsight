@@ -23,6 +23,8 @@
 
 #include "cafPdmUiTreeOrdering.h"
 
+#include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+
 CAF_PDM_SOURCE_INIT( RimValveTemplate, "ValveTemplate" );
 
 //--------------------------------------------------------------------------------------------------
@@ -42,7 +44,7 @@ RimValveTemplate::RimValveTemplate()
     m_type = RiaDefines::WellPathComponentType::ICD;
     CAF_PDM_InitField( &m_userLabel, "UserLabel", QString( "Template" ), "Name" );
 
-    this->setName( fullLabel() );
+    setName( fullLabel() );
 
     CAF_PDM_InitField( &m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]" );
     CAF_PDM_InitField( &m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient" );
@@ -169,6 +171,65 @@ void RimValveTemplate::setUserLabel( const QString& userLabel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimValveTemplate::setAicdParameter( AICDParameters parameter, double value )
+{
+    if ( m_aicdParameters() )
+    {
+        m_aicdParameters()->setValue( parameter, value );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimValveTemplate* RimValveTemplate::createAicdTemplate( const RiaOpmParserTools::AicdTemplateValues& aicdParameters, int templateNumber )
+{
+    RimValveTemplate* aicdTemplate = new RimValveTemplate;
+    aicdTemplate->setType( RiaDefines::WellPathComponentType::AICD );
+
+    QString name;
+    if ( aicdParameters.contains( RiaOpmParserTools::aicdTemplateId() ) )
+    {
+        auto id = aicdParameters.at( RiaOpmParserTools::aicdTemplateId() );
+        name    = QString::number( id );
+    }
+    else
+    {
+        name = QString::number( templateNumber );
+    }
+
+    aicdTemplate->setUserLabel( name );
+
+    using namespace Opm::ParserKeywords;
+    std::map<std::string, AICDParameters> parameterMap = { { WSEGAICD::STRENGTH::itemName, AICD_STRENGTH },
+                                                           { WSEGAICD::DENSITY_CALI::itemName, AICD_DENSITY_CALIB_FLUID },
+                                                           { WSEGAICD::VISCOSITY_CALI::itemName, AICD_VISCOSITY_CALIB_FLUID },
+                                                           { WSEGAICD::FLOW_RATE_EXPONENT::itemName, AICD_VOL_FLOW_EXP },
+                                                           { WSEGAICD::VISC_EXPONENT::itemName, AICD_VISOSITY_FUNC_EXP },
+                                                           { WSEGAICD::CRITICAL_VALUE::itemName, AICD_CRITICAL_WATER_IN_LIQUID_FRAC },
+                                                           { WSEGAICD::MAX_ABS_RATE::itemName, AICD_MAX_FLOW_RATE },
+                                                           { WSEGAICD::OIL_FLOW_FRACTION::itemName, AICD_EXP_OIL_FRAC_DENSITY },
+                                                           { WSEGAICD::WATER_FLOW_FRACTION::itemName, AICD_EXP_WATER_FRAC_DENSITY },
+                                                           { WSEGAICD::GAS_FLOW_FRACTION::itemName, AICD_EXP_GAS_FRAC_DENSITY },
+                                                           { WSEGAICD::OIL_VISC_FRACTION::itemName, AICD_EXP_OIL_FRAC_VISCOSITY },
+                                                           { WSEGAICD::WATER_VISC_FRACTION::itemName, AICD_EXP_WATER_FRAC_VISCOSITY },
+                                                           { WSEGAICD::GAS_VISC_FRACTION::itemName, AICD_EXP_GAS_FRAC_VISCOSITY } };
+
+    for ( const auto& parameter : parameterMap )
+    {
+        if ( aicdParameters.contains( parameter.first ) )
+        {
+            auto incomingValue = aicdParameters.at( parameter.first );
+            aicdTemplate->setAicdParameter( parameter.second, incomingValue );
+        }
+    }
+
+    return aicdTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimValveTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -234,7 +295,7 @@ void RimValveTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 {
     if ( changedField == &m_type || changedField == &m_userLabel )
     {
-        this->setName( fullLabel() );
+        setName( fullLabel() );
     }
     if ( changedField == &m_type )
     {
@@ -252,17 +313,17 @@ void RimValveTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    this->setName( fullLabel() );
+    setName( fullLabel() );
     if ( m_type() == RiaDefines::WellPathComponentType::ICV )
     {
-        this->setUiIconFromResourceString( ":/ICVValve16x16.png" );
+        setUiIconFromResourceString( ":/ICVValve16x16.png" );
     }
     else if ( m_type() == RiaDefines::WellPathComponentType::ICD )
     {
-        this->setUiIconFromResourceString( ":/ICDValve16x16.png" );
+        setUiIconFromResourceString( ":/ICDValve16x16.png" );
     }
     else if ( m_type() == RiaDefines::WellPathComponentType::AICD )
     {
-        this->setUiIconFromResourceString( ":/AICDValve16x16.png" );
+        setUiIconFromResourceString( ":/AICDValve16x16.png" );
     }
 }

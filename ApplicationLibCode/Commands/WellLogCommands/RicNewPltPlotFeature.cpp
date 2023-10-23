@@ -51,7 +51,7 @@ CAF_CMD_SOURCE_INIT( RicNewPltPlotFeature, "RicNewPltPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPltPlotFeature::isCommandEnabled()
+bool RicNewPltPlotFeature::isCommandEnabled() const
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
@@ -140,7 +140,7 @@ void RicNewPltPlotFeature::setupActionLook( QAction* actionToSetup )
 RimWellPath* RicNewPltPlotFeature::selectedWellPath() const
 {
     auto selection = caf::selectedObjectsByType<RimWellPath*>();
-    return selection.size() > 0 ? selection[0] : nullptr;
+    return !selection.empty() ? selection[0] : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell( int* branchIndex
         std::vector<RimSimWellInView*> selection;
         caf::SelectionManager::instance()->objectsByType( &selection );
         ( *branchIndex ) = 0;
-        return selection.size() > 0 ? selection[0] : nullptr;
+        return !selection.empty() ? selection[0] : nullptr;
     }
 }
 
@@ -169,8 +169,6 @@ RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell( int* branchIndex
 //--------------------------------------------------------------------------------------------------
 bool RicNewPltPlotFeature::caseAvailable() const
 {
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
-    return cases.size() > 0;
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
+    return !cases.empty();
 }

@@ -22,7 +22,6 @@
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
-#include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
@@ -82,7 +81,7 @@ RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( RimSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicPasteSummaryCurveFeature::isCommandEnabled()
+bool RicPasteSummaryCurveFeature::isCommandEnabled() const
 {
     caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
@@ -92,7 +91,7 @@ bool RicPasteSummaryCurveFeature::isCommandEnabled()
         return false;
     }
 
-    if ( summaryCurvesOnClipboard().size() == 0 )
+    if ( summaryCurvesOnClipboard().empty() )
     {
         return false;
     }

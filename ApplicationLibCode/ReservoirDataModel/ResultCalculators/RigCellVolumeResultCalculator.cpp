@@ -54,6 +54,11 @@ bool RigCellVolumeResultCalculator::isMatching( const RigEclipseResultAddress& r
 //--------------------------------------------------------------------------------------------------
 void RigCellVolumeResultCalculator::calculate( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex )
 {
+    if ( m_resultsData->activeCellInfo()->reservoirActiveCellCount() == 0 )
+    {
+        return;
+    }
+
     size_t cellVolIdx = m_resultsData->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                                RiaResultNames::riCellVolumeResultName() ),
                                                                       false );

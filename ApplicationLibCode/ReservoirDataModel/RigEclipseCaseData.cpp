@@ -189,10 +189,10 @@ size_t RigEclipseCaseData::gridCount() const
 void RigEclipseCaseData::computeWellCellsPrGrid()
 {
     // If we have computed this already, return
-    if ( m_wellCellsInGrid.size() ) return;
+    if ( !m_wellCellsInGrid.empty() ) return;
 
     std::vector<RigGridBase*> grids;
-    this->allGrids( &grids );
+    allGrids( &grids );
 
     // Debug code used to display grid names and grid sizes
     /*
@@ -620,13 +620,8 @@ void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosi
 //--------------------------------------------------------------------------------------------------
 bool RigEclipseCaseData::hasFractureResults() const
 {
-    if ( activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ) &&
-         activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->reservoirActiveCellCount() > 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ) &&
+           activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->reservoirActiveCellCount() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -655,7 +650,7 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
     for ( int acIdx = 0; acIdx < 2; ++acIdx )
     {
         bb.reset();
-        if ( m_mainGrid->nodes().size() == 0 )
+        if ( m_mainGrid->nodes().empty() )
         {
             bb.add( cvf::Vec3d::ZERO );
         }
@@ -752,7 +747,7 @@ const std::vector<double>* RigEclipseCaseData::resultValues( RiaDefines::Porosit
                                                              const QString&                resultName,
                                                              size_t                        timeStepIndex )
 {
-    RigCaseCellResultsData* gridCellResults = this->results( porosityModel );
+    RigCaseCellResultsData* gridCellResults = results( porosityModel );
 
     const std::vector<double>* swatResults = nullptr;
     if ( gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( type, resultName ) ) )

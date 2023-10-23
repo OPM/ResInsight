@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicDeletePlotTemplateFeature, "RicDeletePlotTemplateFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicDeletePlotTemplateFeature::isCommandEnabled()
+bool RicDeletePlotTemplateFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems( uiItems );

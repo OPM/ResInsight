@@ -45,7 +45,7 @@ CAF_CMD_SOURCE_INIT( RicAddEclipseInputPropertyFeature, "RicAddEclipseInputPrope
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
+bool RicAddEclipseInputPropertyFeature::isCommandEnabled() const
 {
     return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputCase>() ||
            caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultCase>() ||

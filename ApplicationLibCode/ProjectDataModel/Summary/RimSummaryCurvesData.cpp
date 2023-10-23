@@ -18,6 +18,7 @@
 
 #include "RimSummaryCurvesData.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
@@ -31,6 +32,8 @@
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
+
+#include <QMessageBox>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -46,7 +49,7 @@ void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTim
         if ( !curve->isChecked() ) continue;
         QString curveCaseName = curve->caseName();
 
-        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
+        CurveData curveData = { curve->curveExportDescription( {} ), RifEclipseSummaryAddress(), curve->yValues() };
 
         curvesData->addCurveData( curveCaseName, "", curve->timeStepValues(), curveData );
     }
@@ -65,7 +68,7 @@ void RimSummaryCurvesData::populateAsciiDataCurvesData( std::vector<RimAsciiData
     {
         if ( !curve->isChecked() ) continue;
 
-        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
+        CurveData curveData = { curve->curveExportDescription( {} ), RifEclipseSummaryAddress(), curve->yValues() };
 
         curvesData->addCurveDataNoSearch( "", "", curve->timeSteps(), { curveData } );
     }
@@ -138,6 +141,8 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
                                                    RiaDefines::DateTimePeriod                   resamplingPeriod,
                                                    bool                                         showTimeAsLongString )
 {
+    if ( curves.empty() && asciiCurves.empty() && gridCurves.empty() ) return {};
+
     QString out;
 
     RimSummaryCurvesData summaryCurvesGridData;
@@ -176,6 +181,47 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCurvesData::createTextForCrossPlotCurves( const std::vector<RimSummaryCurve*>& curves )
+{
+    QString text;
+
+    for ( const auto& curve : curves )
+    {
+        const auto curveAddress = curve->curveAddress();
+        const auto xAddress     = curveAddress.summaryAddressX();
+        const auto yAddress     = curveAddress.summaryAddressY();
+
+        const auto xValues = curve->valuesX();
+        const auto yValues = curve->valuesY();
+
+        if ( xValues.size() == yValues.size() )
+        {
+            text += curve->curveExportDescription( {} ) + "\n";
+
+            text +=
+                QString( "%1\t%2\n" ).arg( QString::fromStdString( xAddress.vectorName() ) ).arg( QString::fromStdString( yAddress.vectorName() ) );
+
+            for ( size_t i = 0; i < xValues.size(); i++ )
+            {
+                QString line;
+                line += QString::number( xValues[i], 'g', RimSummaryPlot::precision() );
+                line += "\t";
+                line += QString::number( yValues[i], 'g', RimSummaryPlot::precision() );
+                line += "\n";
+
+                text += line;
+            }
+        }
+
+        text += "\n";
+    }
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves,
                                                       SummaryCurveType              curveType,
                                                       RimSummaryCurvesData*         curvesData )
@@ -195,12 +241,12 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
 
         QString curveCaseName = curve->summaryCaseY()->displayCaseName();
         QString ensembleName;
-        if ( curve->curveDefinitionY().ensemble() )
+        if ( curve->curveDefinition().ensemble() )
         {
-            ensembleName = curve->curveDefinitionY().ensemble()->name();
+            ensembleName = curve->curveDefinition().ensemble()->name();
         }
 
-        CurveData curveData = { curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY() };
+        CurveData curveData = { curve->curveExportDescription( {} ), curve->summaryAddressY(), curve->valuesY() };
         CurveData errorCurveData;
 
         // Error data
@@ -325,6 +371,16 @@ void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<R
         }
 
         auto allTimeSteps = RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( data.resamplePeriod, minTimeStep, maxTimeStep );
+
+        const size_t threshold = 50000;
+        if ( allTimeSteps.size() > threshold && RiaGuiApplication::isRunning() )
+        {
+            QString questionStr = QString( "This operation will produce %1 text lines. Do you want to continue?" ).arg( allTimeSteps.size() );
+
+            auto reply =
+                QMessageBox::question( nullptr, "Summary Text Export", questionStr, QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
+            if ( reply != QMessageBox::Yes ) return;
+        }
 
         out += "\n\n";
         out += "Date and time";

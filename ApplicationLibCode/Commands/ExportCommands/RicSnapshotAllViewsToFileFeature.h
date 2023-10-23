@@ -33,7 +33,6 @@ public:
         exportSnapshotOfViewsIntoFolder( const QString& snapshotFolderName, const QString& prefix = "", int caseId = -1, int viewId = -1 );
 
 protected:
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

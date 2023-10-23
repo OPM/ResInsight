@@ -43,8 +43,8 @@
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
 #include "RimWellIASettingsCollection.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
@@ -114,6 +114,10 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField( &m_branchIndex, "SimBranchIndex", 0, "Branch" );
 
     CAF_PDM_InitField( &m_showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Label" );
+    CAF_PDM_InitField( &m_measuredDepthLabelInterval,
+                       "MeasuredDepthLabelInterval",
+                       std::make_pair( false, 50.0 ),
+                       "Enable Labels at Measured Depth Intervals" );
 
     CAF_PDM_InitField( &m_showWellPath, "ShowWellPath", true, "Show Well Path" );
     m_showWellPath.uiCapability()->setUiHidden( true );
@@ -121,7 +125,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField( &m_wellPathRadiusScaleFactor, "WellPathRadiusScale", 1.0, "Well Path Radius Scale" );
     CAF_PDM_InitField( &m_wellPathColor, "WellPathColor", cvf::Color3f( 0.999f, 0.333f, 0.999f ), "Well Path Color" );
 
-    CAF_PDM_InitFieldNoDefault( &m_completions, "Completions", "Completions" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_completions, "Completions", "Completions" );
     m_completions = new RimWellPathCompletions;
     m_completions.uiCapability()->setUiTreeHidden( true );
 
@@ -152,7 +156,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellIASettingsCollection, "WellIASettings", "Integrity Analysis Settings" );
     m_wellIASettingsCollection = new RimWellIASettingsCollection();
 
-    this->setDeletable( true );
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,18 +578,18 @@ void RimWellPath::setNameNoUpdateOfExportName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RimWellPath::wellLogFiles() const
+std::vector<RimWellLogLasFile*> RimWellPath::wellLogFiles() const
 {
-    return std::vector<RimWellLogFile*>( m_wellLogFiles.begin(), m_wellLogFiles.end() );
+    return std::vector<RimWellLogLasFile*>( m_wellLogFiles.begin(), m_wellLogFiles.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RimWellPath::firstWellLogFileMatchingChannelName( const QString& channelName ) const
+RimWellLogLasFile* RimWellPath::firstWellLogFileMatchingChannelName( const QString& channelName ) const
 {
-    std::vector<RimWellLogFile*> allWellLogFiles = wellLogFiles();
-    for ( RimWellLogFile* logFile : allWellLogFiles )
+    std::vector<RimWellLogLasFile*> allWellLogFiles = wellLogFiles();
+    for ( RimWellLogLasFile* logFile : allWellLogFiles )
     {
         std::vector<RimWellLogFileChannel*> channels = logFile->wellLogChannels();
         for ( RimWellLogFileChannel* channel : channels )
@@ -650,6 +654,16 @@ void RimWellPath::setShowWellPath( bool showWellPath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::optional<double> RimWellPath::measuredDepthLabelInterval() const
+{
+    if ( m_measuredDepthLabelInterval().first ) return m_measuredDepthLabelInterval().second;
+
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimWellPath::wellPathColor() const
 {
     return m_wellPathColor;
@@ -699,6 +713,7 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
     appGroup->add( &m_showWellPathLabel );
     appGroup->add( &m_wellPathColor );
     appGroup->add( &m_wellPathRadiusScaleFactor );
+    appGroup->add( &m_measuredDepthLabelInterval );
 
     caf::PdmUiGroup* simWellGroup = uiOrdering.addNewGroup( "Simulation Well" );
     simWellGroup->add( &m_simWellName );
@@ -826,7 +841,7 @@ double RimWellPath::combinedScaleFactor() const
 {
     RimWellPathCollection* wellPathColl = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
-    return this->m_wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
+    return m_wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -880,12 +895,12 @@ double RimWellPath::datumElevation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::addWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::addWellLogFile( RimWellLogLasFile* logFileInfo )
 {
     // Prevent the same file from being loaded more than once
     auto itr = std::find_if( m_wellLogFiles.begin(),
                              m_wellLogFiles.end(),
-                             [&]( const RimWellLogFile* file )
+                             [&]( const RimWellLogLasFile* file )
                              { return QString::compare( file->fileName(), logFileInfo->fileName(), Qt::CaseInsensitive ) == 0; } );
 
     // Todo: Verify well name to ensure all well log files having the same well name
@@ -904,7 +919,7 @@ void RimWellPath::addWellLogFile( RimWellLogFile* logFileInfo )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::deleteWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::deleteWellLogFile( RimWellLogLasFile* logFileInfo )
 {
     detachWellLogFile( logFileInfo );
     delete logFileInfo;
@@ -913,7 +928,7 @@ void RimWellPath::deleteWellLogFile( RimWellLogFile* logFileInfo )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::detachWellLogFile( RimWellLogFile* logFileInfo )
+void RimWellPath::detachWellLogFile( RimWellLogLasFile* logFileInfo )
 {
     auto pdmObject = dynamic_cast<caf::PdmObjectHandle*>( logFileInfo );
     for ( size_t i = 0; i < m_wellLogFiles.size(); i++ )
@@ -993,12 +1008,7 @@ bool RimWellPath::reloadWellPathFormationsFile( QString* errorMessage, RifWellPa
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::hasFormations() const
 {
-    if ( m_wellPathFormations.isNull() )
-    {
-        return false;
-    }
-
-    return true;
+    return !m_wellPathFormations.isNull();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1174,7 +1184,7 @@ std::vector<RimWellPath*> RimWellPath::allWellPathLaterals() const
 {
     std::vector<RimWellPath*> laterals;
 
-    this->wellPathLateralsRecursively( laterals );
+    wellPathLateralsRecursively( laterals );
 
     return laterals;
 }

@@ -720,9 +720,13 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
 
     if ( cellFilterColl->hasActiveFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells() )
     {
+        cvf::UByteArray indexIncludeVisibility = ( *cellVisibility );
+        cvf::UByteArray indexExcludeVisibility = ( *cellVisibility );
+
         // Build cell filter for current grid
         cvf::CellRangeFilter gridCellRangeFilter;
         cellFilterColl->compoundCellRangeFilter( &gridCellRangeFilter, grid->gridIndex() );
+        cellFilterColl->updateCellVisibilityByIndex( &indexIncludeVisibility, &indexExcludeVisibility, grid->gridIndex() );
 
         const RigLocalGrid*       lgr = nullptr;
         cvf::ref<cvf::UByteArray> parentGridVisibilities;
@@ -745,7 +749,9 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
             parentGridVisibilities = reservoirGridPartMgr->cellVisibility( parentGridIndex );
         }
 
-        bool hasAdditiveFilters = cellFilterColl->hasActiveIncludeFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells();
+        bool hasAdditiveRangeFilters = cellFilterColl->hasActiveIncludeRangeFilters() ||
+                                       m_reservoirView->wellCollection()->hasVisibleWellCells();
+        bool hasAdditiveIndexFilters = cellFilterColl->hasActiveIncludeIndexFilters();
 
 #pragma omp parallel for
         for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
@@ -770,18 +776,26 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
 
                 bool nativeRangeVisibility = false;
 
-                if ( hasAdditiveFilters )
+                if ( hasAdditiveRangeFilters )
                 {
-                    nativeRangeVisibility = gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                    if ( hasAdditiveIndexFilters )
+                    {
+                        nativeRangeVisibility = indexIncludeVisibility[cellIndex] ||
+                                                gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                    }
+                    else
+                    {
+                        nativeRangeVisibility = gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                    }
                 }
                 else
                 {
-                    // Special handling when no include filters are present. Use native visibility
-                    nativeRangeVisibility = ( *nativeVisibility )[cellIndex];
+                    nativeRangeVisibility = indexIncludeVisibility[cellIndex];
                 }
 
                 ( *cellVisibility )[cellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
-                                                 !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                                                 !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea ) &&
+                                                 indexExcludeVisibility[cellIndex];
             }
         }
     }

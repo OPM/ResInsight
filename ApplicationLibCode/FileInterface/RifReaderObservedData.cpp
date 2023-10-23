@@ -45,9 +45,9 @@ RifReaderObservedData::~RifReaderObservedData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderObservedData::open( const QString&                               headerFileName,
-                                  const QString&                               identifierName,
-                                  RifEclipseSummaryAddress::SummaryVarCategory summaryCategory )
+bool RifReaderObservedData::open( const QString&                                   headerFileName,
+                                  const QString&                                   identifierName,
+                                  RifEclipseSummaryAddressDefines::SummaryCategory summaryCategory )
 {
     AsciiDataParseOptions parseOptions;
     parseOptions.dateFormat    = "yyyy-MM-dd";
@@ -114,7 +114,7 @@ bool RifReaderObservedData::open( const QString&                               h
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+std::pair<bool, std::vector<double>> RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddress ) const
 {
     size_t columnIndex = m_allResultAddresses.size();
 
@@ -128,6 +128,7 @@ bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddres
         i++;
     }
 
+    std::vector<double> values;
     if ( columnIndex != m_allResultAddresses.size() )
     {
         const Column* col = m_asciiParser->columnInfo( columnIndex );
@@ -135,12 +136,12 @@ bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddres
         {
             for ( auto& v : col->values )
             {
-                values->push_back( v );
+                values.push_back( v );
             }
         }
     }
 
-    return true;
+    return { true, values };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,14 +155,15 @@ std::vector<time_t> RifReaderObservedData::timeSteps( const RifEclipseSummaryAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifReaderObservedData::address( const QString&                               vectorName,
-                                                         const QString&                               identifierName,
-                                                         RifEclipseSummaryAddress::SummaryVarCategory summaryCategory )
+RifEclipseSummaryAddress RifReaderObservedData::address( const QString&                                   vectorName,
+                                                         const QString&                                   identifierName,
+                                                         RifEclipseSummaryAddressDefines::SummaryCategory summaryCategory )
 {
     std::string stdVectorName = vectorName.toStdString();
     int         regionNumber( -1 );
     int         regionNumber2( -1 );
     std::string groupName;
+    std::string networkName;
     std::string wellName;
     int         wellSegmentNumber( -1 );
     std::string lgrName;
@@ -174,13 +176,13 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
 
     switch ( summaryCategory )
     {
-        case RifEclipseSummaryAddress::SUMMARY_GROUP:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP:
             groupName = identifierName.toStdString();
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL:
             wellName = identifierName.toStdString();
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        case RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_LGR:
             lgrName = identifierName.toStdString();
             break;
         default:
@@ -192,6 +194,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
                                      regionNumber,
                                      regionNumber2,
                                      groupName,
+                                     networkName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,

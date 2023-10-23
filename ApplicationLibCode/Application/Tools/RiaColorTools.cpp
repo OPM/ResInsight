@@ -36,12 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 bool RiaColorTools::isBrightnessAboveThreshold( cvf::Color3f backgroundColor )
 {
-    if ( relativeLuminance( backgroundColor ) > 0.4 )
-    {
-        return true;
-    }
-
-    return false;
+    return relativeLuminance( backgroundColor ) > 0.4;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,6 +134,30 @@ QColor RiaColorTools::toQColor( cvf::Color4f color )
 cvf::Color3f RiaColorTools::fromQColorTo3f( QColor color )
 {
     return cvf::Color3f( color.redF(), color.greenF(), color.blueF() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find the color with larges distance to the given color based on RGB distance
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::selectContrastColorFromCandiates( cvf::Color3f color, const cvf::Color3fArray& candidates )
+{
+    if ( candidates.size() == 0 ) return color;
+
+    float        maxDiff       = 0.0f;
+    cvf::Color3f selectedColor = color;
+
+    for ( const auto& candidate : candidates )
+    {
+        const auto diff = std::fabs( color.r() - candidate.r() ) + std::fabs( color.g() - candidate.g() ) +
+                          std::fabs( color.b() - candidate.b() );
+        if ( diff > maxDiff )
+        {
+            maxDiff       = diff;
+            selectedColor = candidate;
+        }
+    }
+
+    return selectedColor;
 }
 
 //--------------------------------------------------------------------------------------------------

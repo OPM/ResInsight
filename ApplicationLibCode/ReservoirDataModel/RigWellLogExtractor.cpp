@@ -79,7 +79,7 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionI
         cellInfo.intersectedCellFaceIn  = m_intersectedCellFaces[i];
         cellInfo.intersectedCellFaceOut = m_intersectedCellFaces[i + 1];
 
-        cellInfo.intersectionLengthsInCellCS = this->calculateLengthInCell( cellInfo.globCellIndex, cellInfo.startPoint, cellInfo.endPoint );
+        cellInfo.intersectionLengthsInCellCS = calculateLengthInCell( cellInfo.globCellIndex, cellInfo.startPoint, cellInfo.endPoint );
 
         infoVector.push_back( cellInfo );
     }
@@ -153,6 +153,29 @@ void RigWellLogExtractor::resampleIntersections( double maxDistanceBetweenInters
     m_intersections              = resampledIntersections;
     m_intersectedCellsGlobIdx    = resampledIntersectedCellsGlobIdx;
     m_intersectedCellFaces       = resampledIntersectedCellFaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<double> RigWellLogExtractor::averageMdForCell( size_t cellIndex ) const
+{
+    std::vector<size_t> indicesForCell;
+
+    for ( size_t i = 0; i < m_intersectedCellsGlobIdx.size(); i++ )
+    {
+        if ( m_intersectedCellsGlobIdx[i] == cellIndex ) indicesForCell.emplace_back( i );
+    }
+
+    if ( indicesForCell.empty() ) return std::nullopt;
+
+    double sum = 0.0;
+    for ( const auto& i : indicesForCell )
+    {
+        sum += m_intersectionMeasuredDepths[i];
+    }
+
+    return sum / static_cast<double>( indicesForCell.size() );
 }
 
 //--------------------------------------------------------------------------------------------------

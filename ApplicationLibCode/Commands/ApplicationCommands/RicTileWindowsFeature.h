@@ -37,10 +37,10 @@ public:
     static void applyTiling( RiuMainWindow* mainWindow, RiaDefines::WindowTileMode requestedTileMode );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -51,10 +51,10 @@ class RicTileWindowsVerticallyFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -65,10 +65,10 @@ class RicTileWindowsHorizontallyFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -82,10 +82,10 @@ public:
     static void applyTiling( RiuPlotMainWindow* mainWindow, RiaDefines::WindowTileMode requestedTileMode );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -96,10 +96,10 @@ class RicTilePlotWindowsVerticallyFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 };
 
 //==================================================================================================
@@ -110,8 +110,8 @@ class RicTilePlotWindowsHorizontallyFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 };

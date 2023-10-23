@@ -29,9 +29,8 @@
 #include <QMetaType>
 #include <QPointer>
 
-class RimWellLogFile;
+class RimWellLogLasFile;
 class RimEclipseCase;
-class RifReaderRftInterface;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimObservedFmuRftData;
@@ -59,26 +58,23 @@ public:
     RifDataSourceForRftPlt();
     RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase );
     RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemble );
-    RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble );
-    RifDataSourceForRftPlt( RimWellLogFile* wellLogFile );
+    RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble, RimEclipseCase* eclipseCase );
+    RifDataSourceForRftPlt( RimWellLogLasFile* wellLogFile );
     RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData );
     RifDataSourceForRftPlt( RimPressureDepthData* pressureDepthData );
 
-    SourceType             sourceType() const;
-    RifReaderRftInterface* rftReader() const;
+    SourceType sourceType() const;
 
     RimEclipseCase*           eclCase() const;
     RimSummaryCase*           summaryCase() const;
     RimSummaryCaseCollection* ensemble() const;
-    RimWellLogFile*           wellLogFile() const;
+    RimWellLogLasFile*        wellLogFile() const;
     RimObservedFmuRftData*    observedFmuRftData() const;
     RimPressureDepthData*     pressureDepthData() const;
 
     static QString sourceTypeUiText( SourceType sourceType );
 
     std::vector<RiaDefines::EclipseUnitSystem> availableUnitSystems() const;
-
-    friend QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& addr );
 
     auto operator<=>( const RifDataSourceForRftPlt& rhs ) const -> std::strong_ordering;
 
@@ -92,7 +88,7 @@ private:
     caf::PdmPointer<RimEclipseCase>           m_eclCase;
     caf::PdmPointer<RimSummaryCase>           m_summaryCase;
     caf::PdmPointer<RimSummaryCaseCollection> m_ensemble;
-    caf::PdmPointer<RimWellLogFile>           m_wellLogFile;
+    caf::PdmPointer<RimWellLogLasFile>        m_wellLogFile;
     caf::PdmPointer<RimObservedFmuRftData>    m_observedFmuRftData;
     caf::PdmPointer<RimPressureDepthData>     m_pressureDepthData;
 };

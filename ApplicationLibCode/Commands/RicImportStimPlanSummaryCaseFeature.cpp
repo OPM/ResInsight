@@ -35,14 +35,6 @@ CAF_CMD_SOURCE_INIT( RicImportStimPlanSummaryCaseFeature, "RicImportStimPlanSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportStimPlanSummaryCaseFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportStimPlanSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app     = RiaApplication::instance();

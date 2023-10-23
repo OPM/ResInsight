@@ -16,11 +16,13 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFile.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogChannel.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTools.h
@@ -35,14 +37,16 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFile.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileUtil.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotNameConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurveNameConfig.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurveNameConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogLasFileCurveNameConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogFileCurve.cpp

@@ -165,7 +165,7 @@ void RiuGeoMechXfTensorResultAccessor::calculateInterpolatedValue( const cvf::Ve
                                                                    const RivIntersectionVertexWeights vertexWeights[3],
                                                                    float                              returnValues[3] )
 {
-    if ( tens11->size() == 0 )
+    if ( tens11->empty() )
     {
         returnValues[0] = returnValues[1] = returnValues[2] = std::numeric_limits<float>::infinity();
         return;
@@ -216,7 +216,7 @@ void RiuGeoMechXfTensorResultAccessor::calculateInterpolatedValue( const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 float RiuGeoMechXfTensorResultAccessor::calculateElmNodeValue( const std::array<cvf::Vec3f, 3>& triangle, int globalElmNodeResIndex )
 {
-    if ( tens11->size() == 0 ) return std::numeric_limits<float>::infinity();
+    if ( tens11->empty() ) return std::numeric_limits<float>::infinity();
 
     cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
 

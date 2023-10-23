@@ -169,7 +169,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         }
     }
 
-    this->populateReturnArrays( uniqueIntersections );
+    populateReturnArrays( uniqueIntersections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell( size_t cellIndex, 
 double RigEclipseWellLogExtractor::computeLengthThreshold() const
 {
     // Default length tolerance for most common grid sizes
-    double tolerance = 0.1;
+    double tolerance = 0.01;
 
     // For grids with very thin z-layers, reduce the tolerance to be able to find the intersections
     // If not, the intersection will be considered as non-valid cell edge intersection and discarded

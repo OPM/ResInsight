@@ -33,11 +33,9 @@ CAF_CMD_SOURCE_INIT( RicNewDerivedSummaryFeature, "RicNewDerivedSummaryFeature" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewDerivedSummaryFeature::isCommandEnabled()
+bool RicNewDerivedSummaryFeature::isCommandEnabled() const
 {
-    if ( mainCollection() ) return true;
-
-    return false;
+    return mainCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +53,7 @@ void RicNewDerivedSummaryFeature::onActionTriggered( bool isChecked )
         {
             auto allCases = mainColl->allSummaryCases();
 
-            if ( allCases.size() > 0 )
+            if ( !allCases.empty() )
             {
                 selectedCases.push_back( allCases[0] );
             }

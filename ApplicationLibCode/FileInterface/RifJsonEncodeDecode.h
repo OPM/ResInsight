@@ -28,12 +28,24 @@ namespace ResInsightInternalJson
 class JsonReader
 {
 public:
-    QMap<QString, QVariant> decodeFile( QString filePath );
+    static QMap<QString, QVariant> decodeFile( QString filePath );
 
     // Get a variant list from a map
     static QVariantList getVariantList( const QMap<QString, QVariant>& map );
 
     static QString rootKeyText();
+
+private:
+    JsonReader(){};
+};
+
+class JsonWriter
+{
+public:
+    static bool encodeFile( QString filePath, QMap<QString, QVariant> map );
+
+private:
+    JsonWriter(){};
 };
 
 class Json

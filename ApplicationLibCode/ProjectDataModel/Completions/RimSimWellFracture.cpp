@@ -208,11 +208,11 @@ void RimSimWellFracture::updateFracturePositionFromLocation()
 {
     computeSimWellBranchesIfRequired();
 
-    if ( m_branchCenterLines.size() > 0 )
+    if ( !m_branchCenterLines.empty() )
     {
         cvf::Vec3d interpolated = m_branchCenterLines[m_branchIndex()].interpolatedPointAlongWellPath( m_location() );
 
-        this->setAnchorPosition( interpolated );
+        setAnchorPosition( interpolated );
 
         RimProject* proj = RimProject::current();
         if ( proj ) proj->scheduleCreateDisplayModelAndRedrawAllViews();
@@ -266,7 +266,7 @@ void RimSimWellFracture::defineEditorAttribute( const caf::PdmFieldHandle* field
         {
             computeSimWellBranchesIfRequired();
 
-            if ( m_branchCenterLines.size() > 0 )
+            if ( !m_branchCenterLines.empty() )
             {
                 const RigSimulationWellCoordsAndMD& pointAndMd = m_branchCenterLines[m_branchIndex];
 
@@ -287,12 +287,12 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions( const c
 
     if ( fieldNeedingOptions == &m_branchIndex )
     {
-        if ( m_branchCenterLines.size() == 0 )
+        if ( m_branchCenterLines.empty() )
         {
             computeSimWellBranchesIfRequired();
         }
 
-        if ( m_branchCenterLines.size() > 0 )
+        if ( !m_branchCenterLines.empty() )
         {
             size_t branchCount = m_branchCenterLines.size();
 
@@ -324,7 +324,7 @@ RigMainGrid* RimSimWellFracture::ownerCaseMainGrid() const
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::computeSimWellBranchesIfRequired()
 {
-    if ( m_branchCenterLines.size() == 0 )
+    if ( m_branchCenterLines.empty() )
     {
         computeSimWellBranchCenterLines();
     }

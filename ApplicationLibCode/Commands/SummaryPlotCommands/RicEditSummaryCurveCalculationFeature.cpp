@@ -42,7 +42,7 @@ CAF_CMD_SOURCE_INIT( RicEditSummaryCurveCalculationFeature, "RicEditSummaryCurve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryCurveCalculationFeature::isCommandEnabled()
+bool RicEditSummaryCurveCalculationFeature::isCommandEnabled() const
 {
     std::vector<RimSummaryCurve*> selectedCurves = caf::selectedObjectsByType<RimSummaryCurve*>();
     return selectedCurves.size() == 1 && selectedCurves.front()->summaryAddressY().isCalculated();
@@ -56,7 +56,7 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCurve*> selectedCurves = caf::selectedObjectsByType<RimSummaryCurve*>();
     RimUserDefinedCalculation*    calculation    = nullptr;
 
-    if ( selectedCurves.size() > 0 )
+    if ( !selectedCurves.empty() )
     {
         RifEclipseSummaryAddress selectedAddress = selectedCurves.front()->summaryAddressY();
 

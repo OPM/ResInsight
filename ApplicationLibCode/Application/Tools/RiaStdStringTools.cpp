@@ -22,6 +22,7 @@
 
 #include <cctype>
 #include <charconv>
+#include <regex>
 
 const std::string WHITESPACE = " \n\r\t\f\v";
 
@@ -49,6 +50,16 @@ std::string RiaStdStringTools::rightTrimString( const std::string& s )
 std::string RiaStdStringTools::trimString( const std::string& s )
 {
     return rightTrimString( leftTrimString( s ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::removeWhitespace( const std::string& line )
+{
+    std::string s = line;
+    s.erase( std::remove_if( s.begin(), s.end(), isspace ), s.end() );
+    return s;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,10 +174,7 @@ std::string RiaStdStringTools::toUpper( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string& toMatch )
 {
-    if ( mainStr.size() >= toMatch.size() && mainStr.compare( mainStr.size() - toMatch.size(), toMatch.size(), toMatch ) == 0 )
-        return true;
-    else
-        return false;
+    return mainStr.size() >= toMatch.size() && mainStr.compare( mainStr.size() - toMatch.size(), toMatch.size(), toMatch ) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,4 +269,15 @@ int RiaStdStringTools::computeEditDistance( const std::string& x, const std::str
 
     // The distance between the two full strings as the last value computed.
     return T[m][n];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::removeHtmlTags( const std::string& s )
+{
+    std::regex  html_tags( "<.*?>" ); // Matches any HTML tag
+    std::string result = std::regex_replace( s, html_tags, "" );
+
+    return result;
 }

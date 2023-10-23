@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicSeismicSectionFromIntersectionFeature, "RicSeismicSectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSeismicSectionFromIntersectionFeature::isCommandEnabled()
+bool RicSeismicSectionFromIntersectionFeature::isCommandEnabled() const
 {
     RimExtrudedCurveIntersection* intersection = getSelectedIntersection();
     if ( intersection != nullptr )
@@ -76,7 +76,7 @@ void RicSeismicSectionFromIntersectionFeature::onActionTriggered( bool isChecked
         newSection->setUserDescription( intersection->name() );
 
         auto polyline = intersection->polyLines();
-        if ( polyline.size() > 0 )
+        if ( !polyline.empty() )
         {
             for ( auto& p : polyline[0] )
             {
@@ -113,14 +113,14 @@ void RicSeismicSectionFromIntersectionFeature::onActionTriggered( bool isChecked
 //--------------------------------------------------------------------------------------------------
 void RicSeismicSectionFromIntersectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SeismicSection16x16.png" ) );
     actionToSetup->setText( "Create as Seismic Section" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimExtrudedCurveIntersection* RicSeismicSectionFromIntersectionFeature::getSelectedIntersection()
+RimExtrudedCurveIntersection* RicSeismicSectionFromIntersectionFeature::getSelectedIntersection() const
 {
     std::vector<caf::PdmUiItem*> selectedUiItems;
     caf::SelectionManager::instance()->selectedItems( selectedUiItems );

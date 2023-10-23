@@ -66,8 +66,8 @@ std::pair<bool, QString> RifRevealCsvSummaryReader::parse( const QString& fileNa
         cvf::ref<RifRevealCsvSectionSummaryReader> sectionReader = new RifRevealCsvSectionSummaryReader;
 
         // The first part is field data, and the rest is well data
-        auto defaultCategory = isFirst ? RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD
-                                       : RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL;
+        auto defaultCategory = isFirst ? RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD
+                                       : RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL;
 
         QString errorMessage;
         if ( !sectionReader->parse( p, defaultCategory, &errorMessage ) )

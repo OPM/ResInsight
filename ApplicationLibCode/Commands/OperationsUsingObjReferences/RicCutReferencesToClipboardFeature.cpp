@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicCutReferencesToClipboardFeature, "RicCutReferencesToClip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCutReferencesToClipboardFeature::isCommandEnabled()
+bool RicCutReferencesToClipboardFeature::isCommandEnabled() const
 {
     return isAnyCuttableObjectSelected();
 }
@@ -46,7 +46,7 @@ bool RicCutReferencesToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCutReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     if ( !isAnyCuttableObjectSelected() ) return;
 

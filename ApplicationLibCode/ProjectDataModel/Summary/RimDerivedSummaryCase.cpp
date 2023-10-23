@@ -178,7 +178,7 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
 
     // Check if we got any data. If not, erase the map entry to comply with previous behavior
 
-    if ( !itAndIsInsertedPair.first->second.first.size() )
+    if ( itAndIsInsertedPair.first->second.first.empty() )
     {
         m_dataCache.erase( itAndIsInsertedPair.first );
     }
@@ -205,16 +205,12 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDerivedSummaryCase::calcu
 
     if ( reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
     {
-        std::vector<double> summaryValues;
-        reader1->values( address, &summaryValues );
-
+        auto [isOk, summaryValues] = reader1->values( address );
         return ResultPair( reader1->timeSteps( address ), summaryValues );
     }
     else if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
     {
-        std::vector<double> summaryValues;
-        reader2->values( address, &summaryValues );
-
+        auto [isOk, summaryValues] = reader2->values( address );
         if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
         {
             for ( auto& v : summaryValues )
@@ -226,18 +222,15 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDerivedSummaryCase::calcu
         return ResultPair( reader2->timeSteps( address ), summaryValues );
     }
 
-    RiaTimeHistoryCurveMerger merger;
-    std::vector<double>       values1;
-    std::vector<double>       values2;
-
-    reader1->values( address, &values1 );
-    reader2->values( address, &values2 );
+    auto [isOk1, values1] = reader1->values( address );
+    auto [isOk2, values2] = reader2->values( address );
 
     if ( values1.empty() && values2.empty() )
     {
         return ResultPair();
     }
 
+    RiaTimeHistoryCurveMerger merger;
     merger.addCurveData( reader1->timeSteps( address ), values1 );
     merger.addCurveData( reader2->timeSteps( address ), values2 );
     merger.computeInterpolatedValues();

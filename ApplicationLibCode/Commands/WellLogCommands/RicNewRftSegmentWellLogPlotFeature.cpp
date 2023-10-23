@@ -50,14 +50,6 @@ CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogPlotFeature, "RicNewRftSegmentWellLo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRftSegmentWellLogPlotFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
     auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase() );

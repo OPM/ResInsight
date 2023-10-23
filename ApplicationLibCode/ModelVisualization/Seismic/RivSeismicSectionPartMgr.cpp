@@ -20,17 +20,24 @@
 
 #include "RiaGuiApplication.h"
 
-#include "RivPartPriority.h"
-#include "RivPolylinePartMgr.h"
-#include "RivSeismicSectionSourceInfo.h"
-
 #include "Rim3dView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
+#include "RimSurface.h"
+#include "RimSurfaceCollection.h"
+#include "RimTools.h"
 
+#include "RigSurfaceResampler.h"
 #include "RigTexturedSection.h"
+
+#include "RivAnnotationSourceInfo.h"
+#include "RivObjectSourceInfo.h"
+#include "RivPartPriority.h"
+#include "RivPolylineGenerator.h"
+#include "RivPolylinePartMgr.h"
+#include "RivSeismicSectionSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -50,17 +57,8 @@
 //--------------------------------------------------------------------------------------------------
 RivSeismicSectionPartMgr::RivSeismicSectionPartMgr( RimSeismicSection* section )
     : m_section( section )
-    , m_canUseShaders( true )
 {
     CVF_ASSERT( section );
-
-    m_canUseShaders = RiaGuiApplication::instance()->useShaders();
-
-    cvf::ShaderProgramGenerator gen( "Texturing", cvf::ShaderSourceProvider::instance() );
-    gen.addVertexCode( cvf::ShaderSourceRepository::vs_Standard );
-    gen.addFragmentCode( cvf::ShaderSourceRepository::src_Texture );
-    gen.addFragmentCode( cvf::ShaderSourceRepository::fs_Unlit );
-    m_textureShaderProg = gen.generate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +85,7 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 
     auto texSection = m_section->texturedSection();
 
-    for ( int i = 0; i < (int)texSection->partsCount(); i++ )
+    for ( int i = 0; i < texSection->partsCount(); i++ )
     {
         auto& part = texSection->part( i );
 
@@ -106,92 +104,13 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
             part.texture = createImageFromData( part.sliceData.get() );
         }
 
-        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, part.texture );
+        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, part.texture, m_section->isTransparent() );
 
         cvf::ref<RivSeismicSectionSourceInfo> si = new RivSeismicSectionSourceInfo( m_section, i );
         quadPart->setSourceInfo( si.p() );
 
         model->addPart( quadPart.p() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray&      cornerPoints,
-                                                                            cvf::ref<cvf::TextureImage> image )
-{
-    cvf::ref<cvf::Part> part = new cvf::Part;
-
-    cvf::ref<cvf::DrawableGeo> geo = createXYPlaneQuadGeoWithTexCoords( cornerPoints );
-
-    cvf::ref<cvf::Texture> texture = new cvf::Texture( image.p() );
-    cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
-    sampler->setMinFilter( cvf::Sampler::LINEAR );
-    sampler->setMagFilter( cvf::Sampler::NEAREST );
-    sampler->setWrapModeS( cvf::Sampler::CLAMP_TO_EDGE );
-    sampler->setWrapModeT( cvf::Sampler::CLAMP_TO_EDGE );
-
-    cvf::ref<cvf::RenderStateTextureBindings> textureBindings = new cvf::RenderStateTextureBindings;
-    textureBindings->addBinding( texture.p(), sampler.p(), "u_texture2D" );
-
-    cvf::ref<cvf::Effect> eff = new cvf::Effect;
-    eff->setRenderState( textureBindings.p() );
-    eff->setShaderProgram( m_textureShaderProg.p() );
-
-    if ( m_section->isTransparent() )
-    {
-        part->setPriority( RivPartPriority::PartType::TransparentSeismic );
-        cvf::ref<cvf::RenderStateBlending> blending = new cvf::RenderStateBlending;
-        blending->configureTransparencyBlending();
-        eff->setRenderState( blending.p() );
-    }
-
-    part->setDrawable( geo.p() );
-    part->setEffect( eff.p() );
-
-    return part;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivSeismicSectionPartMgr::createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints )
-{
-    cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
-    vertices->reserve( 4 );
-
-    for ( const auto& v : cornerPoints )
-    {
-        vertices->add( cvf::Vec3f( v ) );
-    }
-
-    cvf::ref<cvf::Vec2fArray> texCoords = new cvf::Vec2fArray;
-    texCoords->reserve( 4 );
-    texCoords->add( cvf::Vec2f( 0, 0 ) );
-    texCoords->add( cvf::Vec2f( 1, 0 ) );
-    texCoords->add( cvf::Vec2f( 1, 1 ) );
-    texCoords->add( cvf::Vec2f( 0, 1 ) );
-
-    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-    geo->setVertexArray( vertices.p() );
-    geo->setTextureCoordArray( texCoords.p() );
-
-    cvf::ref<cvf::UIntArray> indices = new cvf::UIntArray;
-    indices->reserve( 6 );
-
-    for ( uint i : { 0, 1, 2, 0, 2, 3 } )
-    {
-        indices->add( i );
-    }
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> primSet = new cvf::PrimitiveSetIndexedUInt( cvf::PT_TRIANGLES );
-    primSet->setIndices( indices.p() );
-    geo->addPrimitiveSet( primSet.p() );
-
-    geo->computeNormals();
-
-    return geo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,4 +154,123 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
     }
 
     return textureImage;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>>
+    RivSeismicSectionPartMgr::projectPolyLineOntoSurface( std::vector<cvf::Vec3d>           polyLine,
+                                                          RimSurface*                       surface,
+                                                          const caf::DisplayCoordTransform* displayCoordTransform )
+{
+    std::vector<std::vector<cvf::Vec3d>> displayPolygonCurves;
+    const double                         resamplingDistance = 5.0;
+    std::vector<cvf::Vec3d>              resampledPolyline  = RigSurfaceResampler::computeResampledPolyline( polyLine, resamplingDistance );
+
+    std::vector<cvf::Vec3d> domainCurvePoints;
+
+    for ( const auto& point : resampledPolyline )
+    {
+        cvf::Vec3d pointAbove = cvf::Vec3d( point.x(), point.y(), 10000.0 );
+        cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
+
+        cvf::Vec3d intersectionPoint;
+        bool foundMatch = RigSurfaceResampler::computeIntersectionWithLine( surface->surfaceData(), pointAbove, pointBelow, intersectionPoint );
+        if ( foundMatch )
+        {
+            domainCurvePoints.emplace_back( intersectionPoint );
+        }
+
+        // Create a line segment if we did not find an intersection point or if we are at the end of the polyline
+        if ( !foundMatch || ( point == resampledPolyline.back() ) )
+        {
+            if ( domainCurvePoints.size() > 1 )
+            {
+                // Add intersection curve in display coordinates
+                auto displayCoords = displayCoordTransform->transformToDisplayCoords( domainCurvePoints );
+                displayPolygonCurves.push_back( displayCoords );
+            }
+
+            // Start a new line
+            domainCurvePoints.clear();
+        }
+    }
+
+    return displayPolygonCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSeismicSectionPartMgr::appendSurfaceIntersectionLines( cvf::ModelBasicList*              model,
+                                                               const caf::DisplayCoordTransform* displayCoordTransform,
+                                                               double                            lineThickness,
+                                                               const std::vector<RimSurface*>&   surfaces )
+{
+    for ( auto surface : surfaces )
+    {
+        if ( !surface ) continue;
+
+        surface->loadDataIfRequired();
+        if ( !surface->surfaceData() ) continue;
+
+        std::vector<cvf::Vec3d> completePolyLine;
+        cvf::Part*              firstPart = nullptr;
+
+        auto texSection = m_section->texturedSection();
+        for ( int i = 0; i < texSection->partsCount(); i++ )
+        {
+            const auto& texturePart = texSection->part( i );
+
+            // Each part of the seismic section is a rectangle, use two corners of the rectangle to create a polyline
+            std::vector<cvf::Vec3d> polyLineForSection = { texturePart.rect[0], texturePart.rect[1] };
+
+            bool closePolyLine         = false;
+            auto polyLineDisplayCoords = projectPolyLineOntoSurface( polyLineForSection, surface, displayCoordTransform );
+
+            cvf::ref<cvf::DrawableGeo> drawableGeo =
+                RivPolylineGenerator::createLineAlongPolylineDrawable( polyLineDisplayCoords, closePolyLine );
+            if ( drawableGeo.isNull() ) continue;
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName( "RivSeismicSectionPartMgr::SurfaceIntersectionLine" );
+            part->setDrawable( drawableGeo.p() );
+
+            caf::MeshEffectGenerator effgen( surface->color() );
+            effgen.setLineWidth( lineThickness );
+            cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
+
+            cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
+            polyOffset->enableFillMode( true );
+            polyOffset->setFactor( -5 );
+            const double maxOffsetFactor = -1000;
+            polyOffset->setUnits( maxOffsetFactor );
+
+            eff->setRenderState( polyOffset.p() );
+
+            part->setEffect( eff.p() );
+            part->setPriority( RivPartPriority::PartType::MeshLines );
+
+            model->addPart( part.p() );
+
+            if ( !firstPart ) firstPart = part.p();
+            for ( const auto& coords : polyLineDisplayCoords )
+            {
+                completePolyLine.insert( completePolyLine.end(), coords.begin(), coords.end() );
+            }
+        }
+
+        if ( firstPart )
+        {
+            // Add annotation info to be used to display label in Rim3dView::onViewNavigationChanged()
+            // Set the source info on one part only, as this data is only used for display of labels
+            auto annoObj = new RivAnnotationSourceInfo( surface->fullName().toStdString(), completePolyLine );
+            annoObj->setLabelPositionStrategyHint( RivAnnotationTools::LabelPositionStrategy::RIGHT );
+            annoObj->setShowColor( true );
+            annoObj->setColor( surface->color() );
+
+            firstPart->setSourceInfo( annoObj );
+        }
+    }
 }

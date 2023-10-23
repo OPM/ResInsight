@@ -32,7 +32,7 @@ CAF_CMD_SOURCE_INIT( RicCollapseSiblingsFeature, "RicCollapseSiblingsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCollapseSiblingsFeature::isCommandEnabled()
+bool RicCollapseSiblingsFeature::isCommandEnabled() const
 {
     {
         auto selectedItem = dynamic_cast<Rim3dView*>( caf::SelectionManager::instance()->selectedItem() );

@@ -152,14 +152,6 @@ QStringList RicImportGeneralDataFeature::fileNamesFromCaseNames( const QStringLi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportGeneralDataFeature::onActionTriggered( bool isChecked )
 {
     openFileDialog( ImportFileType::ANY_ECLIPSE_FILE );

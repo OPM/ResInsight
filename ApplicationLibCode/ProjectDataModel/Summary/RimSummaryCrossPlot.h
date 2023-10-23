@@ -30,6 +30,4 @@ class RimSummaryCrossPlot : public RimSummaryPlot
 
 public:
     RimSummaryCrossPlot();
-
-    RimSummaryPlotSourceStepping* sourceSteppingObjectForKeyEventHandling() const override;
 };

@@ -36,14 +36,6 @@ CAF_CMD_SOURCE_INIT( RicNewSimWellIntersectionFeature, "RicNewSimWellIntersectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellIntersectionFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewSimWellIntersectionFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSimWellInView*> simWells;

@@ -130,7 +130,7 @@ void RicNewSimWellFractureAtPosFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
+bool RicNewSimWellFractureAtPosFeature::isCommandEnabled() const
 {
     RimProject* proj = RimProject::current();
     if ( proj->allFractureTemplates().empty() ) return false;
@@ -139,10 +139,5 @@ bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
     if ( !objHandle ) return false;
 
     RimSimWellInView* eclipseWell = objHandle->firstAncestorOrThisOfType<RimSimWellInView>();
-    if ( eclipseWell )
-    {
-        return true;
-    }
-
-    return false;
+    return eclipseWell != nullptr;
 }

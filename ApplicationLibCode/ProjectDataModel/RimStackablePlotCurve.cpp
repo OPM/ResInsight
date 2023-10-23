@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimStackablePlotCurve.h"
 
 #include "RiaColorTables.h"
@@ -81,7 +82,7 @@ void RimStackablePlotCurve::assignStackColor( size_t index, size_t count )
         m_curveAppearance->setColor( RiaColorTools::fromQColorTo3f( moreSaturatedColor ) );
     }
 
-    this->updateCurveAppearance();
+    updateCurveAppearance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,11 +108,6 @@ void RimStackablePlotCurve::setIsStacked( bool stacked )
 {
     m_isStacked = stacked;
 
-    if ( !m_isStacked() && fillStyle() != Qt::NoBrush )
-    {
-        // Switch off area fill when turning off stacking.
-        setFillStyle( Qt::NoBrush );
-    }
     stackingChanged.send( m_isStacked() );
 }
 
@@ -124,11 +120,6 @@ void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
     if ( changedField == &m_isStacked )
     {
-        if ( !m_isStacked() && fillStyle() != Qt::NoBrush )
-        {
-            // Switch off area fill when turning off stacking.
-            setFillStyle( Qt::NoBrush );
-        }
         stackingChanged.send( m_isStacked() );
     }
     else if ( changedField == &m_isStackedWithPhaseColors )
@@ -143,7 +134,7 @@ void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 void RimStackablePlotCurve::onFillColorChanged( const caf::SignalEmitter* emitter )
 {
     m_isStackedWithPhaseColors = false;
-    this->updateConnectedEditors();
+    updateConnectedEditors();
     stackingColorsChanged.send( m_isStackedWithPhaseColors() );
 }
 
@@ -173,4 +164,16 @@ void RimStackablePlotCurve::defaultUiOrdering( caf::PdmUiOrdering& uiOrdering )
     nameGroup->setCollapsedByDefault();
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Qt::BrushStyle RimStackablePlotCurve::fillStyle() const
+{
+    auto selectedFillStyle = RimPlotCurve::fillStyle();
+
+    if ( m_isStacked() && selectedFillStyle == Qt::NoBrush ) return Qt::SolidPattern;
+
+    return selectedFillStyle;
 }

@@ -144,6 +144,20 @@ RivSurfacePartMgr* RimSurfaceInView::surfacePartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RivSurfacePartMgr* RimSurfaceInView::nativeSurfacePartMgr()
+{
+    bool nativeOnly = true;
+    if ( m_surfacePartMgr.isNull() || !m_surfacePartMgr->isNativePartMgr() )
+    {
+        m_surfacePartMgr = new RivSurfacePartMgr( this, nativeOnly );
+    }
+
+    return m_surfacePartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RivIntersectionGeometryGeneratorInterface* RimSurfaceInView::intersectionGeometryGenerator() const
 {
     if ( m_surfacePartMgr.notNull() ) return m_surfacePartMgr->intersectionGeometryGenerator();
@@ -184,9 +198,9 @@ void RimSurfaceInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrO
     {
         RimRegularLegendConfig* legendConfig = m_resultDefinition->legendConfig();
 
-        legendConfig->setTitle( QString( "Surface : \n%1\n%2" ).arg( this->name() ).arg( m_resultDefinition->propertyName() ) );
+        legendConfig->setTitle( QString( "Surface : \n%1\n%2" ).arg( name() ).arg( m_resultDefinition->propertyName() ) );
 
-        if ( this->isActive() && m_resultDefinition->isChecked() && legendConfig->showLegend() )
+        if ( isActive() && m_resultDefinition->isChecked() && legendConfig->showLegend() )
         {
             nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(), isUsingOverrideViewer );
         }
@@ -198,7 +212,7 @@ void RimSurfaceInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrO
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 
     bool scheduleRedraw = false;
 
@@ -221,7 +235,7 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( scheduleRedraw )
     {
-        auto ownerView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
+        auto ownerView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
 }
@@ -234,7 +248,7 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_showInactiveCells );
 
-    this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+    defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -242,8 +256,12 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResultsCollection()
 {
-    auto view = firstAncestorOrThisOfTypeAsserted<RimGridView>();
-    return view->separateSurfaceResultsCollection();
+    auto view = firstAncestorOrThisOfType<RimGridView>();
+    if ( view )
+    {
+        return view->separateSurfaceResultsCollection();
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,5 +277,5 @@ caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::initAfterRead()
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 }

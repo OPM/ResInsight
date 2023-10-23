@@ -184,7 +184,7 @@ void RimCellEdgeColors::loadResult()
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::initAfterRead()
 {
-    this->updateUiIconFromToggleField();
+    updateUiIconFromToggleField();
 
     if ( m_singleVarEdgeResultColors_OBSOLETE->resultVariableUiName() != RiaResultNames::undefinedResultName() )
     {
@@ -432,10 +432,10 @@ void RimCellEdgeColors::cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* meta
 {
     CVF_ASSERT( metaDataVector );
 
-    auto addresses = this->resultAddresses();
+    auto addresses = resultAddresses();
 
     std::vector<QString> resultNames;
-    this->gridScalarResultNames( &resultNames );
+    gridScalarResultNames( &resultNames );
 
     bool isStatic = true;
 

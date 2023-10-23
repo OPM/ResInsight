@@ -35,7 +35,6 @@
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
-#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfExportWellPaths, "exportWellPaths" );
@@ -83,15 +82,11 @@ caf::PdmScriptResponse RicfExportWellPaths::execute()
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "wellpaths" );
     }
 
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    auto                    feature =
-        dynamic_cast<RicExportSelectedWellPathsFeature*>( commandManager->getCommandFeature( "RicExportSelectedWellPathsFeature" ) );
-
     for ( const auto wellPath : wellPaths )
     {
         if ( wellPath )
         {
-            feature->exportWellPath( wellPath, m_mdStepSize, exportFolder, false );
+            RicExportSelectedWellPathsFeature::exportWellPath( wellPath, m_mdStepSize, exportFolder, false );
         }
     }
     return caf::PdmScriptResponse();

@@ -20,7 +20,7 @@
 
 #include "RimSummaryCase.h"
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressDefines.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -38,8 +38,8 @@ public:
 
     QString caseName() const override;
 
-    QString                                      identifierName() const;
-    RifEclipseSummaryAddress::SummaryVarCategory summaryCategory() const;
+    QString                                          identifierName() const;
+    RifEclipseSummaryAddressDefines::SummaryCategory summaryCategory() const;
 
     void updateMetaData();
 
@@ -51,9 +51,9 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_summaryCategory;
-    caf::PdmField<QString>                                                    m_identifierName;
-    caf::PdmField<bool>                                                       m_useCustomIdentifier;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>> m_summaryCategory;
+    caf::PdmField<QString>                                                        m_identifierName;
+    caf::PdmField<bool>                                                           m_useCustomIdentifier;
 
     caf::PdmField<QString> m_importedSummaryData;
 };

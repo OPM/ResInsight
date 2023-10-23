@@ -30,12 +30,15 @@
 #include "RicfCommandObject.h"
 
 #include "Rim3dWellLogCurve.h"
+#include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimGridView.h"
+#include "RimLegendConfig.h"
 #include "RimMainPlotCollection.h"
 #include "RimMeasurement.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimViewController.h"
@@ -149,6 +152,14 @@ Rim3dView::Rim3dView()
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View" );
 
     CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size" );
+
+    CAF_PDM_InitFieldNoDefault( &m_annotationStrategy, "AnnotationStrategy", "Annotation Strategy" );
+    CAF_PDM_InitField( &m_annotationCountHint, "AnnotationCountHint", 5, "Annotation Count Hint" );
+    CAF_PDM_InitField( &m_useCustomAnnotationStrategy,
+                       "UseCustomAnnotationStrategy",
+                       false,
+                       "Use Custom Annotation Strategy",
+                       "Specify the strategy to be applied on all screen space annotations." );
 
     m_seismicVizModel = new cvf::ModelBasicList;
     m_seismicVizModel->setName( "SeismicSectionModel" );
@@ -375,7 +386,7 @@ void Rim3dView::updateViewWidgetAfterCreation()
 
     m_viewer->setDefaultPerspectiveNearPlaneDistance( 10 );
 
-    this->onResetLegendsInViewer();
+    onResetLegendsInViewer();
 
     m_viewer->updateNavigationPolicy();
     m_viewer->enablePerfInfoHud( RiaPreferencesSystem::current()->show3dInformation() );
@@ -386,9 +397,9 @@ void Rim3dView::updateViewWidgetAfterCreation()
 
     m_viewer->mainCamera()->viewport()->setClearColor( cvf::Color4f( backgroundColor() ) );
 
-    this->updateGridBoxData();
-    this->updateAnnotationItems();
-    this->createHighlightAndGridBoxDisplayModel();
+    updateGridBoxData();
+    updateAnnotationItems();
+    createHighlightAndGridBoxDisplayModel();
 
     m_viewer->update();
 }
@@ -505,6 +516,14 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
     m_scaleZ.uiCapability()->setUiReadOnly( !this->isScaleZEditable() );
     gridGroup->add( &meshMode );
     gridGroup->add( &surfaceMode );
+
+    caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Annotations" );
+    annotationGroup->add( &m_useCustomAnnotationStrategy );
+    annotationGroup->add( &m_annotationStrategy );
+    annotationGroup->add( &m_annotationCountHint );
+    m_annotationStrategy.uiCapability()->setUiReadOnly( !m_useCustomAnnotationStrategy );
+    m_annotationCountHint.uiCapability()->setUiReadOnly(
+        !m_useCustomAnnotationStrategy || ( m_annotationStrategy() != RivAnnotationTools::LabelPositionStrategy::COUNT_HINT ) );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -675,6 +694,8 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
             restoreComparisonView();
         }
 
+        updateScreenSpaceModel();
+
         nativeOrOverrideViewer()->update();
     }
 
@@ -739,6 +760,8 @@ void Rim3dView::createDisplayModelAndRedraw()
             viewer()->setMainScene( nullptr, true );
             viewer()->removeAllFrames( true );
         }
+
+        updateScreenSpaceModel();
     }
 
     if ( RiuMainWindow::instance() )
@@ -774,7 +797,7 @@ void Rim3dView::setDefaultView()
 {
     if ( m_viewer )
     {
-        m_viewer->setDefaultView();
+        m_viewer->setDefaultView( -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS );
     }
 }
 
@@ -894,6 +917,14 @@ void Rim3dView::disableLighting( bool disable )
 bool Rim3dView::isLightingDisabled() const
 {
     return m_disableLighting();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::onViewNavigationChanged()
+{
+    updateScreenSpaceModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1019,20 +1050,28 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     {
         createDisplayModelAndRedraw();
     }
+    else if ( changedField == &m_annotationCountHint || changedField == &m_annotationStrategy || changedField == &m_useCustomAnnotationStrategy )
+    {
+        if ( m_viewer )
+        {
+            updateScreenSpaceModel();
+            m_viewer->update();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox )
+void Rim3dView::addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                                     const cvf::BoundingBox& wellPathClipBoundingBox,
+                                     double                  characteristicCellSize )
 {
-    if ( !this->ownerCase() ) return;
-
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
     m_wellPathsPartManager->appendStaticGeometryPartsToModel( wellPathModelBasicList,
                                                               transForm.p(),
-                                                              this->ownerCase()->characteristicCellSize(),
+                                                              characteristicCellSize,
                                                               wellPathClipBoundingBox );
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
@@ -1041,17 +1080,17 @@ void Rim3dView::addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox )
+void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
+                                            const cvf::BoundingBox& wellPathClipBoundingBox,
+                                            double                  characteristicCellSize )
 {
-    if ( !this->ownerCase() ) return;
-
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
     size_t timeStepIndex = currentTimeStep();
     m_wellPathsPartManager->appendDynamicGeometryPartsToModel( wellPathModelBasicList,
                                                                timeStepIndex,
                                                                transForm.p(),
-                                                               this->ownerCase()->characteristicCellSize(),
+                                                               characteristicCellSize,
                                                                wellPathClipBoundingBox );
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
@@ -1062,18 +1101,14 @@ void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBa
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
 {
-    if ( !this->ownerCase() ) return;
-
     auto annotationCollections = descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
-    if ( annotationCollections.empty() || !annotationCollections.front()->isActive() )
-    {
-        m_annotationsPartManager->clearGeometryCache();
-    }
-    else
+    m_annotationsPartManager->clearGeometryCache();
+
+    if ( !annotationCollections.empty() && annotationCollections.front()->isActive() )
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-        m_annotationsPartManager->appendGeometryPartsToModel( annotationsModel, transForm.p(), ownerCase()->allCellsBoundingBox() );
+        m_annotationsPartManager->appendGeometryPartsToModel( annotationsModel, transForm.p(), domainBoundingBox() );
     }
 
     annotationsModel->updateBoundingBoxesRecursive();
@@ -1125,12 +1160,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 bool Rim3dView::isMasterView() const
 {
     RimViewLinker* viewLinker = this->assosiatedViewLinker();
-    if ( viewLinker && this == viewLinker->masterView() )
-    {
-        return true;
-    }
-
-    return false;
+    return viewLinker && this == viewLinker->masterView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1313,7 +1343,7 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
 
     cvf::Collection<cvf::Part> parts;
     onCreatePartCollectionFromSelection( &parts );
-    if ( parts.size() > 0 )
+    if ( !parts.empty() )
     {
         for ( size_t i = 0; i < parts.size(); i++ )
         {
@@ -1324,7 +1354,7 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
         nativeOrOverrideViewer()->addStaticModelOnce( m_highlightVizModel.p(), isUsingOverrideViewer() );
     }
 
-    this->updateGridBoxData();
+    updateGridBoxData();
 
     if ( viewer() ) viewer()->showGridBox( m_showGridBox() );
 }
@@ -1646,6 +1676,38 @@ void Rim3dView::appendAnnotationsToModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Rim3dView::updateScreenSpaceModel()
+{
+    if ( !m_viewer || !m_viewer->mainCamera() ) return;
+
+    if ( m_screenSpaceModel.isNull() )
+    {
+        m_screenSpaceModel = new cvf::ModelBasicList;
+        m_screenSpaceModel->setName( "ScreenSpaceModel" );
+    }
+    m_screenSpaceModel->removeAllParts();
+
+    // Build annotation parts and put into screen space model
+    cvf::Collection<cvf::Part> partCollection;
+    if ( m_viewer->currentScene() ) m_viewer->currentScene()->allParts( &partCollection );
+
+    RivAnnotationTools annoTool;
+    if ( m_useCustomAnnotationStrategy )
+    {
+        annoTool.setOverrideLabelPositionStrategy( m_annotationStrategy() );
+        annoTool.setCountHint( m_annotationCountHint() );
+    }
+
+    // The scaling factor is computed using the camera, and this does not work for the flat intersection view
+    bool computeScalingFactor = ( viewContent() != RiaDefines::View3dContent::FLAT_INTERSECTION );
+    annoTool.addAnnotationLabels( partCollection, m_viewer->mainCamera(), m_screenSpaceModel.p(), computeScalingFactor );
+
+    nativeOrOverrideViewer()->addStaticModelOnce( m_screenSpaceModel.p(), isUsingOverrideViewer() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::appendCellFiltersToModel()
 {
     if ( !nativeOrOverrideViewer() ) return;
@@ -1752,4 +1814,79 @@ RimViewLinker* Rim3dView::viewLinkerIfMasterView() const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::onResetLegendsInViewer()
+{
+    for ( auto legendConfig : legendConfigs() )
+    {
+        if ( legendConfig ) legendConfig->recreateLegend();
+    }
+
+    auto viewer = nativeOrOverrideViewer();
+    if ( viewer ) viewer->removeAllColorLegends();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::onUpdateScaleTransform()
+{
+    if ( scaleTransform() )
+    {
+        cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
+        scale( 2, 2 )    = scaleZ();
+
+        scaleTransform()->setLocalTransform( scale );
+
+        if ( nativeOrOverrideViewer() ) nativeOrOverrideViewer()->updateCachedValuesInScene();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateSurfacesInViewTreeItems()
+{
+    // default is to do nothing
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim3dView::characteristicCellSize() const
+{
+    if ( ownerCase() )
+    {
+        return ownerCase()->characteristicCellSize();
+    }
+
+    return 1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationInViewCollection* Rim3dView::annotationCollection() const
+{
+    return m_annotationCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::syncronizeLocalAnnotationsFromGlobal()
+{
+    RimProject* proj = RimProject::current();
+    if ( proj && proj->activeOilField() )
+    {
+        RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
+        if ( annotColl && annotationCollection() )
+        {
+            annotationCollection()->onGlobalCollectionChanged( annotColl );
+        }
+    }
 }

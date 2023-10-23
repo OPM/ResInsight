@@ -64,7 +64,7 @@ void RigFlowDiagTimeStepResult::setTracerTOF( const std::string&                
 
     RigFlowDiagResultAddress resAddr( RIG_FLD_TOF_RESNAME, phaseSelection, tracers );
 
-    this->addResult( resAddr, cellValues );
+    addResult( resAddr, cellValues );
 
     std::vector<double>& activeCellValues = m_nativeResults[resAddr];
     for ( double& val : activeCellValues )
@@ -83,7 +83,7 @@ void RigFlowDiagTimeStepResult::setTracerFraction( const std::string&           
     std::set<std::string> tracers;
     tracers.insert( tracerName );
 
-    this->addResult( RigFlowDiagResultAddress( RIG_FLD_CELL_FRACTION_RESNAME, phaseSelection, tracers ), cellValues );
+    addResult( RigFlowDiagResultAddress( RIG_FLD_CELL_FRACTION_RESNAME, phaseSelection, tracers ), cellValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -530,7 +530,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
         }
     }
 
-    return m_opmFlowDiagStaticData.notNull() ? true : false;
+    return m_opmFlowDiagStaticData.notNull();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -708,7 +708,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
         const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { { RelPermCurve::EPS_ON, RelPermCurve::EPS_OFF } };
         for ( RelPermCurve::EpsMode epsMode : epsModeArr )
         {
-            const bool useEps = epsMode == RelPermCurve::EPS_ON ? true : false;
+            const bool useEps = epsMode == RelPermCurve::EPS_ON;
 
             Opm::ECLSaturationFunc::SatFuncScaling scaling;
             if ( !useEps )
@@ -722,7 +722,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
                 const RelPermCurve::Ident          curveIdent = curveIdentNameArr[i].first;
                 const std::string                  curveName  = curveIdentNameArr[i].second;
                 const Opm::FlowDiagnostics::Graph& srcGraph   = graphArr[i];
-                if ( srcGraph.first.size() > 0 )
+                if ( !srcGraph.first.empty() )
                 {
                     const std::vector<double>& xVals = srcGraph.first;
                     const std::vector<double>& yVals = srcGraph.second;
@@ -771,7 +771,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
                                                                                    pvtNum );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
-                    if ( srcGraph.press.size() > 0 )
+                    if ( !srcGraph.press.empty() )
                     {
                         retCurveArr.push_back( { PvtCurve::Bo, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
@@ -786,7 +786,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
                                                                                    pvtNum );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
-                    if ( srcGraph.press.size() > 0 )
+                    if ( !srcGraph.press.empty() )
                     {
                         retCurveArr.push_back( { PvtCurve::Bg, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
@@ -804,7 +804,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
                                                                                    pvtNum );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
-                    if ( srcGraph.press.size() > 0 )
+                    if ( !srcGraph.press.empty() )
                     {
                         retCurveArr.push_back( { PvtCurve::Visc_o, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
@@ -819,7 +819,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::ca
                                                                                    pvtNum );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
-                    if ( srcGraph.press.size() > 0 )
+                    if ( !srcGraph.press.empty() )
                     {
                         retCurveArr.push_back( { PvtCurve::Visc_g, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
@@ -867,7 +867,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( int pvtNum, d
                                                                                             pvtNum,
                                                                                             phasePress,
                                                                                             mixRatio );
-            if ( valArr.size() > 0 )
+            if ( !valArr.empty() )
             {
                 *bo = valArr[0];
             }
@@ -883,7 +883,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( int pvtNum, d
                                                                                             pvtNum,
                                                                                             phasePress,
                                                                                             mixRatio );
-            if ( valArr.size() > 0 )
+            if ( !valArr.empty() )
             {
                 *bg = valArr[0];
             }
@@ -929,7 +929,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( int pvt
                                                                                             pvtNum,
                                                                                             phasePress,
                                                                                             mixRatio );
-            if ( valArr.size() > 0 )
+            if ( !valArr.empty() )
             {
                 *mu_o = valArr[0];
             }
@@ -945,7 +945,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( int pvt
                                                                                             pvtNum,
                                                                                             phasePress,
                                                                                             mixRatio );
-            if ( valArr.size() > 0 )
+            if ( !valArr.empty() )
             {
                 *mu_g = valArr[0];
             }

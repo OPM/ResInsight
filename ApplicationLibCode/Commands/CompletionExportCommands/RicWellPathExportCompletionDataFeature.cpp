@@ -72,8 +72,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     if ( !exportSettings->caseToApply() )
     {
-        std::vector<RimCase*> cases;
-        app->project()->allCases( cases );
+        std::vector<RimCase*> cases = app->project()->allGridCases();
         for ( auto c : cases )
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
@@ -202,16 +201,11 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
+bool RicWellPathExportCompletionDataFeature::isCommandEnabled() const
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
 
-    if ( wellPaths.empty() )
-    {
-        return false;
-    }
-
-    return true;
+    return !wellPaths.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

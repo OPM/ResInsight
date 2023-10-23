@@ -20,14 +20,19 @@
 
 #include "RifReaderEclipseRft.h"
 
+#include "RiaCurveMerger.h"
+#include "RiaWeightedMeanCalculator.h"
+
 #include "cvfObject.h"
 
 class RimSummaryCaseCollection;
+class RimEclipseCase;
+class RigWellPath;
 
 class RifReaderEnsembleStatisticsRft : public RifReaderRftInterface, public cvf::Object
 {
 public:
-    RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection );
+    RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection, RimEclipseCase* eclipseCase );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
@@ -41,11 +46,20 @@ public:
     std::set<QString>                                     wellNames() override;
 
 private:
-    void calculateStatistics( const RifEclipseRftAddress& rftAddress );
-    void clearData( const QString& wellName, const QDateTime& timeStep );
+    void calculateStatistics( const QString& wellName, const QDateTime& timeStep );
+
+    void extractStatisticsFromCurveMerger( const QString&                     wellName,
+                                           const QDateTime&                   timeStep,
+                                           RifEclipseRftAddress               depthAddress,
+                                           RiaCurveMerger<double>&            curveMerger,
+                                           RiaWeightedMeanCalculator<size_t>& dataSetSizeCalc,
+                                           const RigWellPath*                 wellPathGeometry );
+
+    void clearCache( const QString& wellName, const QDateTime& timeStep );
 
 private:
     const RimSummaryCaseCollection* m_summaryCaseCollection;
+    RimEclipseCase*                 m_eclipseCase;
 
     std::map<RifEclipseRftAddress, std::vector<double>> m_cachedValues;
 };

@@ -27,6 +27,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include <array>
 #include <string>
 #include <vector>
 
@@ -64,6 +65,8 @@ public:
     bool           isHexahedron( size_t elementIdx ) const;
     const int*     connectivities( size_t elementIdx ) const;
 
+    bool fillElementCoordinates( size_t elementIdx, std::array<cvf::Vec3d, 8>& coordinates ) const;
+
     size_t elementNodeResultIdx( int elementIdx, int elmLocalNodeIdx ) const;
     size_t elementNodeResultCount() const;
     int    nodeIdxFromElementNodeResultIdx( size_t elmNodeResultIdx ) const;
@@ -99,6 +102,10 @@ public:
     void setEnabled( bool enable );
     bool enabled() const;
 
+    void                     addElementSet( std::string name, const std::vector<size_t>& elementIds );
+    std::vector<std::string> elementSetNames() const;
+    std::vector<size_t>      elementSet( int setIndex ) const;
+
 private:
     int         m_elementPartId;
     std::string m_name;
@@ -108,6 +115,9 @@ private:
     std::vector<RigElementType> m_elementTypes;
     std::vector<size_t>         m_elementConnectivityStartIndices;
     std::vector<int>            m_allElementConnectivities;
+
+    std::vector<std::string>         m_elementSetNames;
+    std::vector<std::vector<size_t>> m_elementIndexSets;
 
     RigFemPartNodes m_nodes;
 

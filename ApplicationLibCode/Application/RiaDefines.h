@@ -133,8 +133,10 @@ enum class ImportFileType
     GEOMECH_ODB_FILE        = 0x10,
     RESINSIGHT_PROJECT_FILE = 0x20,
     ROFF_FILE               = 0x30,
+    GEOMECH_INP_FILE        = 0x40,
     ECLIPSE_RESULT_GRID     = ECLIPSE_GRID_FILE | ECLIPSE_EGRID_FILE,
     ANY_ECLIPSE_FILE        = ECLIPSE_RESULT_GRID | ECLIPSE_INPUT_FILE | ECLIPSE_SUMMARY_FILE | ROFF_FILE,
+    ANY_GEOMECH_FILE        = GEOMECH_ODB_FILE | GEOMECH_INP_FILE,
     ANY_IMPORT_FILE         = 0xFF
 };
 
@@ -165,6 +167,12 @@ enum class GridCaseAxis
     AXIS_J,
     AXIS_K,
     UNDEFINED_AXIS
+};
+
+enum class GridModelReader
+{
+    LIBECL,
+    OPM_COMMON
 };
 
 enum class ThemeEnum
@@ -230,7 +238,8 @@ enum class View3dContent
     GEOMECH_DATA      = 0b00000010,
     FLAT_INTERSECTION = 0b00000100,
     CONTOUR           = 0b00001000,
-    ALL               = 0b00001111
+    SEISMIC           = 0b00010000,
+    ALL               = 0b00011111
 };
 
 }; // namespace RiaDefines

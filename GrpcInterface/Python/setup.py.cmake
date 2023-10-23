@@ -4,7 +4,7 @@ with open('README.md') as f:
     readme = f.read()
 
 with open('LICENSE') as f:
-	license = f.read()
+    license = f.read()
 
 RIPS_DIST_VERSION = '2'
 	
@@ -18,6 +18,7 @@ setup(
     url='http://www.resinsight.org',
     license=license,
     packages=['rips'],
-    package_data={'rips': ['*.py', 'generated/*.py', 'PythonExamples/*.py', 'tests/*.py']},
-    install_requires=['grpcio>=1.20.0', 'protobuf', 'wheel']
+    package_data={'rips': ['py.typed', '*.py', 'generated/*.py', 'PythonExamples/*.py', 'tests/*.py']},
+    install_requires=['grpcio', 'protobuf', 'wheel'],
+    python_requires='>=3.8',
 )

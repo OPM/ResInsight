@@ -20,17 +20,25 @@
 
 #include "RimTools.h"
 
+#include "RigFemPart.h"
+#include "RigFemPartCollection.h"
+#include "RigGeoMechCaseData.h"
+#include "RigReservoirGridTools.h"
+
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
+#include "RimFaultInView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSeismicData.h"
 #include "RimSeismicDataCollection.h"
 #include "RimSeismicDifferenceData.h"
-#include "RimWellLogFile.h"
+#include "RimSurfaceCollection.h"
+#include "RimWellLogLasFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -316,9 +324,7 @@ void RimTools::caseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<RimCase*> cases;
-        proj->allCases( cases );
-
+        std::vector<RimCase*> cases = proj->allGridCases();
         for ( RimCase* c : cases )
         {
             options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
@@ -336,9 +342,7 @@ void RimTools::eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<RimCase*> cases;
-        proj->allCases( cases );
-
+        std::vector<RimCase*> cases = proj->allGridCases();
         for ( RimCase* c : cases )
         {
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
@@ -360,9 +364,7 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        std::vector<RimCase*> cases;
-        proj->allCases( cases );
-
+        std::vector<RimCase*> cases = proj->allGridCases();
         for ( RimCase* c : cases )
         {
             RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( c );
@@ -377,6 +379,74 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimTools::eclipseGridOptionItems( QList<caf::PdmOptionItemInfo>* options, RimEclipseCase* eCase )
+{
+    if ( !options ) return;
+
+    for ( int gIdx = 0; gIdx < RigReservoirGridTools::gridCount( eCase ); gIdx++ )
+    {
+        QString gridName = RigReservoirGridTools::gridName( eCase, gIdx );
+        if ( gIdx == 0 )
+        {
+            if ( gridName.isEmpty() )
+                gridName += "Main Grid";
+            else
+                gridName += " (Main Grid)";
+        }
+
+        options->push_back( caf::PdmOptionItemInfo( gridName, gIdx ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::geoMechPartOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase )
+{
+    if ( !options ) return;
+
+    if ( !gCase || !gCase->geoMechData() || !gCase->geoMechData()->femParts() ) return;
+
+    const auto parts = gCase->geoMechData()->femParts();
+
+    for ( int i = 0; i < parts->partCount(); i++ )
+    {
+        auto part = parts->part( i );
+        if ( part != nullptr )
+        {
+            options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( part->name() ), i ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::geoMechElementSetOptionItems( QList<caf::PdmOptionItemInfo>* options, RimGeoMechCase* gCase, int partId )
+{
+    if ( !options ) return;
+
+    if ( !gCase || !gCase->geoMechData() || !gCase->geoMechData()->femParts() ) return;
+
+    const auto parts = gCase->geoMechData()->femParts();
+
+    if ( partId >= parts->partCount() ) return;
+
+    auto part = parts->part( partId );
+    if ( part != nullptr )
+    {
+        auto names = part->elementSetNames();
+
+        for ( int i = 0; i < (int)names.size(); i++ )
+        {
+            options->push_back( caf::PdmOptionItemInfo( QString::fromStdString( names[i] ), i ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
     if ( !options ) return;
@@ -384,7 +454,7 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options )
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        const auto& coll = proj->activeOilField()->seismicCollection().p();
+        const auto& coll = proj->activeOilField()->seismicDataCollection().p();
 
         for ( auto* c : coll->seismicData() )
         {
@@ -403,7 +473,7 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, c
     RimProject* proj = RimProject::current();
     if ( proj )
     {
-        const auto& coll = proj->activeOilField()->seismicCollection().p();
+        const auto& coll = proj->activeOilField()->seismicDataCollection().p();
 
         for ( auto* c : coll->seismicData() )
         {
@@ -462,9 +532,18 @@ RimWellPath* RimTools::firstWellPath()
     auto wellpathcoll = wellPathCollection();
     auto wellpaths    = wellpathcoll->allWellPaths();
 
-    if ( wellpaths.size() > 0 ) return wellpaths[0];
+    if ( !wellpaths.empty() ) return wellpaths[0];
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceCollection* RimTools::surfaceCollection()
+{
+    RimProject* proj = RimProject::current();
+    return proj->activeOilField()->surfaceCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -496,5 +575,19 @@ void RimTools::optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>
     for ( auto wellPath : wellPaths )
     {
         options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::faultOptionItems( QList<caf::PdmOptionItemInfo>* options, RimFaultInViewCollection* coll )
+{
+    if ( !options ) return;
+    if ( !coll ) return;
+
+    for ( auto& f : coll->faults() )
+    {
+        options->push_back( caf::PdmOptionItemInfo( f->name(), f, false, f->uiIconProvider() ) );
     }
 }

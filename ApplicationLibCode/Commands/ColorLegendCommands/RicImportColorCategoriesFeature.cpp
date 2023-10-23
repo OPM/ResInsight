@@ -42,7 +42,7 @@ CAF_CMD_SOURCE_INIT( RicImportColorCategoriesFeature, "RicImportColorCategoriesF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportColorCategoriesFeature::isCommandEnabled()
+bool RicImportColorCategoriesFeature::isCommandEnabled() const
 {
     return caf::firstAncestorOfTypeFromSelectedObject<RimColorLegendCollection>() != nullptr;
 }

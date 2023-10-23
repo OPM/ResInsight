@@ -29,9 +29,9 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
+void caf::AppEnum<RifEclipseSummaryAddressDefines::SummaryCategory>::setUp()
 {
-    using RifAdr = RifEclipseSummaryAddress;
+    using RifAdr = RifEclipseSummaryAddressDefines::SummaryCategory;
 
     addItem( RifAdr::SUMMARY_FIELD, "SUMMARY_FIELD", RiaDefines::summaryField() );
     addItem( RifAdr::SUMMARY_AQUIFER, "SUMMARY_AQUIFER", RiaDefines::summaryAquifer() );
@@ -68,6 +68,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region" );
     CAF_PDM_InitFieldNoDefault( &m_regionNumber2, "SummaryRegion2", "Region2" );
     CAF_PDM_InitFieldNoDefault( &m_groupName, "SummaryWellGroup", "Group" );
+    CAF_PDM_InitFieldNoDefault( &m_networkName, "SummaryNetworkGroup", "Network" );
     CAF_PDM_InitFieldNoDefault( &m_wellName, "SummaryWell", "Well" );
     CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumber, "SummaryWellSegment", "Well Segment" );
     CAF_PDM_InitFieldNoDefault( &m_lgrName, "SummaryLgr", "Grid" );
@@ -81,7 +82,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
     CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
 
-    m_category          = RifEclipseSummaryAddress::SUMMARY_INVALID;
+    m_category          = RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
     m_regionNumber      = -1;
     m_regionNumber2     = -1;
     m_wellSegmentNumber = -1;
@@ -123,6 +124,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_regionNumber      = addr.regionNumber();
     m_regionNumber2     = addr.regionNumber2();
     m_groupName         = addr.groupName().c_str();
+    m_networkName       = addr.networkName().c_str();
     m_wellName          = addr.wellName().c_str();
     m_wellSegmentNumber = addr.wellSegmentNumber();
     m_lgrName           = addr.lgrName().c_str();
@@ -148,6 +150,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address() const
                                      m_regionNumber(),
                                      m_regionNumber2(),
                                      m_groupName().toStdString(),
+                                     m_networkName().toStdString(),
                                      m_wellName().toStdString(),
                                      m_wellSegmentNumber(),
                                      m_lgrName().toStdString(),
@@ -183,13 +186,14 @@ RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddress::SummaryVarCategory category ) const
+QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddressDefines::SummaryCategory category ) const
 {
     // Return the keyword text for supported field replacement in plot templates
 
-    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL ) return m_wellName.keyword();
-    if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP ) return m_groupName.keyword();
-    if ( category == RifEclipseSummaryAddress::SUMMARY_REGION ) return m_regionNumber.keyword();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL ) return m_wellName.keyword();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_GROUP ) return m_groupName.keyword();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION ) return m_regionNumber.keyword();
+    if ( category == RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK ) return m_networkName.keyword();
 
     return {};
 }

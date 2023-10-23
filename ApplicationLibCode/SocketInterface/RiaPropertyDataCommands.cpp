@@ -491,7 +491,7 @@ public:
             }
         }
 
-        if ( !m_requestedTimesteps.size() )
+        if ( m_requestedTimesteps.empty() )
         {
             server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
                                       RiaSocketServer::tr( "No time steps specified" ).arg( porosityModelName ).arg( propertyName ) );
@@ -504,7 +504,7 @@ public:
 
         if ( server->currentClient()->bytesAvailable() )
         {
-            return this->interpretMore( server, server->currentClient() );
+            return interpretMore( server, server->currentClient() );
         }
 
         return false;
@@ -643,7 +643,7 @@ public:
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
                         {
-                            if ( ( *scalarResultFrames )[i].size() > 0 )
+                            if ( !( *scalarResultFrames )[i].empty() )
                             {
                                 lastIndexWithDataPresent = i;
                             }
@@ -843,7 +843,7 @@ public:
             }
         }
 
-        if ( !m_requestedTimesteps.size() )
+        if ( m_requestedTimesteps.empty() )
         {
             server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
                                       RiaSocketServer::tr( "No time steps specified" ).arg( porosityModelName ).arg( propertyName ) );
@@ -856,7 +856,7 @@ public:
 
         if ( server->currentClient()->bytesAvailable() )
         {
-            return this->interpretMore( server, server->currentClient() );
+            return interpretMore( server, server->currentClient() );
         }
 
         return false;
@@ -1016,7 +1016,7 @@ public:
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
                         {
-                            if ( ( *scalarResultFrames )[i].size() > 0 )
+                            if ( !( *scalarResultFrames )[i].empty() )
                             {
                                 lastIndexWithDataPresent = i;
                             }
@@ -1276,12 +1276,7 @@ public:
         }
 
         // Write remaining data
-        if ( !RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) ) )
-        {
-            return false;
-        }
-
-        return true;
+        return RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) );
     }
 
     static std::vector<std::pair<size_t, size_t>> getSelectedCellsForCase( const RimCase* reservoirCase )

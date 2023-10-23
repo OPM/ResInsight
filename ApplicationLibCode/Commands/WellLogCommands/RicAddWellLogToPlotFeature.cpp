@@ -24,9 +24,9 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
@@ -34,7 +34,7 @@
 #include "RimWellPathCollection.h"
 #include "RiuPlotMainWindowTools.h"
 
-#include "RigWellLogFile.h"
+#include "RigWellLogLasFile.h"
 
 #include "RiuQwtPlotWidget.h"
 
@@ -47,10 +47,10 @@ CAF_CMD_SOURCE_INIT( RicAddWellLogToPlotFeature, "RicAddWellLogToPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAddWellLogToPlotFeature::isCommandEnabled()
+bool RicAddWellLogToPlotFeature::isCommandEnabled() const
 {
     std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
-    return selection.size() > 0;
+    return !selection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ bool RicAddWellLogToPlotFeature::isCommandEnabled()
 void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
-    if ( selection.size() < 1 ) return;
+    if ( selection.empty() ) return;
 
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
@@ -74,16 +74,16 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
         RimWellLogFileChannel* wellLog = selection[wlIdx];
 
         auto wellPath    = wellLog->firstAncestorOrThisOfType<RimWellPath>();
-        auto wellLogFile = wellLog->firstAncestorOrThisOfType<RimWellLogFile>();
+        auto wellLogFile = wellLog->firstAncestorOrThisOfType<RimWellLogLasFile>();
         if ( wellLogFile )
         {
-            RimWellLogFileCurve* curve      = new RimWellLogFileCurve;
-            cvf::Color3f         curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
+            RimWellLogLasFileCurve* curve      = new RimWellLogLasFileCurve;
+            cvf::Color3f            curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
             curve->setColor( curveColor );
 
             plotTrack->addCurve( curve );
 
-            RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFileData();
+            RigWellLogLasFile* wellLogDataFile = wellLogFile->wellLogFileData();
             CVF_ASSERT( wellLogDataFile );
 
             if ( wlIdx == 0 )

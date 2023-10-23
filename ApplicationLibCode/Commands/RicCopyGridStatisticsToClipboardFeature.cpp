@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicCopyGridStatisticsToClipboardFeature, "RicCopyGridStatis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCopyGridStatisticsToClipboardFeature::isCommandEnabled()
+bool RicCopyGridStatisticsToClipboardFeature::isCommandEnabled() const
 {
     if ( RicWellLogTools::isWellPathOrSimWellSelectedInView() ) return false;
 
@@ -77,5 +77,5 @@ void RicCopyGridStatisticsToClipboardFeature::onActionTriggered( bool isChecked 
 void RicCopyGridStatisticsToClipboardFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Copy Grid Statistics to Clipboard" );
-    actionToSetup->setIcon( QIcon( ":/statistics.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
 }

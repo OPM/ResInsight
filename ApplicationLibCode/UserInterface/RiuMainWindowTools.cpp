@@ -210,9 +210,7 @@ void RiuMainWindowTools::setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWi
     RimProject* proj = RimProject::current();
     if ( !proj ) return;
 
-    std::vector<RimCase*> projectCases;
-    proj->allCases( projectCases );
-
+    std::vector<RimCase*> projectCases = proj->allGridCases();
     for ( RimCase* cas : projectCases )
     {
         if ( !cas ) continue;

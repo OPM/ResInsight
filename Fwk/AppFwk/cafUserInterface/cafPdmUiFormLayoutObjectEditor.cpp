@@ -67,7 +67,7 @@ caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 {
     // If there are field editor present, the usage of this editor has not cleared correctly
     // The intended usage is to call the method setPdmObject(NULL) before closing the dialog
-    CAF_ASSERT( m_fieldViews.size() == 0 );
+    CAF_ASSERT( m_fieldViews.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------

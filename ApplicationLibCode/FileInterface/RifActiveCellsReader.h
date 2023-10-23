@@ -20,8 +20,8 @@
 
 #include <vector>
 
-typedef struct ecl_grid_struct ecl_grid_type;
-typedef struct ecl_file_struct ecl_file_type;
+using ecl_grid_type = struct ecl_grid_struct;
+using ecl_file_type = struct ecl_file_struct;
 
 //==================================================================================================
 //

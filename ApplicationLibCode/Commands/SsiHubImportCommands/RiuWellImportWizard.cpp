@@ -417,9 +417,8 @@ void RiuWellImportWizard::updateFieldsModel()
         QStringList fields;
         QStringList edmIds;
 
-        ResInsightInternalJson::JsonReader jsonReader;
-        QMap<QString, QVariant>            jsonMap     = jsonReader.decodeFile( fileName );
-        QVariantList                       variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
+        QMap<QString, QVariant> jsonMap     = ResInsightInternalJson::JsonReader::decodeFile( fileName );
+        QVariantList            variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
         for ( const auto& listItem : variantList )
         {
             QMap<QString, QVariant> fieldMap = listItem.toMap();
@@ -516,7 +515,7 @@ void RiuWellImportWizard::downloadWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 {
-    if ( m_wellRequestQueue.size() > 0 )
+    if ( !m_wellRequestQueue.empty() )
     {
         DownloadEntity firstItem = m_wellRequestQueue[0];
         m_wellRequestQueue.pop_front();
@@ -632,9 +631,8 @@ void RiuWellImportWizard::parseWellsResponse( RimOilFieldEntry* oilFieldEntry )
 
     if ( caf::Utils::fileExists( oilFieldEntry->wellsFilePath ) )
     {
-        ResInsightInternalJson::JsonReader jsonReader;
-        QMap<QString, QVariant>            jsonMap     = jsonReader.decodeFile( oilFieldEntry->wellsFilePath );
-        QVariantList                       variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
+        QMap<QString, QVariant> jsonMap     = ResInsightInternalJson::JsonReader::decodeFile( oilFieldEntry->wellsFilePath );
+        QVariantList            variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
         for ( const auto& listItem : variantList )
         {
             QMap<QString, QVariant> rootMap = listItem.toMap();
@@ -1007,7 +1005,7 @@ void WellSelectionPage::customMenuRequested( const QPoint& pos )
 
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the
     // viewport(). Since we might get this signal from different treeViews, we need to map the position accordingly.
-    QObject*   senderObj = this->sender();
+    QObject*   senderObj = sender();
     QTreeView* treeView  = dynamic_cast<QTreeView*>( senderObj );
     if ( treeView )
     {

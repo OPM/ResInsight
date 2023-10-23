@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicClearSourceSteppingEnsembleCurveSetFeature, "RicClearSou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicClearSourceSteppingEnsembleCurveSetFeature::isCommandEnabled()
+bool RicClearSourceSteppingEnsembleCurveSetFeature::isCommandEnabled() const
 {
     std::vector<caf::PdmObject*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );

@@ -6,6 +6,7 @@
 
 #include "cafPdmFieldHandle.h"
 
+#include <QDebug>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -341,6 +342,9 @@ void PdmXmlObjectHandle::initAfterReadRecursively( PdmObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
+    // Set flag to be able to detect if resolveReferencesRecursively() is called from initAfterRead()
+    object->m_isInsideInitAfterRead = true;
+
     std::vector<PdmFieldHandle*> fields = object->fields();
 
     std::vector<PdmObjectHandle*> children;
@@ -365,6 +369,16 @@ void PdmXmlObjectHandle::initAfterReadRecursively( PdmObjectHandle* object )
     {
         xmlObject->initAfterRead();
     }
+
+    object->m_isInsideInitAfterRead = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmXmlObjectHandle::initAfterReadRecursively()
+{
+    initAfterReadRecursively( this->m_owner );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -374,6 +388,34 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
                                                        std::vector<PdmFieldHandle*>* fieldWithFailingResolve )
 {
     if ( object == nullptr ) return;
+
+    assert( !object->m_isInsideInitAfterRead );
+    if ( object->m_isInsideInitAfterRead )
+    {
+        // In release, the assert above is not triggered, but the resolving might still fail.
+        // In RelWithDebInfo, the following message will be available from the debug output window
+
+        QString text =
+            "Calling resolveReferencesRecursively() from initAfterRead() is not supported, "
+            "as the object model might not be complete. If the object model is incomplete, the resolving might "
+            "fail and assign a null pointer to the pointer field.";
+
+        qDebug() << text;
+
+        std::vector<PdmFieldHandle*> fields = object->fields();
+        if ( !fields.empty() )
+        {
+            text = "    Field keywords: ";
+
+            for ( auto f : fields )
+            {
+                text += f->keyword() + ", ";
+            }
+        }
+        qDebug() << text;
+
+        return;
+    }
 
     std::vector<PdmFieldHandle*> fields = object->fields();
 
@@ -404,7 +446,8 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Never call resolveReferencesRecursively() from initAfterRead(), as the document is not fully imported and the
+// resolving might fail. The object needs to be fully inserted into the document before resolving references.
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::resolveReferencesRecursively(
     std::vector<PdmFieldHandle*>* fieldWithFailingResolve /*= nullptr*/ )
@@ -452,6 +495,14 @@ void PdmXmlObjectHandle::setupBeforeSaveRecursively( PdmObjectHandle* object )
     {
         xmlObject->setupBeforeSave();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmXmlObjectHandle::setupBeforeSaveRecursively()
+{
+    setupBeforeSaveRecursively( this->m_owner );
 }
 
 //--------------------------------------------------------------------------------------------------

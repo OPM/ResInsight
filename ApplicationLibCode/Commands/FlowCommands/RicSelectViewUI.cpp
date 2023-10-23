@@ -119,7 +119,7 @@ QList<caf::PdmOptionItemInfo> RicSelectViewUI::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 void RicSelectViewUI::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( m_currentCase && m_currentCase->views().size() == 0 )
+    if ( m_currentCase && m_currentCase->views().empty() )
     {
         m_createNewView = true;
     }

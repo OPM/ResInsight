@@ -18,6 +18,8 @@
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include <regex>
 #include <sstream>
 
@@ -62,36 +64,36 @@ RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory RiuSummaryQuantityNameInfoProvider::identifyCategory( const std::string& vectorName )
+RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvider::identifyCategory( const std::string& vectorName )
 {
     // Try to an exact match on the vector name first in the vector table.
     bool exactMatch    = true;
     auto exactCategory = categoryFromVectorName( vectorName, exactMatch );
-    if ( exactCategory != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return exactCategory;
+    if ( exactCategory != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID ) return exactCategory;
 
-    if ( vectorName.size() < 3 || vectorName.size() > 8 ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
+    if ( vectorName.size() < 3 || vectorName.size() > 8 ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
 
     // Try to match the base vector name with more heuristics
     auto strippedQuantityName = RifEclipseSummaryAddress::baseVectorName( vectorName );
 
     // First, try to lookup vector in vector table
     auto category = categoryFromVectorName( strippedQuantityName );
-    if ( category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return category;
+    if ( category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID ) return category;
 
     switch ( strippedQuantityName[0] )
     {
         case 'A':
-            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_AQUIFER;
+            return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_AQUIFER;
         case 'B':
-            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK;
+            return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK;
         case 'F':
-            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD;
+            return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_FIELD;
         case 'N':
-            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK;
+            return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_NETWORK;
         case 'S':
-            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT;
+            return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_SEGMENT;
         case 'W':
-            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL;
+            return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL;
         default:
             break;
     }
@@ -99,26 +101,26 @@ RifEclipseSummaryAddress::SummaryVarCategory RiuSummaryQuantityNameInfoProvider:
     if ( strippedQuantityName[0] == 'R' )
     {
         if ( ParseHelpers::is_region_to_region( strippedQuantityName ) )
-            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION_2_REGION;
+            return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION_2_REGION;
 
-        return RifEclipseSummaryAddress::SUMMARY_REGION;
+        return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_REGION;
     }
 
     // Then check LGR categories
     std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
 
-    if ( firstTwoLetters == "LB" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK_LGR;
-    if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR;
-    if ( firstTwoLetters == "LW" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR;
+    if ( firstTwoLetters == "LB" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_BLOCK_LGR;
+    if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_COMPLETION_LGR;
+    if ( firstTwoLetters == "LW" ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_WELL_LGR;
 
-    return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
+    return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName,
-                                                                                                         bool exactMatch ) const
+RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName,
+                                                                                                             bool exactMatch ) const
 {
     auto info = quantityInfo( vectorName, exactMatch );
 
@@ -183,7 +185,8 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo RiuSummaryQuantityNam
 std::string RiuSummaryQuantityNameInfoProvider::longNameFromVectorName( const std::string& vectorName, bool returnVectorNameIfNotFound ) const
 {
     auto info = quantityInfo( vectorName );
-    return info.category != RifEclipseSummaryAddress::SUMMARY_INVALID || !returnVectorNameIfNotFound ? info.longName : vectorName;
+    return info.category != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID || !returnVectorNameIfNotFound ? info.longName
+                                                                                                                             : vectorName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,7 +212,7 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityNameInfoProvider()
 std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo>
     RiuSummaryQuantityNameInfoProvider::createInfoForEclipseKeywords()
 {
-    using A = RifEclipseSummaryAddress;
+    using A = RifEclipseSummaryAddressDefines::SummaryCategory;
 
     std::unordered_map<std::string, RiuSummaryQuantityInfo> info;
 
@@ -2139,7 +2142,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
 std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo>
     RiuSummaryQuantityNameInfoProvider::createInfoFor6xKeywords()
 {
-    using A = RifEclipseSummaryAddress;
+    using A = RifEclipseSummaryAddressDefines::SummaryCategory;
 
     std::unordered_map<std::string, RiuSummaryQuantityInfo> info;
 

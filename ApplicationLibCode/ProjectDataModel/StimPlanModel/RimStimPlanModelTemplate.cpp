@@ -76,15 +76,27 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase, "InitialPressureEclipseCase", "Initial Pressure Case" );
-    CAF_PDM_InitField( &m_useTableForInitialPressure, "UseForInitialPressure", false, "Use Pressure Table For Initial Pressure" );
-    CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_useTableForInitialPressure,
+                                                  "UseForInitialPressure",
+                                                  "UsePressureTableForInitialPressure",
+                                                  false,
+                                                  "Use Pressure Table For Initial Pressure" );
+
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_useTableForPressure,
+                                                  "UseForPressure",
+                                                  "UsePressureTableForPressure",
+                                                  false,
+                                                  "Use Pressure Table For Pressure" );
     CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit" );
     m_editPressureTable.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editPressureTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
 
-    CAF_PDM_InitField( &m_useEqlnumForPressureInterpolation, "UseEqlNumForPressureInterpolation", true, "Use EQLNUM For Pressure Interpolation" );
+    CAF_PDM_InitScriptableField( &m_useEqlnumForPressureInterpolation,
+                                 "UseEqlNumForPressureInterpolation",
+                                 true,
+                                 "Use EQLNUM For Pressure Interpolation" );
 
     CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", RiaDefines::defaultPorosity(), "Default Porosity" );
     CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", RiaDefines::defaultPermeability(), "Default Permeability" );
@@ -395,10 +407,11 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
                 if ( !exists )
                 {
                     RimFaciesInitialPressureConfig* fipConfig                   = new RimFaciesInitialPressureConfig;
-                    bool                            enableInitialPressureConfig = shouldProbablyUseInitialPressure( item->categoryName() );
+                    bool                            enableInitialPressureConfig = true;
                     fipConfig->setEnabled( enableInitialPressureConfig );
                     fipConfig->setFaciesName( item->categoryName() );
                     fipConfig->setFaciesValue( item->categoryValue() );
+                    fipConfig->setFraction( 1.0 );
                     m_faciesInitialPressureConfigs.push_back( fipConfig );
 
                     fipConfig->changed.connect( this, &RimStimPlanModelTemplate::faciesPropertiesChanged );
@@ -412,11 +425,6 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
 
         m_faciesProperties->setEclipseCase( eclipseCase );
     }
-}
-
-bool RimStimPlanModelTemplate::shouldProbablyUseInitialPressure( const QString& faciesName )
-{
-    return faciesName.compare( "Shale", Qt::CaseInsensitive ) == 0 || faciesName.compare( "Calcite", Qt::CaseInsensitive ) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------

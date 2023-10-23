@@ -114,7 +114,7 @@ void RicNewSimWellFractureFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSimWellFractureFeature::isCommandEnabled()
+bool RicNewSimWellFractureFeature::isCommandEnabled() const
 {
     RimProject* proj = RimProject::current();
     if ( proj->allFractureTemplates().empty() ) return false;
@@ -123,10 +123,5 @@ bool RicNewSimWellFractureFeature::isCommandEnabled()
     if ( !objHandle ) return false;
 
     auto simWell = objHandle->firstAncestorOrThisOfType<RimSimWellInView>();
-    if ( simWell )
-    {
-        return true;
-    }
-
-    return false;
+    return simWell != nullptr;
 }

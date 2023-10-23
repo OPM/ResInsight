@@ -45,11 +45,14 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     Q_ASSERT( m_plotDefinition );
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
-    this->setLayout( mainLayout );
-    this->layout()->setMargin( 0 );
-    this->layout()->setSpacing( 2 );
+    setLayout( mainLayout );
+    layout()->setMargin( 0 );
+    layout()->setSpacing( 2 );
 
     m_titleLabel = new QLabel( this );
+    m_titleLabel->setWordWrap( true );
+    m_titleLabel->setAlignment( Qt::AlignCenter );
+
     new RiuPlotObjectPicker( m_titleLabel, m_plotDefinition->accumulatedWellFlowPlot() );
 
     QFont font = m_titleLabel->font();
@@ -58,12 +61,12 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     m_titleLabel->setFont( font );
 
     // White background
-    QPalette pal = this->palette();
+    QPalette pal = palette();
     pal.setColor( QPalette::Window, Qt::white );
-    this->setAutoFillBackground( true );
-    this->setPalette( pal );
+    setAutoFillBackground( true );
+    setPalette( pal );
 
-    mainLayout->addWidget( m_titleLabel, 0, Qt::AlignCenter );
+    mainLayout->addWidget( m_titleLabel );
 
     auto plotWidgetsLayout = new QHBoxLayout();
     auto leftColumnLayout  = new QVBoxLayout();

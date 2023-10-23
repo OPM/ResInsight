@@ -186,6 +186,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     m_previewText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_previewText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_previewText.uiCapability()->setUiReadOnly( true );
+    m_previewText.xmlCapability()->disableIO();
 
     m_uiMode = UI_MODE_NONE;
 }
@@ -496,7 +497,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::initialize( RifCsvUserDataParser* 
     }
 
     parser->parseColumnInfo( parseOptions() );
-    if ( parser->tableData().columnInfos().size() > 0 )
+    if ( !parser->tableData().columnInfos().empty() )
     {
         m_timeSeriesColumnName = QString::fromStdString( parser->tableData().columnInfos()[0].columnName() );
     }

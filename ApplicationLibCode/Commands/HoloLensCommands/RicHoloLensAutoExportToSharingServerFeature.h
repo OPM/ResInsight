@@ -36,10 +36,10 @@ public:
     void triggerUpdateSession();
 
 private:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    bool isCommandChecked() const override;
 
     bool isSessionValid() const;
 

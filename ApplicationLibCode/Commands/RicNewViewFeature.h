@@ -38,7 +38,7 @@ public:
     static void addReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

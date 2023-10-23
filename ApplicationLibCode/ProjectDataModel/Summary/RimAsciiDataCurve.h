@@ -25,7 +25,6 @@
 #include "cafPdmPtrField.h"
 
 #include "RiaDefines.h"
-#include "RifEclipseSummaryAddress.h"
 #include "RimPlotCurve.h"
 
 #include "cafAppEnum.h"

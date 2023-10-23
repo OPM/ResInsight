@@ -49,17 +49,9 @@ CAF_CMD_SOURCE_INIT( RicCreateNewIssueHelpFeature, "RicCreateNewIssueHelpFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHelpAboutFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicHelpAboutFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     caf::AboutDialog dlg( nullptr );
 
@@ -208,17 +200,9 @@ QString RicHelpAboutFeature::getPythonVersion( const QString& pathToPythonExecut
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHelpCommandLineFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicHelpCommandLineFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaApplication* app  = RiaApplication::instance();
     QString         text = app->commandLineParameterHelp();
@@ -237,17 +221,9 @@ void RicHelpCommandLineFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHelpSummaryCommandLineFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicHelpSummaryCommandLineFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     RiaApplication* app  = RiaApplication::instance();
     QString         text = RicSummaryPlotFeatureImpl::summaryPlotCommandLineHelpText();
@@ -266,17 +242,9 @@ void RicHelpSummaryCommandLineFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHelpOpenUsersGuideFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
     RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
@@ -294,17 +262,9 @@ void RicHelpOpenUsersGuideFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSearchHelpFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSearchHelpFeature::onActionTriggered( bool isChecked )
 {
-    this->disableModelChangeContribution();
+    disableModelChangeContribution();
 
     QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
 
@@ -340,14 +300,6 @@ void RicSearchHelpFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSearchIssuesHelpFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSearchIssuesHelpFeature::onActionTriggered( bool isChecked )
 {
     QString usersGuideUrl = "https://github.com/OPM/ResInsight/issues";
@@ -361,14 +313,6 @@ void RicSearchIssuesHelpFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Search Issues" );
     actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicCreateNewIssueHelpFeature::isCommandEnabled()
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

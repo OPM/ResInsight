@@ -42,14 +42,9 @@ CAF_CMD_SOURCE_INIT( RicWellPathImportPerforationIntervalsFeature, "RicWellPathI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathImportPerforationIntervalsFeature::isCommandEnabled()
+bool RicWellPathImportPerforationIntervalsFeature::isCommandEnabled() const
 {
-    if ( RicWellPathImportPerforationIntervalsFeature::selectedWellPathCollection() != nullptr )
-    {
-        return true;
-    }
-
-    return false;
+    return RicWellPathImportPerforationIntervalsFeature::selectedWellPathCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +63,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered( bool isChe
                                                                           defaultDir,
                                                                           "Well Path Perforation Intervals (*.ev);;All Files (*.*)" );
 
-    if ( wellPathFilePaths.size() < 1 ) return;
+    if ( wellPathFilePaths.empty() ) return;
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );

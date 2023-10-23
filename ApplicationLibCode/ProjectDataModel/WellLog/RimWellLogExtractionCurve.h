@@ -95,7 +95,7 @@ public:
     void setBranchDetection( bool branchDetection );
     void setBranchIndex( int index );
 
-    static void findAndLoadWbsParametersFromLasFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor );
+    static void findAndLoadWbsParametersFromFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor );
 
     void                  setAutoNameComponents( bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate );
     RiaDefines::PhaseType phaseType() const override;

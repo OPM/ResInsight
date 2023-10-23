@@ -159,7 +159,7 @@ QString RimWellFlowRateCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+    RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     m_plotCurve->setTitle( createCurveAutoName() );
 
@@ -185,7 +185,7 @@ void RimWellFlowRateCurve::updateCurveAppearance()
     {
         auto                                         wellLogTrack       = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
         std::map<int, std::vector<RimWellLogCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
-        const std::vector<RimWellLogCurve*>&         curveGroup         = stackedCurveGroups[this->m_groupId];
+        const std::vector<RimWellLogCurve*>&         curveGroup         = stackedCurveGroups[m_groupId];
 
         if ( !curveGroup.empty() )
         {
@@ -268,12 +268,7 @@ void RimWellFlowRateCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 bool RimWellFlowRateCurve::isUsingConnectionNumberDepthType() const
 {
     auto wellLogPlot = firstAncestorOrThisOfType<RimWellLogPlot>();
-    if ( wellLogPlot && wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
-    {
-        return true;
-    }
-
-    return false;
+    return wellLogPlot && wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,7 +288,7 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&            
                                                       const std::vector<double>& flowRates )
 {
     bool useLogarithmicScale = false;
-    this->setPropertyValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::DepthUnitType::UNIT_NONE, false, useLogarithmicScale );
+    setPropertyValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::DepthUnitType::UNIT_NONE, false, useLogarithmicScale );
 
     m_curveAutoName = curveName;
 }

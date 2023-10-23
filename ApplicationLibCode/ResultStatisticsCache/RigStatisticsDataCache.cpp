@@ -75,7 +75,7 @@ void RigStatisticsDataCache::minMaxCellScalarValues( double& min, double& max )
         for ( i = 0; i < m_statisticsCalculator->timeStepCount(); i++ )
         {
             double tsmin, tsmax;
-            this->minMaxCellScalarValues( i, tsmin, tsmax );
+            minMaxCellScalarValues( i, tsmin, tsmax );
             if ( tsmin < min ) min = tsmin;
             if ( tsmax > max ) max = tsmax;
         }
@@ -130,7 +130,7 @@ void RigStatisticsDataCache::posNegClosestToZero( double& pos, double& neg )
         for ( i = 0; i < m_statisticsCalculator->timeStepCount(); i++ )
         {
             double tsNeg, tsPos;
-            this->posNegClosestToZero( i, tsPos, tsNeg );
+            posNegClosestToZero( i, tsPos, tsNeg );
             if ( tsNeg > neg && tsNeg < 0 ) neg = tsNeg;
             if ( tsPos < pos && tsPos > 0 ) pos = tsPos;
         }
@@ -215,7 +215,7 @@ void RigStatisticsDataCache::sumCellScalarValues( double& sumValue )
         for ( size_t i = 0; i < m_statisticsCalculator->timeStepCount(); i++ )
         {
             double valueSum = 0.0;
-            this->sumCellScalarValues( i, valueSum );
+            sumCellScalarValues( i, valueSum );
 
             aggregatedSum += valueSum;
         }
@@ -390,7 +390,7 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded()
     {
         double min;
         double max;
-        this->minMaxCellScalarValues( min, max );
+        minMaxCellScalarValues( min, max );
 
         RigHistogramCalculator histCalc( min, max, m_numBins, &m_statsAllTimesteps.m_histogram );
 
@@ -410,7 +410,7 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded( size_t timeStep
     {
         double min;
         double max;
-        this->minMaxCellScalarValues( timeStepIndex, min, max );
+        minMaxCellScalarValues( timeStepIndex, min, max );
 
         RigHistogramCalculator histCalc( min, max, m_numBins, &m_statsPrTs[timeStepIndex].m_histogram );
 
@@ -426,7 +426,7 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded( size_t timeStep
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
 {
-    if ( m_statsAllTimesteps.m_uniqueValues.size() == 0 )
+    if ( m_statsAllTimesteps.m_uniqueValues.empty() )
     {
         std::set<int> setValues;
         m_statisticsCalculator->uniqueValues( 0, setValues ); // This is a Hack ! Only using first timestep. Ok for
@@ -444,7 +444,7 @@ void RigStatisticsDataCache::computeUniqueValuesIfNeeded()
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeUniqueValuesIfNeeded( size_t timeStepIndex )
 {
-    if ( m_statsPrTs[timeStepIndex].m_uniqueValues.size() == 0 )
+    if ( m_statsPrTs[timeStepIndex].m_uniqueValues.empty() )
     {
         std::set<int> setValues;
         m_statisticsCalculator->uniqueValues( timeStepIndex, setValues );

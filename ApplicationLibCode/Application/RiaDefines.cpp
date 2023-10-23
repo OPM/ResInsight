@@ -63,6 +63,15 @@ void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 }
 
 template <>
+void caf::AppEnum<RiaDefines::GridModelReader>::setUp()
+{
+    addItem( RiaDefines::GridModelReader::LIBECL, "LIBECL", "libecl" );
+    addItem( RiaDefines::GridModelReader::OPM_COMMON, "OPM_COMMON", "opm-common (beta)" );
+
+    setDefault( RiaDefines::GridModelReader::LIBECL );
+}
+
+template <>
 void caf::AppEnum<RiaDefines::EclipseUnitSystem>::setUp()
 {
     addItem( RiaDefines::EclipseUnitSystem::UNITS_METRIC, "UNITS_METRIC", "Metric" );
@@ -288,6 +297,10 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
     {
         return ImportFileType::GEOMECH_ODB_FILE;
     }
+    else if ( fileName.endsWith( "INP", Qt::CaseInsensitive ) )
+    {
+        return ImportFileType::GEOMECH_INP_FILE;
+    }
     else if ( fileName.endsWith( ".rsp", Qt::CaseInsensitive ) || fileName.endsWith( ".rip", Qt::CaseInsensitive ) )
     {
         return ImportFileType::RESINSIGHT_PROJECT_FILE;
@@ -335,12 +348,9 @@ QString RiaDefines::defaultDirectoryLabel( RiaDefines::ImportFileType fileType )
 //--------------------------------------------------------------------------------------------------
 bool RiaDefines::isInjector( WellProductionType wellProductionType )
 {
-    if ( wellProductionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
-         wellProductionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
-         wellProductionType == RiaDefines::WellProductionType::WATER_INJECTOR )
-        return true;
-
-    return false;
+    return wellProductionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
+           wellProductionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
+           wellProductionType == RiaDefines::WellProductionType::WATER_INJECTOR;
 }
 
 //--------------------------------------------------------------------------------------------------

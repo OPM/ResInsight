@@ -55,7 +55,7 @@ RicWellPathGeometry3dEditor::~RicWellPathGeometry3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicWellPathGeometry3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    RimWellPathGeometryDef* geomDef = dynamic_cast<RimWellPathGeometryDef*>( this->pdmObject() );
+    RimWellPathGeometryDef* geomDef = dynamic_cast<RimWellPathGeometryDef*>( pdmObject() );
 
     for ( auto targetEditor : m_targetEditors )
     {

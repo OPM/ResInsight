@@ -68,7 +68,7 @@ CAF_PDM_SOURCE_INIT( RimSeismicSection, "SeismicSection" );
 RimSeismicSection::RimSeismicSection()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
-    CAF_PDM_InitObject( "Seismic Section", ":/Seismic16x16.png" );
+    CAF_PDM_InitObject( "Seismic Section", ":/SeismicSection16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDescription", "Description" );
 
@@ -117,7 +117,7 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_zLowerThreshold, "LowerThreshold", -1, "Lower Threshold" );
     m_zLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
+    setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 
     setDeletable( true );
 }
@@ -435,7 +435,6 @@ void RimSeismicSection::updateVisualization()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::initAfterRead()
 {
-    resolveReferencesRecursively();
     if ( m_seismicData != nullptr )
     {
         m_seismicData->legendConfig()->changed.connect( this, &RimSeismicSection::onLegendConfigChanged );
@@ -478,34 +477,7 @@ cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
 
     if ( m_showSeismicOutline() && m_seismicData != nullptr )
     {
-        auto outline = m_seismicData->worldOutline();
-        if ( outline.size() == 8 )
-        {
-            // seismic bounding box could be all the way up to the sea surface,
-            // make sure to skip bounding box check in drawing code
-            pld->setSkipBoundingBoxCheck( true );
-
-            std::vector<cvf::Vec3d> box;
-
-            for ( auto i : { 4, 0, 1, 3, 2, 0 } )
-                box.push_back( outline[i] );
-            pld->addPolyLine( box );
-            box.clear();
-
-            for ( auto i : { 1, 5, 4, 6, 7, 5 } )
-                box.push_back( outline[i] );
-            pld->addPolyLine( box );
-            box.clear();
-
-            box.push_back( outline[2] );
-            box.push_back( outline[6] );
-            pld->addPolyLine( box );
-            box.clear();
-
-            box.push_back( outline[3] );
-            box.push_back( outline[7] );
-            pld->addPolyLine( box );
-        }
+        m_seismicData->addSeismicOutline( pld.p() );
     }
 
     pld->setLineAppearance( m_lineThickness, m_lineColor, false );
@@ -621,7 +593,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
     if ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE )
     {
-        if ( m_targets.size() == 0 ) return m_texturedSection;
+        if ( m_targets.empty() ) return m_texturedSection;
 
         std::vector<cvf::Vec3d> points;
 
@@ -748,10 +720,12 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 {
     if ( changedField == &m_enablePicking )
     {
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_showImage )
     {
+        if ( m_seismicData == nullptr ) return;
+
         QDialog     w;
         QLabel      l;
         QHBoxLayout layout;
@@ -783,6 +757,7 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
                 m_seismicData->legendConfig()->changed.connect( this, &RimSeismicSection::onLegendConfigChanged );
 
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_ALL;
+            m_wellPathPoints.clear();
         }
         else if ( ( changedField == &m_type ) || ( changedField == &m_targets ) || ( changedField == &m_depthIndex ) ||
                   ( changedField == &m_inlineIndex ) || ( changedField == &m_xlineIndex ) || changedField == &m_zFilterType ||

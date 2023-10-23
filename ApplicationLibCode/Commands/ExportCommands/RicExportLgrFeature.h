@@ -178,7 +178,7 @@ class RicExportLgrFeature : public caf::CmdFeature
     static std::map<QString /*wellName*/, std::vector<LgrInfo>> createLgrInfoListForTemporaryLgrs( const RigMainGrid* mainGrid );
 
 protected:
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 

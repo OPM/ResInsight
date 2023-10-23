@@ -33,9 +33,9 @@
 #include "RimWellLogCalculatedCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellLogFileCurve.h"
+#include "RimWellLogLasFile.h"
+#include "RimWellLogLasFileCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
@@ -68,7 +68,7 @@ RimSimWellInView* RicWellLogTools::selectedSimulationWell( int* branchIndex )
         std::vector<RimSimWellInView*> selection;
         caf::SelectionManager::instance()->objectsByType( &selection );
         ( *branchIndex ) = 0;
-        return selection.size() > 0 ? selection[0] : nullptr;
+        return !selection.empty() ? selection[0] : nullptr;
     }
 }
 
@@ -78,9 +78,7 @@ RimSimWellInView* RicWellLogTools::selectedSimulationWell( int* branchIndex )
 bool RicWellLogTools::hasRftData()
 {
     RimEclipseResultCase* resultCase;
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     for ( RimCase* rimCase : cases )
     {
         if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )
@@ -101,9 +99,7 @@ bool RicWellLogTools::hasRftData()
 bool RicWellLogTools::hasRftDataForWell( const QString& wellName )
 {
     RimEclipseResultCase* resultCase;
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     for ( RimCase* rimCase : cases )
     {
         if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )
@@ -134,9 +130,7 @@ bool RicWellLogTools::isWellPathOrSimWellSelectedInView()
     if ( simWellSelectionItem ) return true;
 
     RiuWellPathSelectionItem* wellPathSelectionItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
-    if ( wellPathSelectionItem ) return true;
-
-    return false;
+    return wellPathSelectionItem != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,10 +140,10 @@ void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack,
 {
     for ( size_t cIdx = 0; cIdx < wellLogFileChannels.size(); cIdx++ )
     {
-        RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve( plotTrack );
+        RimWellLogLasFileCurve* plotCurve = RicWellLogTools::addFileCurve( plotTrack );
 
-        RimWellPath*    wellPath    = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellPath>();
-        RimWellLogFile* wellLogFile = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellLogFile>();
+        RimWellPath*       wellPath    = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellPath>();
+        RimWellLogLasFile* wellLogFile = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellLogLasFile>();
 
         if ( wellPath )
         {
@@ -170,10 +164,10 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 {
     std::vector<RimWellPath*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    if ( selection.size() > 0 )
+    if ( !selection.empty() )
     {
         RimWellPath* wellPath = selection[0];
-        if ( wellPath->wellLogFiles().size() > 0 )
+        if ( !wellPath->wellLogFiles().empty() )
         {
             return wellPath;
         }
@@ -188,7 +182,7 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
 {
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    if ( wellPath && wellPath->wellLogFiles().size() > 0 )
+    if ( wellPath && !wellPath->wellLogFiles().empty() )
     {
         return wellPath;
     }
@@ -238,8 +232,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
         }
         else
         {
-            std::vector<RimCase*> allCases;
-            RimProject::current()->allCases( allCases );
+            std::vector<RimCase*> allCases = RimProject::current()->allGridCases();
             if ( !allCases.empty() ) caseToApply = allCases.front();
         }
     }
@@ -345,9 +338,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
 
     RimEclipseResultCase* resultCase = nullptr;
 
-    std::vector<RimCase*> cases;
-    RimProject::current()->allCases( cases );
-
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
     for ( RimCase* rimCase : cases )
     {
         if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )
@@ -358,7 +349,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
 
     if ( simWell && resultCase )
     {
-        curve->setEclipseResultCase( resultCase );
+        curve->setEclipseCase( resultCase );
         curve->setDefaultAddress( simWell->name() );
 
         plotTrack->setFormationCase( resultCase );
@@ -366,7 +357,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
     }
     else if ( resultCase )
     {
-        curve->setEclipseResultCase( resultCase );
+        curve->setEclipseCase( resultCase );
 
         auto wellNames = resultCase->rftReader()->wellNames();
         if ( !wellNames.empty() )
@@ -415,11 +406,11 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
+RimWellLogLasFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow )
 {
     CVF_ASSERT( plotTrack );
 
-    RimWellLogFileCurve* curve = new RimWellLogFileCurve();
+    RimWellLogLasFileCurve* curve = new RimWellLogLasFileCurve();
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );

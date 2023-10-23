@@ -243,24 +243,24 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
 {
     if ( changedField == &m_filterTarget )
     {
-        this->updateMaxMinAndDefaultValues( true );
+        updateMaxMinAndDefaultValues( true );
     }
     else if ( changedField == &m_filterQuantityUiField )
     {
         m_filterAddress->setAddress( m_filterQuantityUiField );
-        this->updateMaxMinAndDefaultValues( true );
+        updateMaxMinAndDefaultValues( true );
     }
     else if ( changedField == &m_filterEnsembleParameter )
     {
-        this->updateMaxMinAndDefaultValues( true );
+        updateMaxMinAndDefaultValues( true );
     }
     else if ( changedField == &m_filterOperation )
     {
-        this->updateMaxMinAndDefaultValues( false );
+        updateMaxMinAndDefaultValues( false );
     }
     else if ( changedField == &m_consideredTimestepsType || changedField == &m_explicitlySelectedTimeSteps )
     {
-        this->updateMaxMinAndDefaultValues( false );
+        updateMaxMinAndDefaultValues( false );
     }
     filterChanged.send();
 }
@@ -458,8 +458,8 @@ void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
                                             &m_upperLimit );
     }
 
-    if ( forceDefault || !( m_min >= m_lowerLimit && m_min <= m_upperLimit ) ) m_min = m_lowerLimit;
-    if ( forceDefault || !( m_max >= m_lowerLimit && m_max <= m_upperLimit ) ) m_max = m_upperLimit;
+    if ( forceDefault || m_min < m_lowerLimit || m_min > m_upperLimit ) m_min = m_lowerLimit;
+    if ( forceDefault || m_max < m_lowerLimit || m_max > m_upperLimit ) m_max = m_upperLimit;
 
     m_min.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
     m_max.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );

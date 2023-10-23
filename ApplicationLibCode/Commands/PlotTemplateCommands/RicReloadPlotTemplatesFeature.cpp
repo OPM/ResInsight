@@ -42,14 +42,6 @@ void RicReloadPlotTemplatesFeature::rebuildFromDisc()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadPlotTemplatesFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicReloadPlotTemplatesFeature::onActionTriggered( bool isChecked )
 {
     RicReloadPlotTemplatesFeature::rebuildFromDisc();

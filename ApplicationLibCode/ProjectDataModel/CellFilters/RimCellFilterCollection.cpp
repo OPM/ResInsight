@@ -21,9 +21,11 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"
+#include "RimCellIndexFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimPolygonFilter.h"
 #include "RimUserDefinedFilter.h"
+#include "RimUserDefinedIndexFilter.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -67,7 +69,7 @@ RimCellFilterCollection::~RimCellFilterCollection()
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilterCollection::isEmpty() const
 {
-    return m_cellFilters.size() > 0;
+    return !m_cellFilters.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,8 +96,7 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
 {
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        RimPolygonFilter* polyFilter = dynamic_cast<RimPolygonFilter*>( filter );
-        if ( polyFilter ) polyFilter->setCase( theCase );
+        filter->setCase( theCase );
     }
 }
 
@@ -125,8 +126,14 @@ void RimCellFilterCollection::initAfterRead()
         m_cellFilters.push_back( filter );
     }
 
+    // Copy by xml serialization does not give a RimCase parent the first time initAfterRead is called here when creating a new a contour
+    // view from a 3d view. The second time we get called it is ok, so just skip setting up the filter connections if we have no case.
+    auto rimCase = firstAncestorOrThisOfType<RimCase>();
+    if ( rimCase == nullptr ) return;
+
     for ( const auto& filter : m_cellFilters )
     {
+        filter->setCase( rimCase );
         filter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
     }
 }
@@ -220,13 +227,28 @@ bool RimCellFilterCollection::hasActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCellFilterCollection::hasActiveIncludeFilters() const
+bool RimCellFilterCollection::hasActiveIncludeIndexFilters() const
 {
     if ( !isActive() ) return false;
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+        if ( filter->isFilterEnabled() && filter->isIndexFilter() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilterCollection::hasActiveIncludeRangeFilters() const
+{
+    if ( !isActive() ) return false;
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        if ( filter->isFilterEnabled() && filter->isRangeFilter() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
     }
 
     return false;
@@ -251,6 +273,19 @@ RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase
 RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCase )
 {
     RimUserDefinedFilter* pFilter = new RimUserDefinedFilter();
+    pFilter->setCase( srcCase );
+    addFilter( pFilter );
+    onFilterUpdated( pFilter );
+    return pFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimUserDefinedIndexFilter* RimCellFilterCollection::addNewUserDefinedIndexFilter( RimCase* srcCase )
+{
+    RimUserDefinedIndexFilter* pFilter = new RimUserDefinedIndexFilter();
+    pFilter->setCase( srcCase );
     addFilter( pFilter );
     onFilterUpdated( pFilter );
     return pFilter;
@@ -262,9 +297,22 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection, int defaultSlice )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
+    pFilter->setCase( srcCase );
     addFilter( pFilter );
     pFilter->setGridIndex( gridIndex );
     pFilter->setDefaultValues( sliceDirection, defaultSlice );
+    onFilterUpdated( pFilter );
+    return pFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCellIndexFilter* RimCellFilterCollection::addNewCellIndexFilter( RimCase* srcCase )
+{
+    RimCellIndexFilter* pFilter = new RimCellIndexFilter();
+    pFilter->setCase( srcCase );
+    addFilter( pFilter );
     onFilterUpdated( pFilter );
     return pFilter;
 }
@@ -277,7 +325,7 @@ void RimCellFilterCollection::addFilter( RimCellFilter* pFilter )
     setAutoName( pFilter );
     m_cellFilters.push_back( pFilter );
     connectToFilterUpdates( pFilter );
-    this->updateConnectedEditors();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,12 +336,14 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
     int nPolyFilters  = 1;
     int nRangeFilters = 1;
     int nUserFilters  = 1;
+    int nIndexFilters = 1;
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
         if ( dynamic_cast<RimCellRangeFilter*>( filter ) ) nRangeFilters++;
         if ( dynamic_cast<RimUserDefinedFilter*>( filter ) ) nUserFilters++;
         if ( dynamic_cast<RimPolygonFilter*>( filter ) ) nPolyFilters++;
+        if ( dynamic_cast<RimCellIndexFilter*>( filter ) ) nIndexFilters++;
     }
     if ( dynamic_cast<RimCellRangeFilter*>( pFilter ) )
     {
@@ -301,11 +351,19 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
     }
     else if ( dynamic_cast<RimUserDefinedFilter*>( pFilter ) )
     {
-        pFilter->setName( QString( "User Defined Filter %1" ).arg( QString::number( nUserFilters ) ) );
+        pFilter->setName( QString( "User Defined IJK Filter %1" ).arg( QString::number( nUserFilters ) ) );
     }
     else if ( dynamic_cast<RimPolygonFilter*>( pFilter ) )
     {
         pFilter->setName( QString( "Polygon Filter %1" ).arg( QString::number( nPolyFilters ) ) );
+    }
+    else if ( dynamic_cast<RimCellIndexFilter*>( pFilter ) )
+    {
+        pFilter->setName( QString( "Index Filter %1" ).arg( QString::number( nIndexFilters ) ) );
+    }
+    else if ( dynamic_cast<RimUserDefinedIndexFilter*>( pFilter ) )
+    {
+        pFilter->setName( QString( "User Defined Index Filter %1" ).arg( QString::number( nIndexFilters ) ) );
     }
 }
 
@@ -360,7 +418,7 @@ void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Populate the given view filter with info from our filters
+/// Populate the given view filter with info from our range filters
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const
 {
@@ -370,9 +428,40 @@ void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cel
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() )
+        if ( filter->isFilterEnabled() && filter->isRangeFilter() )
         {
             filter->updateCompundFilter( cellRangeFilter, gIndx );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Populate the given view filter with info from our cell index filters
+/// - includeCellVisibility is set to the visibility from the include filters,
+/// - excludeCellVisibility is set to the visibility from the exclude filters
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* includeCellVisibility,
+                                                           cvf::UByteArray* excludeCellVisibility,
+                                                           size_t           gridIndex ) const
+{
+    CVF_ASSERT( includeCellVisibility );
+    CVF_ASSERT( excludeCellVisibility );
+
+    bool needIncludeVisibilityReset = true;
+
+    excludeCellVisibility->setAll( 1 );
+
+    for ( RimCellFilter* filter : m_cellFilters )
+    {
+        if ( filter->isFilterEnabled() && filter->isIndexFilter() )
+        {
+            if ( ( filter->filterMode() == RimCellFilter::INCLUDE ) && needIncludeVisibilityReset )
+            {
+                includeCellVisibility->setAll( 0 );
+                needIncludeVisibilityReset = false;
+            }
+
+            filter->updateCellIndexFilter( includeCellVisibility, excludeCellVisibility, (int)gridIndex );
         }
     }
 }

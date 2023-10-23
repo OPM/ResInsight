@@ -29,6 +29,7 @@
 #include <gsl/gsl>
 
 #include <map>
+#include <optional>
 #include <vector>
 
 //==================================================================================================
@@ -72,6 +73,8 @@ public:
     std::vector<WellPathCellIntersectionInfo> cellIntersectionInfosAlongWellPath() const;
 
     void resampleIntersections( double maxDistanceBetweenIntersections );
+
+    std::optional<double> averageMdForCell( size_t cellIndex ) const;
 
 protected:
     static void insertIntersectionsInMap( const std::vector<HexIntersectionInfo>&                   intersections,

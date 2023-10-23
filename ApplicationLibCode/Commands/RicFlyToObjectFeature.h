@@ -36,7 +36,7 @@ class RicFlyToObjectFeature : public caf::CmdFeature
 
 protected:
     void onActionTriggered( bool isChecked ) override;
-    bool isCommandEnabled() override;
+    bool isCommandEnabled() const override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:

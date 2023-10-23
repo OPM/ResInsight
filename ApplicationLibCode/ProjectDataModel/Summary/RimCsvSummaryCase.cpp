@@ -59,7 +59,7 @@ RimCsvSummaryCase::RimCsvSummaryCase()
 //--------------------------------------------------------------------------------------------------
 QString RimCsvSummaryCase::caseName() const
 {
-    QFileInfo caseFileName( this->summaryHeaderFilename() );
+    QFileInfo caseFileName( summaryHeaderFilename() );
     return caseFileName.completeBaseName();
 }
 
@@ -70,7 +70,7 @@ void RimCsvSummaryCase::createSummaryReaderInterface()
 {
     m_summaryReader = nullptr;
 
-    if ( caf::Utils::fileExists( this->summaryHeaderFilename() ) )
+    if ( caf::Utils::fileExists( summaryHeaderFilename() ) )
     {
         if ( m_fileType == FileType::REVEAL )
         {

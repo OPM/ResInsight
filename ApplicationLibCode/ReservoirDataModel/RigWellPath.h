@@ -86,9 +86,10 @@ public:
     static bool isAnyPointInsideBoundingBox( const std::vector<cvf::Vec3d>& points, const cvf::BoundingBox& boundingBox );
 
     static std::vector<cvf::Vec3d> clipPolylineStartAboveZ( const std::vector<cvf::Vec3d>& polyLine,
-                                                            double                         maxZ,
-                                                            double*                        horizontalLengthAlongWellToClipPoint,
-                                                            size_t*                        indexToFirstVisibleSegment );
+                                                            const double                   maxZ,
+                                                            double&                        horizontalLengthAlongWellToClipPoint,
+                                                            double&                        measuredDepthAtFirstClipPoint,
+                                                            size_t&                        indexToFirstVisibleSegment );
 
 private:
     std::pair<size_t, size_t> closestIndices( const cvf::Vec3d& position ) const;

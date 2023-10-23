@@ -202,11 +202,11 @@ void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     }
     else if ( changedField == &m_userDescription )
     {
-        this->updateConnectedEditors();
+        updateConnectedEditors();
     }
     else if ( changedField == &m_depthOffset )
     {
-        this->onLoadData();
+        onLoadData();
 
         updateViews = true;
     }
@@ -234,7 +234,11 @@ QString RimSurface::fullName() const
 {
     if ( depthOffset() != 0.0 )
     {
-        return QString( "%1 - Offset:%2" ).arg( m_userDescription, QString::number( depthOffset() ) );
+        QString name = m_userDescription;
+        if ( !name.isEmpty() ) name += " - ";
+        name += QString( "Offset:%1" ).arg( QString::number( depthOffset() ) );
+
+        return name;
     }
 
     return QString( "%1" ).arg( m_userDescription );
@@ -250,9 +254,8 @@ void RimSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QStrin
     {
         if ( field == &m_depthOffset )
         {
-            RiaApplication*       app = RiaApplication::instance();
-            std::vector<RimCase*> cases;
-            app->project()->allCases( cases );
+            RiaApplication*       app   = RiaApplication::instance();
+            std::vector<RimCase*> cases = app->project()->allGridCases();
 
             cvf::BoundingBox bb;
 

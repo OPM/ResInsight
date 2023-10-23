@@ -35,14 +35,6 @@ CAF_CMD_SOURCE_INIT( RicReloadSurfaceFeature, "RicReloadSurfaceFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadSurfaceFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicReloadSurfaceFeature::onActionTriggered( bool isChecked )
 {
     RimSurfaceCollection* surfColl = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimSurfaceCollection>();

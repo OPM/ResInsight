@@ -58,14 +58,6 @@ void RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicShowSummaryCurveCalculatorFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicShowSummaryCurveCalculatorFeature::onActionTriggered( bool isChecked )
 {
     RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog( true );

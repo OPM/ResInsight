@@ -174,11 +174,6 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
-    if ( m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject() )
-    {
-        m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
-    }
-
     auto sumPlotManager = dynamic_cast<RimSummaryPlotManager*>( m_summaryPlotManager.get() );
     if ( sumPlotManager )
     {
@@ -271,7 +266,7 @@ void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
             return;
         }
     }
-    this->saveWinGeoAndDockToolBarLayout();
+    saveWinGeoAndDockToolBarLayout();
     QMainWindow::closeEvent( event );
 }
 
@@ -689,8 +684,11 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
         }
         else
         {
-            m_multiPlotToolBarEditor->setFields( toolBarFields );
-            m_multiPlotToolBarEditor->updateUi();
+            if ( !m_multiPlotToolBarEditor->isEditorDataEqualAndValid( toolBarFields ) )
+            {
+                m_multiPlotToolBarEditor->setFields( toolBarFields );
+                m_multiPlotToolBarEditor->updateUi();
+            }
             m_multiPlotToolBarEditor->show();
         }
 
@@ -748,7 +746,7 @@ RiuMessagePanel* RiuPlotMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
 {
-    auto dockWidget = RiuDockWidgetTools::findDockWidget( this->dockManager(), RiuDockWidgetTools::plotMainWindowPlotManagerName() );
+    auto dockWidget = RiuDockWidgetTools::findDockWidget( dockManager(), RiuDockWidgetTools::plotMainWindowPlotManagerName() );
     if ( dockWidget )
     {
         dockWidget->setVisible( true );
@@ -983,7 +981,7 @@ void RiuPlotMainWindow::customMenuRequested( const QPoint& pos )
 
     // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the
     // viewport(). Since we might get this signal from different treeViews, we need to map the position accordingly.
-    QObject*   senderObj = this->sender();
+    QObject*   senderObj = sender();
     QTreeView* treeView  = dynamic_cast<QTreeView*>( senderObj );
     if ( treeView )
     {
@@ -997,7 +995,7 @@ void RiuPlotMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 {
-    return m_mdiArea->subWindowList().size() > 0;
+    return !m_mdiArea->subWindowList().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
