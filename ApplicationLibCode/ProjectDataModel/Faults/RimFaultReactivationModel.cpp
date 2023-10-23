@@ -44,6 +44,7 @@
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationDataAccess.h"
+#include "RimFaultReactivationEnums.h"
 #include "RimFaultReactivationTools.h"
 #include "RimGeoMechCase.h"
 #include "RimParameterGroup.h"
@@ -113,6 +114,10 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitField( &m_useGridPorePressure, "UseGridPorePressure", true, "Use Grid Pore Pressure" );
+    CAF_PDM_InitField( &m_useGridVoidRatio, "UseGridVoidRatio", true, "Use Grid Void Ratio" );
+    CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", true, "Use Grid Temperature" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -491,6 +496,11 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     timeStepGrp->add( &m_timeStepFilter );
     timeStepGrp->add( &m_selectedTimeSteps );
 
+    auto propertiesGrp = uiOrdering.addNewGroup( "Properties" );
+    propertiesGrp->add( &m_useGridPorePressure );
+    propertiesGrp->add( &m_useGridVoidRatio );
+    propertiesGrp->add( &m_useGridTemperature );
+
     auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
     appModelGrp->add( &m_modelPart1Color );
     appModelGrp->add( &m_modelPart2Color );
@@ -701,7 +711,7 @@ bool RimFaultReactivationModel::exportModelSettings()
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationModel::extractAndExportModelData()
 {
-    model()->clearModelData();
+    if ( m_dataAccess ) m_dataAccess->clearModelData();
 
     if ( !exportModelSettings() ) return false;
 
@@ -723,19 +733,10 @@ bool RimFaultReactivationModel::extractAndExportModelData()
     // generate cell index mappings for cells that ends up at the wrong side of the fault
     model()->generateCellIndexMapping( grid );
 
-    // generate element sets for the various data parts of the model
-    {
-        RimFaultReactivationDataAccess dataAccess( eCase, 0 );
-        model()->generateElementSets( &dataAccess, grid );
-    }
-
     // extract data for each timestep
-    size_t outputTimeStepIndex = 0;
-    for ( auto timeStepIdx : selectedTimeStepIndexes )
-    {
-        RimFaultReactivationDataAccess dataAccess( eCase, timeStepIdx );
-        model()->extractModelData( &dataAccess, outputTimeStepIndex++ );
-    }
+    m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, selectedTimeStepIndexes );
+    model()->generateElementSets( m_dataAccess.get(), grid );
+    m_dataAccess->extractModelData( *model() );
 
     return true;
 }
@@ -765,4 +766,36 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
     }
 
     return retVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RimFaultReactivationDataAccess> RimFaultReactivationModel::dataAccess() const
+{
+    return m_dataAccess;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::useGridVoidRatio() const
+{
+    return m_useGridVoidRatio();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::useGridPorePressure() const
+{
+    return m_useGridPorePressure();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::useGridTemperature() const
+{
+    return m_useGridTemperature();
 }
