@@ -27,6 +27,8 @@
 #include "RiaVersionInfo.h"
 
 #include "RifInpExportTools.h"
+#include "RimFaultReactivationDataAccess.h"
+#include "RimFaultReactivationEnums.h"
 
 #include <filesystem>
 #include <fstream>
@@ -85,7 +87,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
         [&]() { return printPredefinedFields( stream, partNames ); },
         [&]() { return printInteractions( stream, partNames, borders ); },
-        [&]() { return printSteps( stream, *model, partNames, rimModel.selectedTimeSteps(), exportDirectory ); },
+        [&]() { return printSteps( stream, *model, *rimModel.dataAccess(), partNames, rimModel.selectedTimeSteps(), exportDirectory ); },
     };
 
     for ( auto method : methods )
@@ -430,8 +432,9 @@ std::pair<bool, std::string>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std::ostream&                    stream,
-                                                                            const RigFaultReactivationModel& model,
+std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std::ostream&                         stream,
+                                                                            const RigFaultReactivationModel&      model,
+                                                                            const RimFaultReactivationDataAccess& dataAccess,
                                                                             const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                                                             const std::vector<QDateTime>& timeSteps,
                                                                             const std::string&            exportDirectory )
@@ -470,9 +473,9 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
         {
             auto grid = model.grid( part );
 
-            const std::vector<cvf::Vec3d>& nodes = grid->nodes();
+            const std::vector<cvf::Vec3d>& nodes = grid->globalNodes();
 
-            const std::vector<double> porePressure = grid->nodePorePressure( i );
+            const std::vector<double> porePressure = dataAccess.propertyValues( part, RimFaultReactivation::Property::PorePressure, i );
             for ( size_t i = 0; i < nodes.size(); i++ )
             {
                 std::string line = partName + "." + std::to_string( i + 1 ) + ", 8, 8, " + std::to_string( porePressure[i] );

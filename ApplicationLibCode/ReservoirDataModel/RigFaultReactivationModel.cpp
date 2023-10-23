@@ -23,6 +23,8 @@
 
 #include "RimFaultReactivationDataAccess.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -102,17 +104,6 @@ void RigFaultReactivationModel::reset()
     for ( auto part : allGridParts() )
     {
         m_3dparts[part]->reset();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::clearModelData()
-{
-    for ( auto part : allGridParts() )
-    {
-        m_3dparts[part]->clearModelData();
     }
 }
 
@@ -367,18 +358,6 @@ std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( RimFaultReact
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep )
-{
-    for ( auto part : allGridParts() )
-    {
-        dataAccess->useCellIndexAdjustment( m_cellIndexAdjustmentMap[part] );
-        m_3dparts[part]->extractModelData( dataAccess, outputTimeStep );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModel::generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid )
 {
     for ( auto part : allGridParts() )
@@ -393,4 +372,16 @@ void RigFaultReactivationModel::generateElementSets( const RimFaultReactivationD
 void RigFaultReactivationModel::generateCellIndexMapping( const RigMainGrid* grid )
 {
     m_cellIndexAdjustmentMap.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<size_t, size_t> RigFaultReactivationModel::cellIndexAdjustment( GridPart part ) const
+{
+    auto it = m_cellIndexAdjustmentMap.find( part );
+    if ( it != m_cellIndexAdjustmentMap.end() )
+        return it->second;
+    else
+        return {};
 }
