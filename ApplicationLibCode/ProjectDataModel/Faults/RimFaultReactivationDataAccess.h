@@ -18,16 +18,19 @@
 
 #pragma once
 
-#include "cvfObject.h"
+#include "RimFaultReactivationDataAccessor.h"
+
+#include "RimFaultReactivationEnums.h"
+
 #include "cvfVector3.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 class RimEclipseCase;
-class RigEclipseCaseData;
-class RigResultAccessor;
-class RigMainGrid;
+class RimFaultReactivationDataAccessor;
+class RigFaultReactivationModel;
 
 //==================================================================================================
 ///
@@ -36,28 +39,28 @@ class RigMainGrid;
 class RimFaultReactivationDataAccess
 {
 public:
-    RimFaultReactivationDataAccess( RimEclipseCase* thecase, size_t timeStepIndex );
+    RimFaultReactivationDataAccess( RimEclipseCase* eclipseCase, const std::vector<size_t>& timeSteps );
     ~RimFaultReactivationDataAccess();
 
-    void useCellIndexAdjustment( std::map<size_t, size_t> adjustments );
+    void extractModelData( const RigFaultReactivationModel& model );
 
-    double porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient ) const;
+    void clearModelData();
 
-    size_t timeStepIndex() const;
-
-    static size_t
-        findAdjustedCellIndex( const cvf::Vec3d& position, const RigMainGrid* grid, const std::map<size_t, size_t>& cellIndexAdjustmentMap );
+    std::vector<double>
+        propertyValues( RimFaultReactivation::GridPart gridPart, RimFaultReactivation::Property property, size_t outputTimeStep ) const;
 
     bool elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const;
 
-protected:
-    static double calculatePorePressure( double depth, double gradient );
-
 private:
-    RimEclipseCase*             m_case;
-    RigEclipseCaseData*         m_caseData;
-    const RigMainGrid*          m_mainGrid;
-    size_t                      m_timeStepIndex;
-    cvf::ref<RigResultAccessor> m_resultAccessor;
-    std::map<size_t, size_t>    m_cellIndexAdjustment;
+    std::shared_ptr<RimFaultReactivationDataAccessor> getAccessor( RimFaultReactivation::Property property ) const;
+
+    std::vector<double> extractModelData( const RigFaultReactivationModel& model,
+                                          RimFaultReactivation::GridPart   gridPart,
+                                          RimFaultReactivation::Property   property,
+                                          size_t                           timeStep );
+
+    std::vector<std::shared_ptr<RimFaultReactivationDataAccessor>> m_accessors;
+    std::vector<size_t>                                            m_timeSteps;
+
+    std::map<std::pair<RimFaultReactivation::GridPart, RimFaultReactivation::Property>, std::vector<std::vector<double>>> m_propertyValues;
 };

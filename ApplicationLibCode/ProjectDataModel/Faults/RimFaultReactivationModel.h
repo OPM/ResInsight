@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
@@ -52,6 +53,7 @@ class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
 class RigBasicPlane;
 class RigFaultReactivationModel;
+class RimFaultReactivationDataAccess;
 
 namespace cvf
 {
@@ -121,6 +123,8 @@ public:
 
     void updateTimeSteps();
 
+    std::shared_ptr<RimFaultReactivationDataAccess> dataAccess() const;
+
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -179,4 +183,6 @@ private:
     caf::PdmChildArrayField<RimParameterGroup*> m_materialParameters;
 
     std::vector<QDateTime> m_availableTimeSteps;
+
+    std::shared_ptr<RimFaultReactivationDataAccess> m_dataAccess;
 };

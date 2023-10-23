@@ -58,4 +58,11 @@ enum class ElementSets
     IntraReservoir
 };
 
+enum class Property
+{
+    PorePressure,
+    VoidRatio,
+    Temperature
+};
+
 } // namespace RimFaultReactivation

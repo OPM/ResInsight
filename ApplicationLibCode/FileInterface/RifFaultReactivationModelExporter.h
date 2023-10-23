@@ -67,6 +67,7 @@ private:
                                                                const std::map<RimFaultReactivation::GridPart, std::string>& partNames );
     static std::pair<bool, std::string> printSteps( std::ostream&                                                stream,
                                                     const RigFaultReactivationModel&                             model,
+                                                    const RimFaultReactivationDataAccess&                        dataAccess,
                                                     const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                                     const std::vector<QDateTime>&                                timeSteps,
                                                     const std::string&                                           exportDirectory );

@@ -89,8 +89,7 @@ public:
     void generateCellIndexMapping( const RigMainGrid* grid );
     void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
 
-    void clearModelData();
-    void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
+    std::map<size_t, size_t> cellIndexAdjustment( GridPart part ) const;
 
 protected:
     void generateGrids( cvf::Vec3dArray points );

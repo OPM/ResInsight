@@ -44,6 +44,7 @@
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFaultReactivationDataAccess.h"
+#include "RimFaultReactivationEnums.h"
 #include "RimFaultReactivationTools.h"
 #include "RimGeoMechCase.h"
 #include "RimParameterGroup.h"
@@ -701,7 +702,7 @@ bool RimFaultReactivationModel::exportModelSettings()
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationModel::extractAndExportModelData()
 {
-    model()->clearModelData();
+    if ( m_dataAccess ) m_dataAccess->clearModelData();
 
     if ( !exportModelSettings() ) return false;
 
@@ -723,19 +724,10 @@ bool RimFaultReactivationModel::extractAndExportModelData()
     // generate cell index mappings for cells that ends up at the wrong side of the fault
     model()->generateCellIndexMapping( grid );
 
-    // generate element sets for the various data parts of the model
-    {
-        RimFaultReactivationDataAccess dataAccess( eCase, 0 );
-        model()->generateElementSets( &dataAccess, grid );
-    }
-
     // extract data for each timestep
-    size_t outputTimeStepIndex = 0;
-    for ( auto timeStepIdx : selectedTimeStepIndexes )
-    {
-        RimFaultReactivationDataAccess dataAccess( eCase, timeStepIdx );
-        model()->extractModelData( &dataAccess, outputTimeStepIndex++ );
-    }
+    m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, selectedTimeStepIndexes );
+    model()->generateElementSets( m_dataAccess.get(), grid );
+    m_dataAccess->extractModelData( *model() );
 
     return true;
 }
@@ -765,4 +757,12 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
     }
 
     return retVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RimFaultReactivationDataAccess> RimFaultReactivationModel::dataAccess() const
+{
+    return m_dataAccess;
 }
