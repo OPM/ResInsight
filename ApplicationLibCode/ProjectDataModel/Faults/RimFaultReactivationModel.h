@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
@@ -52,6 +53,7 @@ class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
 class RigBasicPlane;
 class RigFaultReactivationModel;
+class RimFaultReactivationDataAccess;
 
 namespace cvf
 {
@@ -121,6 +123,12 @@ public:
 
     void updateTimeSteps();
 
+    std::shared_ptr<RimFaultReactivationDataAccess> dataAccess() const;
+
+    bool useGridVoidRatio() const;
+    bool useGridPorePressure() const;
+    bool useGridTemperature() const;
+
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -170,6 +178,10 @@ private:
     caf::PdmField<int>    m_numberOfCellsVertLow;
     caf::PdmField<bool>   m_useLocalCoordinates;
 
+    caf::PdmField<bool> m_useGridPorePressure;
+    caf::PdmField<bool> m_useGridVoidRatio;
+    caf::PdmField<bool> m_useGridTemperature;
+
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;
 
@@ -179,4 +191,6 @@ private:
     caf::PdmChildArrayField<RimParameterGroup*> m_materialParameters;
 
     std::vector<QDateTime> m_availableTimeSteps;
+
+    std::shared_ptr<RimFaultReactivationDataAccess> m_dataAccess;
 };

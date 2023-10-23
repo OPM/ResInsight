@@ -44,7 +44,6 @@ public:
     ~RigGriddedPart3d() override;
 
     void reset();
-    void clearModelData();
 
     void generateGeometry( std::vector<cvf::Vec3d> inputPoints,
                            int                     nHorzCells,
@@ -73,8 +72,6 @@ public:
 
     const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
 
-    const std::vector<double>& nodePorePressure( size_t outputTimeStep ) const;
-
 protected:
     cvf::Vec3d stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
     void       generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells );
@@ -95,9 +92,6 @@ private:
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryElements;
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryNodes;
     std::map<ElementSets, std::vector<unsigned int>>                         m_elementSets;
-
-    std::vector<std::vector<double>> m_nodePorePressure;
-    const std::vector<double>        m_emptyData;
 
     std::vector<cvf::Vec3d> m_reservoirRect;
 };
