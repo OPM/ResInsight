@@ -66,8 +66,8 @@ Here highlighted means marked item with different background color, while select
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/summarycrossplots/</guid>
-      <description>A Summary Cross Plot is a window displaying a graph in the main area of the Plot Main Window. It is very similar to an ordinary Summary Plot, but there are some differences:
-Summary Cross Plot displays one vector against another vector, not one vector against time. Not possible to paste Excel/CSV data to a summary cross plot. Summary cross plots have no Plot Editor. The only way to create a new Summary Cross Plot, is to select the right-click command New Summary Cross Plot on the Plot Main Window -&amp;gt; Project Tree -&amp;gt; Summary Cross Plots item.</description>
+      <description>A Summary Cross Plot is a window displaying a graph in the main area of the Plot Main Window. It is very similar to an ordinary Summary Plot, but the x-axis displays summary vector values instead of time. Regression analysis is supported on single cross plot curves and ensemble statistics curves.
+Summary Cross Plot Curves New cross plot curves are created by using the right-click command New Summary Cross Plot Curve on a summary plot.</description>
     </item>
     
     <item>
@@ -187,9 +187,8 @@ Origins J.J. Arps [1] concluded that the decline in oil production rate ($q_i$) 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/regressionanalysis/</guid>
-      <description>Create Regression Analysis Regression analysis curves can be created from the right-click menu for a curve in the Plot Project Tree.
-Regression Types Linear Regression The linear regression (i.e. straight line fit) is calculated by choosing the line that minimizes the sum of the squared differences between the observed dependent variable values and the values predicted by the linear equation. The straight line equation can be written as:
-$$ y = a + bx $$</description>
+      <description>Create Regression Analysis Regression analysis curves can be created from the right-click menu for a curve in the Plot Project Tree. In addition to single curves, regression anaysis is also supported on ensemble statistics curves and Cross Plot curves.
+Regression Types Linear Regression The linear regression (i.e. straight line fit) is calculated by choosing the line that minimizes the sum of the squared differences between the observed dependent variable values and the values predicted by the linear equation.</description>
     </item>
     
     <item>

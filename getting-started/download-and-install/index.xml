@@ -55,7 +55,7 @@ On some configurations you will be asked to specify the location of Qt.</descrip
 sudo apt updateInstall GCC and related tools
 sudo apt install build-essentialsudo apt install curl zip unzip tarAs gcc 10 is required, it can be useful to set the default compiler. Set default compiler
 Install Qt
-sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-devClone and update sub modules git clone git://github.</description>
+sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-devClone and update sub modules git clone https://github.</description>
     </item>
     
   </channel>

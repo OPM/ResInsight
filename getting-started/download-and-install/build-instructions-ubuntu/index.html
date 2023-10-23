@@ -12,18 +12,18 @@
     <title>Build Instructions Ubuntu :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1687337812" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1687337812" rel="stylesheet">
-    <link href="/css/hybrid.css?1687337812" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1687337812" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1687337812" rel="stylesheet">
-    <link href="/css/auto-complete.css?1687337812" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1687337812" rel="stylesheet">
-    <link href="/css/theme.css?1687337812" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1687337812" rel="stylesheet">
+    <link href="/css/nucleus.css?1698056650" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1698056650" rel="stylesheet">
+    <link href="/css/hybrid.css?1698056650" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1698056650" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1698056650" rel="stylesheet">
+    <link href="/css/auto-complete.css?1698056650" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1698056650" rel="stylesheet">
+    <link href="/css/theme.css?1698056650" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1698056650" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1687337812"></script>
+    <script src="/js/jquery-3.3.1.min.js?1698056650"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -694,6 +697,25 @@
       <li data-nav-id="/3d-main-window/intersections/" title="Intersections" class="dd-item ">
         <a href="/3d-main-window/intersections/">
         Intersections
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/seismicview/" title="Seismic View" class="dd-item ">
+        <a href="/3d-main-window/seismicview/">
+        Seismic View
         
         </a>
     </li>
@@ -2793,6 +2815,8 @@ if (!doNotTrack) {
             <li><a href="#clone-and-update-sub-modules">Clone and update sub modules</a></li>
             <li><a href="#build-and-install-required-dependencies-using-vcpkg">Build and install required dependencies using vcpkg</a></li>
             <li><a href="#windows-build-and-install-required-dependencies-using-vcpkg">(Windows) Build and install required dependencies using vcpkg</a></li>
+            <li><a href="#python-dependencies">Python dependencies</a></li>
+            <li><a href="#installation-of-custom-qt">Installation of custom Qt</a></li>
             <li><a href="#build-resinsight">Build ResInsight</a></li>
             <li><a href="#notes-for-centos">Notes for CentOS</a></li>
           </ul>
@@ -2861,7 +2885,7 @@ sudo apt install curl zip unzip tar
 <pre><code>sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-dev
 </code></pre>
 <h3 id="clone-and-update-sub-modules">Clone and update sub modules</h3>
-<pre><code>git clone git://github.com/OPM/ResInsight.git ResInsight
+<pre><code>git clone https://github.com/OPM/ResInsight
 cd ResInsight
 git submodule update --init
 </code></pre>
@@ -2871,16 +2895,27 @@ git submodule update --init
 ThirdParty/vcpkg/vcpkg install grpc boost-filesystem boost-spirit eigen3
 </code></pre>
 <h3 id="windows-build-and-install-required-dependencies-using-vcpkg">(Windows) Build and install required dependencies using vcpkg</h3>
-<p>Open a command prompt for Visual Studio x64</p>
+<p>Open a command prompt using &ldquo;Run as Administrator&rdquo; for Visual Studio x64</p>
 <pre><code>ThirdParty/vcpkg/bootstrap-vcpkg.bat
 ThirdParty/vcpkg/vcpkg install grpc boost-filesystem boost-spirit eigen3 --triplet x64-windows
 
 [Developer notes](https://ceetronsolutions.github.io/resinsight-system-doc/editor/vcpkg)
 </code></pre>
+<h3 id="python-dependencies">Python dependencies</h3>
+<p>Install Python version 3.8 or newer</p>
+<pre><code>python3 -m pip install -r GrpcInterface/Python/requirements.txt
+</code></pre>
+<h3 id="installation-of-custom-qt">Installation of custom Qt</h3>
+<p>Go to a folder to install custom Qt
+In this folder, execute</p>
+<pre><code>python3 -m pip install aqtinstall
+aqt install-qt linux desktop 5.15.2 -m qtcharts
+</code></pre>
 <h3 id="build-resinsight">Build ResInsight</h3>
 <pre><code>mkdir cmakebuild
 cd cmakebuild
 cmake \
+-DCMAKE_PREFIX_PATH=/your_qt_path/5.15.2/gcc_64/lib/cmake \
 -DRESINSIGHT_ENABLE_GRPC=true \
 -DVCPKG_TARGET_TRIPLET=x64-linux \
 -DCMAKE_TOOLCHAIN_FILE=../ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
@@ -3145,6 +3180,11 @@ make -j8
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                         
@@ -3240,6 +3280,22 @@ make -j8
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -5028,19 +5084,19 @@ make -j8
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1687337812"></script>
-    <script src="/js/perfect-scrollbar.min.js?1687337812"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1687337812"></script>
-    <script src="/js/jquery.sticky.js?1687337812"></script>
-    <script src="/js/featherlight.min.js?1687337812"></script>
-    <script src="/js/highlight.pack.js?1687337812"></script>
+    <script src="/js/clipboard.min.js?1698056650"></script>
+    <script src="/js/perfect-scrollbar.min.js?1698056650"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1698056650"></script>
+    <script src="/js/jquery.sticky.js?1698056650"></script>
+    <script src="/js/featherlight.min.js?1698056650"></script>
+    <script src="/js/highlight.pack.js?1698056650"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1687337812"></script>
-    <script src="/js/learn.js?1687337812"></script>
-    <script src="/js/hugo-learn.js?1687337812"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1698056650"></script>
+    <script src="/js/learn.js?1698056650"></script>
+    <script src="/js/hugo-learn.js?1698056650"></script>
 
-    <link href="/mermaid/mermaid.css?1687337812" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1687337812"></script>
+    <link href="/mermaid/mermaid.css?1698056650" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1698056650"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

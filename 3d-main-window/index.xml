@@ -145,6 +145,16 @@ Intersection: is defined by a piece-wise linear curve and a direction of extrusi
     </item>
     
     <item>
+      <title>Seismic View</title>
+      <link>https://resinsight.org/3d-main-window/seismicview/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/seismicview/</guid>
+      <description>Seismic View Import of data is described in Seismic Data. A seismic view can be created based on a seismic cube. This view can display seismic data, wells and annotation object. To visualize both grid data and seismic data in the same view, see Seismic Sections.
+Seismic View features When seismic data is present, a new Seismic View can be created from the right-click menu of a seismic data source or the seismic views folder item.</description>
+    </item>
+    
+    <item>
       <title>Seismic Sections</title>
       <link>https://resinsight.org/3d-main-window/seismicsections/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
