@@ -36,6 +36,8 @@ public:
     RimUserDefinedIndexFilter();
     ~RimUserDefinedIndexFilter() override;
 
+    void setCellIndexes( std::vector<size_t> cellIndexes );
+
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
 
 protected:
