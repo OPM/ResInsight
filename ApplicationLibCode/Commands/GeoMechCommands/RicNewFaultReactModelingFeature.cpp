@@ -34,6 +34,7 @@
 #include "RimFaultReactivationModelCollection.h"
 
 #include "RigFault.h"
+#include "RigFaultReactivationModelGenerator.h"
 #include "RigMainGrid.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -93,23 +94,32 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 normal *= eclView->ownerCase()->characteristicCellSize();
                 normal *= 3;
 
-                auto antiNormal = -1.0 * normal;
+                if ( !eclView->mainGrid()->isFaceNormalsOutwards() ) normal = normal * -1.0;
 
-                auto camPos = eclView->viewer()->mainCamera()->position();
+                cvf::Vec3d target1 = cell.faceCenter( face );
+                cvf::Vec3d target2 = target1 + normal;
 
-                auto target1    = cell.faceCenter( face );
-                auto candidate1 = target1 + normal;
-                auto candidate2 = target1 + antiNormal;
-                auto target2    = candidate1;
+                cvf::StructGridInterface::FaceEnum faceHelper( face );
+                QString                            text = "Fault Face : " + faceHelper.text() + "\n";
+                text += "Cell Index : " + QString::number( currentCellIndex ) + "\n";
 
-                if ( camPos.pointDistance( candidate2 ) < camPos.pointDistance( candidate1 ) ) target2 = candidate2;
+                qDebug() << text;
+
+                RigFaultReactivationModelGenerator* generator =
+                    new RigFaultReactivationModelGenerator( target1, normal.getNormalized(), currentCellIndex, face );
+                generator->setFault( rimFault->faultGeometry() );
+                generator->setGrid( eclView->mainGrid() );
+
+                generator->generateGeometry();
 
                 // get base directory for our work, should be a new, empty folder somewhere
-                QString defaultDir =
-                    RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULT_REACTIVATION_MODELING" );
+                // QString defaultDir =
+                //    RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULT_REACTIVATION_MODELING" );
 
-                QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
-                if ( baseDir.isNull() || baseDir.isEmpty() ) return;
+                // QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
+                // if ( baseDir.isNull() || baseDir.isEmpty() ) return;
+
+                QString baseDir = "d:/data/FRMWork";
 
                 QString errMsg;
                 auto    model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2, baseDir, errMsg );
