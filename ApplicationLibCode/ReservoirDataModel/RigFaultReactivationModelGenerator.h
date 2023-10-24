@@ -16,3 +16,33 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
+
+#include "cvfObject.h"
+#include "cvfStructGrid.h"
+#include "cvfVector3.h"
+
+#include <vector>
+
+class RigFault;
+class RigMainGrid;
+
+class RigFaultReactivationModelGenerator : cvf::Object
+{
+public:
+    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal, size_t cellIndex, cvf::StructGridInterface::FaceType face );
+    ~RigFaultReactivationModelGenerator();
+
+    void setFault( const RigFault* fault );
+    void setGrid( const RigMainGrid* grid );
+
+    void generateGeometry();
+
+private:
+    cvf::Vec3d                         m_startPosition;
+    cvf::Vec3d                         m_normal;
+    cvf::StructGridInterface::FaceType m_startFace;
+    size_t                             m_cellIndex;
+
+    cvf::cref<RigFault>    m_fault;
+    cvf::cref<RigMainGrid> m_grid;
+};

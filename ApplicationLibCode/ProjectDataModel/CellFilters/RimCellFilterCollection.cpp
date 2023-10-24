@@ -282,10 +282,11 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedIndexFilter* RimCellFilterCollection::addNewUserDefinedIndexFilter( RimCase* srcCase )
+RimUserDefinedIndexFilter* RimCellFilterCollection::addNewUserDefinedIndexFilter( RimCase* srcCase, std::vector<size_t> defCellIndexes )
 {
     RimUserDefinedIndexFilter* pFilter = new RimUserDefinedIndexFilter();
     pFilter->setCase( srcCase );
+    pFilter->setCellIndexes( defCellIndexes );
     addFilter( pFilter );
     onFilterUpdated( pFilter );
     return pFilter;
