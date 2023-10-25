@@ -45,6 +45,8 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_startFace( face )
     , m_normal( normal )
     , m_cellIndex( cellIndex )
+    , m_bufferAboveFault( 0.0 )
+    , m_bufferBelowFault( 0.0 )
 {
 }
 
