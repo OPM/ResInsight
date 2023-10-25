@@ -18,9 +18,11 @@
 #pragma once
 
 #include "cvfObject.h"
+#include "cvfPlane.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
+#include <array>
 #include <vector>
 
 class RigFault;
@@ -34,8 +36,15 @@ public:
 
     void setFault( const RigFault* fault );
     void setGrid( const RigMainGrid* grid );
+    void setFaultBufferDepth( double aboveFault, double belowFault );
 
     void generateGeometry();
+
+protected:
+    static const std::array<int, 4> faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
+    cvf::Vec3d                      lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
+    std::map<double, cvf::Vec3d>    elementLayers( cvf::StructGridInterface::FaceType face, const std::vector<size_t>& cellIndexColumn );
+    cvf::Vec3d                      extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
 
 private:
     cvf::Vec3d                         m_startPosition;
@@ -45,4 +54,7 @@ private:
 
     cvf::cref<RigFault>    m_fault;
     cvf::cref<RigMainGrid> m_grid;
+
+    double m_bufferAboveFault;
+    double m_bufferBelowFault;
 };
