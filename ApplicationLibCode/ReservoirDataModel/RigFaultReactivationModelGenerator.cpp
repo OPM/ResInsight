@@ -31,6 +31,7 @@
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
+#include <QDebug>
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
