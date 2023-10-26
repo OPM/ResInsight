@@ -33,6 +33,7 @@
 #include "RimEclipseCase.h"
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationDataAccessorPorePressure.h"
+#include "RimFaultReactivationDataAccessorVoidRatio.h"
 #include "RimFaultReactivationEnums.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -44,6 +45,7 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
 {
     // TODO: correct default pore pressure gradient?
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, 1.0 ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
 }
 
 //--------------------------------------------------------------------------------------------------

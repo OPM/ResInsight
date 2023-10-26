@@ -64,6 +64,9 @@ private:
                                                                  const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                                                  const std::map<RimFaultReactivation::Boundary, std::string>& boundaries );
     static std::pair<bool, std::string> printPredefinedFields( std::ostream&                                                stream,
+                                                               const RigFaultReactivationModel&                             model,
+                                                               const RimFaultReactivationDataAccess&                        dataAccess,
+                                                               const std::string&                                           exportDirectory,
                                                                const std::map<RimFaultReactivation::GridPart, std::string>& partNames );
     static std::pair<bool, std::string> printSteps( std::ostream&                                                stream,
                                                     const RigFaultReactivationModel&                             model,
@@ -76,4 +79,16 @@ private:
         printInteractions( std::ostream&                                                                   stream,
                            const std::map<RimFaultReactivation::GridPart, std::string>&                    partNames,
                            const std::vector<std::pair<RimFaultReactivation::BorderSurface, std::string>>& borders );
+
+    static bool writePropertyToFile( const RigFaultReactivationModel&                             model,
+                                     const RimFaultReactivationDataAccess&                        dataAccess,
+                                     RimFaultReactivation::Property                               property,
+                                     size_t                                                       outputTimeStep,
+                                     const std::string&                                           filePath,
+                                     const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                     const std::string&                                           additionalData );
+
+    static std::string createFileName( const std::string& title, const QDateTime& dateTime, const std::string& stepName );
+
+    static std::string createFilePath( const std::string& dir, const std::string& fileName );
 };

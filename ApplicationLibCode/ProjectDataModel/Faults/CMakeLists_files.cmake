@@ -7,6 +7,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccess.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessor.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorPorePressure.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorVoidRatio.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationEnums.h
 )
 
@@ -19,6 +20,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorPorePressure.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorVoidRatio.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
