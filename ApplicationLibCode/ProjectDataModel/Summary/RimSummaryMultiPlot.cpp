@@ -456,7 +456,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_linkTimeAxis )
     {
-        updateTimeAxisRangesFromFirstPlot();
+        updateTimeAxisRangesFromFirstTimePlot();
     }
     else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation || changedField == &m_linkTimeAxis )
     {
@@ -760,7 +760,7 @@ void RimSummaryMultiPlot::zoomAll()
 
         updateZoom();
 
-        updateTimeAxisRangesFromFirstPlot();
+        updateTimeAxisRangesFromFirstTimePlot();
 
         return;
     }
@@ -770,18 +770,31 @@ void RimSummaryMultiPlot::zoomAll()
 
     syncAxisRanges();
 
-    updateTimeAxisRangesFromFirstPlot();
+    updateTimeAxisRangesFromFirstTimePlot();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::updateTimeAxisRangesFromFirstPlot()
+void RimSummaryMultiPlot::updateTimeAxisRangesFromFirstTimePlot()
 {
-    if ( m_linkTimeAxis && !summaryPlots().empty() )
+    if ( m_linkTimeAxis )
     {
-        setAutoScaleXEnabled( false );
-        syncTimeAxisRanges( summaryPlots().front() );
+        auto allPlots = summaryPlots();
+        for ( auto plot : allPlots )
+        {
+            auto curves = plot->summaryAndEnsembleCurves();
+            for ( auto curve : curves )
+            {
+                if ( curve->axisTypeX() == RiaDefines::HorizontalAxisType::TIME )
+                {
+                    setAutoScaleXEnabled( false );
+                    syncTimeAxisRanges( plot );
+
+                    return;
+                }
+            }
+        }
     }
 }
 
