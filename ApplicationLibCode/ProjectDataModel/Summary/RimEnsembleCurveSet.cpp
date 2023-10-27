@@ -836,6 +836,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         plot->updateAxes();
         plot->updatePlotTitle();
         updateAllCurves();
+        plot->zoomAll();
     }
     else if ( changedField == &m_resampling || changedField == &m_useCustomAppearance || changedField == &m_lineStyle ||
               changedField == &m_pointSymbol || changedField == &m_symbolSize || changedField == &m_statisticsLineStyle ||

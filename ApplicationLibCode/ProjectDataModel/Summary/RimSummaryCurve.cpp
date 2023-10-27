@@ -1154,6 +1154,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
         plot->updateAxes();
         plot->updatePlotTitle();
+        plot->zoomAll();
         loadAndUpdate = true;
     }
     else if ( &m_showCurve == changedField )
