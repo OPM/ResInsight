@@ -148,7 +148,7 @@ private:
     void onSubPlotAxisReloadRequired( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
     void onSubPlotAutoTitleChanged( const caf::SignalEmitter* emitter, bool isEnabled );
 
-    void updateTimeAxisRangesFromFirstPlot();
+    void updateTimeAxisRangesFromFirstTimePlot();
 
     void updateReadOnlyState();
 
