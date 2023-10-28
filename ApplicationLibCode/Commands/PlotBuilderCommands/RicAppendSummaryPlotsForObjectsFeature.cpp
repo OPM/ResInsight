@@ -77,6 +77,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
             if ( summaryAdrCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE )
             {
                 summaryMultiPlot->addPlot( duplicatedPlot );
+                duplicatedPlot->resolveReferencesRecursively();
 
                 auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdrCollection->caseId() );
                 if ( summaryCase )
@@ -84,6 +85,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
                     for ( auto c : duplicatedPlot->summaryCurves() )
                     {
                         c->setSummaryCaseY( summaryCase );
+                        c->setSummaryCaseX( summaryCase );
                     }
                 }
 
