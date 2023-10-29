@@ -53,3 +53,26 @@ std::vector<RimEclipseResultCase*> RimEclipseCaseTools::eclipseResultCases()
 
     return resultCases;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimEclipseCaseTools::allEclipseGridCases()
+{
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        std::vector<RimEclipseCase*> eclipseCases;
+        for ( auto c : proj->allGridCases() )
+        {
+            if ( auto ec = dynamic_cast<RimEclipseCase*>( c ) )
+            {
+                eclipseCases.push_back( ec );
+            }
+        }
+
+        return eclipseCases;
+    }
+
+    return {};
+}

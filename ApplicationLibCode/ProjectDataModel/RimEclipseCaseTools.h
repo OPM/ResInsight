@@ -31,4 +31,5 @@ class RimEclipseCaseTools
 public:
     static std::vector<RimEclipseCase*>       eclipseCases();
     static std::vector<RimEclipseResultCase*> eclipseResultCases();
+    static std::vector<RimEclipseCase*>       allEclipseGridCases();
 };

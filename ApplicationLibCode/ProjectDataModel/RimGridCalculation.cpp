@@ -24,6 +24,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGridCalculationVariable.h"
@@ -65,6 +66,7 @@ RimGridCalculation::RimGridCalculation()
     CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Non-visible Cell Value" );
     CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Custom Value" );
     CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
+    CAF_PDM_InitField( &m_allCases, "AllDestinationCase", false, "Apply to All Cases" );
     CAF_PDM_InitField( &m_defaultPropertyVariableIndex, "DefaultPropertyVariableName", 0, "Property Variable Name" );
 }
 
@@ -87,100 +89,110 @@ bool RimGridCalculation::calculate()
 {
     QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
 
-    RimEclipseCase* eclipseCase = outputEclipseCase();
-    if ( !eclipseCase )
-    {
-        RiaLogging::errorInMessageBox( nullptr,
-                                       "Grid Property Calculator",
-                                       QString( "No case found for calculation : %1" ).arg( leftHandSideVariableName ) );
-        return false;
-    }
+    bool anyErrorsDetected = false;
 
-    auto [isOk, errorMessage] = validateVariables();
-    if ( !isOk )
+    for ( RimEclipseCase* outputEclipseCase : outputEclipseCases() )
     {
-        RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
-        return false;
-    }
-
-    for ( auto variableCase : inputCases() )
-    {
-        if ( !eclipseCase->isGridSizeEqualTo( variableCase ) )
+        if ( !outputEclipseCase )
         {
-            QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
-                          "cases must have identical IJK sizes.";
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
-            return false;
-        }
-    }
-
-    auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
-
-    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
-
-    if ( !eclipseCase->results( porosityModel )->ensureKnownResultLoaded( resAddr ) )
-    {
-        bool needsToBeStored = false;
-        eclipseCase->results( porosityModel )->createResultEntry( resAddr, needsToBeStored );
-    }
-
-    eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
-
-    // If an input grid is present, max time step count is zero. Make sure the time step count for the calculation is
-    // always 1 or more.
-    const size_t timeStepCount = std::max( size_t( 1 ), eclipseCase->results( porosityModel )->maxTimeStepCount() );
-
-    std::vector<std::vector<double>>* scalarResultFrames =
-        eclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
-    scalarResultFrames->resize( timeStepCount );
-
-    for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
-    {
-        std::vector<std::vector<double>> values;
-        for ( size_t i = 0; i < m_variables.size(); i++ )
-        {
-            RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
-            CAF_ASSERT( v != nullptr );
-            values.push_back( getInputVectorForVariable( v, tsId, porosityModel, outputEclipseCase() ) );
+            RiaLogging::errorInMessageBox( nullptr,
+                                           "Grid Property Calculator",
+                                           QString( "No case found for calculation : %1" ).arg( leftHandSideVariableName ) );
+            anyErrorsDetected = true;
+            continue;
         }
 
-        ExpressionParser parser;
-        for ( size_t i = 0; i < m_variables.size(); i++ )
+        auto [isOk, errorMessage] = validateVariables();
+        if ( !isOk )
         {
-            RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
-            CAF_ASSERT( v != nullptr );
-            parser.assignVector( v->name(), values[i] );
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
+            anyErrorsDetected = true;
+            continue;
         }
 
-        std::vector<double> resultValues;
-        resultValues.resize( values[0].size() );
-        parser.assignVector( leftHandSideVariableName, resultValues );
-
-        QString errorText;
-        bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
-
-        if ( evaluatedOk )
+        bool isGridMatching = true;
+        for ( auto variableCase : inputCases() )
         {
-            if ( m_cellFilterView() )
+            if ( !outputEclipseCase->isGridSizeEqualTo( variableCase ) )
             {
-                filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, outputEclipseCase() );
+                QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
+                              "cases must have identical IJK sizes.";
+                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+                anyErrorsDetected = true;
+                isGridMatching    = false;
+            }
+        }
+
+        if ( !isGridMatching ) continue;
+
+        auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
+
+        if ( !outputEclipseCase->results( porosityModel )->ensureKnownResultLoaded( resAddr ) )
+        {
+            bool needsToBeStored = false;
+            outputEclipseCase->results( porosityModel )->createResultEntry( resAddr, needsToBeStored );
+        }
+
+        outputEclipseCase->results( porosityModel )->clearScalarResult( resAddr );
+
+        // If an input grid is present, max time step count is zero. Make sure the time step count for the calculation is
+        // always 1 or more.
+        const size_t timeStepCount = std::max( size_t( 1 ), outputEclipseCase->results( porosityModel )->maxTimeStepCount() );
+
+        std::vector<std::vector<double>>* scalarResultFrames =
+            outputEclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
+        scalarResultFrames->resize( timeStepCount );
+
+        for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
+        {
+            std::vector<std::vector<double>> values;
+            for ( size_t i = 0; i < m_variables.size(); i++ )
+            {
+                RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+                CAF_ASSERT( v != nullptr );
+                values.push_back( getInputVectorForVariable( v, tsId, porosityModel, outputEclipseCase ) );
             }
 
-            scalarResultFrames->at( tsId ) = resultValues;
+            ExpressionParser parser;
+            for ( size_t i = 0; i < m_variables.size(); i++ )
+            {
+                RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+                CAF_ASSERT( v != nullptr );
+                parser.assignVector( v->name(), values[i] );
+            }
 
-            m_isDirty = false;
-        }
-        else
-        {
-            QString s = "The following error message was received from the parser library : \n\n";
-            s += errorText;
+            std::vector<double> resultValues;
+            resultValues.resize( values[0].size() );
+            parser.assignVector( leftHandSideVariableName, resultValues );
 
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", s );
-            return false;
+            QString errorText;
+            bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
+
+            if ( evaluatedOk )
+            {
+                if ( m_cellFilterView() )
+                {
+                    filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, outputEclipseCase );
+                }
+
+                scalarResultFrames->at( tsId ) = resultValues;
+
+                m_isDirty = false;
+            }
+            else
+            {
+                QString s = "The following error message was received from the parser library : \n\n";
+                s += errorText;
+
+                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", s );
+                return false;
+            }
+
+            outputEclipseCase->updateResultAddressCollection();
         }
     }
-
-    eclipseCase->updateResultAddressCollection();
 
     return true;
 }
@@ -188,9 +200,14 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimGridCalculation::outputEclipseCase() const
+std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
 {
-    return m_destinationCase;
+    if ( m_allCases )
+    {
+        return RimEclipseCaseTools::allEclipseGridCases();
+    }
+
+    return { m_destinationCase };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,6 +246,7 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
 
     uiOrdering.add( &m_destinationCase );
+    uiOrdering.add( &m_allCases );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
     filterGroup->setCollapsedByDefault();
@@ -503,10 +521,12 @@ void RimGridCalculation::filterResults( RimGridView*                            
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::updateDependentObjects()
 {
-    RimEclipseCase* eclipseCase = outputEclipseCase();
-    if ( eclipseCase )
+    for ( RimEclipseCase* eclipseCase : outputEclipseCases() )
     {
-        RimReloadCaseTools::updateAll3dViews( eclipseCase );
+        if ( eclipseCase )
+        {
+            RimReloadCaseTools::updateAll3dViews( eclipseCase );
+        }
     }
 }
 
@@ -521,23 +541,25 @@ void RimGridCalculation::removeDependentObjects()
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
 
-    RimEclipseCase* eclipseCase = outputEclipseCase();
-    if ( eclipseCase )
+    for ( RimEclipseCase* eclipseCase : outputEclipseCases() )
     {
-        // Select "None" result if the result that is being removed were displayed in a view.
-        for ( auto v : eclipseCase->reservoirViews() )
+        if ( eclipseCase )
         {
-            if ( v->cellResult()->resultType() == resAddr.resultCatType() && v->cellResult()->resultVariable() == resAddr.resultName() )
+            // Select "None" result if the result that is being removed were displayed in a view.
+            for ( auto v : eclipseCase->reservoirViews() )
             {
-                v->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
-                v->cellResult()->setResultVariable( "None" );
+                if ( v->cellResult()->resultType() == resAddr.resultCatType() && v->cellResult()->resultVariable() == resAddr.resultName() )
+                {
+                    v->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
+                    v->cellResult()->setResultVariable( "None" );
+                }
             }
+
+            eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
+            eclipseCase->results( porosityModel )->setRemovedTagOnGeneratedResult( resAddr );
+
+            RimReloadCaseTools::updateAll3dViews( eclipseCase );
         }
-
-        eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
-        eclipseCase->results( porosityModel )->setRemovedTagOnGeneratedResult( resAddr );
-
-        RimReloadCaseTools::updateAll3dViews( eclipseCase );
     }
 }
 

@@ -51,8 +51,8 @@ public:
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
-    RimEclipseCase*         outputEclipseCase() const;
-    RigEclipseResultAddress outputAddress() const;
+    std::vector<RimEclipseCase*> outputEclipseCases() const;
+    RigEclipseResultAddress      outputAddress() const;
 
     std::vector<RimEclipseCase*> inputCases() const;
 
@@ -102,5 +102,7 @@ private:
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
-    caf::PdmField<int>                            m_defaultPropertyVariableIndex;
+    caf::PdmField<bool>                           m_allCases;
+
+    caf::PdmField<int> m_defaultPropertyVariableIndex;
 };
