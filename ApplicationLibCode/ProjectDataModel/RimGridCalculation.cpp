@@ -89,8 +89,34 @@ bool RimGridCalculation::calculate()
 {
     QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
 
-    bool anyErrorsDetected = false;
+    if ( !m_destinationCase )
+    {
+        RiaLogging::errorInMessageBox( nullptr,
+                                       "Grid Property Calculator",
+                                       QString( "No destination case found for calculation : %1" ).arg( leftHandSideVariableName ) );
 
+        return false;
+    }
+
+    auto [isOk, errorMessage] = validateVariables();
+    if ( !isOk )
+    {
+        RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
+        return false;
+    }
+
+    for ( auto variableCase : inputCases() )
+    {
+        if ( !m_destinationCase->isGridSizeEqualTo( variableCase ) )
+        {
+            QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
+                          "cases must have identical IJK sizes.";
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+            return false;
+        }
+    }
+
+    bool anyErrorsDetected = false;
     for ( RimEclipseCase* outputEclipseCase : outputEclipseCases() )
     {
         if ( !outputEclipseCase )
@@ -101,29 +127,6 @@ bool RimGridCalculation::calculate()
             anyErrorsDetected = true;
             continue;
         }
-
-        auto [isOk, errorMessage] = validateVariables();
-        if ( !isOk )
-        {
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
-            anyErrorsDetected = true;
-            continue;
-        }
-
-        bool isGridMatching = true;
-        for ( auto variableCase : inputCases() )
-        {
-            if ( !outputEclipseCase->isGridSizeEqualTo( variableCase ) )
-            {
-                QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
-                              "cases must have identical IJK sizes.";
-                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
-                anyErrorsDetected = true;
-                isGridMatching    = false;
-            }
-        }
-
-        if ( !isGridMatching ) continue;
 
         auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
