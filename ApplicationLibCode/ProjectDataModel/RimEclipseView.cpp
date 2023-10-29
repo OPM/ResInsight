@@ -82,6 +82,7 @@
 #include "RimStreamlineInViewCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
+#include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
@@ -139,6 +140,8 @@ RimEclipseView::RimEclipseView()
                                                     "The Eclipse 3d Reservoir View",
                                                     "EclipseView",
                                                     "The Eclipse 3d Reservoir View" );
+
+    CAF_PDM_InitFieldNoDefault( &m_customEclipseCase, "CustomEclipseCase", "Custom Case" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cellResult, "GridCellResult", "CellResult", "Cell Result", ":/CellResult.png" );
     m_cellResult = new RimEclipseCellColors();
@@ -381,9 +384,36 @@ void RimEclipseView::setVisibleGridPartsWatertight()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseView::propagateEclipseCaseToChildObjects()
+{
+    auto currentEclipseCase = eclipseCase();
+
+    cellResult()->setEclipseCase( currentEclipseCase );
+    faultResultSettings()->customFaultResult()->setEclipseCase( currentEclipseCase );
+    cellFilterCollection()->setCase( currentEclipseCase );
+    m_streamlineCollection->setEclipseCase( currentEclipseCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_customEclipseCase )
+    {
+        propagateEclipseCaseToChildObjects();
+
+        // Sync with RimReloadCaseTools::updateAll3dViews
+        loadDataAndUpdate();
+        updateGridBoxData();
+        updateAnnotationItems();
+
+        zoomAll();
+
+        return;
+    }
 
     if ( changedField == &m_showInvalidCells )
     {
@@ -453,7 +483,7 @@ void RimEclipseView::onCreateDisplayModel()
     RiuMainWindow::instance()->setResultInfo(QString("RimEclipseView::onCreateDisplayModel() ") + QString::number(callCount++));
 #endif
 
-    if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() ) ) return;
+    if ( !( eclipseCase() && eclipseCase()->eclipseCaseData() ) ) return;
 
     const bool cellFiltersActive     = cellFilterCollection()->hasActiveFilters();
     const bool propertyFiltersActive = eclipsePropertyFilterCollection()->hasActiveFilters();
@@ -1062,11 +1092,11 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     onUpdateScaleTransform();
 
-    if ( m_eclipseCase )
+    if ( eclipseCase() )
     {
-        if ( !m_eclipseCase->openReserviorCase() )
+        if ( !eclipseCase()->openReserviorCase() )
         {
-            RiaLogging::warning( "Could not open the Eclipse Grid file: \n" + m_eclipseCase->gridFileName() );
+            RiaLogging::warning( "Could not open the Eclipse Grid file: \n" + eclipseCase()->gridFileName() );
             setEclipseCase( nullptr );
             return;
         }
@@ -1278,9 +1308,9 @@ void RimEclipseView::onUpdateDisplayModelVisibility()
 //--------------------------------------------------------------------------------------------------
 RigCaseCellResultsData* RimEclipseView::currentGridCellResults() const
 {
-    if ( m_eclipseCase )
+    if ( eclipseCase() )
     {
-        return m_eclipseCase->results( cellResult()->porosityModel() );
+        return eclipseCase()->results( cellResult()->porosityModel() );
     }
 
     return nullptr;
@@ -1291,9 +1321,9 @@ RigCaseCellResultsData* RimEclipseView::currentGridCellResults() const
 //--------------------------------------------------------------------------------------------------
 const RigActiveCellInfo* RimEclipseView::currentActiveCellInfo() const
 {
-    if ( m_eclipseCase && m_eclipseCase->eclipseCaseData() )
+    if ( eclipseCase() && eclipseCase()->eclipseCaseData() )
     {
-        return m_eclipseCase->eclipseCaseData()->activeCellInfo( cellResult()->porosityModel() );
+        return eclipseCase()->eclipseCaseData()->activeCellInfo( cellResult()->porosityModel() );
     }
 
     return nullptr;
@@ -1367,15 +1397,15 @@ void RimEclipseView::onUpdateLegends()
         }
     }
 
-    if ( !m_eclipseCase || !nativeOrOverrideViewer() || !m_eclipseCase->eclipseCaseData() )
+    if ( !eclipseCase() || !nativeOrOverrideViewer() || !eclipseCase()->eclipseCaseData() )
     {
         return;
     }
 
-    RigEclipseCaseData* eclipseCase = m_eclipseCase->eclipseCaseData();
-    CVF_ASSERT( eclipseCase );
+    RigEclipseCaseData* eclipseCaseData = eclipseCase()->eclipseCaseData();
+    CVF_ASSERT( eclipseCaseData );
 
-    RigCaseCellResultsData* results = eclipseCase->results( cellResult()->porosityModel() );
+    RigCaseCellResultsData* results = eclipseCaseData->results( cellResult()->porosityModel() );
     CVF_ASSERT( results );
 
     updateLegendRangesTextAndVisibility( cellResult()->legendConfig(),
@@ -1535,10 +1565,8 @@ void RimEclipseView::updateLegendRangesTextAndVisibility( RimRegularLegendConfig
 void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
 {
     m_eclipseCase = reservoir;
-    cellResult()->setEclipseCase( reservoir );
-    faultResultSettings()->customFaultResult()->setEclipseCase( reservoir );
-    cellFilterCollection()->setCase( reservoir );
-    m_streamlineCollection->setEclipseCase( reservoir );
+
+    propagateEclipseCaseToChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1546,6 +1574,8 @@ void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseView::eclipseCase() const
 {
+    if ( m_customEclipseCase() != nullptr ) return m_customEclipseCase();
+
     return m_eclipseCase;
 }
 
@@ -1564,9 +1594,9 @@ RimEclipseCase* RimEclipseView::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::syncronizeWellsWithResults()
 {
-    if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() ) ) return;
+    if ( !( eclipseCase() && eclipseCase()->eclipseCaseData() ) ) return;
 
-    cvf::Collection<RigSimWellData> wellResults = m_eclipseCase->eclipseCaseData()->wellResults();
+    cvf::Collection<RigSimWellData> wellResults = eclipseCase()->eclipseCaseData()->wellResults();
 
     std::vector<caf::PdmPointer<RimSimWellInView>> newWells;
 
@@ -1871,6 +1901,8 @@ const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_customEclipseCase );
+
     Rim3dView::defineUiOrdering( uiConfigName, uiOrdering );
 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup( "Cell Visibility" );
@@ -1947,6 +1979,24 @@ std::set<RivCellSetEnum> RimEclipseView::allVisibleFaultGeometryTypes() const
     }
 
     return faultGeoTypes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    if ( fieldNeedingOptions == &m_customEclipseCase )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+        RimTools::eclipseCaseOptionItems( &options );
+
+        return options;
+    }
+
+    return RimGridView::calculateValueOptions( fieldNeedingOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
