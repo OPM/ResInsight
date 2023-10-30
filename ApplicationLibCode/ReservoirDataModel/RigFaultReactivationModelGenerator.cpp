@@ -32,21 +32,18 @@
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
 #include <QDebug>
-#include <QString>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec3d                         position,
-                                                                        cvf::Vec3d                         normal,
-                                                                        size_t                             cellIndex,
-                                                                        cvf::StructGridInterface::FaceType face )
+RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal )
     : m_startPosition( position )
-    , m_startFace( face )
     , m_normal( normal )
-    , m_cellIndex( cellIndex )
     , m_bufferAboveFault( 0.0 )
     , m_bufferBelowFault( 0.0 )
+    , m_startDepth( 0.0 )
+    , m_depthBelowFault( 100.0 )
+    , m_horzExtentFromFault( 1000.0 )
 {
 }
 
@@ -80,6 +77,16 @@ void RigFaultReactivationModelGenerator::setFaultBufferDepth( double aboveFault,
 {
     m_bufferAboveFault = aboveFault;
     m_bufferBelowFault = belowFault;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::setModelSize( double startDepth, double depthBelowFault, double horzExtentFromFault )
+{
+    m_startDepth          = startDepth;
+    m_depthBelowFault     = depthBelowFault;
+    m_horzExtentFromFault = horzExtentFromFault;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,42 +128,18 @@ cvf::Vec3d RigFaultReactivationModelGenerator::lineIntersect( const cvf::Plane& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::generateGeometry()
+size_t RigFaultReactivationModelGenerator::oppositeStartCellIndex( const std::vector<size_t>          cellIndexColumn,
+                                                                   cvf::StructGridInterface::FaceType face )
 {
-    size_t i, j, k;
-
-    RimEclipseView* view = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
-
-    auto cellFilters = view->cellFilterCollection();
-    auto eCase       = cellFilters->firstAncestorOfType<RimEclipseCase>();
-
-    std::vector<size_t> cellColumn;
-
-    // get ijk of start cell
-    m_grid->ijkFromCellIndexUnguarded( m_cellIndex, &i, &j, &k );
-
-    cellColumn.push_back( m_cellIndex );
-
-    // build column of cells behind fault
-    for ( auto kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
-    {
-        auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
-
-        if ( cellIdx != m_cellIndex ) cellColumn.push_back( cellIdx );
-    }
-
-    auto filter = cellFilters->addNewUserDefinedIndexFilter( eCase, cellColumn );
-    filter->setName( "Behind fault column" );
-
-    auto   oppositeStartFace  = cvf::StructGridInterface::oppositeFace( m_startFace );
+    auto   oppositeStartFace  = cvf::StructGridInterface::oppositeFace( face );
     bool   bFoundOppositeCell = false;
     size_t oppositeCellIdx    = 0;
 
-    for ( auto backCellIdx : cellColumn )
+    for ( auto backCellIdx : cellIndexColumn )
     {
         for ( auto& faultFace : m_fault->faultFaces() )
         {
-            if ( ( faultFace.m_nativeFace == m_startFace ) && ( faultFace.m_nativeReservoirCellIndex == backCellIdx ) )
+            if ( ( faultFace.m_nativeFace == face ) && ( faultFace.m_nativeReservoirCellIndex == backCellIdx ) )
             {
                 qDebug() << "Found opposite start cell: " + QString::number( faultFace.m_oppositeReservoirCellIndex );
                 bFoundOppositeCell = true;
@@ -175,26 +158,169 @@ void RigFaultReactivationModelGenerator::generateGeometry()
         if ( bFoundOppositeCell ) break;
     }
 
-    // build cell column for the k column that oppositeCellIdx sits in.
-    std::vector<size_t> cellColumn2;
+    return oppositeCellIdx;
+}
 
-    // get ijk of start cell
-    m_grid->ijkFromCellIndexUnguarded( oppositeCellIdx, &i, &j, &k );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::addFilter( QString name, std::vector<size_t> cells )
+{
+    RimEclipseView* view = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
+    if ( view == nullptr ) return;
+
+    auto cellFilters = view->cellFilterCollection();
+    if ( cellFilters == nullptr ) return;
+
+    auto eCase  = cellFilters->firstAncestorOfType<RimEclipseCase>();
+    auto filter = cellFilters->addNewUserDefinedIndexFilter( eCase, cells );
+    filter->setName( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///             <----                           fault normal
+///
+///                15
+///       7---------|------------ 23            top model
+///        |        |           |
+///        |        |           |
+///       6|_____14_|___________| 22            top fault w/buffer
+///       5|-----13-\-----------| 21            top fault front
+///       4|---------\-12-------| 20            top fault back
+///        |          X         |               start position in fault (user selected)
+///       3|--------11-\--------| 19            bottom fault front
+///       2|------------\-10----| 18            bottom fault back
+///       1|_____________\______| 17            bottom fault w/buffer
+///        |            9|      |
+///        |             |      |
+///        |             |      |
+///       0--------------|------- 16            bottom model
+///                     8
+///          front          back
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 18> RigFaultReactivationModelGenerator::generatePoints()
+{
+    std::array<cvf::Vec3d, 18> points;
+
+    double top_depth    = -m_startDepth;
+    double bottom_depth = m_bottomFault.z() - m_depthBelowFault;
+
+    cvf::Vec3d edge_front = m_startPosition + m_horzExtentFromFault * m_normal;
+    cvf::Vec3d edge_back  = m_startPosition - m_horzExtentFromFault * m_normal;
+
+    points[8]     = m_bottomFault;
+    points[8].z() = bottom_depth;
+
+    points[9]  = m_bottomFault;
+    points[10] = m_bottomReservoirBack;
+    points[11] = m_bottomReservoirFront;
+    points[12] = m_topReservoirBack;
+    points[13] = m_topReservoirFront;
+    points[14] = m_topFault;
+
+    points[15]     = m_topFault;
+    points[15].z() = top_depth;
+
+    for ( int i = 0; i < 8; i++ )
+    {
+        points[i]     = edge_front;
+        points[i].z() = points[i + 8].z();
+    }
+
+    for ( int i = 16; i < 24; i++ )
+    {
+        points[i]     = edge_back;
+        points[i].z() = points[i - 8].z();
+    }
+
+    return points;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::generateGeometry( size_t startCellIndex, cvf::StructGridInterface::FaceType startFace )
+{
+    std::vector<size_t> cellColumnBack;
+    std::vector<size_t> cellColumnFront;
+    size_t              i, j, k;
 
     // build column of cells behind fault
+    m_grid->ijkFromCellIndexUnguarded( startCellIndex, &i, &j, &k );
+    cellColumnBack.push_back( startCellIndex ); // want the user clicked cell to be the first in the list for later
+
     for ( auto kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
     {
         auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
-        cellColumn2.push_back( cellIdx );
+        if ( cellIdx != startCellIndex ) cellColumnBack.push_back( cellIdx );
     }
 
-    filter = cellFilters->addNewUserDefinedIndexFilter( eCase, cellColumn2 );
-    filter->setName( "In front of fault column" );
+    // build cell column of cells in front of fault, opposite to the cell column behind the fault
+    auto   oppositeStartFace = cvf::StructGridInterface::oppositeFace( startFace );
+    size_t oppositeCellIdx   = oppositeStartCellIndex( cellColumnBack, startFace );
 
-    auto zPositionsBack  = elementLayers( m_startFace, cellColumn );
-    auto zPositionsFront = elementLayers( oppositeStartFace, cellColumn2 );
+    m_grid->ijkFromCellIndexUnguarded( oppositeCellIdx, &i, &j, &k );
+    for ( auto kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
+    {
+        auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
+        cellColumnFront.push_back( cellIdx );
+    }
+
+    addFilter( "In front of fault column", cellColumnFront );
+    addFilter( "Behind fault column", cellColumnBack );
+
+    auto zPositionsBack  = elementLayers( startFace, cellColumnBack );
+    auto zPositionsFront = elementLayers( oppositeStartFace, cellColumnFront );
+
+    // add extra fault buffer above the fault, starting at the deepest top-most cell on either side of the fault
+
+    double front_top    = zPositionsFront.begin()->first;
+    double back_top     = zPositionsBack.begin()->first;
+    m_topReservoirFront = zPositionsFront.begin()->second;
+    m_topReservoirBack  = zPositionsBack.begin()->second;
+
+    cvf::Vec3d top_point( 0, 0, 0 );
+
+    if ( front_top > back_top )
+    {
+        top_point = extrapolatePoint( ( ++zPositionsBack.begin() )->second, zPositionsBack.begin()->second, m_bufferAboveFault );
+    }
+    else if ( back_top > front_top )
+    {
+        top_point = extrapolatePoint( ( ++zPositionsFront.begin() )->second, zPositionsFront.begin()->second, m_bufferAboveFault );
+    }
+
+    zPositionsBack[top_point.z()]  = top_point;
+    zPositionsFront[top_point.z()] = top_point;
+    m_topFault                     = top_point;
+
+    // add extra fault buffer below the fault, starting at the shallowest bottom-most cell on either side of the fault
+
+    double front_bottom    = zPositionsFront.rbegin()->first;
+    double back_bottom     = zPositionsBack.rbegin()->first;
+    m_bottomReservoirFront = zPositionsFront.rbegin()->second;
+    m_bottomReservoirBack  = zPositionsBack.rbegin()->second;
+
+    cvf::Vec3d bottom_point( 0, 0, 0 );
+
+    if ( front_bottom > back_bottom )
+    {
+        bottom_point = extrapolatePoint( ( ++zPositionsFront.rbegin() )->second, zPositionsFront.rbegin()->second, m_bufferBelowFault );
+    }
+    else if ( back_bottom > front_bottom )
+    {
+        bottom_point = extrapolatePoint( ( ++zPositionsBack.rbegin() )->second, zPositionsBack.rbegin()->second, m_bufferBelowFault );
+    }
+
+    zPositionsBack[bottom_point.z()]  = bottom_point;
+    zPositionsFront[bottom_point.z()] = bottom_point;
+    m_bottomFault                     = bottom_point;
+
+    // TODO - spilt layers in zPositions that are larger than a user given limit
+
+    // debug
     for ( auto& kvp : zPositionsFront )
     {
         qDebug() << "Front Intersect at depth " + QString::number( kvp.first );
@@ -205,28 +331,7 @@ void RigFaultReactivationModelGenerator::generateGeometry()
         qDebug() << "Back Intersect at depth " + QString::number( kvp.first );
     }
 
-    // add extra fault buffer above and below fault
-
-    double front_min = zPositionsFront.begin()->first;
-    double back_min  = zPositionsBack.begin()->first;
-
-    double front_max = zPositionsFront.rbegin()->first;
-    double back_max  = zPositionsBack.rbegin()->first;
-
-    double bottom_depth = std::min( front_min, back_min ) - m_bufferBelowFault;
-    double top_depth    = std::max( front_max, back_max ) + m_bufferAboveFault;
-
-    cvf::Vec3d top_point_back = extrapolatePoint( ( zPositionsBack.begin()++ )->second, zPositionsBack.begin()->second, top_depth );
-    zPositionsBack[top_point_back.z()] = top_point_back;
-
-    cvf::Vec3d top_point_front = extrapolatePoint( ( zPositionsFront.begin()++ )->second, zPositionsFront.begin()->second, top_depth );
-    zPositionsFront[top_point_front.z()] = top_point_front;
-
-    cvf::Vec3d bottom_point_back = extrapolatePoint( ( zPositionsBack.begin()++ )->second, zPositionsBack.begin()->second, bottom_depth );
-    zPositionsBack[bottom_point_back.z()] = bottom_point_back;
-
-    cvf::Vec3d bottom_point_front = extrapolatePoint( ( zPositionsFront.rbegin()++ )->second, zPositionsFront.rbegin()->second, bottom_depth );
-    zPositionsFront[bottom_point_front.z()] = bottom_point_front;
+    auto points = generatePoints();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,7 +368,10 @@ std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth )
+cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double buffer )
 {
-    return endPoint;
+    cvf::Vec3d direction = endPoint - startPoint;
+    direction.normalize();
+
+    return endPoint + ( buffer * direction );
 }
