@@ -45,31 +45,3 @@ void RimFaultReactivationDataAccessor::setTimeStep( size_t timeStep )
     m_timeStep = timeStep;
     updateResultAccessor();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultReactivationDataAccessor::useCellIndexAdjustment( const std::map<size_t, size_t>& adjustments )
-{
-    m_cellIndexAdjustment = adjustments;
-}
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-size_t RimFaultReactivationDataAccessor::findAdjustedCellIndex( const cvf::Vec3d&               position,
-                                                                const RigMainGrid*              grid,
-                                                                const std::map<size_t, size_t>& cellIndexAdjustmentMap )
-{
-    CAF_ASSERT( grid != nullptr );
-
-    size_t cellIdx = grid->findReservoirCellIndexFromPoint( position );
-
-    // adjust cell index if present in the map
-    if ( auto search = cellIndexAdjustmentMap.find( cellIdx ); search != cellIndexAdjustmentMap.end() )
-    {
-        cellIdx = search->second;
-    }
-
-    return cellIdx;
-}

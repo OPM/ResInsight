@@ -730,9 +730,6 @@ bool RimFaultReactivationModel::extractAndExportModelData()
 
     auto grid = eCase->mainGrid();
 
-    // generate cell index mappings for cells that ends up at the wrong side of the fault
-    model()->generateCellIndexMapping( grid );
-
     // extract data for each timestep
     m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, selectedTimeStepIndexes );
     model()->generateElementSets( m_dataAccess.get(), grid );

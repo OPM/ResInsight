@@ -86,10 +86,7 @@ public:
 
     std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
 
-    void generateCellIndexMapping( const RigMainGrid* grid );
     void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
-
-    std::map<size_t, size_t> cellIndexAdjustment( GridPart part ) const;
 
 protected:
     void generateGrids( cvf::Vec3dArray points );
@@ -119,8 +116,6 @@ private:
     bool                                 m_isValid;
 
     std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
-
-    std::map<GridPart, std::map<size_t, size_t>> m_cellIndexAdjustmentMap;
 
     cvf::Mat4d m_localCoordTransform;
 };

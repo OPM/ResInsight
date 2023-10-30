@@ -90,7 +90,6 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
     if ( accessor )
     {
         accessor->setTimeStep( timeStep );
-        accessor->useCellIndexAdjustment( model.cellIndexAdjustment( gridPart ) );
 
         auto grid = model.grid( gridPart );
 
