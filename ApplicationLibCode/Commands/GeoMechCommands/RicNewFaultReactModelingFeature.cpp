@@ -105,12 +105,12 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
                 qDebug() << text;
 
-                RigFaultReactivationModelGenerator* generator =
-                    new RigFaultReactivationModelGenerator( target1, normal.getNormalized(), currentCellIndex, face );
+                RigFaultReactivationModelGenerator* generator = new RigFaultReactivationModelGenerator( target1, normal.getNormalized() );
                 generator->setFault( rimFault->faultGeometry() );
                 generator->setGrid( eclView->mainGrid() );
-
-                generator->generateGeometry();
+                generator->setFaultBufferDepth( 200, 300 );
+                generator->setModelSize( 1000, 500, 2000 );
+                generator->generateGeometry( currentCellIndex, face );
 
                 // get base directory for our work, should be a new, empty folder somewhere
                 // QString defaultDir =
