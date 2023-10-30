@@ -42,6 +42,8 @@
 
 #include "expressionparser/ExpressionParser.h"
 
+#include <QMessageBox>
+
 CAF_PDM_SOURCE_INIT( RimGridCalculation, "RimGridCalculation" );
 
 namespace caf
@@ -68,6 +70,24 @@ RimGridCalculation::RimGridCalculation()
     CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
     CAF_PDM_InitField( &m_allCases, "AllDestinationCase", false, "Apply to All Cases" );
     CAF_PDM_InitField( &m_defaultPropertyVariableIndex, "DefaultPropertyVariableName", 0, "Property Variable Name" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCalculation::preCalculate() const
+{
+    if ( m_allCases() )
+    {
+        auto reply = QMessageBox::question( nullptr,
+                                            QString( "Grid Property Calculator" ),
+                                            QString( "Calculation will be executed on all grid model cases. Do you want to continue? " ),
+                                            QMessageBox::Yes | QMessageBox::No );
+
+        if ( reply == QMessageBox::No ) return false;
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +134,14 @@ bool RimGridCalculation::calculate()
             RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
             return false;
         }
+    }
+
+    const bool isMultipleCasesPresent = outputEclipseCases().size() > 1;
+
+    if ( isMultipleCasesPresent )
+    {
+        QString txt = "Starting calculation " + description() + " for " + QString::number( outputEclipseCases().size() ) + " cases.";
+        RiaLogging::info( txt );
     }
 
     bool anyErrorsDetected = false;
@@ -195,6 +223,18 @@ bool RimGridCalculation::calculate()
 
             outputEclipseCase->updateResultAddressCollection();
         }
+
+        if ( isMultipleCasesPresent )
+        {
+            QString txt = "    " + outputEclipseCase->caseUserDescription();
+            RiaLogging::info( txt );
+        }
+    }
+
+    if ( isMultipleCasesPresent )
+    {
+        QString txt = "Completed calculation " + description() + " for " + QString::number( outputEclipseCases().size() ) + " cases";
+        RiaLogging::info( txt );
     }
 
     return true;

@@ -47,6 +47,7 @@ public:
 
     RimGridCalculation();
 
+    bool preCalculate() const override;
     bool calculate() override;
     void updateDependentObjects() override;
     void removeDependentObjects() override;
