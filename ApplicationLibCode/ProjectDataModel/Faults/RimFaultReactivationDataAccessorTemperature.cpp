@@ -87,7 +87,7 @@ double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
-        auto cellIdx = findAdjustedCellIndex( position, m_mainGrid, m_cellIndexAdjustment );
+        auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
         if ( cellIdx != cvf::UNDEFINED_SIZE_T )
         {
             return m_resultAccessor->cellScalar( cellIdx );
@@ -102,6 +102,6 @@ double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationDataAccessorTemperature::hasValidDataAtPosition( const cvf::Vec3d& position ) const
 {
-    auto cellIdx = findAdjustedCellIndex( position, m_mainGrid, m_cellIndexAdjustment );
+    auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
     return ( cellIdx != cvf::UNDEFINED_SIZE_T );
 }

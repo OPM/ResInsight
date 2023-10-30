@@ -44,14 +44,8 @@ public:
 
     virtual bool hasValidDataAtPosition( const cvf::Vec3d& position ) const = 0;
 
-    void useCellIndexAdjustment( const std::map<size_t, size_t>& adjustments );
-
-    static size_t
-        findAdjustedCellIndex( const cvf::Vec3d& position, const RigMainGrid* grid, const std::map<size_t, size_t>& cellIndexAdjustmentMap );
-
 protected:
     virtual void updateResultAccessor() = 0;
 
-    std::map<size_t, size_t> m_cellIndexAdjustment;
-    size_t                   m_timeStep;
+    size_t m_timeStep;
 };

@@ -90,7 +90,7 @@ double RimFaultReactivationDataAccessorPorePressure::valueAtPosition( const cvf:
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
-        auto cellIdx = findAdjustedCellIndex( position, m_mainGrid, m_cellIndexAdjustment );
+        auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
         if ( cellIdx != cvf::UNDEFINED_SIZE_T )
         {
             double value = m_resultAccessor->cellScalar( cellIdx );
@@ -117,7 +117,7 @@ double RimFaultReactivationDataAccessorPorePressure::calculatePorePressure( doub
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationDataAccessorPorePressure::hasValidDataAtPosition( const cvf::Vec3d& position ) const
 {
-    auto cellIdx = findAdjustedCellIndex( position, m_mainGrid, m_cellIndexAdjustment );
+    auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
     if ( cellIdx == cvf::UNDEFINED_SIZE_T ) return false;
 
     double value = m_resultAccessor->cellScalar( cellIdx );

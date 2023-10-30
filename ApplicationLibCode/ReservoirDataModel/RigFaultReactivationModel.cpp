@@ -61,8 +61,6 @@ RigFaultReactivationModel::RigFaultReactivationModel()
     for ( auto part : allGridParts() )
     {
         m_3dparts[part] = std::make_shared<RigGriddedPart3d>( part == GridPart::PART2 );
-
-        m_cellIndexAdjustmentMap[part] = {};
     }
 }
 
@@ -364,24 +362,4 @@ void RigFaultReactivationModel::generateElementSets( const RimFaultReactivationD
     {
         m_3dparts[part]->generateElementSets( dataAccess, grid );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::generateCellIndexMapping( const RigMainGrid* grid )
-{
-    m_cellIndexAdjustmentMap.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::map<size_t, size_t> RigFaultReactivationModel::cellIndexAdjustment( GridPart part ) const
-{
-    auto it = m_cellIndexAdjustmentMap.find( part );
-    if ( it != m_cellIndexAdjustmentMap.end() )
-        return it->second;
-    else
-        return {};
 }
