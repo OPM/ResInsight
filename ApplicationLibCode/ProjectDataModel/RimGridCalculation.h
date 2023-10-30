@@ -97,6 +97,7 @@ protected:
 
 private:
     void onVariableUpdated( const SignalEmitter* emitter );
+    bool allSourceCasesAreEqualToDestinationCase() const;
 
 private:
     caf::PdmPtrField<RimGridView*>                m_cellFilterView;

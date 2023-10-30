@@ -289,7 +289,13 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
 
     uiOrdering.add( &m_destinationCase );
+
     uiOrdering.add( &m_allCases );
+    if ( !allSourceCasesAreEqualToDestinationCase() )
+    {
+        m_allCases = false;
+    }
+    m_allCases.uiCapability()->setUiReadOnly( !allSourceCasesAreEqualToDestinationCase() );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
     filterGroup->setCollapsedByDefault();
@@ -409,6 +415,25 @@ void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
             updateConnectedEditors();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCalculation::allSourceCasesAreEqualToDestinationCase() const
+{
+    if ( m_destinationCase() == nullptr ) return false;
+
+    for ( const auto& variable : m_variables )
+    {
+        auto gridVar = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
+        if ( gridVar )
+        {
+            if ( gridVar->eclipseCase() != m_destinationCase() ) return false;
+        }
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
