@@ -479,10 +479,9 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
     for ( int i = 0; i < static_cast<int>( timeSteps.size() ); i++ )
     {
         std::string stepNum  = std::to_string( i + 1 );
-        std::string stepName = "Step-" + stepNum;
+        std::string stepName = timeSteps[i].toString( "yyyy-MM-dd" ).toStdString();
         RifInpExportTools::printComment( stream, "----------------------------------------------------------------" );
         RifInpExportTools::printSectionComment( stream, "STEP: " + stepName );
-        RifInpExportTools::printComment( stream, "Time step: " + timeSteps[i].toString().toStdString() );
 
         RifInpExportTools::printHeading( stream, "Step, name=" + stepName + ", nlgeom=NO" );
 
@@ -495,7 +494,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
             RifInpExportTools::printSectionComment( stream, "BOUNDARY CONDITIONS" );
 
             // Export the pore pressure to a separate inp file for each step
-            std::string fileName = createFileName( "PORE_PRESSURE", timeSteps[i], stepName );
+            std::string fileName = createFileName( "PORE_PRESSURE", stepName );
             std::string filePath = createFilePath( exportDirectory, fileName );
 
             bool isOk =
@@ -511,7 +510,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
             RifInpExportTools::printSectionComment( stream, "TEMPERATURE" );
 
             // Export the pore pressure to a separate inp file for each step
-            std::string fileName = createFileName( "TEMPERATURE", timeSteps[i], stepName );
+            std::string fileName = createFileName( "TEMPERATURE", stepName );
             std::string filePath = createFilePath( exportDirectory, fileName );
 
             bool isOk = writePropertyToFile( model, dataAccess, RimFaultReactivation::Property::Temperature, i, filePath, partNames, "" );
@@ -601,13 +600,9 @@ std::pair<bool, std::string>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifFaultReactivationModelExporter::createFileName( const std::string& title, const QDateTime& dateTime, const std::string& stepName )
+std::string RifFaultReactivationModelExporter::createFileName( const std::string& title, const std::string& stepName )
 {
-    return QString( "%1_DATE_%2_%3.inp" )
-        .arg( QString::fromStdString( title ) )
-        .arg( dateTime.toString( "yyyyMMdd" ) )
-        .arg( QString::fromStdString( stepName ) )
-        .toStdString();
+    return QString( "%1_%2.inp" ).arg( QString::fromStdString( title ) ).arg( QString::fromStdString( stepName ) ).toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------

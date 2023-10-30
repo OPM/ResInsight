@@ -91,7 +91,7 @@ private:
                                      const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                      const std::string&                                           additionalData );
 
-    static std::string createFileName( const std::string& title, const QDateTime& dateTime, const std::string& stepName );
+    static std::string createFileName( const std::string& title, const std::string& stepName );
 
     static std::string createFilePath( const std::string& dir, const std::string& fileName );
 };
