@@ -389,6 +389,22 @@ std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalcul
                                                                    RiaDefines::PorosityModelType porosityModel,
                                                                    RimEclipseCase*               outputEclipseCase ) const
 {
+    if ( !outputEclipseCase ) return {};
+
+    const RigMainGrid* mainGrid = nullptr;
+
+    bool useGridDataFromCommonGrid = false;
+    if ( useGridDataFromCommonGrid )
+    {
+        mainGrid = v->eclipseCase()->mainGrid();
+    }
+    else
+    {
+        mainGrid = outputEclipseCase->mainGrid();
+    }
+
+    if ( !mainGrid ) return {};
+
     int timeStep = v->timeStep();
 
     auto resultCategoryType = v->resultCategoryType();
@@ -409,10 +425,13 @@ std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalcul
 
     RigEclipseResultAddress resAddr( resultCategoryType, v->resultVariable() );
 
-    auto   mainGrid     = v->eclipseCase()->mainGrid();
+    auto eclipseCaseData        = outputEclipseCase->eclipseCaseData();
+    auto rigCaseCellResultsData = eclipseCaseData->results( porosityModel );
+    if ( !rigCaseCellResultsData->ensureKnownResultLoaded( resAddr ) ) return {};
+
     size_t maxGridCount = mainGrid->gridCount();
 
-    auto   activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
+    auto   activeCellInfo = eclipseCaseData->activeCellInfo( porosityModel );
     size_t cellCount      = activeCellInfo->reservoirActiveCellCount();
 
     std::vector<double> inputValues( cellCount );
@@ -421,7 +440,7 @@ std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalcul
         auto grid = mainGrid->gridByIndex( gridIdx );
 
         cvf::ref<RigResultAccessor> sourceResultAccessor =
-            RigResultAccessorFactory::createFromResultAddress( v->eclipseCase()->eclipseCaseData(), gridIdx, porosityModel, timeStepToUse, resAddr );
+            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, gridIdx, porosityModel, timeStepToUse, resAddr );
 
 #pragma omp parallel for
         for ( int localGridCellIdx = 0; localGridCellIdx < static_cast<int>( grid->cellCount() ); localGridCellIdx++ )
