@@ -91,7 +91,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Start Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
-    CAF_PDM_InitField( &m_showFaultPlane, "ShowFaultPlane", true, "Show Fault Plane" );
+    CAF_PDM_InitField( &m_showFaultPlane, "ShowFaultPlane", false, "Show Fault Plane" );
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", false, "Show 2D Model" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );

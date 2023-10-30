@@ -25,36 +25,55 @@
 #include <array>
 #include <vector>
 
+#include <QString>
+
 class RigFault;
 class RigMainGrid;
 
 class RigFaultReactivationModelGenerator : cvf::Object
 {
 public:
-    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal, size_t cellIndex, cvf::StructGridInterface::FaceType face );
+    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal );
     ~RigFaultReactivationModelGenerator();
 
     void setFault( const RigFault* fault );
     void setGrid( const RigMainGrid* grid );
     void setFaultBufferDepth( double aboveFault, double belowFault );
+    void setModelSize( double startDepth, double depthBelowFault, double horzExtentFromFault );
 
-    void generateGeometry();
+    void generateGeometry( size_t startCellIndex, cvf::StructGridInterface::FaceType startFace );
 
 protected:
     static const std::array<int, 4> faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
     cvf::Vec3d                      lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
     std::map<double, cvf::Vec3d>    elementLayers( cvf::StructGridInterface::FaceType face, const std::vector<size_t>& cellIndexColumn );
     cvf::Vec3d                      extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
+    void                            addFilter( QString name, std::vector<size_t> cells );
+
+    size_t oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, cvf::StructGridInterface::FaceType face );
+
+    std::array<cvf::Vec3d, 18> generatePoints();
 
 private:
-    cvf::Vec3d                         m_startPosition;
-    cvf::Vec3d                         m_normal;
-    cvf::StructGridInterface::FaceType m_startFace;
-    size_t                             m_cellIndex;
+    cvf::Vec3d m_startPosition;
+    cvf::Vec3d m_normal;
 
     cvf::cref<RigFault>    m_fault;
     cvf::cref<RigMainGrid> m_grid;
 
     double m_bufferAboveFault;
     double m_bufferBelowFault;
+
+    double m_startDepth;
+    double m_depthBelowFault;
+    double m_horzExtentFromFault;
+
+    cvf::Vec3d m_topReservoirFront;
+    cvf::Vec3d m_topReservoirBack;
+
+    cvf::Vec3d m_bottomReservoirFront;
+    cvf::Vec3d m_bottomReservoirBack;
+
+    cvf::Vec3d m_topFault;
+    cvf::Vec3d m_bottomFault;
 };
