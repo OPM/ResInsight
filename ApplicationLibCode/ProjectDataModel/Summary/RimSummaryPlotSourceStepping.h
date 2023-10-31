@@ -92,9 +92,6 @@ private:
     std::vector<caf::PdmFieldHandle*> activeFieldsForDataSourceStepping();
     std::vector<caf::PdmFieldHandle*> toolbarFieldsForDataSourceStepping();
 
-    bool isXAxisStepping() const;
-    bool isYAxisStepping() const;
-
     void modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset, bool notifyChange = true );
 
     std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
