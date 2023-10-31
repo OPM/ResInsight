@@ -316,7 +316,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     std::vector<RimSummaryCurve*> curves;
-    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( );
+    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves();
 
     bool isAutoZoomAllowed = false;
     bool doZoomAll         = false;
