@@ -1549,12 +1549,17 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
         }
         else
         {
-            auto mods = RimSummaryAddressModifier::createAddressModifiersForPlot( newPlot );
-            for ( auto& mod : mods )
+            std::vector<RiaSummaryCurveAddress> newCurveAdrs;
+
+            auto curveObjects = RimSummaryAddressModifier::createVariantAddressModifiersForPlot( newPlot );
+            for ( const auto& adr : RimSummaryAddressModifier::curveAddresses( curveObjects ) )
             {
-                auto modifiedAdr = m_sourceStepping()->stepAddress( mod.address(), direction );
-                mod.setAddress( modifiedAdr );
+                auto adrX = m_sourceStepping()->stepAddress( adr.summaryAddressX(), direction );
+                auto adrY = m_sourceStepping()->stepAddress( adr.summaryAddressY(), direction );
+                newCurveAdrs.push_back( RiaSummaryCurveAddress( adrX, adrY ) );
             }
+
+            RimSummaryAddressModifier::applyCurveAddresses( curveObjects, newCurveAdrs );
         }
     }
 

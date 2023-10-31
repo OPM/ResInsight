@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveAddress curveAdr( RimEnsembleCurveSet* curveSet )
+RiaSummaryCurveAddress curveAddress( RimEnsembleCurveSet* curveSet )
 {
     if ( curveSet == nullptr ) return RiaSummaryCurveAddress( RifEclipseSummaryAddress() );
     return curveSet->curveAddress();
@@ -38,7 +38,7 @@ RiaSummaryCurveAddress curveAdr( RimEnsembleCurveSet* curveSet )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void setCurveAdr( RimEnsembleCurveSet* curveSet, const RiaSummaryCurveAddress& curveAdr )
+void setCurveAddress( RimEnsembleCurveSet* curveSet, const RiaSummaryCurveAddress& curveAdr )
 {
     if ( curveSet )
     {
@@ -49,7 +49,7 @@ void setCurveAdr( RimEnsembleCurveSet* curveSet, const RiaSummaryCurveAddress& c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveAddress curveAdr( RimSummaryCurve* curve )
+RiaSummaryCurveAddress curveAddress( RimSummaryCurve* curve )
 {
     if ( curve == nullptr ) return RiaSummaryCurveAddress( RifEclipseSummaryAddress() );
     return curve->curveAddress();
@@ -58,7 +58,7 @@ RiaSummaryCurveAddress curveAdr( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void setCurveAdr( RimSummaryCurve* curve, const RiaSummaryCurveAddress& curveAdr )
+void setCurveAddress( RimSummaryCurve* curve, const RiaSummaryCurveAddress& curveAdr )
 {
     if ( curve )
     {
@@ -119,6 +119,44 @@ RimSummaryAddressModifier::RimSummaryAddressModifier( RimEnsembleCurveSet* curve
     : m_curve( nullptr )
     , m_curveSet( curveSet )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaSummaryCurveAddress> RimSummaryAddressModifier::curveAddresses( const std::vector<CurveDefs>& curveDefs )
+{
+    std::vector<RiaSummaryCurveAddress> addresses;
+
+    for ( auto& curveDef : curveDefs )
+    {
+        std::visit(
+            [&addresses]( auto&& arg )
+            {
+                auto curveAdr = curveAddress( arg );
+                addresses.push_back( curveAdr );
+            },
+            curveDef );
+    };
+
+    return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressModifier::applyCurveAddresses( const std::vector<CurveDefs>&              curveDefs,
+                                                     const std::vector<RiaSummaryCurveAddress>& addresses )
+{
+    if ( curveDefs.size() != addresses.size() ) return;
+
+    for ( size_t i = 0; i < curveDefs.size(); i++ )
+    {
+        auto        curveDef = curveDefs[i];
+        const auto& adr      = addresses[i];
+
+        std::visit( [adr]( auto&& arg ) { setCurveAddress( arg, adr ); }, curveDef );
+    };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,7 +236,7 @@ void RimSummaryAddressModifier::modify( std::vector<CurveDefs>                  
         std::visit(
             [objectName, contentType]( auto&& arg )
             {
-                auto myAdr = curveAdr( arg );
+                auto myAdr = curveAddress( arg );
 
                 auto xAdr = myAdr.summaryAddressX();
                 auto yAdr = myAdr.summaryAddressY();
@@ -206,7 +244,7 @@ void RimSummaryAddressModifier::modify( std::vector<CurveDefs>                  
                 auto newAdrX = modifyAddress( xAdr, objectName, contentType );
                 auto newAdrY = modifyAddress( yAdr, objectName, contentType );
 
-                setCurveAdr( arg, RiaSummaryCurveAddress( newAdrX, newAdrY ) );
+                setCurveAddress( arg, RiaSummaryCurveAddress( newAdrX, newAdrY ) );
             },
             adr );
     };

@@ -22,6 +22,7 @@ class RimSummaryCurve;
 class RimEnsembleCurveSet;
 class RimSummaryPlot;
 class RifEclipseSummaryAddress;
+class RiaSummaryCurveAddress;
 
 #include "RimSummaryAddressCollection.h"
 #include <variant>
@@ -34,6 +35,9 @@ public:
 
     RimSummaryAddressModifier( RimSummaryCurve* curve );
     RimSummaryAddressModifier( RimEnsembleCurveSet* curveSet );
+
+    static std::vector<RiaSummaryCurveAddress> curveAddresses( const std::vector<CurveDefs>& curveDefs );
+    static void applyCurveAddresses( const std::vector<CurveDefs>& curveDefs, const std::vector<RiaSummaryCurveAddress>& addresses );
 
     static void
         modifyAddresses( RimSummaryPlot* summaryPlot, std::string objectName, RimSummaryAddressCollection::CollectionContentType contentType );
