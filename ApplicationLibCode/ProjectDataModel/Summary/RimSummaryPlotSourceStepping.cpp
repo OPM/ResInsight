@@ -634,7 +634,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
         }
 
         std::vector<RimSummaryCurve*> curves;
-        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping();
 
         size_t maxAddrCount = 0;
         int    maxAddrIndex = -1;
@@ -704,7 +704,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesForCur
         }
 
         std::vector<RimSummaryCurve*> curves;
-        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping();
 
         for ( auto curve : curves )
         {
@@ -731,7 +731,7 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollect
     std::set<RimSummaryCase*> sumCases;
 
     std::vector<RimSummaryCurve*> curves;
-    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping();
     for ( auto c : curves )
     {
         if ( isYAxisStepping() )

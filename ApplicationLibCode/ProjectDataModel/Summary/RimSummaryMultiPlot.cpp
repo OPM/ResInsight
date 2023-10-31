@@ -316,13 +316,13 @@ std::vector<RimSummaryDataSourceStepping::Axis> RimSummaryMultiPlot::availableAx
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryMultiPlot::curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const
+std::vector<RimSummaryCurve*> RimSummaryMultiPlot::curvesForStepping( ) const
 {
     std::vector<RimSummaryCurve*> curves;
 
     for ( auto summaryPlot : summaryPlots() )
     {
-        for ( auto curve : summaryPlot->curvesForStepping( axis ) )
+        for ( auto curve : summaryPlot->curvesForStepping( ) )
         {
             curves.push_back( curve );
         }

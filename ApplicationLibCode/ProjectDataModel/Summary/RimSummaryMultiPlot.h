@@ -69,7 +69,7 @@ public:
     void setAutoSubPlotTitle( bool enable );
 
     std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
-    std::vector<RimSummaryCurve*>                   curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimSummaryCurve*>                   curvesForStepping() const override;
     std::vector<RimEnsembleCurveSet*>               curveSets() const override;
     std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 

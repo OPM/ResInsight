@@ -461,7 +461,7 @@ void RimSummaryPlot::moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const
+std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping( ) const
 {
     auto curveForStepping = summaryCurveCollection()->curveForSourceStepping();
     if ( curveForStepping )

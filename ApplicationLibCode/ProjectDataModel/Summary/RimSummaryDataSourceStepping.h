@@ -48,8 +48,8 @@ public:
     };
 
 public:
-    virtual std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const                                              = 0;
-    virtual std::vector<RimSummaryCurve*>                   curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const = 0;
-    virtual std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const         = 0;
-    virtual std::vector<RimEnsembleCurveSet*>               curveSets() const                                                  = 0;
+    virtual std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const                                      = 0;
+    virtual std::vector<RimSummaryCurve*>                   curvesForStepping() const                                  = 0;
+    virtual std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const = 0;
+    virtual std::vector<RimEnsembleCurveSet*>               curveSets() const                                          = 0;
 };
