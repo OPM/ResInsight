@@ -50,6 +50,10 @@ public:
                                           const QColor&  backgroundColor,
                                           const QColor&  backgroundFrameColor );
     static QString colorStringWithAlpha( const QColor& color );
+
+    // Default content margin on most platforms is 11 pixels
+    static int smallContentMargin();
+    static int mediumContentMargin();
 };
 
 } // namespace caf
