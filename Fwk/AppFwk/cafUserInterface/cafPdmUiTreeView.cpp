@@ -42,6 +42,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
 #include "cafQTreeViewStateSerializer.h"
+#include "cafStyleSheetTools.h"
 
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -59,7 +60,12 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     : QWidget( parent, f )
 {
     m_layout = new QVBoxLayout();
-    m_layout->setContentsMargins( 0, 0, 0, 0 );
+
+    // 0 as content margin has been used for a long time, but that is too little
+    m_layout->setContentsMargins( caf::StyleSheetTools::mediumContentMargin(),
+                                  caf::StyleSheetTools::mediumContentMargin(),
+                                  caf::StyleSheetTools::mediumContentMargin(),
+                                  caf::StyleSheetTools::mediumContentMargin() );
 
     setLayout( m_layout );
 
