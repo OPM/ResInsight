@@ -18,10 +18,11 @@
 
 #include "RimSummaryAddressModifier.h"
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
+
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
@@ -106,24 +107,6 @@ RifEclipseSummaryAddress modifyAddress( const RifEclipseSummaryAddress&         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryAddressModifier::RimSummaryAddressModifier( RimSummaryCurve* curve )
-    : m_curve( curve )
-    , m_curveSet( nullptr )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryAddressModifier::RimSummaryAddressModifier( RimEnsembleCurveSet* curveSet )
-    : m_curve( nullptr )
-    , m_curveSet( curveSet )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveAddress> RimSummaryAddressModifier::curveAddresses( const std::vector<CurveDefs>& curveDefs )
 {
     std::vector<RiaSummaryCurveAddress> addresses;
@@ -145,36 +128,24 @@ std::vector<RiaSummaryCurveAddress> RimSummaryAddressModifier::curveAddresses( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressModifier::applyCurveAddresses( const std::vector<CurveDefs>&              curveDefs,
-                                                     const std::vector<RiaSummaryCurveAddress>& addresses )
+void RimSummaryAddressModifier::applyCurveAddressesToCurveDefinitions( const std::vector<CurveDefs>&              curveDefs,
+                                                                       const std::vector<RiaSummaryCurveAddress>& addresses )
 {
     if ( curveDefs.size() != addresses.size() ) return;
 
     for ( size_t i = 0; i < curveDefs.size(); i++ )
     {
         auto        curveDef = curveDefs[i];
-        const auto& adr      = addresses[i];
+        const auto& address  = addresses[i];
 
-        std::visit( [adr]( auto&& arg ) { setCurveAddress( arg, adr ); }, curveDef );
+        std::visit( [address]( auto&& arg ) { setCurveAddress( arg, address ); }, curveDef );
     };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressModifier::modifyAddresses( RimSummaryPlot*                                    summaryPlot,
-                                                 std::string                                        objectName,
-                                                 RimSummaryAddressCollection::CollectionContentType contentType )
-{
-    auto curveDefs = createVariantAddressModifiersForPlot( summaryPlot );
-
-    RimSummaryAddressModifier::modify( curveDefs, objectName, contentType );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryAddressModifier::CurveDefs> RimSummaryAddressModifier::createVariantAddressModifiersForPlot( RimSummaryPlot* summaryPlot )
+std::vector<RimSummaryAddressModifier::CurveDefs> RimSummaryAddressModifier::createCurveDefinitions( RimSummaryPlot* summaryPlot )
 {
     std::vector<CurveDefs> curvesOrCurveSets;
 
@@ -194,42 +165,31 @@ std::vector<RimSummaryAddressModifier::CurveDefs> RimSummaryAddressModifier::cre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryAddressModifier> RimSummaryAddressModifier::createAddressModifiersForPlot( RimSummaryPlot* summaryPlot )
+std::vector<RifEclipseSummaryAddress> RimSummaryAddressModifier::createEclipseSummaryAddressesY( RimSummaryPlot* summaryPlot )
 {
-    std::vector<RimSummaryAddressModifier> mods;
-    if ( summaryPlot )
+    std::vector<RifEclipseSummaryAddress> addresses;
+
+    auto curveDefs = createCurveDefinitions( summaryPlot );
+    for ( auto& curveDef : curveDefs )
     {
-        auto curveSets = summaryPlot->curveSets();
-        for ( auto curveSet : curveSets )
-        {
-            mods.emplace_back( RimSummaryAddressModifier( curveSet ) );
-        }
+        std::visit(
+            [&addresses]( auto&& arg )
+            {
+                auto curveAdr = curveAddress( arg );
+                addresses.push_back( curveAdr.summaryAddressY() );
+            },
+            curveDef );
+    };
 
-        auto curves = summaryPlot->allCurves();
-        for ( auto c : curves )
-        {
-            mods.emplace_back( RimSummaryAddressModifier( c ) );
-        }
-    }
-
-    return mods;
+    return addresses;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress> RimSummaryAddressModifier::createEclipseSummaryAddress( RimSummaryPlot* summaryPlot )
-{
-    auto mods = createAddressModifiersForPlot( summaryPlot );
-    return convertToEclipseSummaryAddress( mods );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryAddressModifier::modify( std::vector<CurveDefs>                             curveDefs,
-                                        std::string                                        objectName,
-                                        RimSummaryAddressCollection::CollectionContentType contentType )
+void RimSummaryAddressModifier::modifyByObjectName( std::vector<CurveDefs>                             curveDefs,
+                                                    std::string                                        objectName,
+                                                    RimSummaryAddressCollection::CollectionContentType contentType )
 {
     for ( auto& adr : curveDefs )
     {
@@ -248,39 +208,4 @@ void RimSummaryAddressModifier::modify( std::vector<CurveDefs>                  
             },
             adr );
     };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RimSummaryAddressModifier::address() const
-{
-    if ( m_curve ) return m_curve->summaryAddressY();
-    if ( m_curveSet ) return m_curveSet->summaryAddressY();
-
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryAddressModifier::setAddress( const RifEclipseSummaryAddress& address )
-{
-    if ( m_curve ) m_curve->setSummaryAddressY( address );
-    if ( m_curveSet ) m_curveSet->setSummaryAddressYAndStatisticsFlag( address );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress>
-    RimSummaryAddressModifier::convertToEclipseSummaryAddress( const std::vector<RimSummaryAddressModifier>& modifiers )
-{
-    std::vector<RifEclipseSummaryAddress> tmp;
-    tmp.reserve( modifiers.size() );
-    for ( const auto& m : modifiers )
-    {
-        tmp.emplace_back( m.address() );
-    }
-    return tmp;
 }

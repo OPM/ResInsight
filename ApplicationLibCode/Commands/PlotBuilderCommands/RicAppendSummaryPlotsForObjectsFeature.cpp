@@ -102,8 +102,8 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
             {
                 auto objectName  = summaryAdrCollection->name().toStdString();
                 auto contentType = summaryAdrCollection->contentType();
-
-                RimSummaryAddressModifier::modifyAddresses( duplicatedPlot, objectName, contentType );
+                auto curveDefs   = RimSummaryAddressModifier::createCurveDefinitions( duplicatedPlot );
+                RimSummaryAddressModifier::modifyByObjectName( curveDefs, objectName, contentType );
 
                 summaryMultiPlot->addPlot( duplicatedPlot );
                 duplicatedPlot->resolveReferencesRecursively();
@@ -246,7 +246,7 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( cons
 
         for ( auto plot : plotsForObjectType )
         {
-            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( plot );
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddressesY( plot );
             analyzer.appendAddresses( addresses );
         }
     }
@@ -301,7 +301,7 @@ std::vector<RimSummaryPlot*>
     RiaSummaryAddressAnalyzer myAnalyser;
     for ( auto sourcePlot : sourcePlots )
     {
-        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( sourcePlot );
+        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddressesY( sourcePlot );
         myAnalyser.appendAddresses( addresses );
     }
 
@@ -356,7 +356,7 @@ std::vector<RimSummaryPlot*>
         }
         else
         {
-            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( sourcePlot );
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddressesY( sourcePlot );
 
             for ( const auto& a : addresses )
             {

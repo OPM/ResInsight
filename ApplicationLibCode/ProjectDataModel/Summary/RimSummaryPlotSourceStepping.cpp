@@ -1481,7 +1481,7 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
         }
         else
         {
-            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( plot );
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddressesY( plot );
 
             for ( const auto& a : addresses )
             {

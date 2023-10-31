@@ -798,7 +798,7 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 
     for ( auto p : summaryPlots() )
     {
-        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
+        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddressesY( p );
         analyzer.appendAddresses( addresses );
     }
 
@@ -1267,7 +1267,7 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
         for ( auto p : summaryPlots() )
         {
-            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddressesY( p );
             analyzer.appendAddresses( addresses );
         }
 
@@ -1551,7 +1551,7 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
         {
             std::vector<RiaSummaryCurveAddress> newCurveAdrs;
 
-            auto curveObjects = RimSummaryAddressModifier::createVariantAddressModifiersForPlot( newPlot );
+            auto curveObjects = RimSummaryAddressModifier::createCurveDefinitions( newPlot );
             for ( const auto& adr : RimSummaryAddressModifier::curveAddresses( curveObjects ) )
             {
                 auto adrX = m_sourceStepping()->stepAddress( adr.summaryAddressX(), direction );
@@ -1559,7 +1559,7 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
                 newCurveAdrs.push_back( RiaSummaryCurveAddress( adrX, adrY ) );
             }
 
-            RimSummaryAddressModifier::applyCurveAddresses( curveObjects, newCurveAdrs );
+            RimSummaryAddressModifier::applyCurveAddressesToCurveDefinitions( curveObjects, newCurveAdrs );
         }
     }
 
