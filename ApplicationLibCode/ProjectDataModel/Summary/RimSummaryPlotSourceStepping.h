@@ -49,7 +49,6 @@ class RimSummaryPlotSourceStepping : public caf::PdmObject
 public:
     RimSummaryPlotSourceStepping();
 
-    void setSourceSteppingType( RimSummaryDataSourceStepping::Axis sourceSteppingType );
     void setSourceSteppingObject( caf::PdmObject* sourceObject );
 
     void applyNextStep();
@@ -129,6 +128,5 @@ private:
     caf::PdmField<bool> m_includeEnsembleCasesForCaseStepping;
     caf::PdmField<bool> m_autoUpdateAppearance;
 
-    RimSummaryDataSourceStepping::Axis m_sourceSteppingType;
-    std::vector<QString>               m_cachedIdentifiers;
+    std::vector<QString> m_cachedIdentifiers;
 };

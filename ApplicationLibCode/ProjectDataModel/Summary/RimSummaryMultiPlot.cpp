@@ -163,7 +163,6 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
 
     m_sourceStepping = new RimSummaryPlotSourceStepping;
-    m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     m_sourceStepping->setSourceSteppingObject( this );
     m_sourceStepping.uiCapability()->setUiTreeHidden( true );
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
@@ -308,21 +307,13 @@ void RimSummaryMultiPlot::updateAfterPlotRemove()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryDataSourceStepping::Axis> RimSummaryMultiPlot::availableAxes() const
-{
-    return { RimSummaryDataSourceStepping::Axis::X_AXIS };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryMultiPlot::curvesForStepping( ) const
+std::vector<RimSummaryCurve*> RimSummaryMultiPlot::curvesForStepping() const
 {
     std::vector<RimSummaryCurve*> curves;
 
     for ( auto summaryPlot : summaryPlots() )
     {
-        for ( auto curve : summaryPlot->curvesForStepping( ) )
+        for ( auto curve : summaryPlot->curvesForStepping() )
         {
             curves.push_back( curve );
         }
@@ -352,13 +343,13 @@ std::vector<RimEnsembleCurveSet*> RimSummaryMultiPlot::curveSets() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryMultiPlot::allCurves( RimSummaryDataSourceStepping::Axis axis ) const
+std::vector<RimSummaryCurve*> RimSummaryMultiPlot::allCurves() const
 {
     std::vector<RimSummaryCurve*> curves;
 
     for ( auto summaryPlot : summaryPlots() )
     {
-        for ( auto curve : summaryPlot->allCurves( axis ) )
+        for ( auto curve : summaryPlot->allCurves() )
         {
             curves.push_back( curve );
         }
@@ -378,7 +369,7 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
     std::vector<RimSummaryCase*>           sumCases;
     std::vector<RimSummaryCaseCollection*> ensembleCases;
 
-    for ( RimSummaryCurve* curve : allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+    for ( RimSummaryCurve* curve : allCurves() )
     {
         addresses.push_back( curve->curveAddress() );
         sumCases.push_back( curve->summaryCaseY() );
@@ -1538,7 +1529,7 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
         if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
         {
             RimSummaryCase* newCase = m_sourceStepping()->stepCase( direction );
-            for ( auto curve : newPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+            for ( auto curve : newPlot->allCurves() )
             {
                 curve->setSummaryCaseY( newCase );
 
@@ -1585,7 +1576,7 @@ void RimSummaryMultiPlot::appendCurveByStepping( int direction )
     {
         std::vector<caf::PdmObjectHandle*> addresses;
 
-        for ( auto curve : plot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+        for ( auto curve : plot->allCurves() )
         {
             auto address   = curve->summaryAddressY();
             auto sumCase   = curve->summaryCaseY();

@@ -166,7 +166,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             std::set<QString> sourceStrings;
 
             const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
-            for ( const auto& curve : summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+            for ( const auto& curve : summaryPlot->allCurves( ) )
             {
                 auto fieldHandle = curve->findField( summaryFieldKeyword );
                 if ( fieldHandle )
@@ -186,7 +186,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             std::set<QString> sourceStrings;
 
             const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseXFieldKeyword();
-            for ( const auto& curve : summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+            for ( const auto& curve : summaryPlot->allCurves( ) )
             {
                 if ( curve->axisTypeX() != RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) continue;
 

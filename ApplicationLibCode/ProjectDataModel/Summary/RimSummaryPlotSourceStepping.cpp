@@ -59,7 +59,6 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionMod
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
-    : m_sourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS )
 {
     CAF_PDM_InitObject( "Summary Curves Modifier" );
 
@@ -94,14 +93,6 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     m_indexLabel.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_autoUpdateAppearance, "AutoUpdateAppearance", false, "Update Appearance" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::setSourceSteppingType( RimSummaryDataSourceStepping::Axis sourceSteppingType )
-{
-    m_sourceSteppingType = sourceSteppingType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,7 +316,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     std::vector<RimSummaryCurve*> curves;
-    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( m_sourceSteppingType );
+    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( );
 
     bool isAutoZoomAllowed = false;
     bool doZoomAll         = false;

@@ -26,13 +26,6 @@ class RimEnsembleCurveSet;
 class RimSummaryDataSourceStepping
 {
 public:
-    enum class Axis
-    {
-        Y_AXIS,
-        X_AXIS,
-        UNION_X_Y_AXIS
-    };
-
     enum class SourceSteppingDimension
     {
         SUMMARY_CASE,
@@ -48,8 +41,7 @@ public:
     };
 
 public:
-    virtual std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const                                      = 0;
-    virtual std::vector<RimSummaryCurve*>                   curvesForStepping() const                                  = 0;
-    virtual std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const = 0;
-    virtual std::vector<RimEnsembleCurveSet*>               curveSets() const                                          = 0;
+    virtual std::vector<RimSummaryCurve*>     curvesForStepping() const = 0;
+    virtual std::vector<RimSummaryCurve*>     allCurves() const         = 0;
+    virtual std::vector<RimEnsembleCurveSet*> curveSets() const         = 0;
 };
