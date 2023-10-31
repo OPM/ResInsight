@@ -100,14 +100,11 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
             }
             else
             {
-                auto adrMods = RimSummaryAddressModifier::createAddressModifiersForPlot( duplicatedPlot );
-                for ( auto adrMod : adrMods )
-                {
-                    auto sourceAddress = adrMod.address();
-                    auto modifiedAdr   = modifyAddress( sourceAddress, summaryAdrCollection );
+                auto objectName  = summaryAdrCollection->name().toStdString();
+                auto contentType = summaryAdrCollection->contentType();
 
-                    adrMod.setAddress( modifiedAdr );
-                }
+                RimSummaryAddressModifier::modifyAddresses( duplicatedPlot, objectName, contentType );
+
                 summaryMultiPlot->addPlot( duplicatedPlot );
                 duplicatedPlot->resolveReferencesRecursively();
             }
@@ -284,45 +281,6 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( cons
     }
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RicAppendSummaryPlotsForObjectsFeature::modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
-                                                                                RimSummaryAddressCollection*    summaryAddressCollection )
-{
-    CAF_ASSERT( summaryAddressCollection );
-
-    auto adr = sourceAddress;
-
-    auto objectName = summaryAddressCollection->name().toStdString();
-    if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
-    {
-        adr.setWellName( objectName );
-    }
-    else if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP )
-    {
-        adr.setGroupName( objectName );
-    }
-    else if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
-    {
-        int intValue = RiaStdStringTools::toInt( objectName );
-        if ( intValue == -1 )
-        {
-            QString errorText = QString( "Failed to convert region text to region integer value "
-                                         "for region text : " ) +
-                                summaryAddressCollection->name();
-
-            RiaLogging::error( errorText );
-        }
-        else
-        {
-            adr.setRegion( intValue );
-        }
-    }
-
-    return adr;
 }
 
 //--------------------------------------------------------------------------------------------------

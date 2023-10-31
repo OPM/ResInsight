@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+////|/////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2022     Equinor ASA
 //
@@ -23,16 +23,27 @@ class RimEnsembleCurveSet;
 class RimSummaryPlot;
 class RifEclipseSummaryAddress;
 
+#include "RimSummaryAddressCollection.h"
+#include <variant>
 #include <vector>
 
 class RimSummaryAddressModifier
 {
 public:
+    using CurveDefs = std::variant<RimSummaryCurve*, RimEnsembleCurveSet*>;
+
     RimSummaryAddressModifier( RimSummaryCurve* curve );
     RimSummaryAddressModifier( RimEnsembleCurveSet* curveSet );
 
+    static void
+        modifyAddresses( RimSummaryPlot* summaryPlot, std::string objectName, RimSummaryAddressCollection::CollectionContentType contentType );
+
+    static std::vector<CurveDefs>                 createVariantAddressModifiersForPlot( RimSummaryPlot* summaryPlot );
     static std::vector<RimSummaryAddressModifier> createAddressModifiersForPlot( RimSummaryPlot* summaryPlot );
     static std::vector<RifEclipseSummaryAddress>  createEclipseSummaryAddress( RimSummaryPlot* summaryPlot );
+
+    static void
+        modify( std::vector<CurveDefs> curveDefs, std::string objectName, RimSummaryAddressCollection::CollectionContentType contentType );
 
     RifEclipseSummaryAddress address() const;
     void                     setAddress( const RifEclipseSummaryAddress& address );
