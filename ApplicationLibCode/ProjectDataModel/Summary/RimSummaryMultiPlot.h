@@ -68,9 +68,9 @@ public:
     void setAutoPlotTitle( bool enable );
     void setAutoSubPlotTitle( bool enable );
 
-    std::vector<RimSummaryCurve*>                   curvesForStepping() const override;
-    std::vector<RimEnsembleCurveSet*>               curveSets() const override;
-    std::vector<RimSummaryCurve*>                   allCurves() const override;
+    std::vector<RimSummaryCurve*>     curvesForStepping() const override;
+    std::vector<RimEnsembleCurveSet*> curveSets() const override;
+    std::vector<RimSummaryCurve*>     allCurves() const override;
 
     void addPlot( RimPlot* plot ) override;
     void insertPlot( RimPlot* plot, size_t index ) override;
