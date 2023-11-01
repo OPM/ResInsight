@@ -237,7 +237,7 @@ bool RimGridCalculation::calculate()
         RiaLogging::info( txt );
     }
 
-    return true;
+    return !anyErrorsDetected;
 }
 
 //--------------------------------------------------------------------------------------------------
