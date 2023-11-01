@@ -56,7 +56,7 @@ std::vector<RimSummaryAddressModifier> RimSummaryAddressModifier::createAddressM
             mods.emplace_back( RimSummaryAddressModifier( curveSet ) );
         }
 
-        auto curves = summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+        auto curves = summaryPlot->allCurves();
         for ( auto c : curves )
         {
             mods.emplace_back( RimSummaryAddressModifier( c ) );
