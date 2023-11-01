@@ -62,7 +62,10 @@ enum class Property
 {
     PorePressure,
     VoidRatio,
-    Temperature
+    Temperature,
+    Density,
+    YoungsModulus,
+    PoissonsRatio
 };
 
 } // namespace RimFaultReactivation

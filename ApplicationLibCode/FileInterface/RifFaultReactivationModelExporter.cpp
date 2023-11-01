@@ -321,6 +321,7 @@ std::pair<bool, std::string>
         RifInpExportTools::printHeading( stream, "Material, name=" + mat.name );
         RifInpExportTools::printHeading( stream, "Density" );
         RifInpExportTools::printNumber( stream, mat.density );
+
         RifInpExportTools::printHeading( stream, "Elastic" );
         RifInpExportTools::printNumbers( stream, { mat.youngsModulus, mat.poissonNumber } );
 
@@ -555,6 +556,8 @@ bool RifFaultReactivationModelExporter::writePropertyToFile( const RigFaultReact
 
         const std::vector<cvf::Vec3d>& nodes  = grid->globalNodes();
         const std::vector<double>      values = dataAccess.propertyValues( part, property, outputTimeStep );
+        if ( values.size() != nodes.size() ) return false;
+
         for ( size_t i = 0; i < nodes.size(); i++ )
         {
             std::string line = partName + "." + std::to_string( i + 1 ) + ", " + additionalData + std::to_string( values[i] );

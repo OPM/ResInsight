@@ -731,7 +731,7 @@ bool RimFaultReactivationModel::extractAndExportModelData()
     auto grid = eCase->mainGrid();
 
     // extract data for each timestep
-    m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, selectedTimeStepIndexes );
+    m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, geoMechCase(), selectedTimeStepIndexes );
     model()->generateElementSets( m_dataAccess.get(), grid );
     m_dataAccess->extractModelData( *model() );
 

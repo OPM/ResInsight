@@ -29,6 +29,7 @@
 #include <vector>
 
 class RimEclipseCase;
+class RimGeoMechCase;
 class RimFaultReactivationDataAccessor;
 class RigFaultReactivationModel;
 
@@ -39,7 +40,7 @@ class RigFaultReactivationModel;
 class RimFaultReactivationDataAccess
 {
 public:
-    RimFaultReactivationDataAccess( RimEclipseCase* eclipseCase, const std::vector<size_t>& timeSteps );
+    RimFaultReactivationDataAccess( RimEclipseCase* eclipseCase, RimGeoMechCase* geoMechCase, const std::vector<size_t>& timeSteps );
     ~RimFaultReactivationDataAccess();
 
     void extractModelData( const RigFaultReactivationModel& model );
