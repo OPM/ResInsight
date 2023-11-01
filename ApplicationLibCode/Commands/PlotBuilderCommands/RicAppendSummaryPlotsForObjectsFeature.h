@@ -62,7 +62,4 @@ protected:
 private:
     static std::vector<RimSummaryAddressCollection*> createAddressCollections( const std::vector<RimSummaryCase*>&           cases,
                                                                                const std::vector<RimSummaryCaseCollection*>& ensembles );
-
-    static RifEclipseSummaryAddress modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
-                                                   RimSummaryAddressCollection*    summaryAddressCollection );
 };

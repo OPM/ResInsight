@@ -18,29 +18,44 @@
 
 #pragma once
 
+#include "RimSummaryAddressCollection.h"
+
+#include <variant>
+#include <vector>
+
 class RimSummaryCurve;
 class RimEnsembleCurveSet;
 class RimSummaryPlot;
 class RifEclipseSummaryAddress;
+class RiaSummaryCurveAddress;
 
-#include <vector>
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RimSummaryAddressModifier
 {
 public:
-    RimSummaryAddressModifier( RimSummaryCurve* curve );
-    RimSummaryAddressModifier( RimEnsembleCurveSet* curveSet );
+    // Define a variant for summary curves and ensemble curve set. This way we can treat them as similar object without a
+    // common base class
+    using CurveAddressProvider = std::variant<RimSummaryCurve*, RimEnsembleCurveSet*>;
 
-    static std::vector<RimSummaryAddressModifier> createAddressModifiersForPlot( RimSummaryPlot* summaryPlot );
-    static std::vector<RifEclipseSummaryAddress>  createEclipseSummaryAddress( RimSummaryPlot* summaryPlot );
+    static std::vector<CurveAddressProvider>   createAddressProviders( RimSummaryPlot* summaryPlot );
+    static std::vector<RiaSummaryCurveAddress> curveAddresses( const std::vector<CurveAddressProvider>& curveAddressProviders );
+    static void applyAddressesToCurveAddressProviders( const std::vector<CurveAddressProvider>&   curveAddressProviders,
+                                                       const std::vector<RiaSummaryCurveAddress>& addresses );
 
-    RifEclipseSummaryAddress address() const;
-    void                     setAddress( const RifEclipseSummaryAddress& address );
+    static std::vector<RifEclipseSummaryAddress> allSummaryAddressesY( RimSummaryPlot* summaryPlot );
+
+    static void updateAddressesByObjectName( const std::vector<CurveAddressProvider>&           curveAddressProviders,
+                                             const std::string&                                 objectName,
+                                             RimSummaryAddressCollection::CollectionContentType contentType );
 
 private:
-    static std::vector<RifEclipseSummaryAddress> convertToEclipseSummaryAddress( const std::vector<RimSummaryAddressModifier>& modifiers );
-
-private:
-    RimSummaryCurve*     m_curve;
-    RimEnsembleCurveSet* m_curveSet;
+    static RiaSummaryCurveAddress   curveAddress( RimSummaryCurve* curve );
+    static RiaSummaryCurveAddress   curveAddress( RimEnsembleCurveSet* curveSet );
+    static void                     setCurveAddress( RimEnsembleCurveSet* curveSet, const RiaSummaryCurveAddress& curveAdr );
+    static void                     setCurveAddress( RimSummaryCurve* curve, const RiaSummaryCurveAddress& curveAdr );
+    static RifEclipseSummaryAddress replaceObjectName( const RifEclipseSummaryAddress&                    sourceAdr,
+                                                       std::string                                        objectName,
+                                                       RimSummaryAddressCollection::CollectionContentType contentType );
 };
