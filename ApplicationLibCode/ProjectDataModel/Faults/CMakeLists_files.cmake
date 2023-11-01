@@ -9,6 +9,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorPorePressure.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorVoidRatio.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorTemperature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorGeoMech.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationEnums.h
 )
 
@@ -23,6 +24,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorPorePressure.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorVoidRatio.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorTemperature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorGeoMech.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

@@ -32,6 +32,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimFaultReactivationDataAccessor.h"
+#include "RimFaultReactivationDataAccessorGeoMech.h"
 #include "RimFaultReactivationDataAccessorPorePressure.h"
 #include "RimFaultReactivationDataAccessorTemperature.h"
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
@@ -40,14 +41,26 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* thecase, const std::vector<size_t>& timeSteps )
-
+RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase*            thecase,
+                                                                RimGeoMechCase*            geoMechCase,
+                                                                const std::vector<size_t>& timeSteps )
     : m_timeSteps( timeSteps )
 {
     // TODO: correct default pore pressure gradient?
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, 1.0 ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase ) );
+    if ( geoMechCase )
+    {
+        std::vector<RimFaultReactivation::Property> properties = { RimFaultReactivation::Property::YoungsModulus,
+                                                                   RimFaultReactivation::Property::PoissonsRatio,
+                                                                   RimFaultReactivation::Property::Density };
+
+        for ( auto property : properties )
+        {
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorGeoMech>( geoMechCase, property ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +125,10 @@ void RimFaultReactivationDataAccess::extractModelData( const RigFaultReactivatio
 {
     auto properties = { RimFaultReactivation::Property::PorePressure,
                         RimFaultReactivation::Property::VoidRatio,
-                        RimFaultReactivation::Property::Temperature };
+                        RimFaultReactivation::Property::Temperature,
+                        RimFaultReactivation::Property::YoungsModulus,
+                        RimFaultReactivation::Property::PoissonsRatio,
+                        RimFaultReactivation::Property::Density };
 
     for ( auto property : properties )
     {
