@@ -65,7 +65,10 @@ TEST( RifReaderFmuRftTest, LoadFile )
         std::vector<double> values;
         reader.values( adr, &values );
 
+        // Two measurements per date
+        if ( adr.wellName() == "R_A2" ) EXPECT_EQ( 2u, values.size() );
+
+        // One date with 6 measurements
         if ( adr.wellName() == "R_A6" ) EXPECT_EQ( 6u, values.size() );
-        if ( adr.wellName() == "R_A2" ) EXPECT_EQ( 4u, values.size() );
     }
 }
