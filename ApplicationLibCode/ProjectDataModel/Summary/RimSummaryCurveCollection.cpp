@@ -65,24 +65,9 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
-
-    CAF_PDM_InitFieldNoDefault( &m_xSourceStepping, "XSourceStepping", "" );
-    m_xSourceStepping = new RimSummaryPlotSourceStepping;
-    m_xSourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::X_AXIS );
-    m_xSourceStepping.uiCapability()->setUiTreeHidden( true );
-    m_xSourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
-    m_xSourceStepping.xmlCapability()->disableIO();
-
-    CAF_PDM_InitFieldNoDefault( &m_unionSourceStepping, "UnionSourceStepping", "" );
-    m_unionSourceStepping = new RimSummaryPlotSourceStepping;
-    m_unionSourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
-    m_unionSourceStepping.uiCapability()->setUiTreeHidden( true );
-    m_unionSourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
-    m_unionSourceStepping.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,70 +243,6 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const
-{
-    std::vector<RimSummaryCurve*> stepCurves;
-
-    if ( m_curveForSourceStepping )
-    {
-        stepCurves.push_back( m_curveForSourceStepping );
-
-        {
-            // Add corresponding history/summary curve with or without H
-
-            const std::string historyIdentifier = "H";
-
-            std::string vectorName;
-
-            if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
-            {
-                vectorName = m_curveForSourceStepping->summaryAddressX().vectorName();
-            }
-            else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
-            {
-                vectorName = m_curveForSourceStepping->summaryAddressY().vectorName();
-            }
-
-            std::string candidateName;
-            if ( RiaStdStringTools::endsWith( vectorName, historyIdentifier ) )
-            {
-                candidateName = vectorName.substr( 0, vectorName.size() - 1 );
-            }
-            else
-            {
-                candidateName = vectorName + historyIdentifier;
-            }
-
-            for ( const auto& c : curves() )
-            {
-                if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
-                {
-                    if ( c->summaryCaseX() == m_curveForSourceStepping->summaryCaseX() && c->summaryAddressX().vectorName() == candidateName )
-                    {
-                        stepCurves.push_back( c );
-                    }
-                }
-                else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
-                {
-                    if ( c->summaryCaseY() == m_curveForSourceStepping->summaryCaseY() && c->summaryAddressY().vectorName() == candidateName )
-                    {
-                        stepCurves.push_back( c );
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        stepCurves = curves();
-    }
-
-    return stepCurves;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase )
 {
     std::vector<RimSummaryCurve*> summaryCurvesToDelete;
@@ -425,22 +346,9 @@ RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotSourceStepping* RimSummaryCurveCollection::sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const
+RimSummaryPlotSourceStepping* RimSummaryCurveCollection::sourceSteppingObject() const
 {
-    if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
-    {
-        return m_xSourceStepping();
-    }
-    else if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
-    {
-        return m_ySourceStepping();
-    }
-    if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS )
-    {
-        return m_unionSourceStepping();
-    }
-
-    return nullptr;
+    return m_ySourceStepping();
 }
 
 //--------------------------------------------------------------------------------------------------
