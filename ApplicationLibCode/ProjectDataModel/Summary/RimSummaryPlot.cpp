@@ -461,7 +461,7 @@ void RimSummaryPlot::moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const
+std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping() const
 {
     auto curveForStepping = summaryCurveCollection()->curveForSourceStepping();
     if ( curveForStepping )
@@ -483,24 +483,9 @@ std::vector<RimEnsembleCurveSet*> RimSummaryPlot::curveSets() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryPlot::allCurves( RimSummaryDataSourceStepping::Axis axis ) const
+std::vector<RimSummaryCurve*> RimSummaryPlot::allCurves() const
 {
     return summaryCurves();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryDataSourceStepping::Axis> RimSummaryPlot::availableAxes() const
-{
-    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
-
-    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
-    {
-        return { RimSummaryDataSourceStepping::Axis::X_AXIS, RimSummaryDataSourceStepping::Axis::Y_AXIS };
-    }
-
-    return { RimSummaryDataSourceStepping::Axis::X_AXIS };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1241,16 +1226,6 @@ void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
         axisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
 
         m_axisPropertiesArray.push_back( axisProperties );
-    }
-
-    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
-    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
-    {
-        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
-    }
-    else
-    {
-        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     }
 }
 
@@ -3078,7 +3053,7 @@ RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHan
 
     if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
     {
-        return summaryCurveCollection()->sourceSteppingObject( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
+        return summaryCurveCollection()->sourceSteppingObject();
     }
 
     return m_sourceStepping;
