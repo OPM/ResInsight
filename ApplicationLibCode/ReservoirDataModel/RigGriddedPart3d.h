@@ -75,7 +75,7 @@ public:
 protected:
     static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
     static std::vector<double> generateConstantLayers( double zFrom, double zTo, double maxSize );
-            
+
     void generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells );
 
     bool elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;

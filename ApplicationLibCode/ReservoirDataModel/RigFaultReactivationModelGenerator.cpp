@@ -301,10 +301,10 @@ std::pair<std::array<cvf::Vec3d, 12>, std::array<cvf::Vec3d, 12>> RigFaultReacti
     std::vector<size_t> frontMap = { 0, 1, 3, 5, 6, 7, 8, 9, 11, 13, 14, 15 };
     std::vector<size_t> backMap  = { 8, 9, 10, 12, 14, 15, 16, 17, 18, 20, 22, 23 };
 
-    for (int i = 0; i < 12; i++)
+    for ( int i = 0; i < 12; i++ )
     {
         frontPoints[i] = points[frontMap[i]];
-        backPoints[i] = points[backMap[i]];
+        backPoints[i]  = points[backMap[i]];
     }
 
     return std::make_pair( frontPoints, backPoints );
