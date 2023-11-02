@@ -44,6 +44,7 @@
 #include "cafQTreeViewStateSerializer.h"
 #include "cafStyleSheetTools.h"
 
+#include <QAction>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -74,14 +75,13 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     m_searchBox = new QLineEdit( this );
     m_searchBox->setPlaceholderText( "Type here to search in tree." );
     searchLayout->addWidget( m_searchBox );
-    m_clearSearchButton = new QPushButton( "X" );
-    m_clearSearchButton->setMaximumSize( 30, 30 );
-    searchLayout->addWidget( m_clearSearchButton );
+
+    QAction* clearAction = m_searchBox->addAction( QIcon( ":/caf/clear.svg" ), QLineEdit::TrailingPosition );
+    connect( clearAction, &QAction::triggered, this, &PdmUiTreeView::slotOnClearSearchBox );
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
     m_layout->addLayout( searchLayout );
     connect( m_searchBox, SIGNAL( textChanged( QString ) ), SLOT( slotOnSearchTextChanged() ) );
-    connect( m_clearSearchButton, SIGNAL( clicked() ), SLOT( slotOnClearSearchBox() ) );
 #endif
 
     m_treeViewEditor    = new PdmUiTreeViewEditor();
