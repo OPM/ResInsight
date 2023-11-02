@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfPlane.h"
 #include "cvfStructGrid.h"
@@ -40,6 +41,13 @@ public:
     void setGrid( const RigMainGrid* grid );
     void setFaultBufferDepth( double aboveFault, double belowFault );
     void setModelSize( double startDepth, double depthBelowFault, double horzExtentFromFault );
+    void setModelThickness( double thickness );
+    void setModelGriddingOptions( double maxCellHeight, double cellSizeFactor, int noOfCellsHorzFront, int noOfCellsHorzBack );
+
+    void setUseLocalCoordinates( bool useLocalCoordinates );
+    void setupLocalCoordinateTransform();
+
+    std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY();
 
     void generateGeometry( size_t startCellIndex, cvf::StructGridInterface::FaceType startFace );
 
@@ -52,7 +60,7 @@ protected:
 
     size_t oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, cvf::StructGridInterface::FaceType face );
 
-    std::array<cvf::Vec3d, 18> generatePoints();
+    std::pair<std::array<cvf::Vec3d, 12>, std::array<cvf::Vec3d, 12>> generatePointsFrontBack();
 
 private:
     cvf::Vec3d m_startPosition;
@@ -67,6 +75,13 @@ private:
     double m_startDepth;
     double m_depthBelowFault;
     double m_horzExtentFromFault;
+    double m_modelThickness;
+
+    double m_maxCellHeight;
+    double m_cellSizeFactor;
+
+    int m_noOfCellsHorzFront;
+    int m_noOfCellsHorzBack;
 
     cvf::Vec3d m_topReservoirFront;
     cvf::Vec3d m_topReservoirBack;
@@ -76,4 +91,7 @@ private:
 
     cvf::Vec3d m_topFault;
     cvf::Vec3d m_bottomFault;
+
+    cvf::Mat4d m_localCoordTransform;
+    bool       m_useLocalCoordinates;
 };

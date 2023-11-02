@@ -34,7 +34,6 @@
 #include "RimFaultReactivationModelCollection.h"
 
 #include "RigFault.h"
-#include "RigFaultReactivationModelGenerator.h"
 #include "RigMainGrid.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -44,6 +43,7 @@
 #include "cvfStructGrid.h"
 
 #include <QAction>
+#include <QDebug>
 #include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicNewFaultReactModelingFeature, "RicNewFaultReactModelingFeature" );
@@ -99,18 +99,17 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 cvf::Vec3d target1 = cell.faceCenter( face );
                 cvf::Vec3d target2 = target1 + normal;
 
-                cvf::StructGridInterface::FaceEnum faceHelper( face );
-                QString                            text = "Fault Face : " + faceHelper.text() + "\n";
-                text += "Cell Index : " + QString::number( currentCellIndex ) + "\n";
+                // cvf::StructGridInterface::FaceEnum faceHelper( face );
+                // QString                            text = "Fault Face : " + faceHelper.text() + "\n";
+                // text += "Cell Index : " + QString::number( currentCellIndex ) + "\n";
 
-                qDebug() << text;
+                // qDebug() << text;
 
-                RigFaultReactivationModelGenerator* generator = new RigFaultReactivationModelGenerator( target1, normal.getNormalized() );
-                generator->setFault( rimFault->faultGeometry() );
-                generator->setGrid( eclView->mainGrid() );
-                generator->setFaultBufferDepth( 200, 300 );
-                generator->setModelSize( 1000, 500, 2000 );
-                generator->generateGeometry( currentCellIndex, face );
+                // RigFaultReactivationModelGenerator* generator = new RigFaultReactivationModelGenerator( target1, normal.getNormalized()
+                // ); generator->setFault( rimFault->faultGeometry() ); generator->setGrid( eclView->mainGrid() );
+                // generator->setFaultBufferDepth( 200, 300 );
+                // generator->setModelSize( 1000, 500, 2000 );
+                // generator->generateGeometry( currentCellIndex, face );
 
                 // get base directory for our work, should be a new, empty folder somewhere
                 // QString defaultDir =
@@ -122,7 +121,8 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 QString baseDir = "d:/data/FRMWork";
 
                 QString errMsg;
-                auto    model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2, baseDir, errMsg );
+                auto    model =
+                    eclView->faultReactivationModelCollection()->addNewModel( rimFault, currentCellIndex, face, target1, target2, baseDir, errMsg );
                 if ( model != nullptr )
                 {
                     model->updateTimeSteps();

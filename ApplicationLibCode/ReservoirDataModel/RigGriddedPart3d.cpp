@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGriddedPart3d::RigGriddedPart3d( bool flipFrontBack )
+RigGriddedPart3d::RigGriddedPart3d()
     : m_useLocalCoordinates( false )
 {
 }
@@ -66,173 +66,266 @@ cvf::Vec3d RigGriddedPart3d::stepVector( cvf::Vec3d start, cvf::Vec3d stop, int 
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigGriddedPart3d::generateConstantLayers( double zFrom, double zTo, double maxSize )
+{
+    std::vector<double> layers;
+
+    double diff = zTo - zFrom;
+    if ( std::abs( diff ) <= maxSize )
+    {
+        layers.push_back( std::min( zFrom, zTo ) );
+        return layers;
+    }
+
+    double steps = diff / maxSize;
+
+    int nSteps = (int)std::ceil( steps );
+
+    double stepSize = diff / nSteps;
+
+    for ( int i = 0; i < nSteps; i++ )
+    {
+        layers.push_back( zFrom + stepSize * i );
+    }
+
+    std::sort( layers.begin(), layers.end() );
+
+    return layers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor )
+{
+    std::vector<double> layers;
+
+    double diff = zTo - zFrom;
+    if ( std::abs( diff ) <= maxSize )
+    {
+        layers.push_back( std::min( zFrom, zTo ) );
+        return layers;
+    }
+
+    double startHeight = maxSize;
+    double curDepth    = zFrom;
+
+    if ( zTo < zFrom )
+    {
+        while ( curDepth > zTo )
+        {
+            layers.push_back( curDepth );
+            curDepth -= startHeight;
+            startHeight *= growfactor;
+        }
+    }
+    else if ( zTo > zFrom )
+    {
+        while ( curDepth < zTo )
+        {
+            layers.push_back( curDepth );
+            curDepth += startHeight;
+            startHeight *= growfactor;
+        }
+    }
+
+    std::sort( layers.begin(), layers.end() );
+
+    return layers;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///  Point index in input
 ///
 ///
-///      3 ----------- 7                   *
-///        |         |                     *
-///        |         |                     *
-///        |         |                     *
-///      2 |---------| 6                   *
-///        |         \                     *
-///        |          \                    *
-///        |           \                   *
-///      1 -------------| 5                *
-///        |            |                  *
-///        |            |                  *
-///        |            |                  *
-///        |            |                  *
-///      0 -------------- 4                *
+///      5 ------| 11                          *
+///        |  OU |           Overburden Upper  *
+///      4 |------\10                          *
+///        |  OL   \         Overburden Lower  *
+///      3 |--------\  9                       *
+///        |         \                         *
+///        |   R      \      Reservoir         *
+///      2 |___________\ 8                     *
+///        |    UU      \    Underburden Upper *
+///      1 |-------------\7                    *
+///        |             |                     *
+///        |    UL       |   Underburden Lower *
+///        |             |                     *
+///      0 -------------- 6                    *
 ///
-/// Assumes 0->4, 1->5, 2->6 and 3->7 is parallel
+/// Assumes horizontal lines are parallel
 ///
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
-                                         int                     nHorzCells,
-                                         int                     nVertCellsLower,
-                                         int                     nVertCellsMiddle,
-                                         int                     nVertCellsUpper,
-                                         double                  thickness )
+
+void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
+                                         std::vector<cvf::Vec3d>    reservoirLayers,
+                                         double                     maxCellHeight,
+                                         double                     cellSizeFactor,
+                                         int                        nHorzCells,
+                                         double                     modelThickness )
 {
     reset();
 
-    const cvf::Vec3d step0to1 = stepVector( inputPoints[0], inputPoints[1], nVertCellsLower );
-    const cvf::Vec3d step1to2 = stepVector( inputPoints[1], inputPoints[2], nVertCellsMiddle );
-    const cvf::Vec3d step2to3 = stepVector( inputPoints[2], inputPoints[3], nVertCellsUpper );
+    auto layersUL = generateGrowingLayers( inputPoints[1].z(), inputPoints[0].z(), maxCellHeight, cellSizeFactor );
 
-    const cvf::Vec3d step4to5 = stepVector( inputPoints[4], inputPoints[5], nVertCellsLower );
-    const cvf::Vec3d step5to6 = stepVector( inputPoints[5], inputPoints[6], nVertCellsMiddle );
-    const cvf::Vec3d step6to7 = stepVector( inputPoints[6], inputPoints[7], nVertCellsUpper );
+    auto layersUU = generateConstantLayers( inputPoints[1].z(), inputPoints[2].z(), maxCellHeight );
 
-    const cvf::Vec3d step0to4 = stepVector( inputPoints[0], inputPoints[4], nHorzCells );
+    auto layersOL = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
 
-    cvf::Vec3d tVec = step0to4 ^ step0to1;
-    tVec.normalize();
-    tVec *= thickness;
-
-    const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
-    const int                 nThicknessCells    = 2;
-    const int                 nVertCells         = nVertCellsLower + nVertCellsMiddle + nVertCellsUpper;
-
-    const std::vector<int>        vertLines  = { nVertCellsLower, nVertCellsMiddle, nVertCellsUpper + 1 };
-    const std::vector<cvf::Vec3d> firstSteps = { step0to1, step1to2, step2to3 };
-    const std::vector<cvf::Vec3d> lastSteps  = { step4to5, step5to6, step6to7 };
-
-    // ** generate nodes
-
-    m_boundaryNodes[Boundary::Bottom]  = {};
-    m_boundaryNodes[Boundary::FarSide] = {};
-
-    m_nodes.reserve( (size_t)( ( nVertCells + 1 ) * ( nHorzCells + 1 ) ) );
-
-    cvf::Vec3d pFrom = inputPoints[0];
-    cvf::Vec3d pTo   = inputPoints[4];
-
-    unsigned int layer     = 0;
-    unsigned int nodeIndex = 0;
-
-    for ( int i = 0; i < (int)vertLines.size(); i++ )
-    {
-        for ( int v = 0; v < vertLines[i]; v++, layer++ )
-        {
-            cvf::Vec3d stepHorz = stepVector( pFrom, pTo, nHorzCells );
-            cvf::Vec3d p        = pFrom;
-            for ( int h = 0; h <= nHorzCells; h++ )
-            {
-                for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
-                {
-                    m_nodes.push_back( p + m_thicknessFactors[t] * tVec );
-                    if ( layer == 0 )
-                    {
-                        m_boundaryNodes[Boundary::Bottom].push_back( nodeIndex );
-                    }
-                    if ( h == 0 )
-                    {
-                        m_boundaryNodes[Boundary::FarSide].push_back( nodeIndex );
-                    }
-                }
-
-                p += stepHorz;
-            }
-            pFrom += firstSteps[i];
-            pTo += lastSteps[i];
-        }
-    }
-
-    // ** generate elements of type hex8
-
-    m_elementIndices.resize( (size_t)( nVertCells * nHorzCells * nThicknessCells ) );
-
-    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
-    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::FaultSurface] = {};
-    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::LowerSurface] = {};
-
-    m_boundaryElements[Boundary::Bottom]  = {};
-    m_boundaryElements[Boundary::FarSide] = {};
-
-    int layerIndexOffset = 0;
-    int elementIdx       = 0;
-    layer                = 0;
-
-    RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
-
-    const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
-    const int nThicknessOff   = nThicknessCells + 1;
-
-    for ( int v = 0; v < nVertCells; v++, layer++ )
-    {
-        if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
-        if ( v >= nVertCellsLower + nVertCellsMiddle ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
-
-        int i = layerIndexOffset;
-
-        for ( int h = 0; h < nHorzCells; h++ )
-        {
-            for ( int t = 0; t < nThicknessCells; t++, elementIdx++ )
-            {
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
-
-                m_elementIndices[elementIdx].push_back( t + i );
-                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
-                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
-                m_elementIndices[elementIdx].push_back( t + i + 1 );
-
-                if ( layer == 0 )
-                {
-                    m_boundaryElements[Boundary::Bottom].push_back( elementIdx );
-                }
-                if ( h == 0 )
-                {
-                    m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
-                }
-            }
-            i += nThicknessOff;
-        }
-
-        // add elements to border surface in current region
-        m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 2 );
-        m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
-
-        layerIndexOffset += nextLayerIdxOff;
-    }
-
-    // generate meshlines for 2d viz
-
-    generateMeshlines( { inputPoints[0], inputPoints[1], inputPoints[5], inputPoints[4] }, nHorzCells, nVertCellsLower );
-    generateMeshlines( { inputPoints[1], inputPoints[2], inputPoints[6], inputPoints[5] }, nHorzCells, nVertCellsMiddle );
-    generateMeshlines( { inputPoints[2], inputPoints[3], inputPoints[7], inputPoints[6] }, nHorzCells, nVertCellsUpper );
-
-    // store the reservoir part corners for later
-    m_reservoirRect.clear();
-    for ( auto i : { 1, 2, 6, 5 } )
-    {
-        m_reservoirRect.push_back( inputPoints[i] );
-    }
+    auto layersOU = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+// void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
+//                                         std::vector<cvf::Vec3d>    reservoirLayers,
+//                                         double                     maxCellHeight,
+//                                         double                     cellSizeFactor,
+//                                         int                        nHorzCells,
+//                                         double                     modelThickness )
+//{
+//    reset();
+//
+//    const cvf::Vec3d step0to1 = stepVector( inputPoints[0], inputPoints[1], nVertCellsLower );
+//    const cvf::Vec3d step1to2 = stepVector( inputPoints[1], inputPoints[2], nVertCellsMiddle );
+//    const cvf::Vec3d step2to3 = stepVector( inputPoints[2], inputPoints[3], nVertCellsUpper );
+//
+//    const cvf::Vec3d step4to5 = stepVector( inputPoints[4], inputPoints[5], nVertCellsLower );
+//    const cvf::Vec3d step5to6 = stepVector( inputPoints[5], inputPoints[6], nVertCellsMiddle );
+//    const cvf::Vec3d step6to7 = stepVector( inputPoints[6], inputPoints[7], nVertCellsUpper );
+//
+//    const cvf::Vec3d step0to4 = stepVector( inputPoints[0], inputPoints[4], nHorzCells );
+//
+//    cvf::Vec3d tVec = step0to4 ^ step0to1;
+//    tVec.normalize();
+//    tVec *= thickness;
+//
+//    const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
+//    const int                 nThicknessCells    = 2;
+//    const int                 nVertCells         = nVertCellsLower + nVertCellsMiddle + nVertCellsUpper;
+//
+//    const std::vector<int>        vertLines  = { nVertCellsLower, nVertCellsMiddle, nVertCellsUpper + 1 };
+//    const std::vector<cvf::Vec3d> firstSteps = { step0to1, step1to2, step2to3 };
+//    const std::vector<cvf::Vec3d> lastSteps  = { step4to5, step5to6, step6to7 };
+//
+//    // ** generate nodes
+//
+//    m_boundaryNodes[Boundary::Bottom]  = {};
+//    m_boundaryNodes[Boundary::FarSide] = {};
+//
+//    m_nodes.reserve( (size_t)( ( nVertCells + 1 ) * ( nHorzCells + 1 ) ) );
+//
+//    cvf::Vec3d pFrom = inputPoints[0];
+//    cvf::Vec3d pTo   = inputPoints[4];
+//
+//    unsigned int layer     = 0;
+//    unsigned int nodeIndex = 0;
+//
+//    for ( int i = 0; i < (int)vertLines.size(); i++ )
+//    {
+//        for ( int v = 0; v < vertLines[i]; v++, layer++ )
+//        {
+//            cvf::Vec3d stepHorz = stepVector( pFrom, pTo, nHorzCells );
+//            cvf::Vec3d p        = pFrom;
+//            for ( int h = 0; h <= nHorzCells; h++ )
+//            {
+//                for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
+//                {
+//                    m_nodes.push_back( p + m_thicknessFactors[t] * tVec );
+//                    if ( layer == 0 )
+//                    {
+//                        m_boundaryNodes[Boundary::Bottom].push_back( nodeIndex );
+//                    }
+//                    if ( h == 0 )
+//                    {
+//                        m_boundaryNodes[Boundary::FarSide].push_back( nodeIndex );
+//                    }
+//                }
+//
+//                p += stepHorz;
+//            }
+//            pFrom += firstSteps[i];
+//            pTo += lastSteps[i];
+//        }
+//    }
+//
+//    // ** generate elements of type hex8
+//
+//    m_elementIndices.resize( (size_t)( nVertCells * nHorzCells * nThicknessCells ) );
+//
+//    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
+//    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::FaultSurface] = {};
+//    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::LowerSurface] = {};
+//
+//    m_boundaryElements[Boundary::Bottom]  = {};
+//    m_boundaryElements[Boundary::FarSide] = {};
+//
+//    int layerIndexOffset = 0;
+//    int elementIdx       = 0;
+//    layer                = 0;
+//
+//    RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
+//
+//    const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
+//    const int nThicknessOff   = nThicknessCells + 1;
+//
+//    for ( int v = 0; v < nVertCells; v++, layer++ )
+//    {
+//        if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
+//        if ( v >= nVertCellsLower + nVertCellsMiddle ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
+//
+//        int i = layerIndexOffset;
+//
+//        for ( int h = 0; h < nHorzCells; h++ )
+//        {
+//            for ( int t = 0; t < nThicknessCells; t++, elementIdx++ )
+//            {
+//                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i );
+//                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff );
+//                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
+//                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
+//
+//                m_elementIndices[elementIdx].push_back( t + i );
+//                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
+//                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
+//                m_elementIndices[elementIdx].push_back( t + i + 1 );
+//
+//                if ( layer == 0 )
+//                {
+//                    m_boundaryElements[Boundary::Bottom].push_back( elementIdx );
+//                }
+//                if ( h == 0 )
+//                {
+//                    m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
+//                }
+//            }
+//            i += nThicknessOff;
+//        }
+//
+//        // add elements to border surface in current region
+//        m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 2 );
+//        m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
+//
+//        layerIndexOffset += nextLayerIdxOff;
+//    }
+//
+//    // generate meshlines for 2d viz
+//
+//    generateMeshlines( { inputPoints[0], inputPoints[1], inputPoints[5], inputPoints[4] }, nHorzCells, nVertCellsLower );
+//    generateMeshlines( { inputPoints[1], inputPoints[2], inputPoints[6], inputPoints[5] }, nHorzCells, nVertCellsMiddle );
+//    generateMeshlines( { inputPoints[2], inputPoints[3], inputPoints[7], inputPoints[6] }, nHorzCells, nVertCellsUpper );
+//
+//    // store the reservoir part corners for later
+//    m_reservoirRect.clear();
+//    for ( auto i : { 1, 2, 6, 5 } )
+//    {
+//        m_reservoirRect.push_back( inputPoints[i] );
+//    }
+//}
 
 //--------------------------------------------------------------------------------------------------
 ///  Point index in input
