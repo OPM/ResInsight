@@ -40,17 +40,17 @@ class RigGriddedPart3d : public cvf::Object
     using Boundary    = RimFaultReactivation::Boundary;
 
 public:
-    RigGriddedPart3d( bool flipFrontBack );
+    RigGriddedPart3d();
     ~RigGriddedPart3d() override;
 
     void reset();
 
-    void generateGeometry( std::vector<cvf::Vec3d> inputPoints,
-                           int                     nHorzCells,
-                           int                     nVertCellsLower,
-                           int                     nVertCellsMiddle,
-                           int                     nVertCellsUpper,
-                           double                  thickness );
+    void generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
+                           std::vector<cvf::Vec3d>    reservoirLayers,
+                           double                     maxCellHeight,
+                           double                     cellSizeFactor,
+                           int                        nHorzCells,
+                           double                     modelThickness );
 
     void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
     void generateLocalNodes( const cvf::Mat4d transform );
@@ -73,8 +73,10 @@ public:
     const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
 
 protected:
-    cvf::Vec3d stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
-    void       generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells );
+    static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
+    static std::vector<double> generateConstantLayers( double zFrom, double zTo, double maxSize );
+            
+    void generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells );
 
     bool elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
     bool elementIsBelowReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;

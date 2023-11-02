@@ -25,6 +25,7 @@
 #include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfPlane.h"
+#include "cvfStructGrid.h"
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
 
@@ -35,6 +36,7 @@
 class RigGriddedPart3d;
 class RigMainGrid;
 class RimFaultReactivationDataAccess;
+class RigFaultReactivationModelGenerator;
 
 class RigFRModelPart
 {
@@ -65,18 +67,11 @@ public:
     bool isValid() const;
     void reset();
 
-    void setPlane( cvf::Vec3d anchorPoint, cvf::Vec3d normal );
-    void setFaultPlaneIntersect( cvf::Vec3d faultPlaneTop, cvf::Vec3d faultPlaneBottom );
-    void setMaxExtentFromAnchor( double maxExtentHorz, double minZ, double maxZ );
+    void setGenerator( std::shared_ptr<RigFaultReactivationModelGenerator> generator );
 
-    void setCellCounts( int horzPart1, int horzPart2, int vertUpper, int vertMiddle, int vertLower );
-    void setThickness( double thickness );
-    void setLocalCoordTransformation( cvf::Mat4d transform );
-    void setUseLocalCoordinates( bool useLocalCoordinates );
+    std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY() const;
 
-    void updateGeometry();
-
-    cvf::Vec3d normal() const;
+    void updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace );
 
     void                        setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color );
     std::vector<cvf::Vec3d>     rect( ModelParts part ) const;
@@ -92,23 +87,7 @@ protected:
     void generateGrids( cvf::Vec3dArray points );
 
 private:
-    cvf::Vec3d m_planeNormal;
-    cvf::Vec3d m_planeAnchor;
-
-    cvf::Vec3d m_faultPlaneIntersectTop;
-    cvf::Vec3d m_faultPlaneIntersectBottom;
-
-    double m_maxHorzExtent;
-    double m_minZ;
-    double m_maxZ;
-
-    double m_thickness;
-
-    int m_cellCountHorzPart1;
-    int m_cellCountHorzPart2;
-    int m_cellCountVertUpper;
-    int m_cellCountVertMiddle;
-    int m_cellCountVertLower;
+    std::shared_ptr<RigFaultReactivationModelGenerator> m_generator;
 
     std::map<ModelParts, std::vector<int>> m_cornerIndexes;
 
@@ -116,6 +95,4 @@ private:
     bool                                 m_isValid;
 
     std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
-
-    cvf::Mat4d m_localCoordTransform;
 };
