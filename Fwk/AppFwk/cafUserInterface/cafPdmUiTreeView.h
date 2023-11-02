@@ -46,7 +46,6 @@ class QItemSelection;
 class QMenu;
 class QModelIndex;
 class QLineEdit;
-class QPushButton;
 class QSortFilterProxyModel;
 
 namespace caf
@@ -113,7 +112,6 @@ private:
     QString              m_uiConfigName;
     QVBoxLayout*         m_layout;
     QLineEdit*           m_searchBox;
-    QPushButton*         m_clearSearchButton;
     QString              m_treeStateString;
 };
 
