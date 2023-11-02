@@ -60,7 +60,9 @@ public:
     ReferenceMDType    referenceMDType() const;
     double             manualReferenceMD() const;
     double             linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double             linerDiameter() const;
     static double      defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem );
+    double             roughnessFactor() const;
     double             roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
     static double      defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem );
     PressureDropEnum   pressureDrop() const;
