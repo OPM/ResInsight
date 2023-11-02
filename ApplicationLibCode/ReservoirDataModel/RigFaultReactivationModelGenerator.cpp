@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RigFault.h"
+#include "RigGriddedPart3d.h"
 #include "RigMainGrid.h"
 
 #include "RimCellFilterCollection.h"
@@ -44,6 +45,8 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_startDepth( 0.0 )
     , m_depthBelowFault( 100.0 )
     , m_horzExtentFromFault( 1000.0 )
+    , m_modelThickness( 100.0 )
+    , m_useLocalCoordinates( false )
 {
 }
 
@@ -87,6 +90,64 @@ void RigFaultReactivationModelGenerator::setModelSize( double startDepth, double
     m_startDepth          = startDepth;
     m_depthBelowFault     = depthBelowFault;
     m_horzExtentFromFault = horzExtentFromFault;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::setModelThickness( double thickness )
+{
+    m_modelThickness = thickness;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::setUseLocalCoordinates( bool useLocalCoordinates )
+{
+    m_useLocalCoordinates = useLocalCoordinates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::setModelGriddingOptions( double maxCellHeight,
+                                                                  double cellSizeFactor,
+                                                                  int    noOfCellsHorzFront,
+                                                                  int    noOfCellsHorzBack )
+{
+    m_maxCellHeight      = maxCellHeight;
+    m_cellSizeFactor     = cellSizeFactor;
+    m_noOfCellsHorzFront = noOfCellsHorzFront;
+    m_noOfCellsHorzBack  = noOfCellsHorzBack;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::modelLocalNormalsXY()
+{
+    cvf::Vec3d xNormal = m_normal ^ cvf::Vec3d::Z_AXIS;
+    xNormal.z()        = 0.0;
+    xNormal.normalize();
+
+    cvf::Vec3d yNormal = xNormal ^ cvf::Vec3d::Z_AXIS;
+
+    return std::make_pair( xNormal, yNormal );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::setupLocalCoordinateTransform()
+{
+    auto [xNormal, yNormal] = modelLocalNormalsXY();
+
+    m_localCoordTransform = cvf::Mat4d::fromCoordSystemAxes( &xNormal, &yNormal, &cvf::Vec3d::Z_AXIS );
+    cvf::Vec3d center     = m_startPosition * -1.0;
+    center.z()            = 0.0;
+    center.transformPoint( m_localCoordTransform );
+    m_localCoordTransform.setTranslation( center );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,29 +239,29 @@ void RigFaultReactivationModelGenerator::addFilter( QString name, std::vector<si
 }
 
 //--------------------------------------------------------------------------------------------------
-///             <----                           fault normal
-///
-///                15
-///       7---------|------------ 23            top model
-///        |        |           |
-///        |        |           |
-///       6|_____14_|___________| 22            top fault w/buffer
-///       5|-----13-\-----------| 21            top fault front
-///       4|---------\-12-------| 20            top fault back
-///        |          X         |               start position in fault (user selected)
-///       3|--------11-\--------| 19            bottom fault front
-///       2|------------\-10----| 18            bottom fault back
-///       1|_____________\______| 17            bottom fault w/buffer
-///        |            9|      |
-///        |             |      |
-///        |             |      |
-///       0--------------|------- 16            bottom model
-///                     8
-///          front          back
+///             <----                           fault normal                                     *
+///                                                                                              *
+///                15                                                                            *
+///       7---------|------------ 23            top model                                        *
+///        |        |           |                                                                *
+///        |        |           |                                                                *
+///       6|_____14_|___________| 22            top fault w/buffer                               *
+///       5|-----13-\-----------| 21            top fault front                                  *
+///       4|---------\-12-------| 20            top fault back                                   *
+///        |          X         |               start position in fault (user selected)          *
+///       3|--------11-\--------| 19            bottom fault front                               *
+///       2|------------\-10----| 18            bottom fault back                                *
+///       1|_____________\______| 17            bottom fault w/buffer                            *
+///        |            9|      |                                                                *
+///        |             |      |                                                                *
+///        |             |      |                                                                *
+///       0--------------|------- 16            bottom model                                     *
+///                     8                                                                        *
+///          front          back                                                                 *
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3d, 18> RigFaultReactivationModelGenerator::generatePoints()
+std::pair<std::array<cvf::Vec3d, 12>, std::array<cvf::Vec3d, 12>> RigFaultReactivationModelGenerator::generatePointsFrontBack()
 {
-    std::array<cvf::Vec3d, 18> points;
+    std::array<cvf::Vec3d, 24> points;
 
     double top_depth    = -m_startDepth;
     double bottom_depth = m_bottomFault.z() - m_depthBelowFault;
@@ -233,7 +294,20 @@ std::array<cvf::Vec3d, 18> RigFaultReactivationModelGenerator::generatePoints()
         points[i].z() = points[i - 8].z();
     }
 
-    return points;
+    std::array<cvf::Vec3d, 12> frontPoints;
+    std::array<cvf::Vec3d, 12> backPoints;
+
+    // only return the corner points used for each part
+    std::vector<size_t> frontMap = { 0, 1, 3, 5, 6, 7, 8, 9, 11, 13, 14, 15 };
+    std::vector<size_t> backMap  = { 8, 9, 10, 12, 14, 15, 16, 17, 18, 20, 22, 23 };
+
+    for (int i = 0; i < 12; i++)
+    {
+        frontPoints[i] = points[frontMap[i]];
+        backPoints[i] = points[backMap[i]];
+    }
+
+    return std::make_pair( frontPoints, backPoints );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,7 +355,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t startCellIndex
     m_topReservoirFront = zPositionsFront.begin()->second;
     m_topReservoirBack  = zPositionsBack.begin()->second;
 
-    cvf::Vec3d top_point( 0, 0, 0 );
+    cvf::Vec3d top_point = m_topReservoirFront;
 
     if ( front_top > back_top )
     {
@@ -292,9 +366,12 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t startCellIndex
         top_point = extrapolatePoint( ( ++zPositionsFront.begin() )->second, zPositionsFront.begin()->second, m_bufferAboveFault );
     }
 
-    zPositionsBack[top_point.z()]  = top_point;
-    zPositionsFront[top_point.z()] = top_point;
-    m_topFault                     = top_point;
+    if ( front_top != back_top )
+    {
+        zPositionsBack[top_point.z()]  = top_point;
+        zPositionsFront[top_point.z()] = top_point;
+    }
+    m_topFault = top_point;
 
     // add extra fault buffer below the fault, starting at the shallowest bottom-most cell on either side of the fault
 
@@ -303,7 +380,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t startCellIndex
     m_bottomReservoirFront = zPositionsFront.rbegin()->second;
     m_bottomReservoirBack  = zPositionsBack.rbegin()->second;
 
-    cvf::Vec3d bottom_point( 0, 0, 0 );
+    cvf::Vec3d bottom_point = m_bottomReservoirFront;
 
     if ( front_bottom > back_bottom )
     {
@@ -314,24 +391,36 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t startCellIndex
         bottom_point = extrapolatePoint( ( ++zPositionsBack.rbegin() )->second, zPositionsBack.rbegin()->second, m_bufferBelowFault );
     }
 
-    zPositionsBack[bottom_point.z()]  = bottom_point;
-    zPositionsFront[bottom_point.z()] = bottom_point;
-    m_bottomFault                     = bottom_point;
+    if ( back_bottom != front_bottom )
+    {
+        zPositionsBack[bottom_point.z()]  = bottom_point;
+        zPositionsFront[bottom_point.z()] = bottom_point;
+    }
+    m_bottomFault = bottom_point;
 
-    // TODO - spilt layers in zPositions that are larger than a user given limit
+    // TODO - spilt layers in zPositions that are larger than the user given limit m_maxCellHeight
 
-    // debug
+    std::vector<cvf::Vec3d> frontReservoirLayers;
     for ( auto& kvp : zPositionsFront )
-    {
-        qDebug() << "Front Intersect at depth " + QString::number( kvp.first );
-    }
+        frontReservoirLayers.push_back( kvp.second );
 
+    std::vector<cvf::Vec3d> backReservoirLayers;
     for ( auto& kvp : zPositionsBack )
-    {
-        qDebug() << "Back Intersect at depth " + QString::number( kvp.first );
-    }
+        backReservoirLayers.push_back( kvp.second );
 
-    auto points = generatePoints();
+    auto [frontPartPoints, backPartPoints] = generatePointsFrontBack();
+
+    RigGriddedPart3d frontPart;
+    RigGriddedPart3d backPart;
+
+    frontPart.generateGeometry( frontPartPoints, frontReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzFront, m_modelThickness );
+    backPart.generateGeometry( backPartPoints, backReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzBack, m_modelThickness );
+
+    frontPart.generateLocalNodes( m_localCoordTransform );
+    backPart.generateLocalNodes( m_localCoordTransform );
+
+    frontPart.setUseLocalCoordinates( m_useLocalCoordinates );
+    backPart.setUseLocalCoordinates( m_useLocalCoordinates );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -28,6 +28,7 @@
 
 #include "RigBasicPlane.h"
 #include "RigFaultReactivationModel.h"
+#include "RigFaultReactivationModelGenerator.h"
 #include "RigPolyLinesData.h"
 
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
@@ -71,6 +72,8 @@ CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationModel::RimFaultReactivationModel()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
+    , m_startCellFace( cvf::StructGridInterface::FaceType::NO_FACE )
+    , m_startCellIndex( 0 )
 {
     CAF_PDM_InitObject( "Fault Reactivation Model", ":/fault_react_24x24.png" );
 
@@ -78,34 +81,29 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeoMechCase", "Global GeoMech Model" );
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working folder" );
     CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
-    CAF_PDM_InitField( &m_extentHorizontal, "HorizontalExtent", 1000.0, "Horizontal Extent" );
-    CAF_PDM_InitField( &m_extentVerticalAbove, "VerticalExtentAbove", 200.0, "Vertical Extent Above Anchor" );
-    m_extentVerticalAbove.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    m_extentVerticalAbove.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
-
-    CAF_PDM_InitField( &m_extentVerticalBelow, "VerticalExtentBelow", 200.0, "Vertical Extent Below Anchor" );
-    m_extentVerticalBelow.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    m_extentVerticalBelow.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
 
     CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Horz. Extent from Anchor" );
     CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Start Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
-    CAF_PDM_InitField( &m_showFaultPlane, "ShowFaultPlane", false, "Show Fault Plane" );
+    CAF_PDM_InitField( &m_faultExtendUpwards, "FaultExtendUpwards", 100.0, "Fault Extension Above Reservoir" );
+    m_faultExtendUpwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 100.0, "Fault Extension Below Reservoir" );
+    m_faultExtendDownwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", false, "Show 2D Model" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_faultPlaneColor, "FaultPlaneColor", cvf::Color3f( cvf::Color3f::GRAY ), "Plane Color" );
     CAF_PDM_InitField( &m_modelPart1Color, "ModelPart1Color", cvf::Color3f( cvf::Color3f::GREEN ), "Part 1 Color" );
     CAF_PDM_InitField( &m_modelPart2Color, "ModelPart2Color", cvf::Color3f( cvf::Color3f::BLUE ), "Part 2 Color" );
 
     CAF_PDM_InitField( &m_numberOfCellsHorzPart1, "NumberOfCellsHorzPart1", 20, "Horizontal Number of Cells, Part 1" );
     CAF_PDM_InitField( &m_numberOfCellsHorzPart2, "NumberOfCellsHorzPart2", 20, "Horizontal Number of Cells, Part 2" );
-    CAF_PDM_InitField( &m_numberOfCellsVertUp, "NumberOfCellsVertUp", 20, "Vertical Number of Cells, Upper Part" );
-    CAF_PDM_InitField( &m_numberOfCellsVertMid, "NumberOfCellsVertMid", 20, "Vertical Number of Cells, Middle Part" );
-    CAF_PDM_InitField( &m_numberOfCellsVertLow, "NumberOfCellsVertLow", 20, "Vertical Number of Cells, Lower Part" );
+
+    CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 20.0, "Max. Reservoir Cell Height" );
+    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.05, "Cell Height Grow Factor Outside Reservoir" );
 
     CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Export Using Local Coordinates" );
 
@@ -134,8 +132,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
 
     setDeletable( true );
 
-    m_faultPlane = new RigBasicPlane();
-    m_modelPlane = new RigFaultReactivationModel();
+    m_2Dmodel = new RigFaultReactivationModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,9 +217,11 @@ std::pair<bool, std::string> RimFaultReactivationModel::validateBeforeRun() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultReactivationModel::setFault( RimFaultInView* fault )
+void RimFaultReactivationModel::setFault( RimFaultInView* fault, size_t cellIndex, cvf::StructGridInterface::FaceType face )
 {
-    m_fault = fault;
+    m_fault          = fault;
+    m_startCellIndex = cellIndex;
+    m_startCellFace  = face;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,42 +303,22 @@ void RimFaultReactivationModel::updateVisualization()
     normal.z()  = normal.z() * view->scaleZ() * view->scaleZ();
     normal.normalize();
 
-    m_faultPlane->setPlane( m_targets[0]->targetPointXYZ(), normal );
-    m_faultPlane->setMaxExtentFromAnchor( m_extentHorizontal, m_extentVerticalAbove, m_extentVerticalBelow );
-    m_faultPlane->setColor( m_faultPlaneColor );
-    m_faultPlane->updateRect();
-
-    double maxZ              = m_faultPlane->maxDepth();
-    auto [topInt, bottomInt] = m_faultPlane->intersectTopBottomLine();
-
     cvf::Vec3d zdir( 0, 0, 1 );
     auto       modelNormal = normal ^ zdir;
     modelNormal.normalize();
 
-    m_modelPlane->setPlane( m_targets[0]->targetPointXYZ(), modelNormal );
-    m_modelPlane->setFaultPlaneIntersect( topInt, bottomInt );
-    m_modelPlane->setMaxExtentFromAnchor( m_modelExtentFromAnchor, m_modelMinZ, maxZ + m_modelBelowSize );
-    m_modelPlane->setPartColors( m_modelPart1Color, m_modelPart2Color );
-    m_modelPlane->setCellCounts( m_numberOfCellsHorzPart1,
-                                 m_numberOfCellsHorzPart2,
-                                 m_numberOfCellsVertUp,
-                                 m_numberOfCellsVertMid,
-                                 m_numberOfCellsVertLow );
-    m_modelPlane->setThickness( m_modelThickness );
+    auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal );
+    generator->setFault( m_fault()->faultGeometry() );
+    generator->setGrid( eclipseCase()->mainGrid() );
+    generator->setModelSize( m_modelMinZ, m_modelBelowSize, m_modelExtentFromAnchor );
+    generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards );
+    generator->setModelThickness( m_modelThickness );
+    generator->setModelGriddingOptions( m_maxReservoirCellHeight, m_cellHeightGrowFactor, m_numberOfCellsHorzPart1, m_numberOfCellsHorzPart2 );
+    generator->setupLocalCoordinateTransform();
+    generator->setUseLocalCoordinates( m_useLocalCoordinates );
 
-    // set up transform to local coordinate system
-    {
-        auto [xVec, yVec]    = localCoordSysNormalsXY();
-        cvf::Mat4d transform = cvf::Mat4d::fromCoordSystemAxes( &xVec, &yVec, &cvf::Vec3d::Z_AXIS );
-        cvf::Vec3d center    = m_targets[0]->targetPointXYZ() * -1.0;
-        center.z()           = 0.0;
-        center.transformPoint( transform );
-        transform.setTranslation( center );
-        m_modelPlane->setLocalCoordTransformation( transform );
-        m_modelPlane->setUseLocalCoordinates( m_useLocalCoordinates );
-    }
-
-    m_modelPlane->updateGeometry();
+    m_2Dmodel->setGenerator( generator );
+    m_2Dmodel->updateGeometry( m_startCellIndex, m_startCellFace );
 
     view->scheduleCreateDisplayModelAndRedraw();
 }
@@ -410,25 +389,9 @@ RivFaultReactivationModelPartMgr* RimFaultReactivationModel::partMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigBasicPlane> RimFaultReactivationModel::faultPlane() const
-{
-    return m_faultPlane;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 cvf::ref<RigFaultReactivationModel> RimFaultReactivationModel::model() const
 {
-    return m_modelPlane;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::showFaultPlane() const
-{
-    return m_showFaultPlane;
+    return m_2Dmodel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,24 +405,6 @@ bool RimFaultReactivationModel::showModel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3d, cvf::Vec3d> RimFaultReactivationModel::localCoordSysNormalsXY() const
-{
-    cvf::Vec3d yNormal = m_modelPlane->normal();
-    cvf::Vec3d xNormal = yNormal ^ cvf::Vec3d::Z_AXIS;
-
-    xNormal.z() = 0.0;
-    yNormal.z() = 0.0;
-    xNormal.normalize();
-    yNormal.normalize();
-
-    yNormal = xNormal ^ cvf::Vec3d::Z_AXIS;
-
-    return std::make_pair( xNormal, yNormal );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     auto genGrp = uiOrdering.addNewGroup( "General" );
@@ -467,14 +412,6 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     genGrp->add( &m_fault );
     genGrp->add( &m_baseDir );
     genGrp->add( &m_geomechCase );
-
-    auto faultGrp = uiOrdering.addNewGroup( "Fault Plane" );
-
-    faultGrp->add( &m_showFaultPlane );
-    faultGrp->add( &m_faultPlaneColor );
-    faultGrp->add( &m_extentHorizontal );
-    faultGrp->add( &m_extentVerticalAbove );
-    faultGrp->add( &m_extentVerticalBelow );
 
     auto modelGrp = uiOrdering.addNewGroup( "2D Model" );
     modelGrp->add( &m_showModelPlane );
@@ -484,14 +421,17 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     sizeModelGrp->add( &m_modelMinZ );
     sizeModelGrp->add( &m_modelBelowSize );
 
+    auto faultGrp = modelGrp->addNewGroup( "Fault" );
+    faultGrp->add( &m_faultExtendUpwards );
+    faultGrp->add( &m_faultExtendDownwards );
+
     auto gridModelGrp = modelGrp->addNewGroup( "Grid" );
 
     gridModelGrp->add( &m_modelThickness );
+    gridModelGrp->add( &m_maxReservoirCellHeight );
+    gridModelGrp->add( &m_cellHeightGrowFactor );
     gridModelGrp->add( &m_numberOfCellsHorzPart1 );
     gridModelGrp->add( &m_numberOfCellsHorzPart2 );
-    gridModelGrp->add( &m_numberOfCellsVertUp );
-    gridModelGrp->add( &m_numberOfCellsVertMid );
-    gridModelGrp->add( &m_numberOfCellsVertLow );
     gridModelGrp->add( &m_useLocalCoordinates );
 
     auto timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
@@ -544,7 +484,7 @@ void RimFaultReactivationModel::defineEditorAttribute( const caf::PdmFieldHandle
             tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
         }
     }
-    else if ( ( field == &m_extentVerticalAbove ) || ( field == &m_extentVerticalBelow ) )
+    else if ( ( field == &m_faultExtendUpwards ) || ( field == &m_faultExtendDownwards ) )
     {
         auto* attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
 
@@ -693,18 +633,18 @@ QString RimFaultReactivationModel::baseFilename() const
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationModel::exportModelSettings()
 {
-    if ( m_faultPlane.isNull() ) return false;
+    if ( m_2Dmodel.isNull() ) return false;
 
     QMap<QString, QVariant> settings;
 
-    auto [topPosition, bottomPosition] = m_faultPlane->intersectTopBottomLine();
-    auto faultNormal                   = m_faultPlane->normal();
+    // auto [topPosition, bottomPosition] = m_faultPlane->intersectTopBottomLine();
+    // auto faultNormal                   = m_faultPlane->normal();
 
-    // make sure we move horizontally
-    faultNormal.z() = 0.0;
-    faultNormal.normalize();
+    //// make sure we move horizontally
+    // faultNormal.z() = 0.0;
+    // faultNormal.normalize();
 
-    RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
+    // RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
 
     QDir directory( baseDir() );
     return ResInsightInternalJson::JsonWriter::encodeFile( settingsFilename(), settings );
