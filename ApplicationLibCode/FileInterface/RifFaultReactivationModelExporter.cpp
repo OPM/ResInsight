@@ -86,7 +86,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
     std::vector<std::function<std::pair<bool, std::string>()>> methods = {
         [&]() { return printHeading( stream, applicationNameAndVersion ); },
         [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries, materialNames ); },
-        [&]() { return printAssembly( stream, *model, partNames, rimModel.localCoordSysNormalsXY() ); },
+        [&]() { return printAssembly( stream, *model, partNames ); },
         [&]() { return printMaterials( stream, rimModel, materialNames ); },
         [&]() { return printInteractionProperties( stream, faultFriction ); },
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
@@ -237,8 +237,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
 std::pair<bool, std::string>
     RifFaultReactivationModelExporter::printAssembly( std::ostream&                                                stream,
                                                       const RigFaultReactivationModel&                             model,
-                                                      const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
-                                                      const std::pair<cvf::Vec3d, cvf::Vec3d>&                     transform )
+                                                      const std::map<RimFaultReactivation::GridPart, std::string>& partNames )
 {
     // ASSEMBLY part
     RifInpExportTools::printSectionComment( stream, "ASSEMBLY" );
@@ -264,7 +263,7 @@ std::pair<bool, std::string>
         std::string partName = partNameIt->second;
 
         RifInpExportTools::printHeading( stream, "Transform, nset=" + partName + "." + partName );
-        auto [dir1, dir2] = transform;
+        auto [dir1, dir2] = model.modelLocalNormalsXY();
         RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
     }
 
