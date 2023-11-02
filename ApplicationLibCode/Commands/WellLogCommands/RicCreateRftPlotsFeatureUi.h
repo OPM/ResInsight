@@ -18,23 +18,33 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
 
 #include <vector>
 
+class RimSummaryCaseCollection;
+
 //==================================================================================================
 ///
 //==================================================================================================
-class RicCreateRftPlotsFeature : public caf::CmdFeature
+class RicCreateRftPlotsFeatureUi : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicCreateRftPlotsFeatureUi();
+
+    void                 setDefaultEnsemble( RimSummaryCaseCollection* ensemble );
+    std::vector<QString> wellNames() const;
+
+protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-
-    std::vector<QString> wellNames() const;
+    caf::PdmPtrField<RimSummaryCaseCollection*> m_caseCollection;
+    caf::PdmField<std::vector<QString>>         m_selectedWellNames;
 };

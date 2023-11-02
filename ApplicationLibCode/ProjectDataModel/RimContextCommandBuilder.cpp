@@ -797,6 +797,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
+            menuBuilder << "RicCreateRftPlotsFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicConvertGroupToEnsembleFeature";
             menuBuilder.addSeparator();

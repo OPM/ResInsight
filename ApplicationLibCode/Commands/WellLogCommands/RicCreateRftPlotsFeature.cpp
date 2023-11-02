@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017  Statoil ASA
+//  Copyright (C) 2023 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,25 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicCreateRftPlotsFeature.h"
+#include "RicCreateRftPlotsFeatureUi.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimRftPlotCollection.h"
-#include "RimSimWellInView.h"
-#include "RimWellLogPlot.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
-#include "RimWellPath.h"
+#include "RimWellPlotTools.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 
-#include "cafSelectionManagerTools.h"
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
-
-#include "RimSummaryCaseCollection.h"
-#include "RimWellPlotTools.h"
-#include <vector>
 
 CAF_CMD_SOURCE_INIT( RicCreateRftPlotsFeature, "RicCreateRftPlotsFeature" );
 
@@ -44,16 +41,6 @@ CAF_CMD_SOURCE_INIT( RicCreateRftPlotsFeature, "RicCreateRftPlotsFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicCreateRftPlotsFeature::isCommandEnabled() const
 {
-    /*
-        RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection>();
-        if ( simWell ) return true;
-
-        if ( selectedWellName().isEmpty() )
-        {
-            return false;
-        }
-    */
-
     return true;
 }
 
@@ -62,11 +49,12 @@ bool RicCreateRftPlotsFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicCreateRftPlotsFeature::onActionTriggered( bool isChecked )
 {
+    auto wells = wellNames();
+
     RimRftPlotCollection* rftPlotColl = RimMainPlotCollection::current()->rftPlotCollection();
     if ( rftPlotColl )
     {
-        auto wellNames = wellNamesWithRft();
-        for ( const auto& wellName : wellNames )
+        for ( const auto& wellName : wells )
         {
             RimWellRftPlot* rftPlot = new RimWellRftPlot();
 
@@ -106,16 +94,29 @@ void RicCreateRftPlotsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RicCreateRftPlotsFeature::wellNamesWithRft()
+std::vector<QString> RicCreateRftPlotsFeature::wellNames() const
 {
-    std::set<QString> wellNames;
+    RicCreateRftPlotsFeatureUi ui;
 
-    const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsembles();
-    for ( RimSummaryCaseCollection* summaryCaseColl : rftEnsembles )
+    RimSummaryCaseCollection* defaultEnsemble = nullptr;
+
+    std::vector<RimSummaryCaseCollection*> caseCollection;
+    caf::SelectionManager::instance()->objectsByType( &caseCollection );
+
+    if ( caseCollection.size() == 1 )
     {
-        std::set<QString> wellsWithRftData = summaryCaseColl->wellsWithRftData();
-        wellNames.insert( wellsWithRftData.begin(), wellsWithRftData.end() );
+        defaultEnsemble = caseCollection[0];
+    }
+    else
+    {
+        const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsembles();
+        if ( !rftEnsembles.empty() ) defaultEnsemble = rftEnsembles.front();
     }
 
-    return { wellNames.begin(), wellNames.end() };
+    ui.setDefaultEnsemble( defaultEnsemble );
+
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &ui, "Select RFT wells", "" );
+    if ( propertyDialog.exec() != QDialog::Accepted ) return {};
+
+    return ui.wellNames();
 }
