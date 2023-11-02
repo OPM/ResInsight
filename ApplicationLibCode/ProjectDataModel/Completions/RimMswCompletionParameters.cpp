@@ -67,8 +67,8 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitField( &m_refMD, "RefMD", 0.0, "" );
 
     CAF_PDM_InitField( &m_customValuesForLateral, "CustomValuesForLateral", false, "Custom Values for Lateral" );
-    CAF_PDM_InitField( &m_linerDiameter, "LinerDiameter", std::numeric_limits<double>::infinity(), "Liner Inner Diameter" );
-    CAF_PDM_InitField( &m_roughnessFactor, "RoughnessFactor", std::numeric_limits<double>::infinity(), "Roughness Factor" );
+    CAF_PDM_InitField( &m_linerDiameter, "LinerDiameter", 0.152, "Liner Inner Diameter" );
+    CAF_PDM_InitField( &m_roughnessFactor, "RoughnessFactor", 1.0e-5, "Roughness Factor" );
 
     CAF_PDM_InitFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
     CAF_PDM_InitFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
@@ -158,6 +158,14 @@ double RimMswCompletionParameters::linerDiameter( RiaDefines::EclipseUnitSystem 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::linerDiameter() const
+{
+    return m_linerDiameter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem )
 {
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -193,6 +201,14 @@ double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSyste
     }
 
     return rFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::roughnessFactor() const
+{
+    return m_roughnessFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
