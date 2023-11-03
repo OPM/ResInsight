@@ -21,6 +21,7 @@
 namespace RimFaultReactivation
 {
 
+// TODO: 5 sections per part, not just 3
 enum class ModelParts
 {
     HiPart1,

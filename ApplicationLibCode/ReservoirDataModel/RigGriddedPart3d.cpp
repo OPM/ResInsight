@@ -26,6 +26,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfTextureImage.h"
 
+#include <map>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +61,14 @@ void RigGriddedPart3d::reset()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RigGriddedPart3d::Regions> RigGriddedPart3d::allRegions()
+{
+    return { Regions::LowerUnderburden, Regions::UpperUnderburden, Regions::Reservoir, Regions::LowerOverburden, Regions::UpperOverburden };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigGriddedPart3d::stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps )
 {
     cvf::Vec3d vec = stop - start;
@@ -79,7 +89,7 @@ std::vector<double> RigGriddedPart3d::generateConstantLayers( double zFrom, doub
         return layers;
     }
 
-    double steps = diff / maxSize;
+    double steps = std::abs( diff / maxSize );
 
     int nSteps = (int)std::ceil( steps );
 
@@ -98,7 +108,7 @@ std::vector<double> RigGriddedPart3d::generateConstantLayers( double zFrom, doub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor )
+std::vector<double> RigGriddedPart3d::generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor )
 {
     std::vector<double> layers;
 
@@ -137,6 +147,21 @@ std::vector<double> generateGrowingLayers( double zFrom, double zTo, double maxS
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> points )
+{
+    std::vector<double> layers;
+
+    for ( auto& p : points )
+    {
+        layers.push_back( p.z() );
+    }
+
+    return layers;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///  Point index in input
 ///
 ///
@@ -169,13 +194,183 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
 {
     reset();
 
-    auto layersUL = generateGrowingLayers( inputPoints[1].z(), inputPoints[0].z(), maxCellHeight, cellSizeFactor );
+    std::map<Regions, std::vector<double>> layersPerRegion;
 
-    auto layersUU = generateConstantLayers( inputPoints[1].z(), inputPoints[2].z(), maxCellHeight );
+    layersPerRegion[Regions::LowerUnderburden] = generateGrowingLayers( inputPoints[1].z(), inputPoints[0].z(), maxCellHeight, cellSizeFactor );
+    layersPerRegion[Regions::UpperUnderburden] = generateConstantLayers( inputPoints[1].z(), inputPoints[2].z(), maxCellHeight );
+    layersPerRegion[Regions::Reservoir]        = extractZValues( reservoirLayers );
+    layersPerRegion[Regions::LowerOverburden]  = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
+    layersPerRegion[Regions::UpperOverburden] = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
 
-    auto layersOL = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
+    size_t nVertCells = 0;
 
-    auto layersOU = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
+    for ( auto region : allRegions() )
+    {
+        nVertCells += layersPerRegion[region].size();
+    }
+
+    const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
+    const int                 nThicknessCells    = 2;
+    cvf::Vec3d                tVec               = stepVector( inputPoints[0], inputPoints[6], nHorzCells ) ^ cvf::Vec3d::Z_AXIS;
+    tVec.normalize();
+    tVec *= modelThickness;
+
+    m_nodes.reserve( ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 ) );
+
+    unsigned int nodeIndex = 0;
+    unsigned int layer     = 0;
+
+    cvf::Vec3d fromPos;
+    cvf::Vec3d toPos;
+    cvf::Vec3d fromStep;
+    cvf::Vec3d toStep;
+
+    for ( auto region : allRegions() )
+    {
+        switch ( region )
+        {
+            case Regions::LowerUnderburden:
+                fromPos  = inputPoints[0];
+                toPos    = inputPoints[6];
+                fromStep = cvf::Vec3d( 0, 0, 0 );
+                toStep   = cvf::Vec3d( 0, 0, 0 );
+                break;
+
+            case Regions::UpperUnderburden:
+                fromPos  = inputPoints[1];
+                toPos    = inputPoints[7];
+                fromStep = stepVector( inputPoints[1], inputPoints[2], (int)layersPerRegion[region].size() );
+                toStep   = stepVector( inputPoints[7], inputPoints[8], (int)layersPerRegion[region].size() );
+                break;
+
+            case Regions::Reservoir:
+                fromPos = inputPoints[2];
+                toPos   = inputPoints[8];
+                break;
+
+            case Regions::LowerOverburden:
+                fromPos  = inputPoints[3];
+                toPos    = inputPoints[9];
+                fromStep = stepVector( inputPoints[3], inputPoints[4], (int)layersPerRegion[region].size() );
+                toStep   = stepVector( inputPoints[9], inputPoints[10], (int)layersPerRegion[region].size() );
+                break;
+
+            case Regions::UpperOverburden:
+                fromPos  = inputPoints[4];
+                toPos    = inputPoints[10];
+                fromStep = cvf::Vec3d( 0, 0, 0 );
+                toStep   = cvf::Vec3d( 0, 0, 0 );
+                break;
+        }
+
+        for ( int v = 0; v < layersPerRegion[region].size(); v++, layer++ )
+        {
+            if ( ( region == Regions::LowerUnderburden ) || ( region == Regions::UpperOverburden ) )
+            {
+                fromPos.z() = layersPerRegion[region][v];
+                toPos.z()   = layersPerRegion[region][v];
+            }
+
+            cvf::Vec3d p        = fromPos;
+            cvf::Vec3d stepHorz = stepVector( fromPos, toPos, nHorzCells );
+
+            m_meshLines.push_back( { fromPos, toPos } );
+
+            for ( int h = 0; h <= nHorzCells; h++ )
+            {
+                for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
+                {
+                    m_nodes.push_back( p + m_thicknessFactors[t] * tVec );
+                    if ( layer == 0 )
+                    {
+                        m_boundaryNodes[Boundary::Bottom].push_back( nodeIndex );
+                    }
+                    if ( h == 0 )
+                    {
+                        m_boundaryNodes[Boundary::FarSide].push_back( nodeIndex );
+                    }
+                }
+
+                p += stepHorz;
+            }
+
+            if ( region == Regions::Reservoir )
+            {
+                toPos       = reservoirLayers[v];
+                fromPos.z() = toPos.z();
+            }
+            else
+            {
+                fromPos += fromStep;
+                toPos += toStep;
+            }
+        }
+    }
+
+    // ** generate elements of type hex8
+
+    m_elementIndices.resize( (size_t)( nVertCells * nHorzCells * nThicknessCells ) );
+
+    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
+    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::FaultSurface] = {};
+    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::LowerSurface] = {};
+
+    m_boundaryElements[Boundary::Bottom]  = {};
+    m_boundaryElements[Boundary::FarSide] = {};
+
+    int layerIndexOffset = 0;
+    int elementIdx       = 0;
+    layer                = 0;
+
+    int nVertCellsLower = (int)layersPerRegion[Regions::LowerUnderburden].size();
+    int nVertCellsFault = (int)( layersPerRegion[Regions::UpperUnderburden].size() + layersPerRegion[Regions::Reservoir].size() +
+                                 layersPerRegion[Regions::LowerOverburden].size() );
+    int nVertCellsUpper = (int)layersPerRegion[Regions::UpperUnderburden].size();
+
+    RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
+
+    const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
+    const int nThicknessOff   = nThicknessCells + 1;
+
+    for ( int v = 0; v < nVertCells; v++, layer++ )
+    {
+        if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
+        if ( v >= nVertCellsLower + nVertCellsFault ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
+
+        int i = layerIndexOffset;
+
+        for ( int h = 0; h < nHorzCells; h++ )
+        {
+            for ( int t = 0; t < nThicknessCells; t++, elementIdx++ )
+            {
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
+
+                m_elementIndices[elementIdx].push_back( t + i );
+                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
+                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
+                m_elementIndices[elementIdx].push_back( t + i + 1 );
+
+                if ( layer == 0 )
+                {
+                    m_boundaryElements[Boundary::Bottom].push_back( elementIdx );
+                }
+                if ( h == 0 )
+                {
+                    m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
+                }
+            }
+            i += nThicknessOff;
+        }
+
+        // add elements to border surface in current region
+        m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 2 );
+        m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
+
+        layerIndexOffset += nextLayerIdxOff;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

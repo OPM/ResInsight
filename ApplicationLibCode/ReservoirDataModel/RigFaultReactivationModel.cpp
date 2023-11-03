@@ -41,18 +41,10 @@ RigFaultReactivationModel::RigFaultReactivationModel()
         m_parts[part].rect.reserve( 4 );
     }
 
-    // m_cornerIndexes[ModelParts::HiPart1]  = { 2, 3, 7, 6 };
-    // m_cornerIndexes[ModelParts::MidPart1] = { 1, 2, 6, 5 };
-    // m_cornerIndexes[ModelParts::LowPart1] = { 0, 1, 5, 4 };
-
-    // m_cornerIndexes[ModelParts::HiPart2]  = { 6, 7, 11, 10 };
-    // m_cornerIndexes[ModelParts::MidPart2] = { 5, 6, 10, 9 };
-    // m_cornerIndexes[ModelParts::LowPart2] = { 4, 5, 9, 8 };
-
-    // for ( auto part : allGridParts() )
-    //{
-    //     m_3dparts[part] = std::make_shared<RigGriddedPart3d>( part == GridPart::PART2 );
-    // }
+    for ( auto part : allGridParts() )
+    {
+        m_3dparts[part] = std::make_shared<RigGriddedPart3d>();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +139,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::modelLocalNormalsXY
 void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace )
 {
     reset();
-    m_generator->generateGeometry( startCell, startFace );
+    m_generator->generateGeometry( startCell, startFace, m_3dparts[GridPart::PART1].get(), m_3dparts[GridPart::PART2].get() );
 }
 
 //--------------------------------------------------------------------------------------------------
