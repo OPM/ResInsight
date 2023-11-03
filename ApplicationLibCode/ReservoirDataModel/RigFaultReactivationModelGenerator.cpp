@@ -301,10 +301,10 @@ std::pair<std::array<cvf::Vec3d, 12>, std::array<cvf::Vec3d, 12>> RigFaultReacti
     std::vector<size_t> frontMap = { 0, 1, 3, 5, 6, 7, 8, 9, 11, 13, 14, 15 };
     std::vector<size_t> backMap  = { 8, 9, 10, 12, 14, 15, 16, 17, 18, 20, 22, 23 };
 
-    for (int i = 0; i < 12; i++)
+    for ( int i = 0; i < 12; i++ )
     {
         frontPoints[i] = points[frontMap[i]];
-        backPoints[i] = points[backMap[i]];
+        backPoints[i]  = points[backMap[i]];
     }
 
     return std::make_pair( frontPoints, backPoints );
@@ -313,7 +313,10 @@ std::pair<std::array<cvf::Vec3d, 12>, std::array<cvf::Vec3d, 12>> RigFaultReacti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::generateGeometry( size_t startCellIndex, cvf::StructGridInterface::FaceType startFace )
+void RigFaultReactivationModelGenerator::generateGeometry( size_t                             startCellIndex,
+                                                           cvf::StructGridInterface::FaceType startFace,
+                                                           RigGriddedPart3d*                  frontPart,
+                                                           RigGriddedPart3d*                  backPart )
 {
     std::vector<size_t> cellColumnBack;
     std::vector<size_t> cellColumnFront;
@@ -348,55 +351,45 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t startCellIndex
     auto zPositionsBack  = elementLayers( startFace, cellColumnBack );
     auto zPositionsFront = elementLayers( oppositeStartFace, cellColumnFront );
 
-    // add extra fault buffer above the fault, starting at the deepest top-most cell on either side of the fault
+    // add extra fault buffer below the fault, starting at the deepest bottom-most cell on either side of the fault
 
-    double front_top    = zPositionsFront.begin()->first;
-    double back_top     = zPositionsBack.begin()->first;
-    m_topReservoirFront = zPositionsFront.begin()->second;
-    m_topReservoirBack  = zPositionsBack.begin()->second;
-
-    cvf::Vec3d top_point = m_topReservoirFront;
-
-    if ( front_top > back_top )
-    {
-        top_point = extrapolatePoint( ( ++zPositionsBack.begin() )->second, zPositionsBack.begin()->second, m_bufferAboveFault );
-    }
-    else if ( back_top > front_top )
-    {
-        top_point = extrapolatePoint( ( ++zPositionsFront.begin() )->second, zPositionsFront.begin()->second, m_bufferAboveFault );
-    }
-
-    if ( front_top != back_top )
-    {
-        zPositionsBack[top_point.z()]  = top_point;
-        zPositionsFront[top_point.z()] = top_point;
-    }
-    m_topFault = top_point;
-
-    // add extra fault buffer below the fault, starting at the shallowest bottom-most cell on either side of the fault
-
-    double front_bottom    = zPositionsFront.rbegin()->first;
-    double back_bottom     = zPositionsBack.rbegin()->first;
-    m_bottomReservoirFront = zPositionsFront.rbegin()->second;
-    m_bottomReservoirBack  = zPositionsBack.rbegin()->second;
+    double front_bottom    = zPositionsFront.begin()->first;
+    double back_bottom     = zPositionsBack.begin()->first;
+    m_bottomReservoirFront = zPositionsFront.begin()->second;
+    m_bottomReservoirBack  = zPositionsBack.begin()->second;
 
     cvf::Vec3d bottom_point = m_bottomReservoirFront;
 
-    if ( front_bottom > back_bottom )
+    if ( front_bottom < back_bottom )
     {
-        bottom_point = extrapolatePoint( ( ++zPositionsFront.rbegin() )->second, zPositionsFront.rbegin()->second, m_bufferBelowFault );
+        bottom_point = extrapolatePoint( zPositionsBack.begin()->second, ( ++zPositionsBack.begin() )->second, m_bufferBelowFault );
     }
-    else if ( back_bottom > front_bottom )
+    else if ( back_bottom < front_bottom )
     {
-        bottom_point = extrapolatePoint( ( ++zPositionsBack.rbegin() )->second, zPositionsBack.rbegin()->second, m_bufferBelowFault );
+        bottom_point = extrapolatePoint( zPositionsFront.begin()->second, ( ++zPositionsFront.begin() )->second, m_bufferBelowFault );
     }
 
-    if ( back_bottom != front_bottom )
-    {
-        zPositionsBack[bottom_point.z()]  = bottom_point;
-        zPositionsFront[bottom_point.z()] = bottom_point;
-    }
     m_bottomFault = bottom_point;
+
+    // add extra fault buffer above the fault, starting at the shallowest top-most cell on either side of the fault
+
+    double front_top    = zPositionsFront.rbegin()->first;
+    double back_top     = zPositionsBack.rbegin()->first;
+    m_topReservoirFront = zPositionsFront.rbegin()->second;
+    m_topReservoirBack  = zPositionsBack.rbegin()->second;
+
+    cvf::Vec3d top_point = m_topReservoirFront;
+
+    if ( front_top < back_top )
+    {
+        top_point = extrapolatePoint( zPositionsFront.rbegin()->second, ( ++zPositionsFront.rbegin() )->second, m_bufferAboveFault );
+    }
+    else if ( back_top < front_top )
+    {
+        top_point = extrapolatePoint( zPositionsBack.rbegin()->second, ( ++zPositionsBack.rbegin() )->second, m_bufferAboveFault );
+    }
+
+    m_topFault = top_point;
 
     // TODO - spilt layers in zPositions that are larger than the user given limit m_maxCellHeight
 
@@ -408,19 +401,20 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t startCellIndex
     for ( auto& kvp : zPositionsBack )
         backReservoirLayers.push_back( kvp.second );
 
+    // topmost layer is not needed, remove it to avoid duplication when put together with the overburden parts
+    frontReservoirLayers.pop_back();
+    backReservoirLayers.pop_back();
+
     auto [frontPartPoints, backPartPoints] = generatePointsFrontBack();
 
-    RigGriddedPart3d frontPart;
-    RigGriddedPart3d backPart;
+    frontPart->generateGeometry( frontPartPoints, frontReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzFront, m_modelThickness );
+    backPart->generateGeometry( backPartPoints, backReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzBack, m_modelThickness );
 
-    frontPart.generateGeometry( frontPartPoints, frontReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzFront, m_modelThickness );
-    backPart.generateGeometry( backPartPoints, backReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzBack, m_modelThickness );
+    frontPart->generateLocalNodes( m_localCoordTransform );
+    backPart->generateLocalNodes( m_localCoordTransform );
 
-    frontPart.generateLocalNodes( m_localCoordTransform );
-    backPart.generateLocalNodes( m_localCoordTransform );
-
-    frontPart.setUseLocalCoordinates( m_useLocalCoordinates );
-    backPart.setUseLocalCoordinates( m_useLocalCoordinates );
+    frontPart->setUseLocalCoordinates( m_useLocalCoordinates );
+    backPart->setUseLocalCoordinates( m_useLocalCoordinates );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -459,7 +453,7 @@ std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( 
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double buffer )
 {
-    cvf::Vec3d direction = endPoint - startPoint;
+    cvf::Vec3d direction = startPoint - endPoint;
     direction.normalize();
 
     return endPoint + ( buffer * direction );

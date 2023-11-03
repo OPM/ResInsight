@@ -30,6 +30,7 @@
 
 class RigFault;
 class RigMainGrid;
+class RigGriddedPart3d;
 
 class RigFaultReactivationModelGenerator : cvf::Object
 {
@@ -49,7 +50,10 @@ public:
 
     std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY();
 
-    void generateGeometry( size_t startCellIndex, cvf::StructGridInterface::FaceType startFace );
+    void generateGeometry( size_t                             startCellIndex,
+                           cvf::StructGridInterface::FaceType startFace,
+                           RigGriddedPart3d*                  frontPart,
+                           RigGriddedPart3d*                  backPart );
 
 protected:
     static const std::array<int, 4> faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
