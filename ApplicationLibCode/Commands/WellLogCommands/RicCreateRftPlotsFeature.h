@@ -25,6 +25,7 @@
 #include <vector>
 
 class RimRftPlotCollection;
+class RimWellRftPlot;
 
 //==================================================================================================
 ///
@@ -33,12 +34,9 @@ class RicCreateRftPlotsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static void appendRftPlotForWell( const QString& wellName, RimRftPlotCollection* rftPlotColl );
+    static void appendRftPlotForWell( const QString& wellName, RimRftPlotCollection* rftPlotColl, RimWellRftPlot* sourcePlot );
 
 private:
-    bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-    std::vector<QString> wellNames() const;
 };

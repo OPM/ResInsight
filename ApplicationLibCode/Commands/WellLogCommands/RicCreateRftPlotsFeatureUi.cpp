@@ -18,9 +18,6 @@
 
 #include "RicCreateRftPlotsFeatureUi.h"
 
-#include "RimSummaryCaseCollection.h"
-#include "RimWellPlotTools.h"
-
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RicCreateRftPlotsFeatureUi, "RicCreateRftPlotsFeatureUi" );
@@ -32,7 +29,6 @@ RicCreateRftPlotsFeatureUi::RicCreateRftPlotsFeatureUi()
 {
     CAF_PDM_InitObject( "RicCreateRftPlotsFeatureUi" );
 
-    CAF_PDM_InitFieldNoDefault( &m_caseCollection, "CaseCollection", "Ensemble" );
     CAF_PDM_InitFieldNoDefault( &m_selectedWellNames, "SelectedWellNames", "Well Names" );
     m_selectedWellNames.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 }
@@ -40,15 +36,15 @@ RicCreateRftPlotsFeatureUi::RicCreateRftPlotsFeatureUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateRftPlotsFeatureUi::setDefaultEnsemble( RimSummaryCaseCollection* ensemble )
+void RicCreateRftPlotsFeatureUi::setAllWellNames( const std::vector<QString>& wellNames )
 {
-    m_caseCollection = ensemble;
+    m_allWellNames = wellNames;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RicCreateRftPlotsFeatureUi::wellNames() const
+std::vector<QString> RicCreateRftPlotsFeatureUi::selectedWellNames() const
 {
     return m_selectedWellNames();
 }
@@ -59,18 +55,9 @@ std::vector<QString> RicCreateRftPlotsFeatureUi::wellNames() const
 QList<caf::PdmOptionItemInfo> RicCreateRftPlotsFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &m_caseCollection )
+    if ( fieldNeedingOptions == &m_selectedWellNames )
     {
-        const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsembles();
-        for ( RimSummaryCaseCollection* summaryCaseColl : rftEnsembles )
-        {
-            options.append( caf::PdmOptionItemInfo( summaryCaseColl->name(), summaryCaseColl ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_selectedWellNames && m_caseCollection )
-    {
-        std::set<QString> wellsWithRftData = m_caseCollection->wellsWithRftData();
-        for ( const auto& wellName : wellsWithRftData )
+        for ( const auto& wellName : m_allWellNames )
         {
             options.append( caf::PdmOptionItemInfo( wellName, wellName ) );
         }

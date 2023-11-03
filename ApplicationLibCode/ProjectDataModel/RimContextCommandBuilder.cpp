@@ -168,6 +168,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPltPlot.h"
+#include "RimWellRftPlot.h"
 
 #ifdef USE_QTCHARTS
 #include "RimEnsembleFractureStatisticsPlotCollection.h"
@@ -565,7 +566,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimRftPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewRftPlotFeature";
-            menuBuilder << "RicCreateRftPlotsFeature";
             menuBuilder << "RicNewMultiPhaseRftSegmentPlotFeature";
             menuBuilder << "RicNewRftSegmentWellLogPlotFeature";
         }
@@ -631,6 +631,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryTable*>( firstUiItem ) )
         {
             menuBuilder << "RicDuplicateSummaryTableFeature";
+        }
+        else if ( dynamic_cast<RimWellRftPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicCreateRftPlotsFeature";
         }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) && !dynamic_cast<RimWellPltPlot*>( firstUiItem ) )
         {
@@ -797,7 +801,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
-            menuBuilder << "RicCreateRftPlotsFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicConvertGroupToEnsembleFeature";
             menuBuilder.addSeparator();

@@ -26,8 +26,6 @@
 
 #include <vector>
 
-class RimSummaryCaseCollection;
-
 //==================================================================================================
 ///
 //==================================================================================================
@@ -38,13 +36,14 @@ class RicCreateRftPlotsFeatureUi : public caf::PdmObject
 public:
     RicCreateRftPlotsFeatureUi();
 
-    void                 setDefaultEnsemble( RimSummaryCaseCollection* ensemble );
-    std::vector<QString> wellNames() const;
+    void                 setAllWellNames( const std::vector<QString>& wellNames );
+    std::vector<QString> selectedWellNames() const;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_caseCollection;
-    caf::PdmField<std::vector<QString>>         m_selectedWellNames;
+    caf::PdmField<std::vector<QString>> m_selectedWellNames;
+
+    std::vector<QString> m_allWellNames;
 };
