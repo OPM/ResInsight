@@ -75,13 +75,27 @@ public:
 protected:
     static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
     static std::vector<double> generateConstantLayers( double zFrom, double zTo, double maxSize );
-            
+    static std::vector<double> generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor );
+    static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
+
     void generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells );
 
     bool elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
     bool elementIsBelowReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
 
     std::pair<int, int> reservoirZTopBottom( const RigMainGrid* grid ) const;
+
+private:
+    enum class Regions
+    {
+        LowerUnderburden = 0, // deepest region goes first
+        UpperUnderburden,
+        Reservoir,
+        LowerOverburden,
+        UpperOverburden
+    };
+
+    static std::vector<Regions> allRegions();
 
 private:
     bool m_useLocalCoordinates;
