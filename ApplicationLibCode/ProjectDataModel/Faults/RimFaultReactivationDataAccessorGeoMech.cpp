@@ -29,6 +29,7 @@
 
 #include "RimFaultReactivationEnums.h"
 #include "RimGeoMechCase.h"
+#include "RimWellIADataAccess.h"
 
 #include <cmath>
 #include <limits>
@@ -98,55 +99,16 @@ double RimFaultReactivationDataAccessorGeoMech::valueAtPosition( const cvf::Vec3
 {
     if ( !m_resultFrames ) return std::numeric_limits<double>::infinity();
 
-    auto findCloseCells = [this]( const cvf::BoundingBox& bb, int partId ) -> std::vector<size_t>
+    RimWellIADataAccess iaDataAccess( m_geoMechCase );
+    int                 elementIdx = iaDataAccess.elementIndex( position );
+    if ( elementIdx != -1 )
     {
-        std::vector<size_t> closeCells;
+        int timeStepIndex = 0;
+        int frameIndex    = 0;
 
-        if ( m_geoMechCaseData->femParts()->partCount() )
-        {
-            m_geoMechCaseData->femParts()->part( partId )->findIntersectingElementIndices( bb, &closeCells );
-        }
-        return closeCells;
-    };
-
-    const int                      partId     = 0;
-    const RigFemPart*              femPart    = m_geoMechCaseData->femParts()->part( partId );
-    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
-
-    cvf::BoundingBox bb;
-    bb.add( position );
-
-    std::vector<size_t> closeCells = findCloseCells( bb, partId );
-
-    cvf::Vec3d hexCorners[8];
-    for ( size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx )
-    {
-        size_t elementIdx = closeCells[ccIdx];
-
-        RigElementType elmType = femPart->elementType( elementIdx );
-        if ( elmType != HEX8 && elmType != HEX8P ) continue;
-
-        const int* cornerIndices = femPart->connectivities( elementIdx );
-
-        hexCorners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
-        hexCorners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );
-        hexCorners[2] = cvf::Vec3d( nodeCoords[cornerIndices[2]] );
-        hexCorners[3] = cvf::Vec3d( nodeCoords[cornerIndices[3]] );
-        hexCorners[4] = cvf::Vec3d( nodeCoords[cornerIndices[4]] );
-        hexCorners[5] = cvf::Vec3d( nodeCoords[cornerIndices[5]] );
-        hexCorners[6] = cvf::Vec3d( nodeCoords[cornerIndices[6]] );
-        hexCorners[7] = cvf::Vec3d( nodeCoords[cornerIndices[7]] );
-
-        if ( RigHexIntersectionTools::isPointInCell( position, hexCorners ) )
-        {
-            int timeStepIndex = 0;
-            int frameIndex    = 0;
-
-            const std::vector<float>& data = m_resultFrames->frameData( timeStepIndex, frameIndex );
-            if ( elementIdx >= data.size() ) return std::numeric_limits<double>::infinity();
-
-            return data[elementIdx];
-        }
+        const std::vector<float>& data = m_resultFrames->frameData( timeStepIndex, frameIndex );
+        if ( elementIdx >= static_cast<int>( data.size() ) ) return std::numeric_limits<double>::infinity();
+        return data[elementIdx];
     }
 
     return std::numeric_limits<double>::infinity();
