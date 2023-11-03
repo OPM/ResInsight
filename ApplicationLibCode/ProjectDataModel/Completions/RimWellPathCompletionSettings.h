@@ -20,6 +20,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 class RimMswCompletionParameters;
 class RimWellPathCompletionsLegacy;
@@ -93,6 +94,11 @@ protected:
 private:
     QString formatStringForExport( const QString& text, const QString& defaultText = "" ) const;
 
+    void   setMswRoughness( const double& roughness );
+    double mswRoughness() const;
+    void   setMswLinerDiameter( const double& diameter );
+    double mswLinerDiameter() const;
+
 private:
     friend class RimWellPathCompletions;
 
@@ -110,4 +116,9 @@ private:
     caf::PdmField<int>                     m_fluidInPlaceRegion;
 
     caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
+
+    // Use proxy fields for selected parameters in RimMswCompletionParameters, so it is possible to modify these values from the same
+    // scripting object
+    caf::PdmProxyValueField<double> m_mswLinerDiameter;
+    caf::PdmProxyValueField<double> m_mswRoughness;
 };

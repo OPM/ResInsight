@@ -24,6 +24,8 @@
 #include "RimWellPath.h"
 
 #include "cafPdmDoubleStringValidator.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -79,13 +81,13 @@ CAF_PDM_SOURCE_INIT( RimWellPathCompletionSettings, "WellPathCompletionSettings"
 //--------------------------------------------------------------------------------------------------
 RimWellPathCompletionSettings::RimWellPathCompletionSettings()
 {
-    CAF_PDM_InitObject( "Completion Settings", ":/CompletionsSymbol16x16.png" );
-    CAF_PDM_InitField( &m_wellNameForExport, "WellNameForExport", QString(), "Well Name" );
+    CAF_PDM_InitScriptableObject( "Completion Settings", ":/CompletionsSymbol16x16.png" );
+    CAF_PDM_InitScriptableField( &m_wellNameForExport, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_groupName, "WellGroupNameForExport", QString(), "Group Name" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_groupName, "WellGroupNameForExport", "GroupNameForExport", QString(), "Group Name" );
     CAF_PDM_InitField( &m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for BHP" );
-    CAF_PDM_InitFieldNoDefault( &m_preferredFluidPhase, "WellTypeForExport", "Preferred Fluid Phase" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_preferredFluidPhase, "WellTypeForExport", "Preferred Fluid Phase" );
     CAF_PDM_InitField( &m_drainageRadiusForPI, "DrainageRadiusForPI", QString( "0.0" ), "Drainage Radius for PI" );
     CAF_PDM_InitFieldNoDefault( &m_gasInflowEquation, "GasInflowEq", "Gas Inflow Equation" );
     CAF_PDM_InitFieldNoDefault( &m_automaticWellShutIn, "AutoWellShutIn", "Automatic well shut-in" );
@@ -98,6 +100,14 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     m_mswParameters = new RimMswCompletionParameters;
     m_mswParameters.uiCapability()->setUiTreeHidden( true );
     m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_mswLinerDiameter, "MswLinerDiameter", "MSW Liner Diameter" );
+    m_mswLinerDiameter.registerGetMethod( this, &RimWellPathCompletionSettings::mswLinerDiameter );
+    m_mswLinerDiameter.registerSetMethod( this, &RimWellPathCompletionSettings::setMswLinerDiameter );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_mswRoughness, "MswRoughness", "MSW Roughness" );
+    m_mswRoughness.registerGetMethod( this, &RimWellPathCompletionSettings::mswRoughness );
+    m_mswRoughness.registerSetMethod( this, &RimWellPathCompletionSettings::setMswRoughness );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,4 +370,36 @@ QString RimWellPathCompletionSettings::formatStringForExport( const QString& tex
     if ( text.isEmpty() ) return defaultValue;
     if ( text.contains( ' ' ) ) return QString( "'%1'" ).arg( text );
     return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletionSettings::setMswRoughness( const double& roughness )
+{
+    m_mswParameters->setRoughnessFactor( roughness );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathCompletionSettings::mswRoughness() const
+{
+    return m_mswParameters->roughnessFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletionSettings::setMswLinerDiameter( const double& diameter )
+{
+    m_mswParameters->setLinerDiameter( diameter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathCompletionSettings::mswLinerDiameter() const
+{
+    return m_mswParameters->linerDiameter();
 }
