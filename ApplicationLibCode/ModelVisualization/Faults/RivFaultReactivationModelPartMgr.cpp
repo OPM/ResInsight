@@ -70,35 +70,35 @@ void RivFaultReactivationModelPartMgr::appendMeshPartsToModel( Rim3dView*       
                                                                const caf::DisplayCoordTransform* transform,
                                                                const cvf::BoundingBox&           boundingBox )
 {
-    // auto model2d = m_frm->model();
-    // if ( model2d.notNull() && model2d->isValid() && m_frm->isChecked() && m_frm->showModel() )
-    //{
-    //     for ( auto gridPart : m_frm->model()->allGridParts() )
-    //     {
-    //         auto& lines = m_frm->model()->meshLines( gridPart );
+    auto model2d = m_frm->model();
+    if ( model2d.notNull() && model2d->isValid() && m_frm->isChecked() && m_frm->showModel() )
+    {
+        for ( auto gridPart : m_frm->model()->allGridParts() )
+        {
+            auto& lines = m_frm->model()->meshLines( gridPart );
 
-    //        std::vector<std::vector<cvf::Vec3d>> displayPoints;
-    //        for ( const auto& pts : lines )
-    //        {
-    //            displayPoints.push_back( transform->transformToDisplayCoords( pts ) );
-    //        }
+            std::vector<std::vector<cvf::Vec3d>> displayPoints;
+            for ( const auto& pts : lines )
+            {
+                displayPoints.push_back( transform->transformToDisplayCoords( pts ) );
+            }
 
-    //        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createSetOfLines( displayPoints );
-    //        cvf::ref<cvf::Part>        part        = new cvf::Part;
-    //        part->setName( "FaultReactMeshLines" );
-    //        part->setDrawable( drawableGeo.p() );
+            cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createSetOfLines( displayPoints );
+            cvf::ref<cvf::Part>        part        = new cvf::Part;
+            part->setName( "FaultReactMeshLines" );
+            part->setDrawable( drawableGeo.p() );
 
-    //        caf::MeshEffectGenerator effgen( cvf::Color3::LIGHT_GRAY );
-    //        effgen.setLineWidth( 1.5 );
-    //        effgen.setLineStipple( false );
-    //        cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
+            caf::MeshEffectGenerator effgen( cvf::Color3::LIGHT_GRAY );
+            effgen.setLineWidth( 1.5 );
+            effgen.setLineStipple( false );
+            cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
 
-    //        part->setEffect( eff.p() );
-    //        part->setPriority( RivPartPriority::PartType::MeshLines );
+            part->setEffect( eff.p() );
+            part->setPriority( RivPartPriority::PartType::MeshLines );
 
-    //        vizModel->addPart( part.p() );
-    //    }
-    //}
+            vizModel->addPart( part.p() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,22 +110,22 @@ void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBas
 {
     if ( !m_canUseShaders ) return;
 
-    // auto theModel = m_frm->model();
-    // if ( theModel->isValid() && m_frm->showModel() )
-    //{
-    //     for ( auto part : theModel->allModelParts() )
-    //     {
-    //         cvf::Vec3dArray displayPoints;
-    //         displayPoints.reserve( theModel->rect( part ).size() );
+    auto theModel = m_frm->model();
+    if ( theModel->isValid() && m_frm->showModel() )
+    {
+        for ( auto part : theModel->allModelParts() )
+        {
+            cvf::Vec3dArray displayPoints;
+            displayPoints.reserve( theModel->rect( part ).size() );
 
-    //        for ( auto& vOrg : theModel->rect( part ) )
-    //        {
-    //            displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
-    //        }
+            for ( auto& vOrg : theModel->rect( part ) )
+            {
+                displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
+            }
 
-    //        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, theModel->texture( part ), false );
+            cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, theModel->texture( part ), false );
 
-    //        vizModel->addPart( quadPart.p() );
-    //    }
-    //}
+            vizModel->addPart( quadPart.p() );
+        }
+    }
 }
