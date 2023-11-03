@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017  Statoil ASA
+//  Copyright (C) 2023 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,72 +16,52 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewRftPlotFeature.h"
+#include "RicCreateRftPlotsFeatureUi.h"
 
-#include "RicCreateRftPlotsFeature.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
-#include "RimMainPlotCollection.h"
-#include "RimRftPlotCollection.h"
-#include "RimSimWellInView.h"
-#include "RimWellPath.h"
-
-#include "cafSelectionManagerTools.h"
-
-#include <QAction>
-
-#include <vector>
-
-CAF_CMD_SOURCE_INIT( RicNewRftPlotFeature, "RicNewRftPlotFeature" );
+CAF_PDM_SOURCE_INIT( RicCreateRftPlotsFeatureUi, "RicCreateRftPlotsFeatureUi" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRftPlotFeature::isCommandEnabled() const
+RicCreateRftPlotsFeatureUi::RicCreateRftPlotsFeatureUi()
 {
-    auto* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection>();
-    if ( simWell ) return true;
+    CAF_PDM_InitObject( "RicCreateRftPlotsFeatureUi" );
 
-    if ( selectedWellName().isEmpty() )
+    CAF_PDM_InitFieldNoDefault( &m_selectedWellNames, "SelectedWellNames", "Well Names" );
+    m_selectedWellNames.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateRftPlotsFeatureUi::setAllWellNames( const std::vector<QString>& wellNames )
+{
+    m_allWellNames = wellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RicCreateRftPlotsFeatureUi::selectedWellNames() const
+{
+    return m_selectedWellNames();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RicCreateRftPlotsFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_selectedWellNames )
     {
-        return false;
+        for ( const auto& wellName : m_allWellNames )
+        {
+            options.append( caf::PdmOptionItemInfo( wellName, wellName ) );
+        }
     }
 
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
-{
-    RimRftPlotCollection* rftPlotColl = RimMainPlotCollection::current()->rftPlotCollection();
-    if ( rftPlotColl )
-    {
-        QString wellName = selectedWellName();
-
-        RicCreateRftPlotsFeature::appendRftPlotForWell( wellName, rftPlotColl );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewRftPlotFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setText( "New RFT Plot" );
-    actionToSetup->setIcon( QIcon( ":/FlowCharPlot16x16.png" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicNewRftPlotFeature::selectedWellName()
-{
-    auto* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView>();
-    if ( simWell ) return simWell->name();
-
-    auto* rimWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
-    if ( rimWellPath ) return rimWellPath->name();
-
-    return {};
+    return options;
 }
