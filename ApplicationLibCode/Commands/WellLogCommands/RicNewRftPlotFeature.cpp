@@ -59,7 +59,7 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
     {
         QString wellName = selectedWellName();
 
-        RicCreateRftPlotsFeature::appendRftPlotForWell( wellName, rftPlotColl );
+        RicCreateRftPlotsFeature::appendRftPlotForWell( wellName, rftPlotColl, nullptr );
     }
 }
 

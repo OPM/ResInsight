@@ -22,8 +22,11 @@
 
 #include "RicCreateRftPlotsFeatureUi.h"
 
+#include "RifReaderRftInterface.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimRftPlotCollection.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
@@ -42,31 +45,48 @@ CAF_CMD_SOURCE_INIT( RicCreateRftPlotsFeature, "RicCreateRftPlotsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateRftPlotsFeature::isCommandEnabled() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateRftPlotsFeature::onActionTriggered( bool isChecked )
 {
+    auto sourcePlot = dynamic_cast<RimWellRftPlot*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( !sourcePlot ) return;
+
     RimRftPlotCollection* rftPlotColl = RimMainPlotCollection::current()->rftPlotCollection();
-    if ( rftPlotColl )
+    if ( !rftPlotColl ) return;
+
+    std::set<QString> wellsWithRftData;
+
+    auto dataSource = sourcePlot->dataSource();
+    if ( auto summaryCollection = std::get_if<RimSummaryCaseCollection*>( &dataSource ) )
     {
-        auto names = wellNames();
-        for ( const auto& wellName : names )
+        wellsWithRftData = ( *summaryCollection )->wellsWithRftData();
+    }
+    else if ( auto summaryCase = std::get_if<RimSummaryCase*>( &dataSource ) )
+    {
+        RifReaderRftInterface* reader = ( *summaryCase )->rftReader();
+        if ( reader )
         {
-            appendRftPlotForWell( wellName, rftPlotColl );
+            wellsWithRftData = reader->wellNames();
         }
+    }
+
+    if ( wellsWithRftData.empty() ) return;
+
+    RicCreateRftPlotsFeatureUi ui;
+    ui.setAllWellNames( { wellsWithRftData.begin(), wellsWithRftData.end() } );
+
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &ui, "Select RFT wells", "" );
+    if ( propertyDialog.exec() != QDialog::Accepted ) return;
+
+    for ( const auto& wellName : ui.selectedWellNames() )
+    {
+        appendRftPlotForWell( wellName, rftPlotColl, sourcePlot );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, RimRftPlotCollection* rftPlotColl )
+void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, RimRftPlotCollection* rftPlotColl, RimWellRftPlot* sourcePlot )
 {
     if ( !rftPlotColl )
     {
@@ -74,27 +94,54 @@ void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, Ri
         return;
     }
 
-    auto rftPlot = new RimWellRftPlot();
-    rftPlot->setSimWellOrWellPathName( wellName );
+    if ( !sourcePlot )
+    {
+        // Create a default RFT plot, and select all available data sources
 
-    auto plotTrack = new RimWellLogTrack();
-    rftPlot->addPlot( plotTrack );
-    plotTrack->setDescription( QString( "Track %1" ).arg( rftPlot->plotCount() ) );
+        auto rftPlot = new RimWellRftPlot();
+        rftPlot->setSimWellOrWellPathName( wellName );
 
-    rftPlotColl->addPlot( rftPlot );
-    rftPlot->applyInitialSelections();
+        auto plotTrack = new RimWellLogTrack();
+        rftPlot->addPlot( plotTrack );
+        plotTrack->setDescription( QString( "Track %1" ).arg( rftPlot->plotCount() ) );
 
-    const auto    generatedName = rftPlot->simWellOrWellPathName(); // We may have been given a default well name
-    const QString plotName      = QString( RimWellRftPlot::plotNameFormatString() ).arg( generatedName );
+        rftPlotColl->addPlot( rftPlot );
+        rftPlot->applyInitialSelections( {} );
 
-    rftPlot->nameConfig()->setCustomName( plotName );
-    rftPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
+        const auto    generatedName = rftPlot->simWellOrWellPathName(); // We may have been given a default well name
+        const QString plotName      = QString( RimWellRftPlot::plotNameFormatString() ).arg( generatedName );
 
-    rftPlot->loadDataAndUpdate();
-    rftPlotColl->updateConnectedEditors();
+        rftPlot->nameConfig()->setCustomName( plotName );
+        rftPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
+        rftPlot->loadDataAndUpdate();
+        rftPlotColl->updateConnectedEditors();
 
-    RiuPlotMainWindowTools::showPlotMainWindow();
-    RiuPlotMainWindowTools::onObjectAppended( rftPlot, plotTrack );
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::onObjectAppended( rftPlot, plotTrack );
+    }
+    else
+    {
+        // Create a RFT plot based on the selection in the source RFT plot
+
+        auto rftPlot =
+            dynamic_cast<RimWellRftPlot*>( sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        if ( !rftPlot ) return;
+
+        rftPlot->setSimWellOrWellPathName( wellName );
+        rftPlotColl->addPlot( rftPlot );
+        rftPlot->resolveReferencesRecursively();
+        rftPlot->applyInitialSelections( sourcePlot->dataSource() );
+
+        const auto    generatedName = rftPlot->simWellOrWellPathName(); // We may have been given a default well name
+        const QString plotName      = QString( RimWellRftPlot::plotNameFormatString() ).arg( generatedName );
+
+        rftPlot->nameConfig()->setCustomName( plotName );
+
+        rftPlot->loadDataAndUpdate();
+        rftPlotColl->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::showPlotMainWindow();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,36 +149,6 @@ void RicCreateRftPlotsFeature::appendRftPlotForWell( const QString& wellName, Ri
 //--------------------------------------------------------------------------------------------------
 void RicCreateRftPlotsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create RFT Plots" );
+    actionToSetup->setText( "Create Multiple RFT Plots" );
     actionToSetup->setIcon( QIcon( ":/FlowCharPlot16x16.png" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RicCreateRftPlotsFeature::wellNames() const
-{
-    RicCreateRftPlotsFeatureUi ui;
-
-    RimSummaryCaseCollection* defaultEnsemble = nullptr;
-
-    std::vector<RimSummaryCaseCollection*> caseCollection;
-    caf::SelectionManager::instance()->objectsByType( &caseCollection );
-
-    if ( caseCollection.size() == 1 )
-    {
-        defaultEnsemble = caseCollection[0];
-    }
-    else
-    {
-        const auto rftEnsembles = RimWellPlotTools::rftEnsembles();
-        if ( !rftEnsembles.empty() ) defaultEnsemble = rftEnsembles.front();
-    }
-
-    ui.setDefaultEnsemble( defaultEnsemble );
-
-    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &ui, "Select RFT wells", "" );
-    if ( propertyDialog.exec() != QDialog::Accepted ) return {};
-
-    return ui.wellNames();
 }
