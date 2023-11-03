@@ -24,12 +24,16 @@
 
 #include <vector>
 
+class RimRftPlotCollection;
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicCreateRftPlotsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+    static void appendRftPlotForWell( const QString& wellName, RimRftPlotCollection* rftPlotColl );
 
 private:
     bool isCommandEnabled() const override;
