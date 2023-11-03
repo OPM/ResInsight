@@ -38,6 +38,7 @@
 #include <map>
 #include <set>
 #include <utility>
+#include <variant>
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -83,7 +84,8 @@ public:
 
     int branchIndex() const;
 
-    void applyInitialSelections();
+    std::variant<RimSummaryCase*, RimSummaryCaseCollection*> dataSource() const;
+    void applyInitialSelections( std::variant<RimSummaryCase*, RimSummaryCaseCollection*> dataSource );
 
     static const char* plotNameFormatString();
 
