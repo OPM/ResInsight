@@ -131,6 +131,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_flipXAxis.uiCapability()->setUiHidden( true );
     m_flipYAxis.uiCapability()->setUiHidden( true );
     m_activeFormationNames.uiCapability()->setUiHidden( true );
+
+    m_displayNameOption = RimCaseDisplayNameTools::DisplayName::CUSTOM;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,6 +473,8 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
         group->add( &m_flipXAxis );
         group->add( &m_flipYAxis );
     }
+
+    uiOrdering.skipRemainingFields();
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
