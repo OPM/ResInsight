@@ -26,6 +26,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfTextureImage.h"
 
+#include <cmath>
 #include <map>
 
 //--------------------------------------------------------------------------------------------------
