@@ -642,6 +642,17 @@ void RimGridCalculation::removeDependentObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& sourceCases, const std::vector<int>& timeSteps )
+{
+    // TODO: Implement calculation for multiple cases and selected time steps
+    // Depending on https://github.com/OPM/ResInsight/pull/10767
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<bool, QString> RimGridCalculation::validateVariables()
 {
     auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;

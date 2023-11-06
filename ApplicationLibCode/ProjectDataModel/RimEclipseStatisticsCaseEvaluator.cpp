@@ -116,7 +116,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
     for ( size_t timeIndicesIdx = 0; timeIndicesIdx < m_timeStepIndices.size(); timeIndicesIdx++ )
     {
-        size_t timeStepIdx = m_timeStepIndices[timeIndicesIdx];
+        auto timeStepIdx = m_timeStepIndices[timeIndicesIdx];
 
         for ( size_t gridIdx = 0; gridIdx < m_destinationCase->gridCount(); gridIdx++ )
         {
@@ -132,7 +132,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
                 if ( activeCellCount == 0 ) continue;
 
-                size_t dataAccessTimeStepIndex = timeStepIdx;
+                size_t dataAccessTimeStepIndex = static_cast<size_t>( timeStepIdx );
 
                 // Always evaluate statistics once, and always use time step index zero
                 if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE )
@@ -271,7 +271,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     statParams[PMAX] = histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos / 100.0,
                                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
                                 }
-                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION )
+                                else if ( m_statisticsConfig.m_pValMethod ==
+                                          RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION )
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back( m_statisticsConfig.m_pMinPos );
@@ -372,7 +373,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& r
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std::vector<RimEclipseCase*>& sourceCases,
-                                                                      const std::vector<size_t>&          timeStepIndices,
+                                                                      const std::vector<int>&             timeStepIndices,
                                                                       const RimStatisticsConfig&          statisticsConfig,
                                                                       RigEclipseCaseData*                 destinationCase,
                                                                       RimIdenticalGridCaseGroup*          identicalGridCaseGroup )
