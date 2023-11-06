@@ -693,32 +693,32 @@ void RigGriddedPart3d::generateElementSets( const RimFaultReactivationDataAccess
     m_elementSets[ElementSets::IntraReservoir] = {};
     m_elementSets[ElementSets::UnderBurden]    = {};
 
-    auto [topResZ, bottomResZ] = reservoirZTopBottom( grid );
+    // auto [topResZ, bottomResZ] = reservoirZTopBottom( grid );
 
-    for ( unsigned int i = 0; i < m_elementIndices.size(); i++ )
-    {
-        auto corners = elementCorners( i );
+    // for ( unsigned int i = 0; i < m_elementIndices.size(); i++ )
+    //{
+    //     auto corners = elementCorners( i );
 
-        if ( dataAccess->elementHasValidData( corners ) )
-        {
-            m_elementSets[ElementSets::Reservoir].push_back( i );
-        }
-        else
-        {
-            if ( elementIsAboveReservoir( corners, topResZ ) )
-            {
-                m_elementSets[ElementSets::OverBurden].push_back( i );
-            }
-            else if ( elementIsBelowReservoir( corners, bottomResZ ) )
-            {
-                m_elementSets[ElementSets::UnderBurden].push_back( i );
-            }
-            else
-            {
-                m_elementSets[ElementSets::IntraReservoir].push_back( i );
-            }
-        }
-    }
+    //    if ( dataAccess->elementHasValidData( corners ) )
+    //    {
+    //        m_elementSets[ElementSets::Reservoir].push_back( i );
+    //    }
+    //    else
+    //    {
+    //        if ( elementIsAboveReservoir( corners, topResZ ) )
+    //        {
+    //            m_elementSets[ElementSets::OverBurden].push_back( i );
+    //        }
+    //        else if ( elementIsBelowReservoir( corners, bottomResZ ) )
+    //        {
+    //            m_elementSets[ElementSets::UnderBurden].push_back( i );
+    //        }
+    //        else
+    //        {
+    //            m_elementSets[ElementSets::IntraReservoir].push_back( i );
+    //        }
+    //    }
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------
