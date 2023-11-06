@@ -32,8 +32,6 @@
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
-#include <QDebug>
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -202,14 +200,12 @@ size_t RigFaultReactivationModelGenerator::oppositeStartCellIndex( const std::ve
         {
             if ( ( faultFace.m_nativeFace == face ) && ( faultFace.m_nativeReservoirCellIndex == backCellIdx ) )
             {
-                qDebug() << "Found opposite start cell: " + QString::number( faultFace.m_oppositeReservoirCellIndex );
                 bFoundOppositeCell = true;
                 oppositeCellIdx    = faultFace.m_oppositeReservoirCellIndex;
                 break;
             }
             else if ( ( faultFace.m_nativeFace == oppositeStartFace ) && ( faultFace.m_oppositeReservoirCellIndex == backCellIdx ) )
             {
-                qDebug() << "Found backwards opposite start cell: " + QString::number( faultFace.m_nativeReservoirCellIndex );
                 bFoundOppositeCell = true;
                 oppositeCellIdx    = faultFace.m_nativeReservoirCellIndex;
                 break;
@@ -239,6 +235,22 @@ void RigFaultReactivationModelGenerator::addFilter( QString name, std::vector<si
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::array<cvf::Vec3d, 12>& RigFaultReactivationModelGenerator::frontPoints() const
+{
+    return m_frontPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::array<cvf::Vec3d, 12>& RigFaultReactivationModelGenerator::backPoints() const
+{
+    return m_backPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///             <----                           fault normal                                     *
 ///                                                                                              *
 ///                15                                                                            *
@@ -259,15 +271,18 @@ void RigFaultReactivationModelGenerator::addFilter( QString name, std::vector<si
 ///                     8                                                                        *
 ///          front          back                                                                 *
 //--------------------------------------------------------------------------------------------------
-std::pair<std::array<cvf::Vec3d, 12>, std::array<cvf::Vec3d, 12>> RigFaultReactivationModelGenerator::generatePointsFrontBack()
+void RigFaultReactivationModelGenerator::generatePointsFrontBack()
 {
     std::array<cvf::Vec3d, 24> points;
+
+    auto alongModel = m_normal ^ cvf::Vec3d::Z_AXIS;
+    alongModel.normalize();
 
     double top_depth    = -m_startDepth;
     double bottom_depth = m_bottomFault.z() - m_depthBelowFault;
 
-    cvf::Vec3d edge_front = m_startPosition + m_horzExtentFromFault * m_normal;
-    cvf::Vec3d edge_back  = m_startPosition - m_horzExtentFromFault * m_normal;
+    cvf::Vec3d edge_front = m_startPosition - m_horzExtentFromFault * alongModel;
+    cvf::Vec3d edge_back  = m_startPosition + m_horzExtentFromFault * alongModel;
 
     points[8]     = m_bottomFault;
     points[8].z() = bottom_depth;
@@ -303,11 +318,9 @@ std::pair<std::array<cvf::Vec3d, 12>, std::array<cvf::Vec3d, 12>> RigFaultReacti
 
     for ( int i = 0; i < 12; i++ )
     {
-        frontPoints[i] = points[frontMap[i]];
-        backPoints[i]  = points[backMap[i]];
+        m_frontPoints[i] = points[frontMap[i]];
+        m_backPoints[i]  = points[backMap[i]];
     }
-
-    return std::make_pair( frontPoints, backPoints );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,10 +418,10 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     frontReservoirLayers.pop_back();
     backReservoirLayers.pop_back();
 
-    auto [frontPartPoints, backPartPoints] = generatePointsFrontBack();
+    generatePointsFrontBack();
 
-    frontPart->generateGeometry( frontPartPoints, frontReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzFront, m_modelThickness );
-    backPart->generateGeometry( backPartPoints, backReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzBack, m_modelThickness );
+    frontPart->generateGeometry( m_frontPoints, frontReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzFront, m_modelThickness );
+    backPart->generateGeometry( m_backPoints, backReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzBack, m_modelThickness );
 
     frontPart->generateLocalNodes( m_localCoordTransform );
     backPart->generateLocalNodes( m_localCoordTransform );
@@ -440,9 +453,6 @@ std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( 
 
         zPositions[intersect1.z()] = intersect1;
         zPositions[intersect2.z()] = intersect2;
-
-        qDebug() << "Intersect candidate 1 at depth " + QString::number( intersect1.z() );
-        qDebug() << "Intersect candidate 2 at depth " + QString::number( intersect2.z() );
     }
 
     return zPositions;

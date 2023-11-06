@@ -32,7 +32,7 @@
 RigFaultReactivationModel::RigFaultReactivationModel()
     : m_isValid( false )
 {
-    for ( auto part : allModelParts() )
+    for ( int part = 0; part < numModelParts(); part++ )
     {
         m_parts[part]         = RigFRModelPart();
         m_parts[part].texture = new cvf::TextureImage();
@@ -40,6 +40,12 @@ RigFaultReactivationModel::RigFaultReactivationModel()
         m_parts[part].texture->fill( cvf::Color4ub( 0, 0, 0, 0 ) );
         m_parts[part].rect.reserve( 4 );
     }
+
+    m_cornerIndexes[0] = { 0, 1, 7, 6 };
+    m_cornerIndexes[1] = { 1, 2, 8, 7 };
+    m_cornerIndexes[2] = { 2, 3, 9, 8 };
+    m_cornerIndexes[3] = { 3, 4, 10, 9 };
+    m_cornerIndexes[4] = { 4, 5, 11, 10 };
 
     for ( auto part : allGridParts() )
     {
@@ -57,14 +63,6 @@ RigFaultReactivationModel::~RigFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFaultReactivation::ModelParts> RigFaultReactivationModel::allModelParts() const
-{
-    return { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1, ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimFaultReactivation::GridPart> RigFaultReactivationModel::allGridParts() const
 {
     return { GridPart::PART1, GridPart::PART2 };
@@ -77,7 +75,7 @@ void RigFaultReactivationModel::reset()
 {
     m_isValid = false;
 
-    for ( auto part : allModelParts() )
+    for ( int part = 0; part < numModelParts(); part++ )
     {
         m_parts[part].rect.clear();
         m_parts[part].rect.reserve( 4 );
@@ -102,12 +100,14 @@ bool RigFaultReactivationModel::isValid() const
 //--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModel::setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color )
 {
-    for ( auto part : { ModelParts::HiPart1, ModelParts::MidPart1, ModelParts::LowPart1 } )
+    const int oneSidedParts = numModelParts() / 2;
+
+    for ( int part = 0; part < oneSidedParts; part++ )
     {
         m_parts[part].texture->fill( cvf::Color4ub( part1Color.rByte(), part1Color.gByte(), part1Color.bByte(), 255 ) );
     }
 
-    for ( auto part : { ModelParts::HiPart2, ModelParts::MidPart2, ModelParts::LowPart2 } )
+    for ( int part = oneSidedParts; part < numModelParts(); part++ )
     {
         m_parts[part].texture->fill( cvf::Color4ub( part2Color.rByte(), part2Color.gByte(), part2Color.bByte(), 255 ) );
     }
@@ -140,12 +140,34 @@ void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGri
 {
     reset();
     m_generator->generateGeometry( startCell, startFace, m_3dparts[GridPart::PART1].get(), m_3dparts[GridPart::PART2].get() );
+
+    auto& frontPoints = m_generator->frontPoints();
+    auto& backPoints  = m_generator->backPoints();
+
+    const int oneSideParts = numModelParts() / 2;
+
+    for ( int part = 0; part < oneSideParts; part++ )
+    {
+        for ( auto i : m_cornerIndexes[part] )
+        {
+            m_parts[part].rect.push_back( frontPoints[i] );
+        }
+    }
+    for ( int part = 0; part < oneSideParts; part++ )
+    {
+        for ( auto i : m_cornerIndexes[part] )
+        {
+            m_parts[part + oneSideParts].rect.push_back( backPoints[i] );
+        }
+    }
+
+    m_isValid = true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( RimFaultReactivation::ModelParts part ) const
+std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( int part ) const
 {
     return m_parts.at( part ).rect;
 }
@@ -153,7 +175,7 @@ std::vector<cvf::Vec3d> RigFaultReactivationModel::rect( RimFaultReactivation::M
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( RimFaultReactivation::ModelParts part ) const
+cvf::ref<cvf::TextureImage> RigFaultReactivationModel::texture( int part ) const
 {
     return m_parts.at( part ).texture;
 }

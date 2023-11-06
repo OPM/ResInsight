@@ -300,12 +300,12 @@ void RimFaultReactivationModel::updateVisualization()
     if ( !view ) return;
 
     auto normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
-    normal.z()  = normal.z() * view->scaleZ() * view->scaleZ();
-    normal.normalize();
+    normal.z()  = 0.0;
+    if ( !normal.normalize() ) return;
 
-    cvf::Vec3d zdir( 0, 0, 1 );
-    auto       modelNormal = normal ^ zdir;
+    auto       modelNormal = normal ^ cvf::Vec3d::Z_AXIS;
     modelNormal.normalize();
+
 
     auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal );
     generator->setFault( m_fault()->faultGeometry() );
@@ -317,6 +317,7 @@ void RimFaultReactivationModel::updateVisualization()
     generator->setupLocalCoordinateTransform();
     generator->setUseLocalCoordinates( m_useLocalCoordinates );
 
+    m_2Dmodel->setPartColors( m_modelPart1Color, m_modelPart2Color );
     m_2Dmodel->setGenerator( generator );
     m_2Dmodel->updateGeometry( m_startCellIndex, m_startCellFace );
 
