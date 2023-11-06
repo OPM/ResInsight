@@ -55,7 +55,7 @@ public:
 
     std::vector<RimEclipseCase*> outputEclipseCases() const;
     RigEclipseResultAddress      outputAddress() const;
-    bool calculateForCases( const std::vector<RimEclipseCase*>& sourceCases, const std::vector<int>& timeSteps );
+    bool                         calculateForCases( const std::vector<RimEclipseCase*>& sourceCases, const std::vector<int>& timeSteps );
 
     std::vector<RimEclipseCase*> inputCases() const;
 
