@@ -51,10 +51,12 @@ namespace caf
 template <>
 void caf::AppEnum<RimEclipseStatisticsCase::PercentileCalcType>::setUp()
 {
-    addItem( RimEclipseStatisticsCase::NEAREST_OBSERVATION, "NearestObservationPercentile", "Nearest Observation" );
-    addItem( RimEclipseStatisticsCase::HISTOGRAM_ESTIMATED, "HistogramEstimatedPercentile", "Histogram based estimate" );
-    addItem( RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION, "InterpolatedObservationPercentile", "Interpolated Observation" );
-    setDefault( RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION );
+    addItem( RimEclipseStatisticsCase::PercentileCalcType::NEAREST_OBSERVATION, "NearestObservationPercentile", "Nearest Observation" );
+    addItem( RimEclipseStatisticsCase::PercentileCalcType::HISTOGRAM_ESTIMATED, "HistogramEstimatedPercentile", "Histogram based estimate" );
+    addItem( RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION,
+             "InterpolatedObservationPercentile",
+             "Interpolated Observation" );
+    setDefault( RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION );
 }
 } // namespace caf
 

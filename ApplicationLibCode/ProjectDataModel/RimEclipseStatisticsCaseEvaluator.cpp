@@ -245,7 +245,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                             // Calculate percentiles
                             if ( m_statisticsConfig.m_calculatePercentiles )
                             {
-                                if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::NEAREST_OBSERVATION )
+                                if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::NEAREST_OBSERVATION )
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back( m_statisticsConfig.m_pMinPos );
@@ -259,7 +259,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     statParams[PMID] = pVals[1];
                                     statParams[PMAX] = pVals[2];
                                 }
-                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::HISTOGRAM_ESTIMATED )
+                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::HISTOGRAM_ESTIMATED )
                                 {
                                     std::vector<size_t>    histogram;
                                     RigHistogramCalculator histCalc( statParams[MIN], statParams[MAX], 100, &histogram );
@@ -271,7 +271,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     statParams[PMAX] = histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos / 100.0,
                                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
                                 }
-                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION )
+                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION )
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back( m_statisticsConfig.m_pMinPos );
