@@ -303,9 +303,8 @@ void RimFaultReactivationModel::updateVisualization()
     normal.z()  = 0.0;
     if ( !normal.normalize() ) return;
 
-    auto       modelNormal = normal ^ cvf::Vec3d::Z_AXIS;
+    auto modelNormal = normal ^ cvf::Vec3d::Z_AXIS;
     modelNormal.normalize();
-
 
     auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal );
     generator->setFault( m_fault()->faultGeometry() );
