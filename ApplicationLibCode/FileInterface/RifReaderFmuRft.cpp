@@ -242,15 +242,15 @@ void RifReaderFmuRft::importData()
         {
             int measurementId = i + 1;
 
-            auto findFileName = []( const QString& wellName, const QString& extention, int measurementId, const QDir& dir ) -> QString
+            auto findFileName = []( const QString& wellName, const QString& extension, int measurementId, const QDir& dir ) -> QString
             {
-                QString candidate = dir.absoluteFilePath( QString( "%1_%2.%3" ).arg( wellName ).arg( measurementId ).arg( extention ) );
+                QString candidate = dir.absoluteFilePath( QString( "%1_%2.%3" ).arg( wellName ).arg( measurementId ).arg( extension ) );
                 if ( QFile::exists( candidate ) )
                 {
                     return candidate;
                 }
 
-                QString candidateOldFormat = dir.absoluteFilePath( QString( "%1.%2" ).arg( wellName ).arg( extention ) );
+                QString candidateOldFormat = dir.absoluteFilePath( QString( "%1.%2" ).arg( wellName ).arg( extension ) );
                 if ( QFile::exists( candidateOldFormat ) )
                 {
                     return candidateOldFormat;
