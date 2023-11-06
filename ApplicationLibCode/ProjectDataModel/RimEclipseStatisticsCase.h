@@ -35,6 +35,7 @@ class RigSimWellData;
 class RimEclipseResultDefinition;
 class RimEclipseStatisticsCaseCollection;
 class RimIdenticalGridCaseGroup;
+class RimGridCalculation;
 
 //==================================================================================================
 //
@@ -82,6 +83,7 @@ public:
     void populateResultSelectionAfterLoadingGrid();
 
     void setSourceProperties( RiaDefines::ResultCatType propertyType, const std::vector<QString>& propertyNames );
+    void selectAllTimeSteps();
 
 private:
     void scheduleACTIVEGeometryRegenOnReservoirViews();
@@ -102,9 +104,14 @@ private:
     void loadSimulationWellDataFromSourceCase();
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void initializeSelectedTimeSteps();
 
 private:
-    caf::PdmField<caf::AppEnum<DataSourceType>>                m_dataSourceForStatistics;
+    caf::PdmField<caf::AppEnum<DataSourceType>> m_dataSourceForStatistics;
+
+    caf::PdmPtrField<RimGridCalculation*> m_gridCalculation;
+    caf::PdmField<std::vector<int>>       m_gridCalculationTimeSteps;
+
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>>     m_resultType;
     caf::PdmField<caf::AppEnum<RiaDefines::PorosityModelType>> m_porosityModel;
 
