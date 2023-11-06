@@ -49,11 +49,13 @@ public:
 
     bool preCalculate() const override;
     bool calculate() override;
+
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
     std::vector<RimEclipseCase*> outputEclipseCases() const;
     RigEclipseResultAddress      outputAddress() const;
+    bool calculateForCases( const std::vector<RimEclipseCase*>& sourceCases, const std::vector<int>& timeSteps );
 
     std::vector<RimEclipseCase*> inputCases() const;
 

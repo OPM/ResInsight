@@ -295,6 +295,11 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     std::vector<RimEclipseCase*> sourceCases = getSourceCases();
 
+    if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
+    {
+        // TODO: Add grid calculation for selected time steps before statistics computations
+    }
+
     if ( sourceCases.empty() || !sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
     {
         return;
@@ -312,11 +317,7 @@ void RimEclipseStatisticsCase::computeStatistics()
     statisticsConfig.m_pMinPos              = m_lowPercentile();
     statisticsConfig.m_pValMethod           = m_percentileCalculationType();
 
-    std::vector<size_t> timeStepIndices;
-    for ( size_t i = 0; i < timeStepCount; i++ )
-    {
-        timeStepIndices.push_back( i );
-    }
+    std::vector<int> timeStepIndices = m_gridCalculationTimeSteps();
 
     // If no dynamic data is present, we might end up with no time steps. Make sure we have at least one.
     if ( timeStepIndices.empty() )
