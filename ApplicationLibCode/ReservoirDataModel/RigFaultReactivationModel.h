@@ -54,15 +54,14 @@ public:
 //==================================================================================================
 class RigFaultReactivationModel : public cvf::Object
 {
-    using ModelParts = RimFaultReactivation::ModelParts;
-    using GridPart   = RimFaultReactivation::GridPart;
+    using GridPart = RimFaultReactivation::GridPart;
 
 public:
     RigFaultReactivationModel();
     ~RigFaultReactivationModel() override;
 
-    std::vector<ModelParts> allModelParts() const;
-    std::vector<GridPart>   allGridParts() const;
+    static int            numModelParts() { return 10; };
+    std::vector<GridPart> allGridParts() const;
 
     bool isValid() const;
     void reset();
@@ -74,8 +73,8 @@ public:
     void updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace );
 
     void                        setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color );
-    std::vector<cvf::Vec3d>     rect( ModelParts part ) const;
-    cvf::ref<cvf::TextureImage> texture( ModelParts part ) const;
+    std::vector<cvf::Vec3d>     rect( int nPart ) const;
+    cvf::ref<cvf::TextureImage> texture( int nPart ) const;
 
     const std::vector<std::vector<cvf::Vec3d>>& meshLines( GridPart part ) const;
 
@@ -89,10 +88,10 @@ protected:
 private:
     std::shared_ptr<RigFaultReactivationModelGenerator> m_generator;
 
-    std::map<ModelParts, std::vector<int>> m_cornerIndexes;
+    std::array<std::vector<int>, 5> m_cornerIndexes;
+    std::array<RigFRModelPart, 10>  m_parts;
 
-    std::map<ModelParts, RigFRModelPart> m_parts;
-    bool                                 m_isValid;
+    bool m_isValid;
 
     std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
 };
