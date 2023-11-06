@@ -116,7 +116,7 @@ public:
     void clearScalarResult( RiaDefines::ResultCatType type, const QString& resultName );
     void clearScalarResult( const RigEclipseResultAddress& resultAddress );
     void clearAllResults();
-    void freeAllocatedResultsData();
+    void freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> keepDataForCategories );
     void eraseAllSourSimData();
     void setRemovedTagOnGeneratedResult( const RigEclipseResultAddress& resultAddress );
 
