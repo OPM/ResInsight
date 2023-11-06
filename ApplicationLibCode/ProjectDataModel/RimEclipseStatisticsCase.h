@@ -46,6 +46,14 @@ class RimEclipseStatisticsCase : public RimEclipseCase
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class PercentileCalcType
+    {
+        NEAREST_OBSERVATION,
+        HISTOGRAM_ESTIMATED,
+        INTERPOLATED_OBSERVATION
+    };
+
+public:
     RimEclipseStatisticsCase();
     ~RimEclipseStatisticsCase() override;
 
@@ -62,13 +70,6 @@ public:
     void reloadEclipseGridFile() override;
 
     RimCaseCollection* parentStatisticsCaseCollection() const;
-
-    enum PercentileCalcType
-    {
-        NEAREST_OBSERVATION,
-        HISTOGRAM_ESTIMATED,
-        INTERPOLATED_OBSERVATION
-    };
 
     caf::PdmField<bool> m_calculateEditCommand;
 

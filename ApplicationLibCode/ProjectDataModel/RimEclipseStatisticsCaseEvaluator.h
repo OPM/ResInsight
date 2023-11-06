@@ -38,7 +38,7 @@ public:
         , m_pMinPos( 10.0 )
         , m_pMidPos( 50.0 )
         , m_pMaxPos( 90.0 )
-        , m_pValMethod( RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION )
+        , m_pValMethod( RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION )
     {
     }
 
