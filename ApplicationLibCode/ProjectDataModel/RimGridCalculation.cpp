@@ -109,137 +109,9 @@ RimGridCalculationVariable* RimGridCalculation::createVariable()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculate()
 {
-    QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
+    auto timeSteps = std::nullopt;
 
-    if ( !m_destinationCase )
-    {
-        RiaLogging::errorInMessageBox( nullptr,
-                                       "Grid Property Calculator",
-                                       QString( "No destination case found for calculation : %1" ).arg( leftHandSideVariableName ) );
-
-        return false;
-    }
-
-    auto [isOk, errorMessage] = validateVariables();
-    if ( !isOk )
-    {
-        RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
-        return false;
-    }
-
-    for ( auto variableCase : inputCases() )
-    {
-        if ( !m_destinationCase->isGridSizeEqualTo( variableCase ) )
-        {
-            QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
-                          "cases must have identical IJK sizes.";
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
-            return false;
-        }
-    }
-
-    const bool isMultipleCasesPresent = outputEclipseCases().size() > 1;
-
-    if ( isMultipleCasesPresent )
-    {
-        QString txt = "Starting calculation " + description() + " for " + QString::number( outputEclipseCases().size() ) + " cases.";
-        RiaLogging::info( txt );
-    }
-
-    bool anyErrorsDetected = false;
-    for ( RimEclipseCase* outputEclipseCase : outputEclipseCases() )
-    {
-        if ( !outputEclipseCase )
-        {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "Grid Property Calculator",
-                                           QString( "No case found for calculation : %1" ).arg( leftHandSideVariableName ) );
-            anyErrorsDetected = true;
-            continue;
-        }
-
-        auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
-
-        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
-
-        if ( !outputEclipseCase->results( porosityModel )->ensureKnownResultLoaded( resAddr ) )
-        {
-            bool needsToBeStored = false;
-            outputEclipseCase->results( porosityModel )->createResultEntry( resAddr, needsToBeStored );
-        }
-
-        outputEclipseCase->results( porosityModel )->clearScalarResult( resAddr );
-
-        // If an input grid is present, max time step count is zero. Make sure the time step count for the calculation is
-        // always 1 or more.
-        const size_t timeStepCount = std::max( size_t( 1 ), outputEclipseCase->results( porosityModel )->maxTimeStepCount() );
-
-        std::vector<std::vector<double>>* scalarResultFrames =
-            outputEclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
-        scalarResultFrames->resize( timeStepCount );
-
-        for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
-        {
-            std::vector<std::vector<double>> values;
-            for ( size_t i = 0; i < m_variables.size(); i++ )
-            {
-                RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
-                CAF_ASSERT( v != nullptr );
-                values.push_back( getInputVectorForVariable( v, tsId, porosityModel, outputEclipseCase ) );
-            }
-
-            ExpressionParser parser;
-            for ( size_t i = 0; i < m_variables.size(); i++ )
-            {
-                RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
-                CAF_ASSERT( v != nullptr );
-                parser.assignVector( v->name(), values[i] );
-            }
-
-            std::vector<double> resultValues;
-            resultValues.resize( values[0].size() );
-            parser.assignVector( leftHandSideVariableName, resultValues );
-
-            QString errorText;
-            bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
-
-            if ( evaluatedOk )
-            {
-                if ( m_cellFilterView() )
-                {
-                    filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, outputEclipseCase );
-                }
-
-                scalarResultFrames->at( tsId ) = resultValues;
-
-                m_isDirty = false;
-            }
-            else
-            {
-                QString s = "The following error message was received from the parser library : \n\n";
-                s += errorText;
-
-                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", s );
-                return false;
-            }
-
-            outputEclipseCase->updateResultAddressCollection();
-        }
-
-        if ( isMultipleCasesPresent )
-        {
-            QString txt = "    " + outputEclipseCase->caseUserDescription();
-            RiaLogging::info( txt );
-        }
-    }
-
-    if ( isMultipleCasesPresent )
-    {
-        QString txt = "Completed calculation " + description() + " for " + QString::number( outputEclipseCases().size() ) + " cases";
-        RiaLogging::info( txt );
-    }
-
-    return !anyErrorsDetected;
+    return calculateForCases( outputEclipseCases(), timeSteps );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -642,12 +514,138 @@ void RimGridCalculation::removeDependentObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& sourceCases, const std::vector<int>& timeSteps )
+bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& calculationCases, std::optional<std::vector<size_t>> timeSteps )
 {
-    // TODO: Implement calculation for multiple cases and selected time steps
-    // Depending on https://github.com/OPM/ResInsight/pull/10767
+    if ( calculationCases.empty() ) return true;
 
-    return true;
+    QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
+
+    auto [isOk, errorMessage] = validateVariables();
+    if ( !isOk )
+    {
+        RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
+        return false;
+    }
+
+    for ( auto calculationCase : calculationCases )
+    {
+        for ( auto inputCase : inputCases() )
+        {
+            if ( !calculationCase->isGridSizeEqualTo( inputCase ) )
+            {
+                QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
+                              "cases must have identical IJK sizes.";
+                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+                return false;
+            }
+        }
+    }
+
+    const bool isMultipleCasesPresent = calculationCases.size() > 1;
+
+    if ( isMultipleCasesPresent )
+    {
+        QString txt = "Starting calculation " + description() + " for " + QString::number( calculationCases.size() ) + " cases.";
+        RiaLogging::info( txt );
+    }
+
+    bool anyErrorsDetected = false;
+    for ( RimEclipseCase* calculationCase : calculationCases )
+    {
+        if ( !calculationCase )
+        {
+            RiaLogging::errorInMessageBox( nullptr,
+                                           "Grid Property Calculator",
+                                           QString( "No case found for calculation : %1" ).arg( leftHandSideVariableName ) );
+            anyErrorsDetected = true;
+            continue;
+        }
+
+        auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
+
+        if ( !calculationCase->results( porosityModel )->ensureKnownResultLoaded( resAddr ) )
+        {
+            bool needsToBeStored = false;
+            calculationCase->results( porosityModel )->createResultEntry( resAddr, needsToBeStored );
+        }
+
+        calculationCase->results( porosityModel )->clearScalarResult( resAddr );
+
+        // If an input grid is present, max time step count is zero. Make sure the time step count for the calculation is
+        // always 1 or more.
+        const size_t timeStepCount = std::max( size_t( 1 ), calculationCase->results( porosityModel )->maxTimeStepCount() );
+
+        std::vector<std::vector<double>>* scalarResultFrames =
+            calculationCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
+        scalarResultFrames->resize( timeStepCount );
+
+        for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
+        {
+            // Skip time steps that are not in the list of time steps to calculate
+            if ( timeSteps && std::find( timeSteps->begin(), timeSteps->end(), tsId ) == timeSteps->end() ) continue;
+
+            std::vector<std::vector<double>> values;
+            for ( size_t i = 0; i < m_variables.size(); i++ )
+            {
+                RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+                CAF_ASSERT( v != nullptr );
+                values.push_back( getInputVectorForVariable( v, tsId, porosityModel, calculationCase ) );
+            }
+
+            ExpressionParser parser;
+            for ( size_t i = 0; i < m_variables.size(); i++ )
+            {
+                RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+                CAF_ASSERT( v != nullptr );
+                parser.assignVector( v->name(), values[i] );
+            }
+
+            std::vector<double> resultValues;
+            resultValues.resize( values[0].size() );
+            parser.assignVector( leftHandSideVariableName, resultValues );
+
+            QString errorText;
+            bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
+
+            if ( evaluatedOk )
+            {
+                if ( m_cellFilterView() )
+                {
+                    filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, calculationCase );
+                }
+
+                scalarResultFrames->at( tsId ) = resultValues;
+
+                m_isDirty = false;
+            }
+            else
+            {
+                QString s = "The following error message was received from the parser library : \n\n";
+                s += errorText;
+
+                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", s );
+                return false;
+            }
+
+            calculationCase->updateResultAddressCollection();
+        }
+
+        if ( isMultipleCasesPresent )
+        {
+            QString txt = "    " + calculationCase->caseUserDescription();
+            RiaLogging::info( txt );
+        }
+    }
+
+    if ( isMultipleCasesPresent )
+    {
+        QString txt = "Completed calculation " + description() + " for " + QString::number( outputEclipseCases().size() ) + " cases";
+        RiaLogging::info( txt );
+    }
+
+    return !anyErrorsDetected;
 }
 
 //--------------------------------------------------------------------------------------------------
