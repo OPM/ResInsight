@@ -58,6 +58,13 @@ void caf::AppEnum<RimEclipseStatisticsCase::PercentileCalcType>::setUp()
              "Interpolated Observation" );
     setDefault( RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION );
 }
+template <>
+void caf::AppEnum<RimEclipseStatisticsCase::DataSourceType>::setUp()
+{
+    addItem( RimEclipseStatisticsCase::DataSourceType::GRID_CALCULATION, "GridCalculation", "Grid Calculation" );
+    addItem( RimEclipseStatisticsCase::DataSourceType::CASE_PROPERTY, "CaseProperty", "Case Property" );
+    setDefault( RimEclipseStatisticsCase::DataSourceType::CASE_PROPERTY );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimEclipseStatisticsCase, "RimStatisticalCalculation" );
@@ -79,6 +86,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.uiCapability()->setUiReadOnly( true );
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_dataSourceForStatistics, "DataSourceForStatistics", "Data Source" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type" );
     m_resultType.xmlCapability()->setIOWritable( false );
@@ -421,37 +430,47 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     uiOrdering.add( &m_calculateEditCommand );
 
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary of Calculation Setup" );
-    group->add( &m_useZeroAsInactiveCellValue );
-    m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden( hasComputedStatistics() );
-    group->add( &m_selectionSummary );
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary of Calculation Setup" );
+        group->add( &m_useZeroAsInactiveCellValue );
+        m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden( hasComputedStatistics() );
+        group->add( &m_selectionSummary );
+    }
 
-    group = uiOrdering.addNewGroup( "Properties to consider" );
-    group->setUiHidden( hasComputedStatistics() );
-    group->add( &m_resultType );
-    group->add( &m_porosityModel );
-    group->add( &m_selectedDynamicProperties );
-    group->add( &m_selectedStaticProperties );
-    group->add( &m_selectedGeneratedProperties );
-    group->add( &m_selectedInputProperties );
-    group->add( &m_selectedFractureDynamicProperties );
-    group->add( &m_selectedFractureStaticProperties );
-    group->add( &m_selectedFractureGeneratedProperties );
-    group->add( &m_selectedFractureInputProperties );
+    {
+        auto group = uiOrdering.addNewGroup( "Properties to consider" );
+        group->setUiHidden( hasComputedStatistics() );
+        group->add( &m_dataSourceForStatistics );
 
-    group = uiOrdering.addNewGroup( "Percentile setup" );
-    group->setUiHidden( hasComputedStatistics() );
-    group->add( &m_calculatePercentiles );
-    group->add( &m_percentileCalculationType );
-    group->add( &m_lowPercentile );
-    group->add( &m_midPercentile );
-    group->add( &m_highPercentile );
+        group->add( &m_resultType );
+        group->add( &m_porosityModel );
+        group->add( &m_selectedDynamicProperties );
+        group->add( &m_selectedStaticProperties );
+        group->add( &m_selectedGeneratedProperties );
+        group->add( &m_selectedInputProperties );
+        group->add( &m_selectedFractureDynamicProperties );
+        group->add( &m_selectedFractureStaticProperties );
+        group->add( &m_selectedFractureGeneratedProperties );
+        group->add( &m_selectedFractureInputProperties );
+    }
 
-    group = uiOrdering.addNewGroup( "Case Options" );
-    group->add( &m_wellDataSourceCase );
-    group->add( &m_activeFormationNames );
-    group->add( &m_flipXAxis );
-    group->add( &m_flipYAxis );
+    {
+        auto group = uiOrdering.addNewGroup( "Percentile setup" );
+        group->setUiHidden( hasComputedStatistics() );
+        group->add( &m_calculatePercentiles );
+        group->add( &m_percentileCalculationType );
+        group->add( &m_lowPercentile );
+        group->add( &m_midPercentile );
+        group->add( &m_highPercentile );
+    }
+
+    {
+        auto group = uiOrdering.addNewGroup( "Case Options" );
+        group->add( &m_wellDataSourceCase );
+        group->add( &m_activeFormationNames );
+        group->add( &m_flipXAxis );
+        group->add( &m_flipYAxis );
+    }
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
