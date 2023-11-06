@@ -26,6 +26,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCalculationVariable.h"
 #include "RimProject.h"
@@ -247,7 +248,21 @@ std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
 {
     if ( m_allCases )
     {
-        return RimEclipseCaseTools::allEclipseGridCases();
+        // Find all Eclipse cases suitable for grid calculations. This includes all single grid cases and source cases in a grid case group.
+        // It is supported to do calculations on cases in a grid case group. Exclude the statistics cases, as it is not possible to use them
+        // in a grid calculations.
+        //
+        // Note that data read from file is erased from memory when a time step is calculated. See
+        // RimEclipseStatisticsCaseEvaluator::evaluateForResults()
+
+        std::vector<RimEclipseCase*> casesForCalculation;
+        auto                         allEclipseCases = RimEclipseCaseTools::allEclipseGridCases();
+        std::copy_if( allEclipseCases.begin(),
+                      allEclipseCases.end(),
+                      std::back_inserter( casesForCalculation ),
+                      []( auto* eclCase ) { return !dynamic_cast<RimEclipseStatisticsCase*>( eclCase ); } );
+
+        return casesForCalculation;
     }
 
     return { m_destinationCase };
