@@ -55,20 +55,27 @@ public:
                            RigGriddedPart3d*                  frontPart,
                            RigGriddedPart3d*                  backPart );
 
+    const std::array<cvf::Vec3d, 12>& frontPoints() const;
+    const std::array<cvf::Vec3d, 12>& backPoints() const;
+
 protected:
     static const std::array<int, 4> faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
-    cvf::Vec3d                      lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
-    std::map<double, cvf::Vec3d>    elementLayers( cvf::StructGridInterface::FaceType face, const std::vector<size_t>& cellIndexColumn );
-    cvf::Vec3d                      extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
-    void                            addFilter( QString name, std::vector<size_t> cells );
+    static cvf::Vec3d               lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
+    static cvf::Vec3d               extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
+
+    std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, const std::vector<size_t>& cellIndexColumn );
+    void                         addFilter( QString name, std::vector<size_t> cells );
 
     size_t oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, cvf::StructGridInterface::FaceType face );
 
-    std::pair<std::array<cvf::Vec3d, 12>, std::array<cvf::Vec3d, 12>> generatePointsFrontBack();
+    void generatePointsFrontBack();
 
 private:
     cvf::Vec3d m_startPosition;
     cvf::Vec3d m_normal;
+
+    std::array<cvf::Vec3d, 12> m_frontPoints;
+    std::array<cvf::Vec3d, 12> m_backPoints;
 
     cvf::cref<RigFault>    m_fault;
     cvf::cref<RigMainGrid> m_grid;
