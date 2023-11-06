@@ -53,6 +53,12 @@ public:
         INTERPOLATED_OBSERVATION
     };
 
+    enum class DataSourceType
+    {
+        GRID_CALCULATION,
+        CASE_PROPERTY
+    };
+
 public:
     RimEclipseStatisticsCase();
     ~RimEclipseStatisticsCase() override;
@@ -98,6 +104,7 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
+    caf::PdmField<caf::AppEnum<DataSourceType>>                m_dataSourceForStatistics;
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>>     m_resultType;
     caf::PdmField<caf::AppEnum<RiaDefines::PorosityModelType>> m_porosityModel;
 
