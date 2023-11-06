@@ -34,8 +34,10 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimEclipseView.h"
+#include "RimGridCalculationCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersectionCollection.h"
+#include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
@@ -88,6 +90,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_dataSourceForStatistics, "DataSourceForStatistics", "Data Source" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_gridCalculation, "GridCalculation", "Grid Calculation" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_gridCalculationTimeSteps, "GridCalculationTimeSteps", "Grid Calculation Time Steps" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type" );
     m_resultType.xmlCapability()->setIOWritable( false );
@@ -187,6 +191,8 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
         m_populateSelectionAfterLoadingGrid = false;
     }
 
+    initializeSelectedTimeSteps();
+
     return true;
 }
 
@@ -250,6 +256,26 @@ void RimEclipseStatisticsCase::setSourceProperties( RiaDefines::ResultCatType pr
             break;
         default:
             break;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::selectAllTimeSteps()
+{
+    RimIdenticalGridCaseGroup* idgcg = caseGroup();
+    if ( idgcg && idgcg->mainCase() )
+    {
+        int timeStepCount = idgcg->mainCase()->timeStepStrings().size();
+
+        if ( timeStepCount > 0 )
+        {
+            std::vector<int> allTimeSteps;
+            allTimeSteps.resize( timeStepCount );
+            std::iota( allTimeSteps.begin(), allTimeSteps.end(), 0 );
+            m_gridCalculationTimeSteps = allTimeSteps;
+        }
     }
 }
 
@@ -444,16 +470,29 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
         group->setUiHidden( hasComputedStatistics() );
         group->add( &m_dataSourceForStatistics );
 
-        group->add( &m_resultType );
-        group->add( &m_porosityModel );
-        group->add( &m_selectedDynamicProperties );
-        group->add( &m_selectedStaticProperties );
-        group->add( &m_selectedGeneratedProperties );
-        group->add( &m_selectedInputProperties );
-        group->add( &m_selectedFractureDynamicProperties );
-        group->add( &m_selectedFractureStaticProperties );
-        group->add( &m_selectedFractureGeneratedProperties );
-        group->add( &m_selectedFractureInputProperties );
+        if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION )
+        {
+            group->add( &m_gridCalculation );
+        }
+        else
+        {
+            group->add( &m_resultType );
+            group->add( &m_porosityModel );
+            group->add( &m_selectedDynamicProperties );
+            group->add( &m_selectedStaticProperties );
+            group->add( &m_selectedGeneratedProperties );
+            group->add( &m_selectedInputProperties );
+            group->add( &m_selectedFractureDynamicProperties );
+            group->add( &m_selectedFractureStaticProperties );
+            group->add( &m_selectedFractureGeneratedProperties );
+            group->add( &m_selectedFractureInputProperties );
+        }
+    }
+
+    {
+        auto group = uiOrdering.addNewGroup( "Time Step Selection" );
+        group->setCollapsedByDefault();
+        group->add( &m_gridCalculationTimeSteps );
     }
 
     {
@@ -493,15 +532,40 @@ QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options;
-
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
     if ( !( caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData() ) )
     {
+        return {};
+    }
+
+    if ( &m_gridCalculation == fieldNeedingOptions )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        for ( auto calc : RimProject::current()->gridCalculationCollection()->calculations() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( calc->shortName(), calc ) );
+        }
+
         return options;
     }
 
     RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
+
+    if ( &m_gridCalculationTimeSteps == fieldNeedingOptions )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        const auto timeStepStrings = idgcg->mainCase()->timeStepStrings();
+
+        size_t index = 0;
+        for ( const auto& text : timeStepStrings )
+        {
+            options.push_back( caf::PdmOptionItemInfo( text, index++ ) );
+        }
+
+        return options;
+    }
 
     if ( &m_selectedDynamicProperties == fieldNeedingOptions )
     {
@@ -565,9 +629,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
         return toOptionList( sourceCaseNames );
     }
 
-    if ( options.empty() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
-
-    return options;
+    return RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -721,6 +783,17 @@ void RimEclipseStatisticsCase::defineEditorAttribute( const caf::PdmFieldHandle*
         {
             attrib->m_buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)" : "Compute";
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::initializeSelectedTimeSteps()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.10.0" ) )
+    {
+        selectAllTimeSteps();
     }
 }
 
