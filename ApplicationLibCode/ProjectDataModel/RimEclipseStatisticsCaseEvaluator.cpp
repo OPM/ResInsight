@@ -311,14 +311,17 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
         // Microsoft note: On Windows, the maximum number of files open at the same time is 512
         // http://msdn.microsoft.com/en-us/library/kdfaxaay%28vs.71%29.aspx
 
+        std::vector<RiaDefines::ResultCatType> keepDataForCategories;
+        if ( !m_clearGridCalculationMemory ) keepDataForCategories.push_back( RiaDefines::ResultCatType::GENERATED );
+
         for ( size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++ )
         {
             RimEclipseCase* eclipseCase = m_sourceCases.at( caseIdx );
 
             if ( eclipseCase->reservoirViews.empty() )
             {
-                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData();
-                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData();
+                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( keepDataForCategories );
+                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( keepDataForCategories );
             }
         }
 
@@ -373,10 +376,11 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& r
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std::vector<RimEclipseCase*>& sourceCases,
-                                                                      const std::vector<int>&             timeStepIndices,
+                                                                      const std::vector<size_t>&          timeStepIndices,
                                                                       const RimStatisticsConfig&          statisticsConfig,
                                                                       RigEclipseCaseData*                 destinationCase,
-                                                                      RimIdenticalGridCaseGroup*          identicalGridCaseGroup )
+                                                                      RimIdenticalGridCaseGroup*          identicalGridCaseGroup,
+                                                                      bool                                clearGridCalculationMemory )
     : m_sourceCases( sourceCases )
     , m_statisticsConfig( statisticsConfig )
     , m_destinationCase( destinationCase )
@@ -384,6 +388,7 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std:
     , m_timeStepIndices( timeStepIndices )
     , m_identicalGridCaseGroup( identicalGridCaseGroup )
     , m_useZeroAsInactiveCellValue( false )
+    , m_clearGridCalculationMemory( clearGridCalculationMemory )
 {
     if ( !sourceCases.empty() )
     {

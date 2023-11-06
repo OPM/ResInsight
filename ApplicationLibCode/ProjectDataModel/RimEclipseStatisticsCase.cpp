@@ -46,6 +46,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
 
 namespace caf
@@ -90,8 +91,12 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_dataSourceForStatistics, "DataSourceForStatistics", "Data Source" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_gridCalculation, "GridCalculation", "Grid Calculation" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_gridCalculationTimeSteps, "GridCalculationTimeSteps", "Grid Calculation Time Steps" );
+    CAF_PDM_InitScriptableField( &m_clearGridCalculationMemory, "ClearGridCalculationMemory", true, "Clear Grid Calculation Memory" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type" );
     m_resultType.xmlCapability()->setIOWritable( false );
@@ -271,10 +276,10 @@ void RimEclipseStatisticsCase::selectAllTimeSteps()
 
         if ( timeStepCount > 0 )
         {
-            std::vector<int> allTimeSteps;
+            std::vector<size_t> allTimeSteps;
             allTimeSteps.resize( timeStepCount );
             std::iota( allTimeSteps.begin(), allTimeSteps.end(), 0 );
-            m_gridCalculationTimeSteps = allTimeSteps;
+            m_selectedTimeSteps = allTimeSteps;
         }
     }
 }
@@ -298,6 +303,7 @@ void RimEclipseStatisticsCase::computeStatistics()
     if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
     {
         // TODO: Add grid calculation for selected time steps before statistics computations
+        m_gridCalculation->calculateForCases( sourceCases, m_selectedTimeSteps() );
     }
 
     if ( sourceCases.empty() || !sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
@@ -317,7 +323,7 @@ void RimEclipseStatisticsCase::computeStatistics()
     statisticsConfig.m_pMinPos              = m_lowPercentile();
     statisticsConfig.m_pValMethod           = m_percentileCalculationType();
 
-    std::vector<int> timeStepIndices = m_gridCalculationTimeSteps();
+    auto timeStepIndices = m_selectedTimeSteps();
 
     // If no dynamic data is present, we might end up with no time steps. Make sure we have at least one.
     if ( timeStepIndices.empty() )
@@ -385,7 +391,12 @@ void RimEclipseStatisticsCase::computeStatistics()
                                                                                 m_selectedFractureInputProperties()[pIdx] ) );
     }
 
-    RimEclipseStatisticsCaseEvaluator stat( sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup );
+    RimEclipseStatisticsCaseEvaluator stat( sourceCases,
+                                            timeStepIndices,
+                                            statisticsConfig,
+                                            resultCase,
+                                            gridCaseGroup,
+                                            m_clearGridCalculationMemory() );
 
     if ( m_useZeroAsInactiveCellValue )
     {
@@ -474,6 +485,7 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
         if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION )
         {
             group->add( &m_gridCalculation );
+            group->add( &m_clearGridCalculationMemory );
         }
         else
         {
@@ -493,7 +505,7 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
     {
         auto group = uiOrdering.addNewGroup( "Time Step Selection" );
         group->setCollapsedByDefault();
-        group->add( &m_gridCalculationTimeSteps );
+        group->add( &m_selectedTimeSteps );
     }
 
     {
@@ -553,7 +565,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
 
     RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
 
-    if ( &m_gridCalculationTimeSteps == fieldNeedingOptions )
+    if ( &m_selectedTimeSteps == fieldNeedingOptions )
     {
         QList<caf::PdmOptionItemInfo> options;
 

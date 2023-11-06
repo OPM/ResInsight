@@ -110,7 +110,9 @@ private:
     caf::PdmField<caf::AppEnum<DataSourceType>> m_dataSourceForStatistics;
 
     caf::PdmPtrField<RimGridCalculation*> m_gridCalculation;
-    caf::PdmField<std::vector<int>>       m_gridCalculationTimeSteps;
+    caf::PdmField<bool>                   m_clearGridCalculationMemory;
+
+    caf::PdmField<std::vector<size_t>> m_selectedTimeSteps;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>>     m_resultType;
     caf::PdmField<caf::AppEnum<RiaDefines::PorosityModelType>> m_porosityModel;
