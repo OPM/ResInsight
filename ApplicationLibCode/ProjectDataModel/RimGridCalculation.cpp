@@ -357,7 +357,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
 
         if ( !inputCases().empty() )
         {
-            RimEclipseCase* firstInputCase = inputCases()[0];
+            firstInputCase = inputCases()[0];
         }
 
         for ( auto eclipseCase : RimEclipseCaseTools::allEclipseGridCases() )
