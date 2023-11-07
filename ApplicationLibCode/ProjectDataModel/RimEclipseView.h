@@ -184,6 +184,8 @@ protected:
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
     virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const;
 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
 private:
     QString createAutoName() const override;
 
@@ -217,6 +219,8 @@ private:
     void setVisibleGridParts( const std::vector<RivCellSetEnum>& cellSets );
     void setVisibleGridPartsWatertight();
 
+    void propagateEclipseCaseToChildObjects();
+
 protected:
     cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
 
@@ -241,7 +245,8 @@ private:
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
-    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
+    caf::PdmPointer<RimEclipseCase>   m_eclipseCase;
+    caf::PdmPtrField<RimEclipseCase*> m_customEclipseCase;
 
     cvf::ref<RivReservoirViewPartMgr>     m_reservoirGridPartManager;
     cvf::ref<RivReservoirSimWellsPartMgr> m_simWellsPartManager;

@@ -29,6 +29,12 @@ class RimEclipseResultCase;
 class RimEclipseCaseTools
 {
 public:
-    static std::vector<RimEclipseCase*>       eclipseCases();
+    // Single grid cases not part of a grid case group
+    static std::vector<RimEclipseCase*> eclipseCases();
+
+    // Result cases based on RimEclipseCaseTools::elipseCases()
     static std::vector<RimEclipseResultCase*> eclipseResultCases();
+
+    // All Eclipse cases including grid case group source cases, excluding statistics cases
+    static std::vector<RimEclipseCase*> allEclipseGridCases();
 };

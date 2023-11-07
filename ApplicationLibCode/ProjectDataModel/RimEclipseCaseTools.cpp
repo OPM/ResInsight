@@ -19,6 +19,7 @@
 #include "RimEclipseCaseTools.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimEclipseStatisticsCase.h"
 #include "RimProject.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -52,4 +53,31 @@ std::vector<RimEclipseResultCase*> RimEclipseCaseTools::eclipseResultCases()
     }
 
     return resultCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimEclipseCaseTools::allEclipseGridCases()
+{
+    // Find all Eclipse cases, including all single grid cases and source cases in a grid case group. Statistics cases are excluded.
+
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        std::vector<RimEclipseCase*> eclipseCases;
+        for ( auto c : proj->allGridCases() )
+        {
+            if ( dynamic_cast<RimEclipseStatisticsCase*>( c ) ) continue;
+
+            if ( auto ec = dynamic_cast<RimEclipseCase*>( c ) )
+            {
+                eclipseCases.push_back( ec );
+            }
+        }
+
+        return eclipseCases;
+    }
+
+    return {};
 }
