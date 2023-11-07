@@ -324,10 +324,6 @@ void RimEclipseStatisticsCase::computeStatistics()
         return;
     }
 
-    // The first source has been read completely from disk, and contains grid and meta data
-    // Use this information for all cases in the case group
-    size_t timeStepCount = sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
-
     RimStatisticsConfig statisticsConfig;
 
     statisticsConfig.m_calculatePercentiles = m_calculatePercentiles();
@@ -617,7 +613,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
 
         const auto timeStepStrings = idgcg->mainCase()->timeStepStrings();
 
-        size_t index = 0;
+        int index = 0;
         for ( const auto& text : timeStepStrings )
         {
             options.push_back( caf::PdmOptionItemInfo( text, index++ ) );
