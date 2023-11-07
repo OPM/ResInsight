@@ -285,18 +285,18 @@ void RicCreateTemporaryLgrFeature::deleteAllCachedData( RimEclipseCase* eclipseC
 {
     if ( eclipseCase )
     {
-        std::vector<RiaDefines::ResultCatType> keepDataForCategories = { RiaDefines::ResultCatType::GENERATED };
+        std::vector<RiaDefines::ResultCatType> categoriesToExclude = { RiaDefines::ResultCatType::GENERATED };
 
         RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         if ( cellResultsDataMatrix )
         {
-            cellResultsDataMatrix->freeAllocatedResultsData( keepDataForCategories, std::nullopt );
+            cellResultsDataMatrix->freeAllocatedResultsData( categoriesToExclude, std::nullopt );
         }
 
         RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
         if ( cellResultsDataFracture )
         {
-            cellResultsDataFracture->freeAllocatedResultsData( keepDataForCategories, std::nullopt );
+            cellResultsDataFracture->freeAllocatedResultsData( categoriesToExclude, std::nullopt );
         }
 
         RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();

@@ -302,8 +302,21 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
     {
-        // TODO: Add grid calculation for selected time steps before statistics computations
-        m_gridCalculation->calculateForCases( sourceCases, m_selectedTimeSteps() );
+        auto proj     = RimProject::current();
+        auto calcColl = proj->gridCalculationCollection();
+
+        auto dependentCalculations = calcColl->dependentCalculations( m_gridCalculation() );
+        if ( dependentCalculations.empty() )
+        {
+            // No calculations found, usually triggered by a circular dependency of calculations. Error message displayed by
+            // dependentCalculations().
+            return;
+        }
+
+        for ( auto calc : dependentCalculations )
+        {
+            calc->calculateForCases( sourceCases, m_selectedTimeSteps() );
+        }
     }
 
     if ( sourceCases.empty() || !sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
@@ -795,15 +808,18 @@ void RimEclipseStatisticsCase::updateSelectionSummaryLabel()
     }
     html += "</p>";
 
-    addPropertySetToHtmlText( html, "Dynamic properties", m_selectedDynamicProperties() );
-    addPropertySetToHtmlText( html, "Static properties", m_selectedStaticProperties() );
-    addPropertySetToHtmlText( html, "Generated properties", m_selectedGeneratedProperties() );
-    addPropertySetToHtmlText( html, "Input properties", m_selectedInputProperties() );
+    if ( m_dataSourceForStatistics() == DataSourceType::CASE_PROPERTY )
+    {
+        addPropertySetToHtmlText( html, "Dynamic properties", m_selectedDynamicProperties() );
+        addPropertySetToHtmlText( html, "Static properties", m_selectedStaticProperties() );
+        addPropertySetToHtmlText( html, "Generated properties", m_selectedGeneratedProperties() );
+        addPropertySetToHtmlText( html, "Input properties", m_selectedInputProperties() );
 
-    addPropertySetToHtmlText( html, "Dynamic properties, fracture model", m_selectedFractureDynamicProperties() );
-    addPropertySetToHtmlText( html, "Static properties, fracture model", m_selectedFractureStaticProperties() );
-    addPropertySetToHtmlText( html, "Generated properties, fracture model", m_selectedFractureGeneratedProperties() );
-    addPropertySetToHtmlText( html, "Input properties, fracture model", m_selectedFractureInputProperties() );
+        addPropertySetToHtmlText( html, "Dynamic properties, fracture model", m_selectedFractureDynamicProperties() );
+        addPropertySetToHtmlText( html, "Static properties, fracture model", m_selectedFractureStaticProperties() );
+        addPropertySetToHtmlText( html, "Generated properties, fracture model", m_selectedFractureGeneratedProperties() );
+        addPropertySetToHtmlText( html, "Input properties, fracture model", m_selectedFractureInputProperties() );
+    }
 
     if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
     {

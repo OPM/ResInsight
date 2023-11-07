@@ -311,8 +311,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
         // Microsoft note: On Windows, the maximum number of files open at the same time is 512
         // http://msdn.microsoft.com/en-us/library/kdfaxaay%28vs.71%29.aspx
 
-        std::vector<RiaDefines::ResultCatType> keepDataForCategories;
-        if ( !m_clearGridCalculationMemory ) keepDataForCategories.push_back( RiaDefines::ResultCatType::GENERATED );
+        std::vector<RiaDefines::ResultCatType> categoriesToExclude;
+        if ( !m_clearGridCalculationMemory ) categoriesToExclude.push_back( RiaDefines::ResultCatType::GENERATED );
 
         for ( size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++ )
         {
@@ -320,8 +320,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
             if ( eclipseCase->reservoirViews.empty() )
             {
-                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( keepDataForCategories, timeStepIdx );
-                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( keepDataForCategories, timeStepIdx );
+                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepIdx );
+                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepIdx );
             }
         }
 

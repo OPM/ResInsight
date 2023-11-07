@@ -699,7 +699,7 @@ void RigCaseCellResultsData::clearAllResults()
 /// Removes all the actual numbers put into this object, and frees up the memory.
 /// Does not touch the metadata in any way
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> categoriesToKeep,
+void RigCaseCellResultsData::freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> categoriesToExclude,
                                                        std::optional<size_t>                  timeStepIndexToRelease )
 {
     for ( size_t resultIdx = 0; resultIdx < m_cellScalarResults.size(); ++resultIdx )
@@ -707,7 +707,7 @@ void RigCaseCellResultsData::freeAllocatedResultsData( std::vector<RiaDefines::R
         if ( resultIdx < m_resultInfos.size() )
         {
             auto resultCategory = m_resultInfos[resultIdx].eclipseResultAddress().resultCatType();
-            if ( std::find( categoriesToKeep.begin(), categoriesToKeep.end(), resultCategory ) != categoriesToKeep.end() )
+            if ( std::find( categoriesToExclude.begin(), categoriesToExclude.end(), resultCategory ) != categoriesToExclude.end() )
             {
                 // Keep generated results for these categories
                 continue;
