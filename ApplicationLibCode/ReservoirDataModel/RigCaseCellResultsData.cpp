@@ -2626,8 +2626,11 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
     {
         for ( auto userCalculation : RimProject::current()->gridCalculationCollection()->calculations() )
         {
-            auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation );
-            if ( gridCalculation && gridCalculation->outputEclipseCase() != eclipseCase ) continue;
+            if ( auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation ) )
+            {
+                auto outputCases = gridCalculation->outputEclipseCases();
+                if ( std::find( outputCases.begin(), outputCases.end(), eclipseCase ) == outputCases.end() ) continue;
+            }
 
             QString generatedPropertyName = RimUserDefinedCalculation::findLeftHandSide( userCalculation->expression() );
             if ( generatedPropertyName == propertyName )

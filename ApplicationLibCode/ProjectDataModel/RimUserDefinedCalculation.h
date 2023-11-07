@@ -56,6 +56,7 @@ public:
     QString unitName() const;
 
     bool         parseExpression();
+    virtual bool preCalculate() const;
     virtual bool calculate()              = 0;
     virtual void updateDependentObjects() = 0;
     virtual void removeDependentObjects() = 0;
