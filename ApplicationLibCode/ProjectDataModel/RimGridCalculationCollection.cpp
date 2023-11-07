@@ -57,14 +57,14 @@ std::vector<RimGridCalculation*> RimGridCalculationCollection::sortedGridCalcula
     // Check if source calculation is depending on other. Will check one level dependency.
     auto isSourceDependingOnOther = []( const RimGridCalculation* source, const RimGridCalculation* other ) -> bool
     {
-        auto outputCase = source->outputEclipseCase();
-        auto outputAdr  = source->outputAddress();
+        auto outputCases = source->outputEclipseCases();
+        auto outputAdr   = source->outputAddress();
 
         for ( auto v : other->allVariables() )
         {
             auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( v );
-            if ( gridVariable->eclipseCase() == outputCase && outputAdr.resultCatType() == gridVariable->resultCategoryType() &&
-                 outputAdr.resultName() == gridVariable->resultVariable() )
+            if ( std::find( outputCases.begin(), outputCases.end(), gridVariable->eclipseCase() ) != outputCases.end() &&
+                 outputAdr.resultCatType() == gridVariable->resultCategoryType() && outputAdr.resultName() == gridVariable->resultVariable() )
             {
                 return true;
             }

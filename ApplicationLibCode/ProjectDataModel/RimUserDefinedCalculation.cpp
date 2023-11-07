@@ -245,6 +245,14 @@ bool RimUserDefinedCalculation::parseExpression()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimUserDefinedCalculation::preCalculate() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Find the last assignment using := and interpret the text before the := as LHS
 //--------------------------------------------------------------------------------------------------
 QString RimUserDefinedCalculation::findLeftHandSide( const QString& expression )
