@@ -699,23 +699,34 @@ void RigCaseCellResultsData::clearAllResults()
 /// Removes all the actual numbers put into this object, and frees up the memory.
 /// Does not touch the metadata in any way
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::freeAllocatedResultsData()
+void RigCaseCellResultsData::freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> categoriesToExclude,
+                                                       std::optional<size_t>                  timeStepIndexToRelease )
 {
     for ( size_t resultIdx = 0; resultIdx < m_cellScalarResults.size(); ++resultIdx )
     {
-        if ( resultIdx < m_resultInfos.size() &&
-             m_resultInfos[resultIdx].eclipseResultAddress().resultCatType() == RiaDefines::ResultCatType::GENERATED )
+        if ( resultIdx < m_resultInfos.size() )
         {
-            // Not possible to recreate generated results, keep them
-            continue;
+            auto resultCategory = m_resultInfos[resultIdx].eclipseResultAddress().resultCatType();
+            if ( std::find( categoriesToExclude.begin(), categoriesToExclude.end(), resultCategory ) != categoriesToExclude.end() )
+            {
+                // Keep generated results for these categories
+                continue;
+            }
         }
 
-        for ( auto& tsIdx : m_cellScalarResults[resultIdx] )
+        for ( size_t index = 0; index < m_cellScalarResults[resultIdx].size(); index++ )
         {
+            if ( timeStepIndexToRelease && index != *timeStepIndexToRelease )
+            {
+                // Keep generated results for these time steps
+                continue;
+            }
+
+            auto& dataForTimeStep = m_cellScalarResults[resultIdx][index];
             // Using swap with an empty vector as that is the safest way to really get rid of the allocated data in a
             // vector
             std::vector<double> empty;
-            tsIdx.swap( empty );
+            dataForTimeStep.swap( empty );
         }
     }
 }
