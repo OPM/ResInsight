@@ -205,6 +205,11 @@ bool RicUserDefinedCalculatorUi::calculate() const
             notifyCalculatedNameChanged( m_currentCalculation()->id(), currentCurveName );
         }
 
+        if ( !m_currentCalculation()->preCalculate() )
+        {
+            return false;
+        }
+
         if ( !m_currentCalculation()->calculate() )
         {
             return false;

@@ -47,12 +47,13 @@ public:
 
     RimGridCalculation();
 
+    bool preCalculate() const override;
     bool calculate() override;
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
-    RimEclipseCase*         outputEclipseCase() const;
-    RigEclipseResultAddress outputAddress() const;
+    std::vector<RimEclipseCase*> outputEclipseCases() const;
+    RigEclipseResultAddress      outputAddress() const;
 
     std::vector<RimEclipseCase*> inputCases() const;
 
@@ -96,11 +97,14 @@ protected:
 
 private:
     void onVariableUpdated( const SignalEmitter* emitter );
+    bool allSourceCasesAreEqualToDestinationCase() const;
 
 private:
     caf::PdmPtrField<RimGridView*>                m_cellFilterView;
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
-    caf::PdmField<int>                            m_defaultPropertyVariableIndex;
+    caf::PdmField<bool>                           m_allCases;
+
+    caf::PdmField<int> m_defaultPropertyVariableIndex;
 };
