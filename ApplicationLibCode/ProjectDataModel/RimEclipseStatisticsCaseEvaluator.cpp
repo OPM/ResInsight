@@ -320,8 +320,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
             if ( eclipseCase->reservoirViews.empty() )
             {
-                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( keepDataForCategories );
-                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( keepDataForCategories );
+                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( keepDataForCategories, timeStepIdx );
+                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( keepDataForCategories, timeStepIdx );
             }
         }
 

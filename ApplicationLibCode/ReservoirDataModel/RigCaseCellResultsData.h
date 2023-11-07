@@ -29,6 +29,7 @@
 
 #include <cmath>
 #include <map>
+#include <optional>
 #include <vector>
 
 class RifReaderInterface;
@@ -116,7 +117,7 @@ public:
     void clearScalarResult( RiaDefines::ResultCatType type, const QString& resultName );
     void clearScalarResult( const RigEclipseResultAddress& resultAddress );
     void clearAllResults();
-    void freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> keepDataForCategories );
+    void freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> categoriesToKeep, std::optional<size_t> timeStepIndexToRelease );
     void eraseAllSourSimData();
     void setRemovedTagOnGeneratedResult( const RigEclipseResultAddress& resultAddress );
 

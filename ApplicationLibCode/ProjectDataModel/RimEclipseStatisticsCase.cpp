@@ -335,60 +335,71 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     QList<RimEclipseStatisticsCaseEvaluator::ResSpec> resultSpecification;
 
-    for ( size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx )
+    if ( m_dataSourceForStatistics() == DataSourceType::CASE_PROPERTY )
     {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                m_selectedDynamicProperties()[pIdx] ) );
-    }
+        for ( size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                    m_selectedDynamicProperties()[pIdx] ) );
+        }
 
-    for ( size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                m_selectedStaticProperties()[pIdx] ) );
-    }
+        for ( size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                    RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                    m_selectedStaticProperties()[pIdx] ) );
+        }
 
-    for ( size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx )
+        for ( size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                    RiaDefines::ResultCatType::GENERATED,
+                                                                                    m_selectedGeneratedProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                                    m_selectedInputProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedFractureDynamicProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                    m_selectedFractureDynamicProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedFractureStaticProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                                    RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                    m_selectedFractureStaticProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedFractureGeneratedProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                                    RiaDefines::ResultCatType::GENERATED,
+                                                                                    m_selectedFractureGeneratedProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedFractureInputProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                                    m_selectedFractureInputProperties()[pIdx] ) );
+        }
+    }
+    else if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
     {
+        auto calculationName = m_gridCalculation->shortName();
+
         resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                                 RiaDefines::ResultCatType::GENERATED,
-                                                                                m_selectedGeneratedProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                                                m_selectedInputProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedFractureDynamicProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                                RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                m_selectedFractureDynamicProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedFractureStaticProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                                RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                m_selectedFractureStaticProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedFractureGeneratedProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                                RiaDefines::ResultCatType::GENERATED,
-                                                                                m_selectedFractureGeneratedProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedFractureInputProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                                RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                                                m_selectedFractureInputProperties()[pIdx] ) );
+                                                                                calculationName ) );
     }
 
     RimEclipseStatisticsCaseEvaluator stat( sourceCases,
@@ -549,6 +560,28 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
     if ( !( caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData() ) )
     {
         return {};
+    }
+
+    if ( &m_dataSourceForStatistics == fieldNeedingOptions )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        {
+            caf::IconProvider iconProvider( ":/Case48x48.png" );
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<DataSourceType>::uiText( DataSourceType::CASE_PROPERTY ),
+                                                       DataSourceType::CASE_PROPERTY,
+                                                       false,
+                                                       iconProvider ) );
+        }
+        {
+            caf::IconProvider iconProvider( ":/Calculator.svg" );
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<DataSourceType>::uiText( DataSourceType::GRID_CALCULATION ),
+                                                       DataSourceType::GRID_CALCULATION,
+                                                       false,
+                                                       iconProvider ) );
+        }
+
+        return options;
     }
 
     if ( &m_gridCalculation == fieldNeedingOptions )
@@ -771,6 +804,14 @@ void RimEclipseStatisticsCase::updateSelectionSummaryLabel()
     addPropertySetToHtmlText( html, "Static properties, fracture model", m_selectedFractureStaticProperties() );
     addPropertySetToHtmlText( html, "Generated properties, fracture model", m_selectedFractureGeneratedProperties() );
     addPropertySetToHtmlText( html, "Input properties, fracture model", m_selectedFractureInputProperties() );
+
+    if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
+    {
+        html += "<p><b>Grid calculation:</b></p>";
+        html += "<p class=indent>";
+        html += m_gridCalculation()->shortName();
+        html += "</p>";
+    }
 
     m_selectionSummary = html;
 }
