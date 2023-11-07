@@ -810,6 +810,22 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
     {
         RicNewViewFeature::addReservoirView( this, nullptr );
     }
+
+    if ( reservoirViews.size() == 1 )
+    {
+        // If only one view, set the first result as active
+
+        if ( auto cellResultsData = results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
+        {
+            auto firstView = reservoirViews[0];
+
+            std::vector<RigEclipseResultAddress> resAddresses = cellResultsData->existingResults();
+            if ( firstView && !resAddresses.empty() )
+            {
+                firstView->cellResult()->setFromEclipseResultAddress( resAddresses[0] );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
