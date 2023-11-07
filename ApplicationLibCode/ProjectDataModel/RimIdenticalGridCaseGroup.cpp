@@ -433,6 +433,7 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createStatisticsCase( bool 
 
     newStatisticsCase->openEclipseGridFile();
     newStatisticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
+    newStatisticsCase->selectAllTimeSteps();
 
     return newStatisticsCase;
 }

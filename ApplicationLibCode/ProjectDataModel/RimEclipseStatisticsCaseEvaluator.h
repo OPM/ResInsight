@@ -38,7 +38,7 @@ public:
         , m_pMinPos( 10.0 )
         , m_pMidPos( 50.0 )
         , m_pMaxPos( 90.0 )
-        , m_pValMethod( RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION )
+        , m_pValMethod( RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION )
     {
     }
 
@@ -54,10 +54,11 @@ class RimEclipseStatisticsCaseEvaluator
 {
 public:
     RimEclipseStatisticsCaseEvaluator( const std::vector<RimEclipseCase*>& sourceCases,
-                                       const std::vector<size_t>&          timeStepIndices,
+                                       const std::vector<int>&             timeStepIndices,
                                        const RimStatisticsConfig&          statisticsConfig,
                                        RigEclipseCaseData*                 destinationCase,
-                                       RimIdenticalGridCaseGroup*          identicalGridCaseGroup );
+                                       RimIdenticalGridCaseGroup*          identicalGridCaseGroup,
+                                       bool                                clearGridCalculationMemory );
 
     struct ResSpec
     {
@@ -105,11 +106,12 @@ private:
 
 private:
     std::vector<RimEclipseCase*> m_sourceCases;
-    std::vector<size_t>          m_timeStepIndices;
+    std::vector<int>             m_timeStepIndices;
 
     size_t                     m_reservoirCellCount;
     RimStatisticsConfig        m_statisticsConfig;
     RigEclipseCaseData*        m_destinationCase;
     RimIdenticalGridCaseGroup* m_identicalGridCaseGroup;
     bool                       m_useZeroAsInactiveCellValue;
+    bool                       m_clearGridCalculationMemory;
 };
