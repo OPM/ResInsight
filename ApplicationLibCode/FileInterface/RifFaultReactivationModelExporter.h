@@ -56,7 +56,12 @@ private:
 
     static std::pair<bool, std::string> printMaterials( std::ostream&                                                   stream,
                                                         const RimFaultReactivationModel&                                rimModel,
-                                                        const std::map<RimFaultReactivation::ElementSets, std::string>& materialNames );
+                                                        const std::map<RimFaultReactivation::ElementSets, std::string>& materialNames,
+                                                        const RimFaultReactivationDataAccess&                           dataAccess,
+                                                        const std::string&                                              exportDirectory,
+                                                        const std::map<RimFaultReactivation::GridPart, std::string>&    partNames,
+                                                        bool                                                            densityFromGrid,
+                                                        bool elasticPropertiesFromGrid );
 
     static std::pair<bool, std::string> printInteractionProperties( std::ostream& stream, double faultFriction );
     static std::pair<bool, std::string> printBoundaryConditions( std::ostream&                                                stream,
@@ -90,6 +95,16 @@ private:
                                      const std::string&                                           filePath,
                                      const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                      const std::string&                                           additionalData );
+
+    static bool writePropertiesToFile( const RigFaultReactivationModel&                             model,
+                                       const RimFaultReactivationDataAccess&                        dataAccess,
+                                       const std::vector<RimFaultReactivation::Property>&           properties,
+                                       const std::vector<std::string>&                              propertyNames,
+                                       size_t                                                       outputTimeStep,
+                                       const std::string&                                           filePath,
+                                       const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                       const std::string&                                           tableName,
+                                       const std::string&                                           heading );
 
     static std::string createFileName( const std::string& title, const std::string& stepName );
 
