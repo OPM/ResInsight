@@ -22,6 +22,7 @@
 #include "RiaPorosityModel.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigCaseToCaseCellMapperTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigFault.h"
@@ -99,6 +100,10 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
                                                                       RimFaultReactivation::Property   property,
                                                                       size_t                           timeStep )
 {
+    std::set<RimFaultReactivation::Property> nodeProperties = { RimFaultReactivation::Property::PorePressure,
+                                                                RimFaultReactivation::Property::VoidRatio,
+                                                                RimFaultReactivation::Property::Temperature };
+
     std::shared_ptr<RimFaultReactivationDataAccessor> accessor = getAccessor( property );
     if ( accessor )
     {
@@ -107,11 +112,27 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
         auto grid = model.grid( gridPart );
 
         std::vector<double> values;
-        for ( auto& node : grid->globalNodes() )
+
+        if ( nodeProperties.contains( property ) )
         {
-            double value = accessor->valueAtPosition( node );
-            values.push_back( value );
+            for ( auto& node : grid->globalNodes() )
+            {
+                double value = accessor->valueAtPosition( node );
+                values.push_back( value );
+            }
         }
+        else
+        {
+            unsigned int numElements = grid->elementIndices().size();
+            for ( unsigned int elementIndex = 0; elementIndex < numElements; elementIndex++ )
+            {
+                std::vector<cvf::Vec3d> corners  = grid->elementCorners( elementIndex );
+                cvf::Vec3d              position = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
+                double                  value    = accessor->valueAtPosition( position );
+                values.push_back( value );
+            }
+        }
+
         return values;
     }
 
