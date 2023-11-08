@@ -25,6 +25,8 @@
 #include "cafSignal.h"
 #include "cvfArray.h"
 
+#include <optional>
+
 class RimEclipseCase;
 class RimGridView;
 class RigEclipseResultAddress;
