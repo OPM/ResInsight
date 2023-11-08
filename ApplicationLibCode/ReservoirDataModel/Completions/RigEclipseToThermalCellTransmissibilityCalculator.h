@@ -53,6 +53,7 @@ public:
                                                                 RimThermalFractureTemplate::FilterCakePressureDrop filterCakePressureDrop,
                                                                 double                                             injectvityFactor,
                                                                 double                                             filterCakeMobility,
+                                                                double                                             filtrateThickness,
                                                                 double                                             viscosity,
                                                                 double                                             relativePermeability );
 
@@ -62,6 +63,7 @@ protected:
     RimThermalFractureTemplate::FilterCakePressureDrop m_filterCakePressureDrop;
     double                                             m_injectivityFactor;
     double                                             m_filterCakeMobility;
+    double                                             m_filtrateThickness;
     double                                             m_viscosity;
     double                                             m_relativePermeability;
 };

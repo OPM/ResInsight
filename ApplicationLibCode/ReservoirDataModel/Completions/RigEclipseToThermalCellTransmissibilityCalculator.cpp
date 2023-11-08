@@ -35,12 +35,14 @@ RigEclipseToThermalCellTransmissibilityCalculator::RigEclipseToThermalCellTransm
     RimThermalFractureTemplate::FilterCakePressureDrop filterCakePressureDrop,
     double                                             injectivityFactor,
     double                                             filterCakeMobility,
+    double                                             filtrateThickness,
     double                                             viscosity,
     double                                             relativePermeability )
     : RigEclipseToStimPlanCellTransmissibilityCalculator( caseToApply, fractureTransform, skinFactor, cDarcy, stimPlanCell, fracture )
     , m_filterCakePressureDrop( filterCakePressureDrop )
     , m_injectivityFactor( injectivityFactor )
     , m_filterCakeMobility( filterCakeMobility )
+    , m_filtrateThickness( filtrateThickness )
     , m_viscosity( viscosity )
     , m_relativePermeability( relativePermeability )
 {
@@ -60,11 +62,19 @@ double RigEclipseToThermalCellTransmissibilityCalculator::calculateTransmissibil
     }
     else if ( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE )
     {
-        double filterCakeTransmissibility = ( m_viscosity / m_relativePermeability ) * fractureArea * m_filterCakeMobility;
+        // Take filter cake transmissibility into account only when filter cake exists (i.e. has thickness).
+        if ( m_filtrateThickness > 0.0 )
+        {
+            double filterCakeTransmissibility = ( m_viscosity / m_relativePermeability ) * fractureArea * m_filterCakeMobility;
 
-        // Harmonic mean
-        return ( fractureMatrixTransimissibility * filterCakeTransmissibility ) /
-               ( fractureMatrixTransimissibility + filterCakeTransmissibility );
+            // Harmonic mean
+            return ( fractureMatrixTransimissibility * filterCakeTransmissibility ) /
+                   ( fractureMatrixTransimissibility + filterCakeTransmissibility );
+        }
+        else
+        {
+            return fractureMatrixTransimissibility;
+        }
     }
     else
     {
