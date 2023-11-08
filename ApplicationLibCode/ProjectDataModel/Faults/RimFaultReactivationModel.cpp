@@ -118,6 +118,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_useGridPorePressure, "UseGridPorePressure", true, "Use Grid Pore Pressure" );
     CAF_PDM_InitField( &m_useGridVoidRatio, "UseGridVoidRatio", true, "Use Grid Void Ratio" );
     CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", true, "Use Grid Temperature" );
+    CAF_PDM_InitField( &m_useGridDensity, "UseGridDensity", true, "Use Grid Density" );
+    CAF_PDM_InitField( &m_useGridElasticProperties, "UseGridElasticProperties", true, "Use Grid Elastic Properties" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -500,6 +502,8 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     propertiesGrp->add( &m_useGridPorePressure );
     propertiesGrp->add( &m_useGridVoidRatio );
     propertiesGrp->add( &m_useGridTemperature );
+    propertiesGrp->add( &m_useGridDensity );
+    propertiesGrp->add( &m_useGridElasticProperties );
 
     auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
     appModelGrp->add( &m_modelPart1Color );
@@ -795,4 +799,20 @@ bool RimFaultReactivationModel::useGridPorePressure() const
 bool RimFaultReactivationModel::useGridTemperature() const
 {
     return m_useGridTemperature();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::useGridDensity() const
+{
+    return m_useGridDensity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::useGridElasticProperties() const
+{
+    return m_useGridElasticProperties();
 }

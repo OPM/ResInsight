@@ -128,6 +128,8 @@ public:
     bool useGridVoidRatio() const;
     bool useGridPorePressure() const;
     bool useGridTemperature() const;
+    bool useGridDensity() const;
+    bool useGridElasticProperties() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
@@ -181,6 +183,8 @@ private:
     caf::PdmField<bool> m_useGridPorePressure;
     caf::PdmField<bool> m_useGridVoidRatio;
     caf::PdmField<bool> m_useGridTemperature;
+    caf::PdmField<bool> m_useGridDensity;
+    caf::PdmField<bool> m_useGridElasticProperties;
 
     cvf::ref<RigBasicPlane>             m_faultPlane;
     cvf::ref<RigFaultReactivationModel> m_modelPlane;
