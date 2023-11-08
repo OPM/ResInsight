@@ -35,6 +35,7 @@
 
 #include "RimEclipseView.h"
 #include "RimFracture.h"
+#include "RimProject.h"
 #include "RimStimPlanColors.h"
 #include "RimWellPath.h"
 #include "RimWellPathFracture.h"
@@ -149,6 +150,19 @@ bool RimThermalFractureTemplate::setBorderPolygonResultNameToDefault()
         return true;
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimThermalFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    RimMeshFractureTemplate::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( &m_filterCakePressureDropType == changedField )
+    {
+        onLoadDataAndUpdateGeometryHasChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
