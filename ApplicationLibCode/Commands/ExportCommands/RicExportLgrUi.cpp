@@ -220,7 +220,7 @@ void RicExportLgrUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RicExportLgrUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiOrdering::LayoutOptions layout( true, 6, 1 );
+    caf::PdmUiOrdering::LayoutOptions layout = {.newRow= true, .totalColumnSpan= 6, .leftLabelColumnSpan=1 };
     uiOrdering.add( &m_caseToApply, layout );
     uiOrdering.add( &m_timeStep, layout );
     uiOrdering.add( &m_exportFolder, layout );
