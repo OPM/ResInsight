@@ -1297,8 +1297,8 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::defineUiOrderingColorOnly( caf::PdmUiOrdering* colorGroup )
 {
-    colorGroup->add( &m_colorLegend, { true, 2, 1 } );
-    colorGroup->add( &m_selectColorLegendButton, { false, 1, 0 } );
+    colorGroup->add( &m_colorLegend, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    colorGroup->add( &m_selectColorLegendButton, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 }
 
 //--------------------------------------------------------------------------------------------------

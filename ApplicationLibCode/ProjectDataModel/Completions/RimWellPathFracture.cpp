@@ -259,7 +259,7 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     if ( m_fractureTemplate() )
     {
-        uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
+        uiOrdering.add( nameField(), { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         uiOrdering.add( &m_fractureTemplate, { .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
         uiOrdering.add( &m_editFractureTemplate, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
     }

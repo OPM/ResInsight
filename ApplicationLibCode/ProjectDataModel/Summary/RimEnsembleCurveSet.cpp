@@ -1130,7 +1130,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
         if ( !isXAxisSummaryVector() )
         {
@@ -1327,7 +1327,8 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
         {
             colorsGroup->add( &m_objectiveValuesSummaryAddressesUiField );
-            colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
+            colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton,
+                              { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
             {
                 auto equationGroup = colorsGroup->addNewGroup( "Equation" );

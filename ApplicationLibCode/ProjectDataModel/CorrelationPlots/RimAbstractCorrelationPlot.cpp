@@ -748,13 +748,13 @@ void RimAbstractCorrelationPlot::appendDataSourceFields( QString uiConfigName, c
     m_selectedVarsUiField = selectedVectorNamesText();
 
     curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
+    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
     curveDataGroup->add( &m_timeStepFilter );
     curveDataGroup->add( &m_timeStep );
     curveDataGroup->add( &m_useCaseFilter );
     curveDataGroup->add( &m_curveSetForFiltering );
     m_curveSetForFiltering.uiCapability()->setUiHidden( !m_useCaseFilter() );
-    curveDataGroup->add( &m_editCaseFilter, { false, 1, 0 } );
+    curveDataGroup->add( &m_editCaseFilter, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
     m_editCaseFilter.uiCapability()->setUiHidden( !m_useCaseFilter() );
 }
 

@@ -448,7 +448,7 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
         uiOrdering.add( &m_objectiveValuesSummaryAddressesUiField );
-        uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
+        uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
         {
             auto equationGroup = uiOrdering.addNewGroup( "Equation" );
             m_objectiveFunction->uiOrdering( "", *equationGroup );
