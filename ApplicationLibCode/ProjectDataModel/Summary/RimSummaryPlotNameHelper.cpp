@@ -273,6 +273,14 @@ std::string RimSummaryPlotNameHelper::titleCompletion() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RimSummaryPlotNameHelper::numberOfCases() const
+{
+    return m_summaryCases.size() + m_ensembleCases.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::clearTitleSubStrings()
 {
     m_titleQuantity.clear();

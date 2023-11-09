@@ -52,6 +52,8 @@ public:
     std::string titleSegment() const override;
     std::string titleCompletion() const override;
 
+    size_t numberOfCases() const override;
+
 private:
     std::vector<const RimSummaryNameHelper*> m_nameHelpers;
 };

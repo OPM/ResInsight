@@ -256,3 +256,17 @@ std::string RimMultiSummaryPlotNameHelper::titleCompletion() const
 
     return "";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimMultiSummaryPlotNameHelper::numberOfCases() const
+{
+    size_t caseCount = 0;
+    for ( auto nameHelper : m_nameHelpers )
+    {
+        caseCount += nameHelper->numberOfCases();
+    }
+
+    return caseCount;
+}

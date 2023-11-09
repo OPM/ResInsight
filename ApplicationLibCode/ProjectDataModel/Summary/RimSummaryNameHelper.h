@@ -59,4 +59,6 @@ public:
     virtual std::string titleBlock() const      = 0;
     virtual std::string titleSegment() const    = 0;
     virtual std::string titleCompletion() const = 0;
+
+    virtual size_t numberOfCases() const = 0;
 };
