@@ -91,4 +91,5 @@ protected:
 
 private:
     caf::PdmField<bool> m_distributeToOtherItems;
+    caf::PdmField<bool> m_distributeToAllCases;
 };

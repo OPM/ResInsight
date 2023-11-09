@@ -61,8 +61,11 @@ RimSummaryCalculation::RimSummaryCalculation()
 {
     CAF_PDM_InitObject( "RimSummaryCalculation", ":/octave.png", "Calculation", "" );
 
-    CAF_PDM_InitField( &m_distributeToOtherItems, "DistributeToOtherItems", true, "Distribute to other items (wells, groups, ..)" );
+    CAF_PDM_InitField( &m_distributeToOtherItems, "DistributeToOtherItems", true, "Distribute to other items (wells, groups, ...)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_distributeToOtherItems );
+
+    CAF_PDM_InitField( &m_distributeToAllCases, "DistributeToAllCases", true, "Distribute to All Cases" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_distributeToAllCases );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -465,6 +468,20 @@ void RimSummaryCalculation::removeDependentObjects()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesForSummaryCase( RimSummaryCase* summaryCase ) const
 {
+    if ( !m_distributeToAllCases )
+    {
+        for ( auto& v : m_variables )
+        {
+            if ( auto variable = dynamic_cast<RimSummaryCalculationVariable*>( v.p() ) )
+            {
+                if ( variable->summaryCase() != summaryCase )
+                {
+                    return {};
+                }
+            }
+        }
+    }
+
     auto variables = getVariables();
     if ( variables && !variables.value().empty() )
     {
