@@ -370,7 +370,7 @@ int PdmUiOrdering::nrOfExpandingItemsInRow( const RowLayout& rowItems ) const
     int nrOfExpandingItems = 0;
     for ( const FieldAndLayout& item : rowItems )
     {
-        if ( item.second.totalColumnSpan == LayoutOptions::MAX_COLUMN_SPAN ) nrOfExpandingItems++;
+        if ( item.second.totalColumnSpan == MAX_COLUMN_SPAN ) nrOfExpandingItems++;
     }
     return nrOfExpandingItems;
 }
@@ -401,7 +401,7 @@ void PdmUiOrdering::nrOfColumnsRequiredForItem( const FieldAndLayout& fieldAndLa
         if ( uiItem->uiLabelPosition() == PdmUiItemInfo::LEFT )
         {
             *labelColumnsRequired = 1;
-            if ( layoutOption.leftLabelColumnSpan != LayoutOptions::MAX_COLUMN_SPAN )
+            if ( layoutOption.leftLabelColumnSpan != MAX_COLUMN_SPAN )
             {
                 *labelColumnsRequired = layoutOption.leftLabelColumnSpan;
             }
@@ -409,7 +409,7 @@ void PdmUiOrdering::nrOfColumnsRequiredForItem( const FieldAndLayout& fieldAndLa
         *totalColumnsRequired = *labelColumnsRequired + *fieldColumnsRequired;
     }
 
-    if ( layoutOption.totalColumnSpan != LayoutOptions::MAX_COLUMN_SPAN )
+    if ( layoutOption.totalColumnSpan != MAX_COLUMN_SPAN )
     {
         *totalColumnsRequired = layoutOption.totalColumnSpan;
     }

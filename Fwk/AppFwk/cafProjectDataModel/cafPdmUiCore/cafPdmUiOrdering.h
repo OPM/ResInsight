@@ -54,20 +54,15 @@ class PdmObjectHandle;
 class PdmUiOrdering
 {
 public:
+    static const int MAX_COLUMN_SPAN = -1;
+
     struct LayoutOptions
     {
-        static const int MAX_COLUMN_SPAN = -1;
-        LayoutOptions( bool newRow = true, int totalColumnSpan = MAX_COLUMN_SPAN, int leftLabelColumnSpan = MAX_COLUMN_SPAN )
-            : newRow( newRow )
-            , totalColumnSpan( totalColumnSpan )
-            , leftLabelColumnSpan( leftLabelColumnSpan )
-        {
-        }
-
-        bool newRow;
-        int  totalColumnSpan;
-        int  leftLabelColumnSpan;
+        bool newRow{ true };
+        int  totalColumnSpan{ MAX_COLUMN_SPAN };
+        int  leftLabelColumnSpan{ MAX_COLUMN_SPAN };
     };
+
     typedef std::pair<PdmUiItem*, LayoutOptions> FieldAndLayout;
     typedef std::vector<FieldAndLayout>          RowLayout;
     typedef std::vector<RowLayout>               TableLayout;
