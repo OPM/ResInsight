@@ -32,17 +32,18 @@ set(PROJECT_FILES
 
 set(CAF_LIBS cafProjectDataModel)
 
-if (NOT CAF_EXCLUDE_CVF)
-    list(APPEND PROJECT_FILES
-        cafPdmFieldScriptingCapabilityCvfColor3.h
-        cafPdmFieldScriptingCapabilityCvfColor3.cpp
-        cafPdmFieldScriptingCapabilityCvfVec3d.h
-        cafPdmFieldScriptingCapabilityCvfVec3d.cpp
-    )
-    
-    list(APPEND CAF_LIBS cafPdmCvf)
-endif()
+if(NOT CAF_EXCLUDE_CVF)
+  list(
+    APPEND
+    PROJECT_FILES
+    cafPdmFieldScriptingCapabilityCvfColor3.h
+    cafPdmFieldScriptingCapabilityCvfColor3.cpp
+    cafPdmFieldScriptingCapabilityCvfVec3d.h
+    cafPdmFieldScriptingCapabilityCvfVec3d.cpp
+  )
 
+  list(APPEND CAF_LIBS cafPdmCvf)
+endif()
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})
 
@@ -50,8 +51,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} ${CAF_LIBS})
 
-if (CAF_EXCLUDE_CVF)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE CAF_EXCLUDE_CVF=${CAF_EXCLUDE_CVF})
+if(CAF_EXCLUDE_CVF)
+  target_compile_definitions(
+    ${PROJECT_NAME} PRIVATE CAF_EXCLUDE_CVF=${CAF_EXCLUDE_CVF}
+  )
 endif()
 
 source_group("" FILES ${PROJECT_FILES})
