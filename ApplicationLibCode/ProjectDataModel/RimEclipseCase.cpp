@@ -590,6 +590,9 @@ void RimEclipseCase::buildResultChildNodes()
 {
     m_resultAddressCollections.deleteChildren();
 
+    auto cellResultData = results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !cellResultData ) return;
+
     std::vector<RiaDefines::ResultCatType> resultTypes = { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                            RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                            RiaDefines::ResultCatType::INPUT_PROPERTY,
@@ -601,14 +604,10 @@ void RimEclipseCase::buildResultChildNodes()
         QString name = caf::AppEnum<RiaDefines::ResultCatType>::uiText( resultType );
         resultAddressCollection->setName( name );
 
-        auto cellResultData = results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        if ( cellResultData )
+        QStringList resultNames = cellResultData->resultNames( resultType );
+        for ( auto resultName : resultNames )
         {
-            QStringList resultNames = cellResultData->resultNames( resultType );
-            for ( auto resultName : resultNames )
-            {
-                resultAddressCollection->addAddress( resultName, resultType, this );
-            }
+            resultAddressCollection->addAddress( resultName, resultType, this );
         }
 
         m_resultAddressCollections.push_back( resultAddressCollection );
@@ -954,6 +953,8 @@ bool RimEclipseCase::openReserviorCase()
     {
         return false;
     }
+
+    if ( m_resultAddressCollections.empty() ) buildResultChildNodes();
 
     if ( eclipseCaseData() && eclipseCaseData()->mainGrid() && !eclipseCaseData()->mainGrid()->hasValidCharacteristicCellSizes() )
     {
