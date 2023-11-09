@@ -605,10 +605,10 @@ protected:
             uiOrdering.addNewGroup( "Automatic Full Width Group", caf::PdmUiOrdering::LayoutOptions( true ) );
         autoGroup->add( &m_intFieldWideBothAuto, caf::PdmUiOrdering::LayoutOptions( true ) );
         autoGroup->add( &m_intFieldLeftAuto, caf::PdmUiOrdering::LayoutOptions( true ) );
-        autoGroup->add( &m_intFieldCenterAuto, false );
-        autoGroup->add( &m_intFieldRightAuto, caf::PdmUiOrdering::LayoutOptions( false ) );
-        autoGroup->add( &m_intFieldLabelTopAuto, true );
-        autoGroup->add( &m_stringFieldLabelHiddenAuto, true );
+        autoGroup->addNoNewRow( &m_intFieldCenterAuto );
+        autoGroup->addNoNewRow( &m_intFieldRightAuto );
+        autoGroup->add( &m_intFieldLabelTopAuto );
+        autoGroup->add( &m_stringFieldLabelHiddenAuto );
 
         uiOrdering.add( &m_intFieldLeftOfGroup );
         caf::PdmUiGroup* group2 = uiOrdering.addNewGroup( "Right Group", caf::PdmUiOrdering::LayoutOptions( false, 2, 0 ) );

@@ -1485,7 +1485,7 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
             injectorGroup->add( &m_selectedInjectorTracersUiField );
             injectorGroup->add( &m_syncInjectorToProducerSelection );
 
-            caf::PdmUiGroup* producerGroup = selectionGroup->addNewGroup( "Producers", false );
+            caf::PdmUiGroup* producerGroup = selectionGroup->addNewGroup( "Producers", { .newRow = false } );
             producerGroup->add( &m_selectedProducerTracersUiField );
             producerGroup->add( &m_syncProducerToInjectorSelection );
         }

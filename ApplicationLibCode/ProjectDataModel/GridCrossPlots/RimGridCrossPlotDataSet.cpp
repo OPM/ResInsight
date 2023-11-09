@@ -1006,7 +1006,7 @@ void RimGridCrossPlotDataSet::defineUiOrdering( QString uiConfigName, caf::PdmUi
         caf::PdmUiGroup* xAxisGroup = invisibleFullWidthGroup->addNewGroup( "X-Axis Property" );
         m_xAxisProperty->uiOrdering( uiConfigName, *xAxisGroup );
 
-        caf::PdmUiGroup* yAxisGroup = invisibleFullWidthGroup->addNewGroup( "Y-Axis Property", false );
+        caf::PdmUiGroup* yAxisGroup = invisibleFullWidthGroup->addNewGroup( "Y-Axis Property", { .newRow = false } );
         m_yAxisProperty->uiOrdering( uiConfigName, *yAxisGroup );
     }
 

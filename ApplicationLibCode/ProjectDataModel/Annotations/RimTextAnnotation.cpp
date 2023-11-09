@@ -149,9 +149,9 @@ const QString& RimTextAnnotation::text() const
 void RimTextAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_anchorPointXyd );
-    uiOrdering.add( &m_anchorPointPickEnabledButtonField, false );
+    uiOrdering.addNoNewRow( &m_anchorPointPickEnabledButtonField );
     uiOrdering.add( &m_labelPointXyd );
-    uiOrdering.add( &m_labelPointPickEnabledButtonField, false );
+    uiOrdering.addNoNewRow( &m_labelPointPickEnabledButtonField );
 
     uiOrdering.add( &m_text );
 

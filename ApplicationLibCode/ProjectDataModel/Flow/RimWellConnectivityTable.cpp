@@ -492,7 +492,7 @@ void RimWellConnectivityTable::defineUiOrdering( QString uiConfigName, caf::PdmU
     caf::PdmUiGroup* producerGroup  = selectionGroup->addNewGroup( "Producers" );
     producerGroup->add( &m_selectedProducerTracersUiField );
     producerGroup->add( &m_syncSelectedInjectorsFromProducerSelection );
-    caf::PdmUiGroup* injectorGroup = selectionGroup->addNewGroup( "Injectors", false );
+    caf::PdmUiGroup* injectorGroup = selectionGroup->addNewGroup( "Injectors", { .newRow = false } );
     injectorGroup->add( &m_selectedInjectorTracersUiField );
     injectorGroup->add( &m_syncSelectedProducersFromInjectorSelection );
 
