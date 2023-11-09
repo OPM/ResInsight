@@ -8,7 +8,7 @@ else()
   message( STATUS "No buildcache found" )
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 project (TestCafAndVizFwk)
 
