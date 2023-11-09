@@ -489,8 +489,8 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 {
     caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
     selVectorsGrp->add( &m_selectedVarsUiField );
-    selVectorsGrp->add( &m_selectVariablesButtonField, { false } );
-    selVectorsGrp->add( &m_referenceCase, { true, 3, 2 } );
+    selVectorsGrp->addNoNewRow( &m_selectVariablesButtonField );
+    selVectorsGrp->add( &m_referenceCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 2 } );
 
     QString vectorNames;
     if ( updateAndGetCurveAnalyzer() )
@@ -521,22 +521,22 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     caf::PdmUiGroup* titleGrp = uiOrdering.addNewGroup( "Title and Legend" );
     titleGrp->add( &m_showPlotTitle );
-    titleGrp->add( &m_useAutoPlotTitle, { false } );
-    titleGrp->add( &m_description, { false } );
+    titleGrp->addNoNewRow( &m_useAutoPlotTitle );
+    titleGrp->addNoNewRow( &m_description );
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     titleGrp->add( &m_showPlotLegends );
     titleGrp->add( &m_legendFontSize );
     m_legendFontSize.uiCapability()->setUiReadOnly( !m_showPlotLegends() );
 
     caf::PdmUiGroup* chartSettings = uiOrdering.addNewGroup( "Bar Settings" );
-    chartSettings->add( &m_barOrientation, { true, 3, 2 } );
+    chartSettings->add( &m_barOrientation, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 2 } );
 
     chartSettings->add( &m_majorGroupType );
     chartSettings->add( &m_mediumGroupType );
     chartSettings->add( &m_minorGroupType );
     chartSettings->add( &m_valueSortOperation );
     chartSettings->add( &m_useTopBarsFilter );
-    chartSettings->add( &m_maxBarCount, { false } );
+    chartSettings->addNoNewRow( &m_maxBarCount );
     m_maxBarCount.uiCapability()->setUiReadOnly( !m_useTopBarsFilter() );
     chartSettings->add( &m_sortGroupForColors );
 

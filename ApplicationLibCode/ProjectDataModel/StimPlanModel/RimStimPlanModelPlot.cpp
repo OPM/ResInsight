@@ -85,8 +85,8 @@ RimStimPlanModel* RimStimPlanModelPlot::stimPlanModel()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_stimPlanModel, { true, 2, 1 } );
-    uiOrdering.add( &m_editStimPlanModel, { false, 1, 0 } );
+    uiOrdering.add( &m_stimPlanModel, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    uiOrdering.add( &m_editStimPlanModel, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
     uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_timeStep );
 

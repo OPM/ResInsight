@@ -314,16 +314,16 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         exportInLocalCoordinates.uiCapability()->setUiReadOnly( !exportGrid() );
 
         caf::PdmUiGroup* gridBoxGroup = uiOrdering.addNewGroup( "Grid Box Selection" );
-        gridBoxGroup->add( &exportGridBox, { true, 4, 1 } );
+        gridBoxGroup->add( &exportGridBox, { .newRow = true, .totalColumnSpan = 4, .leftLabelColumnSpan = 1 } );
 
-        gridBoxGroup->add( &minI, { true, 2, 1 } );
+        gridBoxGroup->add( &minI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
         gridBoxGroup->addNoNewRow( &minJ );
         gridBoxGroup->addNoNewRow( &minK );
 
-        gridBoxGroup->add( &maxI, { true, 2, 1 } );
+        gridBoxGroup->add( &maxI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
         gridBoxGroup->addNoNewRow( &maxJ );
         gridBoxGroup->addNoNewRow( &maxK );
-        gridBoxGroup->add( &makeInvisibleCellsInactive, { true, 2, 1 } );
+        gridBoxGroup->add( &makeInvisibleCellsInactive, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
 
         minI.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
         minJ.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
@@ -333,9 +333,9 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         maxK.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
 
         caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
-        gridRefinement->add( &refinementCountI, { true, 2, 1 } );
-        gridRefinement->add( &refinementCountJ, { false } );
-        gridRefinement->add( &refinementCountK, { false } );
+        gridRefinement->add( &refinementCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+        gridRefinement->addNoNewRow( &refinementCountJ );
+        gridRefinement->addNoNewRow( &refinementCountK );
         refinementCountI.uiCapability()->setUiReadOnly( !exportGrid() );
         refinementCountJ.uiCapability()->setUiReadOnly( !exportGrid() );
         refinementCountK.uiCapability()->setUiReadOnly( !exportGrid() );
