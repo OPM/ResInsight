@@ -361,6 +361,8 @@ RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::summ
 //--------------------------------------------------------------------------------------------------
 QString RiaPreferencesSummary::defaultSummaryCurvesTextFilter() const
 {
+    if ( m_defaultSummaryPlot() != DefaultSummaryPlotType::DATA_VECTORS ) return {};
+
     return m_defaultSummaryCurvesTextFilter;
 }
 
