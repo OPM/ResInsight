@@ -344,17 +344,17 @@ void RimSummaryPlotManager::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     uiOrdering.add( &m_filterText );
     uiOrdering.add( &m_addressCandidates );
-    uiOrdering.addNoNewRow( &m_selectedDataSources );
+    uiOrdering.addRowAppend( &m_selectedDataSources );
 
     uiOrdering.add( &m_individualPlotPerVector );
-    uiOrdering.addNoNewRow( &m_individualPlotPerDataSource );
+    uiOrdering.addRowAppend( &m_individualPlotPerDataSource );
     uiOrdering.add( &m_individualPlotPerObject );
-    uiOrdering.addNoNewRow( &m_createMultiPlot );
+    uiOrdering.addRowAppend( &m_createMultiPlot );
 
     uiOrdering.add( &m_pushButtonAppend );
-    uiOrdering.addNoNewRow( &m_pushButtonReplace );
-    uiOrdering.addNoNewRow( &m_labelB );
-    uiOrdering.addNoNewRow( &m_pushButtonNewPlot );
+    uiOrdering.addRowAppend( &m_pushButtonReplace );
+    uiOrdering.addRowAppend( &m_labelB );
+    uiOrdering.addRowAppend( &m_pushButtonNewPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

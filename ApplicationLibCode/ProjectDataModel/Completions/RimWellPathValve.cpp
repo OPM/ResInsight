@@ -515,9 +515,9 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     {
         if ( m_valveTemplate() != nullptr )
         {
-            uiOrdering.addNoNewRow( &m_editValveTemplate );
+            uiOrdering.addRowAppend( &m_editValveTemplate );
         }
-        uiOrdering.addNoNewRow( &m_createValveTemplate );
+        uiOrdering.addRowAppend( &m_createValveTemplate );
     }
 
     if ( uiConfigName != "TemplateOnly" )

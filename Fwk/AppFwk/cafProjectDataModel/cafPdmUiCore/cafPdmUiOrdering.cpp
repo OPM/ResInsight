@@ -265,7 +265,7 @@ void PdmUiOrdering::add( const PdmObjectHandle* obj, LayoutOptions layout )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiOrdering::addNoNewRow( const PdmFieldHandle* field )
+void PdmUiOrdering::addRowAppend( const PdmFieldHandle* field )
 {
     add( field, { .newRow = false } );
 }
