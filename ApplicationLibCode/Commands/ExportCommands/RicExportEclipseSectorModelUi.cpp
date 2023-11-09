@@ -317,12 +317,12 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         gridBoxGroup->add( &exportGridBox, { true, 4, 1 } );
 
         gridBoxGroup->add( &minI, { true, 2, 1 } );
-        gridBoxGroup->add( &minJ, false );
-        gridBoxGroup->add( &minK, false );
+        gridBoxGroup->addNoNewRow( &minJ );
+        gridBoxGroup->addNoNewRow( &minK );
 
         gridBoxGroup->add( &maxI, { true, 2, 1 } );
-        gridBoxGroup->add( &maxJ, false );
-        gridBoxGroup->add( &maxK, false );
+        gridBoxGroup->addNoNewRow( &maxJ );
+        gridBoxGroup->addNoNewRow( &maxK );
         gridBoxGroup->add( &makeInvisibleCellsInactive, { true, 2, 1 } );
 
         minI.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );

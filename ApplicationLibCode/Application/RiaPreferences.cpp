@@ -337,16 +337,16 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup( "Default Colors" );
         colorGroup->add( &defaultViewerBackgroundColor );
-        colorGroup->add( &defaultGridLineColors, false );
+        colorGroup->addNoNewRow( &defaultGridLineColors );
         colorGroup->add( &defaultFaultGridLineColors );
-        colorGroup->add( &defaultWellLabelColor, false );
+        colorGroup->addNoNewRow( &defaultWellLabelColor );
         colorGroup->add( &m_guiTheme, { true, 2 } );
 
         caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Default Font Sizes" );
         fontGroup->add( &defaultSceneFontSize );
-        fontGroup->add( &defaultAnnotationFontSize, false );
+        fontGroup->addNoNewRow( &defaultAnnotationFontSize );
         fontGroup->add( &defaultWellLabelFontSize );
-        fontGroup->add( &defaultPlotFontSize, false );
+        fontGroup->addNoNewRow( &defaultPlotFontSize );
 
         caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup( "3d Views" );
         viewsGroup->add( &m_defaultMeshModeType );
@@ -400,11 +400,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* pageSetup = generalGrp->addNewGroup( "Page Setup" );
         pageSetup->add( &m_pageSize );
-        pageSetup->add( &m_pageOrientation, false );
+        pageSetup->addNoNewRow( &m_pageOrientation );
         pageSetup->add( &m_pageLeftMargin );
-        pageSetup->add( &m_pageRightMargin, false );
+        pageSetup->addNoNewRow( &m_pageRightMargin );
         pageSetup->add( &m_pageTopMargin );
-        pageSetup->add( &m_pageBottomMargin, false );
+        pageSetup->addNoNewRow( &m_pageBottomMargin );
 
         generalGrp->add( &m_useQtChartsPlotByDefault );
         m_useQtChartsPlotByDefault.uiCapability()->setUiHidden( true );
