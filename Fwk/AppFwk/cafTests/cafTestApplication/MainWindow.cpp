@@ -579,12 +579,12 @@ protected:
         uiOrdering.add( &m_intFieldStandard );
         uiOrdering.add( &m_intFieldUseFullSpace,
                         caf::PdmUiOrdering::LayoutOptions( true,
-                                                           caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN,
-                                                           caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN ) );
+                                                           caf::PdmUiOrdering::MAX_COLUMN_SPAN,
+                                                           caf::PdmUiOrdering::MAX_COLUMN_SPAN ) );
         uiOrdering.add( &m_intFieldUseFullSpaceLabel,
-                        caf::PdmUiOrdering::LayoutOptions( true, 3, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN ) );
+                        caf::PdmUiOrdering::LayoutOptions( true, 3, caf::PdmUiOrdering::MAX_COLUMN_SPAN ) );
         uiOrdering.add( &m_intFieldUseFullSpaceField,
-                        caf::PdmUiOrdering::LayoutOptions( true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1 ) );
+                        caf::PdmUiOrdering::LayoutOptions( true, caf::PdmUiOrdering::MAX_COLUMN_SPAN, 1 ) );
         uiOrdering.add( &m_intFieldWideLabel, caf::PdmUiOrdering::LayoutOptions( true, 4, 3 ) );
         uiOrdering.add( &m_intFieldWideField, caf::PdmUiOrdering::LayoutOptions( true, 4, 1 ) );
         uiOrdering.add( &m_intFieldLeft, caf::PdmUiOrdering::LayoutOptions( true ) );
