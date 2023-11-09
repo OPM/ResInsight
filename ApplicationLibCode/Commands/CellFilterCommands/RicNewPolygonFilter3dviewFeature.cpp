@@ -38,8 +38,10 @@ CAF_CMD_SOURCE_INIT( RicNewPolygonFilter3dviewFeature, "RicNewPolygonFilter3dvie
 void RicNewPolygonFilter3dviewFeature::onActionTriggered( bool isChecked )
 {
     // Get the selected Cell Filter Collection
-    RimGridView*             viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    RimCellFilterCollection* filtColl             = viewOrComparisonView->cellFilterCollection();
+    RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+    if ( !viewOrComparisonView ) return;
+
+    RimCellFilterCollection* filtColl = viewOrComparisonView->cellFilterCollection();
 
     // and the case to use
     RimCase* sourceCase = viewOrComparisonView->ownerCase();

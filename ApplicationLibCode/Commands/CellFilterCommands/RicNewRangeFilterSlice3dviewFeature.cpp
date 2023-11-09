@@ -41,6 +41,7 @@ bool RicNewRangeFilterSlice3dviewFeature::isCommandEnabled() const
     if ( !view ) return false;
 
     RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+    if ( !viewOrComparisonView ) return false;
 
     RimViewController* vc = viewOrComparisonView->viewController();
     if ( !vc ) return true;
@@ -58,6 +59,7 @@ void RicNewRangeFilterSlice3dviewFeature::onActionTriggered( bool isChecked )
 
     RimGridView* activeView           = RiaApplication::instance()->activeGridView();
     RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+    if ( !viewOrComparisonView ) return;
 
     RimCase* sourceCase = viewOrComparisonView->ownerCase();
 
