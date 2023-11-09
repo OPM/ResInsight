@@ -265,6 +265,14 @@ void PdmUiOrdering::add( const PdmObjectHandle* obj, LayoutOptions layout )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiOrdering::addNoNewRow( const PdmFieldHandle* field )
+{
+    add( field, { .newRow = false } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiOrdering::insert( size_t index, const PdmFieldHandle* field, LayoutOptions layout )
 {
     PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>( field )->uiCapability();
