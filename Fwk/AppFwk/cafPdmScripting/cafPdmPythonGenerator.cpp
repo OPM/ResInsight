@@ -38,14 +38,17 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
-#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectFactory.h"
 #include "cafPdmObjectMethod.h"
 #include "cafPdmObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
+
+#ifndef CAF_EXCLUDE_CVF
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
+#endif
 
 #include <QRegularExpression>
 #include <QTextStream>
@@ -550,11 +553,14 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
         { QString::fromStdString( typeid( bool ).name() ), "bool" },
         { QString::fromStdString( typeid( time_t ).name() ), "int" },
         { QString::fromStdString( typeid( QString ).name() ), "str" },
-        { QString::fromStdString( typeid( cvf::Vec3d ).name() ), "List[float]" },
-        { QString::fromStdString( typeid( cvf::Color3f ).name() ), "str" },
         { QString::fromStdString( typeid( caf::FilePath ).name() ), "str" },
         { QString::fromStdString( typeid( std::vector<double> ).name() ), "List[float]" },
     };
+
+#ifndef CAF_EXCLUDE_CVF
+    builtins[QString::fromStdString( typeid( cvf::Vec3d ).name() )]   = "List[float]";
+    builtins[QString::fromStdString( typeid( cvf::Color3f ).name() )] = "str";
+#endif
 
     bool foundBuiltin = false;
     for ( auto builtin : builtins )
