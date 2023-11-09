@@ -75,6 +75,7 @@ public:
     PdmUiOrdering& operator=( const PdmUiOrdering& ) = delete;
 
     void add( const PdmFieldHandle* field, LayoutOptions layout = LayoutOptions() );
+    void addNoNewRow( const PdmFieldHandle* field );
     void add( const PdmObjectHandle* obj, LayoutOptions layout = LayoutOptions() );
     bool insertBeforeGroup( const QString&        groupId,
                             const PdmFieldHandle* fieldToInsert,
