@@ -270,7 +270,7 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
             if ( RimProject::current()->allFractureTemplates().empty() )
             {
                 uiOrdering.add( &m_createEllipseFractureTemplate );
-                uiOrdering.addNoNewRow( &m_createStimPlanFractureTemplate );
+                uiOrdering.addRowAppend( &m_createStimPlanFractureTemplate );
             }
             else
             {

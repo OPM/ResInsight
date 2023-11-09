@@ -231,8 +231,8 @@ void RicExportLgrUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
     gridRefinement->add( &m_cellCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-    gridRefinement->addNoNewRow( &m_cellCountJ );
-    gridRefinement->addNoNewRow( &m_cellCountK );
+    gridRefinement->addRowAppend( &m_cellCountJ );
+    gridRefinement->addRowAppend( &m_cellCountK );
 
     //    uiOrdering.add(&m_wellPathsInfo);
     uiOrdering.skipRemainingFields( true );

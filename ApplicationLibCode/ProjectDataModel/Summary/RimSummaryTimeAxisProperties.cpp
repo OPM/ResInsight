@@ -803,9 +803,9 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
     if ( m_timeMode() == DATE )
     {
         timeGroup->add( &m_visibleDateRangeMax );
-        timeGroup->addNoNewRow( &m_visibleTimeRangeMax );
+        timeGroup->addRowAppend( &m_visibleTimeRangeMax );
         timeGroup->add( &m_visibleDateRangeMin );
-        timeGroup->addNoNewRow( &m_visibleTimeRangeMin );
+        timeGroup->addRowAppend( &m_visibleTimeRangeMin );
     }
     else
     {
