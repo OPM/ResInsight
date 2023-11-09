@@ -73,6 +73,8 @@ public:
     std::string titleSegment() const override;
     std::string titleCompletion() const override;
 
+    size_t numberOfCases() const override;
+
 private:
     void clearTitleSubStrings();
     void extractPlotTitleSubStrings();
