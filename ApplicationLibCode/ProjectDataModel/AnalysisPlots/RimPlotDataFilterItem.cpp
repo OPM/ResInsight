@@ -376,7 +376,7 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         }
         else if ( m_filterOperation == TOP_N || m_filterOperation == BOTTOM_N )
         {
-            uiOrdering.add( &m_topBottomN, { false } );
+            uiOrdering.addNoNewRow( &m_topBottomN );
         }
     }
 

@@ -577,53 +577,47 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override
     {
         uiOrdering.add( &m_intFieldStandard );
-        uiOrdering.add( &m_intFieldUseFullSpace,
-                        caf::PdmUiOrdering::LayoutOptions( true,
-                                                           caf::PdmUiOrdering::MAX_COLUMN_SPAN,
-                                                           caf::PdmUiOrdering::MAX_COLUMN_SPAN ) );
-        uiOrdering.add( &m_intFieldUseFullSpaceLabel,
-                        caf::PdmUiOrdering::LayoutOptions( true, 3, caf::PdmUiOrdering::MAX_COLUMN_SPAN ) );
-        uiOrdering.add( &m_intFieldUseFullSpaceField,
-                        caf::PdmUiOrdering::LayoutOptions( true, caf::PdmUiOrdering::MAX_COLUMN_SPAN, 1 ) );
-        uiOrdering.add( &m_intFieldWideLabel, caf::PdmUiOrdering::LayoutOptions( true, 4, 3 ) );
-        uiOrdering.add( &m_intFieldWideField, caf::PdmUiOrdering::LayoutOptions( true, 4, 1 ) );
-        uiOrdering.add( &m_intFieldLeft, caf::PdmUiOrdering::LayoutOptions( true ) );
-        uiOrdering.add( &m_intFieldRight, caf::PdmUiOrdering::LayoutOptions( false ) );
-        uiOrdering.add( &m_intFieldWideBoth, caf::PdmUiOrdering::LayoutOptions( true, 4, 2 ) );
+        uiOrdering.add( &m_intFieldUseFullSpace );
+        uiOrdering.add( &m_intFieldUseFullSpaceLabel, { .totalColumnSpan = 3 } );
+        uiOrdering.add( &m_intFieldUseFullSpaceField, { .leftLabelColumnSpan = 1 } );
+        uiOrdering.add( &m_intFieldWideLabel, { .totalColumnSpan = 4, .leftLabelColumnSpan = 3 } );
+        uiOrdering.add( &m_intFieldWideField, { .totalColumnSpan = 4, .leftLabelColumnSpan = 1 } );
+        uiOrdering.add( &m_intFieldLeft );
+        uiOrdering.addNoNewRow( &m_intFieldRight );
+        uiOrdering.add( &m_intFieldWideBoth, { .totalColumnSpan = 4, .leftLabelColumnSpan = 2 } );
 
         QString dynamicGroupName = QString( "Dynamic Group Text (%1)" ).arg( m_intFieldStandard );
 
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Wide Group", { true, 4 } );
-        group->add( &m_intFieldWideBoth2, caf::PdmUiOrdering::LayoutOptions( true, 6, 3 ) );
-        group->add( &m_intFieldLeft2, caf::PdmUiOrdering::LayoutOptions( true ) );
-        group->add( &m_intFieldCenter, caf::PdmUiOrdering::LayoutOptions( false ) );
-        group->add( &m_intFieldRight2, caf::PdmUiOrdering::LayoutOptions( false ) );
-        group->add( &m_intFieldLabelTop, caf::PdmUiOrdering::LayoutOptions( true, 6 ) );
-        group->add( &m_stringFieldLabelHidden, caf::PdmUiOrdering::LayoutOptions( true, 6 ) );
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Wide Group", { .totalColumnSpan = 4 } );
+        group->add( &m_intFieldWideBoth2, { .totalColumnSpan = 6, .leftLabelColumnSpan = 3 } );
+        group->add( &m_intFieldLeft2 );
+        group->addNoNewRow( &m_intFieldCenter );
+        group->addNoNewRow( &m_intFieldRight2 );
+        group->add( &m_intFieldLabelTop, { .totalColumnSpan = 6 } );
+        group->add( &m_stringFieldLabelHidden, { .totalColumnSpan = 6 } );
 
-        caf::PdmUiGroup* autoGroup =
-            uiOrdering.addNewGroup( "Automatic Full Width Group", caf::PdmUiOrdering::LayoutOptions( true ) );
-        autoGroup->add( &m_intFieldWideBothAuto, caf::PdmUiOrdering::LayoutOptions( true ) );
-        autoGroup->add( &m_intFieldLeftAuto, caf::PdmUiOrdering::LayoutOptions( true ) );
+        caf::PdmUiGroup* autoGroup = uiOrdering.addNewGroup( "Automatic Full Width Group" );
+        autoGroup->add( &m_intFieldWideBothAuto );
+        autoGroup->add( &m_intFieldLeftAuto );
         autoGroup->addNoNewRow( &m_intFieldCenterAuto );
         autoGroup->addNoNewRow( &m_intFieldRightAuto );
         autoGroup->add( &m_intFieldLabelTopAuto );
         autoGroup->add( &m_stringFieldLabelHiddenAuto );
 
         uiOrdering.add( &m_intFieldLeftOfGroup );
-        caf::PdmUiGroup* group2 = uiOrdering.addNewGroup( "Right Group", caf::PdmUiOrdering::LayoutOptions( false, 2, 0 ) );
+        caf::PdmUiGroup* group2 =
+            uiOrdering.addNewGroup( "Right Group", { .newRow = false, .totalColumnSpan = 2, .leftLabelColumnSpan = 0 } );
         group2->setEnableFrame( false );
         group2->add( &m_intFieldInsideGroup1 );
 
-        caf::PdmUiGroup* group3 = uiOrdering.addNewGroup( "Narrow L", caf::PdmUiOrdering::LayoutOptions( true, 1 ) );
+        caf::PdmUiGroup* group3 = uiOrdering.addNewGroup( "Narrow L", { .totalColumnSpan = 1 } );
         group3->add( &m_intFieldInsideGroup2 );
-        uiOrdering.add( &m_intFieldRightOfGroup, caf::PdmUiOrdering::LayoutOptions( false, 3, 2 ) );
+        uiOrdering.add( &m_intFieldRightOfGroup, { .newRow = false, .totalColumnSpan = 3, .leftLabelColumnSpan = 2 } );
 
-        caf::PdmUiGroup* groupL = uiOrdering.addNewGroup( "Left Group", caf::PdmUiOrdering::LayoutOptions( true, 1 ) );
+        caf::PdmUiGroup* groupL = uiOrdering.addNewGroup( "Left Group", { .totalColumnSpan = 1 } );
         groupL->add( &m_intFieldInsideGroup3 );
         groupL->add( &m_intFieldInsideGroup5 );
-        caf::PdmUiGroup* groupR =
-            uiOrdering.addNewGroup( "Right Wide Group", caf::PdmUiOrdering::LayoutOptions( false, 3 ) );
+        caf::PdmUiGroup* groupR = uiOrdering.addNewGroup( "Right Wide Group", { .newRow = false, .totalColumnSpan = 3 } );
         groupR->setEnableFrame( false );
         groupR->add( &m_intFieldInsideGroup4 );
         groupR->add( &m_intFieldInsideGroup6 );
@@ -690,7 +684,8 @@ public:
         CAF_PDM_InitField( &m_toggleField,
                            "Toggle",
                            false,
-                           "Toggle Field much text much text much much text much text muchmuch text much text muchmuch "
+                           "Toggle Field much text much text much much text much text muchmuch text much text "
+                           "muchmuch "
                            "text much "
                            "text muchmuch text much text muchmuch text much text much",
                            "",
