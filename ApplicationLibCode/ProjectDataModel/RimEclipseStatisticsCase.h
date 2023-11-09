@@ -110,7 +110,6 @@ private:
     caf::PdmField<caf::AppEnum<DataSourceType>> m_dataSourceForStatistics;
 
     caf::PdmPtrField<RimGridCalculation*> m_gridCalculation;
-    caf::PdmField<bool>                   m_clearGridCalculationMemory;
 
     caf::PdmField<std::vector<int>> m_selectedTimeSteps;
 

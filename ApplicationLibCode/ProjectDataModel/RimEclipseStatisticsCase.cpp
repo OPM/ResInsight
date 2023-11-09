@@ -93,7 +93,6 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitFieldNoDefault( &m_dataSourceForStatistics, "DataSourceForStatistics", "Data Source" );
 
     CAF_PDM_InitFieldNoDefault( &m_gridCalculation, "GridCalculation", "Grid Calculation" );
-    CAF_PDM_InitField( &m_clearGridCalculationMemory, "ClearGridCalculationMemory", true, "Clear Grid Calculation Memory" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -413,12 +412,8 @@ void RimEclipseStatisticsCase::computeStatistics()
                                                                                 calculationName ) );
     }
 
-    RimEclipseStatisticsCaseEvaluator stat( sourceCases,
-                                            timeStepIndices,
-                                            statisticsConfig,
-                                            resultCase,
-                                            gridCaseGroup,
-                                            m_clearGridCalculationMemory() );
+    bool clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
+    RimEclipseStatisticsCaseEvaluator stat( sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup, clearGridCalculationMemory );
 
     if ( m_useZeroAsInactiveCellValue )
     {
@@ -507,7 +502,6 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
         if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION )
         {
             group->add( &m_gridCalculation );
-            group->add( &m_clearGridCalculationMemory );
         }
         else
         {
