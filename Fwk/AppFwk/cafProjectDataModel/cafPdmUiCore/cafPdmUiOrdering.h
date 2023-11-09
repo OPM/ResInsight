@@ -65,7 +65,7 @@ public:
 
     // Required to use a static function as workaround instead of using LayoutOptions()
     // https://stackoverflow.com/questions/53408962/try-to-understand-compiler-error-message-default-member-initializer-required-be
-    static LayoutOptions defaultLayoutOptions() { return {};}
+    static LayoutOptions defaultLayoutOptions() { return {}; }
 
     typedef std::pair<PdmUiItem*, LayoutOptions> FieldAndLayout;
     typedef std::vector<FieldAndLayout>          RowLayout;
@@ -95,8 +95,9 @@ public:
     PdmUiGroup* createGroupBeforeGroup( const QString& groupId,
                                         const QString& displayName,
                                         LayoutOptions  layout = defaultLayoutOptions() );
-    PdmUiGroup*
-        createGroupBeforeItem( const PdmUiItem* item, const QString& displayName, LayoutOptions layout = defaultLayoutOptions() );
+    PdmUiGroup* createGroupBeforeItem( const PdmUiItem* item,
+                                       const QString&   displayName,
+                                       LayoutOptions    layout = defaultLayoutOptions() );
 
     PdmUiGroup* addNewGroupWithKeyword( const QString& displayName,
                                         const QString& groupKeyword,
