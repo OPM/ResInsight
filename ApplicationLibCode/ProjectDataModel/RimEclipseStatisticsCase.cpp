@@ -316,7 +316,11 @@ void RimEclipseStatisticsCase::computeStatistics()
 
         for ( auto calc : dependentCalculations )
         {
-            calc->calculateForCases( sourceCases, timeStepIndices );
+            // A view filter is depending on active cells for a specific case, and the current implementation does not work for grids with
+            // different active cells. Disable use of view filter for now.
+            const bool useViewFilter = false;
+
+            calc->calculateForCases( sourceCases, useViewFilter, timeStepIndices );
         }
     }
 
@@ -705,6 +709,15 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
             computeStatisticsAndUpdateViews();
         }
         m_calculateEditCommand = false;
+    }
+
+    if ( &m_dataSourceForStatistics == changedField && m_gridCalculation() == nullptr )
+    {
+        auto calculations = RimProject::current()->gridCalculationCollection()->calculations();
+        if ( !calculations.empty() )
+        {
+            m_gridCalculation = dynamic_cast<RimGridCalculation*>( calculations.front() );
+        }
     }
 
     if ( &m_wellDataSourceCase == changedField )

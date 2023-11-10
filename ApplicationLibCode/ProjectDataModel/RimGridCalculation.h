@@ -57,8 +57,10 @@ public:
 
     std::vector<RimEclipseCase*> outputEclipseCases() const;
     RigEclipseResultAddress      outputAddress() const;
-    bool calculateForCases( const std::vector<RimEclipseCase*>& calculationCases, std::optional<std::vector<size_t>> timeSteps );
-    void assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase );
+    bool                         calculateForCases( const std::vector<RimEclipseCase*>& calculationCases,
+                                                    bool                                useViewFilter,
+                                                    std::optional<std::vector<size_t>>  timeSteps );
+    void                         assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase );
 
     std::vector<RimEclipseCase*> inputCases() const;
 
