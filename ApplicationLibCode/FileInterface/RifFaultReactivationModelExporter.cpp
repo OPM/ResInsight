@@ -365,8 +365,8 @@ std::pair<bool, std::string>
         auto model = rimModel.model();
         bool isOk  = writePropertiesToFile( *model,
                                            dataAccess,
-                                           { RimFaultReactivation::Property::Density },
-                                           { "DENSITY" },
+                                            { RimFaultReactivation::Property::Density },
+                                            { "DENSITY" },
                                            0,
                                            filePath,
                                            partNames,
@@ -387,8 +387,8 @@ std::pair<bool, std::string>
         auto model = rimModel.model();
         bool isOk  = writePropertiesToFile( *model,
                                            dataAccess,
-                                           { RimFaultReactivation::Property::YoungsModulus, RimFaultReactivation::Property::PoissonsRatio },
-                                           { "MODULUS", "RATIO" },
+                                            { RimFaultReactivation::Property::YoungsModulus, RimFaultReactivation::Property::PoissonsRatio },
+                                            { "MODULUS", "RATIO" },
                                            0,
                                            filePath,
                                            partNames,
