@@ -111,6 +111,22 @@ RimGridCalculationVariable* RimGridCalculation::createVariable()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculate()
 {
+    for ( auto calculationCase : outputEclipseCases() )
+    {
+        if ( !calculationCase ) continue;
+
+        for ( auto inputCase : inputCases() )
+        {
+            if ( !calculationCase->isGridSizeEqualTo( inputCase ) )
+            {
+                QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
+                              "cases must have identical IJK sizes.";
+                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+                return false;
+            }
+        }
+    }
+
     auto timeSteps = std::nullopt;
 
     return calculateForCases( outputEclipseCases(), timeSteps );
@@ -527,20 +543,6 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     {
         RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
         return false;
-    }
-
-    for ( auto calculationCase : calculationCases )
-    {
-        for ( auto inputCase : inputCases() )
-        {
-            if ( !calculationCase->isGridSizeEqualTo( inputCase ) )
-            {
-                QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
-                              "cases must have identical IJK sizes.";
-                RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
-                return false;
-            }
-        }
     }
 
     const bool isMultipleCasesPresent = calculationCases.size() > 1;
