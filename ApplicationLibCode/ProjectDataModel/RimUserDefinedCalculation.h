@@ -37,6 +37,9 @@ class RimUserDefinedCalculation : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> variableUpdated;
+
+public:
     RimUserDefinedCalculation();
 
     void    setDescription( const QString& description );
