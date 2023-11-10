@@ -248,8 +248,8 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     pressureDataSourceGroup->add( &m_dynamicEclipseCase );
     pressureDataSourceGroup->add( &m_timeStep );
     pressureDataSourceGroup->add( &m_initialPressureEclipseCase );
-    pressureDataSourceGroup->add( &m_useTableForInitialPressure, { true, 2, 1 } );
-    pressureDataSourceGroup->add( &m_editPressureTable, { false, 1, 0 } );
+    pressureDataSourceGroup->add( &m_useTableForInitialPressure, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    pressureDataSourceGroup->add( &m_editPressureTable, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
     pressureDataSourceGroup->add( &m_useTableForPressure );
     pressureDataSourceGroup->add( &m_useEqlnumForPressureInterpolation );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_useTableForInitialPressure() );

@@ -220,19 +220,19 @@ void RicExportLgrUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RicExportLgrUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiOrdering::LayoutOptions layout( true, 6, 1 );
+    caf::PdmUiOrdering::LayoutOptions layout = { .newRow = true, .totalColumnSpan = 6, .leftLabelColumnSpan = 1 };
     uiOrdering.add( &m_caseToApply, layout );
     uiOrdering.add( &m_timeStep, layout );
     uiOrdering.add( &m_exportFolder, layout );
     uiOrdering.add( &m_includeFractures, layout );
     uiOrdering.add( &m_includeFishbones, layout );
     uiOrdering.add( &m_includePerforations, layout );
-    uiOrdering.add( &m_splitType, { true, 6, 1 } );
+    uiOrdering.add( &m_splitType, { .newRow = true, .totalColumnSpan = 6, .leftLabelColumnSpan = 1 } );
 
     caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
-    gridRefinement->add( &m_cellCountI, { true, 2, 1 } );
-    gridRefinement->add( &m_cellCountJ, { false } );
-    gridRefinement->add( &m_cellCountK, { false } );
+    gridRefinement->add( &m_cellCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    gridRefinement->appendToRow( &m_cellCountJ );
+    gridRefinement->appendToRow( &m_cellCountK );
 
     //    uiOrdering.add(&m_wellPathsInfo);
     uiOrdering.skipRemainingFields( true );

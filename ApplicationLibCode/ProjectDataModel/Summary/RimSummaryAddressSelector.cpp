@@ -350,15 +350,15 @@ void RimSummaryAddressSelector::defineUiOrdering( QString uiConfigName, caf::Pdm
     // Update the UI field, as this is not serialized to file
     m_summaryAddressUiField = m_summaryAddress->address();
 
-    uiOrdering.add( &m_summaryAddressUiField, { true, 2, 1 } );
-    uiOrdering.add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
+    uiOrdering.add( &m_summaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    uiOrdering.add( &m_pushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
     if ( m_showResampling )
     {
-        uiOrdering.add( &m_resamplingPeriod, { true, 3, 1 } );
+        uiOrdering.add( &m_resamplingPeriod, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
     }
 
-    uiOrdering.add( &m_plotAxisProperties, { true, 3, 1 } );
+    uiOrdering.add( &m_plotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
 
     uiOrdering.skipRemainingFields( true );
 }

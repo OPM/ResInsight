@@ -510,14 +510,14 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.skipRemainingFields( true );
 
-    uiOrdering.add( &m_valveTemplate, { true, 2, 1 } );
+    uiOrdering.add( &m_valveTemplate, { .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
 
     {
         if ( m_valveTemplate() != nullptr )
         {
-            uiOrdering.add( &m_editValveTemplate, false );
+            uiOrdering.appendToRow( &m_editValveTemplate );
         }
-        uiOrdering.add( &m_createValveTemplate, false );
+        uiOrdering.appendToRow( &m_createValveTemplate );
     }
 
     if ( uiConfigName != "TemplateOnly" )
@@ -538,7 +538,7 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
                         m_measuredDepth.uiCapability()->setUiName( "Measured Depth [ft]" );
                     }
                 }
-                uiOrdering.add( &m_measuredDepth, { true, 3, 1 } );
+                uiOrdering.add( &m_measuredDepth, { .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
             }
         }
 

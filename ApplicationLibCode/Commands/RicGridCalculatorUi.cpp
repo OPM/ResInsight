@@ -74,11 +74,8 @@ void RicGridCalculatorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     caf::PdmUiGroup* group = uiOrdering.findGroup( calculationsGroupName() );
     if ( group )
     {
-        caf::PdmUiOrdering::LayoutOptions layoutOptions;
-        layoutOptions.newRow = false;
-
         group->add( &m_importCalculations );
-        group->add( &m_exportCalculations, layoutOptions );
+        group->appendToRow( &m_exportCalculations );
     }
 }
 
