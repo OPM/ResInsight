@@ -658,6 +658,28 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCalculation::assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase )
+{
+    if ( m_destinationCase() == nullptr )
+    {
+        m_destinationCase = eclipseCase;
+    }
+
+    for ( auto v : m_variables )
+    {
+        if ( auto gridVar = dynamic_cast<RimGridCalculationVariable*>( v.p() ) )
+        {
+            if ( gridVar->eclipseCase() == nullptr )
+            {
+                gridVar->setEclipseCase( eclipseCase );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<bool, QString> RimGridCalculation::validateVariables()
 {
     auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
