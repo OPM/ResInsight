@@ -29,6 +29,7 @@
 #include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
 
+#include "RimEclipseView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
 
@@ -103,7 +104,7 @@ QString createResultNamePVal( const QString& resultName, double pValPos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>& resultSpecification )
+void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>& resultSpecification, RimEclipseView* filterView )
 {
     CVF_ASSERT( m_destinationCase );
 
@@ -198,11 +199,20 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
                 auto cellCount = static_cast<int>( grid->cellCount() );
 
+                cvf::ref<cvf::UByteArray> visibility;
+                if ( filterView )
+                {
+                    visibility = filterView->currentTotalCellVisibility();
+                }
+
                 // Loop over the cells in the grid, get the case values, and calculate the cell statistics
 #pragma omp parallel for schedule( dynamic ) firstprivate( statParams, values )
                 for ( int cellIdx = 0; cellIdx < cellCount; cellIdx++ )
                 {
                     size_t reservoirCellIndex = grid->reservoirCellIndex( cellIdx );
+
+                    if ( visibility.notNull() && !visibility->val( reservoirCellIndex ) ) continue;
+
                     if ( m_destinationCase->activeCellInfo( poroModel )->isActive( reservoirCellIndex ) )
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector

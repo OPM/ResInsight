@@ -81,7 +81,7 @@ public:
 
     void useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells();
 
-    void evaluateForResults( const QList<ResSpec>& resultSpecification );
+    void evaluateForResults( const QList<ResSpec>& resultSpecification, RimEclipseView* filterView );
 
 private:
     void addNamedResults( const QList<ResSpec>& resultSpecification );
