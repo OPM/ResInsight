@@ -46,6 +46,8 @@ public:
 
     QString displayString() const override;
 
+    void setEclipseCase( RimEclipseCase* eclipseCase );
+
     RimEclipseCase*           eclipseCase() const;
     RiaDefines::ResultCatType resultCategoryType() const;
     QString                   resultVariable() const;

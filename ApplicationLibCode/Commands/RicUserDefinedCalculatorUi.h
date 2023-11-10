@@ -48,17 +48,18 @@ public:
     virtual RimUserDefinedCalculationCollection* calculationCollection() const                                       = 0;
     virtual void                                 notifyCalculatedNameChanged( int id, const QString& newName ) const = 0;
 
-private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void onEditorWidgetsCreated() override;
 
-private:
     // TODO : Move to a common caf helper class
     static void assignPushButtonEditor( caf::PdmFieldHandle* fieldHandle );
     static void assignPushButtonEditorText( caf::PdmUiEditorAttribute* attribute, const QString& text );
+
+private:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          onEditorWidgetsCreated() override;
 
 private:
     caf::PdmPtrField<RimUserDefinedCalculation*> m_currentCalculation;

@@ -76,6 +76,14 @@ QString RimGridCalculationVariable::displayString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCalculationVariable::setEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_eclipseCase = eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCalculationVariable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );

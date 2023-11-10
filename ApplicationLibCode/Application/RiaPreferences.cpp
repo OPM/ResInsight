@@ -229,6 +229,8 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_useQtChartsPlotByDefault, "useQtChartsPlotByDefault", false, "Use QtChart as Default Plot Type" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useQtChartsPlotByDefault );
 
+    CAF_PDM_InitFieldNoDefault( &m_gridCalculationExpressionFolder, "gridCalculationExpressionFolder", "Grid Calculation Expression Folder" );
+
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
                        "SurfaceImportResamplingDistance",
                        100.0,
@@ -291,6 +293,10 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
             {
                 myAttr->m_selectDirectory              = true;
                 myAttr->m_appendUiSelectedFolderToText = true;
+            }
+            else if ( field == &m_gridCalculationExpressionFolder )
+            {
+                myAttr->m_selectDirectory = true;
             }
         }
     }
@@ -448,6 +454,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         exportGroup->add( &csvTextExportFieldSeparator );
         exportGroup->add( &m_openExportedPdfInViewer );
         exportGroup->add( &m_writeEchoInGrdeclFiles );
+
+        caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
+        otherGroup->add( &m_gridCalculationExpressionFolder );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -836,6 +845,14 @@ QString RiaPreferences::multiLateralWellNamePattern() const
 QString RiaPreferences::defaultMultiLateralWellNamePattern()
 {
     return "?*Y*";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::gridCalculationExpressionFolder() const
+{
+    return m_gridCalculationExpressionFolder().path();
 }
 
 //--------------------------------------------------------------------------------------------------
