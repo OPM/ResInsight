@@ -25,7 +25,6 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RicUserDefinedCalculatorUi, "RicUserDefinedCalculator" );
 
@@ -38,7 +37,6 @@ RicUserDefinedCalculatorUi::RicUserDefinedCalculatorUi()
 
     CAF_PDM_InitFieldNoDefault( &m_currentCalculation, "CurrentCalculation", "" );
     m_currentCalculation.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    // m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_currentCalculation.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_newCalculation, "NewCalculation", "New Calculation" );
@@ -47,7 +45,7 @@ RicUserDefinedCalculatorUi::RicUserDefinedCalculatorUi()
     CAF_PDM_InitFieldNoDefault( &m_deleteCalculation, "DeleteCalculation", "Delete Calculation" );
     RicUserDefinedCalculatorUi::assignPushButtonEditor( &m_deleteCalculation );
 
-    m_calcContextMenuMgr = std::unique_ptr<RiuCalculationsContextMenuManager>( new RiuCalculationsContextMenuManager() );
+    m_calcContextMenuMgr = std::make_unique<RiuCalculationsContextMenuManager>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +62,8 @@ RimUserDefinedCalculation* RicUserDefinedCalculatorUi::currentCalculation() cons
 void RicUserDefinedCalculatorUi::setCurrentCalculation( RimUserDefinedCalculation* calculation )
 {
     m_currentCalculation = calculation;
+
+    connectSignals( m_currentCalculation() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +101,7 @@ void RicUserDefinedCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* ch
         m_newCalculation = false;
 
         m_currentCalculation = calculationCollection()->addCalculation();
+        connectSignals( m_currentCalculation );
 
         updateConnectedEditors();
     }
@@ -117,6 +118,10 @@ void RicUserDefinedCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* ch
             caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
         }
     }
+    else if ( changedField == &m_currentCalculation && m_currentCalculation() )
+    {
+        connectSignals( m_currentCalculation() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +131,7 @@ void RicUserDefinedCalculatorUi::defineUiOrdering( QString uiConfigName, caf::Pd
 {
     if ( !m_currentCalculation() && !calculationCollection()->calculations().empty() )
     {
-        m_currentCalculation = calculationCollection()->calculations()[0];
+        setCurrentCalculation( calculationCollection()->calculations()[0] );
     }
 
     {
@@ -182,7 +187,7 @@ void RicUserDefinedCalculatorUi::assignPushButtonEditor( caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 void RicUserDefinedCalculatorUi::assignPushButtonEditorText( caf::PdmUiEditorAttribute* attribute, const QString& text )
 {
-    caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+    auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
     if ( attrib )
     {
         attrib->m_buttonText = text;
@@ -252,12 +257,31 @@ void RicUserDefinedCalculatorUi::onEditorWidgetsCreated()
 
     for ( const auto& e : m_currentCalculation.uiCapability()->connectedEditors() )
     {
-        caf::PdmUiListEditor* listEditor = dynamic_cast<caf::PdmUiListEditor*>( e );
+        auto* listEditor = dynamic_cast<caf::PdmUiListEditor*>( e );
         if ( !listEditor ) continue;
 
         QWidget* widget = listEditor->editorWidget();
         if ( !widget ) continue;
 
         m_calcContextMenuMgr->attachWidget( widget, this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicUserDefinedCalculatorUi::onVariableUpdated( const SignalEmitter* emitter )
+{
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicUserDefinedCalculatorUi::connectSignals( RimUserDefinedCalculation* calculation )
+{
+    if ( calculation )
+    {
+        calculation->variableUpdated.connect( this, &RicUserDefinedCalculatorUi::onVariableUpdated );
     }
 }

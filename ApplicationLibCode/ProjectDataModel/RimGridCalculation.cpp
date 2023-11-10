@@ -295,16 +295,20 @@ void RimGridCalculation::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
 {
-    if ( m_destinationCase == nullptr )
+    if ( auto variable = dynamic_cast<const RimGridCalculationVariable*>( emitter ) )
     {
-        auto variable = dynamic_cast<const RimGridCalculationVariable*>( emitter );
-        if ( variable && variable->eclipseCase() )
+        if ( auto variableCase = variable->eclipseCase() )
         {
-            m_destinationCase = variable->eclipseCase();
-
-            updateConnectedEditors();
+            if ( !m_destinationCase || !m_destinationCase->isGridSizeEqualTo( variableCase ) )
+            {
+                m_destinationCase = variableCase;
+            }
         }
     }
+
+    updateConnectedEditors();
+
+    variableUpdated.send();
 }
 
 //--------------------------------------------------------------------------------------------------

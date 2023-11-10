@@ -42,6 +42,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimUserDefinedCalculation, "RimUserDefinedCalc
 ///
 //--------------------------------------------------------------------------------------------------
 RimUserDefinedCalculation::RimUserDefinedCalculation()
+    : variableUpdated( this )
 {
     CAF_PDM_InitObject( "RimUserDefinedCalculation", ":/octave.png", "Calculation", "" );
 

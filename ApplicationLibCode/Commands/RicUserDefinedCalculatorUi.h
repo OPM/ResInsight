@@ -19,9 +19,11 @@
 #pragma once
 
 #include "RiuCalculationsContextMenuManager.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+
 #include <memory>
 
 class RimUserDefinedCalculationCollection;
@@ -52,14 +54,16 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          onEditorWidgetsCreated() override;
 
     // TODO : Move to a common caf helper class
     static void assignPushButtonEditor( caf::PdmFieldHandle* fieldHandle );
     static void assignPushButtonEditorText( caf::PdmUiEditorAttribute* attribute, const QString& text );
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          onEditorWidgetsCreated() override;
+    void onVariableUpdated( const SignalEmitter* emitter );
+    void connectSignals( RimUserDefinedCalculation* calculation );
 
 private:
     caf::PdmPtrField<RimUserDefinedCalculation*> m_currentCalculation;
