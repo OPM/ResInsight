@@ -48,10 +48,10 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmUiOrdering::~PdmUiOrdering()
 {
-    for ( size_t i = 0; i < m_createdGroups.size(); ++i )
+    for ( auto& createdGroup : m_createdGroups )
     {
-        delete m_createdGroups[i];
-        m_createdGroups[i] = nullptr;
+        delete createdGroup;
+        createdGroup = nullptr;
     }
 }
 
@@ -60,11 +60,11 @@ PdmUiOrdering::~PdmUiOrdering()
 //--------------------------------------------------------------------------------------------------
 PdmUiGroup* PdmUiOrdering::addNewGroup( const QString& displayName, LayoutOptions layout )
 {
-    PdmUiGroup* group = new PdmUiGroup;
+    auto* group = new PdmUiGroup;
     group->setUiName( displayName );
 
     m_createdGroups.push_back( group );
-    m_ordering.push_back( std::make_pair( group, layout ) );
+    m_ordering.emplace_back( group, layout );
 
     return group;
 }
@@ -93,10 +93,8 @@ bool PdmUiOrdering::insertBeforeGroup( const QString& groupId, const PdmFieldHan
         pos.parent->insert( pos.indexInParent, field, layout );
         return true;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,10 +108,8 @@ bool PdmUiOrdering::insertBeforeItem( const PdmUiItem* item, const PdmFieldHandl
         pos.parent->insert( pos.indexInParent, field, layout );
         return true;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,7 +180,7 @@ caf::PdmUiGroup* PdmUiOrdering::insertNewGroupWithKeyword( size_t         index,
                                                            const QString& groupKeyword,
                                                            LayoutOptions  layout )
 {
-    PdmUiGroup* group = new PdmUiGroup;
+    auto* group = new PdmUiGroup;
     group->setUiName( displayName );
 
     m_createdGroups.push_back( group );
@@ -248,7 +244,7 @@ void PdmUiOrdering::add( const PdmFieldHandle* field, LayoutOptions layout )
     CAF_ASSERT( uiItem );
     CAF_ASSERT( !this->contains( uiItem ) );
 
-    m_ordering.push_back( std::make_pair( uiItem, layout ) );
+    m_ordering.emplace_back( uiItem, layout );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,13 +255,13 @@ void PdmUiOrdering::add( const PdmObjectHandle* obj, LayoutOptions layout )
     PdmUiObjectHandle* uiItem = uiObj( const_cast<PdmObjectHandle*>( obj ) );
     CAF_ASSERT( uiItem );
     CAF_ASSERT( !this->contains( uiItem ) );
-    m_ordering.push_back( std::make_pair( uiItem, layout ) );
+    m_ordering.emplace_back( uiItem, layout );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiOrdering::addRowAppend( const PdmFieldHandle* field )
+void PdmUiOrdering::appendToRow( const PdmFieldHandle* field )
 {
     add( field, { .newRow = false } );
 }
@@ -333,7 +329,7 @@ PdmUiOrdering::TableLayout PdmUiOrdering::calculateTableLayout( const QString& u
 
         if ( m_ordering[i].second.newRow || i == 0u )
         {
-            tableLayout.push_back( RowLayout() );
+            tableLayout.emplace_back();
         }
         tableLayout.back().push_back( m_ordering[i] );
     }
@@ -432,10 +428,8 @@ caf::PdmUiItem* PdmUiOrdering::PositionFound::item()
     {
         return parent->uiItems()[indexInParent];
     }
-    else
-    {
-        return nullptr;
-    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,10 +442,8 @@ caf::PdmUiGroup* PdmUiOrdering::PositionFound::group()
     {
         return static_cast<PdmUiGroup*>( g );
     }
-    else
-    {
-        return nullptr;
-    }
+
+    return nullptr;
 }
 
 } // End of namespace caf

@@ -128,7 +128,7 @@ void RimReachCircleAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_centerPointXyd );
-    uiOrdering.addRowAppend( &m_centerPointPickEnabled );
+    uiOrdering.appendToRow( &m_centerPointPickEnabled );
     uiOrdering.add( &m_radius );
 
     auto appearanceGroup = uiOrdering.addNewGroup( "Appearance" );

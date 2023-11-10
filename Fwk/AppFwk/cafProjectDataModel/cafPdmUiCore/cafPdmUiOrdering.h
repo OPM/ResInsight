@@ -67,9 +67,9 @@ public:
     // https://stackoverflow.com/questions/53408962/try-to-understand-compiler-error-message-default-member-initializer-required-be
     static LayoutOptions defaultLayoutOptions() { return {}; }
 
-    typedef std::pair<PdmUiItem*, LayoutOptions> FieldAndLayout;
-    typedef std::vector<FieldAndLayout>          RowLayout;
-    typedef std::vector<RowLayout>               TableLayout;
+    using FieldAndLayout = std::pair<PdmUiItem*, LayoutOptions>;
+    using RowLayout      = std::vector<FieldAndLayout>;
+    using TableLayout    = std::vector<RowLayout>;
 
     PdmUiOrdering()
         : m_skipRemainingFields( false ){};
@@ -81,7 +81,7 @@ public:
     void add( const PdmFieldHandle* field, LayoutOptions layout = defaultLayoutOptions() );
 
     // Add a field without creating a new row
-    void addRowAppend( const PdmFieldHandle* field );
+    void appendToRow( const PdmFieldHandle* field );
 
     void add( const PdmObjectHandle* obj, LayoutOptions layout = defaultLayoutOptions() );
     bool insertBeforeGroup( const QString&        groupId,

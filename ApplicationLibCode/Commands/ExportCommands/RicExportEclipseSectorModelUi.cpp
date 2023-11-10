@@ -317,12 +317,12 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         gridBoxGroup->add( &exportGridBox, { .newRow = true, .totalColumnSpan = 4, .leftLabelColumnSpan = 1 } );
 
         gridBoxGroup->add( &minI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        gridBoxGroup->addRowAppend( &minJ );
-        gridBoxGroup->addRowAppend( &minK );
+        gridBoxGroup->appendToRow( &minJ );
+        gridBoxGroup->appendToRow( &minK );
 
         gridBoxGroup->add( &maxI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        gridBoxGroup->addRowAppend( &maxJ );
-        gridBoxGroup->addRowAppend( &maxK );
+        gridBoxGroup->appendToRow( &maxJ );
+        gridBoxGroup->appendToRow( &maxK );
         gridBoxGroup->add( &makeInvisibleCellsInactive, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
 
         minI.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
@@ -334,8 +334,8 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
 
         caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
         gridRefinement->add( &refinementCountI, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
-        gridRefinement->addRowAppend( &refinementCountJ );
-        gridRefinement->addRowAppend( &refinementCountK );
+        gridRefinement->appendToRow( &refinementCountJ );
+        gridRefinement->appendToRow( &refinementCountK );
         refinementCountI.uiCapability()->setUiReadOnly( !exportGrid() );
         refinementCountJ.uiCapability()->setUiReadOnly( !exportGrid() );
         refinementCountK.uiCapability()->setUiReadOnly( !exportGrid() );

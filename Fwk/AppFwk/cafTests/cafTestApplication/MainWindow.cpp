@@ -583,7 +583,7 @@ protected:
         uiOrdering.add( &m_intFieldWideLabel, { .totalColumnSpan = 4, .leftLabelColumnSpan = 3 } );
         uiOrdering.add( &m_intFieldWideField, { .totalColumnSpan = 4, .leftLabelColumnSpan = 1 } );
         uiOrdering.add( &m_intFieldLeft );
-        uiOrdering.addRowAppend( &m_intFieldRight );
+        uiOrdering.appendToRow( &m_intFieldRight );
         uiOrdering.add( &m_intFieldWideBoth, { .totalColumnSpan = 4, .leftLabelColumnSpan = 2 } );
 
         QString dynamicGroupName = QString( "Dynamic Group Text (%1)" ).arg( m_intFieldStandard );
@@ -591,16 +591,16 @@ protected:
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Wide Group", { .totalColumnSpan = 4 } );
         group->add( &m_intFieldWideBoth2, { .totalColumnSpan = 6, .leftLabelColumnSpan = 3 } );
         group->add( &m_intFieldLeft2 );
-        group->addRowAppend( &m_intFieldCenter );
-        group->addRowAppend( &m_intFieldRight2 );
+        group->appendToRow( &m_intFieldCenter );
+        group->appendToRow( &m_intFieldRight2 );
         group->add( &m_intFieldLabelTop, { .totalColumnSpan = 6 } );
         group->add( &m_stringFieldLabelHidden, { .totalColumnSpan = 6 } );
 
         caf::PdmUiGroup* autoGroup = uiOrdering.addNewGroup( "Automatic Full Width Group" );
         autoGroup->add( &m_intFieldWideBothAuto );
         autoGroup->add( &m_intFieldLeftAuto );
-        autoGroup->addRowAppend( &m_intFieldCenterAuto );
-        autoGroup->addRowAppend( &m_intFieldRightAuto );
+        autoGroup->appendToRow( &m_intFieldCenterAuto );
+        autoGroup->appendToRow( &m_intFieldRightAuto );
         autoGroup->add( &m_intFieldLabelTopAuto );
         autoGroup->add( &m_stringFieldLabelHiddenAuto );
 

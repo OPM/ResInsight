@@ -489,7 +489,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 {
     caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
     selVectorsGrp->add( &m_selectedVarsUiField );
-    selVectorsGrp->addRowAppend( &m_selectVariablesButtonField );
+    selVectorsGrp->appendToRow( &m_selectVariablesButtonField );
     selVectorsGrp->add( &m_referenceCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 2 } );
 
     QString vectorNames;
@@ -521,8 +521,8 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     caf::PdmUiGroup* titleGrp = uiOrdering.addNewGroup( "Title and Legend" );
     titleGrp->add( &m_showPlotTitle );
-    titleGrp->addRowAppend( &m_useAutoPlotTitle );
-    titleGrp->addRowAppend( &m_description );
+    titleGrp->appendToRow( &m_useAutoPlotTitle );
+    titleGrp->appendToRow( &m_description );
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     titleGrp->add( &m_showPlotLegends );
     titleGrp->add( &m_legendFontSize );
@@ -536,7 +536,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     chartSettings->add( &m_minorGroupType );
     chartSettings->add( &m_valueSortOperation );
     chartSettings->add( &m_useTopBarsFilter );
-    chartSettings->addRowAppend( &m_maxBarCount );
+    chartSettings->appendToRow( &m_maxBarCount );
     m_maxBarCount.uiCapability()->setUiReadOnly( !m_useTopBarsFilter() );
     chartSettings->add( &m_sortGroupForColors );
 
