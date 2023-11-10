@@ -127,9 +127,9 @@ bool RimGridCalculation::calculate()
         }
     }
 
-    auto timeSteps = std::nullopt;
-
-    return calculateForCases( outputEclipseCases(), timeSteps );
+    auto timeSteps     = std::nullopt;
+    bool useViewFilter = true;
+    return calculateForCases( outputEclipseCases(), useViewFilter, timeSteps );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -536,7 +536,9 @@ void RimGridCalculation::removeDependentObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& calculationCases, std::optional<std::vector<size_t>> timeSteps )
+bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& calculationCases,
+                                            bool                                useViewFilter,
+                                            std::optional<std::vector<size_t>>  timeSteps )
 {
     if ( calculationCases.empty() ) return true;
 
@@ -622,7 +624,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
             if ( evaluatedOk )
             {
-                if ( m_cellFilterView() )
+                if ( useViewFilter && m_cellFilterView() )
                 {
                     filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, calculationCase );
                 }
