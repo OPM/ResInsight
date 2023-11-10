@@ -110,6 +110,7 @@ private:
     caf::PdmField<caf::AppEnum<DataSourceType>> m_dataSourceForStatistics;
 
     caf::PdmPtrField<RimGridCalculation*> m_gridCalculation;
+    caf::PdmPtrField<RimEclipseView*>     m_gridCalculationFilterView;
 
     caf::PdmField<std::vector<int>> m_selectedTimeSteps;
 
