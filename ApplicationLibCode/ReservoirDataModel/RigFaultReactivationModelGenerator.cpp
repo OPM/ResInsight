@@ -339,7 +339,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     m_grid->ijkFromCellIndexUnguarded( startCellIndex, &i, &j, &k );
     cellColumnBack.push_back( startCellIndex ); // want the user clicked cell to be the first in the list for later
 
-    for ( auto kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
+    for ( size_t kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
     {
         auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
@@ -351,7 +351,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     size_t oppositeCellIdx   = oppositeStartCellIndex( cellColumnBack, startFace );
 
     m_grid->ijkFromCellIndexUnguarded( oppositeCellIdx, &i, &j, &k );
-    for ( auto kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
+    for ( size_t kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
     {
         auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
