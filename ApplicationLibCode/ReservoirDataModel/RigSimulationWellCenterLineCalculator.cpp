@@ -220,18 +220,25 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
 
     bool isMultiSegmentWell = wellResults->isMultiSegmentWell();
 
-#if 0 // Fancy branch splitting, but with artifacts. Needs a bit more work to be better overall than the one we have.
-    RigWellResultFrame splittedWellFrame;
-    if (!isMultiSegmentWell && isAutoDetectBranches)
-    {
-        splittedWellFrame = splitIntoBranches(*wellFramePtr, eclipseCaseData);
-        wellFramePtr = &splittedWellFrame;
-        isMultiSegmentWell = true;
-    }
-#endif
-
     const RigWellResultFrame&              wellFrame   = *wellFramePtr;
     const std::vector<RigWellResultBranch> resBranches = wellFrame.wellResultBranches();
+
+    const bool debugOutput = false;
+    if ( debugOutput )
+    {
+        for ( const auto& branch : resBranches )
+        {
+            QString branchTxt;
+            for ( const auto& resultPoint : branch.branchResultPoints() )
+            {
+                if ( resultPoint.cellIjk().has_value() )
+                {
+                    branchTxt += QString( " %1 \n" ).arg( QString::fromStdString( ( *resultPoint.cellIjk() ).toString() ) );
+                }
+            }
+            RiaLogging::debug( branchTxt );
+        }
+    }
 
     // Well head
     // Match this position with well head position in RivWellHeadPartMgr::buildWellHeadParts()
