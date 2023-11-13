@@ -193,6 +193,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
                 for ( auto wellPathLateral : allWellPathLaterals )
                 {
+                    // Skip well paths that are not enabled, no export of WELSEGS or COMPDAT
+                    // https://github.com/OPM/ResInsight/issues/10754
+                    //
+                    if ( !wellPathLateral->isEnabled() ) continue;
+
                     // Generate completion data
 
                     if ( exportSettings.includePerforations )
