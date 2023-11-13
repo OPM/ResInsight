@@ -1243,6 +1243,12 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint( const RigGridB
         resultPoint.setFlowData( volumeRate, oilRate, adjustedGasRate, waterRate );
 
         resultPoint.setConnectionFactor( connectionFactor );
+
+        auto ijkOneBased = grid->ijkFromCellIndexOneBased( gridCellIndex );
+        if ( ijkOneBased )
+        {
+            resultPoint.setIjk( *ijkOneBased );
+        }
     }
 
     return resultPoint;
