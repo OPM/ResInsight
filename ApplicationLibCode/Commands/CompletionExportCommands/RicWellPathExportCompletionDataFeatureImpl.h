@@ -126,11 +126,11 @@ public:
     static std::vector<RigCompletionData>
         computeDynamicCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
+private:
     static std::vector<RigCompletionData> generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
                                                                              const std::vector<const RimPerforationInterval*>& intervals,
                                                                              const RicExportCompletionDataSettingsUi&          settings );
 
-private:
     static double calculateTransmissibilityAsEclipseDoes( RimEclipseCase*                  eclipseCase,
                                                           double                           skinFactor,
                                                           double                           wellRadius,
