@@ -67,8 +67,10 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitField( &m_refMD, "RefMD", 0.0, "" );
 
     CAF_PDM_InitField( &m_customValuesForLateral, "CustomValuesForLateral", false, "Custom Values for Lateral" );
-    CAF_PDM_InitField( &m_linerDiameter, "LinerDiameter", 0.152, "Liner Inner Diameter" );
-    CAF_PDM_InitField( &m_roughnessFactor, "RoughnessFactor", 1.0e-5, "Roughness Factor" );
+
+    const auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+    CAF_PDM_InitField( &m_linerDiameter, "LinerDiameter", RimMswCompletionParameters::defaultLinerDiameter( unitSystem ), "Liner Inner Diameter" );
+    CAF_PDM_InitField( &m_roughnessFactor, "RoughnessFactor", RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ), "Roughness Factor" );
 
     CAF_PDM_InitFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
     CAF_PDM_InitFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
@@ -83,17 +85,6 @@ RimMswCompletionParameters::RimMswCompletionParameters()
 //--------------------------------------------------------------------------------------------------
 RimMswCompletionParameters::~RimMswCompletionParameters()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimMswCompletionParameters::isDefault() const
-{
-    return m_refMDType() == ReferenceMDEnum() && m_refMD() == m_refMD.defaultValue() &&
-           m_linerDiameter() == m_linerDiameter.defaultValue() && m_roughnessFactor() == m_roughnessFactor.defaultValue() &&
-           m_pressureDrop == PressureDropEnum() && m_enforceMaxSegmentLength() == m_enforceMaxSegmentLength.defaultValue() &&
-           m_maxSegmentLength() == m_maxSegmentLength.defaultValue();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +139,7 @@ double RimMswCompletionParameters::linerDiameter( RiaDefines::EclipseUnitSystem 
     {
         return RiaEclipseUnitTools::feetToMeter( diameter );
     }
-    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( diameter );
     }
@@ -172,10 +163,8 @@ double RimMswCompletionParameters::defaultLinerDiameter( RiaDefines::EclipseUnit
     {
         return 0.152;
     }
-    else
-    {
-        return 0.5;
-    }
+
+    return 0.5;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +184,7 @@ double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSyste
     {
         return RiaEclipseUnitTools::feetToMeter( rFactor );
     }
-    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( rFactor );
     }
@@ -220,10 +209,8 @@ double RimMswCompletionParameters::defaultRoughnessFactor( RiaDefines::EclipseUn
     {
         return 1.0e-5;
     }
-    else
-    {
-        return 3.28e-5;
-    }
+
+    return 3.28e-5;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -54,17 +54,14 @@ public:
     RimMswCompletionParameters();
     ~RimMswCompletionParameters() override;
 
-    bool                        isDefault() const;
     RimMswCompletionParameters& operator=( const RimMswCompletionParameters& rhs );
 
     ReferenceMDType    referenceMDType() const;
     double             manualReferenceMD() const;
     double             linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double             linerDiameter() const;
-    static double      defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem );
     double             roughnessFactor() const;
     double             roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    static double      defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem );
     PressureDropEnum   pressureDrop() const;
     LengthAndDepthEnum lengthAndDepth() const;
     double             maxSegmentLength() const;
@@ -85,6 +82,10 @@ public:
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
+
+private:
+    static double defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem );
+    static double defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem );
 
 private:
     caf::PdmField<ReferenceMDEnum> m_refMDType;
