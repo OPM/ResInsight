@@ -38,6 +38,7 @@
 
 #include <array>
 #include <cstddef>
+#include <string>
 
 namespace caf
 {
@@ -49,6 +50,8 @@ public:
     size_t i() const;
     size_t j() const;
     size_t k() const;
+
+    std::string toString() const;
 
 private:
     std::array<size_t, 3> m_values;

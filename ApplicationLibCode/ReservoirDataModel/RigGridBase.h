@@ -23,11 +23,13 @@
 #include "RifReaderInterface.h"
 #include "RigFault.h"
 
+#include "cafVecIjk.h"
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfVector3.h"
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -94,6 +96,9 @@ public:
     size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const;
     bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
     void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const;
+
+    std::optional<caf::VecIjk> ijkFromCellIndex( size_t cellIndex ) const;
+    std::optional<caf::VecIjk> ijkFromCellIndexOneBased( size_t cellIndex ) const;
 
     bool       cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override;
     void       cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8] ) const override;
