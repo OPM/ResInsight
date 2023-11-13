@@ -354,11 +354,12 @@ bool RiuMainWindowBase::isBlockingViewSelectionOnSubWindowActivated() const
 void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer )
 {
     bool removedSubWindowWasActive = false;
+    bool wasMaximized              = true;
 
-    QMdiSubWindow* subWindowBeingClosed = findMdiSubWindow( viewer );
-    bool           wasMaximized         = subWindowBeingClosed->isMaximized();
-    if ( subWindowBeingClosed )
+    if ( QMdiSubWindow* subWindowBeingClosed = findMdiSubWindow( viewer ) )
     {
+        wasMaximized = subWindowBeingClosed->isMaximized();
+
         if ( subWindowBeingClosed->isActiveWindow() )
         {
             // If we are removing the active window, we will need a new active window
