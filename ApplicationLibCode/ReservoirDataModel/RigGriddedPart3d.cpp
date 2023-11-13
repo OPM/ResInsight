@@ -264,7 +264,7 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
                 break;
         }
 
-        for ( int v = 0; v < layersPerRegion[region].size(); v++, layer++ )
+        for ( int v = 0; v < (int)layersPerRegion[region].size(); v++, layer++ )
         {
             if ( ( region == Regions::LowerUnderburden ) || ( region == Regions::UpperOverburden ) )
             {
@@ -326,14 +326,14 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
     int nVertCellsLower = (int)layersPerRegion[Regions::LowerUnderburden].size();
     int nVertCellsFault = (int)( layersPerRegion[Regions::UpperUnderburden].size() + layersPerRegion[Regions::Reservoir].size() +
                                  layersPerRegion[Regions::LowerOverburden].size() );
-    int nVertCellsUpper = (int)layersPerRegion[Regions::UpperUnderburden].size();
+    // int nVertCellsUpper = (int)layersPerRegion[Regions::UpperUnderburden].size();
 
     RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
 
     const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
 
-    for ( int v = 0; v < nVertCells; v++, layer++ )
+    for ( int v = 0; v < (int)nVertCells; v++, layer++ )
     {
         if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
         if ( v >= nVertCellsLower + nVertCellsFault ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
