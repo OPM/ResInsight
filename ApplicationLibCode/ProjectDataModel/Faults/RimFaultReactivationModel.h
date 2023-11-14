@@ -178,7 +178,7 @@ private:
     caf::PdmField<bool> m_useGridVoidRatio;
     caf::PdmField<bool> m_useGridTemperature;
 
-    caf::PdmField<size_t> m_startCellIndex;
+    caf::PdmField<size_t>                             m_startCellIndex;
     caf::PdmField<cvf::StructGridInterface::FaceEnum> m_startCellFace;
 
     cvf::ref<RigFaultReactivationModel> m_2Dmodel;
