@@ -178,6 +178,9 @@ private:
     caf::PdmField<bool> m_useGridVoidRatio;
     caf::PdmField<bool> m_useGridTemperature;
 
+    caf::PdmField<size_t> m_startCellIndex;
+    caf::PdmField<cvf::StructGridInterface::FaceEnum> m_startCellFace;
+
     cvf::ref<RigFaultReactivationModel> m_2Dmodel;
 
     caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
@@ -188,6 +191,4 @@ private:
     std::vector<QDateTime> m_availableTimeSteps;
 
     std::shared_ptr<RimFaultReactivationDataAccess> m_dataAccess;
-    cvf::StructGridInterface::FaceType              m_startCellFace;
-    size_t                                          m_startCellIndex;
 };

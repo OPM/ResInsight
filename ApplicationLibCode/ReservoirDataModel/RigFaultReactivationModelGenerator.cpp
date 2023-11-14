@@ -358,8 +358,9 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
         cellColumnFront.push_back( cellIdx );
     }
 
-    addFilter( "In front of fault column", cellColumnFront );
-    addFilter( "Behind fault column", cellColumnBack );
+    // debug
+    // addFilter( "In front of fault column", cellColumnFront );
+    // addFilter( "Behind fault column", cellColumnBack );
 
     auto zPositionsBack  = elementLayers( startFace, cellColumnBack );
     auto zPositionsFront = elementLayers( oppositeStartFace, cellColumnFront );
@@ -392,7 +393,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     m_topReservoirBack  = zPositionsBack.rbegin()->second;
 
     cvf::Vec3d top_point = m_topReservoirFront;
-
     if ( front_top < back_top )
     {
         top_point = extrapolatePoint( zPositionsFront.rbegin()->second, ( ++zPositionsFront.rbegin() )->second, m_bufferAboveFault );
@@ -401,10 +401,10 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     {
         top_point = extrapolatePoint( zPositionsBack.rbegin()->second, ( ++zPositionsBack.rbegin() )->second, m_bufferAboveFault );
     }
-
     m_topFault = top_point;
 
-    // TODO - spilt layers in zPositions that are larger than the user given limit m_maxCellHeight
+    splitLargeLayers( zPositionsFront, m_maxCellHeight );
+    splitLargeLayers( zPositionsBack, m_maxCellHeight );
 
     std::vector<cvf::Vec3d> frontReservoirLayers;
     for ( auto& kvp : zPositionsFront )
@@ -467,4 +467,68 @@ cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d star
     direction.normalize();
 
     return endPoint + ( buffer * direction );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight )
+{
+    std::vector<cvf::Vec3d> additionalPoints;
+
+    std::pair<double, cvf::Vec3d> prevLayer;
+
+    bool first = true;
+
+    for ( auto& layer : layers )
+    {
+        if ( first )
+        {
+            prevLayer = layer;
+            first     = false;
+            continue;
+        }
+
+        if ( std::abs( prevLayer.first - layer.first ) > maxHeight )
+        {
+            const auto& points = interpolateExtraPoints( prevLayer.second, layer.second, maxHeight );
+            for ( auto& p : points )
+            {
+                additionalPoints.push_back( p );
+            }
+        }
+
+        prevLayer = layer;
+    }
+
+    for ( auto& p : additionalPoints )
+    {
+        layers[p.z()] = p;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d> RigFaultReactivationModelGenerator::interpolateExtraPoints( cvf::Vec3d from, cvf::Vec3d to, double maxStep )
+{
+    std::vector<cvf::Vec3d> points;
+
+    const double distance = from.pointDistance( to );
+    const int    nSteps   = (int)std::ceil( distance / maxStep );
+    const double stepSize = distance / nSteps;
+
+    auto stepVec = to - from;
+    stepVec.normalize();
+    stepVec *= stepSize;
+
+    cvf::Vec3d p = from;
+
+    for ( int i = 1; i < nSteps; i++ )
+    {
+        p += stepVec;
+        points.push_back( p );
+    }
+
+    return points;
 }
