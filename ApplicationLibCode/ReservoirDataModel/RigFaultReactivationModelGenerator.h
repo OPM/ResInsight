@@ -59,9 +59,11 @@ public:
     const std::array<cvf::Vec3d, 12>& backPoints() const;
 
 protected:
-    static const std::array<int, 4> faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
-    static cvf::Vec3d               lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
-    static cvf::Vec3d               extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
+    static const std::array<int, 4>      faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
+    static cvf::Vec3d                    lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
+    static cvf::Vec3d                    extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
+    static void                          splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight );
+    static const std::vector<cvf::Vec3d> interpolateExtraPoints( cvf::Vec3d from, cvf::Vec3d to, double maxStep );
 
     std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, const std::vector<size_t>& cellIndexColumn );
     void                         addFilter( QString name, std::vector<size_t> cells );

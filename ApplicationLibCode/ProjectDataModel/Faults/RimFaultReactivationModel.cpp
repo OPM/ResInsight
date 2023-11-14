@@ -72,8 +72,6 @@ CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationModel::RimFaultReactivationModel()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
-    , m_startCellFace( cvf::StructGridInterface::FaceType::NO_FACE )
-    , m_startCellIndex( 0 )
 {
     CAF_PDM_InitObject( "Fault Reactivation Model", ":/fault_react_24x24.png" );
 
@@ -85,6 +83,11 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Horz. Extent from Anchor" );
     CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Start Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
+
+    CAF_PDM_InitFieldNoDefault( &m_startCellIndex, "StartCellIndex", "Start Cell Index" );
+    CAF_PDM_InitFieldNoDefault( &m_startCellFace, "StartCellFace", "Start Cell Face" );
+    m_startCellIndex = 0;
+    m_startCellFace  = cvf::StructGridInterface::FaceType::NO_FACE;
 
     CAF_PDM_InitField( &m_faultExtendUpwards, "FaultExtendUpwards", 100.0, "Fault Extension Above Reservoir" );
     m_faultExtendUpwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -113,9 +116,9 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &m_useGridPorePressure, "UseGridPorePressure", true, "Use Grid Pore Pressure" );
-    CAF_PDM_InitField( &m_useGridVoidRatio, "UseGridVoidRatio", true, "Use Grid Void Ratio" );
-    CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", true, "Use Grid Temperature" );
+    CAF_PDM_InitField( &m_useGridPorePressure, "UseGridPorePressure", false, "Output Grid Pore Pressure" );
+    CAF_PDM_InitField( &m_useGridVoidRatio, "UseGridVoidRatio", false, "Output Grid Void Ratio" );
+    CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", false, "Output Grid Temperature" );
     CAF_PDM_InitField( &m_useGridDensity, "UseGridDensity", true, "Use Grid Density" );
     CAF_PDM_InitField( &m_useGridElasticProperties, "UseGridElasticProperties", true, "Use Grid Elastic Properties" );
 
@@ -299,6 +302,10 @@ void RimFaultReactivationModel::updateVisualization()
     auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( !view ) return;
 
+    if ( m_startCellIndex() == 0 ) return;
+    if ( m_startCellFace() == cvf::StructGridInterface::FaceType::NO_FACE ) return;
+    if ( m_targets.size() < 2 ) return;
+
     auto normal = m_targets[1]->targetPointXYZ() - m_targets[0]->targetPointXYZ();
     normal.z()  = 0.0;
     if ( !normal.normalize() ) return;
@@ -318,7 +325,7 @@ void RimFaultReactivationModel::updateVisualization()
 
     m_2Dmodel->setPartColors( m_modelPart1Color, m_modelPart2Color );
     m_2Dmodel->setGenerator( generator );
-    m_2Dmodel->updateGeometry( m_startCellIndex, m_startCellFace );
+    m_2Dmodel->updateGeometry( m_startCellIndex, m_startCellFace() );
 
     view->scheduleCreateDisplayModelAndRedraw();
 }
@@ -426,19 +433,18 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     faultGrp->add( &m_faultExtendDownwards );
 
     auto gridModelGrp = modelGrp->addNewGroup( "Grid" );
-
     gridModelGrp->add( &m_modelThickness );
     gridModelGrp->add( &m_maxReservoirCellHeight );
     gridModelGrp->add( &m_cellHeightGrowFactor );
     gridModelGrp->add( &m_numberOfCellsHorzPart1 );
     gridModelGrp->add( &m_numberOfCellsHorzPart2 );
-    gridModelGrp->add( &m_useLocalCoordinates );
 
     auto timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
     timeStepGrp->add( &m_timeStepFilter );
     timeStepGrp->add( &m_selectedTimeSteps );
 
-    auto propertiesGrp = uiOrdering.addNewGroup( "Properties" );
+    auto propertiesGrp = uiOrdering.addNewGroup( "Export" );
+    propertiesGrp->add( &m_useLocalCoordinates );
     propertiesGrp->add( &m_useGridPorePressure );
     propertiesGrp->add( &m_useGridVoidRatio );
     propertiesGrp->add( &m_useGridTemperature );
@@ -461,7 +467,11 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_userDescription )
+    if ( ( changedField == &m_useGridPorePressure ) || ( changedField == &m_useGridVoidRatio ) || ( changedField == &m_useGridTemperature ) )
+    {
+        return; // do nothing
+    }
+    else if ( changedField == &m_userDescription )
     {
         updateConnectedEditors();
     }
