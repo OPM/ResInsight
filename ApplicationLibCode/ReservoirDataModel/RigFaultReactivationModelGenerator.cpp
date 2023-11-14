@@ -314,7 +314,7 @@ void RigFaultReactivationModelGenerator::generatePointsFrontBack()
 
     // only return the corner points used for each part
     std::vector<size_t> frontMap = { 0, 1, 3, 5, 6, 7, 8, 9, 11, 13, 14, 15 };
-    std::vector<size_t> backMap  = { 8, 9, 10, 12, 14, 15, 16, 17, 18, 20, 22, 23 };
+    std::vector<size_t> backMap  = { 16, 17, 18, 20, 22, 23, 8, 9, 10, 12, 14, 15 };
 
     for ( int i = 0; i < 12; i++ )
     {

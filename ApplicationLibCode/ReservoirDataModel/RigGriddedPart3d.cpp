@@ -310,7 +310,7 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
 
     // ** generate elements of type hex8
 
-    m_elementIndices.resize( (size_t)( nVertCells * nHorzCells * nThicknessCells ) );
+    m_elementIndices.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
 
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::FaultSurface] = {};
@@ -323,17 +323,16 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
     int elementIdx       = 0;
     layer                = 0;
 
-    int nVertCellsLower = (int)layersPerRegion[Regions::LowerUnderburden].size();
-    int nVertCellsFault = (int)( layersPerRegion[Regions::UpperUnderburden].size() + layersPerRegion[Regions::Reservoir].size() +
-                                 layersPerRegion[Regions::LowerOverburden].size() );
-    // int nVertCellsUpper = (int)layersPerRegion[Regions::UpperUnderburden].size();
+    const int nVertCellsLower = (int)layersPerRegion[Regions::LowerUnderburden].size();
+    const int nVertCellsFault = (int)( layersPerRegion[Regions::UpperUnderburden].size() + layersPerRegion[Regions::Reservoir].size() +
+                                       layersPerRegion[Regions::LowerOverburden].size() );
 
     RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
 
     const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
 
-    for ( int v = 0; v < (int)nVertCells; v++, layer++ )
+    for ( int v = 0; v < (int)nVertCells - 1; v++, layer++ )
     {
         if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
         if ( v >= nVertCellsLower + nVertCellsFault ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
@@ -371,6 +370,12 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
 
         layerIndexOffset += nextLayerIdxOff;
+    }
+
+    // vertical mesh lines for 2d display
+    for ( int i = 0; i < 5; i++ )
+    {
+        generateVerticalMeshlines( { inputPoints[i], inputPoints[i + 1], inputPoints[i + 7], inputPoints[i + 6] }, nHorzCells );
     }
 }
 
@@ -536,29 +541,13 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
 ///
 /// Assumes 0->3 and 1->2 is parallel
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells )
+void RigGriddedPart3d::generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells )
 {
-    cvf::Vec3d step0to1 = stepVector( cornerPoints[0], cornerPoints[1], numVertCells );
     cvf::Vec3d step0to3 = stepVector( cornerPoints[0], cornerPoints[3], numHorzCells );
     cvf::Vec3d step1to2 = stepVector( cornerPoints[1], cornerPoints[2], numHorzCells );
-    cvf::Vec3d step3to2 = stepVector( cornerPoints[3], cornerPoints[2], numVertCells );
 
-    // horizontal lines
-
-    cvf::Vec3d startP = cornerPoints[0];
-    cvf::Vec3d endP   = cornerPoints[3];
-
-    for ( int v = 0; v <= numVertCells; v++ )
-    {
-        m_meshLines.push_back( { startP, endP } );
-        startP += step0to1;
-        endP += step3to2;
-    }
-
-    // vertical lines
-
-    startP = cornerPoints[0];
-    endP   = cornerPoints[1];
+    auto startP = cornerPoints[0];
+    auto endP   = cornerPoints[1];
 
     for ( int h = 0; h <= numHorzCells; h++ )
     {
