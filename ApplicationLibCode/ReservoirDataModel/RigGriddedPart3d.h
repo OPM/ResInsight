@@ -78,7 +78,7 @@ protected:
     static std::vector<double> generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor );
     static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
 
-    void generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells );
+    void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells );
 
     bool elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
     bool elementIsBelowReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
