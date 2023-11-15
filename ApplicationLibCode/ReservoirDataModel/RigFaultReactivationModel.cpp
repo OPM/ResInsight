@@ -195,14 +195,3 @@ std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( RimFaultReact
 {
     return m_3dparts.at( part );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid )
-{
-    for ( auto part : allGridParts() )
-    {
-        m_3dparts[part]->generateElementSets( dataAccess, grid );
-    }
-}

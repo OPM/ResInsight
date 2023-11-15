@@ -52,7 +52,6 @@ public:
                            int                        nHorzCells,
                            double                     modelThickness );
 
-    void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
     void generateLocalNodes( const cvf::Mat4d transform );
     void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
@@ -64,12 +63,9 @@ public:
     const std::vector<std::vector<unsigned int>>&                                   elementIndices() const;
     const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
 
-    const std::vector<std::vector<cvf::Vec3d>>& meshLines() const;
-    std::vector<cvf::Vec3d>                     elementCorners( size_t elementIndex ) const;
-
-    const std::map<Boundary, std::vector<unsigned int>>& boundaryElements() const;
-    const std::map<Boundary, std::vector<unsigned int>>& boundaryNodes() const;
-
+    const std::vector<std::vector<cvf::Vec3d>>&             meshLines() const;
+    const std::map<Boundary, std::vector<unsigned int>>&    boundaryElements() const;
+    const std::map<Boundary, std::vector<unsigned int>>&    boundaryNodes() const;
     const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
 
 protected:
@@ -79,11 +75,6 @@ protected:
     static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
 
     void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells );
-
-    bool elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
-    bool elementIsBelowReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const;
-
-    std::pair<int, int> reservoirZTopBottom( const RigMainGrid* grid ) const;
 
 private:
     enum class Regions

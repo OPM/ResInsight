@@ -331,24 +331,26 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
                                                            RigGriddedPart3d*                  frontPart,
                                                            RigGriddedPart3d*                  backPart )
 {
+    std::vector<size_t> cellColumnBackSearch;
     std::vector<size_t> cellColumnBack;
     std::vector<size_t> cellColumnFront;
     size_t              i, j, k;
 
     // build column of cells behind fault
     m_grid->ijkFromCellIndexUnguarded( startCellIndex, &i, &j, &k );
-    cellColumnBack.push_back( startCellIndex ); // want the user clicked cell to be the first in the list for later
+    cellColumnBackSearch.push_back( startCellIndex ); // want the user clicked cell to be the first in the search list
 
     for ( size_t kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
     {
         auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
         if ( cellIdx != startCellIndex ) cellColumnBack.push_back( cellIdx );
+        cellColumnBack.push_back( cellIdx );
     }
 
     // build cell column of cells in front of fault, opposite to the cell column behind the fault
     auto   oppositeStartFace = cvf::StructGridInterface::oppositeFace( startFace );
-    size_t oppositeCellIdx   = oppositeStartCellIndex( cellColumnBack, startFace );
+    size_t oppositeCellIdx   = oppositeStartCellIndex( cellColumnBackSearch, startFace );
 
     m_grid->ijkFromCellIndexUnguarded( oppositeCellIdx, &i, &j, &k );
     for ( size_t kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )

@@ -80,8 +80,6 @@ public:
 
     std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
 
-    void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
-
 protected:
     void generateGrids( cvf::Vec3dArray points );
 
