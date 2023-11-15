@@ -529,6 +529,38 @@ std::pair<bool, std::string>
         RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName );
     }
 
+    bool stressFromGrid = true;
+    if ( stressFromGrid )
+    {
+        std::string stressName = "STRESS";
+
+        // Export the stress to a separate inp file for each step
+        std::string fileName = stressName + ".inp";
+        std::string filePath = createFilePath( exportDirectory, fileName );
+
+        // Use stress from first time step
+        size_t timeStep = 0;
+        bool   isOk     = writePropertiesToFile( model,
+                                           dataAccess,
+                                           { RimFaultReactivation::Property::StressTop,
+                                                   RimFaultReactivation::Property::DepthTop,
+                                                   RimFaultReactivation::Property::StressBottom,
+                                                   RimFaultReactivation::Property::DepthBottom,
+                                                   RimFaultReactivation::Property::LateralStressComponentX,
+                                                   RimFaultReactivation::Property::LateralStressComponentY },
+                                           {},
+                                           timeStep,
+                                           filePath,
+                                           partNames,
+                                           "",
+                                           "" );
+
+        if ( !isOk ) return { false, "Failed to create " + stressName + " file." };
+
+        RifInpExportTools::printHeading( stream, "Initial Conditions, TYPE=" + stressName );
+        RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName );
+    }
+
     return { true, "" };
 }
 
@@ -654,18 +686,22 @@ bool RifFaultReactivationModelExporter::writePropertiesToFile( const RigFaultRea
     std::ofstream stream( filePath );
     if ( !stream.good() ) return false;
 
-    RifInpExportTools::printHeading( stream, "Distribution Table, name=" + tableName + "_Table" );
-    std::string propertyNamesLine;
-    for ( size_t i = 0; i < propertyNames.size(); i++ )
+    bool includeHeader = !propertyNames.empty();
+    if ( includeHeader )
     {
-        propertyNamesLine += propertyNames[i];
-        if ( i != propertyNames.size() - 1 ) propertyNamesLine += ", ";
+        RifInpExportTools::printHeading( stream, "Distribution Table, name=" + tableName + "_Table" );
+        std::string propertyNamesLine;
+        for ( size_t i = 0; i < propertyNames.size(); i++ )
+        {
+            propertyNamesLine += propertyNames[i];
+            if ( i != propertyNames.size() - 1 ) propertyNamesLine += ", ";
+        }
+        RifInpExportTools::printLine( stream, propertyNamesLine );
+
+        RifInpExportTools::printHeading( stream, "Distribution, name=" + tableName + ", location=ELEMENT, Table=" + tableName + "_Table" );
+
+        RifInpExportTools::printLine( stream, heading );
     }
-    RifInpExportTools::printLine( stream, propertyNamesLine );
-
-    RifInpExportTools::printHeading( stream, "Distribution, name=" + tableName + ", location=ELEMENT, Table=" + tableName + "_Table" );
-
-    RifInpExportTools::printLine( stream, heading );
 
     for ( auto [part, partName] : partNames )
     {

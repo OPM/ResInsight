@@ -35,6 +35,7 @@
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationDataAccessorGeoMech.h"
 #include "RimFaultReactivationDataAccessorPorePressure.h"
+#include "RimFaultReactivationDataAccessorStress.h"
 #include "RimFaultReactivationDataAccessorTemperature.h"
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
 #include "RimFaultReactivationEnums.h"
@@ -60,6 +61,17 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
         for ( auto property : properties )
         {
             m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorGeoMech>( geoMechCase, property ) );
+        }
+
+        std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
+                                                                         RimFaultReactivation::Property::DepthTop,
+                                                                         RimFaultReactivation::Property::StressBottom,
+                                                                         RimFaultReactivation::Property::DepthBottom,
+                                                                         RimFaultReactivation::Property::LateralStressComponentX,
+                                                                         RimFaultReactivation::Property::LateralStressComponentY };
+        for ( auto property : stressProperties )
+        {
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property ) );
         }
     }
 }
@@ -149,7 +161,13 @@ void RimFaultReactivationDataAccess::extractModelData( const RigFaultReactivatio
                         RimFaultReactivation::Property::Temperature,
                         RimFaultReactivation::Property::YoungsModulus,
                         RimFaultReactivation::Property::PoissonsRatio,
-                        RimFaultReactivation::Property::Density };
+                        RimFaultReactivation::Property::Density,
+                        RimFaultReactivation::Property::StressTop,
+                        RimFaultReactivation::Property::DepthTop,
+                        RimFaultReactivation::Property::StressBottom,
+                        RimFaultReactivation::Property::DepthBottom,
+                        RimFaultReactivation::Property::LateralStressComponentX,
+                        RimFaultReactivation::Property::LateralStressComponentY };
 
     for ( auto property : properties )
     {

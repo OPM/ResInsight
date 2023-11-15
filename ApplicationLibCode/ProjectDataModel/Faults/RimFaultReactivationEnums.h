@@ -65,7 +65,13 @@ enum class Property
     Temperature,
     Density,
     YoungsModulus,
-    PoissonsRatio
+    PoissonsRatio,
+    StressTop,
+    StressBottom,
+    DepthTop,
+    DepthBottom,
+    LateralStressComponentX,
+    LateralStressComponentY
 };
 
 } // namespace RimFaultReactivation
