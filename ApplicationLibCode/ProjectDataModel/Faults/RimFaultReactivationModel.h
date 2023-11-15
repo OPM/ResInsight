@@ -126,6 +126,7 @@ public:
     bool useGridTemperature() const;
     bool useGridDensity() const;
     bool useGridElasticProperties() const;
+    bool useGridStress() const;
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
@@ -178,6 +179,7 @@ private:
     caf::PdmField<bool> m_useGridTemperature;
     caf::PdmField<bool> m_useGridDensity;
     caf::PdmField<bool> m_useGridElasticProperties;
+    caf::PdmField<bool> m_useGridStress;
 
     caf::PdmField<size_t> m_startCellIndex;
     caf::PdmField<int>    m_startCellFace;

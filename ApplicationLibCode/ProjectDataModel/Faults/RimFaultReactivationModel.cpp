@@ -123,6 +123,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", true, "Output Grid Temperature" );
     CAF_PDM_InitField( &m_useGridDensity, "UseGridDensity", false, "Output Grid Density" );
     CAF_PDM_InitField( &m_useGridElasticProperties, "UseGridElasticProperties", false, "Output Grid Elastic Properties" );
+    CAF_PDM_InitField( &m_useGridStress, "UseGridStress", false, "Output Grid Stress" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -462,6 +463,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     propertiesGrp->add( &m_useGridTemperature );
     propertiesGrp->add( &m_useGridDensity );
     propertiesGrp->add( &m_useGridElasticProperties );
+    propertiesGrp->add( &m_useGridStress );
 
     auto trgGroup = uiOrdering.addNewGroup( "Debug" );
     trgGroup->setCollapsedByDefault();
@@ -780,4 +782,12 @@ bool RimFaultReactivationModel::useGridDensity() const
 bool RimFaultReactivationModel::useGridElasticProperties() const
 {
     return m_useGridElasticProperties();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::useGridStress() const
+{
+    return m_useGridStress();
 }

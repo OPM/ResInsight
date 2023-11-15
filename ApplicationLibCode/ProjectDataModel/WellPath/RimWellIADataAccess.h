@@ -28,6 +28,7 @@
 
 class RimGeoMechCase;
 class RigGeoMechCaseData;
+class RigFemPart;
 
 //==================================================================================================
 ///
@@ -48,6 +49,11 @@ public:
                                     cvf::Vec3d          position,
                                     int                 timeStep,
                                     int                 frameId );
+
+    double interpolatedResultValue( const RigFemPart*         femPart,
+                                    const std::vector<float>& scalarResults,
+                                    RigFemResultPosEnum       resultType,
+                                    const cvf::Vec3d&         position );
 
 private:
     RimGeoMechCase*     m_case;

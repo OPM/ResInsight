@@ -35,6 +35,7 @@
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationDataAccessorGeoMech.h"
 #include "RimFaultReactivationDataAccessorPorePressure.h"
+#include "RimFaultReactivationDataAccessorStress.h"
 #include "RimFaultReactivationDataAccessorTemperature.h"
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
 #include "RimFaultReactivationEnums.h"
@@ -60,6 +61,17 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
         for ( auto property : properties )
         {
             m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorGeoMech>( geoMechCase, property ) );
+        }
+
+        std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
+                                                                         RimFaultReactivation::Property::DepthTop,
+                                                                         RimFaultReactivation::Property::StressBottom,
+                                                                         RimFaultReactivation::Property::DepthBottom,
+                                                                         RimFaultReactivation::Property::LateralStressComponentX,
+                                                                         RimFaultReactivation::Property::LateralStressComponentY };
+        for ( auto property : stressProperties )
+        {
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property ) );
         }
     }
 }
@@ -104,6 +116,15 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
                                                                 RimFaultReactivation::Property::VoidRatio,
                                                                 RimFaultReactivation::Property::Temperature };
 
+    auto computeAverageDepth = []( const std::vector<cvf::Vec3d>& positions, const std::vector<size_t>& indices )
+    {
+        double sum = 0.0;
+        for ( size_t idx : indices )
+            sum += positions[idx].z();
+
+        return sum / indices.size();
+    };
+
     std::shared_ptr<RimFaultReactivationDataAccessor> accessor = getAccessor( property );
     if ( accessor )
     {
@@ -126,9 +147,13 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
             size_t numElements = grid->elementIndices().size();
             for ( size_t elementIndex = 0; elementIndex < numElements; elementIndex++ )
             {
-                std::vector<cvf::Vec3d> corners  = grid->elementCorners( elementIndex );
-                cvf::Vec3d              position = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
-                double                  value    = accessor->valueAtPosition( position );
+                std::vector<cvf::Vec3d> corners = grid->elementCorners( elementIndex );
+
+                double topDepth    = computeAverageDepth( corners, { 0, 1, 2, 3 } );
+                double bottomDepth = computeAverageDepth( corners, { 4, 5, 6, 7 } );
+
+                cvf::Vec3d position = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
+                double     value    = accessor->valueAtPosition( position, topDepth, bottomDepth );
                 values.push_back( value );
             }
         }
@@ -149,7 +174,13 @@ void RimFaultReactivationDataAccess::extractModelData( const RigFaultReactivatio
                         RimFaultReactivation::Property::Temperature,
                         RimFaultReactivation::Property::YoungsModulus,
                         RimFaultReactivation::Property::PoissonsRatio,
-                        RimFaultReactivation::Property::Density };
+                        RimFaultReactivation::Property::Density,
+                        RimFaultReactivation::Property::StressTop,
+                        RimFaultReactivation::Property::DepthTop,
+                        RimFaultReactivation::Property::StressBottom,
+                        RimFaultReactivation::Property::DepthBottom,
+                        RimFaultReactivation::Property::LateralStressComponentX,
+                        RimFaultReactivation::Property::LateralStressComponentY };
 
     for ( auto property : properties )
     {

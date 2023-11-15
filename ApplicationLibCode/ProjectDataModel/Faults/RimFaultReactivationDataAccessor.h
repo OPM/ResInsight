@@ -22,6 +22,7 @@
 
 #include "RimFaultReactivationEnums.h"
 
+#include <limits>
 #include <map>
 
 class RigMainGrid;
@@ -40,7 +41,9 @@ public:
 
     virtual bool isMatching( RimFaultReactivation::Property property ) const = 0;
 
-    virtual double valueAtPosition( const cvf::Vec3d& position ) const = 0;
+    virtual double valueAtPosition( const cvf::Vec3d& position,
+                                    double            topDepth    = std::numeric_limits<double>::infinity(),
+                                    double            bottomDepth = std::numeric_limits<double>::infinity() ) const = 0;
 
     virtual bool hasValidDataAtPosition( const cvf::Vec3d& position ) const = 0;
 

@@ -84,7 +84,7 @@ bool RimFaultReactivationDataAccessorVoidRatio::isMatching( RimFaultReactivation
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorVoidRatio::valueAtPosition( const cvf::Vec3d& position ) const
+double RimFaultReactivationDataAccessorVoidRatio::valueAtPosition( const cvf::Vec3d& position, double topDepth, double bottomDepth ) const
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {

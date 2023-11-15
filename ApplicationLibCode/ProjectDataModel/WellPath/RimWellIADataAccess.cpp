@@ -117,14 +117,25 @@ double RimWellIADataAccess::interpolatedResultValue( QString             fieldNa
 {
     RigFemResultAddress address( resultType, fieldName.toStdString(), componentName.toStdString() );
 
+    RigFemPart*               femPart       = m_caseData->femParts()->part( 0 );
+    const std::vector<float>& scalarResults = m_caseData->femPartResults()->resultValues( address, 0, timeStep, frameId );
+
+    return interpolatedResultValue( femPart, scalarResults, resultType, position );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellIADataAccess::interpolatedResultValue( const RigFemPart*         femPart,
+                                                     const std::vector<float>& scalarResults,
+                                                     RigFemResultPosEnum       resultType,
+                                                     const cvf::Vec3d&         position )
+{
     int elmIdx = elementIndex( position );
 
-    RigFemPart*    femPart      = m_caseData->femParts()->part( 0 );
     RigElementType elmType      = femPart->elementType( elmIdx );
     const int*     elementConn  = femPart->connectivities( elmIdx );
     int            elmNodeCount = RigFemTypes::elementNodeCount( elmType );
-
-    const std::vector<float>& scalarResults = m_caseData->femPartResults()->resultValues( address, 0, timeStep, frameId );
 
     std::array<double, 8>     nodeResults;
     std::array<cvf::Vec3d, 8> nodeCorners;

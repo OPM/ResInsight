@@ -41,7 +41,9 @@ public:
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
 
-    double valueAtPosition( const cvf::Vec3d& position ) const override;
+    double valueAtPosition( const cvf::Vec3d& position,
+                            double            topDepth    = std::numeric_limits<double>::infinity(),
+                            double            bottomDepth = std::numeric_limits<double>::infinity() ) const override;
 
     bool hasValidDataAtPosition( const cvf::Vec3d& position ) const override;
 
