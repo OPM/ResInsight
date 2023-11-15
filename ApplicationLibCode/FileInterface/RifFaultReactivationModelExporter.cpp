@@ -172,8 +172,8 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
         const std::vector<std::vector<unsigned int>>& elements = grid->elementIndices();
         RifInpExportTools::printElements( stream, elements );
 
-        RifInpExportTools::printNodeSet( stream, partName, 1, nodes.size(), false );
-        RifInpExportTools::printElementSet( stream, partName, 1, elements.size() );
+        RifInpExportTools::printNodeSet( stream, "ALL", 1, nodes.size(), false );
+        RifInpExportTools::printElementSet( stream, "ALL", 1, elements.size() );
 
         RifInpExportTools::printNodeSet( stream, "PORE_PRESSURE", 1, nodes.size(), true );
 
@@ -630,7 +630,7 @@ bool RifFaultReactivationModelExporter::writePropertyToFile( const RigFaultReact
 
         for ( size_t i = 0; i < nodes.size(); i++ )
         {
-            std::string line = partName + "." + std::to_string( i + 1 ) + ", " + additionalData + std::to_string( values[i] );
+            std::string line = partName + ".ALL." + std::to_string( i + 1 ) + ", " + additionalData + std::to_string( values[i] );
             RifInpExportTools::printLine( stream, line );
         }
     }
@@ -674,7 +674,7 @@ bool RifFaultReactivationModelExporter::writePropertiesToFile( const RigFaultRea
         const std::vector<std::vector<unsigned int>>& elementIndices = grid->elementIndices();
         for ( size_t i = 0; i < elementIndices.size(); i++ )
         {
-            std::string line = partName + "." + std::to_string( i + 1 );
+            std::string line = partName + ".ALL." + std::to_string( i + 1 );
             for ( auto property : properties )
             {
                 const std::vector<double> values = dataAccess.propertyValues( part, property, outputTimeStep );
