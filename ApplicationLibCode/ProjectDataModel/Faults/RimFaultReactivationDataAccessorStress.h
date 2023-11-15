@@ -18,26 +18,29 @@
 
 #pragma once
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationEnums.h"
 
-class RimEclipseCase;
-class RigEclipseCaseData;
-class RigMainGrid;
-class RigResultAccessor;
+#include "RigFemResultAddress.h"
+
+#include <vector>
+
+class RigFemPartResultsCollection;
+class RimGeoMechCase;
+class RigGeoMechCaseData;
+class RigFemScalarResultFrames;
+class RigFemPart;
+class RimWellIADataAccess;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimFaultReactivationDataAccessorVoidRatio : public RimFaultReactivationDataAccessor
+class RimFaultReactivationDataAccessorStress : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorVoidRatio( RimEclipseCase* eclipseCase, double missingValue );
-    ~RimFaultReactivationDataAccessorVoidRatio();
+    RimFaultReactivationDataAccessorStress( RimGeoMechCase* geoMechCase, RimFaultReactivation::Property property );
+    ~RimFaultReactivationDataAccessorStress();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
 
@@ -50,9 +53,19 @@ public:
 private:
     void updateResultAccessor() override;
 
-    RimEclipseCase*             m_eclipseCase;
-    RigEclipseCaseData*         m_caseData;
-    const RigMainGrid*          m_mainGrid;
-    double                      m_missingValue;
-    cvf::ref<RigResultAccessor> m_resultAccessor;
+    static RigFemResultAddress getResultAddress( const std::string& fieldName, const std::string& componentName );
+
+    double interpolatedResultValue( RimWellIADataAccess&      iaDataAccess,
+                                    const RigFemPart*         femPart,
+                                    const cvf::Vec3d&         position,
+                                    const std::vector<float>& scalarResults ) const;
+
+    RimGeoMechCase*                m_geoMechCase;
+    RimFaultReactivation::Property m_property;
+    RigGeoMechCaseData*            m_geoMechCaseData;
+    RigFemScalarResultFrames*      m_s11Frames;
+    RigFemScalarResultFrames*      m_s22Frames;
+    RigFemScalarResultFrames*      m_s33Frames;
+    RigFemScalarResultFrames*      m_porFrames;
+    const RigFemPart*              m_femPart;
 };
