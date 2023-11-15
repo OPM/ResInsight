@@ -18,6 +18,8 @@
 
 #include "RimFaultReactivationDataAccessorGeoMech.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
@@ -108,6 +110,11 @@ double RimFaultReactivationDataAccessorGeoMech::valueAtPosition( const cvf::Vec3
 
         const std::vector<float>& data = m_resultFrames->frameData( timeStepIndex, frameIndex );
         if ( elementIdx >= static_cast<int>( data.size() ) ) return std::numeric_limits<double>::infinity();
+
+        if ( m_property == RimFaultReactivation::Property::YoungsModulus )
+        {
+            return RiaEclipseUnitTools::gigaPascalToPascal( data[elementIdx] );
+        }
         return data[elementIdx];
     }
 
