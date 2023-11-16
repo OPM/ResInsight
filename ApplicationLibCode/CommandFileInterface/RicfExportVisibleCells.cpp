@@ -103,7 +103,7 @@ caf::PdmScriptResponse RicfExportVisibleCells::execute()
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::CELLS );
     if ( exportFolder.isNull() )
     {
-        exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "visibleCells" );
+        exportFolder = RiaApplication::instance()->currentProjectPath();
     }
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
