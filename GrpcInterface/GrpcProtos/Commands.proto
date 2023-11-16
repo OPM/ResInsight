@@ -144,14 +144,21 @@ message ExportWellPathRequest
 	double             mdStepSize = 2;
 }
 
+enum ExportVisibleCellsKeywordType
+{
+    FLUXNUM = 0;
+    MULTNUM = 1;
+    ACTNUM  = 2;
+}
+
 message ExportVisibleCellsRequest
 {
-	int32 caseId                  = 1;
-	int32 viewId                  = 2;
-	string exportKeyword          = 3;
-	int32 visibleActiveCellsValue = 4;
-	int32 hiddenActiveCellsValue  = 5;
-	int32 inactiveCellsValue      = 6;
+	int32 caseId								= 1;
+	int32 viewId								= 2;
+	ExportVisibleCellsKeywordType exportKeyword = 3;
+	int32 visibleActiveCellsValue				= 4;
+	int32 hiddenActiveCellsValue				= 5;
+	int32 inactiveCellsValue					= 6;
 }
 
 enum ExportFolderType {

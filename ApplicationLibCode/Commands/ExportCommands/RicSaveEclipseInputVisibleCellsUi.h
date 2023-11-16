@@ -31,6 +31,7 @@ class RicSaveEclipseInputVisibleCellsUi : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    // Values are exposed in gRPC .proto. Do not change without also changing .proto
     enum ExportKeyword
     {
         FLUXNUM,
