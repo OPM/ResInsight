@@ -78,6 +78,7 @@ private:
     static std::vector<std::pair<int, cvf::Vec3d>>       readNodes( std::istream& stream );
     static std::vector<std::pair<int, std::vector<int>>> readElements( std::istream& stream );
     static std::vector<size_t>                           readElementSet( std::istream& stream );
+    static std::vector<size_t>                           readElementSetGenerate( std::istream& stream );
 
     static void read( std::istream&                                                            stream,
                       std::map<int, std::string>&                                              parts,

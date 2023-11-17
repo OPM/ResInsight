@@ -213,9 +213,10 @@ void RifInpReader::read( std::istream&                                          
             }
             else if ( uppercasedLine.starts_with( "*ELSET," ) )
             {
+                bool isGenerateSet = uppercasedLine.find( "GENERATE" ) != std::string::npos;
                 skipComments( stream );
                 std::string setName    = parseLabel( line, "elset" );
-                auto        elementSet = readElementSet( stream );
+                auto        elementSet = isGenerateSet ? readElementSetGenerate( stream ) : readElementSet( stream );
                 elementSets[partId].push_back( { setName, elementSet } );
             }
 
@@ -323,6 +324,44 @@ std::vector<size_t> RifInpReader::readElementSet( std::istream& stream )
             if ( !trimmedPart.empty() )
             {
                 int elementId = RiaStdStringTools::toInt( trimmedPart ) - 1;
+                elementSet.push_back( elementId );
+            }
+        }
+    }
+
+    return elementSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RifInpReader::readElementSetGenerate( std::istream& stream )
+{
+    std::vector<size_t> elementSet;
+
+    // Read until we find a new section (which should start with a '*').
+    while ( stream.peek() != '*' && stream.peek() != EOF )
+    {
+        // Read entire line of comma-separated values
+        std::string line;
+        std::getline( stream, line );
+
+        // Process the comma-separated values
+        auto parts = RiaStdStringTools::splitString( line, ',' );
+        if ( parts.size() >= 3 )
+        {
+            int firstElement = RiaStdStringTools::toInt( parts[0] );
+            int lastElement  = RiaStdStringTools::toInt( parts[1] );
+            int increment    = RiaStdStringTools::toInt( parts[2] );
+            if ( lastElement < firstElement || increment <= 0 )
+            {
+                RiaLogging::error( "Encountered illegal set definition (using GENERATE keyword)." );
+                return elementSet;
+            }
+
+            for ( int i = firstElement; i < lastElement; i += increment )
+            {
+                int elementId = i - 1;
                 elementSet.push_back( elementId );
             }
         }
