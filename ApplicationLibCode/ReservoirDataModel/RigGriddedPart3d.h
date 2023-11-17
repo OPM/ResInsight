@@ -27,9 +27,6 @@
 #include <map>
 #include <vector>
 
-class RigMainGrid;
-class RimFaultReactivationDataAccess;
-
 //==================================================================================================
 ///
 ///
@@ -45,15 +42,15 @@ public:
 
     void reset();
 
-    void generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
-                           std::vector<cvf::Vec3d>    reservoirLayers,
-                           double                     maxCellHeight,
-                           double                     cellSizeFactor,
-                           int                        nHorzCells,
-                           double                     modelThickness );
+    void generateGeometry( const std::array<cvf::Vec3d, 12> inputPoints,
+                           const std::vector<cvf::Vec3d>    reservoirLayers,
+                           const std::vector<int>           kLayers,
+                           double                           maxCellHeight,
+                           double                           cellSizeFactor,
+                           int                              nHorzCells,
+                           double                           modelThickness );
 
     void generateLocalNodes( const cvf::Mat4d transform );
-    void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
 
     const std::vector<cvf::Vec3d>& nodes() const;
     const std::vector<cvf::Vec3d>& globalNodes() const;
@@ -67,6 +64,7 @@ public:
     const std::map<Boundary, std::vector<unsigned int>>&    boundaryElements() const;
     const std::map<Boundary, std::vector<unsigned int>>&    boundaryNodes() const;
     const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
+    const std::vector<int>                                  elementKLayer() const;
 
 protected:
     static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
@@ -94,6 +92,7 @@ private:
     std::vector<cvf::Vec3d>                                                  m_nodes;
     std::vector<cvf::Vec3d>                                                  m_localNodes;
     std::vector<std::vector<unsigned int>>                                   m_elementIndices;
+    std::vector<int>                                                         m_elementKLayer;
     std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
     std::vector<std::vector<cvf::Vec3d>>                                     m_meshLines;
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryElements;

@@ -31,6 +31,7 @@
 class RigFault;
 class RigMainGrid;
 class RigGriddedPart3d;
+class RigActiveCellInfo;
 
 class RigFaultReactivationModelGenerator : cvf::Object
 {
@@ -40,6 +41,7 @@ public:
 
     void setFault( const RigFault* fault );
     void setGrid( const RigMainGrid* grid );
+    void setActiveCellInfo( const RigActiveCellInfo* activeCellInfo );
     void setFaultBufferDepth( double aboveFault, double belowFault );
     void setModelSize( double startDepth, double depthBelowFault, double horzExtentFromFault );
     void setModelThickness( double thickness );
@@ -60,10 +62,11 @@ public:
 
 protected:
     static const std::array<int, 4>      faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
-    static cvf::Vec3d                    lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
-    static cvf::Vec3d                    extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
-    static void                          splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight );
     static const std::vector<cvf::Vec3d> interpolateExtraPoints( cvf::Vec3d from, cvf::Vec3d to, double maxStep );
+
+    static cvf::Vec3d lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
+    static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
+    static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight );
 
     std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, const std::vector<size_t>& cellIndexColumn );
     void                         addFilter( QString name, std::vector<size_t> cells );
@@ -79,8 +82,9 @@ private:
     std::array<cvf::Vec3d, 12> m_frontPoints;
     std::array<cvf::Vec3d, 12> m_backPoints;
 
-    cvf::cref<RigFault>    m_fault;
-    cvf::cref<RigMainGrid> m_grid;
+    cvf::cref<RigFault>          m_fault;
+    cvf::cref<RigMainGrid>       m_grid;
+    cvf::cref<RigActiveCellInfo> m_activeCellInfo;
 
     double m_bufferAboveFault;
     double m_bufferBelowFault;

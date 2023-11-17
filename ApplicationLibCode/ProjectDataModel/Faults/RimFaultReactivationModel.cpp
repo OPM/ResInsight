@@ -26,7 +26,9 @@
 #include "RifJsonEncodeDecode.h"
 #include "RifParameterXmlReader.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigBasicPlane.h"
+#include "RigEclipseCaseData.h"
 #include "RigFaultReactivationModel.h"
 #include "RigFaultReactivationModelGenerator.h"
 #include "RigPolyLinesData.h"
@@ -94,7 +96,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 100.0, "Fault Extension Below Reservoir" );
     m_faultExtendDownwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", false, "Show 2D Model" );
+    CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
@@ -316,6 +318,7 @@ void RimFaultReactivationModel::updateVisualization()
     auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal );
     generator->setFault( m_fault()->faultGeometry() );
     generator->setGrid( eclipseCase()->mainGrid() );
+    generator->setActiveCellInfo( eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
     generator->setModelSize( m_modelMinZ, m_modelBelowSize, m_modelExtentFromAnchor );
     generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards );
     generator->setModelThickness( m_modelThickness );

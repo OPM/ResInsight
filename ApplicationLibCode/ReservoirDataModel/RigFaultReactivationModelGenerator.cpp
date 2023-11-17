@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigFault.h"
 #include "RigGriddedPart3d.h"
 #include "RigMainGrid.h"
@@ -69,6 +70,14 @@ void RigFaultReactivationModelGenerator::setFault( const RigFault* fault )
 void RigFaultReactivationModelGenerator::setGrid( const RigMainGrid* grid )
 {
     m_grid = grid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::setActiveCellInfo( const RigActiveCellInfo* activeCellInfo )
+{
+    m_activeCellInfo = activeCellInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,6 +344,8 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     std::vector<size_t> cellColumnBack;
     std::vector<size_t> cellColumnFront;
     size_t              i, j, k;
+    std::vector<int>    kLayersFront;
+    std::vector<int>    kLayersBack;
 
     // build column of cells behind fault
     m_grid->ijkFromCellIndexUnguarded( startCellIndex, &i, &j, &k );
@@ -346,6 +357,11 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
 
         if ( cellIdx != startCellIndex ) cellColumnBack.push_back( cellIdx );
         cellColumnBack.push_back( cellIdx );
+
+        if ( m_activeCellInfo->isActive( cellIdx ) )
+            kLayersBack.push_back( (int)kLayer );
+        else
+            kLayersBack.push_back( -1 );
     }
 
     // build cell column of cells in front of fault, opposite to the cell column behind the fault
@@ -358,6 +374,11 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
         auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
         cellColumnFront.push_back( cellIdx );
+
+        if ( m_activeCellInfo->isActive( cellIdx ) )
+            kLayersFront.push_back( (int)kLayer );
+        else
+            kLayersFront.push_back( -1 );
     }
 
     // debug
@@ -366,6 +387,9 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
 
     auto zPositionsBack  = elementLayers( startFace, cellColumnBack );
     auto zPositionsFront = elementLayers( oppositeStartFace, cellColumnFront );
+
+    std::reverse( kLayersBack.begin(), kLayersBack.end() );
+    std::reverse( kLayersFront.begin(), kLayersFront.end() );
 
     // add extra fault buffer below the fault, starting at the deepest bottom-most cell on either side of the fault
 
@@ -405,8 +429,8 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     }
     m_topFault = top_point;
 
-    splitLargeLayers( zPositionsFront, m_maxCellHeight );
-    splitLargeLayers( zPositionsBack, m_maxCellHeight );
+    splitLargeLayers( zPositionsFront, kLayersFront, m_maxCellHeight );
+    splitLargeLayers( zPositionsBack, kLayersBack, m_maxCellHeight );
 
     std::vector<cvf::Vec3d> frontReservoirLayers;
     for ( auto& kvp : zPositionsFront )
@@ -417,13 +441,19 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
         backReservoirLayers.push_back( kvp.second );
 
     // topmost layer is not needed, remove it to avoid duplication when put together with the overburden parts
-    frontReservoirLayers.pop_back();
-    backReservoirLayers.pop_back();
+    // frontReservoirLayers.pop_back();
+    // backReservoirLayers.pop_back();
 
     generatePointsFrontBack();
 
-    frontPart->generateGeometry( m_frontPoints, frontReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzFront, m_modelThickness );
-    backPart->generateGeometry( m_backPoints, backReservoirLayers, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzBack, m_modelThickness );
+    frontPart->generateGeometry( m_frontPoints,
+                                 frontReservoirLayers,
+                                 kLayersFront,
+                                 m_maxCellHeight,
+                                 m_cellSizeFactor,
+                                 m_noOfCellsHorzFront,
+                                 m_modelThickness );
+    backPart->generateGeometry( m_backPoints, backReservoirLayers, kLayersBack, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzBack, m_modelThickness );
 
     frontPart->generateLocalNodes( m_localCoordTransform );
     backPart->generateLocalNodes( m_localCoordTransform );
@@ -442,6 +472,8 @@ std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( 
     modelPlane.setFromPointAndNormal( m_startPosition, m_normal );
 
     auto cornerIndexes = faceIJCornerIndexes( face );
+
+    std::vector<int> klayers;
 
     std::map<double, cvf::Vec3d> zPositions;
 
@@ -474,13 +506,16 @@ cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d star
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight )
+void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight )
 {
     std::vector<cvf::Vec3d> additionalPoints;
 
     std::pair<double, cvf::Vec3d> prevLayer;
+    std::vector<int>              newKLayers;
 
     bool first = true;
+    int  k     = 0;
+    kLayers.push_back( kLayers.back() );
 
     for ( auto& layer : layers )
     {
@@ -488,6 +523,7 @@ void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf:
         {
             prevLayer = layer;
             first     = false;
+            newKLayers.push_back( kLayers[k++] );
             continue;
         }
 
@@ -497,15 +533,23 @@ void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf:
             for ( auto& p : points )
             {
                 additionalPoints.push_back( p );
+                newKLayers.push_back( kLayers[k] );
             }
         }
 
         prevLayer = layer;
+        newKLayers.push_back( kLayers[k++] );
     }
 
     for ( auto& p : additionalPoints )
     {
         layers[p.z()] = p;
+    }
+
+    kLayers.clear();
+    for ( auto k : newKLayers )
+    {
+        kLayers.push_back( k );
     }
 }
 

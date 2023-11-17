@@ -57,6 +57,7 @@ void RigGriddedPart3d::reset()
     m_elementIndices.clear();
     m_meshLines.clear();
     m_elementSets.clear();
+    m_elementKLayer.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,12 +187,13 @@ std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> po
 ///
 //--------------------------------------------------------------------------------------------------
 
-void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
-                                         std::vector<cvf::Vec3d>    reservoirLayers,
-                                         double                     maxCellHeight,
-                                         double                     cellSizeFactor,
-                                         int                        nHorzCells,
-                                         double                     modelThickness )
+void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12> inputPoints,
+                                         const std::vector<cvf::Vec3d>    reservoirLayers,
+                                         const std::vector<int>           kLayers,
+                                         const double                     maxCellHeight,
+                                         double                           cellSizeFactor,
+                                         int                              nHorzCells,
+                                         double                           modelThickness )
 {
     reset();
 
@@ -311,6 +313,7 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
     // ** generate elements of type hex8
 
     m_elementIndices.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
+    m_elementKLayer.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
 
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::FaultSurface] = {};
@@ -327,6 +330,7 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
     int layerIndexOffset = 0;
     int elementIdx       = 0;
     layer                = 0;
+    int kLayer           = 0;
 
     const int nVertCellsLower = (int)layersPerRegion[Regions::LowerUnderburden].size();
     const int nVertCellsFault = (int)( layersPerRegion[Regions::UpperUnderburden].size() + layersPerRegion[Regions::Reservoir].size() +
@@ -375,7 +379,23 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
                     m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
                 }
 
-                m_elementSets[currentElementSet].push_back( elementIdx );
+                if ( currentElementSet == RimFaultReactivation::ElementSets::Reservoir )
+                {
+                    m_elementKLayer[elementIdx] = kLayers[kLayer];
+                    if ( kLayers[kLayer] < 0 )
+                    {
+                        m_elementSets[RimFaultReactivation::ElementSets::IntraReservoir].push_back( elementIdx );
+                    }
+                    else
+                    {
+                        m_elementSets[currentElementSet].push_back( elementIdx );
+                    }
+                }
+                else
+                {
+                    m_elementSets[currentElementSet].push_back( elementIdx );
+                    m_elementKLayer[elementIdx] = -2;
+                }
             }
             i += nThicknessOff;
         }
@@ -383,6 +403,11 @@ void RigGriddedPart3d::generateGeometry( std::array<cvf::Vec3d, 12> inputPoints,
         // add elements to border surface in current region
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 2 );
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
+
+        if ( currentElementSet == RimFaultReactivation::ElementSets::Reservoir )
+        {
+            kLayer++;
+        }
 
         layerIndexOffset += nextLayerIdxOff;
     }
@@ -488,6 +513,14 @@ const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& 
 const std::vector<std::vector<cvf::Vec3d>>& RigGriddedPart3d::meshLines() const
 {
     return m_meshLines;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<int> RigGriddedPart3d::elementKLayer() const
+{
+    return m_elementKLayer;
 }
 
 //--------------------------------------------------------------------------------------------------
