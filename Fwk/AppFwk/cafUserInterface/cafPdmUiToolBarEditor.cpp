@@ -80,25 +80,29 @@ PdmUiToolBarEditor::~PdmUiToolBarEditor()
 //--------------------------------------------------------------------------------------------------
 bool PdmUiToolBarEditor::isEditorDataEqualAndValid( const std::vector<caf::PdmFieldHandle*>& fields ) const
 {
-    if ( m_fields.size() == fields.size() && m_fieldViews.size() == fields.size() )
+    if ( m_fields.size() != fields.size() || m_fieldViews.size() != fields.size() )
     {
-        bool equalContent = true;
+        return false;
+    }
 
-        for ( size_t i = 0; i < m_fields.size(); i++ )
+    for ( size_t i = 0; i < m_fields.size(); i++ )
+    {
+        auto currentField = m_fields[i];
+        if ( currentField != fields[i] )
         {
-            if ( m_fields[i] != fields[i] )
-            {
-                equalContent = false;
-            }
+            return false;
         }
 
-        if ( equalContent )
+        if ( currentField && currentField->uiCapability() )
         {
-            return true;
+            auto contentText = currentField->uiCapability()->uiValue();
+            // If there is no selection in a combo box, the content text is "-1"
+            // Rebuild the UI to make sure the available items in the combo box is updated
+            if ( contentText == "-1" ) return false;
         }
     }
 
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
