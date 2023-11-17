@@ -318,8 +318,13 @@ std::vector<size_t> RifInpReader::readElementSet( std::istream& stream )
         auto parts = RiaStdStringTools::splitString( line, ',' );
         for ( auto part : parts )
         {
-            int elementId = RiaStdStringTools::toInt( part ) - 1;
-            elementSet.push_back( elementId );
+            std::string trimmedPart = RiaStdStringTools::trimString( part );
+
+            if ( !trimmedPart.empty() )
+            {
+                int elementId = RiaStdStringTools::toInt( trimmedPart ) - 1;
+                elementSet.push_back( elementId );
+            }
         }
     }
 
