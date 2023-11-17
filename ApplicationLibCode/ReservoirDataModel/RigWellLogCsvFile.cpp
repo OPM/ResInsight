@@ -52,7 +52,7 @@ RigWellLogCsvFile::~RigWellLogCsvFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage, RimWellPath* wellPath )
+bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage )
 {
     m_values.clear();
     m_wellLogChannelNames.clear();
@@ -90,12 +90,12 @@ bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage, Ri
             }
         }
 
-        auto wellPathMd  = wellPath->wellPathGeometry()->measuredDepths();
-        auto wellPathTvd = wellPath->wellPathGeometry()->trueVerticalDepths();
+        // auto wellPathMd  = wellPath->wellPathGeometry()->measuredDepths();
+        // auto wellPathTvd = wellPath->wellPathGeometry()->trueVerticalDepths();
 
-        // Estimate measured depth for cells that do not have measured depth
+        // // Estimate measured depth for cells that do not have measured depth
 
-        auto estimatedMeasuredDepth = RigWellPathGeometryTools::interpolateMdFromTvd( wellPathMd, wellPathTvd, tvdValuesToEstimate );
+        // auto estimatedMeasuredDepth = RigWellPathGeometryTools::interpolateMdFromTvd( wellPathMd, wellPathTvd, tvdValuesToEstimate );
 
         return true;
     }
