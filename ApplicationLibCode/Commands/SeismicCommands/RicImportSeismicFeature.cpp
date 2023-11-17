@@ -69,12 +69,7 @@ void RicImportSeismicFeature::onActionTriggered( bool isChecked )
 
     if ( !seisColl ) return;
 
-    RimSeismicDataInterface* newData = seisColl->importSeismicFromFile( fileName );
-
-    // workaround to make tree selection work, otherwise "Cell Results" gets selected for some reason
-    QApplication::processEvents();
-
-    if ( newData )
+    if ( auto newData = seisColl->importSeismicFromFile( fileName ) )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( newData );
 
