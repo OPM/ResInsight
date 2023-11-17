@@ -644,17 +644,21 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
         }
     }
 
-    if ( m_flatIntersectionPartMgr.notNull() && hasResults() )
+    if ( m_flatIntersectionPartMgr.notNull() )
     {
-        m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
-                                                          m_legendConfig->scalarMapper(),
-                                                          m_ternaryLegendConfig()->scalarMapper() );
-    }
-    else
-    {
-        m_flatIntersectionPartMgr->applySingleColorEffect();
+        if ( hasResults() )
+        {
+            m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
+                                                              m_legendConfig->scalarMapper(),
+                                                              m_ternaryLegendConfig()->scalarMapper() );
+        }
+        else
+        {
+            m_flatIntersectionPartMgr->applySingleColorEffect();
+        }
     }
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
