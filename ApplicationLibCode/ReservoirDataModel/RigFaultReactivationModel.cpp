@@ -195,3 +195,21 @@ std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( RimFaultReact
 {
     return m_3dparts.at( part );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3d RigFaultReactivationModel::faultNormal() const
+{
+    if ( m_generator.get() == nullptr ) return { 0.0, 0.0, 0.0 };
+    return m_generator->normal();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::faultTopBottom() const
+{
+    if ( m_generator.get() == nullptr ) return std::make_pair( cvf::Vec3d(), cvf::Vec3d() );
+    return m_generator->faultTopBottomPoints();
+}

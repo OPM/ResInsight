@@ -647,19 +647,18 @@ QString RimFaultReactivationModel::baseFilename() const
 bool RimFaultReactivationModel::exportModelSettings()
 {
     if ( m_2Dmodel.isNull() ) return false;
+    if ( !m_2Dmodel->isValid() ) return false;
 
     QMap<QString, QVariant> settings;
 
-    // TODO - export correct well path points here!
+    auto [topPosition, bottomPosition] = m_2Dmodel->faultTopBottom();
+    auto faultNormal                   = m_2Dmodel->faultNormal();
 
-    // auto [topPosition, bottomPosition] = m_faultPlane->intersectTopBottomLine();
-    // auto faultNormal                   = m_faultPlane->normal();
+    // make sure we move horizontally
+    faultNormal.z() = 0.0;
+    faultNormal.normalize();
 
-    //// make sure we move horizontally
-    // faultNormal.z() = 0.0;
-    // faultNormal.normalize();
-
-    // RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
+    RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
 
     QDir directory( baseDir() );
     return ResInsightInternalJson::JsonWriter::encodeFile( settingsFilename(), settings );

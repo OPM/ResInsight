@@ -80,8 +80,8 @@ public:
 
     std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
 
-protected:
-    void generateGrids( cvf::Vec3dArray points );
+    const cvf::Vec3d                        faultNormal() const;
+    const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottom() const;
 
 private:
     std::shared_ptr<RigFaultReactivationModelGenerator> m_generator;

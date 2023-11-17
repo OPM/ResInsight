@@ -578,3 +578,19 @@ const std::vector<cvf::Vec3d> RigFaultReactivationModelGenerator::interpolateExt
 
     return points;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3d RigFaultReactivationModelGenerator::normal() const
+{
+    return m_normal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::faultTopBottomPoints() const
+{
+    return std::make_pair( m_topFault, m_bottomFault );
+}

@@ -57,8 +57,10 @@ public:
                            RigGriddedPart3d*                  frontPart,
                            RigGriddedPart3d*                  backPart );
 
-    const std::array<cvf::Vec3d, 12>& frontPoints() const;
-    const std::array<cvf::Vec3d, 12>& backPoints() const;
+    const std::array<cvf::Vec3d, 12>&       frontPoints() const;
+    const std::array<cvf::Vec3d, 12>&       backPoints() const;
+    const cvf::Vec3d                        normal() const;
+    const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottomPoints() const;
 
 protected:
     static const std::array<int, 4>      faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
