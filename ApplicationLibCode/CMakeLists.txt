@@ -347,7 +347,7 @@ if(MSVC)
     # local function has been removed
     set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
   endif()
-    
+
   if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 19.38)
     # https://github.com/OPM/ResInsight/issues/10844
     set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
