@@ -2005,7 +2005,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseView::calculateValueOptions( const caf::
                 // RimGridCollection::mainEclipseGrid(). This function is using firstAncestorOrThisOfType() to find the Eclipse case. If the
                 // custom case in RimEclipseView has a different number of LGRs, a crash will happen
 
-                if ( eclCase && ( eclCase != m_eclipseCase ) && m_eclipseCase->mainGrid() && eclCase->mainGrid()->gridCount() == currentGridCount )
+                if ( eclCase && ( eclCase != m_eclipseCase ) && eclCase->mainGrid() && eclCase->mainGrid()->gridCount() == currentGridCount )
                 {
                     options.push_back( caf::PdmOptionItemInfo( eclCase->caseUserDescription(), eclCase, false, eclCase->uiIconProvider() ) );
                 }
