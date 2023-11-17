@@ -650,6 +650,8 @@ bool RimFaultReactivationModel::exportModelSettings()
 
     QMap<QString, QVariant> settings;
 
+    // TODO - export correct well path points here!
+
     // auto [topPosition, bottomPosition] = m_faultPlane->intersectTopBottomLine();
     // auto faultNormal                   = m_faultPlane->normal();
 
@@ -684,8 +686,6 @@ bool RimFaultReactivationModel::extractAndExportModelData()
 
         selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
     }
-
-    auto grid = eCase->mainGrid();
 
     // extract data for each timestep
     m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, geoMechCase(), selectedTimeStepIndexes );
