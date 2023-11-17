@@ -118,11 +118,11 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &m_useGridPorePressure, "UseGridPorePressure", false, "Output Grid Pore Pressure" );
-    CAF_PDM_InitField( &m_useGridVoidRatio, "UseGridVoidRatio", false, "Output Grid Void Ratio" );
-    CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", false, "Output Grid Temperature" );
-    CAF_PDM_InitField( &m_useGridDensity, "UseGridDensity", true, "Use Grid Density" );
-    CAF_PDM_InitField( &m_useGridElasticProperties, "UseGridElasticProperties", true, "Use Grid Elastic Properties" );
+    CAF_PDM_InitField( &m_useGridPorePressure, "UseGridPorePressure", true, "Output Grid Pore Pressure" );
+    CAF_PDM_InitField( &m_useGridVoidRatio, "UseGridVoidRatio", true, "Output Grid Void Ratio" );
+    CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", true, "Output Grid Temperature" );
+    CAF_PDM_InitField( &m_useGridDensity, "UseGridDensity", false, "Output Grid Density" );
+    CAF_PDM_InitField( &m_useGridElasticProperties, "UseGridElasticProperties", false, "Output Grid Elastic Properties" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
