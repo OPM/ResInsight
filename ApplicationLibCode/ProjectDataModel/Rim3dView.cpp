@@ -29,6 +29,7 @@
 
 #include "RicfCommandObject.h"
 
+#include "Rim2dIntersectionView.h"
 #include "Rim3dWellLogCurve.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -40,6 +41,7 @@
 #include "RimMeasurement.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSeismicView.h"
 #include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -581,8 +583,7 @@ std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView()
     {
         if ( field->keyword() == m_comparisonView.keyword() )
         {
-            Rim3dView* containingView = nullptr;
-            containingView            = dynamic_cast<Rim3dView*>( field->ownerObject() );
+            Rim3dView* containingView = dynamic_cast<Rim3dView*>( field->ownerObject() );
             if ( containingView && containingView->activeComparisonView() == this )
             {
                 containingViews.insert( containingView );
@@ -591,6 +592,32 @@ std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView()
     }
 
     return containingViews;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<Rim3dView*> Rim3dView::validComparisonViews() const
+{
+    auto isIntersectionView = []( const Rim3dView* view ) { return dynamic_cast<const Rim2dIntersectionView*>( view ) != nullptr; };
+
+    std::vector<Rim3dView*> views;
+    RimProject::current()->allViews( views );
+
+    std::vector<Rim3dView*> validComparisonViews;
+    for ( auto view : views )
+    {
+        if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
+
+        bool isSameViewType = isIntersectionView( this ) == isIntersectionView( view );
+
+        if ( view != this && isSameViewType )
+        {
+            validComparisonViews.push_back( view );
+        }
+    }
+
+    return validComparisonViews;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1518,21 +1545,13 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
 
     if ( fieldNeedingOptions == &m_comparisonView )
     {
-        RimProject* proj = RimProject::current();
-        if ( proj )
+        std::vector<Rim3dView*> views = validComparisonViews();
+        for ( auto view : views )
         {
-            std::vector<Rim3dView*> views;
-            proj->allViews( views );
-            for ( auto view : views )
-            {
-                if ( view != this )
-                {
-                    RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
-                }
-            }
-
-            options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
         }
+
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
     else if ( fieldNeedingOptions == &m_fontSize )
     {

@@ -183,11 +183,12 @@ public:
     bool   isScaleZEditable();
     double scaleZ() const;
 
-    bool                 isMasterView() const;
-    Rim3dView*           activeComparisonView() const;
-    void                 setComparisonView( Rim3dView* compView );
-    std::set<Rim3dView*> viewsUsingThisAsComparisonView();
-    void                 updateMdiWindowTitle() override;
+    bool                    isMasterView() const;
+    Rim3dView*              activeComparisonView() const;
+    void                    setComparisonView( Rim3dView* compView );
+    std::set<Rim3dView*>    viewsUsingThisAsComparisonView();
+    void                    updateMdiWindowTitle() override;
+    std::vector<Rim3dView*> validComparisonViews() const;
 
     RimViewLinker*     assosiatedViewLinker() const override;
     RimViewController* viewController() const override;
