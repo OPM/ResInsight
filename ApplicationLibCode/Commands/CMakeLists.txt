@@ -110,6 +110,11 @@ if(MSVC)
     set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
   endif()
 
+  if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 19.38)
+    # https://github.com/OPM/ResInsight/issues/10844
+    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
+  endif()
+
   set_target_properties(
     ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
   )
