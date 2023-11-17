@@ -89,7 +89,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
     std::vector<std::function<std::pair<bool, std::string>()>> methods = {
         [&]() { return printHeading( stream, applicationNameAndVersion ); },
         [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries, materialNames ); },
-        [&]() { return printAssembly( stream, *model, partNames, rimModel.localCoordSysNormalsXY() ); },
+        [&]() { return printAssembly( stream, *model, partNames, model->modelLocalNormalsXY() ); },
         [&]()
         {
             return printMaterials( stream, rimModel, materialNames, *dataAccess, exportDirectory, partNames, useGridDensity, useGridElasticProperties );

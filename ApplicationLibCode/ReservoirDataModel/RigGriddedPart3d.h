@@ -65,6 +65,7 @@ public:
     const std::map<Boundary, std::vector<unsigned int>>&    boundaryNodes() const;
     const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
     const std::vector<int>                                  elementKLayer() const;
+    const std::vector<cvf::Vec3d>                           elementCorners( size_t elementIndex ) const;
 
 protected:
     static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );

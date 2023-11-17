@@ -502,6 +502,24 @@ const std::vector<std::vector<unsigned int>>& RigGriddedPart3d::elementIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) const
+{
+    if ( elementIndex >= m_elementIndices.size() ) return {};
+
+    std::vector<cvf::Vec3d> corners;
+
+    for ( auto nodeIdx : m_elementIndices[elementIndex] )
+    {
+        if ( nodeIdx >= m_nodes.size() ) continue;
+        corners.push_back( m_nodes[nodeIdx] );
+    }
+
+    return corners;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& RigGriddedPart3d::borderSurfaceElements() const
 {
     return m_borderSurfaceElements;

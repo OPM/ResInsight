@@ -51,7 +51,8 @@ private:
 
     static std::pair<bool, std::string> printAssembly( std::ostream&                                                stream,
                                                        const RigFaultReactivationModel&                             model,
-                                                       const std::map<RimFaultReactivation::GridPart, std::string>& partNames );
+                                                       const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                       const std::pair<cvf::Vec3d, cvf::Vec3d>&                     transform );
 
     static std::pair<bool, std::string> printMaterials( std::ostream&                                                   stream,
                                                         const RimFaultReactivationModel&                                rimModel,
