@@ -70,7 +70,7 @@ RimFaultReactivationModel* RimFaultReactivationModelCollection::addNewModel( Rim
                                                                              QString&                           outErrMsg )
 {
     auto newModel = new RimFaultReactivationModel();
-    newModel->setFault( fault, cellIndex, face );
+    newModel->setFaultInformation( fault, cellIndex, face );
     newModel->setBaseDir( baseDir );
     newModel->setUserDescription( fault->name() );
     newModel->setTargets( target1, target2 );

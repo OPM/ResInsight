@@ -150,14 +150,6 @@ RimFaultReactivationModel::~RimFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultReactivationModel::initAfterRead()
-{
-    // updateVisualization();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationModel::initSettings( QString& outErrmsg )
 {
     RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechFRMDefaultXML() );
@@ -222,7 +214,7 @@ std::pair<bool, std::string> RimFaultReactivationModel::validateBeforeRun() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultReactivationModel::setFault( RimFaultInView* fault, size_t cellIndex, cvf::StructGridInterface::FaceType face )
+void RimFaultReactivationModel::setFaultInformation( RimFaultInView* fault, size_t cellIndex, cvf::StructGridInterface::FaceType face )
 {
     m_fault          = fault;
     m_startCellIndex = cellIndex;

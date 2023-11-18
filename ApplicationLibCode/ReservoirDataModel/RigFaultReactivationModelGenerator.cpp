@@ -381,10 +381,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
             kLayersFront.push_back( -1 );
     }
 
-    // debug
-    // addFilter( "In front of fault column", cellColumnFront );
-    // addFilter( "Behind fault column", cellColumnBack );
-
     auto zPositionsBack  = elementLayers( startFace, cellColumnBack );
     auto zPositionsFront = elementLayers( oppositeStartFace, cellColumnFront );
 
@@ -439,10 +435,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     std::vector<cvf::Vec3d> backReservoirLayers;
     for ( auto& kvp : zPositionsBack )
         backReservoirLayers.push_back( kvp.second );
-
-    // topmost layer is not needed, remove it to avoid duplication when put together with the overburden parts
-    // frontReservoirLayers.pop_back();
-    // backReservoirLayers.pop_back();
 
     generatePointsFrontBack();
 

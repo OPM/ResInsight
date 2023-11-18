@@ -79,7 +79,7 @@ public:
 
     std::pair<bool, std::string> validateBeforeRun() const;
 
-    void            setFault( RimFaultInView* fault, size_t cellIndex, cvf::StructGridInterface::FaceType face );
+    void            setFaultInformation( RimFaultInView* fault, size_t cellIndex, cvf::StructGridInterface::FaceType face );
     RimFaultInView* fault() const;
 
     void setTargets( cvf::Vec3d target1, cvf::Vec3d target2 );
@@ -137,8 +137,6 @@ protected:
 
     RimEclipseCase* eclipseCase();
     RimGeoMechCase* geoMechCase();
-
-    void initAfterRead() override;
 
     QString baseFilename() const;
 
