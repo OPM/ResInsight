@@ -182,8 +182,8 @@ private:
     caf::PdmField<bool> m_useGridDensity;
     caf::PdmField<bool> m_useGridElasticProperties;
 
-    caf::PdmField<size_t>                             m_startCellIndex;
-    caf::PdmField<cvf::StructGridInterface::FaceEnum> m_startCellFace;
+    caf::PdmField<size_t> m_startCellIndex;
+    caf::PdmField<int>    m_startCellFace;
 
     cvf::ref<RigFaultReactivationModel> m_2Dmodel;
 

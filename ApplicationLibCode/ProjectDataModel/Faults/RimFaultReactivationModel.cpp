@@ -152,7 +152,7 @@ RimFaultReactivationModel::~RimFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::initAfterRead()
 {
-    updateVisualization();
+    // updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,7 +328,7 @@ void RimFaultReactivationModel::updateVisualization()
 
     m_2Dmodel->setPartColors( m_modelPart1Color, m_modelPart2Color );
     m_2Dmodel->setGenerator( generator );
-    m_2Dmodel->updateGeometry( m_startCellIndex, m_startCellFace() );
+    m_2Dmodel->updateGeometry( m_startCellIndex, (cvf::StructGridInterface::FaceType)m_startCellFace() );
 
     view->scheduleCreateDisplayModelAndRedraw();
 }

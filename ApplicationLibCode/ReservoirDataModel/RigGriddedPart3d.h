@@ -99,6 +99,4 @@ private:
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryElements;
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryNodes;
     std::map<ElementSets, std::vector<unsigned int>>                         m_elementSets;
-
-    std::vector<cvf::Vec3d> m_reservoirRect;
 };
