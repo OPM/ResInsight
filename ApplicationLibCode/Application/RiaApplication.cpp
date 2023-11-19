@@ -686,7 +686,6 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         cas->intersectionViewCollection()->syncFromExistingIntersections( false );
     }
 
-    for ( RimCase* cas : casesToLoad )
     {
         std::vector<Rim3dView*> views;
         m_project->allViews( views );
