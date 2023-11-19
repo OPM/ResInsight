@@ -355,7 +355,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     {
         auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
-        if ( cellIdx != startCellIndex ) cellColumnBack.push_back( cellIdx );
+        if ( cellIdx != startCellIndex ) cellColumnBackSearch.push_back( cellIdx );
         cellColumnBack.push_back( cellIdx );
 
         if ( m_activeCellInfo->isActive( cellIdx ) )

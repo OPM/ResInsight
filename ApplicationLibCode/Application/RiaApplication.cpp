@@ -689,7 +689,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     for ( RimCase* cas : casesToLoad )
     {
         std::vector<Rim3dView*> views;
-        m_project->allViews(views);
+        m_project->allViews( views );
 
         for ( auto view : views )
         {
