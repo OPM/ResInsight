@@ -51,6 +51,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleWellLogsCollection.h"
+#include "RimFaultReactivationModelCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -683,6 +684,20 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
     for ( RimCase* cas : casesToLoad )
     {
         cas->intersectionViewCollection()->syncFromExistingIntersections( false );
+    }
+
+    for ( RimCase* cas : casesToLoad )
+    {
+        std::vector<Rim3dView*> views;
+        m_project->allViews(views);
+
+        for ( auto view : views )
+        {
+            if ( auto eclipseView = dynamic_cast<RimEclipseView*>( view ) )
+            {
+                eclipseView->faultReactivationModelCollection()->loadDataAndUpdate();
+            }
+        }
     }
 
     for ( RimOilField* oilField : m_project->oilFields )

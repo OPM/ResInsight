@@ -74,6 +74,8 @@ public:
 
     void syncTimeSteps();
 
+    void loadDataAndUpdate();
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 

@@ -212,3 +212,14 @@ void RimFaultReactivationModelCollection::syncTimeSteps()
         frm->updateTimeSteps();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModelCollection::loadDataAndUpdate()
+{
+    for ( auto& frm : m_models )
+    {
+        frm->updateVisualization();
+    }
+}
