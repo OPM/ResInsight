@@ -21,16 +21,6 @@
 namespace RimFaultReactivation
 {
 
-enum class ModelParts
-{
-    HiPart1,
-    MidPart1,
-    LowPart1,
-    HiPart2,
-    MidPart2,
-    LowPart2
-};
-
 enum class GridPart
 {
     PART1,

@@ -26,10 +26,13 @@
 #include "cvfBoundingBox.h"
 #include "cvfTextureImage.h"
 
+#include <cmath>
+#include <map>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGriddedPart3d::RigGriddedPart3d( bool flipFrontBack )
+RigGriddedPart3d::RigGriddedPart3d()
     : m_useLocalCoordinates( false )
 {
 }
@@ -54,6 +57,15 @@ void RigGriddedPart3d::reset()
     m_elementIndices.clear();
     m_meshLines.clear();
     m_elementSets.clear();
+    m_elementKLayer.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigGriddedPart3d::Regions> RigGriddedPart3d::allRegions()
+{
+    return { Regions::LowerUnderburden, Regions::UpperUnderburden, Regions::Reservoir, Regions::LowerOverburden, Regions::UpperOverburden };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,78 +78,207 @@ cvf::Vec3d RigGriddedPart3d::stepVector( cvf::Vec3d start, cvf::Vec3d stop, int 
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigGriddedPart3d::generateConstantLayers( double zFrom, double zTo, double maxSize )
+{
+    std::vector<double> layers;
+
+    double diff = zTo - zFrom;
+    if ( std::abs( diff ) <= maxSize )
+    {
+        layers.push_back( std::min( zFrom, zTo ) );
+        return layers;
+    }
+
+    double steps = std::abs( diff / maxSize );
+
+    int nSteps = (int)std::ceil( steps );
+
+    double stepSize = diff / nSteps;
+
+    for ( int i = 0; i < nSteps; i++ )
+    {
+        layers.push_back( zFrom + stepSize * i );
+    }
+
+    std::sort( layers.begin(), layers.end() );
+
+    return layers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigGriddedPart3d::generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor )
+{
+    std::vector<double> layers;
+
+    double diff = zTo - zFrom;
+    if ( std::abs( diff ) <= maxSize )
+    {
+        layers.push_back( std::min( zFrom, zTo ) );
+        return layers;
+    }
+
+    double startHeight = maxSize;
+    double curDepth    = zFrom;
+
+    if ( zTo < zFrom )
+    {
+        while ( curDepth > zTo )
+        {
+            layers.push_back( curDepth );
+            curDepth -= startHeight;
+            startHeight *= growfactor;
+        }
+    }
+    else if ( zTo > zFrom )
+    {
+        while ( curDepth < zTo )
+        {
+            layers.push_back( curDepth );
+            curDepth += startHeight;
+            startHeight *= growfactor;
+        }
+    }
+
+    std::sort( layers.begin(), layers.end() );
+
+    return layers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> points )
+{
+    std::vector<double> layers;
+
+    for ( auto& p : points )
+    {
+        layers.push_back( p.z() );
+    }
+
+    return layers;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///  Point index in input
 ///
 ///
-///      3 ----------- 7                   *
-///        |         |                     *
-///        |         |                     *
-///        |         |                     *
-///      2 |---------| 6                   *
-///        |         \                     *
-///        |          \                    *
-///        |           \                   *
-///      1 -------------| 5                *
-///        |            |                  *
-///        |            |                  *
-///        |            |                  *
-///        |            |                  *
-///      0 -------------- 4                *
+///      5 ------| 11                          *
+///        |  OU |           Overburden Upper  *
+///      4 |------\10                          *
+///        |  OL   \         Overburden Lower  *
+///      3 |--------\  9                       *
+///        |         \                         *
+///        |   R      \      Reservoir         *
+///      2 |___________\ 8                     *
+///        |    UU      \    Underburden Upper *
+///      1 |-------------\7                    *
+///        |             |                     *
+///        |    UL       |   Underburden Lower *
+///        |             |                     *
+///      0 -------------- 6                    *
 ///
-/// Assumes 0->4, 1->5, 2->6 and 3->7 is parallel
+/// Assumes horizontal lines are parallel
 ///
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
-                                         int                     nHorzCells,
-                                         int                     nVertCellsLower,
-                                         int                     nVertCellsMiddle,
-                                         int                     nVertCellsUpper,
-                                         double                  thickness )
+
+void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
+                                         const std::vector<cvf::Vec3d>&    reservoirLayers,
+                                         const std::vector<int>&           kLayers,
+                                         const double                      maxCellHeight,
+                                         double                            cellSizeFactor,
+                                         int                               nHorzCells,
+                                         double                            modelThickness )
 {
     reset();
 
-    const cvf::Vec3d step0to1 = stepVector( inputPoints[0], inputPoints[1], nVertCellsLower );
-    const cvf::Vec3d step1to2 = stepVector( inputPoints[1], inputPoints[2], nVertCellsMiddle );
-    const cvf::Vec3d step2to3 = stepVector( inputPoints[2], inputPoints[3], nVertCellsUpper );
+    std::map<Regions, std::vector<double>> layersPerRegion;
 
-    const cvf::Vec3d step4to5 = stepVector( inputPoints[4], inputPoints[5], nVertCellsLower );
-    const cvf::Vec3d step5to6 = stepVector( inputPoints[5], inputPoints[6], nVertCellsMiddle );
-    const cvf::Vec3d step6to7 = stepVector( inputPoints[6], inputPoints[7], nVertCellsUpper );
+    layersPerRegion[Regions::LowerUnderburden] = generateGrowingLayers( inputPoints[1].z(), inputPoints[0].z(), maxCellHeight, cellSizeFactor );
+    layersPerRegion[Regions::UpperUnderburden] = generateConstantLayers( inputPoints[1].z(), inputPoints[2].z(), maxCellHeight );
+    layersPerRegion[Regions::Reservoir]        = extractZValues( reservoirLayers );
+    layersPerRegion[Regions::LowerOverburden]  = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
+    layersPerRegion[Regions::UpperOverburden] = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
 
-    const cvf::Vec3d step0to4 = stepVector( inputPoints[0], inputPoints[4], nHorzCells );
+    size_t nVertCells = 0;
 
-    cvf::Vec3d tVec = step0to4 ^ step0to1;
-    tVec.normalize();
-    tVec *= thickness;
+    for ( auto region : allRegions() )
+    {
+        nVertCells += layersPerRegion[region].size();
+    }
 
     const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
     const int                 nThicknessCells    = 2;
-    const int                 nVertCells         = nVertCellsLower + nVertCellsMiddle + nVertCellsUpper;
+    cvf::Vec3d                tVec               = stepVector( inputPoints[0], inputPoints[6], nHorzCells ) ^ cvf::Vec3d::Z_AXIS;
+    tVec.normalize();
+    tVec *= modelThickness;
 
-    const std::vector<int>        vertLines  = { nVertCellsLower, nVertCellsMiddle, nVertCellsUpper + 1 };
-    const std::vector<cvf::Vec3d> firstSteps = { step0to1, step1to2, step2to3 };
-    const std::vector<cvf::Vec3d> lastSteps  = { step4to5, step5to6, step6to7 };
+    m_nodes.reserve( ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 ) );
 
-    // ** generate nodes
-
-    m_boundaryNodes[Boundary::Bottom]  = {};
-    m_boundaryNodes[Boundary::FarSide] = {};
-
-    m_nodes.reserve( (size_t)( ( nVertCells + 1 ) * ( nHorzCells + 1 ) ) );
-
-    cvf::Vec3d pFrom = inputPoints[0];
-    cvf::Vec3d pTo   = inputPoints[4];
-
-    unsigned int layer     = 0;
     unsigned int nodeIndex = 0;
+    unsigned int layer     = 0;
 
-    for ( int i = 0; i < (int)vertLines.size(); i++ )
+    cvf::Vec3d fromPos;
+    cvf::Vec3d toPos;
+    cvf::Vec3d fromStep;
+    cvf::Vec3d toStep;
+
+    for ( auto region : allRegions() )
     {
-        for ( int v = 0; v < vertLines[i]; v++, layer++ )
+        switch ( region )
         {
-            cvf::Vec3d stepHorz = stepVector( pFrom, pTo, nHorzCells );
-            cvf::Vec3d p        = pFrom;
+            case Regions::LowerUnderburden:
+                fromPos  = inputPoints[0];
+                toPos    = inputPoints[6];
+                fromStep = cvf::Vec3d( 0, 0, 0 );
+                toStep   = cvf::Vec3d( 0, 0, 0 );
+                break;
+
+            case Regions::UpperUnderburden:
+                fromPos  = inputPoints[1];
+                toPos    = inputPoints[7];
+                fromStep = stepVector( inputPoints[1], inputPoints[2], (int)layersPerRegion[region].size() );
+                toStep   = stepVector( inputPoints[7], inputPoints[8], (int)layersPerRegion[region].size() );
+                break;
+
+            case Regions::Reservoir:
+                fromPos = inputPoints[2];
+                toPos   = inputPoints[8];
+                break;
+
+            case Regions::LowerOverburden:
+                fromPos  = inputPoints[3];
+                toPos    = inputPoints[9];
+                fromStep = stepVector( inputPoints[3], inputPoints[4], (int)layersPerRegion[region].size() );
+                toStep   = stepVector( inputPoints[9], inputPoints[10], (int)layersPerRegion[region].size() );
+                break;
+
+            case Regions::UpperOverburden:
+                fromPos  = inputPoints[4];
+                toPos    = inputPoints[10];
+                fromStep = cvf::Vec3d( 0, 0, 0 );
+                toStep   = cvf::Vec3d( 0, 0, 0 );
+                break;
+        }
+
+        for ( int v = 0; v < (int)layersPerRegion[region].size(); v++, layer++ )
+        {
+            if ( ( region == Regions::LowerUnderburden ) || ( region == Regions::UpperOverburden ) )
+            {
+                fromPos.z() = layersPerRegion[region][v];
+                toPos.z()   = layersPerRegion[region][v];
+            }
+
+            cvf::Vec3d p        = fromPos;
+            cvf::Vec3d stepHorz = stepVector( fromPos, toPos, nHorzCells );
+
+            m_meshLines.push_back( { fromPos, toPos } );
+
             for ( int h = 0; h <= nHorzCells; h++ )
             {
                 for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
@@ -155,18 +296,33 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
 
                 p += stepHorz;
             }
-            pFrom += firstSteps[i];
-            pTo += lastSteps[i];
+
+            if ( region == Regions::Reservoir )
+            {
+                toPos       = reservoirLayers[v];
+                fromPos.z() = toPos.z();
+            }
+            else
+            {
+                fromPos += fromStep;
+                toPos += toStep;
+            }
         }
     }
 
     // ** generate elements of type hex8
 
-    m_elementIndices.resize( (size_t)( nVertCells * nHorzCells * nThicknessCells ) );
+    m_elementIndices.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
+    m_elementKLayer.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
 
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::FaultSurface] = {};
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::LowerSurface] = {};
+
+    m_elementSets[ElementSets::OverBurden]     = {};
+    m_elementSets[ElementSets::Reservoir]      = {};
+    m_elementSets[ElementSets::IntraReservoir] = {};
+    m_elementSets[ElementSets::UnderBurden]    = {};
 
     m_boundaryElements[Boundary::Bottom]  = {};
     m_boundaryElements[Boundary::FarSide] = {};
@@ -174,16 +330,29 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
     int layerIndexOffset = 0;
     int elementIdx       = 0;
     layer                = 0;
+    int kLayer           = 0;
+
+    const int nVertCellsLower = (int)layersPerRegion[Regions::LowerUnderburden].size();
+    const int nVertCellsFault = (int)( layersPerRegion[Regions::UpperUnderburden].size() + layersPerRegion[Regions::Reservoir].size() +
+                                       layersPerRegion[Regions::LowerOverburden].size() );
+
+    const int nVertCellsUnderburden =
+        (int)( layersPerRegion[Regions::LowerUnderburden].size() + layersPerRegion[Regions::UpperUnderburden].size() );
+    const int nVertCellsReservoir = nVertCellsUnderburden + (int)( layersPerRegion[Regions::Reservoir].size() );
 
     RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
+    RimFaultReactivation::ElementSets   currentElementSet    = RimFaultReactivation::ElementSets::UnderBurden;
 
     const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
 
-    for ( int v = 0; v < nVertCells; v++, layer++ )
+    for ( int v = 0; v < (int)nVertCells - 1; v++, layer++ )
     {
         if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
-        if ( v >= nVertCellsLower + nVertCellsMiddle ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
+        if ( v >= nVertCellsLower + nVertCellsFault ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
+
+        if ( v >= nVertCellsUnderburden ) currentElementSet = RimFaultReactivation::ElementSets::Reservoir;
+        if ( v >= nVertCellsReservoir ) currentElementSet = RimFaultReactivation::ElementSets::OverBurden;
 
         int i = layerIndexOffset;
 
@@ -209,6 +378,24 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
                 {
                     m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
                 }
+
+                if ( currentElementSet == RimFaultReactivation::ElementSets::Reservoir )
+                {
+                    m_elementKLayer[elementIdx] = kLayers[kLayer];
+                    if ( kLayers[kLayer] < 0 )
+                    {
+                        m_elementSets[RimFaultReactivation::ElementSets::IntraReservoir].push_back( elementIdx );
+                    }
+                    else
+                    {
+                        m_elementSets[currentElementSet].push_back( elementIdx );
+                    }
+                }
+                else
+                {
+                    m_elementSets[currentElementSet].push_back( elementIdx );
+                    m_elementKLayer[elementIdx] = -2;
+                }
             }
             i += nThicknessOff;
         }
@@ -217,20 +404,18 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 2 );
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
 
+        if ( currentElementSet == RimFaultReactivation::ElementSets::Reservoir )
+        {
+            kLayer++;
+        }
+
         layerIndexOffset += nextLayerIdxOff;
     }
 
-    // generate meshlines for 2d viz
-
-    generateMeshlines( { inputPoints[0], inputPoints[1], inputPoints[5], inputPoints[4] }, nHorzCells, nVertCellsLower );
-    generateMeshlines( { inputPoints[1], inputPoints[2], inputPoints[6], inputPoints[5] }, nHorzCells, nVertCellsMiddle );
-    generateMeshlines( { inputPoints[2], inputPoints[3], inputPoints[7], inputPoints[6] }, nHorzCells, nVertCellsUpper );
-
-    // store the reservoir part corners for later
-    m_reservoirRect.clear();
-    for ( auto i : { 1, 2, 6, 5 } )
+    // vertical mesh lines for 2d display
+    for ( int i = 0; i < 5; i++ )
     {
-        m_reservoirRect.push_back( inputPoints[i] );
+        generateVerticalMeshlines( { inputPoints[i], inputPoints[i + 1], inputPoints[i + 7], inputPoints[i + 6] }, nHorzCells );
     }
 }
 
@@ -247,29 +432,13 @@ void RigGriddedPart3d::generateGeometry( std::vector<cvf::Vec3d> inputPoints,
 ///
 /// Assumes 0->3 and 1->2 is parallel
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells, int numVertCells )
+void RigGriddedPart3d::generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells )
 {
-    cvf::Vec3d step0to1 = stepVector( cornerPoints[0], cornerPoints[1], numVertCells );
     cvf::Vec3d step0to3 = stepVector( cornerPoints[0], cornerPoints[3], numHorzCells );
     cvf::Vec3d step1to2 = stepVector( cornerPoints[1], cornerPoints[2], numHorzCells );
-    cvf::Vec3d step3to2 = stepVector( cornerPoints[3], cornerPoints[2], numVertCells );
 
-    // horizontal lines
-
-    cvf::Vec3d startP = cornerPoints[0];
-    cvf::Vec3d endP   = cornerPoints[3];
-
-    for ( int v = 0; v <= numVertCells; v++ )
-    {
-        m_meshLines.push_back( { startP, endP } );
-        startP += step0to1;
-        endP += step3to2;
-    }
-
-    // vertical lines
-
-    startP = cornerPoints[0];
-    endP   = cornerPoints[1];
+    auto startP = cornerPoints[0];
+    auto endP   = cornerPoints[1];
 
     for ( int h = 0; h <= numHorzCells; h++ )
     {
@@ -333,6 +502,24 @@ const std::vector<std::vector<unsigned int>>& RigGriddedPart3d::elementIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) const
+{
+    if ( elementIndex >= m_elementIndices.size() ) return {};
+
+    std::vector<cvf::Vec3d> corners;
+
+    for ( auto nodeIdx : m_elementIndices[elementIndex] )
+    {
+        if ( nodeIdx >= m_nodes.size() ) continue;
+        corners.push_back( m_nodes[nodeIdx] );
+    }
+
+    return corners;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& RigGriddedPart3d::borderSurfaceElements() const
 {
     return m_borderSurfaceElements;
@@ -344,6 +531,14 @@ const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& 
 const std::vector<std::vector<cvf::Vec3d>>& RigGriddedPart3d::meshLines() const
 {
     return m_meshLines;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<int> RigGriddedPart3d::elementKLayer() const
+{
+    return m_elementKLayer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,69 +568,6 @@ const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& Ri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, int> RigGriddedPart3d::reservoirZTopBottom( const RigMainGrid* grid ) const
-{
-    cvf::BoundingBox resBb;
-    for ( const auto& p : m_reservoirRect )
-    {
-        resBb.add( p );
-    }
-    std::vector<size_t> intersectingCells;
-    grid->findIntersectingCells( resBb, &intersectingCells );
-
-    resBb.reset();
-    for ( auto cellIdx : intersectingCells )
-    {
-        resBb.add( grid->cell( cellIdx ).boundingBox() );
-    }
-
-    auto maxZ = resBb.max().z();
-    auto minZ = resBb.min().z();
-
-    return std::make_pair( maxZ, minZ );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid )
-{
-    m_elementSets[ElementSets::OverBurden]     = {};
-    m_elementSets[ElementSets::Reservoir]      = {};
-    m_elementSets[ElementSets::IntraReservoir] = {};
-    m_elementSets[ElementSets::UnderBurden]    = {};
-
-    auto [topResZ, bottomResZ] = reservoirZTopBottom( grid );
-
-    for ( unsigned int i = 0; i < m_elementIndices.size(); i++ )
-    {
-        auto corners = elementCorners( i );
-
-        if ( dataAccess->elementHasValidData( corners ) )
-        {
-            m_elementSets[ElementSets::Reservoir].push_back( i );
-        }
-        else
-        {
-            if ( elementIsAboveReservoir( corners, topResZ ) )
-            {
-                m_elementSets[ElementSets::OverBurden].push_back( i );
-            }
-            else if ( elementIsBelowReservoir( corners, bottomResZ ) )
-            {
-                m_elementSets[ElementSets::UnderBurden].push_back( i );
-            }
-            else
-            {
-                m_elementSets[ElementSets::IntraReservoir].push_back( i );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
 {
     m_localNodes.clear();
@@ -444,50 +576,4 @@ void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
     {
         m_localNodes.push_back( node.getTransformedPoint( transform ) );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) const
-{
-    if ( elementIndex >= m_elementIndices.size() ) return {};
-
-    std::vector<cvf::Vec3d> corners;
-
-    for ( auto nodeIdx : m_elementIndices[elementIndex] )
-    {
-        if ( nodeIdx >= m_nodes.size() ) continue;
-        corners.push_back( m_nodes[nodeIdx] );
-    }
-
-    return corners;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigGriddedPart3d::elementIsAboveReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const
-{
-    int nValid = 0;
-    for ( auto& p : cornerPoints )
-    {
-        if ( p.z() > threshold ) nValid++;
-    }
-
-    return nValid > 4;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigGriddedPart3d::elementIsBelowReservoir( const std::vector<cvf::Vec3d>& cornerPoints, double threshold ) const
-{
-    int nValid = 0;
-    for ( auto& p : cornerPoints )
-    {
-        if ( p.z() < threshold ) nValid++;
-    }
-
-    return nValid > 4;
 }

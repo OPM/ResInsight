@@ -22,6 +22,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
+#include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
 #include <vector>
@@ -50,7 +51,13 @@ public:
     RimFaultReactivationModelCollection();
     ~RimFaultReactivationModelCollection() override;
 
-    RimFaultReactivationModel* addNewModel( RimFaultInView* fault, cvf::Vec3d target1, cvf::Vec3d target2, QString baseDir, QString& errMsg );
+    RimFaultReactivationModel* addNewModel( RimFaultInView*                    fault,
+                                            size_t                             cellIndex,
+                                            cvf::StructGridInterface::FaceType face,
+                                            cvf::Vec3d                         target1,
+                                            cvf::Vec3d                         target2,
+                                            QString                            baseDir,
+                                            QString&                           errMsg );
 
     bool empty();
     int  size();
@@ -66,6 +73,8 @@ public:
                              const cvf::BoundingBox&     boundingBox );
 
     void syncTimeSteps();
+
+    void loadDataAndUpdate();
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
