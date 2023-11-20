@@ -923,7 +923,11 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEcli
     if ( !m_rimFracture->isChecked() ) return;
 
     if ( !m_rimFracture->fractureTemplate() ) return;
-    if ( m_rimFracture->fractureTemplate()->orientationType() != RimFractureTemplate::ALONG_WELL_PATH ) return;
+
+    bool hasPerforation = ( m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+                            ( m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH &&
+                              m_rimFracture->fractureTemplate()->useUserDefinedPerforationLength() ) );
+    if ( !hasPerforation ) return;
 
     auto displayCoordTransform = activeView.displayCoordTransform();
     if ( displayCoordTransform.isNull() ) return;
