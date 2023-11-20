@@ -187,13 +187,13 @@ std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> po
 ///
 //--------------------------------------------------------------------------------------------------
 
-void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12> inputPoints,
-                                         const std::vector<cvf::Vec3d>    reservoirLayers,
-                                         const std::vector<int>           kLayers,
-                                         const double                     maxCellHeight,
-                                         double                           cellSizeFactor,
-                                         int                              nHorzCells,
-                                         double                           modelThickness )
+void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
+                                         const std::vector<cvf::Vec3d>&    reservoirLayers,
+                                         const std::vector<int>&           kLayers,
+                                         const double                      maxCellHeight,
+                                         double                            cellSizeFactor,
+                                         int                               nHorzCells,
+                                         double                            modelThickness )
 {
     reset();
 

@@ -42,13 +42,13 @@ public:
 
     void reset();
 
-    void generateGeometry( const std::array<cvf::Vec3d, 12> inputPoints,
-                           const std::vector<cvf::Vec3d>    reservoirLayers,
-                           const std::vector<int>           kLayers,
-                           double                           maxCellHeight,
-                           double                           cellSizeFactor,
-                           int                              nHorzCells,
-                           double                           modelThickness );
+    void generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
+                           const std::vector<cvf::Vec3d>&    reservoirLayers,
+                           const std::vector<int>&           kLayers,
+                           double                            maxCellHeight,
+                           double                            cellSizeFactor,
+                           int                               nHorzCells,
+                           double                            modelThickness );
 
     void generateLocalNodes( const cvf::Mat4d transform );
 
