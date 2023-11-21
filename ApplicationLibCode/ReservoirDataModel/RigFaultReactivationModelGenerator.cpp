@@ -396,13 +396,13 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
 
     cvf::Vec3d bottom_point = m_bottomReservoirFront;
 
-    if ( front_bottom < back_bottom )
+    if ( front_bottom > back_bottom )
     {
-        bottom_point = extrapolatePoint( zPositionsBack.begin()->second, ( ++zPositionsBack.begin() )->second, m_bufferBelowFault );
+        bottom_point = extrapolatePoint( zPositionsBack.begin()->second, ( ++zPositionsBack.begin() )->second, m_bufferBelowFault, false );
     }
-    else if ( back_bottom < front_bottom )
+    else if ( front_bottom < back_bottom )
     {
-        bottom_point = extrapolatePoint( zPositionsFront.begin()->second, ( ++zPositionsFront.begin() )->second, m_bufferBelowFault );
+        bottom_point = extrapolatePoint( zPositionsFront.begin()->second, ( ++zPositionsFront.begin() )->second, m_bufferBelowFault, false );
     }
 
     m_bottomFault = bottom_point;
@@ -415,13 +415,13 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     m_topReservoirBack  = zPositionsBack.rbegin()->second;
 
     cvf::Vec3d top_point = m_topReservoirFront;
-    if ( front_top < back_top )
+    if ( front_top > back_top )
     {
-        top_point = extrapolatePoint( zPositionsFront.rbegin()->second, ( ++zPositionsFront.rbegin() )->second, m_bufferAboveFault );
+        top_point = extrapolatePoint( zPositionsFront.rbegin()->second, ( ++zPositionsFront.rbegin() )->second, m_bufferAboveFault, true );
     }
-    else if ( back_top < front_top )
+    else if ( front_top < back_top )
     {
-        top_point = extrapolatePoint( zPositionsBack.rbegin()->second, ( ++zPositionsBack.rbegin() )->second, m_bufferAboveFault );
+        top_point = extrapolatePoint( zPositionsBack.rbegin()->second, ( ++zPositionsBack.rbegin() )->second, m_bufferAboveFault, true );
     }
     m_topFault = top_point;
 
@@ -487,9 +487,12 @@ std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double buffer )
+cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double buffer, bool upwards )
 {
-    cvf::Vec3d direction = startPoint - endPoint;
+    bool swap = endPoint.z() < startPoint.z();
+    if ( !upwards ) swap = !swap;
+
+    cvf::Vec3d direction = swap ? startPoint - endPoint : endPoint - startPoint;
     direction.normalize();
 
     return endPoint + ( buffer * direction );
