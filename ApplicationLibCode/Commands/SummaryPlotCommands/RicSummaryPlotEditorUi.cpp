@@ -98,10 +98,6 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
 
     m_previewPlot = std::make_unique<RimSummaryPlot>();
 
-    CAF_PDM_InitFieldNoDefault( &m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title" );
-    m_useAutoPlotTitleProxy.registerGetMethod( this, &RicSummaryPlotEditorUi::proxyPlotAutoTitle );
-    m_useAutoPlotTitleProxy.registerSetMethod( this, &RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle );
-
     CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "" );
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
@@ -263,12 +259,6 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_previewPlot->loadDataAndUpdate();
         m_appearanceApplyButton = false;
     }
-    else if ( changedField == &m_useAutoPlotTitleProxy )
-    {
-        m_previewPlot->updatePlotTitle();
-
-        m_previewPlot->summaryCurveCollection()->updateConnectedEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -327,8 +317,6 @@ void RicSummaryPlotEditorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     caf::PdmUiGroup* autoNameGroup =
         uiOrdering.addNewGroupWithKeyword( "Plot and Curve Name Configuration", RiuSummaryCurveDefinitionKeywords::nameConfig() );
     autoNameGroup->setCollapsedByDefault();
-
-    autoNameGroup->add( &m_useAutoPlotTitleProxy );
 
     m_curveNameConfig->uiOrdering( uiConfigName, *autoNameGroup );
 
@@ -705,8 +693,6 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
         newCurveSet->setParentPlotNoReplot( m_targetPlot->plotWidget() );
     }
 
-    m_targetPlot->enableAutoPlotTitle( m_useAutoPlotTitleProxy() );
-
     m_targetPlot->loadDataAndUpdate();
 
     m_targetPlot->updateConnectedEditors();
@@ -913,25 +899,6 @@ bool RicSummaryPlotEditorUi::isObservedData( RimSummaryCase* sumCase ) const
 void RicSummaryPlotEditorUi::selectionEditorFieldChanged()
 {
     syncPreviewCurvesFromUiSelection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle( const bool& enable )
-{
-    m_previewPlot->enableAutoPlotTitle( enable );
-    m_previewPlot->setPlotTitleVisible( enable );
-    m_previewPlot->updateCurveNames();
-    m_previewPlot->loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicSummaryPlotEditorUi::proxyPlotAutoTitle() const
-{
-    return m_previewPlot->autoPlotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
