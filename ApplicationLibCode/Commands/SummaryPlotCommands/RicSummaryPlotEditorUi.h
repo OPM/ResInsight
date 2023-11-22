@@ -103,17 +103,12 @@ private:
     bool isObservedData( RimSummaryCase* sumCase ) const;
 
     void selectionEditorFieldChanged();
-
-    void proxyEnablePlotAutoTitle( const bool& enable );
-    bool proxyPlotAutoTitle() const;
     void setInitialCurveVisibility( const RimSummaryPlot* targetPlot );
 
 private:
     caf::PdmPtrField<RimSummaryPlot*> m_targetPlot;
 
     std::unique_ptr<RimSummaryPlot> m_previewPlot;
-
-    caf::PdmProxyValueField<bool> m_useAutoPlotTitleProxy;
 
     caf::PdmField<bool>                  m_useAutoAppearanceAssignment;
     caf::PdmField<bool>                  m_appearanceApplyButton;
