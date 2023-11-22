@@ -927,9 +927,7 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 {
                     if ( summaryCurve->axisY() == riuPlotAxis )
                     {
-                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCurve->summaryCaseY(),
-                                                                        summaryCurve->summaryAddressY(),
-                                                                        summaryCurve->isEnsembleCurve() ) );
+                        curveDefs.emplace_back( summaryCurve->summaryCaseY(), summaryCurve->summaryAddressY(), summaryCurve->isEnsembleCurve() );
                     }
                     if ( summaryCurve->axisX() == riuPlotAxis )
                     {
@@ -1167,7 +1165,7 @@ void RimSummaryPlot::overrideTimeAxisSettingsIfTooManyCustomTickmarks( RimSummar
     // prevent large number of tickmarks by accident.
     const auto [minValue, maxValue] = plotWidget()->axisRange( RimSummaryPlot::plotAxisForTime() );
     const double ticksInterval      = timeAxisProperties->getTickmarkIntervalDouble();
-    const uint   numTicks           = static_cast<uint>( std::ceil( ( maxValue - minValue ) / ticksInterval ) );
+    const auto   numTicks           = static_cast<uint>( std::ceil( ( maxValue - minValue ) / ticksInterval ) );
     if ( numTicks > MAX_NUM_TICKS )
     {
         if ( showMessageBox )
@@ -2390,7 +2388,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
         auto curveSets = m_ensembleCurveSetCollection->curveSets();
         for ( auto curveSet : curveSets )
         {
-            sourceCurveDefs.push_back( RiaSummaryCurveDefinition( ensembleCase, curveSet->curveAddress() ) );
+            sourceCurveDefs.emplace_back( ensembleCase, curveSet->curveAddress() );
         }
     }
 
@@ -2874,7 +2872,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
                 RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(), sumCases, calcAddresses );
                 for ( const auto& adr : calcAddresses )
                 {
-                    addresses.push_back( RiaSummaryCurveAddress( adr ) );
+                    addresses.emplace_back( adr );
                 }
             }
             else
