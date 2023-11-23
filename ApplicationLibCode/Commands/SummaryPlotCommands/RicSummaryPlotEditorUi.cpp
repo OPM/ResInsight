@@ -169,6 +169,7 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot* targetPlot, 
     {
         setDefaultCurveSelection( defaultSources );
         m_previewPlot->enableAutoPlotTitle( true );
+        m_previewPlot->setPlotTitleVisible( false );
         syncPreviewCurvesFromUiSelection();
         m_plotContainer = nullptr;
     }
