@@ -705,7 +705,7 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve, RimSummaryPlot* plot, bool forceVisible )
 {
-    RimSummaryCurve* curveCopy =
+    auto curveCopy =
         dynamic_cast<RimSummaryCurve*>( curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( curveCopy );
 
@@ -714,11 +714,11 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
         curveCopy->setCheckState( true );
     }
 
-    plot->addCurveNoUpdate( curveCopy, false );
-    curveCopy->setLeftOrRightAxisY( curve->axisY() );
-
-    // The curve creator is not a descendant of the project, and need to be set manually
     curveCopy->setSummaryCaseY( curve->summaryCaseY() );
+
+    bool autoAssignAxis = true;
+    plot->addCurveNoUpdate( curveCopy, autoAssignAxis );
+
     curveCopy->initAfterReadRecursively();
     curveCopy->loadDataAndUpdate( false );
 }
