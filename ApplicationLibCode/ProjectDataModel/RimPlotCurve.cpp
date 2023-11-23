@@ -25,6 +25,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMultiPlot.h"
 #include "RimNameConfig.h"
 #include "RimPlotRectAnnotation.h"
 #include "RimProject.h"
@@ -915,7 +916,9 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
             }
         }
 
-        if ( !anyCalculated && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1 )
+        auto isMultiPlot = ( firstAncestorOrThisOfType<RimMultiPlot>() != nullptr );
+
+        if ( !anyCalculated && isMultiPlot && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1 )
         {
             // Disable display of legend if the summary plot has only one single curve
             showLegendInPlot = false;
