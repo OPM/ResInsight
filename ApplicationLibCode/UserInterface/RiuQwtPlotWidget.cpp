@@ -273,22 +273,6 @@ void RiuQwtPlotWidget::setLegendFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setInternalLegendVisible( bool visible )
-{
-    if ( visible )
-    {
-        auto* legend = new QwtLegend( this );
-        m_plot->insertLegend( legend, QwtPlot::BottomLegend );
-    }
-    else
-    {
-        m_plot->insertLegend( nullptr );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
 {
     CAF_ASSERT( legendPosition == RiuPlotWidget::Legend::BOTTOM || legendPosition == RiuPlotWidget::Legend::TOP ||

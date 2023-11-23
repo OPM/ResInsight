@@ -117,11 +117,10 @@ public:
     virtual bool   plotTitleEnabled() const                  = 0;
     virtual void   setPlotTitleFontSize( int titleFontSize ) = 0;
 
-    virtual void setLegendFontSize( int fontSize )        = 0;
-    virtual void setInternalLegendVisible( bool visible ) = 0;
-    virtual void insertLegend( RiuPlotWidget::Legend )    = 0;
-    virtual void clearLegend()                            = 0;
-    virtual void updateLegend()                           = 0;
+    virtual void setLegendFontSize( int fontSize )     = 0;
+    virtual void insertLegend( RiuPlotWidget::Legend ) = 0;
+    virtual void clearLegend()                         = 0;
+    virtual void updateLegend()                        = 0;
 
     virtual void detachItems( RiuPlotWidget::PlotItemType plotItemType ) = 0;
 

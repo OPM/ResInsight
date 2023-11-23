@@ -97,6 +97,7 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region" );
 
     m_previewPlot = std::make_unique<RimSummaryPlot>();
+    m_previewPlot->setLegendPosition( RiuPlotWidget::Legend::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "" );
     m_applyButtonField = false;

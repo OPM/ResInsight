@@ -162,6 +162,7 @@ public:
 
     void updateAll();
     void updateLegend() override;
+    void setLegendPosition( RiuPlotWidget::Legend position );
 
     void setPlotInfoLabel( const QString& label );
     void showPlotInfoLabel( bool show );
@@ -352,5 +353,6 @@ private:
     std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
-    bool m_isValid;
+    bool                  m_isValid;
+    RiuPlotWidget::Legend m_legendPosition;
 };
