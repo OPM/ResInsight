@@ -24,8 +24,8 @@
 #include "cvfVector3.h"
 
 #include <array>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include <QString>
 
