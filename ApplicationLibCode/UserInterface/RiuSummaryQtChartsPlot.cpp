@@ -42,7 +42,7 @@ RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* p
     RiuQtChartsPlotTools::setCommonPlotBehaviour( m_plotWidget );
     RiuQtChartsPlotTools::setDefaultAxes( m_plotWidget );
 
-    m_plotWidget->setInternalLegendVisible( true );
+    m_plotWidget->insertLegend( RiuPlotWidget::Legend::BOTTOM );
 }
 //--------------------------------------------------------------------------------------------------
 ///

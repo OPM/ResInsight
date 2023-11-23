@@ -103,7 +103,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 
     // PERFORMANCE NOTE
     // Do not set internal legends visible, as this will cause a performance hit.
-    m_plotWidget->setInternalLegendVisible( false );
+    m_plotWidget->clearLegend();
 
     m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
 }

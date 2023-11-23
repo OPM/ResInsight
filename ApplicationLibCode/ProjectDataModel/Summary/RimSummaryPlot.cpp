@@ -128,6 +128,7 @@ RimSummaryPlot::RimSummaryPlot()
     , m_isValid( true )
     , axisChangedReloadRequired( this )
     , autoTitleChanged( this )
+    , m_legendPosition( RiuPlotWidget::Legend::BOTTOM )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -690,7 +691,14 @@ void RimSummaryPlot::updateLegend()
 {
     if ( plotWidget() )
     {
-        plotWidget()->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
+        if ( m_showPlotLegends && !isSubPlot() )
+        {
+            plotWidget()->insertLegend( m_legendPosition );
+        }
+        else
+        {
+            plotWidget()->clearLegend();
+        }
 
         for ( auto c : summaryCurves() )
         {
@@ -703,6 +711,14 @@ void RimSummaryPlot::updateLegend()
     {
         plotWidget()->updateLegend();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setLegendPosition( RiuPlotWidget::Legend position )
+{
+    m_legendPosition = position;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1941,7 +1957,14 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( plotWidget() )
     {
-        plotWidget()->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
+        if ( m_showPlotLegends && !isSubPlot() )
+        {
+            plotWidget()->insertLegend( m_legendPosition );
+        }
+        else
+        {
+            plotWidget()->clearLegend();
+        }
         plotWidget()->setLegendFontSize( legendFontSize() );
         plotWidget()->updateLegend();
     }
