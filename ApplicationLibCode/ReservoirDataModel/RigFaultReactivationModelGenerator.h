@@ -24,8 +24,8 @@
 #include "cvfVector3.h"
 
 #include <array>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include <QString>
 
@@ -68,7 +68,7 @@ protected:
     static const std::vector<cvf::Vec3d> interpolateExtraPoints( cvf::Vec3d from, cvf::Vec3d to, double maxStep );
 
     static cvf::Vec3d lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
-    static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth, bool upwards );
+    static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
     static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight );
 
     std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, const std::vector<size_t>& cellIndexColumn );
