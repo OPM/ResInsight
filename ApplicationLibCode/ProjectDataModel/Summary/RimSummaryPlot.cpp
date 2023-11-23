@@ -3158,8 +3158,6 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
 {
     enum class AxisAssignmentStrategy
     {
-        ALL_TO_LEFT,
-        ALL_TO_RIGHT,
         ALTERNATING,
         USE_MATCHING_UNIT,
         USE_MATCHING_VECTOR
@@ -3201,18 +3199,11 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
     }
     else if ( strategy == AxisAssignmentStrategy::USE_MATCHING_UNIT )
     {
-        bool isLeftUsed  = false;
-        bool isRightUsed = false;
-
         for ( auto c : summaryCurves() )
         {
             if ( c == curve ) continue;
 
-            if ( c->axisY() == RiuPlotAxis::defaultLeft() ) isLeftUsed = true;
-            if ( c->axisY() == RiuPlotAxis::defaultRight() ) isRightUsed = true;
-
             auto currentUnit = RiaStdStringTools::toUpper( c->unitNameY() );
-
             if ( currentUnit == destinationUnit )
             {
                 for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
@@ -3228,23 +3219,39 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
             }
         }
 
-        if ( !isLeftUsed )
-        {
-            curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
-            return;
-        }
-
-        if ( !isRightUsed )
-        {
-            curve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
-            return;
-        }
-
         strategy = AxisAssignmentStrategy::ALTERNATING;
     }
 
-    RiaDefines::PlotAxis plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    auto isDefaultLeftAndRightUsed = [this]( RimSummaryCurve* currentCurve ) -> std::pair<bool, bool>
+    {
+        bool defaultLeftUsed  = false;
+        bool defaultRightUsed = false;
 
+        for ( auto c : summaryCurves() )
+        {
+            if ( c == currentCurve ) continue;
+
+            if ( c->axisY() == RiuPlotAxis::defaultLeft() ) defaultLeftUsed = true;
+            if ( c->axisY() == RiuPlotAxis::defaultRight() ) defaultRightUsed = true;
+        }
+
+        return std::make_pair( defaultLeftUsed, defaultRightUsed );
+    };
+
+    auto [defaultLeftUsed, defaultRightUsed] = isDefaultLeftAndRightUsed( curve );
+    if ( !defaultLeftUsed )
+    {
+        curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+        return;
+    }
+
+    if ( !defaultRightUsed )
+    {
+        curve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
+        return;
+    }
+
+    RiaDefines::PlotAxis plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
     if ( strategy == AxisAssignmentStrategy::ALTERNATING )
     {
         size_t axisCountLeft  = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
@@ -3252,26 +3259,21 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
 
         if ( axisCountLeft > axisCountRight ) plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
     }
-    else if ( strategy == AxisAssignmentStrategy::ALL_TO_LEFT )
-    {
-        plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
-    }
-    else if ( strategy == AxisAssignmentStrategy::ALL_TO_RIGHT )
-    {
-        plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
-    }
 
-    RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultLeft();
     if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
     {
         QString axisObjectName = "New Axis";
         if ( !curve->summaryAddressY().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressY().uiText() );
 
-        newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
+        auto newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
         addNewAxisProperties( newPlotAxis, axisObjectName );
+
+        curve->setLeftOrRightAxisY( newPlotAxis );
+        return;
     }
 
-    curve->setLeftOrRightAxisY( newPlotAxis );
+    // If we get here, we have no more axes to assign to, use left axis as fallback
+    curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
 }
 
 //--------------------------------------------------------------------------------------------------
