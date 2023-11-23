@@ -398,11 +398,11 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
 
     if ( front_bottom > back_bottom )
     {
-        bottom_point = extrapolatePoint( zPositionsBack.begin()->second, ( ++zPositionsBack.begin() )->second, m_bufferBelowFault, false );
+        bottom_point = extrapolatePoint( ( ++zPositionsBack.begin() )->second, zPositionsBack.begin()->second, m_bufferBelowFault, false );
     }
     else if ( front_bottom < back_bottom )
     {
-        bottom_point = extrapolatePoint( zPositionsFront.begin()->second, ( ++zPositionsFront.begin() )->second, m_bufferBelowFault, false );
+        bottom_point = extrapolatePoint( ( ++zPositionsFront.begin() )->second, zPositionsFront.begin()->second, m_bufferBelowFault, false );
     }
 
     m_bottomFault = bottom_point;
@@ -417,11 +417,11 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     cvf::Vec3d top_point = m_topReservoirFront;
     if ( front_top > back_top )
     {
-        top_point = extrapolatePoint( zPositionsFront.rbegin()->second, ( ++zPositionsFront.rbegin() )->second, m_bufferAboveFault, true );
+        top_point = extrapolatePoint( ( ++zPositionsFront.rbegin() )->second, zPositionsFront.rbegin()->second, m_bufferAboveFault, true );
     }
     else if ( front_top < back_top )
     {
-        top_point = extrapolatePoint( zPositionsBack.rbegin()->second, ( ++zPositionsBack.rbegin() )->second, m_bufferAboveFault, true );
+        top_point = extrapolatePoint( ( ++zPositionsBack.rbegin() )->second, zPositionsBack.rbegin()->second, m_bufferAboveFault, true );
     }
     m_topFault = top_point;
 
