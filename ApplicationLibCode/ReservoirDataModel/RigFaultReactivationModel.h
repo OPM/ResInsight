@@ -29,8 +29,10 @@
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
 
+#include <array>
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 
 class RigGriddedPart3d;

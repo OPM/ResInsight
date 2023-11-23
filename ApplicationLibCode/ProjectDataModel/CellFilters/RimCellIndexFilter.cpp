@@ -161,13 +161,11 @@ void RimCellIndexFilter::updateCells()
         auto part = parts->part( m_gridIndex() );
 
         auto setNames = part->elementSetNames();
+        m_name        = QString::fromStdString( part->name() );
+
         if ( m_setId() < (int)setNames.size() )
         {
-            m_name = QString::fromStdString( part->elementSetNames()[m_setId] );
-        }
-        else
-        {
-            m_name = QString::fromStdString( part->name() );
+            m_name = m_name + " : " + QString::fromStdString( part->elementSetNames()[m_setId] );
         }
 
         auto cells = part->elementSet( m_setId() );

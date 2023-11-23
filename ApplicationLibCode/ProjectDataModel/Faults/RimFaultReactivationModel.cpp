@@ -423,6 +423,16 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     sizeModelGrp->add( &m_modelMinZ );
     sizeModelGrp->add( &m_modelBelowSize );
 
+    if ( m_geomechCase() != nullptr )
+    {
+        m_modelMinZ.setValue( std::abs( m_geomechCase->allCellsBoundingBox().max().z() ) );
+        m_modelMinZ.uiCapability()->setUiReadOnly( true );
+    }
+    else
+    {
+        m_modelMinZ.uiCapability()->setUiReadOnly( false );
+    }
+
     auto faultGrp = modelGrp->addNewGroup( "Fault" );
     faultGrp->add( &m_faultExtendUpwards );
     faultGrp->add( &m_faultExtendDownwards );
@@ -473,6 +483,14 @@ void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* cha
     }
     else
     {
+        if ( changedField == &m_geomechCase )
+        {
+            if ( m_geomechCase() != nullptr )
+            {
+                m_modelMinZ.setValue( std::abs( m_geomechCase()->allCellsBoundingBox().max().z() ) );
+            }
+        }
+
         updateVisualization();
     }
 }
