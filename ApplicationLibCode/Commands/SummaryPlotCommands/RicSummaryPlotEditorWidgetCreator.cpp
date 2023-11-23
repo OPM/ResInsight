@@ -148,16 +148,6 @@ QWidget* RicSummaryPlotEditorWidgetCreator::createWidget( QWidget* parent )
     m_lowerRightLayout->setContentsMargins( 0, 0, 0, 0 );
     m_secondRowLayout->addLayout( m_lowerRightLayout );
 
-    {
-        auto label = new QLabel( "Plot Preview" );
-        label->setAlignment( Qt::AlignCenter );
-        auto font = label->font();
-        font.setPixelSize( 20 );
-        label->setFont( font );
-
-        m_lowerRightLayout->insertWidget( 0, label );
-    }
-
     m_firstColumnSplitter = new QSplitter( Qt::Vertical );
     m_firstColumnSplitter->setContentsMargins( 0, 0, 0, 0 );
 
