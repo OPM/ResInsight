@@ -22,7 +22,10 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "RifGridCalculation.h"
+#include "RifGridCalculationExporter.h"
 #include "RimGridCalculationCollection.h"
+#include "RimGridCalculationVariable.h"
 #include "RimProject.h"
 
 #include "RiuFileDialogTools.h"
@@ -51,9 +54,6 @@ void RicExportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
 
     if ( calcColl->calculations().empty() ) return;
 
-    auto objectAsText = calcColl->writeObjectToXmlString();
-    if ( objectAsText.isEmpty() ) return;
-
     QString fallbackPath = RiaPreferences::current()->gridCalculationExpressionFolder();
     auto    app          = RiaGuiApplication::instance();
     QString startPath =
@@ -62,23 +62,47 @@ void RicExportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
     QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
                                                             "Select File for Grid Calculation Expression Export",
                                                             startPath,
-                                                            "Xml File(*.xml);;All files(*.*)" );
+                                                            "Toml File(*.toml);;All files(*.*)" );
     if ( fileName.isEmpty() ) return;
 
-    QFile exportFile( fileName );
-    if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
-    {
-        RiaLogging::errorInMessageBox( nullptr,
-                                       "Export Grid Calculation Expressions",
-                                       QString( "Could not save to the file: %1" ).arg( fileName ) );
-        return;
-    }
+    // QFile exportFile( fileName );
+    // if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+    // {
+    //     RiaLogging::errorInMessageBox( nullptr,
+    //                                    "Export Grid Calculation Expressions",
+    //                                    QString( "Could not save to the file: %1" ).arg( fileName ) );
+    //     return;
+    // }
 
     QString absPath = QFileInfo( fileName ).absolutePath();
 
     app->setLastUsedDialogDirectory( RicExportGridCalculationExpressionsFeature::gridCalculationExpressionId(), absPath );
-    QTextStream stream( &exportFile );
-    stream << objectAsText;
+
+    std::vector<RifGridCalculation> calculations;
+    for ( auto calculation : calcColl->calculations() )
+    {
+        RifGridCalculation calc;
+        calc.description = calculation->description().toStdString();
+        calc.expression  = calculation->expression().toStdString();
+        for ( auto variable : calculation->allVariables() )
+        {
+            if ( auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( variable ) )
+            {
+                RifGridCalculationVariable var;
+                var.resultVariable = gridVariable->resultVariable().toStdString();
+                var.resultType     = caf::AppEnum<RiaDefines::ResultCatType>::uiText( gridVariable->resultCategoryType() ).toStdString();
+                var.name           = gridVariable->name().toStdString();
+                calc.variables.push_back( var );
+            }
+        }
+
+        calculations.push_back( calc );
+    }
+
+    RifGridCalculationExporter::writeToFile( calculations, fileName.toStdString() );
+
+    // QTextStream stream( &exportFile );
+    // stream << objectAsText;
 }
 
 //--------------------------------------------------------------------------------------------------
