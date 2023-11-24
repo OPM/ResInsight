@@ -269,7 +269,7 @@ std::pair<bool, std::string>
         CAF_ASSERT( partNameIt != partNames.end() );
         std::string partName = partNameIt->second;
 
-        RifInpExportTools::printHeading( stream, "Transform, nset=" + partName + "." + partName );
+        RifInpExportTools::printHeading( stream, "Transform, nset=" + partName + ".ALL" );
         auto [dir1, dir2] = transform;
         RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
     }
@@ -468,7 +468,7 @@ std::pair<bool, std::string>
         auto partNameIt = partNames.find( part );
         CAF_ASSERT( partNameIt != partNames.end() );
         std::string partName = partNameIt->second;
-        printBoundaryCondition( stream, partName + "." + partName, partSymmetry );
+        printBoundaryCondition( stream, partName + ".ALL", partSymmetry );
     }
 
     return { true, "" };
@@ -496,7 +496,7 @@ std::pair<bool, std::string>
     std::vector<PredefinedField> fields;
     for ( auto [part, partName] : partNames )
     {
-        std::string name = partName + "." + partName;
+        std::string name = partName + ".ALL";
         if ( !voidRatioFromEclipse )
         {
             fields.push_back( PredefinedField{ .initialConditionType = "RATIO", .partName = name, .value = 0.3 } );
