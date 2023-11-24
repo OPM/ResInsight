@@ -113,7 +113,9 @@ void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle
     {
         for ( auto obj : updatedObjects )
         {
-            if ( auto curve = dynamic_cast<RimSummaryCurve*>( obj ) )
+            // Must use firstAncestorOrThisOfType, since we need to update the curve appearance if the object is a child of a
+            // RimSummaryCurve. This is the case when modifying curve appearance.
+            if ( auto curve = obj->firstAncestorOrThisOfType<RimSummaryCurve>() )
             {
                 curve->updateCurveAppearance();
             }
