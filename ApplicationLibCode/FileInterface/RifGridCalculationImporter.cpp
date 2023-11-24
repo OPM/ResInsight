@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifGridCalculationImporter.h"
-#include "RifGridCalculation.h"
 
 #include <toml++/toml.h>
 
@@ -26,14 +25,15 @@
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<RifGridCalculation>, std::string> RifGridCalculationImporter::readFromFile( const std::string& filePath )
 {
-    printf( "READ FILE PATH: %s\n", filePath.c_str() );
     std::ifstream stream( filePath );
+    if ( !stream.good() ) return { {}, "Unable to open file: " + filePath };
 
     return readFromStream( stream );
 }
 
-#include <iostream>
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<std::vector<RifGridCalculation>, std::string> RifGridCalculationImporter::readFromStream( std::istream& stream )
 {
     toml::table tbl = toml::parse( stream );
@@ -49,10 +49,6 @@ std::pair<std::vector<RifGridCalculation>, std::string> RifGridCalculationImport
             RifGridCalculation calculation;
             if ( toml::table* calc = a.as_table() )
             {
-                std::cout << std::endl;
-                std::cout << *calc;
-                std::cout << std::endl;
-
                 calculation.description = calc->at_path( "description" ).as_string()->value_or( "" );
                 calculation.expression  = calc->at_path( "expression" ).as_string()->value_or( "" );
                 calculation.unit        = calc->at_path( "unit" ).as_string()->value_or( "" );

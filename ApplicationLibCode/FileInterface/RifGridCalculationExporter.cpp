@@ -18,7 +18,6 @@
 
 #include "RifGridCalculationExporter.h"
 
-#include <iostream>
 #include <toml++/toml.h>
 
 //--------------------------------------------------------------------------------------------------
@@ -27,12 +26,15 @@
 std::pair<bool, std::string> RifGridCalculationExporter::writeToFile( const std::vector<RifGridCalculation>& calculations,
                                                                       const std::string&                     filePath )
 {
-    printf( "FILE PATH: %s\n", filePath.c_str() );
     std::ofstream stream( filePath );
+    if ( !stream.good() ) return { false, "Unable to open file: " + filePath };
 
     return writeToStream( calculations, stream );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string> RifGridCalculationExporter::writeToStream( const std::vector<RifGridCalculation>& calculations,
                                                                         std::ostream&                          stream )
 {
@@ -50,13 +52,12 @@ std::pair<bool, std::string> RifGridCalculationExporter::writeToStream( const st
             } );
         }
 
-        auto m = toml::table{
+        calculationsVector.push_back( toml::table{
             { "description", calculation.description },
             { "expression", calculation.expression },
             { "unit", calculation.unit },
             { "variables", variablesVector },
-        };
-        calculationsVector.push_back( m );
+        } );
     }
 
     auto tbl = toml::table{
