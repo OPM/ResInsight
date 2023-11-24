@@ -1042,7 +1042,6 @@ void RimPlotCurve::updateCurveAppearance()
 
     // Make sure the legend lines are long enough to distinguish between line types.
     // Standard width in Qwt is 8 which is too short.
-    // Use 10 and scale this by curve thickness + add space for displaying symbol.
     if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
     {
         QSize legendIconSize = m_plotCurve->legendIconSize();
@@ -1053,7 +1052,7 @@ void RimPlotCurve::updateCurveAppearance()
             symbolWidth = symbol->boundingRect().size().width() + 2;
         }
 
-        int width = std::max( 10 * m_curveAppearance->lineThickness(), ( symbolWidth * 3 ) / 2 );
+        int width = std::max( 20, ( symbolWidth * 3 ) / 2 );
 
         legendIconSize.setWidth( width );
         m_plotCurve->setLegendIconSize( legendIconSize );
