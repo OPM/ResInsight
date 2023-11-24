@@ -22,3 +22,6 @@
 [submodule "ThirdParty/regression-analysis"]
 	path = ThirdParty/regression-analysis
 	url = https://github.com/CeetronSolutions/regression-analysis.git
+[submodule "ThirdParty/tomlplusplus"]
+	path = ThirdParty/tomlplusplus
+	url = https://github.com/marzer/tomlplusplus.git

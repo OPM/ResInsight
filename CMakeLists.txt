@@ -49,6 +49,7 @@ if(RESINSIGHT_VCPKG_AUTO_INSTALL)
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -613,6 +614,12 @@ set_property(
   TARGET regression-analysis-tests gtest gtest_main PROPERTY FOLDER
                                                              "Thirdparty"
 )
+
+# ##############################################################################
+# toml++
+# ##############################################################################
+
+add_subdirectory(ThirdParty/tomlplusplus)
 
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
