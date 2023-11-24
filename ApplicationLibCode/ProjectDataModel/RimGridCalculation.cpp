@@ -127,9 +127,9 @@ bool RimGridCalculation::calculate()
         }
     }
 
-    auto timeSteps     = std::nullopt;
-    bool useViewFilter = true;
-    return calculateForCases( outputEclipseCases(), useViewFilter, timeSteps );
+    auto timeSteps                  = std::nullopt;
+    auto inputValueVisibilityFilter = std::nullopt;
+    return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter, timeSteps );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -537,7 +537,7 @@ void RimGridCalculation::removeDependentObjects()
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& calculationCases,
-                                            bool                                useViewFilter,
+                                            std::optional<cvf::UByteArray*>     inputValueVisibilityFilter,
                                             std::optional<std::vector<size_t>>  timeSteps )
 {
     if ( calculationCases.empty() ) return true;
@@ -604,7 +604,18 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             {
                 RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
                 CAF_ASSERT( v != nullptr );
-                values.push_back( getInputVectorForVariable( v, tsId, porosityModel, calculationCase ) );
+
+                auto inputValues = getInputVectorForVariable( v, tsId, porosityModel, calculationCase );
+
+                if ( inputValueVisibilityFilter )
+                {
+                    auto visibility = *inputValueVisibilityFilter;
+
+                    const double defaultValue = 0.0;
+                    replaceFilteredValuesWithDefaultValue( m_defaultValue(), visibility, inputValues, porosityModel, calculationCase );
+                }
+
+                values.push_back( inputValues );
             }
 
             ExpressionParser parser;
@@ -624,7 +635,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
             if ( evaluatedOk )
             {
-                if ( useViewFilter && m_cellFilterView() )
+                if ( m_cellFilterView() )
                 {
                     filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, calculationCase );
                 }

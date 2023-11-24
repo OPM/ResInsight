@@ -58,7 +58,7 @@ public:
     std::vector<RimEclipseCase*> outputEclipseCases() const;
     RigEclipseResultAddress      outputAddress() const;
     bool                         calculateForCases( const std::vector<RimEclipseCase*>& calculationCases,
-                                                    bool                                useViewFilter,
+                                                    std::optional<cvf::UByteArray*>     inputValueVisibilityFilter,
                                                     std::optional<std::vector<size_t>>  timeSteps );
     void                         assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase );
 
