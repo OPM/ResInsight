@@ -54,10 +54,10 @@ public:
 
     std::vector<RimUserDefinedCalculationVariable*> allVariables() const;
 
-    void    setExpression( const QString& expr );
-    QString expression() const;
-    QString unitName() const;
-
+    void         setExpression( const QString& expr );
+    QString      expression() const;
+    void         setUnit( const QString& unit );
+    QString      unitName() const;
     bool         parseExpression();
     virtual bool preCalculate() const;
     virtual bool calculate()              = 0;
@@ -71,6 +71,8 @@ public:
 
     QString shortName() const;
 
+    RimUserDefinedCalculationVariable* addVariable( const QString& name );
+
 protected:
     virtual RimUserDefinedCalculationVariable* createVariable() = 0;
 
@@ -79,7 +81,6 @@ protected:
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     RimUserDefinedCalculationVariable* findByName( const QString& name ) const;
-    RimUserDefinedCalculationVariable* addVariable( const QString& name );
     void                               deleteVariable( RimUserDefinedCalculationVariable* calcVariable );
 
     virtual QString buildCalculationName() const;

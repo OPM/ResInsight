@@ -24,10 +24,15 @@
 #include "RiaPreferences.h"
 
 #include "RimEclipseCaseTools.h"
+#include "RimEclipseResultAddress.h"
 #include "RimGridCalculationCollection.h"
+#include "RimGridCalculationVariable.h"
 #include "RimProject.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
+
+#include "RifGridCalculationImporter.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmXmlObjectHandle.h"
@@ -50,19 +55,17 @@ void RicImportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
                                                                    RiaPreferences::current()->gridCalculationExpressionFolder() );
 
     QString fileName =
-        RiuFileDialogTools::getOpenFileName( nullptr, "Import Grid Calculation Expressions", defaultDir, "Xml File(*.xml);;All files(*.*)" );
-
+        RiuFileDialogTools::getOpenFileName( nullptr, "Import Grid Calculation Expressions", defaultDir, "Toml File(*.toml);;All files(*.*)" );
     if ( fileName.isEmpty() ) return;
 
-    QFile importFile( fileName );
-    if ( !importFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    auto [calculations, errorMessage] = RifGridCalculationImporter::readFromFile( fileName.toStdString() );
+    if ( !errorMessage.empty() )
     {
-        RiaLogging::error( QString( "Import Grid Calculation Expressions : Could not open the file: %1" ).arg( fileName ) );
+        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
+                                       "Grid Calculation Import Error",
+                                       QString::fromStdString( errorMessage ) );
         return;
     }
-
-    QTextStream stream( &importFile );
-    QString     objectAsText = stream.readAll();
 
     auto proj     = RimProject::current();
     auto calcColl = proj->gridCalculationCollection();
@@ -71,14 +74,32 @@ void RicImportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
     auto            eclCases  = RimEclipseCaseTools::allEclipseGridCases();
     if ( !eclCases.empty() ) firstCase = eclCases.front();
 
-    RimGridCalculationCollection tmp;
-    tmp.xmlCapability()->readObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
-    for ( auto calc : tmp.calculations() )
+    for ( auto calc : calculations )
     {
-        auto gridCalculation = dynamic_cast<RimGridCalculation*>( calcColl->addCalculationCopy( calc ) );
-        if ( gridCalculation && firstCase )
+        bool addDefaultExpression = false;
+        auto gridCalculation      = dynamic_cast<RimGridCalculation*>( calcColl->addCalculation( addDefaultExpression ) );
+        if ( gridCalculation )
         {
-            gridCalculation->assignEclipseCaseForNullPointers( firstCase );
+            gridCalculation->setExpression( QString::fromStdString( calc.expression ) );
+            gridCalculation->setDescription( QString::fromStdString( calc.description ) );
+            gridCalculation->setUnit( QString::fromStdString( calc.unit ) );
+            for ( auto var : calc.variables )
+            {
+                auto variable = dynamic_cast<RimGridCalculationVariable*>( gridCalculation->addVariable( QString::fromStdString( var.name ) ) );
+                RimEclipseResultAddress address;
+
+                RiaDefines::ResultCatType myEnum =
+                    caf::AppEnum<RiaDefines::ResultCatType>::fromText( QString::fromStdString( var.resultType ) );
+                address.setEclipseCase( firstCase );
+                address.setResultName( QString::fromStdString( var.resultVariable ) );
+                address.setResultType( myEnum );
+                variable->setEclipseResultAddress( address );
+            }
+
+            if ( firstCase )
+            {
+                gridCalculation->assignEclipseCaseForNullPointers( firstCase );
+            }
         }
     }
 
