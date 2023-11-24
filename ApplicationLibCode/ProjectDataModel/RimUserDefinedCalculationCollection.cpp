@@ -40,15 +40,18 @@ RimUserDefinedCalculationCollection::RimUserDefinedCalculationCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculation()
+RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculation( bool addDefaultExpression )
 {
     RimUserDefinedCalculation* calculation = createCalculation();
     assignCalculationIdToCalculation( calculation );
 
-    QString varName = QString( "Calculation_%1" ).arg( calculation->id() );
-    calculation->setDescription( varName );
-    calculation->setExpression( varName + " := x + y" );
-    calculation->parseExpression();
+    if ( addDefaultExpression )
+    {
+        QString varName = QString( "Calculation_%1" ).arg( calculation->id() );
+        calculation->setDescription( varName );
+        calculation->setExpression( varName + " := x + y" );
+        calculation->parseExpression();
+    }
 
     m_calculations.push_back( calculation );
 

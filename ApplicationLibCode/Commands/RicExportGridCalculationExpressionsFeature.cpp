@@ -28,6 +28,7 @@
 #include "RimGridCalculationVariable.h"
 #include "RimProject.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
 #include <QAction>
@@ -65,15 +66,6 @@ void RicExportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
                                                             "Toml File(*.toml);;All files(*.*)" );
     if ( fileName.isEmpty() ) return;
 
-    // QFile exportFile( fileName );
-    // if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
-    // {
-    //     RiaLogging::errorInMessageBox( nullptr,
-    //                                    "Export Grid Calculation Expressions",
-    //                                    QString( "Could not save to the file: %1" ).arg( fileName ) );
-    //     return;
-    // }
-
     QString absPath = QFileInfo( fileName ).absolutePath();
 
     app->setLastUsedDialogDirectory( RicExportGridCalculationExpressionsFeature::gridCalculationExpressionId(), absPath );
@@ -90,7 +82,7 @@ void RicExportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
             {
                 RifGridCalculationVariable var;
                 var.resultVariable = gridVariable->resultVariable().toStdString();
-                var.resultType     = caf::AppEnum<RiaDefines::ResultCatType>::uiText( gridVariable->resultCategoryType() ).toStdString();
+                var.resultType     = caf::AppEnum<RiaDefines::ResultCatType>::text( gridVariable->resultCategoryType() ).toStdString();
                 var.name           = gridVariable->name().toStdString();
                 calc.variables.push_back( var );
             }
@@ -99,10 +91,13 @@ void RicExportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
         calculations.push_back( calc );
     }
 
-    RifGridCalculationExporter::writeToFile( calculations, fileName.toStdString() );
-
-    // QTextStream stream( &exportFile );
-    // stream << objectAsText;
+    auto [isOk, errorMessage] = RifGridCalculationExporter::writeToFile( calculations, fileName.toStdString() );
+    if ( !isOk )
+    {
+        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
+                                       "Grid Calculation Export Error",
+                                       QString::fromStdString( errorMessage ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
