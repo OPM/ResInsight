@@ -29,6 +29,7 @@
 #include "RimGridCalculationVariable.h"
 #include "RimProject.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
 #include "RifGridCalculationImporter.h"
@@ -55,10 +56,16 @@ void RicImportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
 
     QString fileName =
         RiuFileDialogTools::getOpenFileName( nullptr, "Import Grid Calculation Expressions", defaultDir, "Toml File(*.toml);;All files(*.*)" );
-
     if ( fileName.isEmpty() ) return;
 
     auto [calculations, errorMessage] = RifGridCalculationImporter::readFromFile( fileName.toStdString() );
+    if ( !errorMessage.empty() )
+    {
+        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
+                                       "Grid Calculation Import Error",
+                                       QString::fromStdString( errorMessage ) );
+        return;
+    }
 
     auto proj     = RimProject::current();
     auto calcColl = proj->gridCalculationCollection();
@@ -69,7 +76,8 @@ void RicImportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
 
     for ( auto calc : calculations )
     {
-        auto gridCalculation = dynamic_cast<RimGridCalculation*>( calcColl->addCalculation() );
+        bool addDefaultExpression = false;
+        auto gridCalculation      = dynamic_cast<RimGridCalculation*>( calcColl->addCalculation( addDefaultExpression ) );
         if ( gridCalculation )
         {
             gridCalculation->setExpression( QString::fromStdString( calc.expression ) );

@@ -37,7 +37,7 @@ class RimUserDefinedCalculationCollection : public caf::PdmObject
 public:
     RimUserDefinedCalculationCollection();
 
-    RimUserDefinedCalculation*              addCalculation();
+    RimUserDefinedCalculation*              addCalculation( bool addDefaultExpression = true );
     RimUserDefinedCalculation*              addCalculationCopy( const RimUserDefinedCalculation* sourceCalculation );
     void                                    deleteCalculation( RimUserDefinedCalculation* calculation );
     std::vector<RimUserDefinedCalculation*> calculations() const;
