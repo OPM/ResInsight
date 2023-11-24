@@ -551,7 +551,10 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         return false;
     }
 
-    const bool isMultipleCasesPresent = calculationCases.size() > 1;
+    const bool isMultipleCasesPresent   = calculationCases.size() > 1;
+    const bool hasAggregationExpression = m_expression().contains( "sum" ) || m_expression().contains( "avg" ) ||
+                                          m_expression().contains( "min" ) || m_expression().contains( "max" ) ||
+                                          m_expression().contains( "count" );
 
     if ( isMultipleCasesPresent )
     {
@@ -594,6 +597,8 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             calculationCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
         scalarResultFrames->resize( timeStepCount );
 
+        std::vector<double> aggregatedValuesPerTimeStep;
+
         for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
         {
             // Skip time steps that are not in the list of time steps to calculate
@@ -635,6 +640,20 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
             if ( evaluatedOk )
             {
+                if ( hasAggregationExpression )
+                {
+                    auto it =
+                        std::find_if( resultValues.begin(), resultValues.end(), []( double v ) { return ( !std::isnan( v ) && v != 0.0 ); } );
+                    if ( it != resultValues.end() )
+                    {
+                        aggregatedValuesPerTimeStep.push_back( *it );
+                    }
+                    else
+                    {
+                        aggregatedValuesPerTimeStep.push_back( 0.0 );
+                    }
+                }
+
                 if ( m_cellFilterView() )
                 {
                     filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, calculationCase );
@@ -659,6 +678,15 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         if ( isMultipleCasesPresent )
         {
             QString txt = "    " + calculationCase->caseUserDescription();
+
+            if ( !aggregatedValuesPerTimeStep.empty() )
+            {
+                for ( auto v : aggregatedValuesPerTimeStep )
+                {
+                    txt += "\t" + QString::number( v );
+                }
+            }
+
             RiaLogging::info( txt );
         }
 
