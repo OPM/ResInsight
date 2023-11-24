@@ -622,9 +622,6 @@ set_property(
 find_package(tomlplusplus CONFIG REQUIRED)
 list(APPEND THIRD_PARTY_LIBRARIES tomlplusplus::tomlplusplus)
 
-
-
-
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
