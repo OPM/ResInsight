@@ -280,7 +280,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
             m_meshLines.push_back( { fromPos, toPos } );
 
-            for ( int h = 0; h <= nHorzCells; h++ )
+            for ( int h = 0; h <= (int)nHorzCells; h++ )
             {
                 p = toPos - horizontalPartition[h] * stepHorz;
 
@@ -357,7 +357,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
         int i = layerIndexOffset;
 
-        for ( int h = 0; h < nHorzCells; h++ )
+        for ( int h = 0; h < (int)nHorzCells; h++ )
         {
             for ( int t = 0; t < nThicknessCells; t++, elementIdx++ )
             {
