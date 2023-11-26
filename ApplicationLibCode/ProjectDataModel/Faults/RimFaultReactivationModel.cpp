@@ -79,10 +79,10 @@ RimFaultReactivationModel::RimFaultReactivationModel()
 
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Model" ), "Name" );
     CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeoMechCase", "Global GeoMech Model" );
-    CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working folder" );
+    CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working Folder" );
     CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
 
-    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Horz. Extent from Anchor" );
+    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 2000.0, "Horz. Extent from Anchor" );
     CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Start Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
@@ -91,9 +91,9 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_startCellIndex = 0;
     m_startCellFace  = cvf::StructGridInterface::FaceType::NO_FACE;
 
-    CAF_PDM_InitField( &m_faultExtendUpwards, "FaultExtendUpwards", 100.0, "Fault Extension Above Reservoir" );
+    CAF_PDM_InitField( &m_faultExtendUpwards, "FaultExtendUpwards", 100.0, "Above Reservoir" );
     m_faultExtendUpwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 100.0, "Fault Extension Below Reservoir" );
+    CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 100.0, "Below Reservoir" );
     m_faultExtendDownwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
@@ -104,11 +104,11 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelPart1Color, "ModelPart1Color", cvf::Color3f( cvf::Color3f::GREEN ), "Part 1 Color" );
     CAF_PDM_InitField( &m_modelPart2Color, "ModelPart2Color", cvf::Color3f( cvf::Color3f::BLUE ), "Part 2 Color" );
 
-    CAF_PDM_InitField( &m_numberOfCellsHorzPart1, "NumberOfCellsHorzPart1", 20, "Horizontal Number of Cells, Part 1" );
-    CAF_PDM_InitField( &m_numberOfCellsHorzPart2, "NumberOfCellsHorzPart2", 20, "Horizontal Number of Cells, Part 2" );
-
     CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 20.0, "Max. Reservoir Cell Height" );
-    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.05, "Cell Height Grow Factor Outside Reservoir" );
+    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.05, "Cell Height Grow Factor" );
+
+    CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 20.0, "Reservoir Cell Width" );
+    CAF_PDM_InitField( &m_cellWidthGrowFactor, "CellWidthGrowFactor", 1.05, "Cell Width Grow Factor" );
 
     CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Export Using Local Coordinates" );
 
@@ -314,7 +314,7 @@ void RimFaultReactivationModel::updateVisualization()
     generator->setModelSize( m_modelMinZ, m_modelBelowSize, m_modelExtentFromAnchor );
     generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards );
     generator->setModelThickness( m_modelThickness );
-    generator->setModelGriddingOptions( m_maxReservoirCellHeight, m_cellHeightGrowFactor, m_numberOfCellsHorzPart1, m_numberOfCellsHorzPart2 );
+    generator->setModelGriddingOptions( m_maxReservoirCellHeight, m_cellHeightGrowFactor, m_minReservoirCellWidth, m_cellWidthGrowFactor );
     generator->setupLocalCoordinateTransform();
     generator->setUseLocalCoordinates( m_useLocalCoordinates );
 
@@ -433,16 +433,23 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
         m_modelMinZ.uiCapability()->setUiReadOnly( false );
     }
 
-    auto faultGrp = modelGrp->addNewGroup( "Fault" );
+    auto faultGrp = modelGrp->addNewGroup( "Fault Extension" );
     faultGrp->add( &m_faultExtendUpwards );
     faultGrp->add( &m_faultExtendDownwards );
 
-    auto gridModelGrp = modelGrp->addNewGroup( "Grid" );
-    gridModelGrp->add( &m_modelThickness );
+    auto gridModelGrp = modelGrp->addNewGroup( "Grid Definition" );
     gridModelGrp->add( &m_maxReservoirCellHeight );
     gridModelGrp->add( &m_cellHeightGrowFactor );
-    gridModelGrp->add( &m_numberOfCellsHorzPart1 );
-    gridModelGrp->add( &m_numberOfCellsHorzPart2 );
+
+    gridModelGrp->add( &m_minReservoirCellWidth );
+    gridModelGrp->add( &m_cellWidthGrowFactor );
+
+    gridModelGrp->add( &m_modelThickness );
+
+    auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
+    appModelGrp->setCollapsedByDefault();
+    appModelGrp->add( &m_modelPart1Color );
+    appModelGrp->add( &m_modelPart2Color );
 
     auto timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
     timeStepGrp->add( &m_timeStepFilter );
@@ -455,10 +462,6 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     propertiesGrp->add( &m_useGridTemperature );
     propertiesGrp->add( &m_useGridDensity );
     propertiesGrp->add( &m_useGridElasticProperties );
-
-    auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
-    appModelGrp->add( &m_modelPart1Color );
-    appModelGrp->add( &m_modelPart2Color );
 
     auto trgGroup = uiOrdering.addNewGroup( "Debug" );
     trgGroup->setCollapsedByDefault();

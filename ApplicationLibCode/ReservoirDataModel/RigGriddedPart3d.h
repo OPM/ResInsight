@@ -48,7 +48,7 @@ public:
                            const std::vector<int>&           kLayers,
                            double                            maxCellHeight,
                            double                            cellSizeFactor,
-                           int                               nHorzCells,
+                           const std::vector<double>&        horizontalPartition,
                            double                            modelThickness );
 
     void generateLocalNodes( const cvf::Mat4d transform );
@@ -74,7 +74,7 @@ protected:
     static std::vector<double> generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor );
     static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
 
-    void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells );
+    void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, const std::vector<double>& horzPartition );
 
 private:
     enum class Regions

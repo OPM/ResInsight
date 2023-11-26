@@ -168,9 +168,8 @@ private:
 
     caf::PdmField<double> m_maxReservoirCellHeight;
     caf::PdmField<double> m_cellHeightGrowFactor;
-
-    caf::PdmField<int> m_numberOfCellsHorzPart1;
-    caf::PdmField<int> m_numberOfCellsHorzPart2;
+    caf::PdmField<double> m_minReservoirCellWidth;
+    caf::PdmField<double> m_cellWidthGrowFactor;
 
     caf::PdmField<bool> m_useLocalCoordinates;
 

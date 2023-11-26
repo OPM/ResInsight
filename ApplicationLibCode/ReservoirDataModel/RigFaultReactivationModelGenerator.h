@@ -46,7 +46,7 @@ public:
     void setFaultBufferDepth( double aboveFault, double belowFault );
     void setModelSize( double startDepth, double depthBelowFault, double horzExtentFromFault );
     void setModelThickness( double thickness );
-    void setModelGriddingOptions( double maxCellHeight, double cellSizeFactor, int noOfCellsHorzFront, int noOfCellsHorzBack );
+    void setModelGriddingOptions( double maxCellHeight, double cellSizeFactorHeight, double minCellWidth, double cellSizeFactorWidth );
 
     void setUseLocalCoordinates( bool useLocalCoordinates );
     void setupLocalCoordinateTransform();
@@ -66,6 +66,7 @@ public:
 protected:
     static const std::array<int, 4>      faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
     static const std::vector<cvf::Vec3d> interpolateExtraPoints( cvf::Vec3d from, cvf::Vec3d to, double maxStep );
+    static const std::vector<double>     partition( double distance, double startSize, double sizeFactor );
 
     static cvf::Vec3d lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
     static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
@@ -85,6 +86,8 @@ private:
     std::array<cvf::Vec3d, 12> m_frontPoints;
     std::array<cvf::Vec3d, 12> m_backPoints;
 
+    std::vector<double> m_horizontalPartition;
+
     cvf::cref<RigFault>          m_fault;
     cvf::cref<RigMainGrid>       m_grid;
     cvf::cref<RigActiveCellInfo> m_activeCellInfo;
@@ -98,10 +101,9 @@ private:
     double m_modelThickness;
 
     double m_maxCellHeight;
-    double m_cellSizeFactor;
-
-    int m_noOfCellsHorzFront;
-    int m_noOfCellsHorzBack;
+    double m_cellSizeHeightFactor;
+    double m_minCellWidth;
+    double m_cellSizeWidthFactor;
 
     cvf::Vec3d m_topReservoirFront;
     cvf::Vec3d m_topReservoirBack;

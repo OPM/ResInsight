@@ -192,7 +192,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                                          const std::vector<int>&           kLayers,
                                          const double                      maxCellHeight,
                                          double                            cellSizeFactor,
-                                         int                               nHorzCells,
+                                         const std::vector<double>&        horizontalPartition,
                                          double                            modelThickness )
 {
     reset();
@@ -206,6 +206,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     layersPerRegion[Regions::UpperOverburden] = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
 
     size_t nVertCells = 0;
+    size_t nHorzCells = horizontalPartition.size() - 1;
 
     for ( auto region : allRegions() )
     {
@@ -214,7 +215,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
     const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
     const int                 nThicknessCells    = 2;
-    cvf::Vec3d                tVec               = stepVector( inputPoints[0], inputPoints[6], nHorzCells ) ^ cvf::Vec3d::Z_AXIS;
+    cvf::Vec3d                tVec               = stepVector( inputPoints[0], inputPoints[6], 1 ) ^ cvf::Vec3d::Z_AXIS;
     tVec.normalize();
     tVec *= modelThickness;
 
@@ -274,13 +275,15 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 toPos.z()   = layersPerRegion[region][v];
             }
 
-            cvf::Vec3d p        = fromPos;
-            cvf::Vec3d stepHorz = stepVector( fromPos, toPos, nHorzCells );
+            cvf::Vec3d stepHorz = toPos - fromPos;
+            cvf::Vec3d p;
 
             m_meshLines.push_back( { fromPos, toPos } );
 
             for ( int h = 0; h <= nHorzCells; h++ )
             {
+                p = toPos - horizontalPartition[h] * stepHorz;
+
                 for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
                 {
                     m_nodes.push_back( p + m_thicknessFactors[t] * tVec );
@@ -293,8 +296,6 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                         m_boundaryNodes[Boundary::FarSide].push_back( nodeIndex );
                     }
                 }
-
-                p += stepHorz;
             }
 
             if ( region == Regions::Reservoir )
@@ -343,7 +344,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
     RimFaultReactivation::ElementSets   currentElementSet    = RimFaultReactivation::ElementSets::UnderBurden;
 
-    const int nextLayerIdxOff = ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
+    const int nextLayerIdxOff = ( (int)nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
 
     for ( int v = 0; v < (int)nVertCells - 1; v++, layer++ )
@@ -415,7 +416,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     // vertical mesh lines for 2d display
     for ( int i = 0; i < 5; i++ )
     {
-        generateVerticalMeshlines( { inputPoints[i], inputPoints[i + 1], inputPoints[i + 7], inputPoints[i + 6] }, nHorzCells );
+        generateVerticalMeshlines( { inputPoints[i], inputPoints[i + 1], inputPoints[i + 7], inputPoints[i + 6] }, horizontalPartition );
     }
 }
 
@@ -432,19 +433,18 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 ///
 /// Assumes 0->3 and 1->2 is parallel
 //--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, int numHorzCells )
+void RigGriddedPart3d::generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, const std::vector<double>& horzPartition )
 {
-    cvf::Vec3d step0to3 = stepVector( cornerPoints[0], cornerPoints[3], numHorzCells );
-    cvf::Vec3d step1to2 = stepVector( cornerPoints[1], cornerPoints[2], numHorzCells );
+    cvf::Vec3d step0to3 = cornerPoints[3] - cornerPoints[0];
+    cvf::Vec3d step1to2 = cornerPoints[2] - cornerPoints[1];
 
-    auto startP = cornerPoints[0];
-    auto endP   = cornerPoints[1];
+    int numHorzCells = (int)horzPartition.size();
 
-    for ( int h = 0; h <= numHorzCells; h++ )
+    for ( int h = 0; h < numHorzCells; h++ )
     {
+        auto startP = cornerPoints[3] - horzPartition[h] * step0to3;
+        auto endP   = cornerPoints[2] - horzPartition[h] * step1to2;
         m_meshLines.push_back( { startP, endP } );
-        startP += step0to3;
-        endP += step1to2;
     }
 }
 
