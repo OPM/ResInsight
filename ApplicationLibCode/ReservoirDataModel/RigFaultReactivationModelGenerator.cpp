@@ -46,6 +46,10 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_horzExtentFromFault( 1000.0 )
     , m_modelThickness( 100.0 )
     , m_useLocalCoordinates( false )
+    , m_cellSizeHeightFactor( 1.0 )
+    , m_cellSizeWidthFactor( 1.0 )
+    , m_maxCellHeight( 20.0 )
+    , m_minCellWidth( 20.0 )
 {
 }
 
@@ -119,14 +123,14 @@ void RigFaultReactivationModelGenerator::setUseLocalCoordinates( bool useLocalCo
 ///
 //--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModelGenerator::setModelGriddingOptions( double maxCellHeight,
-                                                                  double cellSizeFactor,
-                                                                  int    noOfCellsHorzFront,
-                                                                  int    noOfCellsHorzBack )
+                                                                  double cellSizeFactorHeight,
+                                                                  double minCellWidth,
+                                                                  double cellSizeFactorWidth )
 {
-    m_maxCellHeight      = maxCellHeight;
-    m_cellSizeFactor     = cellSizeFactor;
-    m_noOfCellsHorzFront = noOfCellsHorzFront;
-    m_noOfCellsHorzBack  = noOfCellsHorzBack;
+    m_maxCellHeight        = maxCellHeight;
+    m_cellSizeHeightFactor = cellSizeFactorHeight;
+    m_minCellWidth         = minCellWidth;
+    m_cellSizeWidthFactor  = cellSizeFactorWidth;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -330,6 +334,35 @@ void RigFaultReactivationModelGenerator::generatePointsFrontBack()
         m_frontPoints[i] = points[frontMap[i]];
         m_backPoints[i]  = points[backMap[i]];
     }
+
+    m_horizontalPartition = partition( m_startPosition.pointDistance( edge_front ), m_minCellWidth, m_cellSizeWidthFactor );
+    // we start gridding from the far edges of the model, reverse the partition
+    std::reverse( m_horizontalPartition.begin(), m_horizontalPartition.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double> RigFaultReactivationModelGenerator::partition( double distance, double startSize, double sizeFactor )
+{
+    std::vector<double> parts;
+
+    double d    = 0;
+    double step = startSize;
+
+    while ( d < distance )
+    {
+        parts.push_back( d / distance );
+        d += step;
+        step *= sizeFactor;
+    }
+
+    // get rid of outermost cell column if too small
+    if ( distance * ( 1.0 - parts.back() ) < startSize ) parts.pop_back();
+
+    parts.push_back( 1.0 );
+
+    return parts;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,10 +475,16 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
                                  frontReservoirLayers,
                                  kLayersFront,
                                  m_maxCellHeight,
-                                 m_cellSizeFactor,
-                                 m_noOfCellsHorzFront,
+                                 m_cellSizeHeightFactor,
+                                 m_horizontalPartition,
                                  m_modelThickness );
-    backPart->generateGeometry( m_backPoints, backReservoirLayers, kLayersBack, m_maxCellHeight, m_cellSizeFactor, m_noOfCellsHorzBack, m_modelThickness );
+    backPart->generateGeometry( m_backPoints,
+                                backReservoirLayers,
+                                kLayersBack,
+                                m_maxCellHeight,
+                                m_cellSizeHeightFactor,
+                                m_horizontalPartition,
+                                m_modelThickness );
 
     frontPart->generateLocalNodes( m_localCoordTransform );
     backPart->generateLocalNodes( m_localCoordTransform );
