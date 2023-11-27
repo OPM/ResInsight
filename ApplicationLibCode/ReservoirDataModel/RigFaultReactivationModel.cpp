@@ -65,7 +65,7 @@ RigFaultReactivationModel::~RigFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFaultReactivation::GridPart> RigFaultReactivationModel::allGridParts() const
 {
-    return { GridPart::PART1, GridPart::PART2 };
+    return { GridPart::FW, GridPart::HW };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::modelLocalNormalsXY
 void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace )
 {
     reset();
-    m_generator->generateGeometry( startCell, startFace, m_3dparts[GridPart::PART1].get(), m_3dparts[GridPart::PART2].get() );
+    m_generator->generateGeometry( startCell, startFace, m_3dparts[GridPart::FW].get(), m_3dparts[GridPart::HW].get() );
 
     auto& frontPoints = m_generator->frontPoints();
     auto& backPoints  = m_generator->backPoints();
