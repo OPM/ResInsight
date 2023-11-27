@@ -76,8 +76,9 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     m_searchBox->setPlaceholderText( "Type here to search in tree." );
     searchLayout->addWidget( m_searchBox );
 
-    QAction* clearAction = m_searchBox->addAction( QIcon( ":/caf/clear.svg" ), QLineEdit::TrailingPosition );
-    connect( clearAction, &QAction::triggered, this, &PdmUiTreeView::slotOnClearSearchBox );
+    m_clearAction = m_searchBox->addAction( QIcon( ":/caf/clear.svg" ), QLineEdit::TrailingPosition );
+    connect( m_clearAction, &QAction::triggered, this, &PdmUiTreeView::slotOnClearSearchBox );
+    m_clearAction->setVisible( false );
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
     m_layout->addLayout( searchLayout );
@@ -175,6 +176,7 @@ void PdmUiTreeView::slotOnSelectionChanged()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::slotOnClearSearchBox()
 {
+    //m_clearAction->setVisible( false );
     m_searchBox->setText( "" );
 }
 
@@ -186,6 +188,7 @@ void PdmUiTreeView::slotOnSearchTextChanged()
     QString searchText = m_searchBox->text().trimmed();
     if ( searchText.isEmpty() )
     {
+        m_clearAction->setVisible( false );
         m_treeViewEditor->setFilterString( searchText );
         if ( !m_treeStateString.isEmpty() )
         {
@@ -201,6 +204,7 @@ void PdmUiTreeView::slotOnSearchTextChanged()
     }
     m_treeViewEditor->setFilterString( searchText );
     m_treeViewEditor->treeView()->expandAll();
+    m_clearAction->setVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
