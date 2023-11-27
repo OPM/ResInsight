@@ -357,10 +357,10 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& r
         // Create new result data structures to contain the statistical values
         std::vector<QString> statisticalResultNames;
 
+        statisticalResultNames.push_back( createResultNameMean( resultName ) );
         statisticalResultNames.push_back( createResultNameMin( resultName ) );
         statisticalResultNames.push_back( createResultNameMax( resultName ) );
         statisticalResultNames.push_back( createResultNameSum( resultName ) );
-        statisticalResultNames.push_back( createResultNameMean( resultName ) );
         statisticalResultNames.push_back( createResultNameDev( resultName ) );
         statisticalResultNames.push_back( createResultNameRange( resultName ) );
 
