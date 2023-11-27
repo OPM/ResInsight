@@ -715,10 +715,10 @@ if(RESINSIGHT_BUNDLE_OPENSSL)
       string(REPLACE "include" "bin" OPENSSL_BIN_DIR ${OPENSSL_BIN_DIR})
       message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
 
-      install(FILES ${OPENSSL_BIN_DIR}/libcrypto-1_1-x64.dll
+      install(FILES ${OPENSSL_BIN_DIR}/libcrypto-3-x64.dll
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
       )
-      install(FILES ${OPENSSL_BIN_DIR}/libssl-1_1-x64.dll
+      install(FILES ${OPENSSL_BIN_DIR}/libssl-3-x64.dll
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
       )
     endif(OPENSSL_FOUND)
@@ -733,13 +733,13 @@ if(RESINSIGHT_BUNDLE_OPENSSL)
     install(FILES ${OPENSSL_BIN_DIR}/libcrypto.so
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
     )
-    install(FILES ${OPENSSL_BIN_DIR}/libcrypto.so.1.1
+    install(FILES ${OPENSSL_BIN_DIR}/libcrypto.so.3
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
     )
     install(FILES ${OPENSSL_BIN_DIR}/libssl.so
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
     )
-    install(FILES ${OPENSSL_BIN_DIR}/libssl.so.1.1
+    install(FILES ${OPENSSL_BIN_DIR}/libssl.so.3
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
     )
   endif()
