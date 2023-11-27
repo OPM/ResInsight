@@ -551,12 +551,21 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         return false;
     }
 
-    const bool isMultipleCasesPresent = calculationCases.size() > 1;
+    const bool isMultipleCasesPresent   = calculationCases.size() > 1;
+    const bool hasAggregationExpression = m_expression().contains( "sum" ) || m_expression().contains( "avg" ) ||
+                                          m_expression().contains( "min" ) || m_expression().contains( "max" ) ||
+                                          m_expression().contains( "count" );
 
     if ( isMultipleCasesPresent )
     {
-        QString txt = "Starting calculation " + description() + " for " + QString::number( calculationCases.size() ) + " cases.";
+        QString txt = "Starting calculation '" + description() + "' for " + QString::number( calculationCases.size() ) + " cases.";
         RiaLogging::info( txt );
+
+        if ( hasAggregationExpression )
+        {
+            RiaLogging::info( QString( "  Detected aggregated value in expression '%1'." ).arg( m_expression() ) );
+            RiaLogging::info( QString( "  Aggregated value per realization is displayed in one column per time step." ) );
+        }
     }
 
     caf::ProgressInfo progressInfo( calculationCases.size(), "Processing Grid Calculations" );
@@ -593,6 +602,8 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         std::vector<std::vector<double>>* scalarResultFrames =
             calculationCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
         scalarResultFrames->resize( timeStepCount );
+
+        std::vector<double> aggregatedValuesPerTimeStep;
 
         for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
         {
@@ -633,7 +644,21 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
             if ( evaluatedOk )
             {
-                if ( useViewFilter && m_cellFilterView() )
+                if ( hasAggregationExpression )
+                {
+                    auto it =
+                        std::find_if( resultValues.begin(), resultValues.end(), []( double v ) { return ( !std::isnan( v ) && v != 0.0 ); } );
+                    if ( it != resultValues.end() )
+                    {
+                        aggregatedValuesPerTimeStep.push_back( *it );
+                    }
+                    else
+                    {
+                        aggregatedValuesPerTimeStep.push_back( 0.0 );
+                    }
+                }
+
+                if ( m_cellFilterView() )
                 {
                     filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, calculationCase );
                 }
@@ -657,6 +682,12 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         if ( isMultipleCasesPresent )
         {
             QString txt = "    " + calculationCase->caseUserDescription();
+
+            for ( auto v : aggregatedValuesPerTimeStep )
+            {
+                txt += "\t" + QString::number( v );
+            }
+
             RiaLogging::info( txt );
         }
 
@@ -665,7 +696,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
     if ( isMultipleCasesPresent )
     {
-        QString txt = "Completed calculation " + description() + " for " + QString::number( outputEclipseCases().size() ) + " cases";
+        QString txt = "Completed calculation '" + description() + "' for " + QString::number( calculationCases.size() ) + " cases.";
         RiaLogging::info( txt );
     }
 
