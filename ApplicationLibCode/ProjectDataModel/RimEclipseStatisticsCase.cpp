@@ -318,11 +318,13 @@ void RimEclipseStatisticsCase::computeStatistics()
 
         for ( auto calc : dependentCalculations )
         {
-            // A view filter is depending on active cells for a specific case, and the current implementation does not work for grids with
-            // different active cells. Disable use of view filter for now.
-            const bool useViewFilter = false;
+            cvf::UByteArray* inputValueVisibilityFilter = nullptr;
+            if ( m_gridCalculationFilterView() )
+            {
+                inputValueVisibilityFilter = m_gridCalculationFilterView()->currentTotalCellVisibility().p();
+            }
 
-            calc->calculateForCases( sourceCases, useViewFilter, timeStepIndices );
+            calc->calculateForCases( sourceCases, inputValueVisibilityFilter, timeStepIndices );
         }
     }
 
@@ -629,7 +631,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
     {
         QList<caf::PdmOptionItemInfo> options;
 
-        options.push_back( caf::PdmOptionItemInfo( nullptr, "None" ) );
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
         for ( const auto& view : views() )
         {
