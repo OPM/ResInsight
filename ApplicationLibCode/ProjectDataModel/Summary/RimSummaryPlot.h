@@ -197,8 +197,6 @@ public:
         return 8;
     }
 
-    static void moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition );
-
     std::vector<RimSummaryCurve*>     curvesForStepping() const override;
     std::vector<RimEnsembleCurveSet*> curveSets() const override;
     std::vector<RimSummaryCurve*>     allCurves() const override;

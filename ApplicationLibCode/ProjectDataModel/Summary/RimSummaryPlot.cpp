@@ -423,45 +423,6 @@ void RimSummaryPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition )
-{
-    CAF_ASSERT( plot );
-
-    std::set<RimSummaryPlot*> srcPlots;
-
-    for ( auto curve : curves )
-    {
-        auto srcPlot = curve->firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-
-        srcPlot->removeCurve( curve );
-        srcPlots.insert( srcPlot );
-    }
-
-    for ( auto srcPlot : srcPlots )
-    {
-        srcPlot->updateConnectedEditors();
-        srcPlot->loadDataAndUpdate();
-    }
-    for ( size_t cIdx = 0; cIdx < curves.size(); ++cIdx )
-    {
-        if ( insertAtPosition >= 0 )
-        {
-            size_t position = (size_t)insertAtPosition + cIdx;
-            plot->insertCurve( curves[cIdx], position );
-        }
-        else
-        {
-            plot->addCurveNoUpdate( curves[cIdx] );
-        }
-    }
-
-    plot->updateConnectedEditors();
-    plot->updateStackedCurveData();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping() const
 {
     auto curveForStepping = summaryCurveCollection()->curveForSourceStepping();

@@ -78,8 +78,6 @@ private:
 
     bool handleWellLogPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimWellLogPlot* wellLogPlot, int insertAtPosition );
 
-    bool handleSummaryPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimSummaryPlot* summaryPlot, int insertAtPosition );
-
     bool handleMultiPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimMultiPlot* multiPlot, int insertAtPosition );
     bool handleSummaryCaseCollectionDrop( Qt::DropAction            action,
                                           caf::PdmObjectGroup&      objectGroup,
