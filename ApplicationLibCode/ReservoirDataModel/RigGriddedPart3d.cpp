@@ -34,6 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 RigGriddedPart3d::RigGriddedPart3d()
     : m_useLocalCoordinates( false )
+    , m_topHeight( 0.0 )
 {
 }
 
@@ -193,9 +194,12 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                                          const double                      maxCellHeight,
                                          double                            cellSizeFactor,
                                          const std::vector<double>&        horizontalPartition,
-                                         double                            modelThickness )
+                                         double                            modelThickness,
+                                         double                            topHeight )
 {
     reset();
+
+    m_topHeight = topHeight;
 
     std::map<Regions, std::vector<double>> layersPerRegion;
 
@@ -479,6 +483,14 @@ void RigGriddedPart3d::setUseLocalCoordinates( bool useLocalCoordinates )
 bool RigGriddedPart3d::useLocalCoordinates() const
 {
     return m_useLocalCoordinates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigGriddedPart3d::topHeight() const
+{
+    return m_topHeight;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -80,7 +80,7 @@ public:
 
     const std::vector<std::vector<cvf::Vec3d>>& meshLines( GridPart part ) const;
 
-    std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
+    const RigGriddedPart3d* grid( GridPart part ) const;
 
     const cvf::Vec3d                        faultNormal() const;
     const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottom() const;
@@ -93,5 +93,5 @@ private:
 
     bool m_isValid;
 
-    std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
+    std::map<GridPart, RigGriddedPart3d*> m_3dparts;
 };

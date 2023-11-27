@@ -49,7 +49,7 @@ RigFaultReactivationModel::RigFaultReactivationModel()
 
     for ( auto part : allGridParts() )
     {
-        m_3dparts[part] = std::make_shared<RigGriddedPart3d>();
+        m_3dparts[part] = new RigGriddedPart3d();
     }
 }
 
@@ -58,6 +58,11 @@ RigFaultReactivationModel::RigFaultReactivationModel()
 //--------------------------------------------------------------------------------------------------
 RigFaultReactivationModel::~RigFaultReactivationModel()
 {
+    for ( auto part : allGridParts() )
+    {
+        if ( m_3dparts[part] != nullptr ) delete m_3dparts[part];
+        m_3dparts[part] = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +144,17 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::modelLocalNormalsXY
 void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace )
 {
     reset();
-    m_generator->generateGeometry( startCell, startFace, m_3dparts[GridPart::FW].get(), m_3dparts[GridPart::HW].get() );
+
+    auto frontPart = m_3dparts[GridPart::FW];
+    auto backPart  = m_3dparts[GridPart::HW];
+
+    m_generator->generateGeometry( startCell, startFace, frontPart, backPart );
+
+    if ( backPart->topHeight() > frontPart->topHeight() )
+    {
+        m_3dparts[GridPart::HW] = frontPart;
+        m_3dparts[GridPart::FW] = backPart;
+    }
 
     auto& frontPoints = m_generator->frontPoints();
     auto& backPoints  = m_generator->backPoints();
@@ -191,7 +206,7 @@ const std::vector<std::vector<cvf::Vec3d>>& RigFaultReactivationModel::meshLines
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<RigGriddedPart3d> RigFaultReactivationModel::grid( RimFaultReactivation::GridPart part ) const
+const RigGriddedPart3d* RigFaultReactivationModel::grid( RimFaultReactivation::GridPart part ) const
 {
     return m_3dparts.at( part );
 }
