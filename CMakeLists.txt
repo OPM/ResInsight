@@ -621,7 +621,6 @@ set_property(
 
 add_subdirectory(ThirdParty/tomlplusplus)
 
-
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
