@@ -18,6 +18,8 @@
 
 #include "RifGridCalculationExporter.h"
 
+#include <fstream>
+
 #include <toml++/toml.h>
 
 //--------------------------------------------------------------------------------------------------
