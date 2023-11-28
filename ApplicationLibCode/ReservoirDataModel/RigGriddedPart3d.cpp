@@ -204,9 +204,11 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     std::map<Regions, std::vector<double>> layersPerRegion;
 
     layersPerRegion[Regions::LowerUnderburden] = generateGrowingLayers( inputPoints[1].z(), inputPoints[0].z(), maxCellHeight, cellSizeFactor );
+    layersPerRegion[Regions::LowerUnderburden].pop_back();
     layersPerRegion[Regions::UpperUnderburden] = generateConstantLayers( inputPoints[1].z(), inputPoints[2].z(), maxCellHeight );
     layersPerRegion[Regions::Reservoir]        = extractZValues( reservoirLayers );
-    layersPerRegion[Regions::LowerOverburden]  = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
+    layersPerRegion[Regions::Reservoir].pop_back();
+    layersPerRegion[Regions::LowerOverburden] = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
     layersPerRegion[Regions::UpperOverburden] = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
 
     size_t nVertCells = 0;
@@ -278,6 +280,11 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 fromPos.z() = layersPerRegion[region][v];
                 toPos.z()   = layersPerRegion[region][v];
             }
+            else if ( region == Regions::Reservoir )
+            {
+                toPos       = reservoirLayers[v];
+                fromPos.z() = toPos.z();
+            }
 
             cvf::Vec3d stepHorz = toPos - fromPos;
             cvf::Vec3d p;
@@ -302,12 +309,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 }
             }
 
-            if ( region == Regions::Reservoir )
-            {
-                toPos       = reservoirLayers[v];
-                fromPos.z() = toPos.z();
-            }
-            else
+            if ( region != Regions::Reservoir )
             {
                 fromPos += fromStep;
                 toPos += toStep;
