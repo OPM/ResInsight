@@ -56,10 +56,10 @@ std::pair<std::vector<RifGridCalculation>, std::string> RifGridCalculationImport
                 {
                     calculation.description = calc->at_path( "description" ).value_or<std::string>( "" );
                     if ( calculation.description.empty() ) throw std::runtime_error( "Missing description." );
-                    
-                    calculation.expression  = calc->at_path( "expression" ).value_or<std::string>( "" );
+
+                    calculation.expression = calc->at_path( "expression" ).value_or<std::string>( "" );
                     if ( calculation.expression.empty() ) throw std::runtime_error( "Missing expression." );
-                    
+
                     calculation.unit = calc->at_path( "unit" ).value_or<std::string>( "" );
 
                     if ( toml::array* vars = calc->at_path( "variables" ).as_array() )

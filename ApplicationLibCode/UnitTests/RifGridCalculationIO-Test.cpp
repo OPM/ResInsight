@@ -66,7 +66,6 @@ TEST( RifGridCalculationIO, importAndExport )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +75,6 @@ TEST( RifGridCalculationIO, importEmptyStream )
     auto [calculations, errorMessage] = RifGridCalculationImporter::readFromStream( stream );
     ASSERT_EQ( 0, calculations.size() );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,24 +89,21 @@ TEST( RifGridCalculationIO, importNotToml )
     ASSERT_FALSE( errorMessage.empty() );
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RifGridCalculationIO, importWrongToml )
 {
     std::stringstream stream;
-    stream 
-       << "[library]\n"
+    stream << "[library]\n"
            << "book = \"book name\"\n"
            << "authors = [\"Author Name\"]\n"
            << "isbn = \"1234567\"\n";
-    
+
     auto [calculations, errorMessage] = RifGridCalculationImporter::readFromStream( stream );
     ASSERT_EQ( 0, calculations.size() );
     ASSERT_FALSE( errorMessage.empty() );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
