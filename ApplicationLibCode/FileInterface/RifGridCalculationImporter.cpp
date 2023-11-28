@@ -21,6 +21,7 @@
 #include <fstream>
 
 #include <tomlplusplus/toml.hpp>
+#include <utility>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,44 +39,62 @@ std::pair<std::vector<RifGridCalculation>, std::string> RifGridCalculationImport
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<RifGridCalculation>, std::string> RifGridCalculationImporter::readFromStream( std::istream& stream )
 {
-    toml::table tbl = toml::parse( stream );
-
-    auto calculationsVector = tbl["grid-calculation"];
-
-    std::vector<RifGridCalculation> calculations;
-
-    if ( toml::array* arr = calculationsVector.as_array() )
+    try
     {
-        for ( auto&& a : *arr )
+        toml::table tbl = toml::parse( stream );
+
+        auto calculationsVector = tbl["grid-calculation"];
+
+        std::vector<RifGridCalculation> calculations;
+
+        if ( toml::array* arr = calculationsVector.as_array() )
         {
-            RifGridCalculation calculation;
-            if ( toml::table* calc = a.as_table() )
+            for ( auto&& a : *arr )
             {
-                calculation.description = calc->at_path( "description" ).as_string()->value_or( "" );
-                calculation.expression  = calc->at_path( "expression" ).as_string()->value_or( "" );
-                calculation.unit        = calc->at_path( "unit" ).as_string()->value_or( "" );
-
-                if ( toml::array* vars = calc->at_path( "variables" ).as_array() )
+                RifGridCalculation calculation;
+                if ( toml::table* calc = a.as_table() )
                 {
-                    std::vector<RifGridCalculationVariable> variables;
-                    for ( auto&& v : *vars )
-                    {
-                        if ( toml::table* var = v.as_table() )
-                        {
-                            RifGridCalculationVariable variable;
-                            variable.name           = var->at_path( "name" ).as_string()->value_or( "" );
-                            variable.resultType     = var->at_path( "type" ).as_string()->value_or( "" );
-                            variable.resultVariable = var->at_path( "variable" ).as_string()->value_or( "" );
-                            variables.push_back( variable );
-                        }
-                    }
-                    calculation.variables = variables;
-                }
+                    calculation.description = calc->at_path( "description" ).value_or<std::string>( "" );
+                    if ( calculation.description.empty() ) throw std::runtime_error( "Missing description." );
 
-                calculations.push_back( calculation );
+                    calculation.expression = calc->at_path( "expression" ).value_or<std::string>( "" );
+                    if ( calculation.expression.empty() ) throw std::runtime_error( "Missing expression." );
+
+                    calculation.unit = calc->at_path( "unit" ).value_or<std::string>( "" );
+
+                    if ( toml::array* vars = calc->at_path( "variables" ).as_array() )
+                    {
+                        std::vector<RifGridCalculationVariable> variables;
+                        for ( auto&& v : *vars )
+                        {
+                            if ( toml::table* var = v.as_table() )
+                            {
+                                RifGridCalculationVariable variable;
+                                variable.name           = var->at_path( "name" ).value_or<std::string>( "" );
+                                variable.resultType     = var->at_path( "type" ).value_or<std::string>( "" );
+                                variable.resultVariable = var->at_path( "variable" ).value_or<std::string>( "" );
+                                if ( variable.name.empty() || variable.resultType.empty() || variable.resultVariable.empty() )
+                                    throw std::runtime_error( "Incomplete variable: Missing either name, result type or result variable." );
+                                variables.push_back( variable );
+                            }
+                        }
+                        calculation.variables = variables;
+                    }
+
+                    calculations.push_back( calculation );
+                }
             }
         }
-    }
 
-    return { calculations, "" };
+        if ( calculations.empty() )
+        {
+            return { calculations, "No calculations imported." };
+        }
+
+        return { calculations, "" };
+    }
+    catch ( const std::runtime_error& error )
+    {
+        return { {}, error.what() };
+    }
 }
