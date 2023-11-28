@@ -65,3 +65,57 @@ TEST( RifGridCalculationIO, importAndExport )
         ASSERT_EQ( calculations[0].variables[v].resultVariable, importedCalculations[0].variables[v].resultVariable );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifGridCalculationIO, importEmptyStream )
+{
+    std::stringstream stream;
+    auto [calculations, errorMessage] = RifGridCalculationImporter::readFromStream( stream );
+    ASSERT_EQ( 0u, calculations.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifGridCalculationIO, importNotToml )
+{
+    std::stringstream stream;
+    stream << "this is not valid toml";
+
+    auto [calculations, errorMessage] = RifGridCalculationImporter::readFromStream( stream );
+    ASSERT_EQ( 0u, calculations.size() );
+    ASSERT_FALSE( errorMessage.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifGridCalculationIO, importWrongToml )
+{
+    std::stringstream stream;
+    stream << "[library]\n"
+           << "book = \"book name\"\n"
+           << "authors = [\"Author Name\"]\n"
+           << "isbn = \"1234567\"\n";
+
+    auto [calculations, errorMessage] = RifGridCalculationImporter::readFromStream( stream );
+    ASSERT_EQ( 0u, calculations.size() );
+    ASSERT_FALSE( errorMessage.empty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifGridCalculationIO, importMissingDescriptionToml )
+{
+    std::stringstream stream;
+    stream << "[[grid-calculation]]\n"
+           << "description = 'MY_ASNWER ( NORNE_ATW2013_RFTPLT_V2 : PRESSURE, NORNE_ATW2013_RFTPLT_V2 : PORO )'\n"
+           << "unit = ''\n";
+
+    auto [calculations, errorMessage] = RifGridCalculationImporter::readFromStream( stream );
+    ASSERT_EQ( 0u, calculations.size() );
+    ASSERT_FALSE( errorMessage.empty() );
+}
