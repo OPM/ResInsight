@@ -23,8 +23,8 @@ namespace RimFaultReactivation
 
 enum class GridPart
 {
-    PART1,
-    PART2
+    FW, // footwall
+    HW // hanging wall
 };
 
 enum class BorderSurface

@@ -50,16 +50,16 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
     // The two parts are "mirrored", so face number 4 of the two parts should face eachother.
     using FaultGridPart                                              = RimFaultReactivation::GridPart;
-    std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::PART1, PartBorderSurface::FaultSurface }, 4 },
-                                                                         { { FaultGridPart::PART1, PartBorderSurface::UpperSurface }, 4 },
-                                                                         { { FaultGridPart::PART1, PartBorderSurface::LowerSurface }, 4 },
-                                                                         { { FaultGridPart::PART2, PartBorderSurface::FaultSurface }, 4 },
-                                                                         { { FaultGridPart::PART2, PartBorderSurface::UpperSurface }, 4 },
-                                                                         { { FaultGridPart::PART2, PartBorderSurface::LowerSurface }, 4 } };
+    std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::FW, PartBorderSurface::FaultSurface }, 4 },
+                                                                         { { FaultGridPart::FW, PartBorderSurface::UpperSurface }, 4 },
+                                                                         { { FaultGridPart::FW, PartBorderSurface::LowerSurface }, 4 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::FaultSurface }, 4 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::UpperSurface }, 4 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::LowerSurface }, 4 } };
 
     std::map<FaultGridPart, std::string> partNames = {
-        { FaultGridPart::PART1, "LEFT_PART" },
-        { FaultGridPart::PART2, "RIGHT_PART" },
+        { FaultGridPart::FW, "FW" },
+        { FaultGridPart::HW, "HW" },
     };
 
     std::map<RimFaultReactivation::Boundary, std::string> boundaries = {
@@ -750,8 +750,8 @@ std::pair<bool, std::string>
         RifInpExportTools::printHeading( stream,
                                          "Contact Pair, interaction=" + interactionName + ", small sliding, type=SURFACE TO SURFACE" + extra );
 
-        std::string part1Name = partNames.find( RimFaultReactivation::GridPart::PART1 )->second;
-        std::string part2Name = partNames.find( RimFaultReactivation::GridPart::PART2 )->second;
+        std::string part1Name = partNames.find( RimFaultReactivation::GridPart::FW )->second;
+        std::string part2Name = partNames.find( RimFaultReactivation::GridPart::HW )->second;
         RifInpExportTools::printLine( stream, part1Name + "." + borderName + ", " + part2Name + "." + borderName );
     }
 

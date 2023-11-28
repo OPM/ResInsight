@@ -670,9 +670,10 @@ bool RimFaultReactivationModel::exportModelSettings()
     auto [topPosition, bottomPosition] = m_2Dmodel->faultTopBottom();
     auto faultNormal                   = m_2Dmodel->faultNormal();
 
-    // make sure we move horizontally
+    // make sure we move horizontally, and along the 2D model
     faultNormal.z() = 0.0;
     faultNormal.normalize();
+    faultNormal = faultNormal ^ cvf::Vec3d::Z_AXIS;
 
     RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
 

@@ -49,14 +49,17 @@ public:
                            double                            maxCellHeight,
                            double                            cellSizeFactor,
                            const std::vector<double>&        horizontalPartition,
-                           double                            modelThickness );
+                           double                            modelThickness,
+                           double                            topHeight );
 
     void generateLocalNodes( const cvf::Mat4d transform );
+    void setUseLocalCoordinates( bool useLocalCoordinates );
+
+    bool   useLocalCoordinates() const;
+    double topHeight() const;
 
     const std::vector<cvf::Vec3d>& nodes() const;
     const std::vector<cvf::Vec3d>& globalNodes() const;
-    void                           setUseLocalCoordinates( bool useLocalCoordinates );
-    bool                           useLocalCoordinates() const;
 
     const std::vector<std::vector<unsigned int>>&                                   elementIndices() const;
     const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
@@ -90,6 +93,8 @@ private:
 
 private:
     bool m_useLocalCoordinates;
+
+    double m_topHeight;
 
     std::vector<cvf::Vec3d>                                                  m_nodes;
     std::vector<cvf::Vec3d>                                                  m_localNodes;
