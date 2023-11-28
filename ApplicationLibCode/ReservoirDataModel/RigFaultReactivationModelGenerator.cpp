@@ -506,8 +506,6 @@ std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( 
 
     auto cornerIndexes = faceIJCornerIndexes( face );
 
-    std::vector<int> klayers;
-
     std::map<double, cvf::Vec3d> zPositions;
 
     for ( auto cellIdx : cellIndexColumn )

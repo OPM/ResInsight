@@ -59,6 +59,7 @@ void RigGriddedPart3d::reset()
     m_meshLines.clear();
     m_elementSets.clear();
     m_elementKLayer.clear();
+    m_elementLayers.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,6 +212,9 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     layersPerRegion[Regions::LowerOverburden] = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
     layersPerRegion[Regions::UpperOverburden] = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
 
+    m_elementLayers[ElementSets::OverBurden]  = { std::make_pair( inputPoints[3].z(), inputPoints[5].z() ) };
+    m_elementLayers[ElementSets::UnderBurden] = { std::make_pair( inputPoints[0].z(), inputPoints[2].z() ) };
+
     size_t nVertCells = 0;
     size_t nHorzCells = horizontalPartition.size() - 1;
 
@@ -353,7 +357,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     const int nextLayerIdxOff = ( (int)nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
 
-    for ( int v = 0; v < (int)nVertCells - 1; v++, layer++ )
+    for ( int v = 0; v < (int)nVertCells - 1; v++ )
     {
         if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
         if ( v >= nVertCellsLower + nVertCellsFault ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
@@ -377,7 +381,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
                 m_elementIndices[elementIdx].push_back( t + i + 1 );
 
-                if ( layer == 0 )
+                if ( v == 0 )
                 {
                     m_boundaryElements[Boundary::Bottom].push_back( elementIdx );
                 }
@@ -553,6 +557,15 @@ const std::vector<std::vector<cvf::Vec3d>>& RigGriddedPart3d::meshLines() const
 const std::vector<int> RigGriddedPart3d::elementKLayer() const
 {
     return m_elementKLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::pair<double, double>> RigGriddedPart3d::layers( RigGriddedPart3d::ElementSets elementSet ) const
+{
+    if ( m_elementLayers.count( elementSet ) == 0 ) return {};
+    return m_elementLayers.at( elementSet );
 }
 
 //--------------------------------------------------------------------------------------------------

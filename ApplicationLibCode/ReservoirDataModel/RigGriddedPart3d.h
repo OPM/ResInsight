@@ -70,6 +70,7 @@ public:
     const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
     const std::vector<int>                                  elementKLayer() const;
     const std::vector<cvf::Vec3d>                           elementCorners( size_t elementIndex ) const;
+    const std::vector<std::pair<double, double>>            layers( ElementSets elementSet ) const;
 
 protected:
     static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
@@ -105,4 +106,5 @@ private:
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryElements;
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryNodes;
     std::map<ElementSets, std::vector<unsigned int>>                         m_elementSets;
+    std::map<ElementSets, std::vector<std::pair<double, double>>>            m_elementLayers;
 };
