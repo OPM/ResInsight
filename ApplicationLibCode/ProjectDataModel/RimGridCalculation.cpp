@@ -343,19 +343,20 @@ RigEclipseResultAddress RimGridCalculation::outputAddress() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalculationVariable*   v,
-                                                                   size_t                        tsId,
-                                                                   RiaDefines::PorosityModelType porosityModel,
-                                                                   RimEclipseCase*               outputEclipseCase ) const
+std::vector<double> RimGridCalculation::getDataForVariable( RimGridCalculationVariable*   variable,
+                                                            size_t                        tsId,
+                                                            RiaDefines::PorosityModelType porosityModel,
+                                                            RimEclipseCase*               destinationCase,
+                                                            bool                          useDataFromDestinationCase ) const
 {
-    if ( !outputEclipseCase ) return {};
+    // The data can be taken from the destination case or from the calculation variable.
+    auto eclipseCase = useDataFromDestinationCase ? destinationCase : variable->eclipseCase();
 
-    const RigMainGrid* mainGrid = outputEclipseCase->mainGrid();
-    if ( !mainGrid ) return {};
+    if ( !eclipseCase ) return {};
 
-    int timeStep = v->timeStep();
+    int timeStep = variable->timeStep();
 
-    auto resultCategoryType = v->resultCategoryType();
+    auto resultCategoryType = variable->resultCategoryType();
 
     // General case is to use the data from the given time step
     size_t timeStepToUse = tsId;
@@ -371,38 +372,28 @@ std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalcul
         timeStepToUse = timeStep;
     }
 
-    RigEclipseResultAddress resAddr( resultCategoryType, v->resultVariable() );
+    RigEclipseResultAddress resAddr( resultCategoryType, variable->resultVariable() );
 
-    auto eclipseCaseData        = outputEclipseCase->eclipseCaseData();
+    auto eclipseCaseData        = eclipseCase->eclipseCaseData();
     auto rigCaseCellResultsData = eclipseCaseData->results( porosityModel );
     if ( !rigCaseCellResultsData->ensureKnownResultLoaded( resAddr ) ) return {};
 
-    size_t maxGridCount = mainGrid->gridCount();
+    // Active cell info must always be retrieved from the destination case, as the returned vector must be of the same size as number of
+    // active cells in the destination case.
+    auto activeCellInfoDestination = destinationCase->eclipseCaseData()->activeCellInfo( porosityModel );
+    auto activeReservoirCells      = activeCellInfoDestination->activeReservoirCellIndices();
 
-    auto   activeCellInfo = eclipseCaseData->activeCellInfo( porosityModel );
-    size_t cellCount      = activeCellInfo->reservoirActiveCellCount();
+    std::vector<double> values( activeCellInfoDestination->activeReservoirCellIndices().size() );
 
-    std::vector<double> inputValues( cellCount );
-    for ( size_t gridIdx = 0; gridIdx < maxGridCount; ++gridIdx )
-    {
-        auto grid = mainGrid->gridByIndex( gridIdx );
-
-        cvf::ref<RigResultAccessor> sourceResultAccessor =
-            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, gridIdx, porosityModel, timeStepToUse, resAddr );
+    auto resultAccessor = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, 0, porosityModel, timeStepToUse, resAddr );
 
 #pragma omp parallel for
-        for ( int localGridCellIdx = 0; localGridCellIdx < static_cast<int>( grid->cellCount() ); localGridCellIdx++ )
-        {
-            const size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
-            if ( activeCellInfo->isActive( reservoirCellIndex ) )
-            {
-                size_t cellResultIndex       = activeCellInfo->cellResultIndex( reservoirCellIndex );
-                inputValues[cellResultIndex] = sourceResultAccessor->cellScalar( localGridCellIdx );
-            }
-        }
+    for ( int i = 0; i < static_cast<int>( activeReservoirCells.size() ); i++ )
+    {
+        values[i] = resultAccessor->cellScalarGlobIdx( activeReservoirCells[i] );
     }
 
-    return inputValues;
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -610,21 +601,23 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             // Skip time steps that are not in the list of time steps to calculate
             if ( timeSteps && std::find( timeSteps->begin(), timeSteps->end(), tsId ) == timeSteps->end() ) continue;
 
-            std::vector<std::vector<double>> values;
+            std::vector<std::vector<double>> dataForAllVariables;
             for ( size_t i = 0; i < m_variables.size(); i++ )
             {
                 RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
                 CAF_ASSERT( v != nullptr );
 
-                auto inputValues = getInputVectorForVariable( v, tsId, porosityModel, calculationCase );
+                bool useDataFromDestinationCase = ( v->eclipseCase() == m_destinationCase );
+
+                auto dataForVariable = getDataForVariable( v, tsId, porosityModel, calculationCase, useDataFromDestinationCase );
 
                 if ( inputValueVisibilityFilter )
                 {
                     const double defaultValue = 0.0;
-                    replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, inputValues, porosityModel, calculationCase );
+                    replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, porosityModel, calculationCase );
                 }
 
-                values.push_back( inputValues );
+                dataForAllVariables.push_back( dataForVariable );
             }
 
             ExpressionParser parser;
@@ -632,11 +625,11 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             {
                 RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
                 CAF_ASSERT( v != nullptr );
-                parser.assignVector( v->name(), values[i] );
+                parser.assignVector( v->name(), dataForAllVariables[i] );
             }
 
             std::vector<double> resultValues;
-            resultValues.resize( values[0].size() );
+            resultValues.resize( dataForAllVariables[0].size() );
             parser.assignVector( leftHandSideVariableName, resultValues );
 
             QString errorText;
@@ -660,7 +653,13 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
                 if ( m_cellFilterView() )
                 {
-                    filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, calculationCase );
+                    filterResults( m_cellFilterView(),
+                                   dataForAllVariables,
+                                   m_defaultValueType(),
+                                   m_defaultValue(),
+                                   resultValues,
+                                   porosityModel,
+                                   calculationCase );
                 }
 
                 scalarResultFrames->at( tsId ) = resultValues;
