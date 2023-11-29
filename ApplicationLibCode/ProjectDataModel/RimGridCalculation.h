@@ -71,10 +71,11 @@ protected:
 
     std::pair<bool, QString> validateVariables();
 
-    std::vector<double> getInputVectorForVariable( RimGridCalculationVariable*   v,
-                                                   size_t                        tsId,
-                                                   RiaDefines::PorosityModelType porosityModel,
-                                                   RimEclipseCase*               outputEclipseCase ) const;
+    std::vector<double> getDataForVariable( RimGridCalculationVariable*   variable,
+                                            size_t                        tsId,
+                                            RiaDefines::PorosityModelType porosityModel,
+                                            RimEclipseCase*               destinationCase,
+                                            bool                          useDataFromDestinationCase ) const;
 
     void filterResults( RimGridView*                            cellFilterView,
                         const std::vector<std::vector<double>>& values,
