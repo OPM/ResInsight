@@ -41,6 +41,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+#include "RigStatisticsMath.h"
 
 #include "expressionparser/ExpressionParser.h"
 
@@ -562,6 +563,8 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     caf::ProgressInfo progressInfo( calculationCases.size(), "Processing Grid Calculations" );
     size_t            progressIndex = 0;
 
+    std::vector<std::vector<double>> allAggregatedValues;
+
     bool anyErrorsDetected = false;
     for ( RimEclipseCase* calculationCase : calculationCases )
     {
@@ -594,7 +597,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             calculationCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
         scalarResultFrames->resize( timeStepCount );
 
-        std::vector<double> aggregatedValuesPerTimeStep;
+        std::vector<double> aggregatedValuesOneTimeStep;
 
         for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
         {
@@ -643,11 +646,11 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                         std::find_if( resultValues.begin(), resultValues.end(), []( double v ) { return ( !std::isnan( v ) && v != 0.0 ); } );
                     if ( it != resultValues.end() )
                     {
-                        aggregatedValuesPerTimeStep.push_back( *it );
+                        aggregatedValuesOneTimeStep.push_back( *it );
                     }
                     else
                     {
-                        aggregatedValuesPerTimeStep.push_back( 0.0 );
+                        aggregatedValuesOneTimeStep.push_back( 0.0 );
                     }
                 }
 
@@ -682,10 +685,12 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         {
             QString txt = "    " + calculationCase->caseUserDescription();
 
-            for ( auto v : aggregatedValuesPerTimeStep )
+            for ( auto v : aggregatedValuesOneTimeStep )
             {
                 txt += "\t" + QString::number( v );
             }
+
+            allAggregatedValues.push_back( aggregatedValuesOneTimeStep );
 
             RiaLogging::info( txt );
         }
@@ -695,6 +700,20 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
     if ( isMultipleCasesPresent )
     {
+        auto [anyError, statisticsText] = createStatisticsText( allAggregatedValues );
+        if ( anyError )
+        {
+            anyErrorsDetected = true;
+        }
+        else if ( !statisticsText.empty() )
+        {
+            RiaLogging::info( "  Statistics" );
+            for ( const auto& txt : statisticsText )
+            {
+                RiaLogging::info( txt );
+            }
+        }
+
         QString txt = "Completed calculation '" + description() + "' for " + QString::number( calculationCases.size() ) + " cases.";
         RiaLogging::info( txt );
     }
@@ -775,4 +794,93 @@ void RimGridCalculation::onChildrenUpdated( caf::PdmChildArrayFieldHandle* child
             v->updateConnectedEditors();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, QStringList> RimGridCalculation::createStatisticsText( const std::vector<std::vector<double>>& values )
+{
+    bool        anyErrorsDetected = false;
+    QStringList statisticsText;
+
+    if ( values.empty() ) return { anyErrorsDetected, statisticsText };
+
+    size_t size = values.front().size();
+    for ( const auto& aggregatedVector : values )
+    {
+        if ( aggregatedVector.size() != size )
+        {
+            QString msg = "Detected mismatch in number of time steps for aggregated values. All grid "
+                          "cases must have identical number of time steps.";
+            RiaLogging::error( msg );
+            anyErrorsDetected = true;
+            return { anyErrorsDetected, statisticsText };
+        }
+    }
+
+    std::vector<double> minValues;
+    std::vector<double> p90Values;
+    std::vector<double> p50Values;
+    std::vector<double> avgValues;
+    std::vector<double> p10Values;
+    std::vector<double> maxValues;
+
+    for ( size_t timeIdx = 0; timeIdx < values.front().size(); timeIdx++ )
+    {
+        std::vector<double> valuesForTimeStep;
+
+        for ( auto v : values )
+        {
+            valuesForTimeStep.push_back( v[timeIdx] );
+        }
+
+        // Required to have minimum 8 values to calculate statistics
+        if ( valuesForTimeStep.size() < 8 ) continue;
+
+        double p90 = std::numeric_limits<double>::infinity();
+        double p50 = std::numeric_limits<double>::infinity();
+        double avg = std::numeric_limits<double>::infinity();
+        double p10 = std::numeric_limits<double>::infinity();
+
+        auto [min, max] = std::minmax_element( valuesForTimeStep.begin(), valuesForTimeStep.end() );
+
+        RigStatisticsMath::calculateStatisticsCurves( valuesForTimeStep, &p10, &p50, &p90, &avg, RigStatisticsMath::PercentileStyle::SWITCHED );
+
+        minValues.push_back( *min );
+        p90Values.push_back( p90 );
+        p50Values.push_back( p50 );
+        avgValues.push_back( avg );
+        p10Values.push_back( p10 );
+        maxValues.push_back( *max );
+    }
+
+    if ( !minValues.empty() )
+    {
+        QString minTxt = "  Minimum";
+        QString p90Txt = "  P90    ";
+        QString p50Txt = "  P50    ";
+        QString avgTxt = "  Mean   ";
+        QString p10Txt = "  P10    ";
+        QString maxTxt = "  Maximum";
+
+        for ( size_t timeIdx = 0; timeIdx < p10Values.size(); timeIdx++ )
+        {
+            minTxt += "\t" + QString::number( minValues[timeIdx] );
+            p90Txt += "\t" + QString::number( p90Values[timeIdx] );
+            p50Txt += "\t" + QString::number( p50Values[timeIdx] );
+            avgTxt += "\t" + QString::number( avgValues[timeIdx] );
+            p10Txt += "\t" + QString::number( p10Values[timeIdx] );
+            maxTxt += "\t" + QString::number( maxValues[timeIdx] );
+        }
+
+        statisticsText.push_back( minTxt );
+        statisticsText.push_back( p90Txt );
+        statisticsText.push_back( p50Txt );
+        statisticsText.push_back( avgTxt );
+        statisticsText.push_back( p10Txt );
+        statisticsText.push_back( maxTxt );
+    }
+
+    return { anyErrorsDetected, statisticsText };
 }
