@@ -108,6 +108,8 @@ private:
     void onVariableUpdated( const SignalEmitter* emitter );
     bool allSourceCasesAreEqualToDestinationCase() const;
 
+    static std::pair<bool, QStringList> createStatisticsText( const std::vector<std::vector<double>>& values );
+
 private:
     caf::PdmPtrField<RimGridView*>                m_cellFilterView;
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
