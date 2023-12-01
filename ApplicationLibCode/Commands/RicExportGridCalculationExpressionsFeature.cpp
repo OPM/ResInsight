@@ -66,7 +66,12 @@ void RicExportGridCalculationExpressionsFeature::onActionTriggered( bool isCheck
                                                             "Toml File(*.toml);;All files(*.*)" );
     if ( fileName.isEmpty() ) return;
 
-    QString absPath = QFileInfo( fileName ).absolutePath();
+    auto fi = QFileInfo( fileName );
+    if ( fi.suffix().isEmpty() )
+    {
+        fileName += ".toml";
+    }
+    QString absPath = fi.absolutePath();
 
     app->setLastUsedDialogDirectory( RicExportGridCalculationExpressionsFeature::gridCalculationExpressionId(), absPath );
 
