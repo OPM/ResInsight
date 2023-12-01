@@ -45,6 +45,12 @@ RicUserDefinedCalculatorUi::RicUserDefinedCalculatorUi()
     CAF_PDM_InitFieldNoDefault( &m_deleteCalculation, "DeleteCalculation", "Delete Calculation" );
     RicUserDefinedCalculatorUi::assignPushButtonEditor( &m_deleteCalculation );
 
+    CAF_PDM_InitFieldNoDefault( &m_importCalculations, "ImportCalculations", "Import Calculations" );
+    RicUserDefinedCalculatorUi::assignPushButtonEditor( &m_importCalculations );
+
+    CAF_PDM_InitFieldNoDefault( &m_exportCalculations, "ExportCalculations", "Export Calculations" );
+    RicUserDefinedCalculatorUi::assignPushButtonEditor( &m_exportCalculations );
+
     m_calcContextMenuMgr = std::make_unique<RiuCalculationsContextMenuManager>();
 }
 
@@ -122,6 +128,16 @@ void RicUserDefinedCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         connectSignals( m_currentCalculation() );
     }
+    else if ( changedField == &m_importCalculations )
+    {
+        importCalculations();
+        m_importCalculations = false;
+    }
+    else if ( changedField == &m_exportCalculations )
+    {
+        exportCalculations();
+        m_exportCalculations = false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,6 +163,13 @@ void RicUserDefinedCalculatorUi::defineUiOrdering( QString uiConfigName, caf::Pd
         {
             m_currentCalculation->uiOrdering( uiConfigName, *group );
         }
+    }
+
+    caf::PdmUiGroup* group = uiOrdering.findGroup( calculationsGroupName() );
+    if ( group )
+    {
+        group->add( &m_importCalculations );
+        group->appendToRow( &m_exportCalculations );
     }
 }
 
@@ -239,6 +262,14 @@ void RicUserDefinedCalculatorUi::defineEditorAttribute( const caf::PdmFieldHandl
     else if ( &m_deleteCalculation == field )
     {
         RicUserDefinedCalculatorUi::assignPushButtonEditorText( attribute, "Delete Calculation" );
+    }
+    else if ( &m_importCalculations == field )
+    {
+        RicUserDefinedCalculatorUi::assignPushButtonEditorText( attribute, "Import Calculations" );
+    }
+    else if ( &m_exportCalculations == field )
+    {
+        RicUserDefinedCalculatorUi::assignPushButtonEditorText( attribute, "Export Calculations" );
     }
 }
 

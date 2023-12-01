@@ -728,6 +728,18 @@ std::string RifEclipseSummaryAddress::itemUiText() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddress::toEclipseTextAddress() const
+{
+    std::string noVectorName = itemUiText();
+    if ( noVectorName.empty() )
+        return m_vectorName;
+    else
+        return m_vectorName + ":" + noVectorName;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Returns the stringified address component requested
 //--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::addressComponentUiText( RifEclipseSummaryAddressDefines::SummaryIdentifierType identifierType ) const

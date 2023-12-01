@@ -38,11 +38,6 @@ public:
     void                                 notifyCalculatedNameChanged( int id, const QString& newName ) const override;
 
 protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
-private:
-    caf::PdmField<bool> m_exportCalculations;
-    caf::PdmField<bool> m_importCalculations;
+    void exportCalculations() override;
+    void importCalculations() override;
 };

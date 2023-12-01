@@ -33,12 +33,6 @@ CAF_PDM_SOURCE_INIT( RicGridCalculatorUi, "RicGridCalculator" );
 RicGridCalculatorUi::RicGridCalculatorUi()
 {
     CAF_PDM_InitObject( "RicGridCalculator" );
-
-    CAF_PDM_InitFieldNoDefault( &m_importCalculations, "ImportCalculations", "Import Calculations" );
-    RicUserDefinedCalculatorUi::assignPushButtonEditor( &m_importCalculations );
-
-    CAF_PDM_InitFieldNoDefault( &m_exportCalculations, "ExportCalculations", "Export Calculations" );
-    RicUserDefinedCalculatorUi::assignPushButtonEditor( &m_exportCalculations );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,66 +61,29 @@ void RicGridCalculatorUi::notifyCalculatedNameChanged( int id, const QString& ne
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGridCalculatorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    RicUserDefinedCalculatorUi::defineUiOrdering( uiConfigName, uiOrdering );
-
-    caf::PdmUiGroup* group = uiOrdering.findGroup( calculationsGroupName() );
-    if ( group )
-    {
-        group->add( &m_importCalculations );
-        group->appendToRow( &m_exportCalculations );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicGridCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    RicUserDefinedCalculatorUi::fieldChangedByUi( changedField, oldValue, newValue );
-
-    if ( changedField == &m_importCalculations )
-    {
-        if ( auto feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicImportGridCalculationExpressionsFeature" ) )
-        {
-            feature->action()->trigger();
-        }
-
-        m_importCalculations = false;
-    }
-    else if ( changedField == &m_exportCalculations )
-    {
-        if ( auto feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicExportGridCalculationExpressionsFeature" ) )
-        {
-            feature->action()->trigger();
-        }
-
-        m_exportCalculations = false;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicGridCalculatorUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RicUserDefinedCalculatorUi::defineEditorAttribute( field, uiConfigName, attribute );
-
-    if ( &m_importCalculations == field )
-    {
-        RicUserDefinedCalculatorUi::assignPushButtonEditorText( attribute, "Import Calculations" );
-    }
-    else if ( &m_exportCalculations == field )
-    {
-        RicUserDefinedCalculatorUi::assignPushButtonEditorText( attribute, "Export Calculations" );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimUserDefinedCalculationCollection* RicGridCalculatorUi::calculationCollection() const
 {
     return RimProject::current()->gridCalculationCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicGridCalculatorUi::exportCalculations()
+{
+    if ( auto feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicExportGridCalculationExpressionsFeature" ) )
+    {
+        feature->action()->trigger();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicGridCalculatorUi::importCalculations()
+{
+    if ( auto feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicImportGridCalculationExpressionsFeature" ) )
+    {
+        feature->action()->trigger();
+    }
 }

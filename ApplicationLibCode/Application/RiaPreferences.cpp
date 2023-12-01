@@ -230,6 +230,9 @@ RiaPreferences::RiaPreferences()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useQtChartsPlotByDefault );
 
     CAF_PDM_InitFieldNoDefault( &m_gridCalculationExpressionFolder, "gridCalculationExpressionFolder", "Grid Calculation Expression Folder" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCalculationExpressionFolder,
+                                "summaryCalculationExpressionFolder",
+                                "Summary Calculation Expression Folder" );
 
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
                        "SurfaceImportResamplingDistance",
@@ -294,7 +297,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
                 myAttr->m_selectDirectory              = true;
                 myAttr->m_appendUiSelectedFolderToText = true;
             }
-            else if ( field == &m_gridCalculationExpressionFolder )
+            else if ( field == &m_gridCalculationExpressionFolder || field == &m_summaryCalculationExpressionFolder )
             {
                 myAttr->m_selectDirectory = true;
             }
@@ -457,6 +460,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &m_gridCalculationExpressionFolder );
+        otherGroup->add( &m_summaryCalculationExpressionFolder );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -853,6 +857,14 @@ QString RiaPreferences::defaultMultiLateralWellNamePattern()
 QString RiaPreferences::gridCalculationExpressionFolder() const
 {
     return m_gridCalculationExpressionFolder().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::summaryCalculationExpressionFolder() const
+{
+    return m_summaryCalculationExpressionFolder().path();
 }
 
 //--------------------------------------------------------------------------------------------------
