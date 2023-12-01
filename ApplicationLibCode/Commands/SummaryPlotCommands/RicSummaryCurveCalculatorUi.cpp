@@ -25,6 +25,10 @@
 #include "RimUserDefinedCalculation.h"
 #include "RimUserDefinedCalculationCollection.h"
 
+#include "cafCmdFeatureManager.h"
+#include "cafCmdFeature.h"
+
+
 CAF_PDM_SOURCE_INIT( RicSummaryCurveCalculatorUi, "RicSummaryCurveCalculator" );
 
 //--------------------------------------------------------------------------------------------------
@@ -65,4 +69,26 @@ void RicSummaryCurveCalculatorUi::notifyCalculatedNameChanged( int id, const QSt
 RimUserDefinedCalculationCollection* RicSummaryCurveCalculatorUi::calculationCollection() const
 {
     return RimProject::current()->calculationCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCalculatorUi::exportCalculations()
+{
+    if ( auto feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicExportSummaryCalculationExpressionsFeature" ) )
+    {
+        feature->action()->trigger();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCalculatorUi::importCalculations()
+{
+    if ( auto feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicImportSummaryCalculationExpressionsFeature" ) )
+    {
+        feature->action()->trigger();
+    }
 }
