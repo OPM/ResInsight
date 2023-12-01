@@ -16,24 +16,24 @@ TEST( RifSummaryCalculationIO, importAndExport )
     calc1.expression  = "answer = a + b";
     calc1.unit        = "meter";
     RifSummaryCalculationVariable variable1;
-    variable1.name           = "a";
+    variable1.name    = "a";
     variable1.address = "PRESSURE";
     RifSummaryCalculationVariable variable2;
-    variable2.name           = "b";
+    variable2.name    = "b";
     variable2.address = "PORO";
-    calc1.variables          = { variable1, variable2 };
+    calc1.variables   = { variable1, variable2 };
 
     RifSummaryCalculation calc2;
     calc2.description = "My second calculation";
     calc2.expression  = "answer = x + y";
     calc2.unit        = "meter";
     RifSummaryCalculationVariable variable3;
-    variable3.name           = "x";
+    variable3.name    = "x";
     variable3.address = "PRESSURE";
     RifSummaryCalculationVariable variable4;
-    variable4.name           = "y";
+    variable4.name    = "y";
     variable4.address = "PORO";
-    calc2.variables          = { variable3, variable4 };
+    calc2.variables   = { variable3, variable4 };
 
     std::vector<RifSummaryCalculation> calculations = { calc1, calc2 };
 

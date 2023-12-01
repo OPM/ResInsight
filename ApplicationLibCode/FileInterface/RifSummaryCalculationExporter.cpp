@@ -26,7 +26,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string> RifSummaryCalculationExporter::writeToFile( const std::vector<RifSummaryCalculation>& calculations,
-                                                                      const std::string&                     filePath )
+                                                                         const std::string&                        filePath )
 {
     std::ofstream stream( filePath );
     if ( !stream.good() ) return { false, "Unable to open file: " + filePath };
@@ -38,7 +38,7 @@ std::pair<bool, std::string> RifSummaryCalculationExporter::writeToFile( const s
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string> RifSummaryCalculationExporter::writeToStream( const std::vector<RifSummaryCalculation>& calculations,
-                                                                        std::ostream&                          stream )
+                                                                           std::ostream&                             stream )
 {
     auto calculationsVector = toml::array();
 

@@ -24,10 +24,10 @@
 
 #include "RifSummaryCalculation.h"
 #include "RifSummaryCalculationExporter.h"
-#include "RimSummaryCalculationCollection.h"
-#include "RimSummaryCalculationVariable.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCalculationVariable.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -56,10 +56,11 @@ void RicExportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
 
     if ( calcColl->calculations().empty() ) return;
 
-    QString fallbackPath =  RiaPreferences::current()->summaryCalculationExpressionFolder();
+    QString fallbackPath = RiaPreferences::current()->summaryCalculationExpressionFolder();
     auto    app          = RiaGuiApplication::instance();
     QString startPath =
-        app->lastUsedDialogDirectoryWithFallback( RicExportSummaryCalculationExpressionsFeature::summaryCalculationExpressionId(), fallbackPath );
+        app->lastUsedDialogDirectoryWithFallback( RicExportSummaryCalculationExpressionsFeature::summaryCalculationExpressionId(),
+                                                  fallbackPath );
 
     QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
                                                             "Select File for Summary Calculation Expression Export",
@@ -88,7 +89,7 @@ void RicExportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
             {
                 RifSummaryCalculationVariable var;
                 var.address = gridVariable->summaryAddress()->address().itemUiText();
-                var.name           = gridVariable->name().toStdString();
+                var.name    = gridVariable->name().toStdString();
                 calc.variables.push_back( var );
             }
         }
