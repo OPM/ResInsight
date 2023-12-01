@@ -25,10 +25,10 @@
 
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseResultAddress.h"
-#include "RimSummaryCalculationCollection.h"
-#include "RimSummaryCalculationVariable.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCalculationVariable.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -49,8 +49,9 @@ void RicImportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
 {
     auto app = RiaGuiApplication::instance();
 
-    QString defaultDir = app->lastUsedDialogDirectoryWithFallback( RicExportSummaryCalculationExpressionsFeature::summaryCalculationExpressionId(),
-                                                                   RiaPreferences::current()->summaryCalculationExpressionFolder() );
+    QString defaultDir =
+        app->lastUsedDialogDirectoryWithFallback( RicExportSummaryCalculationExpressionsFeature::summaryCalculationExpressionId(),
+                                                  RiaPreferences::current()->summaryCalculationExpressionFolder() );
 
     QString fileName =
         RiuFileDialogTools::getOpenFileName( nullptr, "Import Summary Calculation Expressions", defaultDir, "Toml File(*.toml);;All files(*.*)" );
@@ -68,11 +69,10 @@ void RicImportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
     auto proj     = RimProject::current();
     auto calcColl = proj->calculationCollection();
 
-
     for ( auto calc : calculations )
     {
         bool addDefaultExpression = false;
-        auto summaryCalculation      = dynamic_cast<RimSummaryCalculation*>( calcColl->addCalculation( addDefaultExpression ) );
+        auto summaryCalculation   = dynamic_cast<RimSummaryCalculation*>( calcColl->addCalculation( addDefaultExpression ) );
         if ( summaryCalculation )
         {
             summaryCalculation->setExpression( QString::fromStdString( calc.expression ) );
@@ -80,13 +80,14 @@ void RicImportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
             summaryCalculation->setUnit( QString::fromStdString( calc.unit ) );
             for ( auto var : calc.variables )
             {
-                auto variable = dynamic_cast<RimSummaryCalculationVariable*>( summaryCalculation->addVariable( QString::fromStdString( var.name ) ) );
+                auto variable =
+                    dynamic_cast<RimSummaryCalculationVariable*>( summaryCalculation->addVariable( QString::fromStdString( var.name ) ) );
                 RifEclipseSummaryAddress address = RifEclipseSummaryAddress::fromEclipseTextAddress( var.address );
-               
+
                 RimSummaryAddress summaryAddress;
                 summaryAddress.setAddress( address );
-                variable->setSummaryAddress ( summaryAddress );
-                variable->setName( QString::fromStdString(var.name ));
+                variable->setSummaryAddress( summaryAddress );
+                variable->setName( QString::fromStdString( var.name ) );
             }
         }
     }

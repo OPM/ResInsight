@@ -70,7 +70,7 @@ std::pair<std::vector<RifSummaryCalculation>, std::string> RifSummaryCalculation
                             if ( toml::table* var = v.as_table() )
                             {
                                 RifSummaryCalculationVariable variable;
-                                variable.name           = var->at_path( "name" ).value_or<std::string>( "" );
+                                variable.name    = var->at_path( "name" ).value_or<std::string>( "" );
                                 variable.address = var->at_path( "address" ).value_or<std::string>( "" );
                                 if ( variable.name.empty() || variable.address.empty() )
                                     throw std::runtime_error( "Incomplete variable: Missing either name or address." );
