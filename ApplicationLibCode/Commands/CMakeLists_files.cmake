@@ -188,7 +188,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportGridCalculationExpressionsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridCalculationExpressionsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportSummaryCalculationExpressionsFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.cpp    
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
