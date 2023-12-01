@@ -858,6 +858,16 @@ QString RiaPreferences::gridCalculationExpressionFolder() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::summaryCalculationExpressionFolder() const
+{
+    // TODO: use separate or same folder?
+    return m_gridCalculationExpressionFolder().path();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::MeshModeType RiaPreferences::defaultMeshModeType() const
 {
     return m_defaultMeshModeType();

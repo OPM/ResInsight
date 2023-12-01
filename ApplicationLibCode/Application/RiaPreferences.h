@@ -103,6 +103,7 @@ public:
     static QString defaultMultiLateralWellNamePattern();
 
     QString gridCalculationExpressionFolder() const;
+    QString summaryCalculationExpressionFolder() const;
 
     // 3D view
     RiaDefines::MeshModeType       defaultMeshModeType() const;
