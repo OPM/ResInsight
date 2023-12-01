@@ -1,6 +1,6 @@
-////////////////////////////    /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2023-    Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,26 +18,17 @@
 
 #pragma once
 
-#include "RicUserDefinedCalculatorUi.h"
+#include "RifSummaryCalculation.h"
 
-class RimUserDefinedCalculationCollection;
+#include <string>
+#include <vector>
 
 //==================================================================================================
-///
+//
 //==================================================================================================
-class RicSummaryCurveCalculatorUi : public RicUserDefinedCalculatorUi
+class RifSummaryCalculationImporter
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RicSummaryCurveCalculatorUi();
-
-    QString                              calculationsGroupName() const override;
-    QString                              calulationGroupName() const override;
-    RimUserDefinedCalculationCollection* calculationCollection() const override;
-    void                                 notifyCalculatedNameChanged( int id, const QString& newName ) const override;
-
-protected:
-    void exportCalculations() override;
-    void importCalculations() override;
+    static std::pair<std::vector<RifSummaryCalculation>, std::string> readFromFile( const std::string& filePath );
+    static std::pair<std::vector<RifSummaryCalculation>, std::string> readFromStream( std::istream& stream );
 };

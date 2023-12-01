@@ -699,3 +699,35 @@ QString RimSummaryCalculation::buildCalculationName() const
 
     return name;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::setDistributeToOtherItems( bool enable )
+{
+    m_distributeToOtherItems = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::setDistributeToAllCases( bool enable )
+{
+    m_distributeToAllCases = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCalculation::isDistributeToOtherItems() const
+{
+    return m_distributeToOtherItems();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCalculation::isDistributeToAllCases() const
+{
+    return m_distributeToAllCases();
+}
