@@ -25,9 +25,8 @@
 #include "RimUserDefinedCalculation.h"
 #include "RimUserDefinedCalculationCollection.h"
 
-#include "cafCmdFeatureManager.h"
 #include "cafCmdFeature.h"
-
+#include "cafCmdFeatureManager.h"
 
 CAF_PDM_SOURCE_INIT( RicSummaryCurveCalculatorUi, "RicSummaryCurveCalculator" );
 

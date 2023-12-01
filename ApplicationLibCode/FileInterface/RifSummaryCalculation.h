@@ -32,9 +32,9 @@ struct RifSummaryCalculationVariable
 
 struct RifSummaryCalculation
 {
-    std::string                             description;
-    std::string                             expression;
-    std::string                             unit;
+    std::string                                description;
+    std::string                                expression;
+    std::string                                unit;
     bool                                       distributeToAllCases;
     bool                                       distributeToOther;
     std::vector<RifSummaryCalculationVariable> variables;

@@ -58,8 +58,6 @@ void RicGridCalculatorUi::notifyCalculatedNameChanged( int id, const QString& ne
 {
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -89,5 +87,3 @@ void RicGridCalculatorUi::importCalculations()
         feature->action()->trigger();
     }
 }
-
-

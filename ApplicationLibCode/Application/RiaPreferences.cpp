@@ -864,7 +864,6 @@ QString RiaPreferences::summaryCalculationExpressionFolder() const
     return m_gridCalculationExpressionFolder().path();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
