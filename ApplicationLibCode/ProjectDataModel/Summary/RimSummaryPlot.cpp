@@ -2417,7 +2417,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectors() )
             {
                 auto historyAddr = addr;
-                historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+                historyAddr.setVectorName( addr.vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
 
                 auto historyCurveDef = newCurveDef;
                 historyCurveDef.setSummaryAddressY( historyAddr );
@@ -2477,7 +2477,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
     if ( !summaryAddr->address().isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectors() )
     {
         auto historyAddr = summaryAddr->address();
-        historyAddr.setVectorName( summaryAddr->address().vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+        historyAddr.setVectorName( summaryAddr->address().vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
         newCurveAddresses.push_back( historyAddr );
     }
 

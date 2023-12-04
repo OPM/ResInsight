@@ -55,9 +55,6 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
-    static std::string       differenceIdentifier() { return "_DIFF"; }
-    static const std::string historyIdentifier() { return "H"; }
-
 private:
     void buildMetaData();
 

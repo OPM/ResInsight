@@ -62,7 +62,7 @@ std::string RimObjectiveFunctionTools::nativeQuantityName( const std::string& qu
     std::string nativeName = quantityName;
 
     {
-        auto stringToRemove = RifReaderEclipseSummary::differenceIdentifier();
+        auto stringToRemove = RifEclipseSummaryAddressDefines::differenceIdentifier();
         if ( RiaStdStringTools::endsWith( nativeName, stringToRemove ) )
         {
             nativeName = nativeName.substr( 0, nativeName.size() - stringToRemove.size() );
@@ -70,7 +70,7 @@ std::string RimObjectiveFunctionTools::nativeQuantityName( const std::string& qu
     }
 
     {
-        auto stringToRemove = RifReaderEclipseSummary::historyIdentifier();
+        auto stringToRemove = RifEclipseSummaryAddressDefines::historyIdentifier();
         if ( RiaStdStringTools::endsWith( nativeName, stringToRemove ) )
         {
             nativeName = nativeName.substr( 0, nativeName.size() - stringToRemove.size() );

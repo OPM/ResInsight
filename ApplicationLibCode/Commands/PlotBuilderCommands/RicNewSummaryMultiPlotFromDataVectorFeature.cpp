@@ -125,7 +125,7 @@ void RicNewSummaryMultiPlotFromDataVectorFeature::onActionTriggered( bool isChec
             if ( !addr.isHistoryVector() )
             {
                 auto historyAddr = addr;
-                historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+                historyAddr.setVectorName( addr.vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
 
                 if ( availableAddresses.count( historyAddr ) > 0 ) eclipseAddresses.insert( historyAddr );
             }

@@ -73,3 +73,19 @@ std::string RifEclipseSummaryAddressDefines::statisticsTypeToString( StatisticsT
     caf::AppEnum<StatisticsType> enumType( type );
     return enumType.uiText().toStdString();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddressDefines::differenceIdentifier()
+{
+    return "_DIFF";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddressDefines::historyIdentifier()
+{
+    return "H";
+}
