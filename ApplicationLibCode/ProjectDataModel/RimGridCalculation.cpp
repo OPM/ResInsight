@@ -126,8 +126,14 @@ bool RimGridCalculation::calculate()
         }
     }
 
-    auto timeSteps                  = std::nullopt;
-    auto inputValueVisibilityFilter = nullptr;
+    cvf::UByteArray* inputValueVisibilityFilter = nullptr;
+    if ( m_cellFilterView() )
+    {
+        inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility().p();
+    }
+
+    auto timeSteps = std::nullopt;
+
     return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter, timeSteps );
 }
 
