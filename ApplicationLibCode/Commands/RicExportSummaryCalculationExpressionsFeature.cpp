@@ -88,7 +88,7 @@ void RicExportSummaryCalculationExpressionsFeature::onActionTriggered( bool isCh
             if ( auto gridVariable = dynamic_cast<RimSummaryCalculationVariable*>( variable ) )
             {
                 RifSummaryCalculationVariable var;
-                var.address = gridVariable->summaryAddress()->address().itemUiText();
+                var.address = gridVariable->summaryAddress()->address().toEclipseTextAddress();
                 var.name    = gridVariable->name().toStdString();
                 calc.variables.push_back( var );
             }
