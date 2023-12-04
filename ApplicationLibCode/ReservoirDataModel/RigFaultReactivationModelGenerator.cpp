@@ -368,6 +368,33 @@ const std::vector<double> RigFaultReactivationModelGenerator::partition( double 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<int> RigFaultReactivationModelGenerator::elementKLayers( const std::vector<size_t>& cellIndexColumn )
+{
+    std::vector<int> kLayers;
+
+    size_t i, j, k;
+    for ( auto idx : cellIndexColumn )
+    {
+        m_grid->ijkFromCellIndexUnguarded( idx, &i, &j, &k );
+
+        if ( m_activeCellInfo->isActive( idx ) )
+        {
+            kLayers.push_back( (int)k );
+        }
+        else
+        {
+            kLayers.push_back( -1 * (int)k );
+        }
+    }
+
+    std::reverse( kLayers.begin(), kLayers.end() );
+
+    return kLayers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModelGenerator::generateGeometry( size_t                             startCellIndex,
                                                            cvf::StructGridInterface::FaceType startFace,
                                                            RigGriddedPart3d*                  frontPart,
@@ -377,8 +404,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     std::vector<size_t> cellColumnBack;
     std::vector<size_t> cellColumnFront;
     size_t              i, j, k;
-    std::vector<int>    kLayersFront;
-    std::vector<int>    kLayersBack;
 
     // build column of cells behind fault
     m_grid->ijkFromCellIndexUnguarded( startCellIndex, &i, &j, &k );
@@ -386,15 +411,12 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
 
     for ( size_t kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
     {
+        if ( !m_grid->isCellValid( i, j, kLayer ) ) continue;
+
         auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
         if ( cellIdx != startCellIndex ) cellColumnBackSearch.push_back( cellIdx );
         cellColumnBack.push_back( cellIdx );
-
-        if ( m_activeCellInfo->isActive( cellIdx ) )
-            kLayersBack.push_back( (int)kLayer );
-        else
-            kLayersBack.push_back( -1 );
     }
 
     // build cell column of cells in front of fault, opposite to the cell column behind the fault
@@ -404,21 +426,17 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     m_grid->ijkFromCellIndexUnguarded( oppositeCellIdx, &i, &j, &k );
     for ( size_t kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
     {
+        if ( !m_grid->isCellValid( i, j, kLayer ) ) continue;
+
         auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
         cellColumnFront.push_back( cellIdx );
-
-        if ( m_activeCellInfo->isActive( cellIdx ) )
-            kLayersFront.push_back( (int)kLayer );
-        else
-            kLayersFront.push_back( -1 );
     }
 
     auto zPositionsBack  = elementLayers( startFace, cellColumnBack );
     auto zPositionsFront = elementLayers( oppositeStartFace, cellColumnFront );
-
-    std::reverse( kLayersBack.begin(), kLayersBack.end() );
-    std::reverse( kLayersFront.begin(), kLayersFront.end() );
+    auto kLayersBack     = elementKLayers( cellColumnBack );
+    auto kLayersFront    = elementKLayers( cellColumnFront );
 
     // add extra fault buffer below the fault, starting at the deepest bottom-most cell on either side of the fault
 
@@ -499,16 +517,16 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( cvf::StructGridInterface::FaceType face,
-                                                                                const std::vector<size_t>&         cellIndexColumn )
+                                                                                std::vector<size_t>&               cellIndexColumn )
 {
     cvf::Plane modelPlane;
     modelPlane.setFromPointAndNormal( m_startPosition, m_normal );
 
     auto cornerIndexes = faceIJCornerIndexes( face );
 
-    std::vector<int> klayers;
-
     std::map<double, cvf::Vec3d> zPositions;
+
+    std::vector<size_t> okCells;
 
     for ( auto cellIdx : cellIndexColumn )
     {
@@ -518,8 +536,19 @@ std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( 
         cvf::Vec3d intersect1 = lineIntersect( modelPlane, corners[cornerIndexes[0]], corners[cornerIndexes[1]] );
         cvf::Vec3d intersect2 = lineIntersect( modelPlane, corners[cornerIndexes[2]], corners[cornerIndexes[3]] );
 
-        zPositions[intersect1.z()] = intersect1;
-        zPositions[intersect2.z()] = intersect2;
+        if ( intersect1.z() != intersect2.z() )
+        {
+            zPositions[intersect1.z()] = intersect1;
+            zPositions[intersect2.z()] = intersect2;
+            okCells.push_back( cellIdx );
+        }
+    }
+
+    // only keep cells that have a valid height at the plane intersection
+    cellIndexColumn.clear();
+    for ( auto idx : okCells )
+    {
+        cellIndexColumn.push_back( idx );
     }
 
     return zPositions;
@@ -548,10 +577,14 @@ void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf:
 
     bool first = true;
     int  k     = 0;
-    kLayers.push_back( kLayers.back() );
+
+    const int nLayers = (int)layers.size();
+    int       n       = 0;
 
     for ( auto& layer : layers )
     {
+        if ( n++ == ( nLayers - 1 ) ) break;
+
         if ( first )
         {
             prevLayer = layer;
@@ -566,7 +599,7 @@ void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf:
             for ( auto& p : points )
             {
                 additionalPoints.push_back( p );
-                newKLayers.push_back( kLayers[k] );
+                newKLayers.push_back( kLayers[k - 1] );
             }
         }
 

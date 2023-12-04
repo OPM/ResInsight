@@ -181,6 +181,17 @@ QString RiuFemResultTextBuilder::geometrySelectionText( QString itemSeparator )
                     }
                 }
             }
+            std::array<cvf::Vec3d, 8> cornerCoords;
+            if ( femPart->fillElementCoordinates( m_cellIndex, cornerCoords ) )
+            {
+                text += "\n\nElement corners:\n";
+
+                for ( auto p : cornerCoords )
+                {
+                    text +=
+                        QString( "    [E: %1, N: %2, Depth: %3]\n" ).arg( p.x(), 5, 'f', 2 ).arg( p.y(), 5, 'f', 2 ).arg( -p.z(), 5, 'f', 2 );
+                }
+            }
         }
     }
 

@@ -72,8 +72,10 @@ protected:
     static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
     static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight );
 
-    std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, const std::vector<size_t>& cellIndexColumn );
-    void                         addFilter( QString name, std::vector<size_t> cells );
+    std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, std::vector<size_t>& cellIndexColumn );
+    std::vector<int>             elementKLayers( const std::vector<size_t>& cellIndexColumn );
+
+    void addFilter( QString name, std::vector<size_t> cells );
 
     size_t oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, cvf::StructGridInterface::FaceType face );
 

@@ -59,6 +59,7 @@ void RigGriddedPart3d::reset()
     m_meshLines.clear();
     m_elementSets.clear();
     m_elementKLayer.clear();
+    m_elementLayers.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +145,9 @@ std::vector<double> RigGriddedPart3d::generateGrowingLayers( double zFrom, doubl
         }
     }
 
+    if ( std::abs( zTo - layers.back() ) < maxSize ) layers.pop_back();
+    layers.push_back( zTo );
+
     std::sort( layers.begin(), layers.end() );
 
     return layers;
@@ -162,6 +166,37 @@ std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> po
     }
 
     return layers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::updateReservoirElementLayers( const std::vector<cvf::Vec3d>& reservoirLayers, const std::vector<int>& kLayers )
+{
+    const int nLayers = (int)reservoirLayers.size();
+
+    if ( nLayers < 2 ) return;
+
+    int    prevLayer = kLayers[0];
+    double start     = reservoirLayers[0].z();
+
+    for ( int l = 1; l < nLayers; l++ )
+    {
+        auto currentZone = ( prevLayer >= 0 ) ? ElementSets::Reservoir : ElementSets::IntraReservoir;
+
+        if ( l == nLayers - 1 )
+        {
+            m_elementLayers[currentZone].push_back( std::make_pair( start, reservoirLayers[l].z() ) );
+            continue;
+        }
+
+        if ( ( ( prevLayer < 0 ) && ( kLayers[l] >= 0 ) ) || ( ( prevLayer >= 0 ) && ( kLayers[l] < 0 ) ) )
+        {
+            m_elementLayers[currentZone].push_back( std::make_pair( start, reservoirLayers[l].z() ) );
+            start = reservoirLayers[l].z();
+        }
+        prevLayer = kLayers[l];
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,7 +222,6 @@ std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> po
 ///
 ///
 //--------------------------------------------------------------------------------------------------
-
 void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
                                          const std::vector<cvf::Vec3d>&    reservoirLayers,
                                          const std::vector<int>&           kLayers,
@@ -204,12 +238,18 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     std::map<Regions, std::vector<double>> layersPerRegion;
 
     layersPerRegion[Regions::LowerUnderburden] = generateGrowingLayers( inputPoints[1].z(), inputPoints[0].z(), maxCellHeight, cellSizeFactor );
-    layersPerRegion[Regions::LowerUnderburden].pop_back();
     layersPerRegion[Regions::UpperUnderburden] = generateConstantLayers( inputPoints[1].z(), inputPoints[2].z(), maxCellHeight );
     layersPerRegion[Regions::Reservoir]        = extractZValues( reservoirLayers );
-    layersPerRegion[Regions::Reservoir].pop_back();
-    layersPerRegion[Regions::LowerOverburden] = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
+    layersPerRegion[Regions::LowerOverburden]  = generateConstantLayers( inputPoints[3].z(), inputPoints[4].z(), maxCellHeight );
     layersPerRegion[Regions::UpperOverburden] = generateGrowingLayers( inputPoints[4].z(), inputPoints[5].z(), maxCellHeight, cellSizeFactor );
+
+    layersPerRegion[Regions::LowerUnderburden].pop_back(); // to avoid overlap with bottom of next region
+    layersPerRegion[Regions::Reservoir].pop_back(); // to avoid overlap with bottom of next region
+
+    m_elementLayers[ElementSets::OverBurden]  = { std::make_pair( inputPoints[3].z(), inputPoints[5].z() ) };
+    m_elementLayers[ElementSets::UnderBurden] = { std::make_pair( inputPoints[0].z(), inputPoints[2].z() ) };
+
+    updateReservoirElementLayers( reservoirLayers, kLayers );
 
     size_t nVertCells = 0;
     size_t nHorzCells = horizontalPartition.size() - 1;
@@ -353,7 +393,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     const int nextLayerIdxOff = ( (int)nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
 
-    for ( int v = 0; v < (int)nVertCells - 1; v++, layer++ )
+    for ( int v = 0; v < (int)nVertCells - 1; v++ )
     {
         if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
         if ( v >= nVertCellsLower + nVertCellsFault ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
@@ -377,7 +417,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
                 m_elementIndices[elementIdx].push_back( t + i + 1 );
 
-                if ( layer == 0 )
+                if ( v == 0 )
                 {
                     m_boundaryElements[Boundary::Bottom].push_back( elementIdx );
                 }
@@ -401,7 +441,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 else
                 {
                     m_elementSets[currentElementSet].push_back( elementIdx );
-                    m_elementKLayer[elementIdx] = -2;
+                    m_elementKLayer[elementIdx] = -2000;
                 }
             }
             i += nThicknessOff;
@@ -553,6 +593,15 @@ const std::vector<std::vector<cvf::Vec3d>>& RigGriddedPart3d::meshLines() const
 const std::vector<int> RigGriddedPart3d::elementKLayer() const
 {
     return m_elementKLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::pair<double, double>> RigGriddedPart3d::layers( RigGriddedPart3d::ElementSets elementSet ) const
+{
+    if ( m_elementLayers.count( elementSet ) == 0 ) return {};
+    return m_elementLayers.at( elementSet );
 }
 
 //--------------------------------------------------------------------------------------------------
