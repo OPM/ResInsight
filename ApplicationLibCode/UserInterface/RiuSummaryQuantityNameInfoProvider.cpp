@@ -71,7 +71,8 @@ RifEclipseSummaryAddressDefines::SummaryCategory RiuSummaryQuantityNameInfoProvi
     auto exactCategory = categoryFromVectorName( vectorName, exactMatch );
     if ( exactCategory != RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID ) return exactCategory;
 
-    if ( vectorName.size() < 3 || vectorName.size() > 8 ) return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
+    if ( ( vectorName.size() < 3 || vectorName.size() > 8 ) && !vectorName.ends_with( RifEclipseSummaryAddressDefines::differenceIdentifier() ) )
+        return RifEclipseSummaryAddressDefines::SummaryCategory::SUMMARY_INVALID;
 
     // Try to match the base vector name with more heuristics
     auto strippedQuantityName = RifEclipseSummaryAddress::baseVectorName( vectorName );
