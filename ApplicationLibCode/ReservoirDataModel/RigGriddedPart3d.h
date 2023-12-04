@@ -79,6 +79,7 @@ protected:
     static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
 
     void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, const std::vector<double>& horzPartition );
+    void updateReservoirElementLayers( const std::vector<cvf::Vec3d>& reservoirLayers, const std::vector<int>& kLayers );
 
 private:
     enum class Regions
