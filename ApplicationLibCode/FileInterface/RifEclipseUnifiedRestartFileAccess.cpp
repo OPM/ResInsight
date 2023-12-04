@@ -91,11 +91,6 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
                     if ( !m_ecl_file )
                     {
                         RiaLogging::error( QString( "Failed to open file %1 using index file." ).arg( m_filename ) );
-                        RiaLogging::info( QString( "Will try to open file without index file." ) );
-                    }
-                    else
-                    {
-                        RiaLogging::info( QString( "Imported file %1 using index file." ).arg( m_filename ) );
                     }
                 }
             }
@@ -118,13 +113,9 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
                     {
                         bool success = ecl_file_write_index( m_ecl_file, RiaStringEncodingTools::toNativeEncoded( indexFileName ).data() );
 
-                        if ( success )
+                        if ( !success )
                         {
-                            RiaLogging::info( QString( "Exported index file to %1 " ).arg( indexFileName ) );
-                        }
-                        else
-                        {
-                            RiaLogging::info( QString( "Failed to exported index file to %1 " ).arg( indexFileName ) );
+                            RiaLogging::error( QString( "Failed to exported index file to %1 " ).arg( indexFileName ) );
                         }
                     }
                 }
