@@ -45,8 +45,6 @@
 
 #include "expressionparser/ExpressionParser.h"
 
-#include "cafProgressInfo.h"
-
 #include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimGridCalculation, "RimGridCalculation" );
@@ -560,9 +558,6 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         }
     }
 
-    caf::ProgressInfo progressInfo( calculationCases.size(), "Processing Grid Calculations" );
-    size_t            progressIndex = 0;
-
     std::vector<std::vector<double>> allAggregatedValues;
 
     bool anyErrorsDetected = false;
@@ -694,8 +689,6 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
 
             RiaLogging::info( txt );
         }
-
-        progressInfo.setProgress( progressIndex++ );
     }
 
     if ( isMultipleCasesPresent )
