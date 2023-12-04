@@ -444,9 +444,10 @@ option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
 mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
 
 if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
+  # See description of URL here https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases
   FetchContent_Declare(
     ri-dependencies
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.08/custom-opm-common.zip
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/custom-opm-common.zip
   )
   FetchContent_Populate(ri-dependencies)
 
