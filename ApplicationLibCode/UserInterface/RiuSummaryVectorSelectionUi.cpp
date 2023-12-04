@@ -1086,13 +1086,13 @@ std::set<RifEclipseSummaryAddress>
 
             if ( m_hideDifferenceVectors )
             {
-                const auto diffText = RifReaderEclipseSummary::differenceIdentifier();
+                const auto diffText = RifEclipseSummaryAddressDefines::differenceIdentifier();
                 if ( RiaStdStringTools::endsWith( adr.vectorName(), diffText ) ) continue;
             }
 
             if ( m_hideVectorsWithoutHistory )
             {
-                auto candidateName = adr.vectorName() + RifReaderEclipseSummary::historyIdentifier();
+                auto candidateName = adr.vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier();
 
                 bool found = false;
                 for ( const auto& ad : addrUnion )
