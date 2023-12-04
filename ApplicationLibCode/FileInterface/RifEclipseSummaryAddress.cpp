@@ -727,13 +727,12 @@ std::string RifEclipseSummaryAddress::itemUiText() const
     return text;
 }
 
-
 std::string RifEclipseSummaryAddress::toEclipseTextAddress() const
 {
     if ( category() == SummaryCategory::SUMMARY_FIELD )
         return m_vectorName;
     else
-       return itemUiText();
+        return itemUiText();
 }
 
 //--------------------------------------------------------------------------------------------------
