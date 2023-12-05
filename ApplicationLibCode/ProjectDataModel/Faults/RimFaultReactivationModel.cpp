@@ -82,8 +82,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working Folder" );
     CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
 
-    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 2000.0, "Horz. Extent from Anchor" );
-    CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Start Depth" );
+    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 3000.0, "Horz. Extent from Anchor" );
+    CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Seabed Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
     CAF_PDM_InitFieldNoDefault( &m_startCellIndex, "StartCellIndex", "Start Cell Index" );
@@ -91,9 +91,9 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     m_startCellIndex = 0;
     m_startCellFace  = cvf::StructGridInterface::FaceType::NO_FACE;
 
-    CAF_PDM_InitField( &m_faultExtendUpwards, "FaultExtendUpwards", 100.0, "Above Reservoir" );
+    CAF_PDM_InitField( &m_faultExtendUpwards, "FaultExtendUpwards", 0.0, "Above Reservoir" );
     m_faultExtendUpwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 100.0, "Below Reservoir" );
+    CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 0.0, "Below Reservoir" );
     m_faultExtendDownwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );

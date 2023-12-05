@@ -31,7 +31,8 @@ enum class BorderSurface
 {
     UpperSurface,
     FaultSurface,
-    LowerSurface
+    LowerSurface,
+    Seabed
 };
 
 enum class Boundary
