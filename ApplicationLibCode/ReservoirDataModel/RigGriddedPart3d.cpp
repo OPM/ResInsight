@@ -87,6 +87,9 @@ std::vector<double> RigGriddedPart3d::generateConstantLayers( double zFrom, doub
     std::vector<double> layers;
 
     double diff = zTo - zFrom;
+
+    if ( diff == 0.0 ) return layers;
+
     if ( std::abs( diff ) <= maxSize )
     {
         layers.push_back( std::min( zFrom, zTo ) );
@@ -362,6 +365,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     m_elementIndices.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
     m_elementKLayer.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
 
+    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::Seabed]       = {};
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::FaultSurface] = {};
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::LowerSurface] = {};
@@ -392,6 +396,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
     const int nextLayerIdxOff = ( (int)nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
+    const int seaBedLayer     = (int)( nVertCells - 2 );
 
     for ( int v = 0; v < (int)nVertCells - 1; v++ )
     {
@@ -420,6 +425,10 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 if ( v == 0 )
                 {
                     m_boundaryElements[Boundary::Bottom].push_back( elementIdx );
+                }
+                else if ( v == seaBedLayer )
+                {
+                    m_borderSurfaceElements[RimFaultReactivation::BorderSurface::Seabed].push_back( elementIdx );
                 }
                 if ( h == 0 )
                 {
