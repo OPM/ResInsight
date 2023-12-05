@@ -101,10 +101,13 @@ void RimUserDefinedIndexFilter::updateCellIndexFilter( cvf::UByteArray* includeV
 {
     if ( gridIndex != m_gridIndex() ) return;
 
+    const auto filterSize = includeVisibility->size();
+
     if ( m_filterMode == FilterModeType::INCLUDE )
     {
         for ( auto cellIdx : m_individualCellIndexes() )
         {
+            if ( cellIdx >= filterSize ) continue;
             ( *includeVisibility )[cellIdx] = true;
         }
     }
@@ -112,6 +115,7 @@ void RimUserDefinedIndexFilter::updateCellIndexFilter( cvf::UByteArray* includeV
     {
         for ( auto cellIdx : m_individualCellIndexes() )
         {
+            if ( cellIdx >= filterSize ) continue;
             ( *excludeVisibility )[cellIdx] = false;
         }
     }

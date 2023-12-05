@@ -35,6 +35,7 @@
 #include "RigGeoMechCaseData.h"
 
 #include "Rim2dIntersectionViewCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimFormationNames.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
@@ -216,6 +217,7 @@ void RimGeoMechCase::reloadDataAndUpdate()
         {
             v->resetVizLogic();
             v->loadDataAndUpdate();
+            v->cellFilterCollection()->notifyGridReload();
             v->setCurrentTimeStep( v->currentTimeStep() );
         }
 

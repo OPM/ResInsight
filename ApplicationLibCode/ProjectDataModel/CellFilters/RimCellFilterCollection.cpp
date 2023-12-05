@@ -387,6 +387,17 @@ void RimCellFilterCollection::removeFilter( RimCellFilter* filter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::notifyGridReload()
+{
+    for ( RimCellFilter* filter : m_cellFilters )
+    {
+        filter->onGridChanged();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::connectToFilterUpdates( RimCellFilter* filter )
 {
     filter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
