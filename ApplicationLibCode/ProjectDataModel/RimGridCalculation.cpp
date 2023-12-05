@@ -45,6 +45,7 @@
 
 #include "expressionparser/ExpressionParser.h"
 
+#include <QCheckBox>
 #include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimGridCalculation, "RimGridCalculation" );
@@ -82,12 +83,35 @@ bool RimGridCalculation::preCalculate() const
 {
     if ( RiaGuiApplication::isRunning() && m_allCases() )
     {
-        auto reply = QMessageBox::question( nullptr,
-                                            QString( "Grid Property Calculator" ),
-                                            QString( "Calculation will be executed on all grid model cases. Do you want to continue? " ),
-                                            QMessageBox::Yes | QMessageBox::No );
+        const QString cacheKey = "GridCalculatorMessage";
 
-        if ( reply == QMessageBox::No ) return false;
+        auto cacheValue = RiaApplication::instance()->cacheDataObject( cacheKey );
+        if ( cacheValue.isValid() && cacheValue.canConvert<bool>() )
+        {
+            return cacheValue.toBool();
+        }
+
+        QCheckBox* cb = new QCheckBox( "Don't show this question again" );
+
+        QMessageBox msgbox;
+        msgbox.setWindowTitle( "Grid Property Calculator" );
+        msgbox.setText( "Calculation will be executed on all grid model cases.\nDo you want to continue?\n" );
+        msgbox.setIcon( QMessageBox::Icon::Question );
+        msgbox.addButton( QMessageBox::Yes );
+        msgbox.addButton( QMessageBox::No );
+        msgbox.setDefaultButton( QMessageBox::Yes );
+        msgbox.setCheckBox( cb );
+
+        auto reply = msgbox.exec();
+
+        bool returnValue = ( reply == QMessageBox::Yes );
+
+        if ( cb->isChecked() && returnValue )
+        {
+            RiaApplication::instance()->setCacheDataObject( cacheKey, returnValue );
+        }
+
+        return returnValue;
     }
 
     return true;
