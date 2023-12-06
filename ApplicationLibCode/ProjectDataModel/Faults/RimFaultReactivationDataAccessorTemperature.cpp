@@ -96,12 +96,3 @@ double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::
 
     return std::numeric_limits<double>::infinity();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorTemperature::hasValidDataAtPosition( const cvf::Vec3d& position ) const
-{
-    auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-    return ( cellIdx != cvf::UNDEFINED_SIZE_T );
-}

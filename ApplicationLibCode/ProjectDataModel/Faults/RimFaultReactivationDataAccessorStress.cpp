@@ -161,15 +161,6 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorStress::hasValidDataAtPosition( const cvf::Vec3d& position ) const
-{
-    double value = valueAtPosition( position );
-    return !std::isinf( value );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimFaultReactivationDataAccessorStress::interpolatedResultValue( RimWellIADataAccess&      iaDataAccess,
                                                                         const RigFemPart*         femPart,
                                                                         const cvf::Vec3d&         position,

@@ -111,15 +111,3 @@ double RimFaultReactivationDataAccessorPorePressure::calculatePorePressure( doub
 {
     return gradient * 9.81 * depth * 1000.0;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorPorePressure::hasValidDataAtPosition( const cvf::Vec3d& position ) const
-{
-    auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-    if ( cellIdx == cvf::UNDEFINED_SIZE_T ) return false;
-
-    double value = m_resultAccessor->cellScalar( cellIdx );
-    return !std::isinf( value );
-}

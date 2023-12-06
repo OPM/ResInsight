@@ -101,15 +101,3 @@ double RimFaultReactivationDataAccessorVoidRatio::valueAtPosition( const cvf::Ve
 
     return m_missingValue;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorVoidRatio::hasValidDataAtPosition( const cvf::Vec3d& position ) const
-{
-    auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-    if ( cellIdx == cvf::UNDEFINED_SIZE_T ) return false;
-
-    double value = m_resultAccessor->cellScalar( cellIdx );
-    return !std::isinf( value );
-}
