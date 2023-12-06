@@ -117,5 +117,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
     caf::PdmField<bool>                           m_applyToAllCases;
 
+    caf::PdmField<std::vector<int>> m_selectedTimeSteps;
+
     caf::PdmField<int> m_defaultPropertyVariableIndex;
 };
