@@ -56,6 +56,8 @@ QString riMultYResultName();
 QString riMultZResultName();
 QString combinedRiMultResultName();
 
+QString riNncCells();
+
 QString riAreaNormTranXResultName();
 QString riAreaNormTranYResultName();
 QString riAreaNormTranZResultName();
