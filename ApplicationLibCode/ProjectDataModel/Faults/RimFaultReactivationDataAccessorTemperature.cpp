@@ -83,7 +83,11 @@ bool RimFaultReactivationDataAccessorTemperature::isMatching( RimFaultReactivati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::Vec3d& position, double topDepth, double bottomDepth ) const
+double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::Vec3d&                position,
+                                                                     const RigFaultReactivationModel& model,
+                                                                     RimFaultReactivation::GridPart   gridPart,
+                                                                     double                           topDepth,
+                                                                     double                           bottomDepth ) const
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {

@@ -138,7 +138,7 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
         {
             for ( auto& node : grid->globalNodes() )
             {
-                double value = accessor->valueAtPosition( node );
+                double value = accessor->valueAtPosition( node, model, gridPart );
                 values.push_back( value );
             }
         }
@@ -153,7 +153,7 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
                 double bottomDepth = computeAverageDepth( corners, { 4, 5, 6, 7 } );
 
                 cvf::Vec3d position = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
-                double     value    = accessor->valueAtPosition( position, topDepth, bottomDepth );
+                double     value    = accessor->valueAtPosition( position, model, gridPart, topDepth, bottomDepth );
                 values.push_back( value );
             }
         }
