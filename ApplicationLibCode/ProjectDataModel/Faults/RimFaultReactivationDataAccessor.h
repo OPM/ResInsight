@@ -26,6 +26,7 @@
 #include <map>
 
 class RigMainGrid;
+class RigFaultReactivationModel;
 
 //==================================================================================================
 ///
@@ -41,9 +42,11 @@ public:
 
     virtual bool isMatching( RimFaultReactivation::Property property ) const = 0;
 
-    virtual double valueAtPosition( const cvf::Vec3d& position,
-                                    double            topDepth    = std::numeric_limits<double>::infinity(),
-                                    double            bottomDepth = std::numeric_limits<double>::infinity() ) const = 0;
+    virtual double valueAtPosition( const cvf::Vec3d&                position,
+                                    const RigFaultReactivationModel& model,
+                                    RimFaultReactivation::GridPart   gridPart,
+                                    double                           topDepth    = std::numeric_limits<double>::infinity(),
+                                    double                           bottomDepth = std::numeric_limits<double>::infinity() ) const = 0;
 
 protected:
     virtual void updateResultAccessor() = 0;

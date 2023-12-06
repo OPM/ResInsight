@@ -97,7 +97,11 @@ bool RimFaultReactivationDataAccessorStress::isMatching( RimFaultReactivation::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d& position, double topDepth, double bottomDepth ) const
+double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d&                position,
+                                                                const RigFaultReactivationModel& model,
+                                                                RimFaultReactivation::GridPart   gridPart,
+                                                                double                           topDepth,
+                                                                double                           bottomDepth ) const
 {
     if ( !m_porFrames || !m_s11Frames || !m_s22Frames || !m_s33Frames || !m_femPart ) return std::numeric_limits<double>::infinity();
 

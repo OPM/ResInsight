@@ -97,7 +97,11 @@ bool RimFaultReactivationDataAccessorGeoMech::isMatching( RimFaultReactivation::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorGeoMech::valueAtPosition( const cvf::Vec3d& position, double topDepth, double bottomDepth ) const
+double RimFaultReactivationDataAccessorGeoMech::valueAtPosition( const cvf::Vec3d&                position,
+                                                                 const RigFaultReactivationModel& model,
+                                                                 RimFaultReactivation::GridPart   gridPart,
+                                                                 double                           topDepth,
+                                                                 double                           bottomDepth ) const
 
 {
     if ( !m_resultFrames ) return std::numeric_limits<double>::infinity();
