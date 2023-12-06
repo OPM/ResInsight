@@ -324,7 +324,8 @@ void RimEclipseStatisticsCase::computeStatistics()
                 inputValueVisibilityFilter = m_gridCalculationFilterView()->currentTotalCellVisibility().p();
             }
 
-            calc->calculateForCases( sourceCases, inputValueVisibilityFilter, timeStepIndices );
+            bool evaluateDependentCalculations = false;
+            calc->calculateForCases( sourceCases, inputValueVisibilityFilter, timeStepIndices, evaluateDependentCalculations );
         }
     }
 

@@ -59,8 +59,14 @@ public:
     RigEclipseResultAddress      outputAddress() const;
     bool                         calculateForCases( const std::vector<RimEclipseCase*>& calculationCases,
                                                     cvf::UByteArray*                    inputValueVisibilityFilter,
-                                                    std::optional<std::vector<size_t>>  timeSteps );
-    void                         assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase );
+                                                    std::optional<std::vector<size_t>>  timeSteps,
+                                                    bool                                evaluateDependentCalculations );
+
+    void findAndEvaluateDependentCalculations( const std::vector<RimEclipseCase*>& calculationCases,
+                                               cvf::UByteArray*                    inputValueVisibilityFilter,
+                                               std::optional<std::vector<size_t>>  timeSteps );
+
+    void assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase );
 
     std::vector<RimEclipseCase*> inputCases() const;
 

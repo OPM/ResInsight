@@ -24,16 +24,6 @@
 #include "RiaPorosityModel.h"
 
 #include "RigActiveCellInfo.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseTools.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseStatisticsCase.h"
-#include "RimEclipseView.h"
-#include "RimGridCalculationVariable.h"
-#include "RimProject.h"
-#include "RimReloadCaseTools.h"
-#include "RimTools.h"
-
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -42,6 +32,17 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigStatisticsMath.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseStatisticsCase.h"
+#include "RimEclipseView.h"
+#include "RimGridCalculationCollection.h"
+#include "RimGridCalculationVariable.h"
+#include "RimProject.h"
+#include "RimReloadCaseTools.h"
+#include "RimTools.h"
 
 #include "expressionparser/ExpressionParser.h"
 
@@ -161,9 +162,21 @@ bool RimGridCalculation::calculate()
         inputValueVisibilityFilter = m_cellFilterView()->currentTotalCellVisibility().p();
     }
 
-    auto timeSteps = std::nullopt;
+    std::optional<std::vector<size_t>> timeSteps = std::nullopt;
 
-    return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter, timeSteps );
+    if ( !m_selectedTimeSteps().empty() )
+    {
+        std::vector<size_t> tmp;
+        for ( auto t : m_selectedTimeSteps() )
+        {
+            tmp.push_back( static_cast<size_t>( t ) );
+        }
+
+        timeSteps = tmp;
+    }
+
+    bool evaluateDependentCalculations = true;
+    return calculateForCases( outputEclipseCases(), inputValueVisibilityFilter, timeSteps, evaluateDependentCalculations );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -584,9 +597,12 @@ void RimGridCalculation::removeDependentObjects()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& calculationCases,
                                             cvf::UByteArray*                    inputValueVisibilityFilter,
-                                            std::optional<std::vector<size_t>>  timeSteps )
+                                            std::optional<std::vector<size_t>>  timeSteps,
+                                            bool                                evaluateDependentCalculations )
 {
     if ( calculationCases.empty() ) return true;
+
+    if ( evaluateDependentCalculations ) findAndEvaluateDependentCalculations( calculationCases, inputValueVisibilityFilter, timeSteps );
 
     QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
 
@@ -689,8 +705,11 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 bool useDataFromDestinationCase = ( v->eclipseCase() == m_destinationCase );
 
                 auto dataForVariable = getDataForVariable( v, tsId, porosityModel, calculationCase, useDataFromDestinationCase );
-
-                if ( inputValueVisibilityFilter )
+                if ( dataForVariable.empty() )
+                {
+                    RiaLogging::error( QString( "  No data found for variable '%1'." ).arg( v->name() ) );
+                }
+                else if ( inputValueVisibilityFilter )
                 {
                     const double defaultValue = 0.0;
                     replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, porosityModel, calculationCase );
@@ -730,7 +749,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                     }
                 }
 
-                if ( m_cellFilterView() )
+                if ( m_cellFilterView() && !resultValues.empty() )
                 {
                     filterResults( m_cellFilterView(),
                                    dataForAllVariables,
@@ -757,7 +776,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             calculationCase->updateResultAddressCollection();
         }
 
-        if ( isMultipleCasesPresent )
+        if ( hasAggregationExpression )
         {
             QString txt = "    " + calculationCase->caseUserDescription();
 
@@ -793,6 +812,30 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
     }
 
     return !anyErrorsDetected;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::findAndEvaluateDependentCalculations( const std::vector<RimEclipseCase*>& calculationCases,
+                                                               cvf::UByteArray*                    inputValueVisibilityFilter,
+                                                               std::optional<std::vector<size_t>>  timeSteps )
+{
+    auto proj     = RimProject::current();
+    auto calcColl = proj->gridCalculationCollection();
+
+    auto dependentCalculations = calcColl->dependentCalculations( this );
+    for ( auto dependentCalc : dependentCalculations )
+    {
+        if ( dependentCalc == this ) continue;
+
+        // Propagate the settings for this calculation to the dependent calculation. This will allow changes on top level calculation to be
+        // propagated to dependent calculations automatically. Do not trigger findAndEvaluateDependentCalculations() recursively, as all
+        // dependent calculations are traversed in this function.
+
+        bool evaluateDependentCalculations = false;
+        dependentCalc->calculateForCases( calculationCases, inputValueVisibilityFilter, timeSteps, evaluateDependentCalculations );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
