@@ -25,6 +25,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaVersionInfo.h"
+#include "RiaWellLogUnitTools.h"
 
 #include "RifInpExportTools.h"
 #include "RimFaultReactivationDataAccess.h"
@@ -46,16 +47,19 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
     using PartBorderSurface                                        = RimFaultReactivation::BorderSurface;
     std::vector<std::pair<PartBorderSurface, std::string>> borders = { { PartBorderSurface::UpperSurface, "TOP" },
                                                                        { PartBorderSurface::FaultSurface, "FAULT" },
-                                                                       { PartBorderSurface::LowerSurface, "BASE" } };
+                                                                       { PartBorderSurface::LowerSurface, "BASE" },
+                                                                       { PartBorderSurface::Seabed, "SEABED" } };
 
     // The two parts are "mirrored", so face number 4 of the two parts should face eachother.
     using FaultGridPart                                              = RimFaultReactivation::GridPart;
     std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::FW, PartBorderSurface::FaultSurface }, 4 },
                                                                          { { FaultGridPart::FW, PartBorderSurface::UpperSurface }, 4 },
                                                                          { { FaultGridPart::FW, PartBorderSurface::LowerSurface }, 4 },
+                                                                         { { FaultGridPart::FW, PartBorderSurface::Seabed }, 2 },
                                                                          { { FaultGridPart::HW, PartBorderSurface::FaultSurface }, 4 },
                                                                          { { FaultGridPart::HW, PartBorderSurface::UpperSurface }, 4 },
-                                                                         { { FaultGridPart::HW, PartBorderSurface::LowerSurface }, 4 } };
+                                                                         { { FaultGridPart::HW, PartBorderSurface::LowerSurface }, 4 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::Seabed }, 2 } };
 
     std::map<FaultGridPart, std::string> partNames = {
         { FaultGridPart::FW, "FW" },
@@ -82,6 +86,10 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
     bool   useGridElasticProperties = rimModel.useGridElasticProperties();
     bool   useGridStress            = rimModel.useGridStress();
 
+    double seaBedDepth  = rimModel.seaBedDepth();
+    double waterDensity = rimModel.waterDensity();
+    double seaWaterLoad = RiaWellLogUnitTools<double>::gravityAcceleration() * seaBedDepth * waterDensity;
+
     auto dataAccess = rimModel.dataAccess();
 
     auto model = rimModel.model();
@@ -101,7 +109,15 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         [&]() { return printInteractions( stream, partNames, borders ); },
         [&]()
         {
-            return printSteps( stream, *model, *dataAccess, partNames, rimModel.selectedTimeSteps(), exportDirectory, useGridPorePressure, useGridTemperature );
+            return printSteps( stream,
+                               *model,
+                               *dataAccess,
+                               partNames,
+                               rimModel.selectedTimeSteps(),
+                               exportDirectory,
+                               useGridPorePressure,
+                               useGridTemperature,
+                               seaWaterLoad );
         },
     };
 
@@ -575,7 +591,8 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
                                                                             const std::vector<QDateTime>& timeSteps,
                                                                             const std::string&            exportDirectory,
                                                                             bool                          useGridPorePressure,
-                                                                            bool                          useGridTemperature )
+                                                                            bool                          useGridTemperature,
+                                                                            double                        seaWaterLoad )
 {
     // First time step has to be selected in order to export currently
     if ( timeSteps.size() < 2 ) return { false, "Failed to export fault reactivation INP: needs at least two time steps." };
@@ -592,6 +609,21 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
         std::string stepType = i == 0 ? "Geostatic, utol" : "Soils, utol=1.0";
         RifInpExportTools::printHeading( stream, stepType );
         RifInpExportTools::printNumbers( stream, { 1.0, 1.0, 1e-05, 1.0 } );
+
+        if ( i == 0 )
+        {
+            RifInpExportTools::printHeading( stream, "Dload" );
+            RifInpExportTools::printLine( stream, ",GRAV, 9.80665, 0., 0., -1." );
+
+            RifInpExportTools::printComment( stream, "SEAWATER LOAD" );
+
+            for ( auto [part, partName] : partNames )
+            {
+                RifInpExportTools::printHeading( stream, "Dsload" );
+                std::string seaBedName = partName + "." + "SEABED";
+                RifInpExportTools::printLine( stream, seaBedName + ", P, " + std::to_string( seaWaterLoad ) );
+            }
+        }
 
         if ( useGridPorePressure )
         {
@@ -737,22 +769,26 @@ std::pair<bool, std::string>
     RifInpExportTools::printSectionComment( stream, "INTERACTIONS" );
     for ( const auto& [border, borderName] : borders )
     {
-        RifInpExportTools::printComment( stream, "Interaction: " + borderName );
-
-        std::string interactionName = "NON-FAULT";
-        std::string extra;
-        if ( border == RimFaultReactivation::BorderSurface::FaultSurface )
+        if ( border != RimFaultReactivation::BorderSurface::Seabed )
         {
-            interactionName = "FAULT";
-            extra           = ", adjust=0.0";
+            RifInpExportTools::printComment( stream, "Interaction: " + borderName );
+
+            std::string interactionName = "NON-FAULT";
+            std::string extra;
+            if ( border == RimFaultReactivation::BorderSurface::FaultSurface )
+            {
+                interactionName = "FAULT";
+                extra           = ", adjust=0.0";
+            }
+
+            RifInpExportTools::printHeading( stream,
+                                             "Contact Pair, interaction=" + interactionName + ", small sliding, type=SURFACE TO SURFACE" +
+                                                 extra );
+
+            std::string part1Name = partNames.find( RimFaultReactivation::GridPart::FW )->second;
+            std::string part2Name = partNames.find( RimFaultReactivation::GridPart::HW )->second;
+            RifInpExportTools::printLine( stream, part1Name + "." + borderName + ", " + part2Name + "." + borderName );
         }
-
-        RifInpExportTools::printHeading( stream,
-                                         "Contact Pair, interaction=" + interactionName + ", small sliding, type=SURFACE TO SURFACE" + extra );
-
-        std::string part1Name = partNames.find( RimFaultReactivation::GridPart::FW )->second;
-        std::string part2Name = partNames.find( RimFaultReactivation::GridPart::HW )->second;
-        RifInpExportTools::printLine( stream, part1Name + "." + borderName + ", " + part2Name + "." + borderName );
     }
 
     return { true, "" };

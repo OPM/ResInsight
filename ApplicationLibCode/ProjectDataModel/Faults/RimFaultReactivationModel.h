@@ -128,6 +128,9 @@ public:
     bool useGridElasticProperties() const;
     bool useGridStress() const;
 
+    double seaBedDepth() const;
+    double waterDensity() const;
+
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -180,6 +183,8 @@ private:
     caf::PdmField<bool> m_useGridDensity;
     caf::PdmField<bool> m_useGridElasticProperties;
     caf::PdmField<bool> m_useGridStress;
+
+    caf::PdmField<double> m_waterDensity;
 
     caf::PdmField<size_t> m_startCellIndex;
     caf::PdmField<int>    m_startCellFace;

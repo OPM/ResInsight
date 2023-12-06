@@ -82,7 +82,8 @@ private:
                                                     const std::vector<QDateTime>&                                timeSteps,
                                                     const std::string&                                           exportDirectory,
                                                     bool                                                         useGridPorePressure,
-                                                    bool                                                         useGridTemperature );
+                                                    bool                                                         useGridTemperature,
+                                                    double                                                       seaWaterLoad );
 
     static std::pair<bool, std::string>
         printInteractions( std::ostream&                                                                   stream,
