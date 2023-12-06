@@ -115,7 +115,7 @@ private:
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
-    caf::PdmField<bool>                           m_allCases;
+    caf::PdmField<bool>                           m_applyToAllCases;
 
     caf::PdmField<int> m_defaultPropertyVariableIndex;
 };

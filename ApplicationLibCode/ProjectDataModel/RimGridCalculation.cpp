@@ -72,7 +72,7 @@ RimGridCalculation::RimGridCalculation()
     CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Non-visible Cell Value" );
     CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Custom Value" );
     CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
-    CAF_PDM_InitField( &m_allCases, "AllDestinationCase", false, "Apply to All Cases" );
+    CAF_PDM_InitField( &m_applyToAllCases, "AllDestinationCase", false, "Apply to All Cases" );
     CAF_PDM_InitField( &m_defaultPropertyVariableIndex, "DefaultPropertyVariableName", 0, "Property Variable Name" );
 }
 
@@ -81,7 +81,7 @@ RimGridCalculation::RimGridCalculation()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCalculation::preCalculate() const
 {
-    if ( RiaGuiApplication::isRunning() && m_allCases() )
+    if ( RiaGuiApplication::isRunning() && m_applyToAllCases() )
     {
         const QString cacheKey = "GridCalculatorMessage";
 
@@ -166,7 +166,7 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
 {
-    if ( m_allCases )
+    if ( m_applyToAllCases )
     {
         // Find all Eclipse cases suitable for grid calculations. This includes all single grid cases and source cases in a grid case group.
         // Exclude the statistics cases, as it is not possible to use them in a grid calculations.
@@ -217,12 +217,12 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     uiOrdering.add( &m_destinationCase );
 
-    uiOrdering.add( &m_allCases );
+    uiOrdering.add( &m_applyToAllCases );
     if ( !allSourceCasesAreEqualToDestinationCase() )
     {
-        m_allCases = false;
+        m_applyToAllCases = false;
     }
-    m_allCases.uiCapability()->setUiReadOnly( !allSourceCasesAreEqualToDestinationCase() );
+    m_applyToAllCases.uiCapability()->setUiReadOnly( !allSourceCasesAreEqualToDestinationCase() );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
     filterGroup->setCollapsedByDefault();
