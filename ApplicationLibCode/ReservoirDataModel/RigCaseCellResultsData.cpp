@@ -33,6 +33,7 @@
 #include "RigAllanUtil.h"
 #include "RigCaseCellResultCalculator.h"
 #include "RigCellVolumeResultCalculator.h"
+#include "RigCellsWithNncsCalculator.h"
 #include "RigEclipseAllanFaultsStatCalc.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
@@ -1116,6 +1117,12 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() ),
                                        needsToBeStored );
     }
+
+    // NNC cells, 1 for cells with NNC and 0 for other cells
+    {
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riNncCells() ),
+                                       needsToBeStored );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1324,6 +1331,10 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         else if ( resultName == RiaResultNames::faultDistanceName() )
         {
             computeFaultDistance();
+        }
+        else if ( resultName == RiaResultNames::riNncCells() )
+        {
+            computeNncsCells();
         }
     }
     else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
@@ -1893,6 +1904,16 @@ void RigCaseCellResultsData::computeFaultDistance()
 {
     RigEclipseResultAddress          addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() );
     RigFaultDistanceResultCalculator calculator( *this );
+    calculator.calculate( addr, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeNncsCells()
+{
+    RigEclipseResultAddress    addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riNncCells() );
+    RigCellsWithNncsCalculator calculator( *this );
     calculator.calculate( addr, 0 );
 }
 
