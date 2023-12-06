@@ -121,12 +121,3 @@ double RimFaultReactivationDataAccessorGeoMech::valueAtPosition( const cvf::Vec3
 
     return std::numeric_limits<double>::infinity();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorGeoMech::hasValidDataAtPosition( const cvf::Vec3d& position ) const
-{
-    double value = valueAtPosition( position );
-    return !std::isinf( value );
-}

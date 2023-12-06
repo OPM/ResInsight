@@ -45,8 +45,6 @@ public:
                                     double            topDepth    = std::numeric_limits<double>::infinity(),
                                     double            bottomDepth = std::numeric_limits<double>::infinity() ) const = 0;
 
-    virtual bool hasValidDataAtPosition( const cvf::Vec3d& position ) const = 0;
-
 protected:
     virtual void updateResultAccessor() = 0;
 

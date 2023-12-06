@@ -206,24 +206,3 @@ std::shared_ptr<RimFaultReactivationDataAccessor> RimFaultReactivationDataAccess
 
     return nullptr;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccess::elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const
-{
-    auto accessor = getAccessor( RimFaultReactivation::Property::PorePressure );
-    if ( !accessor ) return false;
-
-    accessor->setTimeStep( 0 );
-
-    int nValid = 0;
-
-    for ( auto& p : elementCorners )
-    {
-        if ( accessor->hasValidDataAtPosition( p ) ) nValid++;
-    }
-
-    // if more than half of the nodes have valid data, we're ok
-    return nValid > 4;
-}

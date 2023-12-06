@@ -50,8 +50,6 @@ public:
     std::vector<double>
         propertyValues( RimFaultReactivation::GridPart gridPart, RimFaultReactivation::Property property, size_t outputTimeStep ) const;
 
-    bool elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const;
-
 private:
     std::shared_ptr<RimFaultReactivationDataAccessor> getAccessor( RimFaultReactivation::Property property ) const;
 
