@@ -125,6 +125,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_useGridElasticProperties, "UseGridElasticProperties", false, "Output Grid Elastic Properties" );
     CAF_PDM_InitField( &m_useGridStress, "UseGridStress", false, "Output Grid Stress" );
 
+    CAF_PDM_InitField( &m_waterDensity, "WaterDensity", 1030.0, "Water Density [kg/m3]" );
+
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
@@ -464,6 +466,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     propertiesGrp->add( &m_useGridDensity );
     propertiesGrp->add( &m_useGridElasticProperties );
     propertiesGrp->add( &m_useGridStress );
+    propertiesGrp->add( &m_waterDensity );
 
     auto trgGroup = uiOrdering.addNewGroup( "Debug" );
     trgGroup->setCollapsedByDefault();
@@ -791,4 +794,20 @@ bool RimFaultReactivationModel::useGridElasticProperties() const
 bool RimFaultReactivationModel::useGridStress() const
 {
     return m_useGridStress();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::seaBedDepth() const
+{
+    return m_modelMinZ;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::waterDensity() const
+{
+    return m_waterDensity;
 }
