@@ -45,6 +45,8 @@
 
 #include "expressionparser/ExpressionParser.h"
 
+#include "cafPdmUiTreeSelectionEditor.h"
+
 #include <QCheckBox>
 #include <QMessageBox>
 
@@ -74,6 +76,9 @@ RimGridCalculation::RimGridCalculation()
     CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
     CAF_PDM_InitField( &m_applyToAllCases, "AllDestinationCase", false, "Apply to All Cases" );
     CAF_PDM_InitField( &m_defaultPropertyVariableIndex, "DefaultPropertyVariableName", 0, "Property Variable Name" );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,6 +243,10 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
             filterGroup->add( &m_defaultValue );
     }
 
+    caf::PdmUiGroup* timeStepGroup = uiOrdering.addNewGroup( "Time Step Filter" );
+    timeStepGroup->setCollapsedByDefault();
+    timeStepGroup->add( &m_selectedTimeSteps );
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -299,6 +308,23 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
             options.push_back( caf::PdmOptionItemInfo( optionText, i ) );
         }
     }
+    else if ( &m_selectedTimeSteps == fieldNeedingOptions )
+    {
+        RimEclipseCase* firstEclipseCase = nullptr;
+        if ( !inputCases().empty() ) firstEclipseCase = inputCases().front();
+
+        if ( firstEclipseCase )
+        {
+            const auto timeStepStrings = firstEclipseCase->timeStepStrings();
+
+            int index = 0;
+            for ( const auto& text : timeStepStrings )
+            {
+                options.push_back( caf::PdmOptionItemInfo( text, index++ ) );
+            }
+        }
+    }
+
     return options;
 }
 
@@ -617,6 +643,31 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
         // If an input grid is present, max time step count is zero. Make sure the time step count for the calculation is
         // always 1 or more.
         const size_t timeStepCount = std::max( size_t( 1 ), calculationCase->results( porosityModel )->maxTimeStepCount() );
+
+        if ( calculationCase == calculationCases.front() && hasAggregationExpression )
+        {
+            // Print time header
+
+            auto timeStepStrings = calculationCase->timeStepStrings();
+
+            QString timeHeader;
+            for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
+            {
+                // Skip time steps that are not in the list of time steps to calculate
+                if ( timeSteps && std::find( timeSteps->begin(), timeSteps->end(), tsId ) == timeSteps->end() ) continue;
+
+                timeHeader += "\t";
+                auto index = static_cast<int>( tsId );
+
+                if ( index < timeStepStrings.size() )
+                {
+                    timeHeader += timeStepStrings.at( static_cast<int>( tsId ) );
+                }
+                else
+                    timeHeader += "Undefined";
+            }
+            RiaLogging::info( timeHeader );
+        }
 
         std::vector<std::vector<double>>* scalarResultFrames =
             calculationCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
