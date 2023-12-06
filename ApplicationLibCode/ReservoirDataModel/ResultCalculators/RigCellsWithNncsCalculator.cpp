@@ -44,8 +44,7 @@ RigCellsWithNncsCalculator::~RigCellsWithNncsCalculator()
 //--------------------------------------------------------------------------------------------------
 bool RigCellsWithNncsCalculator::isMatching( const RigEclipseResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.resultName() == RiaResultNames::riNncCells() &&
-             resVarAddr.resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE );
+    return ( resVarAddr.resultName() == RiaResultNames::riNncCells() && resVarAddr.resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE );
 }
 
 //--------------------------------------------------------------------------------------------------
