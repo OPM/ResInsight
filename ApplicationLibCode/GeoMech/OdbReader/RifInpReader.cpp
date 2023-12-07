@@ -28,6 +28,7 @@
 #include "cafProgressInfo.h"
 
 #include <QString>
+#include <QStringList>
 
 #include <iostream>
 #include <limits>
@@ -86,9 +87,18 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
     std::map<int, std::vector<std::pair<int, std::vector<int>>>>            elements;
     std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>> elementSets;
 
-    read( m_stream, parts, nodes, elements, elementSets );
+    auto elementType = read( m_stream, parts, nodes, elements, elementSets, m_stepNames, m_includeEntries );
 
-    RiaLogging::debug( QString( "Read FEM parts: %1 nodes: %2 elements: %3" ).arg( parts.size() ).arg( nodes.size() ).arg( elements.size() ) );
+    RiaLogging::debug( QString( "Read FEM parts: %1, steps: %2, element type: %3" )
+                           .arg( parts.size() )
+                           .arg( m_stepNames.size() )
+                           .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) ) );
+
+    if ( !RigFemTypes::is8NodeElement( elementType ) )
+    {
+        RiaLogging::error( QString( "Unsupported element type." ) );
+        return false;
+    }
 
     caf::ProgressInfo modelProgress( parts.size() * 2, "Reading Inp Parts" );
 
@@ -135,9 +145,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 
             elementIdToIdxMap[elmId] = elmIdx;
 
-            // TODO: handle more types?
-            RigElementType elmType   = RigElementType::HEX8;
-            int            nodeCount = RigFemTypes::elementNodeCount( elmType );
+            int nodeCount = RigFemTypes::elementNodeCount( elementType );
 
             indexBasedConnectivities.resize( nodeCount );
             for ( int lnIdx = 0; lnIdx < nodeCount; ++lnIdx )
@@ -145,7 +153,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
                 indexBasedConnectivities[lnIdx] = nodeIdToIdxMap[nodesInElement[lnIdx]];
             }
 
-            femPart->appendElement( elmType, elmId, indexBasedConnectivities.data() );
+            femPart->appendElement( elementType, elmId, indexBasedConnectivities.data() );
         }
 
         // read element sets
@@ -167,16 +175,22 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifInpReader::read( std::istream&                                                            stream,
-                         std::map<int, std::string>&                                              parts,
-                         std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&                  nodes,
-                         std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
-                         std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets )
+RigElementType RifInpReader::read( std::istream&                                                            stream,
+                                   std::map<int, std::string>&                                              parts,
+                                   std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&                  nodes,
+                                   std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
+                                   std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets,
+                                   std::vector<std::string>&                                                stepNames,
+                                   std::vector<RifInpIncludeEntry>&                                         includeEntries )
 {
     std::string line;
 
+    RigElementType elementType = RigElementType::UNKNOWN_ELM_TYPE;
+
     int         partId = 0;
     std::string partName;
+    int         stepId = -1;
+    std::string stepName;
 
     while ( true )
     {
@@ -208,6 +222,8 @@ void RifInpReader::read( std::istream&                                          
             // "Element" section.
             else if ( uppercasedLine.starts_with( "*ELEMENT," ) )
             {
+                auto nodeType = parseLabel( line, "type" );
+                elementType   = RigFemTypes::toRigElementType( nodeType );
                 skipComments( stream );
                 elements[partId] = readElements( stream );
             }
@@ -219,12 +235,49 @@ void RifInpReader::read( std::istream&                                          
                 auto        elementSet = isGenerateSet ? readElementSetGenerate( stream ) : readElementSet( stream );
                 elementSets[partId].push_back( { setName, elementSet } );
             }
+            else if ( uppercasedLine.starts_with( "*STEP" ) )
+            {
+                stepName = parseLabel( line, "name" );
+                stepNames.push_back( stepName );
+                stepId = stepNames.size() - 1;
+            }
+            else if ( uppercasedLine.starts_with( "*END STEP" ) )
+            {
+                stepId   = -1;
+                stepName = "";
+            }
+            else if ( uppercasedLine.starts_with( "*INCLUDE" ) )
+            {
+                auto filename     = parseLabel( line, "input" );
+                auto propertyName = decodeFilename( filename );
+                if ( !propertyName.empty() )
+                {
+                    includeEntries.push_back( RifInpIncludeEntry( propertyName, stepId, filename ) );
+                }
+            }
 
             continue;
         }
 
         if ( stream.eof() ) break;
     }
+
+    return elementType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RifInpReader::decodeFilename( const std::string filename )
+{
+    std::string uppercased = RiaStdStringTools::toUpper( filename );
+
+    if ( uppercased.starts_with( "POR" ) ) return "POR";
+    if ( uppercased.starts_with( "TEMP" ) ) return "TEMP";
+    // if ( uppercased.starts_with( "RATIO" ) ) return "RATIO";
+    // if ( uppercased.starts_with( "DENSITY" ) ) return "DENSITY";
+
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,11 +484,7 @@ void RifInpReader::skipComments( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifInpReader::allStepNames() const
 {
-    // TODO: read step names from file.
-    std::vector<std::string> stepNames;
-    stepNames.push_back( "step 1" );
-
-    return stepNames;
+    return m_stepNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -443,7 +492,7 @@ std::vector<std::string> RifInpReader::allStepNames() const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifInpReader::filteredStepNames() const
 {
-    // TODO: add filtering.
+    // no filter supported
     return RifInpReader::allStepNames();
 }
 
@@ -452,9 +501,8 @@ std::vector<std::string> RifInpReader::filteredStepNames() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RifInpReader::frameTimes( int stepIndex ) const
 {
-    // TODO: get from file?
-    std::vector<double> frameValues;
-    frameValues.push_back( 1.0 );
+    // only one frame from INP file
+    std::vector<double> frameValues( { 1.0 } );
     return frameValues;
 }
 
@@ -463,8 +511,6 @@ std::vector<double> RifInpReader::frameTimes( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 int RifInpReader::frameCount( int stepIndex ) const
 {
-    if ( shouldReadOnlyLastFrame() ) return 1;
-
     return frameTimes( stepIndex ).size();
 }
 

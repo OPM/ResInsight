@@ -442,7 +442,7 @@ float RigFemPart::characteristicElementSize() const
 {
     if ( m_characteristicElementSize != std::numeric_limits<float>::infinity() ) return m_characteristicElementSize;
 
-    std::vector<RigElementType> elementPriority = { HEX8P, HEX8 };
+    std::vector<RigElementType> elementPriority = { RigElementType::HEX8P, RigElementType::HEX8 };
 
     for ( auto elmType : elementPriority )
     {
@@ -604,7 +604,7 @@ size_t RigFemPart::resultValueIdxFromResultPosType( RigFemResultPosEnum resultPo
 bool RigFemPart::isHexahedron( size_t elementIdx ) const
 {
     RigElementType elType = elementType( elementIdx );
-    return elType == HEX8 || elType == HEX8P;
+    return RigFemTypes::is8NodeElement( elType );
 }
 
 //--------------------------------------------------------------------------------------------------
