@@ -135,7 +135,8 @@ QString RiuFemResultTextBuilder::geometrySelectionText( QString itemSeparator )
             int         elementId   = femPart->elmId( m_cellIndex );
             auto        elementType = femPart->elementType( m_cellIndex );
 
-            text += QString( "Element : Id[%1], Type[%2]" ).arg( elementId ).arg( RigFemTypes::elementTypeText( elementType ) );
+            text +=
+                QString( "Element : Id[%1], Type[%2]" ).arg( elementId ).arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) );
 
             size_t i = 0;
             size_t j = 0;

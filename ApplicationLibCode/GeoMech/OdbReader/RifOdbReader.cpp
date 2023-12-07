@@ -104,43 +104,6 @@ size_t RifOdbReader::sm_instanceCount = 0;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, RigElementType> initFemTypeMap()
-{
-    std::map<std::string, RigElementType> typeMap;
-    typeMap["C3D8R"]   = HEX8;
-    typeMap["C3D8"]    = HEX8;
-    typeMap["C3D8P"]   = HEX8P;
-    typeMap["CAX4"]    = CAX4;
-    typeMap["C3D20RT"] = HEX8;
-    typeMap["C3D8RT"]  = HEX8;
-    typeMap["C3D8T"]   = HEX8;
-
-    return typeMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigElementType toRigElementType( const odb_String& odbTypeName )
-{
-    static std::map<std::string, RigElementType> odbElmTypeToRigElmTypeMap = initFemTypeMap();
-
-    std::map<std::string, RigElementType>::iterator it = odbElmTypeToRigElmTypeMap.find( odbTypeName.cStr() );
-
-    if ( it == odbElmTypeToRigElmTypeMap.end() )
-    {
-#if 0
-        std::cout << "Unsupported element type :" << odbElm.type().cStr() << std::endl;
-#endif
-        return UNKNOWN_ELM_TYPE;
-    }
-
-    return it->second;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifOdbReader::RifOdbReader()
 {
     if ( ++sm_instanceCount == 1 )
@@ -380,8 +343,8 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
 
             elementIdToIdxMap[odbElm.label()] = elmIdx;
 
-            RigElementType elmType = toRigElementType( odbElm.type() );
-            if ( elmType == UNKNOWN_ELM_TYPE ) continue;
+            RigElementType elmType = RigFemTypes::toRigElementType( std::string( odbElm.type().cStr() ) );
+            if ( elmType == RigElementType::UNKNOWN_ELM_TYPE ) continue;
 
             int        nodeCount             = 0;
             const int* idBasedConnectivities = odbElm.connectivity( nodeCount );
@@ -986,7 +949,7 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
-        RigElementType eType                    = toRigElementType( bulkData.baseElementType() );
+        RigElementType eType                    = RigFemTypes::toRigElementType( bulkData.baseElementType().cStr() );
         const int*     elmNodeToIpResultMapping = RigFemTypes::localElmNodeToIntegrationPointMapping( eType );
 
         for ( int elem = 0; elem < elemCount; elem++ )

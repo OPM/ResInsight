@@ -19,9 +19,10 @@
 
 #pragma once
 
-class QString;
+#include <map>
+#include <string>
 
-enum RigElementType
+enum class RigElementType
 {
     HEX8,
     HEX8P,
@@ -32,10 +33,15 @@ enum RigElementType
 class RigFemTypes
 {
 public:
-    static int        elementNodeCount( RigElementType elmType );
-    static int        elementFaceCount( RigElementType elmType );
-    static const int* localElmNodeIndicesForFace( RigElementType elmType, int faceIdx, int* faceNodeCount );
-    static int        oppositeFace( RigElementType elmType, int faceIdx );
-    static const int* localElmNodeToIntegrationPointMapping( RigElementType elmType );
-    static QString    elementTypeText( RigElementType elemType );
+    static int            elementNodeCount( RigElementType elmType );
+    static int            elementFaceCount( RigElementType elmType );
+    static const int*     localElmNodeIndicesForFace( RigElementType elmType, int faceIdx, int* faceNodeCount );
+    static int            oppositeFace( RigElementType elmType, int faceIdx );
+    static const int*     localElmNodeToIntegrationPointMapping( RigElementType elmType );
+    static std::string    elementTypeText( RigElementType elemType );
+    static RigElementType toRigElementType( const std::string odbTypeName );
+    static bool           is8NodeElement( RigElementType elmType );
+
+private:
+    static std::map<std::string, RigElementType> femTypeMap();
 };

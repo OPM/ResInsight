@@ -277,7 +277,7 @@ int RigCaseToCaseCellMapperTools::quadVxClosestToXYOfPoint( const cvf::Vec3d poi
 bool RigCaseToCaseCellMapperTools::elementCorners( const RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8] )
 {
     RigElementType elmType = femPart->elementType( elmIdx );
-    if ( elmType != HEX8 && elmType != HEX8P ) return false;
+    if ( !RigFemTypes::is8NodeElement( elmType ) ) return false;
 
     const std::vector<cvf::Vec3f>& nodeCoords    = femPart->nodes().coordinates;
     const int*                     cornerIndices = femPart->connectivities( elmIdx );
@@ -300,7 +300,8 @@ bool RigCaseToCaseCellMapperTools::elementCorners( const RigFemPart* femPart, in
 int RigCaseToCaseCellMapperTools::findMatchingPOSKFaceIdx( const cvf::Vec3d baseCell[8], bool isBaseCellNormalsOutwards, const cvf::Vec3d c2[8] )
 {
     int        faceNodeCount;
-    const int* posKFace = RigFemTypes::localElmNodeIndicesForFace( HEX8, (int)( cvf::StructGridInterface::POS_K ), &faceNodeCount );
+    const int* posKFace =
+        RigFemTypes::localElmNodeIndicesForFace( RigElementType::HEX8, (int)( cvf::StructGridInterface::POS_K ), &faceNodeCount );
 
     double sign = isBaseCellNormalsOutwards ? 1.0 : -1.0;
 
@@ -311,7 +312,7 @@ int RigCaseToCaseCellMapperTools::findMatchingPOSKFaceIdx( const cvf::Vec3d base
     int    bestFace = -1;
     for ( int faceIdx = 5; faceIdx >= 0; --faceIdx ) // Backwards. might hit earlier more often
     {
-        const int* face   = RigFemTypes::localElmNodeIndicesForFace( HEX8, faceIdx, &faceNodeCount );
+        const int* face   = RigFemTypes::localElmNodeIndicesForFace( RigElementType::HEX8, faceIdx, &faceNodeCount );
         cvf::Vec3d normal = ( c2[face[2]] - c2[face[0]] ) ^ ( c2[face[3]] - c2[face[1]] );
         normal.normalize();
         double sqDiff = ( posKnormal - normal ).lengthSquared();
@@ -367,11 +368,13 @@ void RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( const
         tmpFemCorners[6] = cell[6];
         tmpFemCorners[7] = cell[7];
 
-        int femShallowZFaceIdx = RigFemTypes::oppositeFace( HEX8, femDeepZFaceIdx );
+        int femShallowZFaceIdx = RigFemTypes::oppositeFace( RigElementType::HEX8, femDeepZFaceIdx );
 
         int        faceNodeCount;
-        const int* localElmNodeIndicesForPOSKFace = RigFemTypes::localElmNodeIndicesForFace( HEX8, femDeepZFaceIdx, &faceNodeCount );
-        const int* localElmNodeIndicesForNEGKFace = RigFemTypes::localElmNodeIndicesForFace( HEX8, femShallowZFaceIdx, &faceNodeCount );
+        const int* localElmNodeIndicesForPOSKFace =
+            RigFemTypes::localElmNodeIndicesForFace( RigElementType::HEX8, femDeepZFaceIdx, &faceNodeCount );
+        const int* localElmNodeIndicesForNEGKFace =
+            RigFemTypes::localElmNodeIndicesForFace( RigElementType::HEX8, femShallowZFaceIdx, &faceNodeCount );
 
         cell[0] = tmpFemCorners[localElmNodeIndicesForNEGKFace[0]];
         cell[1] = tmpFemCorners[localElmNodeIndicesForNEGKFace[1]];

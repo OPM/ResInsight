@@ -110,7 +110,7 @@ void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, size_t c
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 
     RigElementType elmType = part->elementType( elementIdx );
-    if ( elmType != HEX8 && elmType != HEX8P ) return;
+    if ( !RigFemTypes::is8NodeElement( elmType ) ) return;
 
     int       elmIdx = static_cast<int>( elementIdx );
     const int partId = part->elementPartId();
