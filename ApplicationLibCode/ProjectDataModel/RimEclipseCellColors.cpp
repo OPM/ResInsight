@@ -145,7 +145,10 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
                 int caseId = 0;
                 if ( eclipseCase() ) caseId = eclipseCase()->caseId();
 
-                auto newLegend = createLegendForResult( caseId, resultVarNameOfNewLegend, m_useDiscreteLogLevels, hasCategoryResult() );
+                bool useCategoryLegend = hasCategoryResult();
+                if ( m_resultType() == RiaDefines::ResultCatType::FORMATION_NAMES ) useCategoryLegend = true;
+
+                auto newLegend = createLegendForResult( caseId, resultVarNameOfNewLegend, m_useDiscreteLogLevels, useCategoryLegend );
 
                 newLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
 
