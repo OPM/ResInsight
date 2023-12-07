@@ -58,6 +58,7 @@ public:
     RimUserDefinedFilter*      addNewUserDefinedFilter( RimCase* srcCase );
     RimUserDefinedIndexFilter* addNewUserDefinedIndexFilter( RimCase* srcCase, const std::vector<size_t>& defCellIndexes = {} );
 
+    void addFilterAndNotifyChanges( RimCellFilter* pFilter, RimCase* srcCase );
     void removeFilter( RimCellFilter* filter );
     void notifyGridReload();
 
