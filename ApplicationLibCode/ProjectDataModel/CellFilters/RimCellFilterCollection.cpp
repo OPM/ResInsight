@@ -295,6 +295,16 @@ RimUserDefinedIndexFilter* RimCellFilterCollection::addNewUserDefinedIndexFilter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::addFilterAndNotifyChanges( RimCellFilter* pFilter, RimCase* srcCase )
+{
+    addFilter( pFilter );
+    pFilter->setCase( srcCase );
+    onFilterUpdated( pFilter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection, int defaultSlice )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();

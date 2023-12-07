@@ -20,6 +20,7 @@
 #include "RicCopyReferencesToClipboardFeature.h"
 
 #include "RimBoxIntersection.h"
+#include "RimCellFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleCurveSet.h"
@@ -136,6 +137,7 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( caf::PdmObjec
     if ( dynamic_cast<RimGridCrossPlotDataSet*>( pdmObject ) ) return true;
     if ( dynamic_cast<RimModeledWellPath*>( pdmObject ) ) return true;
     if ( dynamic_cast<RimSummaryMultiPlot*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimCellFilter*>( pdmObject ) ) return true;
 
     // Copy support based combined logic
     RimWellAllocationPlot* wellAllocPlot = pdmObject->firstAncestorOrThisOfType<RimWellAllocationPlot>();
