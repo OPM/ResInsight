@@ -843,7 +843,7 @@ double RimSummaryCurve::computeCurveZValue()
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE );
         }
-        else if ( sumCase->ensemble() )
+        else if ( firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>() )
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE );
         }
