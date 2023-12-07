@@ -124,7 +124,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
                 for ( int elmIdx : elements )
                 {
                     RigElementType elmType = femPart->elementType( elmIdx );
-                    if ( elmType == HEX8P )
+                    if ( elmType == RigElementType::HEX8P )
                     {
                         // Find the corner coordinates and values for the node
                         std::array<cvf::Vec3d, 8> hexCorners;

@@ -200,7 +200,7 @@ void RigFemPartGrid::generateStructGridData()
         RigElementType elementType = m_femPart->elementType( elmIdx );
         size_t         i, j, k;
         bool           validIndex = ijkFromCellIndex( elmIdx, &i, &j, &k );
-        if ( elementType == HEX8P && validIndex )
+        if ( ( elementType == RigElementType::HEX8P ) && validIndex )
         {
             if ( i < min.x() ) min.x() = i;
             if ( j < min.y() ) min.y() = j;
@@ -254,7 +254,7 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces( int elementIndex ) const
     // Record three independent main direction vectors for the element, and what face they are created from
     cvf::Vec3f mainElmDirections[3];
     int        mainElmDirOriginFaces[3];
-    if ( eType == HEX8 || eType == HEX8P )
+    if ( RigFemTypes::is8NodeElement( eType ) )
     {
         mainElmDirections[0]     = normals[0] - normals[1]; // To get a better "average" direction vector
         mainElmDirections[1]     = normals[2] - normals[3];

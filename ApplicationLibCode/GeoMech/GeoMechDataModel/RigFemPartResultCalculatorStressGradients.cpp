@@ -133,7 +133,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( 
                 const int*     cornerIndices = femPart->connectivities( elmIdx );
                 RigElementType elmType       = femPart->elementType( elmIdx );
 
-                if ( elmType != HEX8P && elmType != HEX8 ) continue;
+                if ( !RigFemTypes::is8NodeElement( elmType ) ) continue;
 
                 // Find the corner coordinates for element
                 std::array<cvf::Vec3d, 8> hexCorners;
