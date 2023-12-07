@@ -6,6 +6,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteEclipseViewsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteGeoMechViewsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteIntersectionsFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicPasteCellFiltersFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +17,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteEclipseViewsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteGeoMechViewsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteIntersectionsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicPasteCellFiltersFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
