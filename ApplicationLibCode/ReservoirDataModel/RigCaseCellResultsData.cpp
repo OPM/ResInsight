@@ -1120,7 +1120,9 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // NNC cells, 1 for cells with NNC and 0 for other cells
     {
-        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riNncCells() ),
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                RiaDefines::ResultDataType::INTEGER,
+                                                                RiaResultNames::riNncCells() ),
                                        needsToBeStored );
     }
 }
