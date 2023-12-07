@@ -101,7 +101,7 @@ void RimUserDefinedIndexFilter::updateCellIndexFilter( cvf::UByteArray* includeV
 {
     if ( gridIndex != m_gridIndex() ) return;
 
-    const auto filterSize = includeVisibility->size();
+    const auto filterSize = (int)includeVisibility->size();
 
     if ( m_filterMode == FilterModeType::INCLUDE )
     {
