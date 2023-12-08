@@ -340,15 +340,14 @@ if(MSVC)
   endif()
 
   # OpenVDS Dlls
-  set(OPENVDS_DLL_NAMES openvds )
+  set(OPENVDS_DLL_NAMES openvds)
   foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
     list(APPEND RI_FILENAMES
          ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
     )
   endforeach(OPENVDS_DLL_NAME)
-#  list(APPEND RI_FILENAMES
-#       ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
-#  )
+  # list(APPEND RI_FILENAMES
+  # ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe )
 
   # HDF5 Dlls
   if(RESINSIGHT_FOUND_HDF5)
