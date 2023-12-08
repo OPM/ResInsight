@@ -240,6 +240,8 @@ void RigVisibleCategoriesCalculator::appendVisibleIntersectionCells( RimEclipseV
 
     for ( const auto geoGenerator : intersectionGeoGenerators )
     {
+        if ( !geoGenerator->isAnyGeometryPresent() ) continue;
+
         for ( const auto& cIdx : geoGenerator->triangleToCellIndex() )
         {
             visibleCells.insert( cIdx );
