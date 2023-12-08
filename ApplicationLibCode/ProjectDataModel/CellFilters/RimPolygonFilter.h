@@ -89,6 +89,7 @@ public:
     caf::PickEventHandler*          pickEventHandler() const override;
 
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
+    void onGridChanged() override;
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
