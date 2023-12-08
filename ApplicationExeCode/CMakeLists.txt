@@ -340,23 +340,23 @@ if(MSVC)
   endif()
 
   # OpenVDS Dlls
-  set(OPENVDS_DLL_NAMES openvds segyutils)
-  foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
-    list(APPEND RI_FILENAMES
-         ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
-    )
-  endforeach(OPENVDS_DLL_NAME)
-  list(APPEND RI_FILENAMES
-       ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
-  )
+#  set(OPENVDS_DLL_NAMES openvds segyutils)
+#  foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
+#    list(APPEND RI_FILENAMES
+#         ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
+#    )
+#  endforeach(OPENVDS_DLL_NAME)
+#  list(APPEND RI_FILENAMES
+#       ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
+#  )
 
   # HDF5 Dlls
-  if(RESINSIGHT_FOUND_HDF5)
-    set(HDF5_DLL_NAMES hdf5 hdf5_cpp szip zlib)
-    foreach(HDF5_DLL_NAME ${HDF5_DLL_NAMES})
-      list(APPEND RI_FILENAMES ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll)
-    endforeach(HDF5_DLL_NAME)
-  endif()
+ # if(RESINSIGHT_FOUND_HDF5)
+#    set(HDF5_DLL_NAMES hdf5 hdf5_cpp szip zlib)
+#    foreach(HDF5_DLL_NAME ${HDF5_DLL_NAMES})
+#      list(APPEND RI_FILENAMES ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll)
+#    endforeach(HDF5_DLL_NAME)
+#  endif()
 
 else()
   # Linux
@@ -381,14 +381,14 @@ else()
 endif(MSVC)
 
 # Copy dependencies to make it possible to run ResInsight from the build folder
-#foreach(FILE_TO_COPY ${RI_FILENAMES})
-#  add_custom_command(
-#    TARGET ResInsight
-#    POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_TO_COPY}
-#            $<TARGET_FILE_DIR:ResInsight>
-#  )
-#endforeach()
+foreach(FILE_TO_COPY ${RI_FILENAMES})
+  add_custom_command(
+    TARGET ResInsight
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_TO_COPY}
+            $<TARGET_FILE_DIR:ResInsight>
+  )
+endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on
 # ResInsight
