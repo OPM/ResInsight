@@ -111,7 +111,10 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
             {
                 auto temporarySummaryFile = std::make_unique<Opm::EclIO::ESmry>( smspecFileName.toStdString(), includeRestartFiles );
 
-                temporarySummaryFile->make_esmry_file();
+                if ( temporarySummaryFile->numberOfTimeSteps() > 0 )
+                {
+                    temporarySummaryFile->make_esmry_file();
+                }
 
                 RifOpmCommonEclipseSummary::increaseEsmryFileCount();
             }
@@ -214,15 +217,22 @@ void RifOpmCommonEclipseSummary::buildMetaData()
 
     if ( m_enhancedReader )
     {
-        keywords                   = m_enhancedReader->keywordList();
-        startOfSimulation          = m_enhancedReader->startdate();
-        daysSinceStartOfSimulation = m_enhancedReader->get( "TIME" );
+        keywords          = m_enhancedReader->keywordList();
+        startOfSimulation = m_enhancedReader->startdate();
+
+        if ( m_enhancedReader->numberOfTimeSteps() > 0 )
+        {
+            daysSinceStartOfSimulation = m_enhancedReader->get( "TIME" );
+        }
     }
     else if ( m_standardReader )
     {
-        keywords                   = m_standardReader->keywordList();
-        startOfSimulation          = m_standardReader->startdate();
-        daysSinceStartOfSimulation = m_standardReader->get( "TIME" );
+        keywords          = m_standardReader->keywordList();
+        startOfSimulation = m_standardReader->startdate();
+        if ( m_standardReader->numberOfTimeSteps() > 0 )
+        {
+            daysSinceStartOfSimulation = m_standardReader->get( "TIME" );
+        }
     }
 
     const auto   startAsTimeT    = std::chrono::system_clock::to_time_t( startOfSimulation );

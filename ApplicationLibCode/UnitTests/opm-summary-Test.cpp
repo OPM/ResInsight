@@ -16,6 +16,7 @@
 #include "opm/io/eclipse/ExtESmry.hpp"
 
 #include <QDebug>
+#include <QFile>
 
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
 
@@ -293,6 +294,20 @@ TEST( OpmSummaryTests, OpmComputeSegmentTopology )
             }
         }
     }
+}
+
+TEST( OpmSummaryTests, OpenEmptySummaryFile )
+{
+    QString SUMMARY_TEST_DATA_DIRECTORY = QString( "%1/SummaryData/empty-file/" ).arg( TEST_DATA_DIR );
+    QString rootPath                    = SUMMARY_TEST_DATA_DIRECTORY + "BLASTO_PRED-19";
+    QString smspecFilePath              = rootPath + ".SMSPEC";
+
+    Opm::EclIO::ESmry eSmry( smspecFilePath.toStdString() );
+
+    // Test to verify that is is possible to read an empty summary file
+    // eSmry.make_esmry_file() will fail if the summary file is empty
+
+    EXPECT_TRUE( eSmry.numberOfTimeSteps() == 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
