@@ -381,14 +381,9 @@ else()
 endif(MSVC)
 
 # Copy dependencies to make it possible to run ResInsight from the build folder
-#foreach(FILE_TO_COPY ${RI_FILENAMES})
-#  add_custom_command(
-#    TARGET ResInsight
-#    POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_TO_COPY}
-#            $<TARGET_FILE_DIR:ResInsight>
-#  )
-#endforeach()
+# foreach(FILE_TO_COPY ${RI_FILENAMES}) add_custom_command( TARGET ResInsight
+# POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_TO_COPY}
+# $<TARGET_FILE_DIR:ResInsight> ) endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on
 # ResInsight
