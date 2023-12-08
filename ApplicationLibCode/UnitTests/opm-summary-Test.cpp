@@ -16,6 +16,7 @@
 #include "opm/io/eclipse/ExtESmry.hpp"
 
 #include <QDebug>
+#include <QFile>
 
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
 
@@ -293,6 +294,21 @@ TEST( OpmSummaryTests, OpmComputeSegmentTopology )
             }
         }
     }
+}
+
+TEST( OpmSummaryTests, OpenEmptySummaryFile )
+{
+    QString SUMMARY_TEST_DATA_DIRECTORY = QString( "%1/SummaryData/empty-file/" ).arg( TEST_DATA_DIR );
+    // QString rootPath = SUMMARY_TEST_DATA_DIRECTORY + "BLASTO_PRED-119";
+
+    // TODO: Testing with valid summary file. Must replace with summary file with empty UNSMRY file
+    QString rootPath       = SUMMARY_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2";
+    QString smspecFilePath = rootPath + ".SMSPEC";
+
+    Opm::EclIO::ESmry eSmry( smspecFilePath.toStdString() );
+    eSmry.make_esmry_file();
+
+    QFile::remove( rootPath + ".ESMRY" );
 }
 
 //--------------------------------------------------------------------------------------------------
