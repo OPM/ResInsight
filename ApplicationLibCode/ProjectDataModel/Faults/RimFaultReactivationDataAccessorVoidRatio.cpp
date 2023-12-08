@@ -88,7 +88,8 @@ double RimFaultReactivationDataAccessorVoidRatio::valueAtPosition( const cvf::Ve
                                                                    const RigFaultReactivationModel& model,
                                                                    RimFaultReactivation::GridPart   gridPart,
                                                                    double                           topDepth,
-                                                                   double                           bottomDepth ) const
+                                                                   double                           bottomDepth,
+                                                                   size_t                           elementIndex ) const
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {

@@ -101,8 +101,8 @@ double RimFaultReactivationDataAccessorGeoMech::valueAtPosition( const cvf::Vec3
                                                                  const RigFaultReactivationModel& model,
                                                                  RimFaultReactivation::GridPart   gridPart,
                                                                  double                           topDepth,
-                                                                 double                           bottomDepth ) const
-
+                                                                 double                           bottomDepth,
+                                                                 size_t                           elementIndex ) const
 {
     if ( !m_resultFrames ) return std::numeric_limits<double>::infinity();
 

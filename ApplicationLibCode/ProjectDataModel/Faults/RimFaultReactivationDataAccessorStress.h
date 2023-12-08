@@ -25,12 +25,22 @@
 
 #include <vector>
 
-class RigFemPartResultsCollection;
-class RimGeoMechCase;
-class RigGeoMechCaseData;
-class RigFemScalarResultFrames;
+#include "cafPdmField.h"
+#include "cafPdmPtrField.h"
+
+#include "cvfObject.h"
+
 class RigFemPart;
+class RigFemPartResultsCollection;
+class RigFemScalarResultFrames;
+class RigGeoMechCaseData;
+class RigGriddedPart3d;
+class RimGeoMechCase;
 class RimWellIADataAccess;
+class RimModeledWellPath;
+class RigWellPath;
+class RigFemPartCollection;
+class RigGeoMechWellLogExtractor;
 
 //==================================================================================================
 ///
@@ -39,7 +49,7 @@ class RimWellIADataAccess;
 class RimFaultReactivationDataAccessorStress : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorStress( RimGeoMechCase* geoMechCase, RimFaultReactivation::Property property );
+    RimFaultReactivationDataAccessorStress( RimGeoMechCase* geoMechCase, RimFaultReactivation::Property property, double gradient );
     ~RimFaultReactivationDataAccessorStress();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
@@ -47,8 +57,9 @@ public:
     double valueAtPosition( const cvf::Vec3d&                position,
                             const RigFaultReactivationModel& model,
                             RimFaultReactivation::GridPart   gridPart,
-                            double                           topDepth    = std::numeric_limits<double>::infinity(),
-                            double                           bottomDepth = std::numeric_limits<double>::infinity() ) const override;
+                            double                           topDepth     = std::numeric_limits<double>::infinity(),
+                            double                           bottomDepth  = std::numeric_limits<double>::infinity(),
+                            size_t                           elementIndex = std::numeric_limits<size_t>::max() ) const override;
 
 private:
     void updateResultAccessor() override;
@@ -60,12 +71,44 @@ private:
                                     const cvf::Vec3d&         position,
                                     const std::vector<float>& scalarResults ) const;
 
+    std::pair<double, cvf::Vec3d> getPorBar( RimWellIADataAccess& iaDataAccess,
+                                             const RigFemPart*    femPart,
+                                             const cvf::Vec3d&    position,
+                                             double               gradient,
+                                             int                  timeStepIndex,
+                                             int                  frameIndex ) const;
+
+    static std::pair<bool, RimFaultReactivation::ElementSets>
+        findElementSetContainingElement( const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets,
+                                         unsigned int                                                                  elmIdx );
+
+    static int                 getPartIndexFromPoint( const RigFemPartCollection& partCollection, const cvf::Vec3d& point );
+    static std::pair<int, int> findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd );
+    static std::pair<int, int> findOverburdenAndUnderburdenIndex( const std::vector<double>& values );
+    static double              computePorBarWithGradient( const std::vector<cvf::Vec3d>& intersections,
+                                                          const std::vector<double>&     values,
+                                                          int                            i1,
+                                                          int                            i2,
+                                                          double                         gradient );
+    static void fillInMissingValues( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double gradient );
+
+    static std::vector<double> generateMds( const std::vector<cvf::Vec3d>& points );
+    static std::vector<cvf::Vec3d>
+        generateWellPoints( const cvf::Vec3d& faultTopPosition, const cvf::Vec3d& faultBottomPosition, const cvf::Vec3d& offset );
+
     RimGeoMechCase*                m_geoMechCase;
     RimFaultReactivation::Property m_property;
+    double                         m_gradient;
     RigGeoMechCaseData*            m_geoMechCaseData;
     RigFemScalarResultFrames*      m_s11Frames;
     RigFemScalarResultFrames*      m_s22Frames;
     RigFemScalarResultFrames*      m_s33Frames;
-    RigFemScalarResultFrames*      m_porFrames;
     const RigFemPart*              m_femPart;
+
+    cvf::ref<RigWellPath>                m_faceAWellPath;
+    cvf::ref<RigWellPath>                m_faceBWellPath;
+    int                                  m_partIndexA;
+    int                                  m_partIndexB;
+    cvf::ref<RigGeoMechWellLogExtractor> m_extractorA;
+    cvf::ref<RigGeoMechWellLogExtractor> m_extractorB;
 };
