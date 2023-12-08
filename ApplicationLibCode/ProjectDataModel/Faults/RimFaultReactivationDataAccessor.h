@@ -38,18 +38,20 @@ public:
     RimFaultReactivationDataAccessor();
     ~RimFaultReactivationDataAccessor();
 
-    virtual void setTimeStep( size_t timeStep );
+    virtual void setModelAndTimeStep( const RigFaultReactivationModel& model, size_t timeStep );
 
     virtual bool isMatching( RimFaultReactivation::Property property ) const = 0;
 
     virtual double valueAtPosition( const cvf::Vec3d&                position,
                                     const RigFaultReactivationModel& model,
                                     RimFaultReactivation::GridPart   gridPart,
-                                    double                           topDepth    = std::numeric_limits<double>::infinity(),
-                                    double                           bottomDepth = std::numeric_limits<double>::infinity() ) const = 0;
+                                    double                           topDepth     = std::numeric_limits<double>::infinity(),
+                                    double                           bottomDepth  = std::numeric_limits<double>::infinity(),
+                                    size_t                           elementIndex = std::numeric_limits<size_t>::max() ) const = 0;
 
 protected:
     virtual void updateResultAccessor() = 0;
 
-    size_t m_timeStep;
+    const RigFaultReactivationModel* m_model;
+    size_t                           m_timeStep;
 };

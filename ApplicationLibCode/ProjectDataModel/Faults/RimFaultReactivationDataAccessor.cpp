@@ -18,6 +18,7 @@
 
 #include "RimFaultReactivationDataAccessor.h"
 
+#include "RigFaultReactivationModel.h"
 #include "RigMainGrid.h"
 
 #include "cafAssert.h"
@@ -28,6 +29,7 @@
 RimFaultReactivationDataAccessor::RimFaultReactivationDataAccessor()
 {
     m_timeStep = -1;
+    m_model    = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,8 +42,9 @@ RimFaultReactivationDataAccessor::~RimFaultReactivationDataAccessor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultReactivationDataAccessor::setTimeStep( size_t timeStep )
+void RimFaultReactivationDataAccessor::setModelAndTimeStep( const RigFaultReactivationModel& model, size_t timeStep )
 {
+    m_model    = &model;
     m_timeStep = timeStep;
     updateResultAccessor();
 }

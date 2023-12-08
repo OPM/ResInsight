@@ -709,6 +709,7 @@ bool RimFaultReactivationModel::extractAndExportModelData()
     // extract data for each timestep
     m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, geoMechCase(), selectedTimeStepIndexes );
     m_dataAccess->extractModelData( *model() );
+    m_dataAccess.reset();
 
     return true;
 }

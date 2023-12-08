@@ -71,7 +71,7 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
                                                                          RimFaultReactivation::Property::LateralStressComponentY };
         for ( auto property : stressProperties )
         {
-            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property ) );
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property, 0.003 ) );
         }
     }
 }
@@ -126,11 +126,17 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
     };
 
     std::shared_ptr<RimFaultReactivationDataAccessor> accessor = getAccessor( property );
+
     if ( accessor )
     {
-        accessor->setTimeStep( timeStep );
+        accessor->setModelAndTimeStep( model, timeStep );
 
         auto grid = model.grid( gridPart );
+
+        const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements = grid->borderSurfaceElements();
+        auto it = borderSurfaceElements.find( RimFaultReactivation::BorderSurface::Seabed );
+        CAF_ASSERT( it != borderSurfaceElements.end() && "Sea bed border surface does not exist" );
+        std::set<unsigned int> seabedElements( it->second.begin(), it->second.end() );
 
         std::vector<double> values;
 
@@ -149,11 +155,15 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
             {
                 std::vector<cvf::Vec3d> corners = grid->elementCorners( elementIndex );
 
-                double topDepth    = computeAverageDepth( corners, { 0, 1, 2, 3 } );
+                // Move top of sea bed element down to end up inside top element
+                bool   isTopElement   = seabedElements.contains( static_cast<unsigned int>( elementIndex ) );
+                double topDepthAdjust = isTopElement ? 0.1 : 0.0;
+
+                double topDepth    = computeAverageDepth( corners, { 0, 1, 2, 3 } ) - topDepthAdjust;
                 double bottomDepth = computeAverageDepth( corners, { 4, 5, 6, 7 } );
 
                 cvf::Vec3d position = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
-                double     value    = accessor->valueAtPosition( position, model, gridPart, topDepth, bottomDepth );
+                double     value    = accessor->valueAtPosition( position, model, gridPart, topDepth, bottomDepth, elementIndex );
                 values.push_back( value );
             }
         }
