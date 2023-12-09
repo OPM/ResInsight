@@ -391,7 +391,7 @@ foreach(full_file_name ${RI_FILENAMES})
   # Get the filename from the full path.
   get_filename_component(file_name ${full_file_name} NAME)
   add_custom_target( prebuild_${file_name}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${full_file_name} $<CONFIGURATION>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${full_file_name} .
   )
   
   # My application depends on the each pre-build target.
