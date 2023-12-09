@@ -380,14 +380,28 @@ else()
   endforeach(OPENVDS_LIB_NAME)
 endif(MSVC)
 
+
+
+# create the build folder using the configuration name(Debug, Relese, ...) before copying files there
+add_custom_target(build-time-make-directory ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<CONFIGURATION>)
+    
 # Copy dependencies to make it possible to run ResInsight from the build folder
-foreach(FILE_TO_COPY ${RI_FILENAMES})
-  add_custom_command(
-    TARGET ResInsight
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_TO_COPY}
-            $<TARGET_FILE_DIR:ResInsight>
+foreach(full_file_name ${RI_FILENAMES})
+  # Get the filename from the full path.
+  get_filename_component(file_name ${full_file_name} NAME)
+  add_custom_target( prebuild_${file_name}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${full_file_name} $<CONFIGURATION>
   )
+  
+  # My application depends on the each pre-build target.
+  add_dependencies( ResInsight prebuild_${file_name} )
+
+  # The pre-build target depends on the build-time-make-directory target to make sure the directory exists.
+  add_dependencies( prebuild_${file_name} build-time-make-directory )
+
+  set_property(TARGET prebuild_${file_name} PROPERTY FOLDER "FileCopyTargets")
+
 endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on
