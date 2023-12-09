@@ -380,25 +380,28 @@ else()
   endforeach(OPENVDS_LIB_NAME)
 endif(MSVC)
 
+# create the build folder using the configuration name(Debug, Relese, ...)
+# before copying files there
+add_custom_target(
+  build-time-make-directory ALL COMMAND ${CMAKE_COMMAND} -E make_directory
+                                        $<CONFIGURATION>
+)
 
-
-# create the build folder using the configuration name(Debug, Relese, ...) before copying files there
-add_custom_target(build-time-make-directory ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<CONFIGURATION>)
-    
 # Copy dependencies to make it possible to run ResInsight from the build folder
 foreach(full_file_name ${RI_FILENAMES})
   # Get the filename from the full path.
   get_filename_component(file_name ${full_file_name} NAME)
-  add_custom_target( prebuild_${file_name}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${full_file_name} .
+  add_custom_target(
+    prebuild_${file_name} COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                                  ${full_file_name} .
   )
-  
-  # My application depends on the each pre-build target.
-  add_dependencies( ResInsight prebuild_${file_name} )
 
-  # The pre-build target depends on the build-time-make-directory target to make sure the directory exists.
-  add_dependencies( prebuild_${file_name} build-time-make-directory )
+  # My application depends on the each pre-build target.
+  add_dependencies(ResInsight prebuild_${file_name})
+
+  # The pre-build target depends on the build-time-make-directory target to make
+  # sure the directory exists.
+  add_dependencies(prebuild_${file_name} build-time-make-directory)
 
   set_property(TARGET prebuild_${file_name} PROPERTY FOLDER "FileCopyTargets")
 
