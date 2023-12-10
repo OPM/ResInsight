@@ -380,23 +380,33 @@ else()
   endforeach(OPENVDS_LIB_NAME)
 endif(MSVC)
 
-# create an empty library target that will be used to copy files to the build folder
+# create an empty library target that will be used to copy files to the build
+# folder
 add_library(ResInsightDummyTarget EXCLUDE_FROM_ALL empty.cpp)
 set_property(TARGET ResInsightDummyTarget PROPERTY FOLDER "FileCopyTargets")
 
 # create a custom target that copies the files to the build folder
 foreach(header ${RI_FILENAMES})
-  list(APPEND copyCommands
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${header}  $<TARGET_FILE_DIR:ResInsightDummyTarget>)
+  list(
+    APPEND
+    copyCommands
+    COMMAND
+    ${CMAKE_COMMAND}
+    -E
+    copy_if_different
+    ${header}
+    $<TARGET_FILE_DIR:ResInsightDummyTarget>
+  )
 endforeach()
-add_custom_target( PreBuildFileCopy
+add_custom_target(
+  PreBuildFileCopy
   COMMENT "PreBuildFileCopy step: copy runtime files into build folder"
   ${copyCommands}
 )
 set_property(TARGET PreBuildFileCopy PROPERTY FOLDER "FileCopyTargets")
 
 # Make ResInsight depend on the prebuild target.
- add_dependencies( ResInsight PreBuildFileCopy )
+add_dependencies(ResInsight PreBuildFileCopy)
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on
 # ResInsight
