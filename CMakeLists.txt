@@ -352,12 +352,12 @@ endif()
 if(MSVC)
   FetchContent_Declare(
     openvds
-    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-win.zip
+    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.7-win.zip
   )
 else()
   FetchContent_Declare(
     openvds
-    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-manylinux_2014.tar.gz
+    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.7-manylinux_2014.tar.gz
   )
 endif()
 
@@ -885,11 +885,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(OPENVDS_SHARED_LIB_FILES
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-968eeb36.so.3.2.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.7
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-e1541338.so.3.2.7
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.7
   )
   install(FILES ${OPENVDS_SHARED_LIB_FILES}
           DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
