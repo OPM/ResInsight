@@ -381,23 +381,22 @@ else()
 endif(MSVC)
 
 # create an empty library target that will be used to copy files to the build folder
-add_library(ResInsightFileCopyTargets EXCLUDE_FROM_ALL empty.cpp)
-set_property(TARGET ResInsightFileCopyTargets PROPERTY FOLDER "FileCopyTargets")
+add_library(ResInsightDummyTarget EXCLUDE_FROM_ALL empty.cpp)
+set_property(TARGET ResInsightDummyTarget PROPERTY FOLDER "FileCopyTargets")
 
-# Copy dependencies to make it possible to run ResInsight from the build folder
-foreach(full_file_name ${RI_FILENAMES})
-  # Get the filename from the full path.
-  get_filename_component(file_name ${full_file_name} NAME)
-  add_custom_target( prebuild_${file_name}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${full_file_name} $<TARGET_FILE_DIR:ResInsightFileCopyTargets>
-  )
-  
-  # My application depends on the each pre-build target.
-  add_dependencies( ResInsight prebuild_${file_name} )
-
-  set_property(TARGET prebuild_${file_name} PROPERTY FOLDER "FileCopyTargets")
-
+# create a custom target that copies the files to the build folder
+foreach(header ${RI_FILENAMES})
+  list(APPEND copyCommands
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${header}  $<TARGET_FILE_DIR:ResInsightDummyTarget>)
 endforeach()
+add_custom_target( PreBuildFileCopy
+  COMMENT "PreBuildFileCopy step: copy runtime files into build folder"
+  ${copyCommands}
+)
+set_property(TARGET PreBuildFileCopy PROPERTY FOLDER "FileCopyTargets")
+
+# Make ResInsight depend on the prebuild target.
+ add_dependencies( ResInsight PreBuildFileCopy )
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on
 # ResInsight
