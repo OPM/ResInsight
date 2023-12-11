@@ -546,7 +546,7 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 # Qt Advanced Docking System
 # ##############################################################################
-set(ADS_VERSION "4.0.3")
+set(ADS_VERSION "4.2.1")
 
 add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
