@@ -22,3 +22,6 @@
 [submodule "ThirdParty/tomlplusplus"]
 	path = ThirdParty/tomlplusplus
 	url = https://github.com/marzer/tomlplusplus.git
+[submodule "ThirdParty/qtadvanceddocking"]
+	path = ThirdParty/qtadvanceddocking
+	url = https://github.com/CeetronSolutions/qtadvanceddocking.git
