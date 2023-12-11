@@ -46,6 +46,8 @@ add_library(
   RifInpReader.cpp
   RifGeoMechReaderInterface.h
   RifGeoMechReaderInterface.cpp
+  RifInpIncludeReader.h
+  RifInpIncludeReader.cpp
   OdbSetup.cmake
 )
 

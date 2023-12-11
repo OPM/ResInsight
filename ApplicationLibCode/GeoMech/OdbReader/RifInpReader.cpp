@@ -39,6 +39,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RifInpReader::RifInpReader()
+    : m_enableIncludes( true )
 {
 }
 
@@ -47,6 +48,14 @@ RifInpReader::RifInpReader()
 //--------------------------------------------------------------------------------------------------
 RifInpReader::~RifInpReader()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifInpReader::enableIncludes( bool enable )
+{
+    m_enableIncludes = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +72,14 @@ void RifInpReader::close()
 bool RifInpReader::openFile( const std::string& fileName, std::string* errorMessage )
 {
     m_stream.open( fileName );
-    return m_stream.good();
+    bool bOK = m_stream.good();
+
+    if ( bOK )
+    {
+        m_inputPath = std::filesystem::path( fileName ).parent_path();
+    }
+
+    return bOK;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +103,12 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
     std::map<int, std::vector<std::pair<int, std::vector<int>>>>            elements;
     std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>> elementSets;
 
-    auto elementType = read( m_stream, parts, nodes, elements, elementSets, m_stepNames, m_includeEntries );
+    auto elementType = read( m_stream, parts, nodes, elements, elementSets, m_stepNames, m_enableIncludes, m_includeEntries );
+
+    for ( int i = 0; i < m_includeEntries.size(); i++ )
+    {
+        m_includeEntries[i].fileName = ( m_inputPath / m_includeEntries[i].fileName ).string();
+    }
 
     RiaLogging::debug( QString( "Read FEM parts: %1, steps: %2, element type: %3" )
                            .arg( parts.size() )
@@ -181,9 +202,11 @@ RigElementType RifInpReader::read( std::istream&                                
                                    std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
                                    std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets,
                                    std::vector<std::string>&                                                stepNames,
+                                   bool                                                                     enableIncludes,
                                    std::vector<RifInpIncludeEntry>&                                         includeEntries )
 {
     std::string line;
+    std::string prevline;
 
     RigElementType elementType = RigElementType::UNKNOWN_ELM_TYPE;
 
@@ -246,16 +269,37 @@ RigElementType RifInpReader::read( std::istream&                                
                 stepId   = -1;
                 stepName = "";
             }
-            else if ( uppercasedLine.starts_with( "*INCLUDE" ) )
+            else if ( enableIncludes && uppercasedLine.starts_with( "*INCLUDE" ) )
             {
-                auto filename     = parseLabel( line, "input" );
-                auto propertyName = decodeFilename( filename );
+                auto                filename   = parseLabel( line, "input" );
+                RigFemResultPosEnum resultType = RigFemResultPosEnum::RIG_ELEMENT;
+                std::string         propertyName( "" );
+                if ( prevline.starts_with( "*BOUNDARY" ) )
+                {
+                    propertyName = "POR";
+                    resultType   = RigFemResultPosEnum::RIG_NODAL;
+                }
+                else if ( prevline.starts_with( "*TEMPERATURE" ) )
+                {
+                    propertyName = "TEMP";
+                    resultType   = RigFemResultPosEnum::RIG_NODAL;
+                }
+                else if ( prevline.starts_with( "*INITIAL" ) )
+                {
+                    auto label = parseLabel( prevline, "type" );
+                    if ( label == "RATIO" ) propertyName = "RATIO";
+                    resultType = RigFemResultPosEnum::RIG_NODAL;
+                }
+                if ( propertyName.empty() )
+                {
+                    // propertyName = decodeFilename( filename );
+                }
                 if ( !propertyName.empty() )
                 {
-                    includeEntries.push_back( RifInpIncludeEntry( propertyName, stepId, filename ) );
+                    includeEntries.push_back( RifInpIncludeEntry( propertyName, resultType, stepId, filename ) );
                 }
             }
-
+            prevline = uppercasedLine;
             continue;
         }
 
@@ -268,16 +312,13 @@ RigElementType RifInpReader::read( std::istream&                                
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RifInpReader::decodeFilename( const std::string filename )
+std::pair<std::string, RigFemResultPosEnum> RifInpReader::decodeFilename( const std::string filename )
 {
     std::string uppercased = RiaStdStringTools::toUpper( filename );
 
-    if ( uppercased.starts_with( "POR" ) ) return "POR";
-    if ( uppercased.starts_with( "TEMP" ) ) return "TEMP";
-    // if ( uppercased.starts_with( "RATIO" ) ) return "RATIO";
-    // if ( uppercased.starts_with( "DENSITY" ) ) return "DENSITY";
+    if ( uppercased.find( "RATIO" ) != std::string::npos ) return { "RATIO", RigFemResultPosEnum::RIG_ELEMENT };
 
-    return "";
+    return { "", RigFemResultPosEnum::RIG_ELEMENT };
 }
 
 //--------------------------------------------------------------------------------------------------
