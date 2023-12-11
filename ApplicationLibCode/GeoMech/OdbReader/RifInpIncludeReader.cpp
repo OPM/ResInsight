@@ -17,3 +17,27 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "RifInpIncludeReader.h"
+
+RifInpIncludeReader::RifInpIncludeReader()
+{
+}
+
+RifInpIncludeReader::~RifInpIncludeReader()
+{
+}
+
+bool RifInpIncludeReader::openFile( const std::string& fileName, std::string* errorMessage )
+{
+    return false;
+}
+
+bool RifInpIncludeReader::isOpen() const
+{
+    return false;
+}
+
+void RifInpIncludeReader::close()
+{
+}

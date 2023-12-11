@@ -25,17 +25,14 @@
 //==================================================================================================
 //
 //==================================================================================================
-class RifInpReader
+class RifInpIncludeReader
 {
 public:
     RifInpIncludeReader();
-    ~RifInpIncludeReader() override;
+    ~RifInpIncludeReader();
 
     bool openFile( const std::string& fileName, std::string* errorMessage );
     bool isOpen() const;
-
-    bool 
-
 
 private:
     void close();
