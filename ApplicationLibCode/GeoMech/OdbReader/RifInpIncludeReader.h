@@ -34,11 +34,10 @@ public:
     bool openFile( const std::string& fileName, std::string* errorMessage );
     bool isOpen() const;
 
-    bool 
+    bool
 
-
-private:
-    void close();
+        private : void
+                  close();
 
 private:
     std::ifstream m_stream;
