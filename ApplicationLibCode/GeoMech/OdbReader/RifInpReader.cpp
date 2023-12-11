@@ -643,3 +643,19 @@ void RifInpReader::readIntegrationPointField( const std::string&                
 {
     CVF_ASSERT( resultValues );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double> RifInpReader::propertyData( std::string propertyName, int partId ) const
+{
+    if ( m_propertyPartData.count( propertyName ) > 0 )
+    {
+        if ( m_propertyPartData.at( propertyName ).count( partId ) > 0 )
+        {
+            return m_propertyPartData.at( propertyName ).at( partId );
+        }
+    }
+
+    return {};
+}
