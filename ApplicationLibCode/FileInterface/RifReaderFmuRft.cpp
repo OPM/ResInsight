@@ -122,7 +122,7 @@ std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAdd
 
     for ( const auto& observation : m_observations )
     {
-        if ( observation.wellDate.wellName == rftAddress.wellName() )
+        if ( observation.wellDate.wellName == rftAddress.wellName() && observation.wellDate.dateTime == rftAddress.timeStep() )
         {
             formationLabels.push_back(
                 QString( "%1 - Pressure: %2 +/- %3" ).arg( observation.location.formation ).arg( observation.pressure ).arg( observation.pressureError ) );
@@ -183,7 +183,7 @@ void RifReaderFmuRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
     for ( const auto& observation : m_observations )
     {
-        if ( observation.wellDate.wellName == rftAddress.wellName() )
+        if ( observation.wellDate.wellName == rftAddress.wellName() && observation.wellDate.dateTime == rftAddress.timeStep() )
         {
             switch ( rftAddress.wellLogChannel() )
             {
@@ -238,23 +238,19 @@ void RifReaderFmuRft::importData()
 
     for ( const auto& [wellName, measurementCount] : nameAndMeasurementCount )
     {
-        QString txtFile   = QString( "%1.txt" ).arg( wellName );
-        auto    locations = importLocations( dir.absoluteFilePath( txtFile ) );
-        if ( locations.empty() ) continue;
-
         for ( int i = 0; i < measurementCount; i++ )
         {
             int measurementId = i + 1;
 
-            auto findObservationFileName = []( const QString& wellName, int measurementId, const QDir& dir ) -> QString
+            auto findFileName = []( const QString& wellName, const QString& extension, int measurementId, const QDir& dir ) -> QString
             {
-                QString candidate = dir.absoluteFilePath( QString( "%1_%2.obs" ).arg( wellName ).arg( measurementId ) );
+                QString candidate = dir.absoluteFilePath( QString( "%1_%2.%3" ).arg( wellName ).arg( measurementId ).arg( extension ) );
                 if ( QFile::exists( candidate ) )
                 {
                     return candidate;
                 }
 
-                QString candidateOldFormat = dir.absoluteFilePath( QString( "%1.obs" ).arg( wellName ) );
+                QString candidateOldFormat = dir.absoluteFilePath( QString( "%1.%2" ).arg( wellName ).arg( extension ) );
                 if ( QFile::exists( candidateOldFormat ) )
                 {
                     return candidateOldFormat;
@@ -263,7 +259,13 @@ void RifReaderFmuRft::importData()
                 return {};
             };
 
-            QString observationFileName = findObservationFileName( wellName, measurementId, dir );
+            // The text file name can be either <wellName>_<measurementId>.txt or <wellName>.txt
+            QString txtFile   = findFileName( wellName, "txt", measurementId, dir );
+            auto    locations = importLocations( dir.absoluteFilePath( txtFile ) );
+            if ( locations.empty() ) continue;
+
+            // The observation file name can be either <wellName>_<measurementId>.obs or <wellName>.obs
+            QString observationFileName = findFileName( wellName, "obs", measurementId, dir );
             if ( observationFileName.isEmpty() ) continue;
 
             for ( const auto& wellDate : wellDates )

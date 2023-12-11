@@ -36,4 +36,8 @@ public:
     QString                              calulationGroupName() const override;
     RimUserDefinedCalculationCollection* calculationCollection() const override;
     void                                 notifyCalculatedNameChanged( int id, const QString& newName ) const override;
+
+protected:
+    void exportCalculations() override;
+    void importCalculations() override;
 };

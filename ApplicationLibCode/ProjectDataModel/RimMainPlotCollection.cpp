@@ -210,7 +210,7 @@ void RimMainPlotCollection::initAfterRead()
         auto summaryPlot = new RimSummaryPlot;
         summaryMultiPlot->addPlot( summaryPlot );
 
-        for ( auto curve : crossPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+        for ( auto curve : crossPlot->allCurves() )
         {
             crossPlot->removeCurve( curve );
 

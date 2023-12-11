@@ -22,8 +22,11 @@
 
 #include "cvfVector3.h"
 
+#include "cafVecIjk.h"
+
 #include <QDateTime>
 
+#include <optional>
 #include <vector>
 
 //==================================================================================================
@@ -70,6 +73,9 @@ struct RigWellResultPoint
 
     cvf::Vec3d bottomPosition() const;
 
+    std::optional<caf::VecIjk> cellIjk() const;
+    void                       setIjk( caf::VecIjk cellIJK );
+
 private:
     size_t m_gridIndex;
     size_t m_cellIndex; //< Index to cell which is included in the well
@@ -89,4 +95,6 @@ private:
 
     double m_connectionFactor;
     bool   m_isConnectedToValve;
+
+    std::optional<caf::VecIjk> m_cellIjk;
 };

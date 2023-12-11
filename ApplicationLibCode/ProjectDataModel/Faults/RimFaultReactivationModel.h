@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
@@ -27,12 +28,12 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-// Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"
 
 #include "cvfColor3.h"
+#include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
 #include <QDateTime>
@@ -52,6 +53,7 @@ class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
 class RigBasicPlane;
 class RigFaultReactivationModel;
+class RimFaultReactivationDataAccess;
 
 namespace cvf
 {
@@ -77,7 +79,7 @@ public:
 
     std::pair<bool, std::string> validateBeforeRun() const;
 
-    void            setFault( RimFaultInView* fault );
+    void            setFaultInformation( RimFaultInView* fault, size_t cellIndex, cvf::StructGridInterface::FaceType face );
     RimFaultInView* fault() const;
 
     void setTargets( cvf::Vec3d target1, cvf::Vec3d target2 );
@@ -89,6 +91,7 @@ public:
     void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void updateEditorsAndVisualization() override;
     void updateVisualization() override;
+
     std::vector<RimPolylineTarget*> activeTargets() const override;
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
@@ -96,13 +99,8 @@ public:
     // polyline data interface
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
-    cvf::ref<RigBasicPlane> faultPlane() const;
-    bool                    showFaultPlane() const;
-
     cvf::ref<RigFaultReactivationModel> model() const;
     bool                                showModel() const;
-
-    std::pair<cvf::Vec3d, cvf::Vec3d> localCoordSysNormalsXY() const;
 
     bool extractAndExportModelData();
 
@@ -121,6 +119,18 @@ public:
 
     void updateTimeSteps();
 
+    std::shared_ptr<RimFaultReactivationDataAccess> dataAccess() const;
+
+    bool useGridVoidRatio() const;
+    bool useGridPorePressure() const;
+    bool useGridTemperature() const;
+    bool useGridDensity() const;
+    bool useGridElasticProperties() const;
+    bool useGridStress() const;
+
+    double seaBedDepth() const;
+    double waterDensity() const;
+
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -131,8 +141,6 @@ protected:
 
     RimEclipseCase* eclipseCase();
     RimGeoMechCase* geoMechCase();
-
-    void initAfterRead() override;
 
     QString baseFilename() const;
 
@@ -150,28 +158,38 @@ private:
     caf::PdmPtrField<RimFaultInView*>           m_fault;
     caf::PdmPtrField<RimGeoMechCase*>           m_geomechCase;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
-    caf::PdmField<cvf::Color3f>                 m_faultPlaneColor;
     caf::PdmField<cvf::Color3f>                 m_modelPart1Color;
     caf::PdmField<cvf::Color3f>                 m_modelPart2Color;
 
-    caf::PdmField<bool> m_showFaultPlane;
     caf::PdmField<bool> m_showModelPlane;
 
-    caf::PdmField<double> m_extentVerticalAbove;
-    caf::PdmField<double> m_extentVerticalBelow;
-    caf::PdmField<double> m_extentHorizontal;
     caf::PdmField<double> m_modelExtentFromAnchor;
     caf::PdmField<double> m_modelMinZ;
     caf::PdmField<double> m_modelBelowSize;
-    caf::PdmField<int>    m_numberOfCellsHorzPart1;
-    caf::PdmField<int>    m_numberOfCellsHorzPart2;
-    caf::PdmField<int>    m_numberOfCellsVertUp;
-    caf::PdmField<int>    m_numberOfCellsVertMid;
-    caf::PdmField<int>    m_numberOfCellsVertLow;
-    caf::PdmField<bool>   m_useLocalCoordinates;
 
-    cvf::ref<RigBasicPlane>             m_faultPlane;
-    cvf::ref<RigFaultReactivationModel> m_modelPlane;
+    caf::PdmField<double> m_faultExtendUpwards;
+    caf::PdmField<double> m_faultExtendDownwards;
+
+    caf::PdmField<double> m_maxReservoirCellHeight;
+    caf::PdmField<double> m_cellHeightGrowFactor;
+    caf::PdmField<double> m_minReservoirCellWidth;
+    caf::PdmField<double> m_cellWidthGrowFactor;
+
+    caf::PdmField<bool> m_useLocalCoordinates;
+
+    caf::PdmField<bool> m_useGridPorePressure;
+    caf::PdmField<bool> m_useGridVoidRatio;
+    caf::PdmField<bool> m_useGridTemperature;
+    caf::PdmField<bool> m_useGridDensity;
+    caf::PdmField<bool> m_useGridElasticProperties;
+    caf::PdmField<bool> m_useGridStress;
+
+    caf::PdmField<double> m_waterDensity;
+
+    caf::PdmField<size_t> m_startCellIndex;
+    caf::PdmField<int>    m_startCellFace;
+
+    cvf::ref<RigFaultReactivationModel> m_2Dmodel;
 
     caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
@@ -179,4 +197,6 @@ private:
     caf::PdmChildArrayField<RimParameterGroup*> m_materialParameters;
 
     std::vector<QDateTime> m_availableTimeSteps;
+
+    std::shared_ptr<RimFaultReactivationDataAccess> m_dataAccess;
 };

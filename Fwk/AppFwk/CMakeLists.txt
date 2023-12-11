@@ -32,14 +32,16 @@ else()
   include(${QT_USE_FILE})
 endif(CEE_USE_QT5)
 
-# Use CMake to enforce C++17
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
+
+# CeeViz is not available here, exclude it from the build
+set(CAF_EXCLUDE_CVF ON)
 
 # Improvement Cmake 3.x If we have compiler requirements for this library, list
 # them target_compile_features(lib PUBLIC cxx_auto_type PRIVATE

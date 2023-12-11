@@ -110,26 +110,10 @@ void RivFaultReactivationModelPartMgr::appendGeometryPartsToModel( cvf::ModelBas
 {
     if ( !m_canUseShaders ) return;
 
-    auto plane = m_frm->faultPlane();
-    if ( plane->isValid() && m_frm->showFaultPlane() )
-    {
-        cvf::Vec3dArray displayPoints;
-        displayPoints.reserve( plane->rect().size() );
-
-        for ( auto& vOrg : plane->rect() )
-        {
-            displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
-        }
-
-        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, plane->texture(), false );
-
-        vizModel->addPart( quadPart.p() );
-    }
-
     auto theModel = m_frm->model();
     if ( theModel->isValid() && m_frm->showModel() )
     {
-        for ( auto part : theModel->allModelParts() )
+        for ( auto part = 0; part < RigFaultReactivationModel::numModelParts(); part++ )
         {
             cvf::Vec3dArray displayPoints;
             displayPoints.reserve( theModel->rect( part ).size() );

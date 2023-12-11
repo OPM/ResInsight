@@ -30,6 +30,7 @@ QString leakoffMobilityResultName();
 QString filterCakeMobilityResultName();
 QString injectivityFactorResultName();
 QString viscosityResultName();
+QString filtrateThicknessResultName();
 
 QString getExpectedThermalFractureUnit( const QString& name, RiaDefines::EclipseUnitSystem unitSystem );
 

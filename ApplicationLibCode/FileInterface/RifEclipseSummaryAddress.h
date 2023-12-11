@@ -120,6 +120,8 @@ public:
 
     std::string ensembleStatisticsVectorName() const;
 
+    std::string toEclipseTextAddress() const;
+
     // Derived properties
 
     std::string uiText() const;

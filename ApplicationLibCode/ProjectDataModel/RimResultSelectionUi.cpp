@@ -110,8 +110,7 @@ QList<caf::PdmOptionItemInfo> RimResultSelectionUi::calculateValueOptions( const
 
     if ( fieldNeedingOptions == &m_eclipseCase )
     {
-        auto cases = RimEclipseCaseTools::eclipseCases();
-        for ( auto* c : cases )
+        for ( auto* c : RimEclipseCaseTools::allEclipseGridCases() )
         {
             options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
         }

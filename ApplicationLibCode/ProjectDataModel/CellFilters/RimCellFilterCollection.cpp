@@ -282,13 +282,24 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedIndexFilter* RimCellFilterCollection::addNewUserDefinedIndexFilter( RimCase* srcCase )
+RimUserDefinedIndexFilter* RimCellFilterCollection::addNewUserDefinedIndexFilter( RimCase* srcCase, const std::vector<size_t>& defCellIndexes )
 {
     RimUserDefinedIndexFilter* pFilter = new RimUserDefinedIndexFilter();
     pFilter->setCase( srcCase );
+    pFilter->setCellIndexes( defCellIndexes );
     addFilter( pFilter );
     onFilterUpdated( pFilter );
     return pFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::addFilterAndNotifyChanges( RimCellFilter* pFilter, RimCase* srcCase )
+{
+    addFilter( pFilter );
+    pFilter->setCase( srcCase );
+    onFilterUpdated( pFilter );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,6 +392,17 @@ void RimCellFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* chi
 void RimCellFilterCollection::removeFilter( RimCellFilter* filter )
 {
     m_cellFilters.removeChild( filter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::notifyGridReload()
+{
+    for ( RimCellFilter* filter : m_cellFilters )
+    {
+        filter->onGridChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -89,6 +89,10 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportRevealSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportStimPlanSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCopyGridStatisticsToClipboardFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportGridCalculationExpressionsFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridCalculationExpressionsFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportSummaryCalculationExpressionsFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -181,6 +185,10 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportRevealSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportStimPlanSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCopyGridStatisticsToClipboardFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportGridCalculationExpressionsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridCalculationExpressionsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportSummaryCalculationExpressionsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCalculationExpressionsFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

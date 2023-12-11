@@ -455,6 +455,14 @@ caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::onGridChanged()
+{
+    m_cells.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex )
 {
     if ( !m_enableFiltering ) return;

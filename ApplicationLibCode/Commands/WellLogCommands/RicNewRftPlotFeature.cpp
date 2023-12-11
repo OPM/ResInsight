@@ -18,16 +18,12 @@
 
 #include "RicNewRftPlotFeature.h"
 
+#include "RicCreateRftPlotsFeature.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimRftPlotCollection.h"
 #include "RimSimWellInView.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotNameConfig.h"
-#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
-#include "RimWellRftPlot.h"
-
-#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -42,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewRftPlotFeature, "RicNewRftPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewRftPlotFeature::isCommandEnabled() const
 {
-    RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection>();
+    auto* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection>();
     if ( simWell ) return true;
 
     if ( selectedWellName().isEmpty() )
@@ -63,28 +59,7 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
     {
         QString wellName = selectedWellName();
 
-        RimWellRftPlot* rftPlot = new RimWellRftPlot();
-
-        rftPlot->setSimWellOrWellPathName( wellName );
-
-        RimWellLogTrack* plotTrack = new RimWellLogTrack();
-        rftPlot->addPlot( plotTrack );
-        plotTrack->setDescription( QString( "Track %1" ).arg( rftPlot->plotCount() ) );
-
-        rftPlotColl->addPlot( rftPlot );
-        rftPlot->applyInitialSelections();
-
-        wellName         = rftPlot->simWellOrWellPathName(); // We may have been given a default well name
-        QString plotName = QString( RimWellRftPlot::plotNameFormatString() ).arg( wellName );
-
-        rftPlot->nameConfig()->setCustomName( plotName );
-        rftPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
-
-        rftPlot->loadDataAndUpdate();
-        rftPlotColl->updateConnectedEditors();
-
-        RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::onObjectAppended( rftPlot, plotTrack );
+        RicCreateRftPlotsFeature::appendRftPlotForWell( wellName, rftPlotColl );
     }
 }
 
@@ -102,11 +77,11 @@ void RicNewRftPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 QString RicNewRftPlotFeature::selectedWellName()
 {
-    RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView>();
+    auto* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView>();
     if ( simWell ) return simWell->name();
 
-    RimWellPath* rimWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
+    auto* rimWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
     if ( rimWellPath ) return rimWellPath->name();
 
-    return QString();
+    return {};
 }

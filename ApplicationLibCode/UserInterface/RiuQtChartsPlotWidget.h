@@ -112,7 +112,6 @@ public:
     void           setPlotTitleFontSize( int titleFontSize ) override;
 
     void setLegendFontSize( int fontSize ) override;
-    void setInternalLegendVisible( bool visible ) override;
     void insertLegend( RiuPlotWidget::Legend ) override;
     void clearLegend() override;
 

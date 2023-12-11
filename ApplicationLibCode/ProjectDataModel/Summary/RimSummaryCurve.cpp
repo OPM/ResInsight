@@ -843,7 +843,7 @@ double RimSummaryCurve::computeCurveZValue()
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE );
         }
-        else if ( sumCase->ensemble() )
+        else if ( firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>() )
         {
             zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE );
         }
@@ -902,22 +902,22 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     {
         QString          curveDataGroupName = "Summary Vector";
         caf::PdmUiGroup* curveDataGroup     = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "curveDataGroupName" );
-        curveDataGroup->add( &m_yValuesSummaryCase, { true, 3, 1 } );
-        curveDataGroup->add( &m_yValuesSummaryAddressUiField, { true, 2, 1 } );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
-        curveDataGroup->add( &m_yValuesResampling, { true, 3, 1 } );
-        curveDataGroup->add( &m_yPlotAxisProperties, { true, 3, 1 } );
+        curveDataGroup->add( &m_yValuesSummaryCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+        curveDataGroup->add( &m_yValuesSummaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+        curveDataGroup->add( &m_yValuesResampling, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+        curveDataGroup->add( &m_yPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
         curveDataGroup->add( &m_showErrorBars );
     }
 
     if ( m_showXAxisGroup )
     {
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X Axis" );
-        curveDataGroup->add( &m_xAxisType, { true, 3, 1 } );
-        curveDataGroup->add( &m_xValuesSummaryCase, { true, 3, 1 } );
-        curveDataGroup->add( &m_xValuesSummaryAddressUiField, { true, 2, 1 } );
-        curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, { false, 1, 0 } );
-        curveDataGroup->add( &m_xPlotAxisProperties, { true, 3, 1 } );
+        curveDataGroup->add( &m_xAxisType, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+        curveDataGroup->add( &m_xValuesSummaryCase, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+        curveDataGroup->add( &m_xValuesSummaryAddressUiField, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+        curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
+        curveDataGroup->add( &m_xPlotAxisProperties, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
     }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
@@ -1154,6 +1154,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
         plot->updateAxes();
         plot->updatePlotTitle();
+        plot->zoomAll();
         loadAndUpdate = true;
     }
     else if ( &m_showCurve == changedField )

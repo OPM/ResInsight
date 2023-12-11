@@ -104,8 +104,8 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    m_textEdit->setReadOnly( uiField()->isUiReadOnly( uiConfigName ) );
-    // m_textEdit->setEnabled(!field()->isUiReadOnly(uiConfigName)); // Neccesary ?
+    bool isReadOnly = uiField()->isUiReadOnly( uiConfigName );
+    m_textEdit->setReadOnly( isReadOnly );
     m_textEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
     PdmUiTextEditorAttribute leab;
@@ -125,7 +125,18 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
     else
     {
-        connect( m_textEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
+        if ( isReadOnly )
+        {
+            // Disable editingFinished signal when read only
+            // This can cause recursive update issues in some cases
+            // https://github.com/OPM/ResInsight/issues/10758
+            disconnect( m_textEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
+        }
+        else
+        {
+            connect( m_textEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
+        }
+
         m_saveButton->hide();
     }
 

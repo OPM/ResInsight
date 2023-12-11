@@ -56,9 +56,11 @@ public:
     RimCellRangeFilter*        addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection = -1, int defaultSlice = -1 );
     RimCellIndexFilter*        addNewCellIndexFilter( RimCase* srcCase );
     RimUserDefinedFilter*      addNewUserDefinedFilter( RimCase* srcCase );
-    RimUserDefinedIndexFilter* addNewUserDefinedIndexFilter( RimCase* srcCase );
+    RimUserDefinedIndexFilter* addNewUserDefinedIndexFilter( RimCase* srcCase, const std::vector<size_t>& defCellIndexes = {} );
 
+    void addFilterAndNotifyChanges( RimCellFilter* pFilter, RimCase* srcCase );
     void removeFilter( RimCellFilter* filter );
+    void notifyGridReload();
 
     bool isEmpty() const;
     bool isActive() const;

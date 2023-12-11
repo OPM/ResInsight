@@ -77,6 +77,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
             if ( summaryAdrCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE )
             {
                 summaryMultiPlot->addPlot( duplicatedPlot );
+                duplicatedPlot->resolveReferencesRecursively();
 
                 auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdrCollection->caseId() );
                 if ( summaryCase )
@@ -84,6 +85,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
                     for ( auto c : duplicatedPlot->summaryCurves() )
                     {
                         c->setSummaryCaseY( summaryCase );
+                        c->setSummaryCaseX( summaryCase );
                     }
                 }
 
@@ -98,14 +100,11 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
             }
             else
             {
-                auto adrMods = RimSummaryAddressModifier::createAddressModifiersForPlot( duplicatedPlot );
-                for ( auto adrMod : adrMods )
-                {
-                    auto sourceAddress = adrMod.address();
-                    auto modifiedAdr   = modifyAddress( sourceAddress, summaryAdrCollection );
+                const auto objectName     = summaryAdrCollection->name().toStdString();
+                auto       contentType    = summaryAdrCollection->contentType();
+                auto       curveProviders = RimSummaryAddressModifier::createAddressProviders( duplicatedPlot );
+                RimSummaryAddressModifier::updateAddressesByObjectName( curveProviders, objectName, contentType );
 
-                    adrMod.setAddress( modifiedAdr );
-                }
                 summaryMultiPlot->addPlot( duplicatedPlot );
                 duplicatedPlot->resolveReferencesRecursively();
             }
@@ -247,7 +246,7 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( cons
 
         for ( auto plot : plotsForObjectType )
         {
-            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( plot );
+            auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( plot );
             analyzer.appendAddresses( addresses );
         }
     }
@@ -287,45 +286,6 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RicAppendSummaryPlotsForObjectsFeature::modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
-                                                                                RimSummaryAddressCollection*    summaryAddressCollection )
-{
-    CAF_ASSERT( summaryAddressCollection );
-
-    auto adr = sourceAddress;
-
-    auto objectName = summaryAddressCollection->name().toStdString();
-    if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
-    {
-        adr.setWellName( objectName );
-    }
-    else if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP )
-    {
-        adr.setGroupName( objectName );
-    }
-    else if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
-    {
-        int intValue = RiaStdStringTools::toInt( objectName );
-        if ( intValue == -1 )
-        {
-            QString errorText = QString( "Failed to convert region text to region integer value "
-                                         "for region text : " ) +
-                                summaryAddressCollection->name();
-
-            RiaLogging::error( errorText );
-        }
-        else
-        {
-            adr.setRegion( intValue );
-        }
-    }
-
-    return adr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*>
     RicAppendSummaryPlotsForObjectsFeature::plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
                                                                              RimSummaryAddressCollection::CollectionContentType objectType )
@@ -341,7 +301,7 @@ std::vector<RimSummaryPlot*>
     RiaSummaryAddressAnalyzer myAnalyser;
     for ( auto sourcePlot : sourcePlots )
     {
-        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( sourcePlot );
+        auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( sourcePlot );
         myAnalyser.appendAddresses( addresses );
     }
 
@@ -396,7 +356,7 @@ std::vector<RimSummaryPlot*>
         }
         else
         {
-            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( sourcePlot );
+            auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( sourcePlot );
 
             for ( const auto& a : addresses )
             {

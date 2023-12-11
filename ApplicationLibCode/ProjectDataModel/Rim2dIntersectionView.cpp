@@ -598,31 +598,29 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
+            cvf::String name = "SimWellPipeMod";
+            Rim3dView::removeModelByName( frameScene, name );
+
+            cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
+            simWellModelBasicList->setName( name );
+
+            m_flatSimWellPipePartMgr->appendFlattenedDynamicGeometryPartsToModel( simWellModelBasicList.p(),
+                                                                                  m_currentTimeStep,
+                                                                                  displayCoordTransform().p(),
+                                                                                  m_intersection->extentLength(),
+                                                                                  m_intersection->branchIndex() );
+
+            for ( double offset : m_flatSimWellPipePartMgr->flattenedBranchWellHeadOffsets() )
             {
-                cvf::String name = "SimWellPipeMod";
-                Rim3dView::removeModelByName( frameScene, name );
-
-                cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
-                simWellModelBasicList->setName( name );
-
-                m_flatSimWellPipePartMgr->appendFlattenedDynamicGeometryPartsToModel( simWellModelBasicList.p(),
-                                                                                      m_currentTimeStep,
-                                                                                      displayCoordTransform().p(),
-                                                                                      m_intersection->extentLength(),
-                                                                                      m_intersection->branchIndex() );
-
-                for ( double offset : m_flatSimWellPipePartMgr->flattenedBranchWellHeadOffsets() )
-                {
-                    m_flatWellHeadPartMgr->appendFlattenedDynamicGeometryPartsToModel( simWellModelBasicList.p(),
-                                                                                       m_currentTimeStep,
-                                                                                       displayCoordTransform().p(),
-                                                                                       offset );
-                }
-
-                simWellModelBasicList->updateBoundingBoxesRecursive();
-                frameScene->addModel( simWellModelBasicList.p() );
-                m_flatSimWellPipePartMgr->updatePipeResultColor( m_currentTimeStep );
+                m_flatWellHeadPartMgr->appendFlattenedDynamicGeometryPartsToModel( simWellModelBasicList.p(),
+                                                                                   m_currentTimeStep,
+                                                                                   displayCoordTransform().p(),
+                                                                                   offset );
             }
+
+            simWellModelBasicList->updateBoundingBoxesRecursive();
+            frameScene->addModel( simWellModelBasicList.p() );
+            m_flatSimWellPipePartMgr->updatePipeResultColor( m_currentTimeStep );
         }
     }
 
@@ -631,34 +629,36 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
-            {
-                cvf::String name = "WellPipeDynMod";
-                Rim3dView::removeModelByName( frameScene, name );
-                cvf::ref<cvf::ModelBasicList> dynWellPathModel = new cvf::ModelBasicList;
-                dynWellPathModel->setName( name );
+            cvf::String name = "WellPipeDynMod";
+            Rim3dView::removeModelByName( frameScene, name );
+            cvf::ref<cvf::ModelBasicList> dynWellPathModel = new cvf::ModelBasicList;
+            dynWellPathModel->setName( name );
 
-                m_flatWellpathPartMgr->appendFlattenedDynamicGeometryPartsToModel( dynWellPathModel.p(),
-                                                                                   m_currentTimeStep,
-                                                                                   displayCoordTransform().p(),
-                                                                                   ownerCase()->characteristicCellSize(),
-                                                                                   ownerCase()->activeCellsBoundingBox() );
-                dynWellPathModel->updateBoundingBoxesRecursive();
-                frameScene->addModel( dynWellPathModel.p() );
-            }
+            m_flatWellpathPartMgr->appendFlattenedDynamicGeometryPartsToModel( dynWellPathModel.p(),
+                                                                               m_currentTimeStep,
+                                                                               displayCoordTransform().p(),
+                                                                               ownerCase()->characteristicCellSize(),
+                                                                               ownerCase()->activeCellsBoundingBox() );
+            dynWellPathModel->updateBoundingBoxesRecursive();
+            frameScene->addModel( dynWellPathModel.p() );
         }
     }
 
-    if ( m_flatIntersectionPartMgr.notNull() && hasResults() )
+    if ( m_flatIntersectionPartMgr.notNull() )
     {
-        m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
-                                                          m_legendConfig->scalarMapper(),
-                                                          m_ternaryLegendConfig()->scalarMapper() );
-    }
-    else
-    {
-        m_flatIntersectionPartMgr->applySingleColorEffect();
+        if ( hasResults() )
+        {
+            m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
+                                                              m_legendConfig->scalarMapper(),
+                                                              m_ternaryLegendConfig()->scalarMapper() );
+        }
+        else
+        {
+            m_flatIntersectionPartMgr->applySingleColorEffect();
+        }
     }
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

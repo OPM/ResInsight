@@ -219,6 +219,34 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<caf::VecIjk> RigGridBase::ijkFromCellIndex( size_t cellIndex ) const
+{
+    size_t i, j, k;
+    if ( ijkFromCellIndex( cellIndex, &i, &j, &k ) )
+    {
+        return caf::VecIjk( i, j, k );
+    }
+
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<caf::VecIjk> RigGridBase::ijkFromCellIndexOneBased( size_t cellIndex ) const
+{
+    size_t i, j, k;
+    if ( ijkFromCellIndex( cellIndex, &i, &j, &k ) )
+    {
+        return caf::VecIjk( ++i, ++j, ++k );
+    }
+
+    return std::nullopt;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// This version does no if-guarding. Check that all dimensions of the grid are non-zero before using.
 /// Useful for running in a loop after doing the sanity check once.
 //--------------------------------------------------------------------------------------------------

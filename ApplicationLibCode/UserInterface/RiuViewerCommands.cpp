@@ -167,20 +167,7 @@ void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBu
     auto* mainGridView = m_reservoirView.p();
     if ( mainGridView && !mainGridView->activeComparisonView() )
     {
-        std::vector<Rim3dView*> validComparisonViews;
-
-        std::vector<Rim3dView*> views;
-        RimProject::current()->allViews( views );
-        for ( auto view : views )
-        {
-            if ( dynamic_cast<RimSeismicView*>( view ) ) continue;
-
-            if ( view != mainGridView )
-            {
-                validComparisonViews.push_back( view );
-            }
-        }
-
+        std::vector<Rim3dView*> validComparisonViews = mainGridView->validComparisonViews();
         if ( !validComparisonViews.empty() )
         {
             menuBuilder->subMenuStart( "Compare To ...", QIcon( ":/ComparisonView16x16.png" ) );

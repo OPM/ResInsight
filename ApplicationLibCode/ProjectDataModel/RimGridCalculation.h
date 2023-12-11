@@ -25,6 +25,8 @@
 #include "cafSignal.h"
 #include "cvfArray.h"
 
+#include <optional>
+
 class RimEclipseCase;
 class RimGridView;
 class RigEclipseResultAddress;
@@ -47,25 +49,39 @@ public:
 
     RimGridCalculation();
 
+    bool preCalculate() const override;
     bool calculate() override;
+
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
-    RimEclipseCase*         outputEclipseCase() const;
-    RigEclipseResultAddress outputAddress() const;
+    std::vector<RimEclipseCase*> outputEclipseCases() const;
+    RigEclipseResultAddress      outputAddress() const;
+    bool                         calculateForCases( const std::vector<RimEclipseCase*>& calculationCases,
+                                                    cvf::UByteArray*                    inputValueVisibilityFilter,
+                                                    std::optional<std::vector<size_t>>  timeSteps,
+                                                    bool                                evaluateDependentCalculations );
+
+    void findAndEvaluateDependentCalculations( const std::vector<RimEclipseCase*>& calculationCases,
+                                               cvf::UByteArray*                    inputValueVisibilityFilter,
+                                               std::optional<std::vector<size_t>>  timeSteps );
+
+    void assignEclipseCaseForNullPointers( RimEclipseCase* eclipseCase );
 
     std::vector<RimEclipseCase*> inputCases() const;
+
+    RimGridCalculationVariable* createVariable() override;
 
 protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
-    RimGridCalculationVariable* createVariable() override;
-    std::pair<bool, QString>    validateVariables();
+    std::pair<bool, QString> validateVariables();
 
-    std::vector<double> getInputVectorForVariable( RimGridCalculationVariable*   v,
-                                                   size_t                        tsId,
-                                                   RiaDefines::PorosityModelType porosityModel,
-                                                   RimEclipseCase*               outputEclipseCase ) const;
+    std::vector<double> getDataForVariable( RimGridCalculationVariable*   variable,
+                                            size_t                        tsId,
+                                            RiaDefines::PorosityModelType porosityModel,
+                                            RimEclipseCase*               destinationCase,
+                                            bool                          useDataFromDestinationCase ) const;
 
     void filterResults( RimGridView*                            cellFilterView,
                         const std::vector<std::vector<double>>& values,
@@ -96,11 +112,18 @@ protected:
 
 private:
     void onVariableUpdated( const SignalEmitter* emitter );
+    bool allSourceCasesAreEqualToDestinationCase() const;
+
+    static std::pair<bool, QStringList> createStatisticsText( const std::vector<std::vector<double>>& values );
 
 private:
     caf::PdmPtrField<RimGridView*>                m_cellFilterView;
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
-    caf::PdmField<int>                            m_defaultPropertyVariableIndex;
+    caf::PdmField<bool>                           m_applyToAllCases;
+
+    caf::PdmField<std::vector<int>> m_selectedTimeSteps;
+
+    caf::PdmField<int> m_defaultPropertyVariableIndex;
 };

@@ -22,6 +22,9 @@
 #include "RimProject.h"
 #include "RimUserDefinedCalculationCollection.h"
 
+#include "cafCmdFeature.h"
+#include "cafCmdFeatureManager.h"
+
 CAF_PDM_SOURCE_INIT( RicGridCalculatorUi, "RicGridCalculator" );
 
 //--------------------------------------------------------------------------------------------------
@@ -61,4 +64,26 @@ void RicGridCalculatorUi::notifyCalculatedNameChanged( int id, const QString& ne
 RimUserDefinedCalculationCollection* RicGridCalculatorUi::calculationCollection() const
 {
     return RimProject::current()->gridCalculationCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicGridCalculatorUi::exportCalculations()
+{
+    if ( auto feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicExportGridCalculationExpressionsFeature" ) )
+    {
+        feature->action()->trigger();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicGridCalculatorUi::importCalculations()
+{
+    if ( auto feature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicImportGridCalculationExpressionsFeature" ) )
+    {
+        feature->action()->trigger();
+    }
 }

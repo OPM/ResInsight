@@ -38,6 +38,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
+#include "cafStyleSheetTools.h"
 
 #include <QEvent>
 #include <QHBoxLayout>
@@ -96,7 +97,10 @@ PdmUiPropertyView::PdmUiPropertyView( QWidget* parent, Qt::WindowFlags f )
     m_scrollArea->setWidget( m_placeholder );
 
     m_placeHolderLayout = new QVBoxLayout();
-    m_placeHolderLayout->setContentsMargins( 5, 5, 5, 0 );
+    m_placeHolderLayout->setContentsMargins( caf::StyleSheetTools::mediumContentMargin(),
+                                             caf::StyleSheetTools::mediumContentMargin(),
+                                             caf::StyleSheetTools::mediumContentMargin(),
+                                             0 );
     m_placeholder->setLayout( m_placeHolderLayout );
 
     QVBoxLayout* dummy = new QVBoxLayout( this );

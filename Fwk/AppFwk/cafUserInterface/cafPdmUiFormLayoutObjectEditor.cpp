@@ -139,7 +139,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                                                    &minimumItemColumnSpan,
                                                    &minimumLabelColumnSpan,
                                                    &minimumFieldColumnSpan );
-            bool isExpandingItem = currentLayout.totalColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN;
+            bool isExpandingItem = currentLayout.totalColumnSpan == PdmUiOrdering::MAX_COLUMN_SPAN;
 
             int spareColumnsToAssign = 0;
             if ( isExpandingItem )
@@ -225,13 +225,13 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                             {
                                 CAF_ASSERT( labelPos == PdmUiItemInfo::LEFT );
                                 int leftLabelColumnSpan = minimumLabelColumnSpan;
-                                if ( currentLayout.leftLabelColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN &&
-                                     currentLayout.totalColumnSpan != PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN )
+                                if ( currentLayout.leftLabelColumnSpan == PdmUiOrdering::MAX_COLUMN_SPAN &&
+                                     currentLayout.totalColumnSpan != PdmUiOrdering::MAX_COLUMN_SPAN )
                                 {
                                     leftLabelColumnSpan += spareColumnsToAssign;
                                     spareColumnsToAssign = 0;
                                 }
-                                else if ( currentLayout.leftLabelColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN )
+                                else if ( currentLayout.leftLabelColumnSpan == PdmUiOrdering::MAX_COLUMN_SPAN )
                                 {
                                     leftLabelColumnSpan += spareColumnsToAssign / 2;
                                     spareColumnsToAssign -= spareColumnsToAssign / 2;

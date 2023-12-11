@@ -35,6 +35,7 @@ class RigSimWellData;
 class RimEclipseResultDefinition;
 class RimEclipseStatisticsCaseCollection;
 class RimIdenticalGridCaseGroup;
+class RimGridCalculation;
 
 //==================================================================================================
 //
@@ -44,6 +45,20 @@ class RimIdenticalGridCaseGroup;
 class RimEclipseStatisticsCase : public RimEclipseCase
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    enum class PercentileCalcType
+    {
+        NEAREST_OBSERVATION,
+        HISTOGRAM_ESTIMATED,
+        INTERPOLATED_OBSERVATION
+    };
+
+    enum class DataSourceType
+    {
+        GRID_CALCULATION,
+        CASE_PROPERTY
+    };
 
 public:
     RimEclipseStatisticsCase();
@@ -63,18 +78,12 @@ public:
 
     RimCaseCollection* parentStatisticsCaseCollection() const;
 
-    enum PercentileCalcType
-    {
-        NEAREST_OBSERVATION,
-        HISTOGRAM_ESTIMATED,
-        INTERPOLATED_OBSERVATION
-    };
-
     caf::PdmField<bool> m_calculateEditCommand;
 
     void populateResultSelectionAfterLoadingGrid();
 
     void setSourceProperties( RiaDefines::ResultCatType propertyType, const std::vector<QString>& propertyNames );
+    void selectAllTimeSteps();
 
 private:
     void scheduleACTIVEGeometryRegenOnReservoirViews();
@@ -95,8 +104,16 @@ private:
     void loadSimulationWellDataFromSourceCase();
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void initializeSelectedTimeSteps();
 
 private:
+    caf::PdmField<caf::AppEnum<DataSourceType>> m_dataSourceForStatistics;
+
+    caf::PdmPtrField<RimGridCalculation*> m_gridCalculation;
+    caf::PdmPtrField<RimEclipseView*>     m_gridCalculationFilterView;
+
+    caf::PdmField<std::vector<int>> m_selectedTimeSteps;
+
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>>     m_resultType;
     caf::PdmField<caf::AppEnum<RiaDefines::PorosityModelType>> m_porosityModel;
 

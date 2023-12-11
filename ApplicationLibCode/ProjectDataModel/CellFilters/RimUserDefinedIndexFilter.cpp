@@ -50,6 +50,20 @@ RimUserDefinedIndexFilter::~RimUserDefinedIndexFilter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimUserDefinedIndexFilter::setCellIndexes( std::vector<size_t> cellIndexes )
+{
+    std::vector<int> cIdxs;
+
+    for ( auto cIdx : cellIndexes )
+    {
+        cIdxs.push_back( (int)cIdx );
+    }
+    m_individualCellIndexes.setValue( cIdxs );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimUserDefinedIndexFilter::fullName() const
 {
     return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_individualCellIndexes().size() ) );
@@ -87,10 +101,13 @@ void RimUserDefinedIndexFilter::updateCellIndexFilter( cvf::UByteArray* includeV
 {
     if ( gridIndex != m_gridIndex() ) return;
 
+    const auto filterSize = (int)includeVisibility->size();
+
     if ( m_filterMode == FilterModeType::INCLUDE )
     {
         for ( auto cellIdx : m_individualCellIndexes() )
         {
+            if ( cellIdx >= filterSize ) continue;
             ( *includeVisibility )[cellIdx] = true;
         }
     }
@@ -98,6 +115,7 @@ void RimUserDefinedIndexFilter::updateCellIndexFilter( cvf::UByteArray* includeV
     {
         for ( auto cellIdx : m_individualCellIndexes() )
         {
+            if ( cellIdx >= filterSize ) continue;
             ( *excludeVisibility )[cellIdx] = false;
         }
     }

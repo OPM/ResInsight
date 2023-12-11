@@ -56,7 +56,12 @@ private:
 
     static std::pair<bool, std::string> printMaterials( std::ostream&                                                   stream,
                                                         const RimFaultReactivationModel&                                rimModel,
-                                                        const std::map<RimFaultReactivation::ElementSets, std::string>& materialNames );
+                                                        const std::map<RimFaultReactivation::ElementSets, std::string>& materialNames,
+                                                        const RimFaultReactivationDataAccess&                           dataAccess,
+                                                        const std::string&                                              exportDirectory,
+                                                        const std::map<RimFaultReactivation::GridPart, std::string>&    partNames,
+                                                        bool                                                            densityFromGrid,
+                                                        bool elasticPropertiesFromGrid );
 
     static std::pair<bool, std::string> printInteractionProperties( std::ostream& stream, double faultFriction );
     static std::pair<bool, std::string> printBoundaryConditions( std::ostream&                                                stream,
@@ -64,15 +69,46 @@ private:
                                                                  const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                                                  const std::map<RimFaultReactivation::Boundary, std::string>& boundaries );
     static std::pair<bool, std::string> printPredefinedFields( std::ostream&                                                stream,
-                                                               const std::map<RimFaultReactivation::GridPart, std::string>& partNames );
+                                                               const RigFaultReactivationModel&                             model,
+                                                               const RimFaultReactivationDataAccess&                        dataAccess,
+                                                               const std::string&                                           exportDirectory,
+                                                               const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                               bool useGridVoidRatio,
+                                                               bool useGridStress );
     static std::pair<bool, std::string> printSteps( std::ostream&                                                stream,
                                                     const RigFaultReactivationModel&                             model,
+                                                    const RimFaultReactivationDataAccess&                        dataAccess,
                                                     const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
                                                     const std::vector<QDateTime>&                                timeSteps,
-                                                    const std::string&                                           exportDirectory );
+                                                    const std::string&                                           exportDirectory,
+                                                    bool                                                         useGridPorePressure,
+                                                    bool                                                         useGridTemperature,
+                                                    double                                                       seaWaterLoad );
 
     static std::pair<bool, std::string>
         printInteractions( std::ostream&                                                                   stream,
                            const std::map<RimFaultReactivation::GridPart, std::string>&                    partNames,
                            const std::vector<std::pair<RimFaultReactivation::BorderSurface, std::string>>& borders );
+
+    static bool writePropertyToFile( const RigFaultReactivationModel&                             model,
+                                     const RimFaultReactivationDataAccess&                        dataAccess,
+                                     RimFaultReactivation::Property                               property,
+                                     size_t                                                       outputTimeStep,
+                                     const std::string&                                           filePath,
+                                     const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                     const std::string&                                           additionalData );
+
+    static bool writePropertiesToFile( const RigFaultReactivationModel&                             model,
+                                       const RimFaultReactivationDataAccess&                        dataAccess,
+                                       const std::vector<RimFaultReactivation::Property>&           properties,
+                                       const std::vector<std::string>&                              propertyNames,
+                                       size_t                                                       outputTimeStep,
+                                       const std::string&                                           filePath,
+                                       const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                       const std::string&                                           tableName,
+                                       const std::string&                                           heading );
+
+    static std::string createFileName( const std::string& title, const std::string& stepName );
+
+    static std::string createFilePath( const std::string& dir, const std::string& fileName );
 };

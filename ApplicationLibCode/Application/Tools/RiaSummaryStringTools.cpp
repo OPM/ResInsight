@@ -254,7 +254,7 @@ std::set<RifEclipseSummaryAddress> RiaSummaryStringTools::computeFilteredAddress
 
     if ( includeDiffCurves ) return addresses;
 
-    const auto diffText = RifReaderEclipseSummary::differenceIdentifier();
+    const auto diffText = RifEclipseSummaryAddressDefines::differenceIdentifier();
 
     std::set<RifEclipseSummaryAddress> addressesWithoutDiffVectors;
     for ( const auto& adr : addresses )

@@ -91,7 +91,10 @@ QSize RiuQwtPlotLegend::sizeHint() const
 
         if ( legendLayout->itemCount() % numColumns ) numRows++;
 
-        int width = numColumns * legendLayout->maxItemWidth();
+        // Extra width to workaround layout issue on linux
+        // https://github.com/OPM/ResInsight/issues/10785
+        const int extraWidth = 20;
+        const int width      = numColumns * legendLayout->maxItemWidth() + extraWidth;
 
         int maxHeight = 0;
         for ( unsigned int i = 0; i < legendLayout->itemCount(); ++i )

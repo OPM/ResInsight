@@ -42,7 +42,9 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
 #include "cafQTreeViewStateSerializer.h"
+#include "cafStyleSheetTools.h"
 
+#include <QAction>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -59,7 +61,12 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     : QWidget( parent, f )
 {
     m_layout = new QVBoxLayout();
-    m_layout->setContentsMargins( 0, 0, 0, 0 );
+
+    // 0 as content margin has been used for a long time, but that is too little
+    m_layout->setContentsMargins( caf::StyleSheetTools::mediumContentMargin(),
+                                  caf::StyleSheetTools::mediumContentMargin(),
+                                  caf::StyleSheetTools::mediumContentMargin(),
+                                  caf::StyleSheetTools::mediumContentMargin() );
 
     setLayout( m_layout );
 
@@ -68,14 +75,14 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     m_searchBox = new QLineEdit( this );
     m_searchBox->setPlaceholderText( "Type here to search in tree." );
     searchLayout->addWidget( m_searchBox );
-    m_clearSearchButton = new QPushButton( "X" );
-    m_clearSearchButton->setMaximumSize( 30, 30 );
-    searchLayout->addWidget( m_clearSearchButton );
+
+    m_clearAction = m_searchBox->addAction( QIcon( ":/caf/clear.svg" ), QLineEdit::TrailingPosition );
+    connect( m_clearAction, &QAction::triggered, this, &PdmUiTreeView::slotOnClearSearchBox );
+    m_clearAction->setVisible( false );
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
     m_layout->addLayout( searchLayout );
     connect( m_searchBox, SIGNAL( textChanged( QString ) ), SLOT( slotOnSearchTextChanged() ) );
-    connect( m_clearSearchButton, SIGNAL( clicked() ), SLOT( slotOnClearSearchBox() ) );
 #endif
 
     m_treeViewEditor    = new PdmUiTreeViewEditor();
@@ -169,6 +176,7 @@ void PdmUiTreeView::slotOnSelectionChanged()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::slotOnClearSearchBox()
 {
+    //m_clearAction->setVisible( false );
     m_searchBox->setText( "" );
 }
 
@@ -180,6 +188,7 @@ void PdmUiTreeView::slotOnSearchTextChanged()
     QString searchText = m_searchBox->text().trimmed();
     if ( searchText.isEmpty() )
     {
+        m_clearAction->setVisible( false );
         m_treeViewEditor->setFilterString( searchText );
         if ( !m_treeStateString.isEmpty() )
         {
@@ -195,6 +204,7 @@ void PdmUiTreeView::slotOnSearchTextChanged()
     }
     m_treeViewEditor->setFilterString( searchText );
     m_treeViewEditor->treeView()->expandAll();
+    m_clearAction->setVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -77,11 +77,14 @@ private:
     static std::string                                   parseLabel( const std::string& line, const std::string& labelName );
     static std::vector<std::pair<int, cvf::Vec3d>>       readNodes( std::istream& stream );
     static std::vector<std::pair<int, std::vector<int>>> readElements( std::istream& stream );
+    static std::vector<size_t>                           readElementSet( std::istream& stream );
+    static std::vector<size_t>                           readElementSetGenerate( std::istream& stream );
 
-    static void read( std::istream&                                                 stream,
-                      std::map<int, std::string>&                                   parts,
-                      std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&       nodes,
-                      std::map<int, std::vector<std::pair<int, std::vector<int>>>>& elements );
+    static void read( std::istream&                                                            stream,
+                      std::map<int, std::string>&                                              parts,
+                      std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&                  nodes,
+                      std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
+                      std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets );
 
 private:
     std::map<int, std::vector<std::string>> m_partElementSetNames;

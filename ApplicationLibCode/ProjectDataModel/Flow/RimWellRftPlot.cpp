@@ -242,7 +242,7 @@ QString RimWellRftPlot::associatedSimWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::applyInitialSelections()
+void RimWellRftPlot::applyInitialSelections( std::variant<RimSummaryCase*, RimSummaryCaseCollection*> dataSource )
 {
     std::map<QString, QStringList> wellSources = findWellSources();
     if ( m_wellPathNameOrSimWellName() == "None" && !wellSources.empty() )
@@ -250,22 +250,49 @@ void RimWellRftPlot::applyInitialSelections()
         m_wellPathNameOrSimWellName = wellSources.begin()->first;
     }
 
+    RimSummaryCaseCollection* ensemble    = nullptr;
+    RimSummaryCase*           summaryCase = nullptr;
+
+    if ( auto summaryCollection = std::get_if<RimSummaryCaseCollection*>( &dataSource ) )
+    {
+        ensemble = *summaryCollection;
+    }
+    else if ( auto sumCase = std::get_if<RimSummaryCase*>( &dataSource ) )
+    {
+        summaryCase = *sumCase;
+    }
+
+    bool summaryOrEnsembleSelected = ( summaryCase || ensemble );
+
     std::vector<RifDataSourceForRftPlt> sourcesToSelect;
     const QString                       simWellName = associatedSimWellName();
 
-    for ( RimEclipseResultCase* const rftCase : RimWellPlotTools::rftCasesForWell( simWellName ) )
+    if ( !summaryOrEnsembleSelected )
     {
-        sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, rftCase ) );
-    }
+        for ( RimEclipseResultCase* const rftCase : RimWellPlotTools::rftCasesForWell( simWellName ) )
+        {
+            sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, rftCase ) );
+        }
 
-    for ( RimEclipseResultCase* const gridCase : RimWellPlotTools::gridCasesForWell( simWellName ) )
-    {
-        sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, gridCase ) );
-    }
+        for ( RimEclipseResultCase* const gridCase : RimWellPlotTools::gridCasesForWell( simWellName ) )
+        {
+            sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, gridCase ) );
+        }
 
-    for ( RimSummaryCaseCollection* const ensemble : RimWellPlotTools::rftEnsemblesForWell( simWellName ) )
+        for ( RimSummaryCaseCollection* const ensemble : RimWellPlotTools::rftEnsemblesForWell( simWellName ) )
+        {
+            sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
+        }
+
+        for ( auto singleCase : RiaSummaryTools::singleTopLevelSummaryCases() )
+        {
+            sourcesToSelect.push_back( RifDataSourceForRftPlt( singleCase, nullptr, nullptr ) );
+        }
+    }
+    else
     {
-        sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
+        if ( summaryCase ) sourcesToSelect.push_back( RifDataSourceForRftPlt( summaryCase, nullptr, nullptr ) );
+        if ( ensemble ) sourcesToSelect.push_back( RifDataSourceForRftPlt( ensemble ) );
     }
 
     std::vector<RimWellLogLasFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
@@ -1512,6 +1539,23 @@ RimWellRftEnsembleCurveSet* RimWellRftPlot::findEnsembleCurveSet( RimSummaryCase
         }
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::variant<RimSummaryCase*, RimSummaryCaseCollection*> RimWellRftPlot::dataSource() const
+{
+    // Return the first selected ensemble, if any
+    // If no ensemble is selected, return the first selected summary case, if any
+
+    for ( const auto& source : m_selectedSources() )
+    {
+        if ( source.ensemble() ) return source.ensemble();
+        if ( source.summaryCase() ) return source.summaryCase();
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

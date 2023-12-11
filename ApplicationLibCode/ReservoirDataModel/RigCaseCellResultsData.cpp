@@ -33,6 +33,7 @@
 #include "RigAllanUtil.h"
 #include "RigCaseCellResultCalculator.h"
 #include "RigCellVolumeResultCalculator.h"
+#include "RigCellsWithNncsCalculator.h"
 #include "RigEclipseAllanFaultsStatCalc.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
@@ -699,23 +700,34 @@ void RigCaseCellResultsData::clearAllResults()
 /// Removes all the actual numbers put into this object, and frees up the memory.
 /// Does not touch the metadata in any way
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::freeAllocatedResultsData()
+void RigCaseCellResultsData::freeAllocatedResultsData( std::vector<RiaDefines::ResultCatType> categoriesToExclude,
+                                                       std::optional<size_t>                  timeStepIndexToRelease )
 {
     for ( size_t resultIdx = 0; resultIdx < m_cellScalarResults.size(); ++resultIdx )
     {
-        if ( resultIdx < m_resultInfos.size() &&
-             m_resultInfos[resultIdx].eclipseResultAddress().resultCatType() == RiaDefines::ResultCatType::GENERATED )
+        if ( resultIdx < m_resultInfos.size() )
         {
-            // Not possible to recreate generated results, keep them
-            continue;
+            auto resultCategory = m_resultInfos[resultIdx].eclipseResultAddress().resultCatType();
+            if ( std::find( categoriesToExclude.begin(), categoriesToExclude.end(), resultCategory ) != categoriesToExclude.end() )
+            {
+                // Keep generated results for these categories
+                continue;
+            }
         }
 
-        for ( auto& tsIdx : m_cellScalarResults[resultIdx] )
+        for ( size_t index = 0; index < m_cellScalarResults[resultIdx].size(); index++ )
         {
+            if ( timeStepIndexToRelease && index != *timeStepIndexToRelease )
+            {
+                // Keep generated results for these time steps
+                continue;
+            }
+
+            auto& dataForTimeStep = m_cellScalarResults[resultIdx][index];
             // Using swap with an empty vector as that is the safest way to really get rid of the allocated data in a
             // vector
             std::vector<double> empty;
-            tsIdx.swap( empty );
+            dataForTimeStep.swap( empty );
         }
     }
 }
@@ -1105,6 +1117,14 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() ),
                                        needsToBeStored );
     }
+
+    // NNC cells, 1 for cells with NNC and 0 for other cells
+    {
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                RiaDefines::ResultDataType::INTEGER,
+                                                                RiaResultNames::riNncCells() ),
+                                       needsToBeStored );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1313,6 +1333,10 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         else if ( resultName == RiaResultNames::faultDistanceName() )
         {
             computeFaultDistance();
+        }
+        else if ( resultName == RiaResultNames::riNncCells() )
+        {
+            computeNncsCells();
         }
     }
     else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
@@ -1882,6 +1906,16 @@ void RigCaseCellResultsData::computeFaultDistance()
 {
     RigEclipseResultAddress          addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() );
     RigFaultDistanceResultCalculator calculator( *this );
+    calculator.calculate( addr, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeNncsCells()
+{
+    RigEclipseResultAddress    addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riNncCells() );
+    RigCellsWithNncsCalculator calculator( *this );
     calculator.calculate( addr, 0 );
 }
 
@@ -2626,8 +2660,11 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
     {
         for ( auto userCalculation : RimProject::current()->gridCalculationCollection()->calculations() )
         {
-            auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation );
-            if ( gridCalculation && gridCalculation->outputEclipseCase() != eclipseCase ) continue;
+            if ( auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation ) )
+            {
+                auto outputCases = gridCalculation->outputEclipseCases();
+                if ( std::find( outputCases.begin(), outputCases.end(), eclipseCase ) == outputCases.end() ) continue;
+            }
 
             QString generatedPropertyName = RimUserDefinedCalculation::findLeftHandSide( userCalculation->expression() );
             if ( generatedPropertyName == propertyName )

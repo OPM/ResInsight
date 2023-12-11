@@ -29,6 +29,7 @@
 #include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
 
+#include "RimEclipseView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
 
@@ -103,7 +104,7 @@ QString createResultNamePVal( const QString& resultName, double pValPos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>& resultSpecification )
+void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>& resultSpecification, RimEclipseView* filterView )
 {
     CVF_ASSERT( m_destinationCase );
 
@@ -116,23 +117,23 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
     for ( size_t timeIndicesIdx = 0; timeIndicesIdx < m_timeStepIndices.size(); timeIndicesIdx++ )
     {
-        size_t timeStepIdx = m_timeStepIndices[timeIndicesIdx];
+        auto timeStepIdx = m_timeStepIndices[timeIndicesIdx];
 
         for ( size_t gridIdx = 0; gridIdx < m_destinationCase->gridCount(); gridIdx++ )
         {
             RigGridBase* grid = m_destinationCase->grid( gridIdx );
 
-            for ( int resSpecIdx = 0; resSpecIdx < resultSpecification.size(); resSpecIdx++ )
+            for ( const auto& resSpec : resultSpecification )
             {
-                RiaDefines::PorosityModelType poroModel  = resultSpecification[resSpecIdx].m_poroModel;
-                RiaDefines::ResultCatType     resultType = resultSpecification[resSpecIdx].m_resType;
-                QString                       resultName = resultSpecification[resSpecIdx].m_resVarName;
+                RiaDefines::PorosityModelType poroModel  = resSpec.m_poroModel;
+                RiaDefines::ResultCatType     resultType = resSpec.m_resType;
+                QString                       resultName = resSpec.m_resVarName;
 
                 size_t activeCellCount = m_destinationCase->activeCellInfo( poroModel )->reservoirActiveCellCount();
 
                 if ( activeCellCount == 0 ) continue;
 
-                size_t dataAccessTimeStepIndex = timeStepIdx;
+                auto dataAccessTimeStepIndex = static_cast<size_t>( timeStepIdx );
 
                 // Always evaluate statistics once, and always use time step index zero
                 if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE )
@@ -145,10 +146,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                 // Build data access objects for source scalar results
 
                 cvf::Collection<RigResultAccessor> sourceDataAccessList;
-                for ( size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++ )
+                for ( RimEclipseCase* sourceCase : m_sourceCases )
                 {
-                    RimEclipseCase* sourceCase = m_sourceCases.at( caseIdx );
-
                     // Trigger loading of dataset
                     // NB! Many other functions are based on loading of all time steps at the same time
                     // Use this concept carefully
@@ -184,27 +183,36 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                 statisticalResultNames[PMID]  = createResultNamePVal( resultName, m_statisticsConfig.m_pMidPos );
                 statisticalResultNames[PMAX]  = createResultNamePVal( resultName, m_statisticsConfig.m_pMaxPos );
 
-                for ( size_t stIdx = 0; stIdx < statisticalResultNames.size(); ++stIdx )
+                for ( const auto& statisticalResultName : statisticalResultNames )
                 {
                     cvf::ref<RigResultModifier> resultModifier =
                         RigResultModifierFactory::createResultModifier( m_destinationCase,
                                                                         grid->gridIndex(),
                                                                         poroModel,
                                                                         dataAccessTimeStepIndex,
-                                                                        RigEclipseResultAddress( resultType, statisticalResultNames[stIdx] ) );
+                                                                        RigEclipseResultAddress( resultType, statisticalResultName ) );
                     destinationDataAccessList.push_back( resultModifier.p() );
                 }
 
                 std::vector<double> statParams( STAT_PARAM_COUNT, HUGE_VAL );
                 std::vector<double> values( sourceDataAccessList.size(), HUGE_VAL );
 
-                int cellCount = static_cast<int>( grid->cellCount() );
+                auto cellCount = static_cast<int>( grid->cellCount() );
+
+                cvf::ref<cvf::UByteArray> visibility;
+                if ( filterView )
+                {
+                    visibility = filterView->currentTotalCellVisibility();
+                }
 
                 // Loop over the cells in the grid, get the case values, and calculate the cell statistics
 #pragma omp parallel for schedule( dynamic ) firstprivate( statParams, values )
                 for ( int cellIdx = 0; cellIdx < cellCount; cellIdx++ )
                 {
                     size_t reservoirCellIndex = grid->reservoirCellIndex( cellIdx );
+
+                    if ( visibility.notNull() && !visibility->val( reservoirCellIndex ) ) continue;
+
                     if ( m_destinationCase->activeCellInfo( poroModel )->isActive( reservoirCellIndex ) )
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector
@@ -245,7 +253,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                             // Calculate percentiles
                             if ( m_statisticsConfig.m_calculatePercentiles )
                             {
-                                if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::NEAREST_OBSERVATION )
+                                if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::NEAREST_OBSERVATION )
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back( m_statisticsConfig.m_pMinPos );
@@ -259,7 +267,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     statParams[PMID] = pVals[1];
                                     statParams[PMAX] = pVals[2];
                                 }
-                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::HISTOGRAM_ESTIMATED )
+                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::PercentileCalcType::HISTOGRAM_ESTIMATED )
                                 {
                                     std::vector<size_t>    histogram;
                                     RigHistogramCalculator histCalc( statParams[MIN], statParams[MAX], 100, &histogram );
@@ -271,7 +279,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     statParams[PMAX] = histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos / 100.0,
                                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
                                 }
-                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION )
+                                else if ( m_statisticsConfig.m_pValMethod ==
+                                          RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION )
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back( m_statisticsConfig.m_pMinPos );
@@ -310,14 +319,15 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
         // Microsoft note: On Windows, the maximum number of files open at the same time is 512
         // http://msdn.microsoft.com/en-us/library/kdfaxaay%28vs.71%29.aspx
 
-        for ( size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++ )
-        {
-            RimEclipseCase* eclipseCase = m_sourceCases.at( caseIdx );
+        std::vector<RiaDefines::ResultCatType> categoriesToExclude;
+        if ( !m_clearGridCalculationMemory ) categoriesToExclude.push_back( RiaDefines::ResultCatType::GENERATED );
 
+        for ( RimEclipseCase* eclipseCase : m_sourceCases )
+        {
             if ( eclipseCase->reservoirViews.empty() )
             {
-                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData();
-                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData();
+                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepIdx );
+                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepIdx );
             }
         }
 
@@ -330,11 +340,11 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& resultSpecification )
 {
-    for ( int i = 0; i < resultSpecification.size(); i++ )
+    for ( const auto& resSpec : resultSpecification )
     {
-        RiaDefines::PorosityModelType poroModel  = resultSpecification[i].m_poroModel;
-        RiaDefines::ResultCatType     resultType = resultSpecification[i].m_resType;
-        QString                       resultName = resultSpecification[i].m_resVarName;
+        RiaDefines::PorosityModelType poroModel  = resSpec.m_poroModel;
+        RiaDefines::ResultCatType     resultType = resSpec.m_resType;
+        QString                       resultName = resSpec.m_resVarName;
 
         size_t activeCellCount = m_destinationCase->activeCellInfo( poroModel )->reservoirActiveCellCount();
         if ( activeCellCount == 0 ) continue;
@@ -347,10 +357,10 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& r
         // Create new result data structures to contain the statistical values
         std::vector<QString> statisticalResultNames;
 
+        statisticalResultNames.push_back( createResultNameMean( resultName ) );
         statisticalResultNames.push_back( createResultNameMin( resultName ) );
         statisticalResultNames.push_back( createResultNameMax( resultName ) );
         statisticalResultNames.push_back( createResultNameSum( resultName ) );
-        statisticalResultNames.push_back( createResultNameMean( resultName ) );
         statisticalResultNames.push_back( createResultNameDev( resultName ) );
         statisticalResultNames.push_back( createResultNameRange( resultName ) );
 
@@ -361,9 +371,9 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& r
             statisticalResultNames.push_back( createResultNamePVal( resultName, m_statisticsConfig.m_pMaxPos ) );
         }
 
-        for ( size_t j = 0; j < statisticalResultNames.size(); ++j )
+        for ( const auto& statisticalResultName : statisticalResultNames )
         {
-            addNamedResult( destCellResultsData, resultType, statisticalResultNames[j], activeCellCount );
+            addNamedResult( destCellResultsData, resultType, statisticalResultName, activeCellCount );
         }
     }
 }
@@ -372,10 +382,11 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResults( const QList<ResSpec>& r
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std::vector<RimEclipseCase*>& sourceCases,
-                                                                      const std::vector<size_t>&          timeStepIndices,
+                                                                      const std::vector<int>&             timeStepIndices,
                                                                       const RimStatisticsConfig&          statisticsConfig,
                                                                       RigEclipseCaseData*                 destinationCase,
-                                                                      RimIdenticalGridCaseGroup*          identicalGridCaseGroup )
+                                                                      RimIdenticalGridCaseGroup*          identicalGridCaseGroup,
+                                                                      bool                                clearGridCalculationMemory )
     : m_sourceCases( sourceCases )
     , m_statisticsConfig( statisticsConfig )
     , m_destinationCase( destinationCase )
@@ -383,6 +394,7 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std:
     , m_timeStepIndices( timeStepIndices )
     , m_identicalGridCaseGroup( identicalGridCaseGroup )
     , m_useZeroAsInactiveCellValue( false )
+    , m_clearGridCalculationMemory( clearGridCalculationMemory )
 {
     if ( !sourceCases.empty() )
     {

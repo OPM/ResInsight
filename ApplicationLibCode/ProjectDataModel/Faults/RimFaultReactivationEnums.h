@@ -21,27 +21,18 @@
 namespace RimFaultReactivation
 {
 
-enum class ModelParts
-{
-    HiPart1,
-    MidPart1,
-    LowPart1,
-    HiPart2,
-    MidPart2,
-    LowPart2
-};
-
 enum class GridPart
 {
-    PART1,
-    PART2
+    FW, // footwall
+    HW // hanging wall
 };
 
 enum class BorderSurface
 {
     UpperSurface,
     FaultSurface,
-    LowerSurface
+    LowerSurface,
+    Seabed
 };
 
 enum class Boundary
@@ -56,6 +47,22 @@ enum class ElementSets
     UnderBurden,
     Reservoir,
     IntraReservoir
+};
+
+enum class Property
+{
+    PorePressure,
+    VoidRatio,
+    Temperature,
+    Density,
+    YoungsModulus,
+    PoissonsRatio,
+    StressTop,
+    StressBottom,
+    DepthTop,
+    DepthBottom,
+    LateralStressComponentX,
+    LateralStressComponentY
 };
 
 } // namespace RimFaultReactivation

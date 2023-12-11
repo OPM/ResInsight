@@ -102,6 +102,9 @@ public:
     QString        multiLateralWellNamePattern() const;
     static QString defaultMultiLateralWellNamePattern();
 
+    QString gridCalculationExpressionFolder() const;
+    QString summaryCalculationExpressionFolder() const;
+
     // 3D view
     RiaDefines::MeshModeType       defaultMeshModeType() const;
     RiaDefines::RINavigationPolicy navigationPolicy() const;
@@ -192,6 +195,9 @@ private:
     caf::PdmField<int>           m_maxPlotTemplateFoldersDepth;
     caf::PdmField<caf::FilePath> m_lastUsedPlotTemplate;
     caf::PdmField<bool>          m_useQtChartsPlotByDefault;
+
+    caf::PdmField<caf::FilePath> m_gridCalculationExpressionFolder;
+    caf::PdmField<caf::FilePath> m_summaryCalculationExpressionFolder;
 
     // Script paths
     caf::PdmField<QString> m_octaveExecutable;

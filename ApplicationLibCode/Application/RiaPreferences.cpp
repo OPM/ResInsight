@@ -229,6 +229,11 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_useQtChartsPlotByDefault, "useQtChartsPlotByDefault", false, "Use QtChart as Default Plot Type" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useQtChartsPlotByDefault );
 
+    CAF_PDM_InitFieldNoDefault( &m_gridCalculationExpressionFolder, "gridCalculationExpressionFolder", "Grid Calculation Expression Folder" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCalculationExpressionFolder,
+                                "summaryCalculationExpressionFolder",
+                                "Summary Calculation Expression Folder" );
+
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
                        "SurfaceImportResamplingDistance",
                        100.0,
@@ -292,6 +297,10 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
                 myAttr->m_selectDirectory              = true;
                 myAttr->m_appendUiSelectedFolderToText = true;
             }
+            else if ( field == &m_gridCalculationExpressionFolder || field == &m_summaryCalculationExpressionFolder )
+            {
+                myAttr->m_selectDirectory = true;
+            }
         }
     }
 
@@ -331,16 +340,16 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup( "Default Colors" );
         colorGroup->add( &defaultViewerBackgroundColor );
-        colorGroup->add( &defaultGridLineColors, false );
+        colorGroup->appendToRow( &defaultGridLineColors );
         colorGroup->add( &defaultFaultGridLineColors );
-        colorGroup->add( &defaultWellLabelColor, false );
-        colorGroup->add( &m_guiTheme, { true, 2 } );
+        colorGroup->appendToRow( &defaultWellLabelColor );
+        colorGroup->add( &m_guiTheme, { .newRow = true, .totalColumnSpan = 2 } );
 
         caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Default Font Sizes" );
         fontGroup->add( &defaultSceneFontSize );
-        fontGroup->add( &defaultAnnotationFontSize, false );
+        fontGroup->appendToRow( &defaultAnnotationFontSize );
         fontGroup->add( &defaultWellLabelFontSize );
-        fontGroup->add( &defaultPlotFontSize, false );
+        fontGroup->appendToRow( &defaultPlotFontSize );
 
         caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup( "3d Views" );
         viewsGroup->add( &m_defaultMeshModeType );
@@ -348,9 +357,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         viewsGroup->add( &m_defaultScaleFactorZ );
 
         viewsGroup->add( &m_showLegendBackground );
-        viewsGroup->add( &m_enableFaultsByDefault, { false, 1 } );
+        viewsGroup->add( &m_enableFaultsByDefault, { .newRow = false, .totalColumnSpan = 1 } );
         viewsGroup->add( &m_showInfoBox );
-        viewsGroup->add( &m_showGridBox, { false, 1 } );
+        viewsGroup->add( &m_showGridBox, { .newRow = false, .totalColumnSpan = 1 } );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
@@ -394,11 +403,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* pageSetup = generalGrp->addNewGroup( "Page Setup" );
         pageSetup->add( &m_pageSize );
-        pageSetup->add( &m_pageOrientation, false );
+        pageSetup->appendToRow( &m_pageOrientation );
         pageSetup->add( &m_pageLeftMargin );
-        pageSetup->add( &m_pageRightMargin, false );
+        pageSetup->appendToRow( &m_pageRightMargin );
         pageSetup->add( &m_pageTopMargin );
-        pageSetup->add( &m_pageBottomMargin, false );
+        pageSetup->appendToRow( &m_pageBottomMargin );
 
         generalGrp->add( &m_useQtChartsPlotByDefault );
         m_useQtChartsPlotByDefault.uiCapability()->setUiHidden( true );
@@ -448,6 +457,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         exportGroup->add( &csvTextExportFieldSeparator );
         exportGroup->add( &m_openExportedPdfInViewer );
         exportGroup->add( &m_writeEchoInGrdeclFiles );
+
+        caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
+        otherGroup->add( &m_gridCalculationExpressionFolder );
+        otherGroup->add( &m_summaryCalculationExpressionFolder );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -836,6 +849,22 @@ QString RiaPreferences::multiLateralWellNamePattern() const
 QString RiaPreferences::defaultMultiLateralWellNamePattern()
 {
     return "?*Y*";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::gridCalculationExpressionFolder() const
+{
+    return m_gridCalculationExpressionFolder().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::summaryCalculationExpressionFolder() const
+{
+    return m_summaryCalculationExpressionFolder().path();
 }
 
 //--------------------------------------------------------------------------------------------------

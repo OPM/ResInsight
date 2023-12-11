@@ -68,10 +68,9 @@ public:
     void setAutoPlotTitle( bool enable );
     void setAutoSubPlotTitle( bool enable );
 
-    std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
-    std::vector<RimSummaryCurve*>                   curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
-    std::vector<RimEnsembleCurveSet*>               curveSets() const override;
-    std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimSummaryCurve*>     curvesForStepping() const override;
+    std::vector<RimEnsembleCurveSet*> curveSets() const override;
+    std::vector<RimSummaryCurve*>     allCurves() const override;
 
     void addPlot( RimPlot* plot ) override;
     void insertPlot( RimPlot* plot, size_t index ) override;
@@ -148,7 +147,7 @@ private:
     void onSubPlotAxisReloadRequired( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
     void onSubPlotAutoTitleChanged( const caf::SignalEmitter* emitter, bool isEnabled );
 
-    void updateTimeAxisRangesFromFirstPlot();
+    void updateTimeAxisRangesFromFirstTimePlot();
 
     void updateReadOnlyState();
 

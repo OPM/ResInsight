@@ -20,6 +20,7 @@
 
 #include "RimEclipseStatisticsCase.h"
 
+#include "RiaOptionItemFactory.h"
 #include "RiaResultNames.h"
 
 #include "RicNewViewFeature.h"
@@ -34,8 +35,10 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimEclipseView.h"
+#include "RimGridCalculationCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersectionCollection.h"
+#include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
@@ -44,6 +47,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 #include "cafProgressInfo.h"
 
 namespace caf
@@ -51,10 +55,19 @@ namespace caf
 template <>
 void caf::AppEnum<RimEclipseStatisticsCase::PercentileCalcType>::setUp()
 {
-    addItem( RimEclipseStatisticsCase::NEAREST_OBSERVATION, "NearestObservationPercentile", "Nearest Observation" );
-    addItem( RimEclipseStatisticsCase::HISTOGRAM_ESTIMATED, "HistogramEstimatedPercentile", "Histogram based estimate" );
-    addItem( RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION, "InterpolatedObservationPercentile", "Interpolated Observation" );
-    setDefault( RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION );
+    addItem( RimEclipseStatisticsCase::PercentileCalcType::NEAREST_OBSERVATION, "NearestObservationPercentile", "Nearest Observation" );
+    addItem( RimEclipseStatisticsCase::PercentileCalcType::HISTOGRAM_ESTIMATED, "HistogramEstimatedPercentile", "Histogram based estimate" );
+    addItem( RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION,
+             "InterpolatedObservationPercentile",
+             "Interpolated Observation" );
+    setDefault( RimEclipseStatisticsCase::PercentileCalcType::INTERPOLATED_OBSERVATION );
+}
+template <>
+void caf::AppEnum<RimEclipseStatisticsCase::DataSourceType>::setUp()
+{
+    addItem( RimEclipseStatisticsCase::DataSourceType::GRID_CALCULATION, "GridCalculation", "Grid Calculation" );
+    addItem( RimEclipseStatisticsCase::DataSourceType::CASE_PROPERTY, "CaseProperty", "Case Property" );
+    setDefault( RimEclipseStatisticsCase::DataSourceType::CASE_PROPERTY );
 }
 } // namespace caf
 
@@ -77,6 +90,14 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.uiCapability()->setUiReadOnly( true );
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_dataSourceForStatistics, "DataSourceForStatistics", "Data Source" );
+
+    CAF_PDM_InitFieldNoDefault( &m_gridCalculation, "GridCalculation", "Grid Calculation" );
+    CAF_PDM_InitFieldNoDefault( &m_gridCalculationFilterView, "GridCalculationFilterView", "Filter By View" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "Time Step Selection" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type" );
     m_resultType.xmlCapability()->setIOWritable( false );
@@ -120,6 +141,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_flipXAxis.uiCapability()->setUiHidden( true );
     m_flipYAxis.uiCapability()->setUiHidden( true );
     m_activeFormationNames.uiCapability()->setUiHidden( true );
+
+    m_displayNameOption = RimCaseDisplayNameTools::DisplayName::CUSTOM;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,6 +196,8 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 
         m_populateSelectionAfterLoadingGrid = false;
     }
+
+    initializeSelectedTimeSteps();
 
     return true;
 }
@@ -243,6 +268,26 @@ void RimEclipseStatisticsCase::setSourceProperties( RiaDefines::ResultCatType pr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::selectAllTimeSteps()
+{
+    RimIdenticalGridCaseGroup* idgcg = caseGroup();
+    if ( idgcg && idgcg->mainCase() )
+    {
+        int timeStepCount = idgcg->mainCase()->timeStepStrings().size();
+
+        if ( timeStepCount > 0 )
+        {
+            std::vector<int> allTimeSteps;
+            allTimeSteps.resize( timeStepCount );
+            std::iota( allTimeSteps.begin(), allTimeSteps.end(), 0 );
+            m_selectedTimeSteps = allTimeSteps;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::computeStatistics()
 {
     if ( eclipseCaseData() == nullptr )
@@ -256,14 +301,38 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     std::vector<RimEclipseCase*> sourceCases = getSourceCases();
 
+    if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
+    {
+        auto proj     = RimProject::current();
+        auto calcColl = proj->gridCalculationCollection();
+
+        auto dependentCalculations = calcColl->dependentCalculations( m_gridCalculation() );
+        if ( dependentCalculations.empty() )
+        {
+            // No calculations found, usually triggered by a circular dependency of calculations. Error message displayed by
+            // dependentCalculations().
+            return;
+        }
+
+        std::vector<size_t> timeStepIndices( m_selectedTimeSteps().begin(), m_selectedTimeSteps().end() );
+
+        for ( auto calc : dependentCalculations )
+        {
+            cvf::UByteArray* inputValueVisibilityFilter = nullptr;
+            if ( m_gridCalculationFilterView() )
+            {
+                inputValueVisibilityFilter = m_gridCalculationFilterView()->currentTotalCellVisibility().p();
+            }
+
+            bool evaluateDependentCalculations = false;
+            calc->calculateForCases( sourceCases, inputValueVisibilityFilter, timeStepIndices, evaluateDependentCalculations );
+        }
+    }
+
     if ( sourceCases.empty() || !sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
     {
         return;
     }
-
-    // The first source has been read completely from disk, and contains grid and meta data
-    // Use this information for all cases in the case group
-    size_t timeStepCount = sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
 
     RimStatisticsConfig statisticsConfig;
 
@@ -273,11 +342,7 @@ void RimEclipseStatisticsCase::computeStatistics()
     statisticsConfig.m_pMinPos              = m_lowPercentile();
     statisticsConfig.m_pValMethod           = m_percentileCalculationType();
 
-    std::vector<size_t> timeStepIndices;
-    for ( size_t i = 0; i < timeStepCount; i++ )
-    {
-        timeStepIndices.push_back( i );
-    }
+    auto timeStepIndices = m_selectedTimeSteps();
 
     // If no dynamic data is present, we might end up with no time steps. Make sure we have at least one.
     if ( timeStepIndices.empty() )
@@ -289,70 +354,82 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     QList<RimEclipseStatisticsCaseEvaluator::ResSpec> resultSpecification;
 
-    for ( size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx )
+    if ( m_dataSourceForStatistics() == DataSourceType::CASE_PROPERTY )
     {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                m_selectedDynamicProperties()[pIdx] ) );
-    }
+        for ( size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                    m_selectedDynamicProperties()[pIdx] ) );
+        }
 
-    for ( size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                m_selectedStaticProperties()[pIdx] ) );
-    }
+        for ( size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                    RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                    m_selectedStaticProperties()[pIdx] ) );
+        }
 
-    for ( size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx )
+        for ( size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                    RiaDefines::ResultCatType::GENERATED,
+                                                                                    m_selectedGeneratedProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                                    m_selectedInputProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedFractureDynamicProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                    m_selectedFractureDynamicProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedFractureStaticProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                                    RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                    m_selectedFractureStaticProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedFractureGeneratedProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                                    RiaDefines::ResultCatType::GENERATED,
+                                                                                    m_selectedFractureGeneratedProperties()[pIdx] ) );
+        }
+
+        for ( size_t pIdx = 0; pIdx < m_selectedFractureInputProperties().size(); ++pIdx )
+        {
+            resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                                    m_selectedFractureInputProperties()[pIdx] ) );
+        }
+    }
+    else if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
     {
+        auto calculationName = m_gridCalculation->shortName();
+
         resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                                 RiaDefines::ResultCatType::GENERATED,
-                                                                                m_selectedGeneratedProperties()[pIdx] ) );
+                                                                                calculationName ) );
     }
 
-    for ( size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                                RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                                                m_selectedInputProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedFractureDynamicProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                                RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                m_selectedFractureDynamicProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedFractureStaticProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                                RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                m_selectedFractureStaticProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedFractureGeneratedProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                                RiaDefines::ResultCatType::GENERATED,
-                                                                                m_selectedFractureGeneratedProperties()[pIdx] ) );
-    }
-
-    for ( size_t pIdx = 0; pIdx < m_selectedFractureInputProperties().size(); ++pIdx )
-    {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                                                                RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                                                m_selectedFractureInputProperties()[pIdx] ) );
-    }
-
-    RimEclipseStatisticsCaseEvaluator stat( sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup );
+    bool clearGridCalculationMemory = m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION;
+    RimEclipseStatisticsCaseEvaluator stat( sourceCases, timeStepIndices, statisticsConfig, resultCase, gridCaseGroup, clearGridCalculationMemory );
 
     if ( m_useZeroAsInactiveCellValue )
     {
         stat.useZeroAsValueForInActiveCellsBasedOnUnionOfActiveCells();
     }
 
-    stat.evaluateForResults( resultSpecification );
+    stat.evaluateForResults( resultSpecification, m_gridCalculationFilterView() );
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -419,37 +496,63 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     uiOrdering.add( &m_calculateEditCommand );
 
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary of Calculation Setup" );
-    group->add( &m_useZeroAsInactiveCellValue );
-    m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden( hasComputedStatistics() );
-    group->add( &m_selectionSummary );
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary of Calculation Setup" );
+        group->add( &m_useZeroAsInactiveCellValue );
+        m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden( hasComputedStatistics() );
+        group->add( &m_selectionSummary );
+    }
 
-    group = uiOrdering.addNewGroup( "Properties to consider" );
-    group->setUiHidden( hasComputedStatistics() );
-    group->add( &m_resultType );
-    group->add( &m_porosityModel );
-    group->add( &m_selectedDynamicProperties );
-    group->add( &m_selectedStaticProperties );
-    group->add( &m_selectedGeneratedProperties );
-    group->add( &m_selectedInputProperties );
-    group->add( &m_selectedFractureDynamicProperties );
-    group->add( &m_selectedFractureStaticProperties );
-    group->add( &m_selectedFractureGeneratedProperties );
-    group->add( &m_selectedFractureInputProperties );
+    {
+        auto group = uiOrdering.addNewGroup( "Properties to consider" );
+        group->setUiHidden( hasComputedStatistics() );
+        group->add( &m_dataSourceForStatistics );
 
-    group = uiOrdering.addNewGroup( "Percentile setup" );
-    group->setUiHidden( hasComputedStatistics() );
-    group->add( &m_calculatePercentiles );
-    group->add( &m_percentileCalculationType );
-    group->add( &m_lowPercentile );
-    group->add( &m_midPercentile );
-    group->add( &m_highPercentile );
+        if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION )
+        {
+            group->add( &m_gridCalculation );
+            group->add( &m_gridCalculationFilterView );
+        }
+        else
+        {
+            group->add( &m_resultType );
+            group->add( &m_porosityModel );
+            group->add( &m_selectedDynamicProperties );
+            group->add( &m_selectedStaticProperties );
+            group->add( &m_selectedGeneratedProperties );
+            group->add( &m_selectedInputProperties );
+            group->add( &m_selectedFractureDynamicProperties );
+            group->add( &m_selectedFractureStaticProperties );
+            group->add( &m_selectedFractureGeneratedProperties );
+            group->add( &m_selectedFractureInputProperties );
+        }
+    }
 
-    group = uiOrdering.addNewGroup( "Case Options" );
-    group->add( &m_wellDataSourceCase );
-    group->add( &m_activeFormationNames );
-    group->add( &m_flipXAxis );
-    group->add( &m_flipYAxis );
+    {
+        auto group = uiOrdering.addNewGroup( "Time Step Selection" );
+        group->setCollapsedByDefault();
+        group->add( &m_selectedTimeSteps );
+    }
+
+    {
+        auto group = uiOrdering.addNewGroup( "Percentile setup" );
+        group->setUiHidden( hasComputedStatistics() );
+        group->add( &m_calculatePercentiles );
+        group->add( &m_percentileCalculationType );
+        group->add( &m_lowPercentile );
+        group->add( &m_midPercentile );
+        group->add( &m_highPercentile );
+    }
+
+    {
+        auto group = uiOrdering.addNewGroup( "Case Options" );
+        group->add( &m_wellDataSourceCase );
+        group->add( &m_activeFormationNames );
+        group->add( &m_flipXAxis );
+        group->add( &m_flipYAxis );
+    }
+
+    uiOrdering.skipRemainingFields();
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
@@ -468,15 +571,76 @@ QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options;
-
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
     if ( !( caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData() ) )
     {
+        return {};
+    }
+
+    if ( &m_dataSourceForStatistics == fieldNeedingOptions )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        {
+            caf::IconProvider iconProvider( ":/Case48x48.png" );
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<DataSourceType>::uiText( DataSourceType::CASE_PROPERTY ),
+                                                       DataSourceType::CASE_PROPERTY,
+                                                       false,
+                                                       iconProvider ) );
+        }
+        {
+            caf::IconProvider iconProvider( ":/Calculator.svg" );
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<DataSourceType>::uiText( DataSourceType::GRID_CALCULATION ),
+                                                       DataSourceType::GRID_CALCULATION,
+                                                       false,
+                                                       iconProvider ) );
+        }
+
+        return options;
+    }
+
+    if ( &m_gridCalculation == fieldNeedingOptions )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        for ( auto calc : RimProject::current()->gridCalculationCollection()->calculations() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( calc->shortName(), calc ) );
+        }
+
         return options;
     }
 
     RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
+
+    if ( &m_selectedTimeSteps == fieldNeedingOptions )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        const auto timeStepStrings = idgcg->mainCase()->timeStepStrings();
+
+        int index = 0;
+        for ( const auto& text : timeStepStrings )
+        {
+            options.push_back( caf::PdmOptionItemInfo( text, index++ ) );
+        }
+
+        return options;
+    }
+
+    if ( &m_gridCalculationFilterView == fieldNeedingOptions )
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        for ( const auto& view : views() )
+        {
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
+        }
+
+        return options;
+    }
 
     if ( &m_selectedDynamicProperties == fieldNeedingOptions )
     {
@@ -540,9 +704,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
         return toOptionList( sourceCaseNames );
     }
 
-    if ( options.empty() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
-
-    return options;
+    return RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,6 +729,15 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
             computeStatisticsAndUpdateViews();
         }
         m_calculateEditCommand = false;
+    }
+
+    if ( &m_dataSourceForStatistics == changedField && m_gridCalculation() == nullptr )
+    {
+        auto calculations = RimProject::current()->gridCalculationCollection()->calculations();
+        if ( !calculations.empty() )
+        {
+            m_gridCalculation = dynamic_cast<RimGridCalculation*>( calculations.front() );
+        }
     }
 
     if ( &m_wellDataSourceCase == changedField )
@@ -662,15 +833,26 @@ void RimEclipseStatisticsCase::updateSelectionSummaryLabel()
     }
     html += "</p>";
 
-    addPropertySetToHtmlText( html, "Dynamic properties", m_selectedDynamicProperties() );
-    addPropertySetToHtmlText( html, "Static properties", m_selectedStaticProperties() );
-    addPropertySetToHtmlText( html, "Generated properties", m_selectedGeneratedProperties() );
-    addPropertySetToHtmlText( html, "Input properties", m_selectedInputProperties() );
+    if ( m_dataSourceForStatistics() == DataSourceType::CASE_PROPERTY )
+    {
+        addPropertySetToHtmlText( html, "Dynamic properties", m_selectedDynamicProperties() );
+        addPropertySetToHtmlText( html, "Static properties", m_selectedStaticProperties() );
+        addPropertySetToHtmlText( html, "Generated properties", m_selectedGeneratedProperties() );
+        addPropertySetToHtmlText( html, "Input properties", m_selectedInputProperties() );
 
-    addPropertySetToHtmlText( html, "Dynamic properties, fracture model", m_selectedFractureDynamicProperties() );
-    addPropertySetToHtmlText( html, "Static properties, fracture model", m_selectedFractureStaticProperties() );
-    addPropertySetToHtmlText( html, "Generated properties, fracture model", m_selectedFractureGeneratedProperties() );
-    addPropertySetToHtmlText( html, "Input properties, fracture model", m_selectedFractureInputProperties() );
+        addPropertySetToHtmlText( html, "Dynamic properties, fracture model", m_selectedFractureDynamicProperties() );
+        addPropertySetToHtmlText( html, "Static properties, fracture model", m_selectedFractureStaticProperties() );
+        addPropertySetToHtmlText( html, "Generated properties, fracture model", m_selectedFractureGeneratedProperties() );
+        addPropertySetToHtmlText( html, "Input properties, fracture model", m_selectedFractureInputProperties() );
+    }
+
+    if ( m_dataSourceForStatistics() == DataSourceType::GRID_CALCULATION && m_gridCalculation() )
+    {
+        html += "<p><b>Grid calculation:</b></p>";
+        html += "<p class=indent>";
+        html += m_gridCalculation()->shortName();
+        html += "</p>";
+    }
 
     m_selectionSummary = html;
 }
@@ -696,6 +878,17 @@ void RimEclipseStatisticsCase::defineEditorAttribute( const caf::PdmFieldHandle*
         {
             attrib->m_buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)" : "Compute";
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::initializeSelectedTimeSteps()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.10.0" ) )
+    {
+        selectAllTimeSteps();
     }
 }
 
@@ -809,6 +1002,22 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
     if ( reservoirViews.empty() )
     {
         RicNewViewFeature::addReservoirView( this, nullptr );
+    }
+
+    if ( reservoirViews.size() == 1 )
+    {
+        // If only one view, set the first result as active
+
+        if ( auto cellResultsData = results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
+        {
+            auto firstView = reservoirViews[0];
+
+            std::vector<RigEclipseResultAddress> resAddresses = cellResultsData->existingResults();
+            if ( firstView && !resAddresses.empty() )
+            {
+                firstView->cellResult()->setFromEclipseResultAddress( resAddresses[0] );
+            }
+        }
     }
 }
 

@@ -1320,7 +1320,8 @@ void RiuMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
     Rim3dView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
     Rim3dView* activatedView               = dynamic_cast<Rim3dView*>( findViewWindowFromSubWindow( subWindow ) );
 
-    if ( !activatedView ) return;
+    if ( !activatedView || ( previousActiveReservoirView == activatedView ) ) return;
+
     RiaApplication::instance()->setActiveReservoirView( activatedView );
 
     if ( !isBlockingViewSelectionOnSubWindowActivated() )

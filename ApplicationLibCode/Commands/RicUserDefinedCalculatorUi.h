@@ -19,9 +19,11 @@
 #pragma once
 
 #include "RiuCalculationsContextMenuManager.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+
 #include <memory>
 
 class RimUserDefinedCalculationCollection;
@@ -48,23 +50,31 @@ public:
     virtual RimUserDefinedCalculationCollection* calculationCollection() const                                       = 0;
     virtual void                                 notifyCalculatedNameChanged( int id, const QString& newName ) const = 0;
 
-private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-    void onEditorWidgetsCreated() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          onEditorWidgetsCreated() override;
 
-private:
+    virtual void exportCalculations() = 0;
+    virtual void importCalculations() = 0;
+
     // TODO : Move to a common caf helper class
     static void assignPushButtonEditor( caf::PdmFieldHandle* fieldHandle );
     static void assignPushButtonEditorText( caf::PdmUiEditorAttribute* attribute, const QString& text );
+
+private:
+    void onVariableUpdated( const SignalEmitter* emitter );
+    void connectSignals( RimUserDefinedCalculation* calculation );
 
 private:
     caf::PdmPtrField<RimUserDefinedCalculation*> m_currentCalculation;
 
     caf::PdmField<bool> m_newCalculation;
     caf::PdmField<bool> m_deleteCalculation;
+    caf::PdmField<bool> m_exportCalculations;
+    caf::PdmField<bool> m_importCalculations;
 
     std::unique_ptr<RiuCalculationsContextMenuManager> m_calcContextMenuMgr;
 };

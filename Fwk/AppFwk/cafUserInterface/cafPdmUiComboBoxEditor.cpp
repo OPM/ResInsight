@@ -61,6 +61,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiComboBoxEditor );
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
+    if ( !uiField() ) return;
+
     if ( !m_label.isNull() )
     {
         PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
@@ -412,6 +414,8 @@ QWidget* PdmUiComboBoxEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::slotIndexActivated( int index )
 {
+    if ( !uiField() ) return;
+
     uiField()->enableAutoValue( false );
 
     if ( m_attributes.enableEditableContent )
@@ -439,6 +443,8 @@ void PdmUiComboBoxEditor::slotIndexActivated( int index )
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::slotEditTextChanged( const QString& text )
 {
+    if ( !uiField() ) return;
+
     if ( text == m_interactiveEditText ) return;
 
     uiField()->enableAutoValue( false );
@@ -480,6 +486,8 @@ void PdmUiComboBoxEditor::slotPreviousButtonPressed()
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::slotApplyAutoValue()
 {
+    if ( !uiField() ) return;
+
     bool enable = m_autoValueToolButton->isChecked();
     uiField()->enableAutoValue( enable );
     configureAndUpdateUi( "" );

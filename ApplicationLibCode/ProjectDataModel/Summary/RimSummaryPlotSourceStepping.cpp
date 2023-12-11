@@ -59,7 +59,6 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionMod
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
-    : m_sourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS )
 {
     CAF_PDM_InitObject( "Summary Curves Modifier" );
 
@@ -94,14 +93,6 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     m_indexLabel.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_autoUpdateAppearance, "AutoUpdateAppearance", false, "Update Appearance" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::setSourceSteppingType( RimSummaryDataSourceStepping::Axis sourceSteppingType )
-{
-    m_sourceSteppingType = sourceSteppingType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,7 +316,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     std::vector<RimSummaryCurve*> curves;
-    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( m_sourceSteppingType );
+    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves();
 
     bool isAutoZoomAllowed = false;
     bool doZoomAll         = false;
@@ -398,25 +389,19 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
             for ( auto curve : curves )
             {
-                if ( isYAxisStepping() )
+                if ( previousCase == curve->summaryCaseY() )
                 {
-                    if ( previousCase == curve->summaryCaseY() )
-                    {
-                        curve->setSummaryCaseY( m_summaryCase );
+                    curve->setSummaryCaseY( m_summaryCase );
 
-                        if ( m_autoUpdateAppearance )
-                        {
-                            curve->setCurveAppearanceFromCaseType();
-                        }
+                    if ( m_autoUpdateAppearance )
+                    {
+                        curve->setCurveAppearanceFromCaseType();
                     }
                 }
 
-                if ( isXAxisStepping() )
+                if ( previousCase == curve->summaryCaseX() )
                 {
-                    if ( previousCase == curve->summaryCaseX() )
-                    {
-                        curve->setSummaryCaseX( m_summaryCase );
-                    }
+                    curve->setSummaryCaseX( m_summaryCase );
                 }
             }
 
@@ -507,19 +492,13 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             for ( auto curve : curves )
             {
-                if ( isYAxisStepping() )
-                {
-                    RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, adr );
-                    curve->setSummaryAddressY( adr );
-                }
+                RifEclipseSummaryAddress adrY = curve->summaryAddressY();
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, adrY );
+                curve->setSummaryAddressY( adrY );
 
-                if ( isXAxisStepping() )
-                {
-                    RifEclipseSummaryAddress adr = curve->summaryAddressX();
-                    RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, adr );
-                    curve->setSummaryAddressX( adr );
-                }
+                RifEclipseSummaryAddress adrX = curve->summaryAddressX();
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, summaryCategoryToModify, adrX );
+                curve->setSummaryAddressX( adrX );
             }
 
             if ( dataSourceSteppingObject() )
@@ -634,7 +613,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
         }
 
         std::vector<RimSummaryCurve*> curves;
-        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping();
 
         size_t maxAddrCount = 0;
         int    maxAddrIndex = -1;
@@ -644,7 +623,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
             auto curve = curves[i];
             if ( !curve ) continue;
 
-            if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
+            if ( curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
             {
                 auto addresses = curve->summaryCaseY()->summaryReader()->allResultAddresses();
 
@@ -656,7 +635,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
                 }
             }
 
-            if ( isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
+            if ( curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
             {
                 auto   addresses = curve->summaryCaseX()->summaryReader()->allResultAddresses();
                 size_t addrCount = addresses.size();
@@ -672,13 +651,13 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
         {
             auto curve = curves[maxAddrIndex];
 
-            if ( isXAxisStepping() && curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
+            if ( curve->summaryCaseX() && curve->summaryCaseX()->summaryReader() )
             {
                 auto addresses = curve->summaryCaseX()->summaryReader()->allResultAddresses();
                 addressSet.insert( addresses.begin(), addresses.end() );
             }
 
-            if ( isYAxisStepping() && curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
+            if ( curve->summaryCaseY() && curve->summaryCaseY()->summaryReader() )
             {
                 auto addresses = curve->summaryCaseY()->summaryReader()->allResultAddresses();
                 addressSet.insert( addresses.begin(), addresses.end() );
@@ -704,16 +683,13 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesForCur
         }
 
         std::vector<RimSummaryCurve*> curves;
-        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping();
 
         for ( auto curve : curves )
         {
-            if ( isYAxisStepping() )
-            {
-                addresses.insert( curve->summaryAddressY() );
-            }
+            addresses.insert( curve->summaryAddressY() );
 
-            if ( isXAxisStepping() )
+            if ( curve->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
             {
                 addresses.insert( curve->summaryAddressX() );
             }
@@ -731,15 +707,12 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollect
     std::set<RimSummaryCase*> sumCases;
 
     std::vector<RimSummaryCurve*> curves;
-    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+    if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping();
     for ( auto c : curves )
     {
-        if ( isYAxisStepping() )
-        {
-            sumCases.insert( c->summaryCaseY() );
-        }
+        sumCases.insert( c->summaryCaseY() );
 
-        if ( isXAxisStepping() )
+        if ( c->axisTypeX() == RiaDefines::HorizontalAxisType::SUMMARY_VECTOR )
         {
             sumCases.insert( c->summaryCaseX() );
         }
@@ -916,30 +889,6 @@ std::set<RimSummaryCaseCollection*> RimSummaryPlotSourceStepping::ensembleCollec
     }
 
     return summaryCaseCollections;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotSourceStepping::isXAxisStepping() const
-{
-    if ( m_sourceSteppingType == RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS ) return true;
-
-    if ( m_sourceSteppingType == RimSummaryDataSourceStepping::Axis::X_AXIS ) return true;
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotSourceStepping::isYAxisStepping() const
-{
-    if ( m_sourceSteppingType == RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS ) return true;
-
-    if ( m_sourceSteppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS ) return true;
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1302,13 +1251,11 @@ void RimSummaryPlotSourceStepping::updateVectorNameInCurves( std::vector<RimSumm
     std::map<RimSummaryPlot*, std::vector<RimSummaryCurve*>> curvesInPlot;
     for ( auto curve : curves )
     {
-        if ( isYAxisStepping() )
         {
             auto adr = curve->summaryAddressY();
             if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, adr ) ) curve->setSummaryAddressY( adr );
         }
 
-        if ( isXAxisStepping() )
         {
             auto adr = curve->summaryAddressX();
             if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, adr ) ) curve->setSummaryAddressX( adr );
@@ -1526,7 +1473,7 @@ std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( s
         }
         else
         {
-            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( plot );
+            auto addresses = RimSummaryAddressModifier::allSummaryAddressesY( plot );
 
             for ( const auto& a : addresses )
             {

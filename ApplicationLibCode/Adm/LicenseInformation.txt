@@ -488,7 +488,7 @@ CRAVA is a software package for seismic inversion and conditioning of
 
 
 ===============================================================================
- Notice for the mio library
+ Notice for mio
 ===============================================================================
 
 Copyright 2017 https://github.com/mandreyel
@@ -512,7 +512,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ===============================================================================
- Notice for the fast_float library
+ Notice for fast_float
 ===============================================================================
 
 https://github.com/fastfloat/fast_float
@@ -542,7 +542,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 ===============================================================================
- Notice for the Qt-Advanced-Docking-System library
+ Notice for Qt-Advanced-Docking-System
 ===============================================================================
 
 https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System
@@ -561,7 +561,7 @@ https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/blob/master/LICEN
  the version number 2.1.]
 
 ===============================================================================
- Notice for the fmtlib library
+ Notice for fmtlib
 ===============================================================================
 
 https://github.com/fmtlib/fmt
@@ -596,7 +596,7 @@ source code, you may redistribute such embedded portions in such object form
 without including the above copyright and permission notices.
 
 ===============================================================================
- Notice for the roffcpp library
+ Notice for roffcpp
 ===============================================================================
 
 https://github.com/CeetronSolutions/roffcpp
@@ -617,7 +617,7 @@ See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 for more details.
 
 ===============================================================================
- Notice for the open-vds library
+ Notice for open-vds
 ===============================================================================
 
 https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-vds/-/blob/master/LICENSE
@@ -629,7 +629,7 @@ https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/
 
 
 ===============================================================================
- Notice for the open-zgy library
+ Notice for open-zgy
 ===============================================================================
 
 https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-zgy/-/blob/master/LICENSE.txt
@@ -641,7 +641,7 @@ https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/
 
 
 ===============================================================================
- Notice for the regression-analysis library
+ Notice for regression-analysis
 ===============================================================================
 
 https://github.com/CeetronSolutions/regression-analysis
@@ -660,3 +660,26 @@ FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 for more details.
+
+===============================================================================
+ Notice for tomlplusplus
+===============================================================================
+
+https://github.com/marzer/tomlplusplus/blob/master/LICENSE
+
+MIT License
+
+Copyright (c) Mark Gillard <mark.gillard@outlook.com.au>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

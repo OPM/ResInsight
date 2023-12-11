@@ -162,6 +162,7 @@ public:
 
     void updateAll();
     void updateLegend() override;
+    void setLegendPosition( RiuPlotWidget::Legend position );
 
     void setPlotInfoLabel( const QString& label );
     void showPlotInfoLabel( bool show );
@@ -196,12 +197,9 @@ public:
         return 8;
     }
 
-    static void moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition );
-
-    std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
-    std::vector<RimSummaryCurve*>                   curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
-    std::vector<RimEnsembleCurveSet*>               curveSets() const override;
-    std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimSummaryCurve*>     curvesForStepping() const override;
+    std::vector<RimEnsembleCurveSet*> curveSets() const override;
+    std::vector<RimSummaryCurve*>     allCurves() const override;
 
     std::vector<RimPlotAxisProperties*> plotAxes( RimPlotAxisProperties::Orientation orientation ) const;
 
@@ -353,5 +351,6 @@ private:
     std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
-    bool m_isValid;
+    bool                  m_isValid;
+    RiuPlotWidget::Legend m_legendPosition;
 };

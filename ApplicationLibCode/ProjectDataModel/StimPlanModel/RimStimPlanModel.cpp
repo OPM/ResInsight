@@ -835,9 +835,9 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     m_barrierTextAnnotation.uiCapability()->setUiHidden( true );
     m_azimuthAngle.uiCapability()->setUiHidden( m_fractureOrientation() != RimStimPlanModel::FractureOrientation::AZIMUTH );
 
-    uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
-    uiOrdering.add( &m_stimPlanModelTemplate, { true, 2, 1 } );
-    uiOrdering.add( &m_editStimPlanModelTemplate, { false, 1, 0 } );
+    uiOrdering.add( nameField(), { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+    uiOrdering.add( &m_stimPlanModelTemplate, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    uiOrdering.add( &m_editStimPlanModelTemplate, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
     uiOrdering.add( &m_staticEclipseCase );
 
@@ -852,11 +852,11 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_thicknessDirection );
 
     caf::PdmUiOrdering* extractionBoundariesGroup = uiOrdering.addNewGroup( "Extraction Depth Boundaries" );
-    extractionBoundariesGroup->add( &m_extractionOffsetTop, caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
-    extractionBoundariesGroup->add( &m_extractionDepthTop, { false, 2, 1 } );
+    extractionBoundariesGroup->add( &m_extractionOffsetTop, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+    extractionBoundariesGroup->add( &m_extractionDepthTop, { .newRow = false, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
 
-    extractionBoundariesGroup->add( &m_extractionOffsetBottom, caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
-    extractionBoundariesGroup->add( &m_extractionDepthBottom, { false, 2, 1 } );
+    extractionBoundariesGroup->add( &m_extractionOffsetBottom, { .newRow = true, .totalColumnSpan = 3, .leftLabelColumnSpan = 1 } );
+    extractionBoundariesGroup->add( &m_extractionDepthBottom, { .newRow = false, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
 
     caf::PdmUiOrdering* boundingBoxGroup = uiOrdering.addNewGroup( "Bounding Box" );
     boundingBoxGroup->add( &m_boundingBoxHorizontal );
@@ -881,8 +881,8 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     asymmetricGroup->add( &m_barrierDip );
     asymmetricGroup->add( &m_barrierFaultName );
 
-    asymmetricGroup->add( &m_showOnlyBarrierFault, caf::PdmUiOrdering::LayoutOptions( true, 2, 1 ) );
-    asymmetricGroup->add( &m_showAllFaults, { false, 1, 0 } );
+    asymmetricGroup->add( &m_showOnlyBarrierFault, { .newRow = true, .totalColumnSpan = 2, .leftLabelColumnSpan = 1 } );
+    asymmetricGroup->add( &m_showAllFaults, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
     asymmetricGroup->add( &m_wellPenetrationLayer );
 

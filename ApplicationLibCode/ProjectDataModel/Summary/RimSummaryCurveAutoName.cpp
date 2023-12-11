@@ -279,8 +279,18 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
         if ( m_caseName && !skipSubString )
         {
+            const bool isTextEmptyBeforeCaseName = text.empty();
+
             if ( !text.empty() ) text += ", ";
             text += caseName;
+
+            if ( isTextEmptyBeforeCaseName && currentNameHelper && currentNameHelper->numberOfCases() > 1 &&
+                 currentNameHelper->vectorNames().size() > 1 )
+            {
+                // Add vector name to the case name if there are multiple cases and multiple vectors
+
+                text += ":" + summaryAddress.vectorName();
+            }
         }
     }
 

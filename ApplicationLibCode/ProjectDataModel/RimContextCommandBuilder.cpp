@@ -168,6 +168,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPltPlot.h"
+#include "RimWellRftPlot.h"
 
 #ifdef USE_QTCHARTS
 #include "RimEnsembleFractureStatisticsPlotCollection.h"
@@ -631,6 +632,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicDuplicateSummaryTableFeature";
         }
+        else if ( dynamic_cast<RimWellRftPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicCreateRftPlotsFeature";
+        }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) && !dynamic_cast<RimWellPltPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteWellLogPlotFeature";
@@ -1029,6 +1034,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimCellFilterCollection*>( firstUiItem ) )
         {
+            menuBuilder << "RicPasteCellFiltersFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicNewPolygonFilterFeature";
             menuBuilder << "RicNewUserDefinedFilterFeature";
             menuBuilder << "RicNewUserDefinedIndexFilterFeature";

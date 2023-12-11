@@ -276,6 +276,10 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( RimEclipseCase* eclipseCase )
 {
+    // Make sure case is open before accessing active cell info
+    eclipseCase->ensureReservoirCaseIsOpen();
+    if ( !eclipseCase->eclipseCaseData() ) return nullptr;
+
     RimEclipseContourMapView* contourMap = new RimEclipseContourMapView();
     contourMap->setEclipseCase( eclipseCase );
 

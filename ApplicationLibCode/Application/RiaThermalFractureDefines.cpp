@@ -76,6 +76,14 @@ QString viscosityResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString filtrateThicknessResultName()
+{
+    return "FiltrateThickness";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString getExpectedThermalFractureUnit( const QString& name, RiaDefines::EclipseUnitSystem unitSystem )
 {
     CAF_ASSERT( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC || unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD );
@@ -98,7 +106,7 @@ QString getExpectedThermalFractureUnit( const QString& name, RiaDefines::Eclipse
           { "Velocity", { "m/sec", "ft/sec" } },
           { "ResPressure", { "BARa", "psia" } },
           { "ResTemperature", { "deg C", "deg F" } },
-          { "FiltrateThickness", { "cm", "inches" } },
+          { RiaDefines::filtrateThicknessResultName(), { "cm", "inches" } },
           { RiaDefines::filtratePressureDropResultName(), { "bar", "psi" } },
           { "EffectiveResStress", { "bar", "psi" } },
           { "EffectiveFracStress", { "bar", "psi" } },

@@ -70,7 +70,15 @@ QString RimGridCalculationVariable::displayString() const
     if ( m_eclipseCase() ) nameComponents.append( m_eclipseCase()->uiName() );
 
     nameComponents.append( m_resultVariable() );
-    return nameComponents.join( " - " );
+    return nameComponents.join( " : " );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculationVariable::setEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_eclipseCase = eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------

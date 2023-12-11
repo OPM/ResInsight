@@ -93,16 +93,10 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 normal *= eclView->ownerCase()->characteristicCellSize();
                 normal *= 3;
 
-                auto antiNormal = -1.0 * normal;
+                if ( !eclView->mainGrid()->isFaceNormalsOutwards() ) normal = normal * -1.0;
 
-                auto camPos = eclView->viewer()->mainCamera()->position();
-
-                auto target1    = cell.faceCenter( face );
-                auto candidate1 = target1 + normal;
-                auto candidate2 = target1 + antiNormal;
-                auto target2    = candidate1;
-
-                if ( camPos.pointDistance( candidate2 ) < camPos.pointDistance( candidate1 ) ) target2 = candidate2;
+                cvf::Vec3d target1 = cell.faceCenter( face );
+                cvf::Vec3d target2 = target1 + normal;
 
                 // get base directory for our work, should be a new, empty folder somewhere
                 QString defaultDir =
@@ -112,7 +106,8 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
                 if ( baseDir.isNull() || baseDir.isEmpty() ) return;
 
                 QString errMsg;
-                auto    model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2, baseDir, errMsg );
+                auto    model =
+                    eclView->faultReactivationModelCollection()->addNewModel( rimFault, currentCellIndex, face, target1, target2, baseDir, errMsg );
                 if ( model != nullptr )
                 {
                     model->updateTimeSteps();

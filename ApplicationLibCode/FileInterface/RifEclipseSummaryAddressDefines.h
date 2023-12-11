@@ -79,4 +79,7 @@ std::string statisticsNameP90();
 std::string statisticsNameMean();
 std::string statisticsTypeToString( StatisticsType type );
 
+std::string differenceIdentifier();
+std::string historyIdentifier();
+
 }; // namespace RifEclipseSummaryAddressDefines

@@ -128,6 +128,7 @@ RimSummaryPlot::RimSummaryPlot()
     , m_isValid( true )
     , axisChangedReloadRequired( this )
     , autoTitleChanged( this )
+    , m_legendPosition( RiuPlotWidget::Legend::BOTTOM )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -422,46 +423,7 @@ void RimSummaryPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition )
-{
-    CAF_ASSERT( plot );
-
-    std::set<RimSummaryPlot*> srcPlots;
-
-    for ( auto curve : curves )
-    {
-        auto srcPlot = curve->firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
-
-        srcPlot->removeCurve( curve );
-        srcPlots.insert( srcPlot );
-    }
-
-    for ( auto srcPlot : srcPlots )
-    {
-        srcPlot->updateConnectedEditors();
-        srcPlot->loadDataAndUpdate();
-    }
-    for ( size_t cIdx = 0; cIdx < curves.size(); ++cIdx )
-    {
-        if ( insertAtPosition >= 0 )
-        {
-            size_t position = (size_t)insertAtPosition + cIdx;
-            plot->insertCurve( curves[cIdx], position );
-        }
-        else
-        {
-            plot->addCurveNoUpdate( curves[cIdx] );
-        }
-    }
-
-    plot->updateConnectedEditors();
-    plot->updateStackedCurveData();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const
+std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping() const
 {
     auto curveForStepping = summaryCurveCollection()->curveForSourceStepping();
     if ( curveForStepping )
@@ -483,24 +445,9 @@ std::vector<RimEnsembleCurveSet*> RimSummaryPlot::curveSets() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryPlot::allCurves( RimSummaryDataSourceStepping::Axis axis ) const
+std::vector<RimSummaryCurve*> RimSummaryPlot::allCurves() const
 {
     return summaryCurves();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryDataSourceStepping::Axis> RimSummaryPlot::availableAxes() const
-{
-    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
-
-    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
-    {
-        return { RimSummaryDataSourceStepping::Axis::X_AXIS, RimSummaryDataSourceStepping::Axis::Y_AXIS };
-    }
-
-    return { RimSummaryDataSourceStepping::Axis::X_AXIS };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -705,7 +652,14 @@ void RimSummaryPlot::updateLegend()
 {
     if ( plotWidget() )
     {
-        plotWidget()->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
+        if ( m_showPlotLegends && !isSubPlot() )
+        {
+            plotWidget()->insertLegend( m_legendPosition );
+        }
+        else
+        {
+            plotWidget()->clearLegend();
+        }
 
         for ( auto c : summaryCurves() )
         {
@@ -718,6 +672,14 @@ void RimSummaryPlot::updateLegend()
     {
         plotWidget()->updateLegend();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setLegendPosition( RiuPlotWidget::Legend position )
+{
+    m_legendPosition = position;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -942,9 +904,7 @@ void RimSummaryPlot::updateNumericalAxis( RiaDefines::PlotAxis plotAxis )
                 {
                     if ( summaryCurve->axisY() == riuPlotAxis )
                     {
-                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCurve->summaryCaseY(),
-                                                                        summaryCurve->summaryAddressY(),
-                                                                        summaryCurve->isEnsembleCurve() ) );
+                        curveDefs.emplace_back( summaryCurve->summaryCaseY(), summaryCurve->summaryAddressY(), summaryCurve->isEnsembleCurve() );
                     }
                     if ( summaryCurve->axisX() == riuPlotAxis )
                     {
@@ -1182,7 +1142,7 @@ void RimSummaryPlot::overrideTimeAxisSettingsIfTooManyCustomTickmarks( RimSummar
     // prevent large number of tickmarks by accident.
     const auto [minValue, maxValue] = plotWidget()->axisRange( RimSummaryPlot::plotAxisForTime() );
     const double ticksInterval      = timeAxisProperties->getTickmarkIntervalDouble();
-    const uint   numTicks           = static_cast<uint>( std::ceil( ( maxValue - minValue ) / ticksInterval ) );
+    const auto   numTicks           = static_cast<uint>( std::ceil( ( maxValue - minValue ) / ticksInterval ) );
     if ( numTicks > MAX_NUM_TICKS )
     {
         if ( showMessageBox )
@@ -1241,16 +1201,6 @@ void RimSummaryPlot::ensureRequiredAxisObjectsForCurves()
         axisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::timeAxisSettingsChangedReloadRequired );
 
         m_axisPropertiesArray.push_back( axisProperties );
-    }
-
-    auto axisTypes = m_summaryCurveCollection->horizontalAxisTypes();
-    if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
-    {
-        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
-    }
-    else
-    {
-        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     }
 }
 
@@ -1968,7 +1918,14 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( plotWidget() )
     {
-        plotWidget()->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
+        if ( m_showPlotLegends && !isSubPlot() )
+        {
+            plotWidget()->insertLegend( m_legendPosition );
+        }
+        else
+        {
+            plotWidget()->clearLegend();
+        }
         plotWidget()->setLegendFontSize( legendFontSize() );
         plotWidget()->updateLegend();
     }
@@ -2415,7 +2372,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
         auto curveSets = m_ensembleCurveSetCollection->curveSets();
         for ( auto curveSet : curveSets )
         {
-            sourceCurveDefs.push_back( RiaSummaryCurveDefinition( ensembleCase, curveSet->curveAddress() ) );
+            sourceCurveDefs.emplace_back( ensembleCase, curveSet->curveAddress() );
         }
     }
 
@@ -2460,7 +2417,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummar
             if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectors() )
             {
                 auto historyAddr = addr;
-                historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+                historyAddr.setVectorName( addr.vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
 
                 auto historyCurveDef = newCurveDef;
                 historyCurveDef.setSummaryAddressY( historyAddr );
@@ -2520,7 +2477,7 @@ RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAd
     if ( !summaryAddr->address().isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectors() )
     {
         auto historyAddr = summaryAddr->address();
-        historyAddr.setVectorName( summaryAddr->address().vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+        historyAddr.setVectorName( summaryAddr->address().vectorName() + RifEclipseSummaryAddressDefines::historyIdentifier() );
         newCurveAddresses.push_back( historyAddr );
     }
 
@@ -2899,7 +2856,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
                 RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(), sumCases, calcAddresses );
                 for ( const auto& adr : calcAddresses )
                 {
-                    addresses.push_back( RiaSummaryCurveAddress( adr ) );
+                    addresses.emplace_back( adr );
                 }
             }
             else
@@ -3078,7 +3035,7 @@ RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHan
 
     if ( axisTypes.contains( RiaDefines::HorizontalAxisType::SUMMARY_VECTOR ) )
     {
-        return summaryCurveCollection()->sourceSteppingObject( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
+        return summaryCurveCollection()->sourceSteppingObject();
     }
 
     return m_sourceStepping;
@@ -3185,8 +3142,6 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
 {
     enum class AxisAssignmentStrategy
     {
-        ALL_TO_LEFT,
-        ALL_TO_RIGHT,
         ALTERNATING,
         USE_MATCHING_UNIT,
         USE_MATCHING_VECTOR
@@ -3228,18 +3183,11 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
     }
     else if ( strategy == AxisAssignmentStrategy::USE_MATCHING_UNIT )
     {
-        bool isLeftUsed  = false;
-        bool isRightUsed = false;
-
         for ( auto c : summaryCurves() )
         {
             if ( c == curve ) continue;
 
-            if ( c->axisY() == RiuPlotAxis::defaultLeft() ) isLeftUsed = true;
-            if ( c->axisY() == RiuPlotAxis::defaultRight() ) isRightUsed = true;
-
             auto currentUnit = RiaStdStringTools::toUpper( c->unitNameY() );
-
             if ( currentUnit == destinationUnit )
             {
                 for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisPropertiesArray )
@@ -3255,23 +3203,39 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
             }
         }
 
-        if ( !isLeftUsed )
-        {
-            curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
-            return;
-        }
-
-        if ( !isRightUsed )
-        {
-            curve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
-            return;
-        }
-
         strategy = AxisAssignmentStrategy::ALTERNATING;
     }
 
-    RiaDefines::PlotAxis plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    auto isDefaultLeftAndRightUsed = [this]( RimSummaryCurve* currentCurve ) -> std::pair<bool, bool>
+    {
+        bool defaultLeftUsed  = false;
+        bool defaultRightUsed = false;
 
+        for ( auto c : summaryCurves() )
+        {
+            if ( c == currentCurve ) continue;
+
+            if ( c->axisY() == RiuPlotAxis::defaultLeft() ) defaultLeftUsed = true;
+            if ( c->axisY() == RiuPlotAxis::defaultRight() ) defaultRightUsed = true;
+        }
+
+        return std::make_pair( defaultLeftUsed, defaultRightUsed );
+    };
+
+    auto [defaultLeftUsed, defaultRightUsed] = isDefaultLeftAndRightUsed( curve );
+    if ( !defaultLeftUsed )
+    {
+        curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+        return;
+    }
+
+    if ( !defaultRightUsed )
+    {
+        curve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
+        return;
+    }
+
+    RiaDefines::PlotAxis plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
     if ( strategy == AxisAssignmentStrategy::ALTERNATING )
     {
         size_t axisCountLeft  = countAxes( m_axisPropertiesArray.childrenByType(), RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
@@ -3279,26 +3243,21 @@ void RimSummaryPlot::assignYPlotAxis( RimSummaryCurve* curve )
 
         if ( axisCountLeft > axisCountRight ) plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
     }
-    else if ( strategy == AxisAssignmentStrategy::ALL_TO_LEFT )
-    {
-        plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
-    }
-    else if ( strategy == AxisAssignmentStrategy::ALL_TO_RIGHT )
-    {
-        plotAxisType = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
-    }
 
-    RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultLeft();
     if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
     {
         QString axisObjectName = "New Axis";
         if ( !curve->summaryAddressY().uiText().empty() ) axisObjectName = QString::fromStdString( curve->summaryAddressY().uiText() );
 
-        newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
+        auto newPlotAxis = plotWidget()->createNextPlotAxis( plotAxisType );
         addNewAxisProperties( newPlotAxis, axisObjectName );
+
+        curve->setLeftOrRightAxisY( newPlotAxis );
+        return;
     }
 
-    curve->setLeftOrRightAxisY( newPlotAxis );
+    // If we get here, we have no more axes to assign to, use left axis as fallback
+    curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -35,9 +35,10 @@ public:
     size_t reservoirCellCount() const;
     size_t reservoirActiveCellCount() const;
 
-    bool   isActive( size_t reservoirCellIndex ) const;
-    size_t cellResultIndex( size_t reservoirCellIndex ) const;
-    void   setCellResultIndex( size_t reservoirCellIndex, size_t globalResultCellIndex );
+    bool                isActive( size_t reservoirCellIndex ) const;
+    size_t              cellResultIndex( size_t reservoirCellIndex ) const;
+    void                setCellResultIndex( size_t reservoirCellIndex, size_t globalResultCellIndex );
+    std::vector<size_t> activeReservoirCellIndices() const;
 
     void   setGridCount( size_t gridCount );
     void   setGridActiveCellCounts( size_t gridIndex, size_t activeCellCount );
@@ -71,6 +72,7 @@ private:
     std::vector<GridActiveCellCounts> m_perGridActiveCellInfo;
 
     std::vector<size_t> m_cellIndexToResultIndex;
+    std::vector<size_t> m_activeCellIndices;
 
     size_t m_reservoirActiveCellCount;
 

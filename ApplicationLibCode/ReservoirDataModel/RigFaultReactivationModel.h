@@ -25,16 +25,20 @@
 #include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfPlane.h"
+#include "cvfStructGrid.h"
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
 
+#include <array>
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 
 class RigGriddedPart3d;
 class RigMainGrid;
 class RimFaultReactivationDataAccess;
+class RigFaultReactivationModelGenerator;
 
 class RigFRModelPart
 {
@@ -52,76 +56,42 @@ public:
 //==================================================================================================
 class RigFaultReactivationModel : public cvf::Object
 {
-    using ModelParts = RimFaultReactivation::ModelParts;
-    using GridPart   = RimFaultReactivation::GridPart;
+    using GridPart = RimFaultReactivation::GridPart;
 
 public:
     RigFaultReactivationModel();
     ~RigFaultReactivationModel() override;
 
-    std::vector<ModelParts> allModelParts() const;
-    std::vector<GridPart>   allGridParts() const;
+    static int            numModelParts() { return 10; };
+    std::vector<GridPart> allGridParts() const;
 
     bool isValid() const;
     void reset();
 
-    void setPlane( cvf::Vec3d anchorPoint, cvf::Vec3d normal );
-    void setFaultPlaneIntersect( cvf::Vec3d faultPlaneTop, cvf::Vec3d faultPlaneBottom );
-    void setMaxExtentFromAnchor( double maxExtentHorz, double minZ, double maxZ );
+    void setGenerator( std::shared_ptr<RigFaultReactivationModelGenerator> generator );
 
-    void setCellCounts( int horzPart1, int horzPart2, int vertUpper, int vertMiddle, int vertLower );
-    void setThickness( double thickness );
-    void setLocalCoordTransformation( cvf::Mat4d transform );
-    void setUseLocalCoordinates( bool useLocalCoordinates );
+    std::pair<cvf::Vec3d, cvf::Vec3d> modelLocalNormalsXY() const;
 
-    void updateGeometry();
-
-    cvf::Vec3d normal() const;
+    void updateGeometry( size_t startCell, cvf::StructGridInterface::FaceType startFace );
 
     void                        setPartColors( cvf::Color3f part1Color, cvf::Color3f part2Color );
-    std::vector<cvf::Vec3d>     rect( ModelParts part ) const;
-    cvf::ref<cvf::TextureImage> texture( ModelParts part ) const;
+    std::vector<cvf::Vec3d>     rect( int nPart ) const;
+    cvf::ref<cvf::TextureImage> texture( int nPart ) const;
 
     const std::vector<std::vector<cvf::Vec3d>>& meshLines( GridPart part ) const;
 
-    std::shared_ptr<RigGriddedPart3d> grid( GridPart part ) const;
+    const RigGriddedPart3d* grid( GridPart part ) const;
 
-    void generateCellIndexMapping( const RigMainGrid* grid );
-    void generateElementSets( const RimFaultReactivationDataAccess* dataAccess, const RigMainGrid* grid );
-
-    void clearModelData();
-    void extractModelData( RimFaultReactivationDataAccess* dataAccess, size_t outputTimeStep );
-
-protected:
-    void generateGrids( cvf::Vec3dArray points );
+    const cvf::Vec3d                        faultNormal() const;
+    const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottom() const;
 
 private:
-    cvf::Vec3d m_planeNormal;
-    cvf::Vec3d m_planeAnchor;
+    std::shared_ptr<RigFaultReactivationModelGenerator> m_generator;
 
-    cvf::Vec3d m_faultPlaneIntersectTop;
-    cvf::Vec3d m_faultPlaneIntersectBottom;
+    std::array<std::vector<int>, 5> m_cornerIndexes;
+    std::array<RigFRModelPart, 10>  m_parts;
 
-    double m_maxHorzExtent;
-    double m_minZ;
-    double m_maxZ;
+    bool m_isValid;
 
-    double m_thickness;
-
-    int m_cellCountHorzPart1;
-    int m_cellCountHorzPart2;
-    int m_cellCountVertUpper;
-    int m_cellCountVertMiddle;
-    int m_cellCountVertLower;
-
-    std::map<ModelParts, std::vector<int>> m_cornerIndexes;
-
-    std::map<ModelParts, RigFRModelPart> m_parts;
-    bool                                 m_isValid;
-
-    std::map<GridPart, std::shared_ptr<RigGriddedPart3d>> m_3dparts;
-
-    std::map<GridPart, std::map<size_t, size_t>> m_cellIndexAdjustmentMap;
-
-    cvf::Mat4d m_localCoordTransform;
+    std::map<GridPart, RigGriddedPart3d*> m_3dparts;
 };

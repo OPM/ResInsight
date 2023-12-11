@@ -38,9 +38,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCurve.h"
-#include "RimSummaryCurveCollection.h"
-#include "RimSummaryPlot.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimWellAllocationPlot.h"
@@ -250,9 +247,8 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         }
 
         if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
-             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) ||
-             dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryCaseCollection*>( uiItem ) ||
-             dynamic_cast<RimSummaryCurve*>( uiItem ) || dynamic_cast<RimSurface*>( uiItem ) )
+             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) || dynamic_cast<RimSummaryCase*>( uiItem ) ||
+             dynamic_cast<RimSummaryCaseCollection*>( uiItem ) || dynamic_cast<RimSurface*>( uiItem ) )
         {
             itemflags |= Qt::ItemIsDragEnabled;
         }
@@ -318,13 +314,6 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
                     {
                         itemflags |= Qt::ItemIsDropEnabled;
                     }
-                }
-            }
-            else if ( dynamic_cast<RimSummaryPlot*>( uiItem ) || dynamic_cast<RimSummaryCurveCollection*>( uiItem ) )
-            {
-                if ( RiuTypedPdmObjects<RimSummaryCurve>::containsTypedObjects( m_dragItems ) )
-                {
-                    itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
             else if ( dynamic_cast<RimSummaryCaseCollection*>( uiItem ) )
@@ -414,12 +403,6 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
         if ( wellLogPlot )
         {
             return handleWellLogPlotDrop( action, draggedObjects, wellLogPlot, row );
-        }
-
-        auto summaryPlot = dropTarget->firstAncestorOrThisOfType<RimSummaryPlot>();
-        if ( summaryPlot )
-        {
-            return handleSummaryPlotDrop( action, draggedObjects, summaryPlot, row );
         }
 
         auto multiPlot = dropTarget->firstAncestorOrThisOfType<RimMultiPlot>();
@@ -582,23 +565,6 @@ bool RiuDragDrop::handleWellLogPlotDrop( Qt::DropAction       action,
         }
     }
 
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleSummaryPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimSummaryPlot* summaryPlot, int insertAtPosition )
-{
-    std::vector<RimSummaryCurve*> summaryCurves = RiuTypedPdmObjects<RimSummaryCurve>::typedObjectsFromGroup( objectGroup );
-    if ( !summaryCurves.empty() )
-    {
-        if ( action == Qt::MoveAction )
-        {
-            RimSummaryPlot::moveCurvesToPlot( summaryPlot, summaryCurves, insertAtPosition );
-            return true;
-        }
-    }
     return false;
 }
 

@@ -52,11 +52,10 @@ public:
     void             setCurveForSourceStepping( RimSummaryCurve* curve );
     RimSummaryCurve* curveForSourceStepping() const;
 
-    RimSummaryPlotSourceStepping* sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const;
+    RimSummaryPlotSourceStepping* sourceSteppingObject() const;
 
     std::set<RiaDefines::HorizontalAxisType> horizontalAxisTypes() const;
     std::vector<RimSummaryCurve*>            curves() const;
-    std::vector<RimSummaryCurve*>            curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const;
 
     void setCurveAsTopZWithinCategory( RimSummaryCurve* curve );
 
@@ -108,8 +107,6 @@ private:
     caf::PdmField<bool>                       m_editPlot;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_ySourceStepping;
-    caf::PdmChildField<RimSummaryPlotSourceStepping*> m_xSourceStepping;
-    caf::PdmChildField<RimSummaryPlotSourceStepping*> m_unionSourceStepping;
 
     caf::PdmPointer<RimSummaryCurve> m_currentSummaryCurve;
     caf::PdmPointer<RimSummaryCurve> m_curveForSourceStepping;

@@ -81,11 +81,12 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
     CVF_ASSERT( femParts );
 
     // The key in the maps is the part ID
-    std::map<int, std::string>                                   parts;
-    std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>       nodes;
-    std::map<int, std::vector<std::pair<int, std::vector<int>>>> elements;
+    std::map<int, std::string>                                              parts;
+    std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>                  nodes;
+    std::map<int, std::vector<std::pair<int, std::vector<int>>>>            elements;
+    std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>> elementSets;
 
-    read( m_stream, parts, nodes, elements );
+    read( m_stream, parts, nodes, elements, elementSets );
 
     RiaLogging::debug( QString( "Read FEM parts: %1 nodes: %2 elements: %3" ).arg( parts.size() ).arg( nodes.size() ).arg( elements.size() ) );
 
@@ -147,6 +148,13 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
             femPart->appendElement( elmType, elmId, indexBasedConnectivities.data() );
         }
 
+        // read element sets
+        auto elementSetsForPart = elementSets[partId];
+        for ( auto [setName, elementSet] : elementSetsForPart )
+        {
+            femPart->addElementSet( setName, elementSet );
+        }
+
         femPart->setElementPartId( femParts->partCount() );
         femParts->addFemPart( femPart );
 
@@ -159,10 +167,11 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifInpReader::read( std::istream&                                                 stream,
-                         std::map<int, std::string>&                                   parts,
-                         std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&       nodes,
-                         std::map<int, std::vector<std::pair<int, std::vector<int>>>>& elements )
+void RifInpReader::read( std::istream&                                                            stream,
+                         std::map<int, std::string>&                                              parts,
+                         std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&                  nodes,
+                         std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
+                         std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets )
 {
     std::string line;
 
@@ -201,6 +210,14 @@ void RifInpReader::read( std::istream&                                          
             {
                 skipComments( stream );
                 elements[partId] = readElements( stream );
+            }
+            else if ( uppercasedLine.starts_with( "*ELSET," ) )
+            {
+                bool isGenerateSet = uppercasedLine.find( "GENERATE" ) != std::string::npos;
+                skipComments( stream );
+                std::string setName    = parseLabel( line, "elset" );
+                auto        elementSet = isGenerateSet ? readElementSetGenerate( stream ) : readElementSet( stream );
+                elementSets[partId].push_back( { setName, elementSet } );
             }
 
             continue;
@@ -282,6 +299,75 @@ std::vector<std::pair<int, std::vector<int>>> RifInpReader::readElements( std::i
     }
 
     return partElements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RifInpReader::readElementSet( std::istream& stream )
+{
+    std::vector<size_t> elementSet;
+
+    // Read until we find a new section (which should start with a '*').
+    while ( stream.peek() != '*' && stream.peek() != EOF )
+    {
+        // Read entire line of comma-separated values
+        std::string line;
+        std::getline( stream, line );
+
+        // Process the comma-separated values
+        auto parts = RiaStdStringTools::splitString( line, ',' );
+        for ( auto part : parts )
+        {
+            std::string trimmedPart = RiaStdStringTools::trimString( part );
+
+            if ( !trimmedPart.empty() )
+            {
+                int elementId = RiaStdStringTools::toInt( trimmedPart ) - 1;
+                elementSet.push_back( elementId );
+            }
+        }
+    }
+
+    return elementSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RifInpReader::readElementSetGenerate( std::istream& stream )
+{
+    std::vector<size_t> elementSet;
+
+    // Read until we find a new section (which should start with a '*').
+    while ( stream.peek() != '*' && stream.peek() != EOF )
+    {
+        // Read entire line of comma-separated values
+        std::string line;
+        std::getline( stream, line );
+
+        // Process the comma-separated values
+        auto parts = RiaStdStringTools::splitString( line, ',' );
+        if ( parts.size() >= 3 )
+        {
+            int firstElement = RiaStdStringTools::toInt( parts[0] );
+            int lastElement  = RiaStdStringTools::toInt( parts[1] );
+            int increment    = RiaStdStringTools::toInt( parts[2] );
+            if ( lastElement < firstElement || increment <= 0 )
+            {
+                RiaLogging::error( "Encountered illegal set definition (using GENERATE keyword)." );
+                return elementSet;
+            }
+
+            for ( int i = firstElement; i < lastElement; i += increment )
+            {
+                int elementId = i - 1;
+                elementSet.push_back( elementId );
+            }
+        }
+    }
+
+    return elementSet;
 }
 
 //--------------------------------------------------------------------------------------------------

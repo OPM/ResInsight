@@ -590,6 +590,9 @@ void RimEclipseCase::buildResultChildNodes()
 {
     m_resultAddressCollections.deleteChildren();
 
+    auto cellResultData = results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    if ( !cellResultData ) return;
+
     std::vector<RiaDefines::ResultCatType> resultTypes = { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                            RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                            RiaDefines::ResultCatType::INPUT_PROPERTY,
@@ -601,14 +604,10 @@ void RimEclipseCase::buildResultChildNodes()
         QString name = caf::AppEnum<RiaDefines::ResultCatType>::uiText( resultType );
         resultAddressCollection->setName( name );
 
-        auto cellResultData = results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        if ( cellResultData )
+        QStringList resultNames = cellResultData->resultNames( resultType );
+        for ( auto resultName : resultNames )
         {
-            QStringList resultNames = cellResultData->resultNames( resultType );
-            for ( auto resultName : resultNames )
-            {
-                resultAddressCollection->addAddress( resultName, resultType, this );
-            }
+            resultAddressCollection->addAddress( resultName, resultType, this );
         }
 
         m_resultAddressCollections.push_back( resultAddressCollection );
@@ -985,53 +984,50 @@ bool RimEclipseCase::openReserviorCase()
 
     if ( createPlaceholderEntries )
     {
+        if ( RigCaseCellResultsData* results = this->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
         {
-            RigCaseCellResultsData* results = this->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-            if ( results )
+            results->createPlaceholderResultEntries();
+            // After the placeholder result for combined transmissibility is created,
+            // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
+
+            RigEclipseResultAddress combinedTransmissibilityResAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                     RiaResultNames::combinedTransmissibilityResultName() );
+            if ( results->hasResultEntry( combinedTransmissibilityResAddr ) )
             {
-                results->createPlaceholderResultEntries();
-                // After the placeholder result for combined transmissibility is created,
-                // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
+                eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameCombTrans(),
+                                                                               combinedTransmissibilityResAddr );
+            }
 
-                RigEclipseResultAddress combinedTransmissibilityResAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                         RiaResultNames::combinedTransmissibilityResultName() );
-                if ( results->hasResultEntry( combinedTransmissibilityResAddr ) )
-                {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameCombTrans(),
-                                                                                   combinedTransmissibilityResAddr );
-                }
+            RigEclipseResultAddress combinedWaterFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                              RiaResultNames::combinedWaterFluxResultName() );
+            if ( results->hasResultEntry( combinedWaterFluxResAddr ) )
+            {
+                eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxWat(), combinedWaterFluxResAddr );
+            }
 
-                RigEclipseResultAddress combinedWaterFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                  RiaResultNames::combinedWaterFluxResultName() );
-                if ( results->hasResultEntry( combinedWaterFluxResAddr ) )
-                {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxWat(), combinedWaterFluxResAddr );
-                }
+            RigEclipseResultAddress combinedOilFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                            RiaResultNames::combinedOilFluxResultName() );
+            if ( results->hasResultEntry( combinedOilFluxResAddr ) )
+            {
+                eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxOil(), combinedOilFluxResAddr );
+            }
+            RigEclipseResultAddress combinedGasFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                            RiaResultNames::combinedGasFluxResultName() );
 
-                RigEclipseResultAddress combinedOilFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                RiaResultNames::combinedOilFluxResultName() );
-                if ( results->hasResultEntry( combinedOilFluxResAddr ) )
-                {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxOil(), combinedOilFluxResAddr );
-                }
-                RigEclipseResultAddress combinedGasFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                RiaResultNames::combinedGasFluxResultName() );
-
-                if ( results->hasResultEntry( combinedGasFluxResAddr ) )
-                {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxGas(), combinedGasFluxResAddr );
-                }
+            if ( results->hasResultEntry( combinedGasFluxResAddr ) )
+            {
+                eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxGas(), combinedGasFluxResAddr );
             }
         }
 
+        if ( RigCaseCellResultsData* results = this->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ) )
         {
-            RigCaseCellResultsData* results = this->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-            if ( results )
-            {
-                results->createPlaceholderResultEntries();
-            }
+            results->createPlaceholderResultEntries();
         }
     }
+
+    // Build result child nodes after the placeholder entries have been created
+    if ( m_resultAddressCollections.empty() ) buildResultChildNodes();
 
     createTimeStepFormatString();
 

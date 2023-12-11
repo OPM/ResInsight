@@ -84,6 +84,14 @@ void RigActiveCellInfo::setCellResultIndex( size_t reservoirCellIndex, size_t re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigActiveCellInfo::activeReservoirCellIndices() const
+{
+    return m_activeCellIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::setGridCount( size_t gridCount )
 {
     m_perGridActiveCellInfo.resize( gridCount );
@@ -109,6 +117,14 @@ void RigActiveCellInfo::computeDerivedData()
     for ( size_t i = 0; i < m_perGridActiveCellInfo.size(); i++ )
     {
         m_reservoirActiveCellCount += m_perGridActiveCellInfo[i].activeCellCount();
+    }
+
+    for ( size_t i = 0; i < m_cellIndexToResultIndex.size(); i++ )
+    {
+        if ( m_cellIndexToResultIndex[i] != cvf::UNDEFINED_SIZE_T )
+        {
+            m_activeCellIndices.push_back( i );
+        }
     }
 }
 

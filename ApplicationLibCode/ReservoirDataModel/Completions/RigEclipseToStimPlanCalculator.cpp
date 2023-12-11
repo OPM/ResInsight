@@ -85,6 +85,7 @@ void RigEclipseToStimPlanCalculator::computeValues()
     std::vector<std::vector<double>> injectivityFactors;
     std::vector<std::vector<double>> viscosities;
     std::vector<std::vector<double>> filterCakeMobilities;
+    std::vector<std::vector<double>> filtrateThicknesses;
 
     RimThermalFractureTemplate* thermalFractureTemplate = dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() );
 
@@ -110,6 +111,12 @@ void RigEclipseToStimPlanCalculator::computeValues()
                                                    RiaDefines::getExpectedThermalFractureUnit( RiaDefines::filterCakeMobilityResultName(),
                                                                                                unitSystem ),
                                                    timeStep );
+
+        filtrateThicknesses =
+            thermalFractureTemplate->resultValues( RiaDefines::filtrateThicknessResultName(),
+                                                   RiaDefines::getExpectedThermalFractureUnit( RiaDefines::filtrateThicknessResultName(),
+                                                                                               unitSystem ),
+                                                   timeStep );
     }
 
     for ( size_t i = 0; i < m_fractureGrid.fractureCells().size(); i++ )
@@ -127,6 +134,7 @@ void RigEclipseToStimPlanCalculator::computeValues()
             double injectivityFactor  = resultValueAtIJ( injectivityFactors, m_fractureGrid, cellI, cellJ );
             double viscosity          = resultValueAtIJ( viscosities, m_fractureGrid, cellI, cellJ );
             double filterCakeMobility = resultValueAtIJ( filterCakeMobilities, m_fractureGrid, cellI, cellJ );
+            double filtrateThickness  = resultValueAtIJ( filtrateThicknesses, m_fractureGrid, cellI, cellJ );
 
             // Assumed value
             double relativePermeability = 1.0;
@@ -141,6 +149,7 @@ void RigEclipseToStimPlanCalculator::computeValues()
                                                                                                           filterPressureDropType,
                                                                                                           injectivityFactor,
                                                                                                           filterCakeMobility,
+                                                                                                          filtrateThickness,
                                                                                                           viscosity,
                                                                                                           relativePermeability );
         }

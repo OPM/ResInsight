@@ -290,21 +290,6 @@ void RiuQtChartsPlotWidget::setLegendFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setInternalLegendVisible( bool visible )
-{
-    if ( visible )
-    {
-        insertLegend( RiuPlotWidget::Legend::BOTTOM );
-    }
-    else
-    {
-        clearLegend();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
 {
     auto mapLegendPosition = []( RiuPlotWidget::Legend pos )

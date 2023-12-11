@@ -66,6 +66,12 @@ public:
 
     QString buildCalculationName() const override;
 
+    void setDistributeToOtherItems( bool enable );
+    void setDistributeToAllCases( bool enable );
+
+    bool isDistributeToOtherItems() const;
+    bool isDistributeToAllCases() const;
+
 protected:
     RimSummaryCalculationVariable* createVariable() override;
 
@@ -91,4 +97,5 @@ protected:
 
 private:
     caf::PdmField<bool> m_distributeToOtherItems;
+    caf::PdmField<bool> m_distributeToAllCases;
 };

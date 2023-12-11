@@ -18,42 +18,61 @@
 
 #include "RimFaultReactivationDataAccess.h"
 
+#include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigCaseToCaseCellMapperTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigFault.h"
+#include "RigFaultReactivationModel.h"
+#include "RigGriddedPart3d.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 
 #include "RimEclipseCase.h"
+#include "RimFaultReactivationDataAccessor.h"
+#include "RimFaultReactivationDataAccessorGeoMech.h"
+#include "RimFaultReactivationDataAccessorPorePressure.h"
+#include "RimFaultReactivationDataAccessorStress.h"
+#include "RimFaultReactivationDataAccessorTemperature.h"
+#include "RimFaultReactivationDataAccessorVoidRatio.h"
+#include "RimFaultReactivationEnums.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* thecase, size_t timeStepIndex )
-    : m_case( thecase )
-    , m_caseData( nullptr )
-    , m_mainGrid( nullptr )
-    , m_timeStepIndex( timeStepIndex )
+RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase*            thecase,
+                                                                RimGeoMechCase*            geoMechCase,
+                                                                const std::vector<size_t>& timeSteps )
+    : m_timeSteps( timeSteps )
 {
-    if ( m_case )
+    // TODO: correct default pore pressure gradient?
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, 1.0 ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase ) );
+    if ( geoMechCase )
     {
-        m_caseData = m_case->eclipseCaseData();
-        m_mainGrid = m_case->mainGrid();
-    }
-    if ( m_caseData )
-    {
-        RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
+        std::vector<RimFaultReactivation::Property> properties = { RimFaultReactivation::Property::YoungsModulus,
+                                                                   RimFaultReactivation::Property::PoissonsRatio,
+                                                                   RimFaultReactivation::Property::Density };
 
-        m_case->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( resVarAddress );
+        for ( auto property : properties )
+        {
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorGeoMech>( geoMechCase, property ) );
+        }
 
-        m_resultAccessor = RigResultAccessorFactory::createFromResultAddress( m_caseData,
-                                                                              0,
-                                                                              RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                              timeStepIndex,
-                                                                              resVarAddress );
+        std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
+                                                                         RimFaultReactivation::Property::DepthTop,
+                                                                         RimFaultReactivation::Property::StressBottom,
+                                                                         RimFaultReactivation::Property::DepthBottom,
+                                                                         RimFaultReactivation::Property::LateralStressComponentX,
+                                                                         RimFaultReactivation::Property::LateralStressComponentY };
+        for ( auto property : stressProperties )
+        {
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property ) );
+        }
     }
 }
 
@@ -67,67 +86,125 @@ RimFaultReactivationDataAccess::~RimFaultReactivationDataAccess()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultReactivationDataAccess::useCellIndexAdjustment( std::map<size_t, size_t> adjustments )
+std::vector<double> RimFaultReactivationDataAccess::propertyValues( RimFaultReactivation::GridPart gridPart,
+                                                                    RimFaultReactivation::Property property,
+                                                                    size_t                         outputTimeStep ) const
 {
-    m_cellIndexAdjustment = adjustments;
+    const auto it = m_propertyValues.find( { gridPart, property } );
+    if ( it == m_propertyValues.end() || outputTimeStep >= it->second.size() ) return {};
+    return it->second[outputTimeStep];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimFaultReactivationDataAccess::findAdjustedCellIndex( const cvf::Vec3d&               position,
-                                                              const RigMainGrid*              grid,
-                                                              const std::map<size_t, size_t>& cellIndexAdjustmentMap )
+void RimFaultReactivationDataAccess::clearModelData()
 {
-    CAF_ASSERT( grid != nullptr );
-
-    size_t cellIdx = grid->findReservoirCellIndexFromPoint( position );
-
-    // adjust cell index if present in the map
-    if ( auto search = cellIndexAdjustmentMap.find( cellIdx ); search != cellIndexAdjustmentMap.end() )
-    {
-        cellIdx = search->second;
-    }
-
-    return cellIdx;
+    m_accessors.clear();
+    m_propertyValues.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccess::porePressureAtPosition( const cvf::Vec3d& position, double defaultPorePressureGradient ) const
+std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigFaultReactivationModel& model,
+                                                                      RimFaultReactivation::GridPart   gridPart,
+                                                                      RimFaultReactivation::Property   property,
+                                                                      size_t                           timeStep )
 {
-    if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
-    {
-        auto cellIdx = findAdjustedCellIndex( position, m_mainGrid, m_cellIndexAdjustment );
+    std::set<RimFaultReactivation::Property> nodeProperties = { RimFaultReactivation::Property::PorePressure,
+                                                                RimFaultReactivation::Property::VoidRatio,
+                                                                RimFaultReactivation::Property::Temperature };
 
-        if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
+    auto computeAverageDepth = []( const std::vector<cvf::Vec3d>& positions, const std::vector<size_t>& indices )
+    {
+        double sum = 0.0;
+        for ( size_t idx : indices )
+            sum += positions[idx].z();
+
+        return sum / indices.size();
+    };
+
+    std::shared_ptr<RimFaultReactivationDataAccessor> accessor = getAccessor( property );
+    if ( accessor )
+    {
+        accessor->setTimeStep( timeStep );
+
+        auto grid = model.grid( gridPart );
+
+        std::vector<double> values;
+
+        if ( nodeProperties.contains( property ) )
         {
-            double value = m_resultAccessor->cellScalar( cellIdx );
-            if ( !std::isinf( value ) )
+            for ( auto& node : grid->globalNodes() )
             {
-                return 100000.0 * m_resultAccessor->cellScalar( cellIdx ); // return in pascal, not bar
+                double value = accessor->valueAtPosition( node );
+                values.push_back( value );
             }
         }
+        else
+        {
+            size_t numElements = grid->elementIndices().size();
+            for ( size_t elementIndex = 0; elementIndex < numElements; elementIndex++ )
+            {
+                std::vector<cvf::Vec3d> corners = grid->elementCorners( elementIndex );
+
+                double topDepth    = computeAverageDepth( corners, { 0, 1, 2, 3 } );
+                double bottomDepth = computeAverageDepth( corners, { 4, 5, 6, 7 } );
+
+                cvf::Vec3d position = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
+                double     value    = accessor->valueAtPosition( position, topDepth, bottomDepth );
+                values.push_back( value );
+            }
+        }
+
+        return values;
     }
 
-    return calculatePorePressure( std::abs( position.z() ), defaultPorePressureGradient );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccess::calculatePorePressure( double depth, double gradient )
+void RimFaultReactivationDataAccess::extractModelData( const RigFaultReactivationModel& model )
 {
-    return gradient * 9.81 * depth * 1000.0;
+    auto properties = { RimFaultReactivation::Property::PorePressure,
+                        RimFaultReactivation::Property::VoidRatio,
+                        RimFaultReactivation::Property::Temperature,
+                        RimFaultReactivation::Property::YoungsModulus,
+                        RimFaultReactivation::Property::PoissonsRatio,
+                        RimFaultReactivation::Property::Density,
+                        RimFaultReactivation::Property::StressTop,
+                        RimFaultReactivation::Property::DepthTop,
+                        RimFaultReactivation::Property::StressBottom,
+                        RimFaultReactivation::Property::DepthBottom,
+                        RimFaultReactivation::Property::LateralStressComponentX,
+                        RimFaultReactivation::Property::LateralStressComponentY };
+
+    for ( auto property : properties )
+    {
+        for ( auto part : model.allGridParts() )
+        {
+            std::vector<std::vector<double>> dataForAllTimeSteps;
+            for ( size_t timeStep : m_timeSteps )
+            {
+                dataForAllTimeSteps.push_back( extractModelData( model, part, property, timeStep ) );
+            }
+            m_propertyValues[{ part, property }] = dataForAllTimeSteps;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimFaultReactivationDataAccess::timeStepIndex() const
+std::shared_ptr<RimFaultReactivationDataAccessor> RimFaultReactivationDataAccess::getAccessor( RimFaultReactivation::Property property ) const
 {
-    return m_timeStepIndex;
+    for ( auto accessor : m_accessors )
+        if ( accessor->isMatching( property ) ) return accessor;
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,19 +212,16 @@ size_t RimFaultReactivationDataAccess::timeStepIndex() const
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationDataAccess::elementHasValidData( std::vector<cvf::Vec3d> elementCorners ) const
 {
+    auto accessor = getAccessor( RimFaultReactivation::Property::PorePressure );
+    if ( !accessor ) return false;
+
+    accessor->setTimeStep( 0 );
+
     int nValid = 0;
+
     for ( auto& p : elementCorners )
     {
-        auto cellIdx = findAdjustedCellIndex( p, m_mainGrid, m_cellIndexAdjustment );
-
-        if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) )
-        {
-            double value = m_resultAccessor->cellScalar( cellIdx );
-            if ( !std::isinf( value ) )
-            {
-                nValid++;
-            }
-        }
+        if ( accessor->hasValidDataAtPosition( p ) ) nValid++;
     }
 
     // if more than half of the nodes have valid data, we're ok

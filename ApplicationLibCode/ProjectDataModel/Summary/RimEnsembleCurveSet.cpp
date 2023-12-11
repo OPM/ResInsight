@@ -836,6 +836,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         plot->updateAxes();
         plot->updatePlotTitle();
         updateAllCurves();
+        plot->zoomAll();
     }
     else if ( changedField == &m_resampling || changedField == &m_useCustomAppearance || changedField == &m_lineStyle ||
               changedField == &m_pointSymbol || changedField == &m_symbolSize || changedField == &m_statisticsLineStyle ||
@@ -1129,7 +1130,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
         if ( !isXAxisSummaryVector() )
         {
@@ -1326,7 +1327,8 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
         {
             colorsGroup->add( &m_objectiveValuesSummaryAddressesUiField );
-            colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
+            colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton,
+                              { .newRow = false, .totalColumnSpan = 1, .leftLabelColumnSpan = 0 } );
 
             {
                 auto equationGroup = colorsGroup->addNewGroup( "Equation" );
@@ -2106,6 +2108,12 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             if ( !m_plotCurveForLegendText )
             {
                 m_plotCurveForLegendText.reset( plot->plotWidget()->createPlotCurve( nullptr, "" ) );
+
+                int curveThickness = 3;
+                m_plotCurveForLegendText->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
+                                                         RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
+                                                         curveThickness,
+                                                         RiaColorTools::toQColor( m_mainEnsembleColor() ) );
             }
             m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
             updateEnsembleLegendItem();
@@ -2447,27 +2455,25 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
 
     m_plotCurveForLegendText->setTitle( name() );
 
+    RiuPlotCurveSymbol* symbol = m_plotCurveForLegendText->createSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
+
+    if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( m_colorMode() ) )
     {
-        RiuPlotCurveSymbol* symbol = m_plotCurveForLegendText->createSymbol( RiuPlotCurveSymbol::SYMBOL_CROSS );
+        QColor curveColor = mainEnsembleColor();
+        QPen   curvePen( curveColor );
+        curvePen.setWidth( 2 );
 
-        if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( m_colorMode() ) )
-        {
-            QColor curveColor = mainEnsembleColor();
-            QPen   curvePen( curveColor );
-            curvePen.setWidth( 2 );
-
-            symbol->setPen( curvePen );
-            symbol->setSize( 6, 6 );
-        }
-        else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
-        {
-            QPixmap p = QPixmap( ":/Legend.png" );
-            symbol->setPixmap( p );
-            symbol->setSize( 8, 8 );
-        }
-
-        m_plotCurveForLegendText->setSymbol( symbol );
+        symbol->setPen( curvePen );
+        symbol->setSize( 6, 6 );
     }
+    else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
+    {
+        QPixmap p = QPixmap( ":/Legend.png" );
+        symbol->setPixmap( p );
+        symbol->setSize( 8, 8 );
+    }
+
+    m_plotCurveForLegendText->setSymbol( symbol );
 
     bool showLegendItem = isCurvesVisible();
     m_plotCurveForLegendText->setVisibleInLegend( showLegendItem );

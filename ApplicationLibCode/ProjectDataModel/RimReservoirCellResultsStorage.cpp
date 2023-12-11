@@ -96,7 +96,8 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
     bool hasResultsToStore = false;
     for ( size_t rIdx = 0; rIdx < resAddrs.size(); ++rIdx )
     {
-        if ( m_cellResults->resultInfo( resAddrs[rIdx] )->needsToBeStored() )
+        auto resInfo = m_cellResults->resultInfo( resAddrs[rIdx] );
+        if ( resInfo && resInfo->needsToBeStored() )
         {
             hasResultsToStore = true;
             break;

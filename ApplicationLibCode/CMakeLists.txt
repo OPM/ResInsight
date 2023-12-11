@@ -339,11 +339,18 @@ if(MSVC)
 
   set(BUILD_FLAGS_FOR_MSVC "/W3 /wd4190 /wd4100 /wd4127")
 
+  message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
+
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only
     # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced
     # local function has been removed
     set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
+  endif()
+
+  if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 19.38)
+    # https://github.com/OPM/ResInsight/issues/10844
+    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
   endif()
 
   message(STATUS "BUILD_FLAGS_FOR_MSVC ${BUILD_FLAGS_FOR_MSVC}")

@@ -57,14 +57,14 @@ std::vector<RimGridCalculation*> RimGridCalculationCollection::sortedGridCalcula
     // Check if source calculation is depending on other. Will check one level dependency.
     auto isSourceDependingOnOther = []( const RimGridCalculation* source, const RimGridCalculation* other ) -> bool
     {
-        auto outputCase = source->outputEclipseCase();
-        auto outputAdr  = source->outputAddress();
+        auto outputCases = source->outputEclipseCases();
+        auto outputAdr   = source->outputAddress();
 
         for ( auto v : other->allVariables() )
         {
             auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( v );
-            if ( gridVariable->eclipseCase() == outputCase && outputAdr.resultCatType() == gridVariable->resultCategoryType() &&
-                 outputAdr.resultName() == gridVariable->resultVariable() )
+            if ( std::find( outputCases.begin(), outputCases.end(), gridVariable->eclipseCase() ) != outputCases.end() &&
+                 outputAdr.resultCatType() == gridVariable->resultCategoryType() && outputAdr.resultName() == gridVariable->resultVariable() )
             {
                 return true;
             }
@@ -97,9 +97,68 @@ std::vector<RimGridCalculation*> RimGridCalculationCollection::sortedGridCalcula
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimGridCalculation*> RimGridCalculationCollection::dependentCalculations( RimGridCalculation* sourceCalculation ) const
+{
+    // Find all dependent grid calculations recursively. The ordering of calculations is least dependent first.
+
+    std::vector<RimGridCalculation*> calculations;
+
+    if ( !dependentCalculationsRecursively( sourceCalculation, calculations ) ) return {};
+
+    std::reverse( calculations.begin(), calculations.end() );
+
+    return calculations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCalculationCollection::rebuildCaseMetaData()
 {
     ensureValidCalculationIds();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCalculation* RimGridCalculationCollection::findCalculation( const QString& calculationName ) const
+{
+    for ( auto userCalculation : calculations() )
+    {
+        auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation );
+        if ( gridCalculation && gridCalculation->shortName() == calculationName ) return gridCalculation;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCalculationCollection::dependentCalculationsRecursively( RimGridCalculation*               sourceCalculation,
+                                                                     std::vector<RimGridCalculation*>& calculations ) const
+{
+    if ( std::find( calculations.begin(), calculations.end(), sourceCalculation ) != calculations.end() )
+    {
+        RiaLogging::error( "Detected circular dependency for " + sourceCalculation->description() );
+        return false;
+    }
+
+    calculations.push_back( sourceCalculation );
+
+    for ( auto v : sourceCalculation->allVariables() )
+    {
+        auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( v );
+        if ( gridVariable->resultCategoryType() == RiaDefines::ResultCatType::GENERATED )
+        {
+            if ( auto other = findCalculation( gridVariable->resultVariable() ) )
+            {
+                if ( !dependentCalculationsRecursively( other, calculations ) ) return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

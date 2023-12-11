@@ -42,6 +42,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimUserDefinedCalculation, "RimUserDefinedCalc
 ///
 //--------------------------------------------------------------------------------------------------
 RimUserDefinedCalculation::RimUserDefinedCalculation()
+    : variableUpdated( this )
 {
     CAF_PDM_InitObject( "RimUserDefinedCalculation", ":/octave.png", "Calculation", "" );
 
@@ -180,6 +181,14 @@ QString RimUserDefinedCalculation::unitName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimUserDefinedCalculation::setUnit( const QString& unit )
+{
+    m_unit = unit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimUserDefinedCalculation::userDescriptionField()
 {
     return &m_description;
@@ -241,6 +250,14 @@ bool RimUserDefinedCalculation::parseExpression()
 
     m_description = buildCalculationName();
 
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimUserDefinedCalculation::preCalculate() const
+{
     return true;
 }
 

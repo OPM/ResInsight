@@ -24,6 +24,8 @@
 
 #include "DockWidget.h"
 
+#include "cafStyleSheetTools.h"
+
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QThread>
@@ -42,7 +44,7 @@ RiuMessagePanel::RiuMessagePanel( QWidget* parent )
     : QWidget( parent )
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
-    layout->setMargin( 0 );
+    layout->setMargin( caf::StyleSheetTools::smallContentMargin() );
 
     m_textEdit = new QPlainTextEdit;
     m_textEdit->setReadOnly( true );

@@ -176,7 +176,8 @@ std::pair<bool, std::vector<double>> RifReaderEclipseSummary::values( const RifE
     if ( m_differenceAddresses.count( resultAddress ) )
     {
         const std::string& quantityName = resultAddress.vectorName();
-        auto historyQuantity = quantityName.substr( 0, quantityName.size() - differenceIdentifier().size() ) + historyIdentifier();
+        auto historyQuantity = quantityName.substr( 0, quantityName.size() - RifEclipseSummaryAddressDefines::differenceIdentifier().size() ) +
+                               RifEclipseSummaryAddressDefines::historyIdentifier();
 
         RifEclipseSummaryAddress nativeAdrNoHistory = resultAddress;
         nativeAdrNoHistory.setVectorName( historyQuantity );
@@ -251,10 +252,10 @@ void RifReaderEclipseSummary::buildMetaData()
 
             {
                 const std::string& s = adr.vectorName();
-                if ( !RiaStdStringTools::endsWith( s, historyIdentifier() ) )
+                if ( !RiaStdStringTools::endsWith( s, RifEclipseSummaryAddressDefines::historyIdentifier() ) )
                 {
                     RifEclipseSummaryAddress candidate = adr;
-                    candidate.setVectorName( s + historyIdentifier() );
+                    candidate.setVectorName( s + RifEclipseSummaryAddressDefines::historyIdentifier() );
                     if ( m_allResultAddresses.count( candidate ) )
                     {
                         adrWithHistory    = candidate;
@@ -267,7 +268,7 @@ void RifReaderEclipseSummary::buildMetaData()
             {
                 RifEclipseSummaryAddress candidate = adr;
 
-                std::string s = candidate.vectorName() + differenceIdentifier();
+                std::string s = candidate.vectorName() + RifEclipseSummaryAddressDefines::differenceIdentifier();
                 candidate.setVectorName( s );
 
                 m_allResultAddresses.insert( candidate );
@@ -296,7 +297,7 @@ std::string RifReaderEclipseSummary::unitName( const RifEclipseSummaryAddress& r
     if ( reader )
     {
         auto nativeName     = resultAddress.vectorName();
-        auto stringToRemove = RifReaderEclipseSummary::differenceIdentifier();
+        auto stringToRemove = RifEclipseSummaryAddressDefines::differenceIdentifier();
         if ( RiaStdStringTools::endsWith( nativeName, stringToRemove ) )
         {
             nativeName = nativeName.substr( 0, nativeName.size() - stringToRemove.size() );

@@ -49,6 +49,7 @@ if(RESINSIGHT_VCPKG_AUTO_INSTALL)
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -351,12 +352,12 @@ endif()
 if(MSVC)
   FetchContent_Declare(
     openvds
-    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-win.zip
+    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.7-win.zip
   )
 else()
   FetchContent_Declare(
     openvds
-    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-manylinux_2014.tar.gz
+    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.7-manylinux_2014.tar.gz
   )
 endif()
 
@@ -443,9 +444,11 @@ option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
 mark_as_advanced(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
 
 if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
+  # See description of URL here
+  # https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases
   FetchContent_Declare(
     ri-dependencies
-    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.08/custom-opm-common.zip
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/latest/download/custom-opm-common.zip
   )
   FetchContent_Populate(ri-dependencies)
 
@@ -613,6 +616,12 @@ set_property(
   TARGET regression-analysis-tests gtest gtest_main PROPERTY FOLDER
                                                              "Thirdparty"
 )
+
+# ##############################################################################
+# toml++
+# ##############################################################################
+
+add_subdirectory(ThirdParty/tomlplusplus)
 
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
@@ -876,11 +885,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(OPENVDS_SHARED_LIB_FILES
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-968eeb36.so.3.2.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.7
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-e1541338.so.3.2.7
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.7
   )
   install(FILES ${OPENVDS_SHARED_LIB_FILES}
           DESTINATION ${RESINSIGHT_INSTALL_FOLDER}

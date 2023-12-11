@@ -247,7 +247,7 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
     {
         // Replace single summary curves data sources
 
-        auto summaryCurves = summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+        auto summaryCurves = summaryPlot->allCurves();
         for ( const auto& curve : summaryCurves )
         {
             auto summaryCaseHandle = curve->findField( RicSummaryPlotTemplateTools::summaryCaseFieldKeyword() );
