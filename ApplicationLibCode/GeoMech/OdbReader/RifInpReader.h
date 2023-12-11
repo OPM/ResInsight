@@ -50,8 +50,6 @@ public:
 
 //==================================================================================================
 //
-// Data interface base class
-//
 //==================================================================================================
 class RifInpReader : public RifGeoMechReaderInterface
 {
@@ -94,6 +92,8 @@ public:
                                     int                               frameIndex,
                                     std::vector<std::vector<float>*>* resultValues ) override;
 
+    const std::vector<double> propertyData( std::string propertyName, int partId ) const;
+
 private:
     void close();
 
@@ -115,10 +115,11 @@ private:
                                 std::vector<RifInpIncludeEntry>&                                         includeEntries );
 
 private:
-    bool                                    m_enableIncludes;
-    std::map<int, std::vector<std::string>> m_partElementSetNames;
-    std::vector<std::string>                m_stepNames;
-    std::vector<RifInpIncludeEntry>         m_includeEntries;
-    std::ifstream                           m_stream;
-    std::filesystem::path                   m_inputPath;
+    bool                                                      m_enableIncludes;
+    std::map<int, std::vector<std::string>>                   m_partElementSetNames;
+    std::vector<std::string>                                  m_stepNames;
+    std::vector<RifInpIncludeEntry>                           m_includeEntries;
+    std::ifstream                                             m_stream;
+    std::filesystem::path                                     m_inputPath;
+    std::map<std::string, std::map<int, std::vector<double>>> m_propertyPartData;
 };

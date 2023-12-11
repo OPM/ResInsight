@@ -17,3 +17,29 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include <fstream>
+#include <string>
+#include <vector>
+
+//==================================================================================================
+//
+//==================================================================================================
+class RifInpReader
+{
+public:
+    RifInpIncludeReader();
+    ~RifInpIncludeReader() override;
+
+    bool openFile( const std::string& fileName, std::string* errorMessage );
+    bool isOpen() const;
+
+    bool 
+
+
+private:
+    void close();
+
+private:
+    std::ifstream m_stream;
+};
