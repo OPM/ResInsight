@@ -204,6 +204,15 @@ Summary Cross Plot Curves Summary Cross Plot curves are now easily available as 
     </item>
     
     <item>
+      <title>What&#39;s New in 2023.12</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2023_12/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_12/</guid>
+      <description>Grid Calculations Grid Property Calculations can now be applied to multiple grid cases. A grid calculation can be used as data source for Grid Case Statistics. The data source for statistics computations can either be a cell property or a grid calculation expression. Time step selection is added to the Grid Case Statistics settings to reduce computation demand. Expressions can be stored to a file and loaded from a file. This makes it possible to reuse expressions in multiple projects.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

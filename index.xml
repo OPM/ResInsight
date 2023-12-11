@@ -325,6 +325,15 @@ Summary Cross Plot Curves Summary Cross Plot curves are now easily available as 
     </item>
     
     <item>
+      <title>What&#39;s New in 2023.12</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2023_12/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_12/</guid>
+      <description>Grid Calculations Grid Property Calculations can now be applied to multiple grid cases. A grid calculation can be used as data source for Grid Case Statistics. The data source for statistics computations can either be a cell property or a grid calculation expression. Time step selection is added to the Grid Case Statistics settings to reduce computation demand. Expressions can be stored to a file and loaded from a file. This makes it possible to reuse expressions in multiple projects.</description>
+    </item>
+    
+    <item>
       <title>Data Sources</title>
       <link>https://resinsight.org/plot-window/summaryplotdatasources/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -397,6 +406,16 @@ Default Horizontally Vertically Window Management The window management system w
     </item>
     
     <item>
+      <title>Aggregation of Grid Cell Values</title>
+      <link>https://resinsight.org/calculated-data/aggregationofgridcellvalues/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/aggregationofgridcellvalues/</guid>
+      <description>Calculate statistics for sum of mobile oil for an ensemble Workflow description
+Import an ensemble of grid models with identical IJK into a Grid Case Group. Create a view on one of the source grid models, and create a cell filter. Create an expression for mobile oil MOBILE_OIL := if(((SOIL-SOWCR) &amp;lt; 0.00), 0.00, PORV*(SOIL-SOWCR)) Optionally select a subset of time steps Create an expression to sum values for all visible cells SUM_MOBILE_OIL := sum(MOBILE_OIL) Use the result from the previous calculation as input to the variable, use MOBILE_OIL from the Generated category.</description>
+    </item>
+    
+    <item>
       <title>Cell Results</title>
       <link>https://resinsight.org/3d-main-window/cellresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -427,8 +446,7 @@ Command line options General Parameter Description --help, --? Displays help tex
       <guid>https://resinsight.org/calculated-data/curvecalculator/</guid>
       <description>The summary curve calculator is a tool to do calculations on a set of curves. The created curves can be stored for later use in the project.
 The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
-More details on mathematical operations are described in Calculator Expressions
-Calculation Settings To make a new calculated curve, click on New Calculation.</description>
+Expressions can be saved to a text file using the Export Calculations button. The default location for calculations can be set in Preference-&amp;gt;Import/Export.</description>
     </item>
     
     <item>
@@ -620,10 +638,8 @@ View in the Project Tree. Cell Result in the Project Tree. In any Eclipse 3D Vie
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/calculated-data/gridpropertycalculator/</guid>
-      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes.
-More details on mathematical operations are described in Calculator Expressions
-Invoking the Grid Property Calculator Invoke the the Grid Property Calculator by pressing the calculator icon in the menu bar or by right-clicking Cell Result in Project Tree.
-Example using Grid Property Calculator As shown, the Grid Property Calculator is invoked by right-clicking Cell Result in Project Tree.</description>
+      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes. The expression can be applied to one or multiple grid models, and the expression text can be stored to a file for later use.
+Expressions can be saved to a text file using the Export Calculations button. The default location for calculations can be set in Preference-&amp;gt;Import/Export.</description>
     </item>
     
     <item>
@@ -1351,12 +1367,12 @@ The plot utilize the Flow Diagnostics to provide an overview of which well or ph
     
     <item>
       <title>Grid Case Groups and Statistics</title>
-      <link>https://resinsight.org/3d-main-window/casegroupsandstatistics/</link>
+      <link>https://resinsight.org/calculated-data/casegroupsandstatistics/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/casegroupsandstatistics/</guid>
+      <guid>https://resinsight.org/calculated-data/casegroupsandstatistics/</guid>
       <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
-If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.</description>
+If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step.</description>
     </item>
     
     <item>

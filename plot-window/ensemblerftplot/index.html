@@ -12,18 +12,18 @@
     <title>Ensemble RFT Plot :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1698056650" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1698056650" rel="stylesheet">
-    <link href="/css/hybrid.css?1698056650" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1698056650" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1698056650" rel="stylesheet">
-    <link href="/css/auto-complete.css?1698056650" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1698056650" rel="stylesheet">
-    <link href="/css/theme.css?1698056650" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1698056650" rel="stylesheet">
+    <link href="/css/nucleus.css?1702307481" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1702307481" rel="stylesheet">
+    <link href="/css/hybrid.css?1702307481" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1702307481" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1702307481" rel="stylesheet">
+    <link href="/css/auto-complete.css?1702307481" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1702307481" rel="stylesheet">
+    <link href="/css/theme.css?1702307481" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1702307481" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1698056650"></script>
+    <script src="/js/jquery-3.3.1.min.js?1702307481"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -849,25 +852,6 @@
       <li data-nav-id="/3d-main-window/gridstatisticsdialog/" title="Grid Statistics Dialog" class="dd-item ">
         <a href="/3d-main-window/gridstatisticsdialog/">
         Grid Statistics Dialog
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
- 
-  
-    
-      <li data-nav-id="/3d-main-window/casegroupsandstatistics/" title="Grid Case Groups and Statistics" class="dd-item ">
-        <a href="/3d-main-window/casegroupsandstatistics/">
-        Grid Case Groups and Statistics
         
         </a>
     </li>
@@ -2601,6 +2585,25 @@
  
   
     
+      <li data-nav-id="/calculated-data/aggregationofgridcellvalues/" title="Aggregation of Grid Cell Values" class="dd-item ">
+        <a href="/calculated-data/aggregationofgridcellvalues/">
+        Aggregation of Grid Cell Values
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/calculated-data/curvecalculator/" title="Curve Calculator" class="dd-item ">
         <a href="/calculated-data/curvecalculator/">
         Curve Calculator
@@ -2680,6 +2683,25 @@
       <li data-nav-id="/calculated-data/derivedresultsgeomech/" title="Derived Results - Geomechanical" class="dd-item ">
         <a href="/calculated-data/derivedresultsgeomech/">
         Derived Results - Geomechanical
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/calculated-data/casegroupsandstatistics/" title="Grid Case Groups and Statistics" class="dd-item ">
+        <a href="/calculated-data/casegroupsandstatistics/">
+        Grid Case Groups and Statistics
         
         </a>
     </li>
@@ -2935,6 +2957,16 @@ Column one contains observed pressure and column two contains error. The observa
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>303.000   3.000
 </span></span><span style="display:flex;"><span>304.000   3.000
 </span></span><span style="display:flex;"><span>305.000   3.000
+</span></span></code></pre></div><h4 id="observed-pressure-and-error---multiple-observations-for-a-well">Observed pressure and error - multiple observations for a well</h4>
+<p>If there are multiple observations for a well at different dates, the naming of the files include a measurement ID</p>
+<p>Example file <em>well_date_rft.txt</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>R_A2 2018-03-01 1
+</span></span><span style="display:flex;"><span>R_A2 2019-03-01 2
+</span></span></code></pre></div><p>Measurement ID is the last column. The corresponding observations files are named as follows, the measurement ID is appended to the well name.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>R_A2_1.obs
+</span></span><span style="display:flex;"><span>R_A2_1.txt
+</span></span><span style="display:flex;"><span>R_A2_2.obs
+</span></span><span style="display:flex;"><span>R_A2_2.txt
 </span></span></code></pre></div><h4 id="reservoir-zone-name">Reservoir zone name</h4>
 <p>For a given well name, the file <em>&lt;well_name&gt;.txt</em> is a data file containing five columns that specify its correlation with reservoir zones.
 Each line of data must contain:</p>
@@ -2949,7 +2981,7 @@ Each line of data must contain:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>461288.719   5933415.000   1816.200   1611.692   UpperReek
 </span></span><span style="display:flex;"><span>461288.685   5933415.027   1824.560   1620.052   MidReek
 </span></span><span style="display:flex;"><span>461288.683   5933415.029   1840.000   1635.492   LowerReek
-</span></span></code></pre></div><h4 id="well-measurements">Well measurements</h4>
+</span></span></code></pre></div><h4 id="well-measurements---date-format-1">Well measurements - date format 1</h4>
 <p>The data file <em>well_date_rft.txt</em> contains well measurements. The file contains four columns for each well measurement:</p>
 <ul>
 <li>Well Name</li>
@@ -2965,6 +2997,20 @@ Each line of data must contain:</p>
 </span></span><span style="display:flex;"><span>OP_4   01 01 2001   1
 </span></span><span style="display:flex;"><span>WI_1   01 02 2000   1
 </span></span><span style="display:flex;"><span>WI_3   01 03 2001   1
+</span></span></code></pre></div><h4 id="well-measurements---date-format-2">Well measurements - date format 2</h4>
+<p>The data file <em>well_date_rft.txt</em> contains well measurements. The file contains four columns for each well measurement:</p>
+<ul>
+<li>Well Name</li>
+<li>Date on the format &lt;YYYY-MM-DD&gt;</li>
+<li>Measurement index</li>
+</ul>
+<p>There can be multiple measurement for each well.</p>
+<p>Example file <em>well_date_rft.txt</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>R_A2 2018-03-01 1
+</span></span><span style="display:flex;"><span>R_A2 2019-03-01 2
+</span></span><span style="display:flex;"><span>R_A6 2018-11-07 1
+</span></span><span style="display:flex;"><span>R_A6 2018-11-07 2
+</span></span><span style="display:flex;"><span>R_A6 2018-11-07 3
 </span></span></code></pre></div>
 
 <footer class="footline">
@@ -3215,6 +3261,11 @@ Each line of data must contain:</p>
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3294,20 +3345,7 @@ Each line of data must contain:</p>
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
                     
-
-                    
                         
             
             
@@ -3320,9 +3358,6 @@ Each line of data must contain:</p>
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -4978,10 +5013,39 @@ Each line of data must contain:</p>
                     
                     
 
+                    
+            
+        
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
                     
+                    
+                    
+
+                    
             
         
                     
@@ -4997,6 +5061,9 @@ Each line of data must contain:</p>
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -5119,19 +5186,19 @@ Each line of data must contain:</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1698056650"></script>
-    <script src="/js/perfect-scrollbar.min.js?1698056650"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1698056650"></script>
-    <script src="/js/jquery.sticky.js?1698056650"></script>
-    <script src="/js/featherlight.min.js?1698056650"></script>
-    <script src="/js/highlight.pack.js?1698056650"></script>
+    <script src="/js/clipboard.min.js?1702307481"></script>
+    <script src="/js/perfect-scrollbar.min.js?1702307481"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1702307481"></script>
+    <script src="/js/jquery.sticky.js?1702307481"></script>
+    <script src="/js/featherlight.min.js?1702307481"></script>
+    <script src="/js/highlight.pack.js?1702307481"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1698056650"></script>
-    <script src="/js/learn.js?1698056650"></script>
-    <script src="/js/hugo-learn.js?1698056650"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1702307481"></script>
+    <script src="/js/learn.js?1702307481"></script>
+    <script src="/js/hugo-learn.js?1702307481"></script>
 
-    <link href="/mermaid/mermaid.css?1698056650" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1698056650"></script>
+    <link href="/mermaid/mermaid.css?1702307481" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1702307481"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

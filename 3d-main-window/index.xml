@@ -236,16 +236,6 @@ Info text Histogram Cumulative Histogram Info Text The Info Text field shows gen
     </item>
     
     <item>
-      <title>Grid Case Groups and Statistics</title>
-      <link>https://resinsight.org/3d-main-window/casegroupsandstatistics/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/casegroupsandstatistics/</guid>
-      <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
-If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.</description>
-    </item>
-    
-    <item>
       <title>Linked Views</title>
       <link>https://resinsight.org/3d-main-window/linkedviews/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

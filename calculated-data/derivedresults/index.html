@@ -12,18 +12,18 @@
     <title>Derived Results - Eclipse :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1698056650" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1698056650" rel="stylesheet">
-    <link href="/css/hybrid.css?1698056650" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1698056650" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1698056650" rel="stylesheet">
-    <link href="/css/auto-complete.css?1698056650" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1698056650" rel="stylesheet">
-    <link href="/css/theme.css?1698056650" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1698056650" rel="stylesheet">
+    <link href="/css/nucleus.css?1702307481" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1702307481" rel="stylesheet">
+    <link href="/css/hybrid.css?1702307481" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1702307481" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1702307481" rel="stylesheet">
+    <link href="/css/auto-complete.css?1702307481" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1702307481" rel="stylesheet">
+    <link href="/css/theme.css?1702307481" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1702307481" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1698056650"></script>
+    <script src="/js/jquery-3.3.1.min.js?1702307481"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -849,25 +852,6 @@
       <li data-nav-id="/3d-main-window/gridstatisticsdialog/" title="Grid Statistics Dialog" class="dd-item ">
         <a href="/3d-main-window/gridstatisticsdialog/">
         Grid Statistics Dialog
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
- 
-  
-    
-      <li data-nav-id="/3d-main-window/casegroupsandstatistics/" title="Grid Case Groups and Statistics" class="dd-item ">
-        <a href="/3d-main-window/casegroupsandstatistics/">
-        Grid Case Groups and Statistics
         
         </a>
     </li>
@@ -2601,6 +2585,25 @@
  
   
     
+      <li data-nav-id="/calculated-data/aggregationofgridcellvalues/" title="Aggregation of Grid Cell Values" class="dd-item ">
+        <a href="/calculated-data/aggregationofgridcellvalues/">
+        Aggregation of Grid Cell Values
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/calculated-data/curvecalculator/" title="Curve Calculator" class="dd-item ">
         <a href="/calculated-data/curvecalculator/">
         Curve Calculator
@@ -2680,6 +2683,25 @@
       <li data-nav-id="/calculated-data/derivedresultsgeomech/" title="Derived Results - Geomechanical" class="dd-item ">
         <a href="/calculated-data/derivedresultsgeomech/">
         Derived Results - Geomechanical
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/calculated-data/casegroupsandstatistics/" title="Grid Case Groups and Statistics" class="dd-item ">
+        <a href="/calculated-data/casegroupsandstatistics/">
+        Grid Case Groups and Statistics
         
         </a>
     </li>
@@ -2807,6 +2829,7 @@ if (!doNotTrack) {
           <ul>
             <li><a href="#transmissibility-normalized-by-area">Transmissibility Normalized by Area</a></li>
             <li><a href="#overall-transmissibility-multiplier">Overall Transmissibility Multiplier</a></li>
+            <li><a href="#classification-of-cells-having-nncs">Classification of Cells having NNCs</a></li>
             <li><a href="#directional-combined-results">Directional Combined Results</a></li>
             <li><a href="#completion-type">Completion Type</a></li>
             <li><a href="#identification-of-questionable-nncs">Identification of Questionable NNCs</a></li>
@@ -2851,6 +2874,8 @@ The derived results listed at the bottom of the <strong>Static</strong> result p
 <h3 id="overall-transmissibility-multiplier">Overall Transmissibility Multiplier</h3>
 <p>Transmissibility can be set or adjusted with multiple keywords in an Eclipse data deck. To visualize the adjustments made, ResInsight calculates a multiplicator for the overall change. First unadjusted transmissibilities for all neighbor cells and NNCs are evaluated based on geometry and permeabilities, similar to the NEWTRAN algorithm in Eclipse. For x- and y-directions, the NTG parameter is also included. The results are named <strong>riTRANX</strong>, <strong>riTRANY</strong> and <strong>riTRANZ</strong> respectively.</p>
 <p>The TRANX, TRANY and TRANZ used in the simulation are divided by the ResInsight calculated transmissibilities and the resulting multiplicators are named <strong>riMULTX</strong>, <strong>riMULTY</strong> and <strong>riMULTZ</strong> respectively. The derived properties are listed under <strong>Static</strong> properties. The riMULT-properties are useful for quality checking consistence in user input for fault seal along a fault plane.</p>
+<h3 id="classification-of-cells-having-nncs">Classification of Cells having NNCs</h3>
+<p>The static result <strong>riNncCells</strong> use 1 to represent cells having a NNC and 0 for other cells.</p>
 <h3 id="directional-combined-results">Directional Combined Results</h3>
 <p>Cell properties with names ending in I, J, K, X, Y, or Z, and an optional &ldquo;+&rdquo; or &ldquo;-&rdquo; are combined into derived results post-fixed with IJK, or XYZ depending on their origin. (Eg. the static cell properties MULTX, MULTY, MULTZ, and their negatives are combined into the result MULTXYZ, while the dynamic cell properties FLRGASI, FLRGASJ, FLRGASK are combined to FLRGASIJK).</p>
 <p>These combined cell properties visualize the property as a color in all directions combined when selected in
@@ -3139,6 +3164,11 @@ as a <strong>Cell Result</strong> and <strong>Separate Fault Result</strong>.</p
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3218,20 +3248,7 @@ as a <strong>Cell Result</strong> and <strong>Separate Fault Result</strong>.</p
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
                     
-
-                    
                         
             
             
@@ -3244,9 +3261,6 @@ as a <strong>Cell Result</strong> and <strong>Separate Fault Result</strong>.</p
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -4920,8 +4934,24 @@ as a <strong>Cell Result</strong> and <strong>Separate Fault Result</strong>.</p
             
                 
                     
+                        
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
+            
+            
+                
                     
                 
                 
@@ -4989,7 +5019,23 @@ as a <strong>Cell Result</strong> and <strong>Separate Fault Result</strong>.</p
                 
                     
                         
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
+            
+            
+                
                     
                 
                 
@@ -5043,19 +5089,19 @@ as a <strong>Cell Result</strong> and <strong>Separate Fault Result</strong>.</p
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1698056650"></script>
-    <script src="/js/perfect-scrollbar.min.js?1698056650"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1698056650"></script>
-    <script src="/js/jquery.sticky.js?1698056650"></script>
-    <script src="/js/featherlight.min.js?1698056650"></script>
-    <script src="/js/highlight.pack.js?1698056650"></script>
+    <script src="/js/clipboard.min.js?1702307481"></script>
+    <script src="/js/perfect-scrollbar.min.js?1702307481"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1702307481"></script>
+    <script src="/js/jquery.sticky.js?1702307481"></script>
+    <script src="/js/featherlight.min.js?1702307481"></script>
+    <script src="/js/highlight.pack.js?1702307481"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1698056650"></script>
-    <script src="/js/learn.js?1698056650"></script>
-    <script src="/js/hugo-learn.js?1698056650"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1702307481"></script>
+    <script src="/js/learn.js?1702307481"></script>
+    <script src="/js/hugo-learn.js?1702307481"></script>
 
-    <link href="/mermaid/mermaid.css?1698056650" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1698056650"></script>
+    <link href="/mermaid/mermaid.css?1702307481" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1702307481"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
