@@ -20,8 +20,10 @@
 
 #include "RifGeoMechReaderInterface.h"
 
+#include "RigFemResultPosEnum.h"
 #include "RigFemTypes.h"
 
+#include <filesystem>
 #include <fstream>
 #include <map>
 #include <string>
@@ -31,17 +33,19 @@ class RigFemPartCollection;
 struct RifInpIncludeEntry
 {
 public:
-    RifInpIncludeEntry( std::string propertyName, int stepId, std::string fileName )
+    RifInpIncludeEntry( std::string propertyName, RigFemResultPosEnum resultType, int stepId, std::string fileName )
     {
         this->propertyName = propertyName;
         this->stepId       = stepId;
         this->fileName     = fileName;
+        this->resultType   = resultType;
     }
 
 public:
-    std::string propertyName;
-    int         stepId;
-    std::string fileName;
+    std::string         propertyName;
+    int                 stepId;
+    std::string         fileName;
+    RigFemResultPosEnum resultType;
 };
 
 //==================================================================================================
@@ -54,6 +58,8 @@ class RifInpReader : public RifGeoMechReaderInterface
 public:
     RifInpReader();
     ~RifInpReader() override;
+
+    void enableIncludes( bool enable );
 
     bool                     openFile( const std::string& fileName, std::string* errorMessage ) override;
     bool                     isOpen() const override;
@@ -93,7 +99,7 @@ private:
 
     static void                                          skipComments( std::istream& stream );
     static std::string                                   parseLabel( const std::string& line, const std::string& labelName );
-    static std::string                                   decodeFilename( const std::string filename );
+    static std::pair<std::string, RigFemResultPosEnum>   decodeFilename( const std::string filename );
     static std::vector<std::pair<int, cvf::Vec3d>>       readNodes( std::istream& stream );
     static std::vector<std::pair<int, std::vector<int>>> readElements( std::istream& stream );
     static std::vector<size_t>                           readElementSet( std::istream& stream );
@@ -105,11 +111,14 @@ private:
                                 std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
                                 std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets,
                                 std::vector<std::string>&                                                stepNames,
+                                bool                                                                     enableIncludes,
                                 std::vector<RifInpIncludeEntry>&                                         includeEntries );
 
 private:
+    bool                                    m_enableIncludes;
     std::map<int, std::vector<std::string>> m_partElementSetNames;
     std::vector<std::string>                m_stepNames;
     std::vector<RifInpIncludeEntry>         m_includeEntries;
     std::ifstream                           m_stream;
+    std::filesystem::path                   m_inputPath;
 };
