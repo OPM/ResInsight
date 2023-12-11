@@ -367,11 +367,11 @@ else()
   set(OPENVDS_LIB_NAMES
       libopenvds.so
       libopenvds.so.3
-      libopenvds.so.3.2.3
-      libopenvds-968eeb36.so.3.2.3
+      libopenvds.so.3.2.7
+      libopenvds-e1541338.so.3.2.7
       libsegyutils.so
       libsegyutils.so.3
-      libsegyutils.so.3.2.3
+      libsegyutils.so.3.2.7
   )
   foreach(OPENVDS_LIB_NAME ${OPENVDS_LIB_NAMES})
     list(APPEND RI_FILENAMES
