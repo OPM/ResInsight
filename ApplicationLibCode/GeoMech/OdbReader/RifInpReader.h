@@ -92,10 +92,11 @@ public:
                                     int                               frameIndex,
                                     std::vector<std::vector<float>*>* resultValues ) override;
 
-    const std::vector<double> propertyData( std::string propertyName, int partId ) const;
+    const std::vector<double> propertyData( RigFemResultPosEnum resultType, std::string propertyName, int partId ) const;
 
 private:
     void close();
+    void readScalarData( std::map<int, std::string>& parts, std::vector<RifInpIncludeEntry>& includeEntries );
 
     static void                                          skipComments( std::istream& stream );
     static std::string                                   parseLabel( const std::string& line, const std::string& labelName );
@@ -121,5 +122,6 @@ private:
     std::vector<RifInpIncludeEntry>                           m_includeEntries;
     std::ifstream                                             m_stream;
     std::filesystem::path                                     m_inputPath;
-    std::map<std::string, std::map<int, std::vector<double>>> m_propertyPartData;
+    std::map<std::string, std::map<int, std::vector<double>>> m_propertyPartDataNodes;
+    std::map<std::string, std::map<int, std::vector<double>>> m_propertyPartDataElements;
 };
