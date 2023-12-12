@@ -19,6 +19,7 @@
 #pragma once
 
 #include <fstream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -31,8 +32,10 @@ public:
     RifInpIncludeReader();
     ~RifInpIncludeReader();
 
-    bool openFile( const std::string& fileName, std::string* errorMessage );
+    bool openFile( const std::string& fileName );
     bool isOpen() const;
+
+    void readData( int column, const std::map<int, std::string>& parts, std::map<int, std::vector<double>>& data );
 
 private:
     void close();

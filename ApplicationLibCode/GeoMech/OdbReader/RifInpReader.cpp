@@ -18,6 +18,8 @@
 
 #include "RifInpReader.h"
 
+#include "RifInpIncludeReader.h"
+
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemTypes.h"
@@ -104,6 +106,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
     std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>> elementSets;
 
     auto elementType = read( m_stream, parts, nodes, elements, elementSets, m_stepNames, m_enableIncludes, m_includeEntries );
+    int  nTimeSteps  = (int)m_stepNames.size();
 
     for ( int i = 0; i < m_includeEntries.size(); i++ )
     {
@@ -112,7 +115,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 
     RiaLogging::debug( QString( "Read FEM parts: %1, steps: %2, element type: %3" )
                            .arg( parts.size() )
-                           .arg( m_stepNames.size() )
+                           .arg( nTimeSteps )
                            .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) ) );
 
     if ( !RigFemTypes::is8NodeElement( elementType ) )
@@ -179,7 +182,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 
         // read element sets
         auto& elementSetsForPart = elementSets[partId];
-        for ( auto [setName, elementSet] : elementSetsForPart )
+        for ( auto& [setName, elementSet] : elementSetsForPart )
         {
             femPart->addElementSet( setName, elementSet );
         }
@@ -187,10 +190,10 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
         femPart->setElementPartId( femParts->partCount() );
         femParts->addFemPart( femPart );
 
-        readScalarData( parts, m_includeEntries );
-
         modelProgress.incrementProgress();
     }
+
+    readScalarData( femParts, parts, m_includeEntries, nTimeSteps );
 
     return true;
 }
@@ -216,6 +219,7 @@ RigElementType RifInpReader::read( std::istream&                                
     std::string partName;
     int         stepId = -1;
     std::string stepName;
+    int         timeSteps = 0;
 
     while ( true )
     {
@@ -276,10 +280,12 @@ RigElementType RifInpReader::read( std::istream&                                
                 auto                filename   = parseLabel( line, "input" );
                 RigFemResultPosEnum resultType = RigFemResultPosEnum::RIG_ELEMENT;
                 std::string         propertyName( "" );
+                int                 columnIndex = 1;
                 if ( prevline.starts_with( "*BOUNDARY" ) )
                 {
                     propertyName = "POR";
                     resultType   = RigFemResultPosEnum::RIG_NODAL;
+                    columnIndex  = 3;
                 }
                 else if ( prevline.starts_with( "*TEMPERATURE" ) )
                 {
@@ -298,7 +304,7 @@ RigElementType RifInpReader::read( std::istream&                                
                 }
                 if ( !propertyName.empty() )
                 {
-                    includeEntries.push_back( RifInpIncludeEntry( propertyName, resultType, stepId, filename ) );
+                    includeEntries.push_back( RifInpIncludeEntry( propertyName, resultType, stepId, filename, columnIndex ) );
                 }
             }
             prevline = uppercasedLine;
@@ -634,6 +640,22 @@ void RifInpReader::readNodeField( const std::string&                fieldName,
                                   std::vector<std::vector<float>*>* resultValues )
 {
     CVF_ASSERT( resultValues );
+
+    if ( stepIndex < 0 ) stepIndex = 0;
+
+    if ( m_propertyPartDataNodes.count( fieldName ) == 0 ) return;
+    if ( m_propertyPartDataNodes[fieldName].count( stepIndex ) == 0 ) return;
+    if ( m_propertyPartDataNodes[fieldName][stepIndex].count( partIndex ) == 0 ) return;
+
+    auto dataSize = m_propertyPartDataNodes[fieldName][stepIndex][partIndex].size();
+
+    ( *resultValues )[0]->resize( dataSize );
+
+    std::vector<float>* singleComponentValues = ( *resultValues )[0];
+    for ( size_t i = 0; i < dataSize; i++ )
+    {
+        ( *singleComponentValues )[i] = (float)m_propertyPartDataNodes[fieldName][stepIndex][partIndex][i];
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -663,22 +685,19 @@ void RifInpReader::readIntegrationPointField( const std::string&                
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double> RifInpReader::propertyData( RigFemResultPosEnum resultType, std::string propertyName, int partId ) const
+const std::vector<double> RifInpReader::propertyData( RigFemResultPosEnum resultType, std::string propertyName, int partId, int stepId ) const
 {
-    const std::map<std::string, std::map<int, std::vector<double>>>* pData = nullptr;
-
-    if ( resultType == RigFemResultPosEnum::RIG_ELEMENT )
-        pData = &m_propertyPartDataElements;
-    else if ( resultType == RigFemResultPosEnum::RIG_NODAL )
-        pData = &m_propertyPartDataNodes;
-
+    const auto* pData = propertyDataMap( resultType );
     if ( pData != nullptr )
     {
         if ( pData->count( propertyName ) > 0 )
         {
-            if ( pData->at( propertyName ).count( partId ) > 0 )
+            if ( pData->at( propertyName ).count( stepId ) > 0 )
             {
-                return pData->at( propertyName ).at( partId );
+                if ( pData->at( propertyName ).at( stepId ).count( partId ) > 0 )
+                {
+                    return pData->at( propertyName ).at( stepId ).at( partId );
+                }
             }
         }
     }
@@ -689,13 +708,67 @@ const std::vector<double> RifInpReader::propertyData( RigFemResultPosEnum result
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifInpReader::readScalarData( std::map<int, std::string>& parts, std::vector<RifInpIncludeEntry>& includeEntries )
+void RifInpReader::readScalarData( RigFemPartCollection*            femParts,
+                                   std::map<int, std::string>&      parts,
+                                   std::vector<RifInpIncludeEntry>& includeEntries,
+                                   int                              timeStepCount )
 {
     for ( auto& entry : includeEntries )
     {
-        if ( entry.resultType == RigFemResultPosEnum::RIG_ELEMENT )
-            m_propertyPartDataElements[entry.propertyName] = {};
-        else if ( entry.resultType == RigFemResultPosEnum::RIG_NODAL )
-            m_propertyPartDataNodes[entry.propertyName] = {};
+        auto map = propertyDataMap( entry.resultType );
+        if ( map == nullptr ) continue;
+        if ( map->count( entry.propertyName ) == 0 )
+        {
+            ( *map )[entry.propertyName] = {};
+        }
+
+        int stepId = entry.stepId;
+        if ( stepId < 0 ) stepId = 0;
+        if ( ( *map )[entry.propertyName].count( stepId ) == 0 )
+        {
+            ( *map )[entry.propertyName][stepId] = {};
+        }
+
+        for ( int partId = 0; partId < femParts->partCount(); partId++ )
+        {
+            ( *map )[entry.propertyName][stepId][partId] = {};
+            size_t dataSize                              = 0;
+            if ( entry.resultType == RigFemResultPosEnum::RIG_NODAL )
+            {
+                dataSize = femParts->part( partId )->nodeCount();
+            }
+            if ( entry.resultType == RigFemResultPosEnum::RIG_ELEMENT )
+            {
+                dataSize = femParts->part( partId )->elementCount();
+            }
+            ( *map )[entry.propertyName][stepId][partId].resize( dataSize, 0.0 );
+        }
+        RifInpIncludeReader reader;
+        if ( !reader.openFile( entry.fileName ) ) continue;
+        reader.readData( entry.columnIndex, parts, ( *map )[entry.propertyName][stepId] );
     }
+
+    return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///  Map keys: result name / time step / part id
+//--------------------------------------------------------------------------------------------------
+const std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* RifInpReader::propertyDataMap( RigFemResultPosEnum resultType ) const
+{
+    if ( resultType == RigFemResultPosEnum::RIG_ELEMENT ) return &m_propertyPartDataElements;
+    if ( resultType == RigFemResultPosEnum::RIG_NODAL ) return &m_propertyPartDataNodes;
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* RifInpReader::propertyDataMap( RigFemResultPosEnum resultType )
+{
+    if ( resultType == RigFemResultPosEnum::RIG_ELEMENT ) return &m_propertyPartDataElements;
+    if ( resultType == RigFemResultPosEnum::RIG_NODAL ) return &m_propertyPartDataNodes;
+
+    return nullptr;
 }

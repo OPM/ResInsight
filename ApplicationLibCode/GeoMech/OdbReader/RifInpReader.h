@@ -27,18 +27,20 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <utility>
 
 class RigFemPartCollection;
 
 struct RifInpIncludeEntry
 {
 public:
-    RifInpIncludeEntry( std::string propertyName, RigFemResultPosEnum resultType, int stepId, std::string fileName )
+    RifInpIncludeEntry( std::string propertyName, RigFemResultPosEnum resultType, int stepId, std::string fileName, int columnIndex )
     {
         this->propertyName = propertyName;
         this->stepId       = stepId;
         this->fileName     = fileName;
         this->resultType   = resultType;
+        this->columnIndex  = columnIndex;
     }
 
 public:
@@ -46,6 +48,7 @@ public:
     int                 stepId;
     std::string         fileName;
     RigFemResultPosEnum resultType;
+    int                 columnIndex;
 };
 
 //==================================================================================================
@@ -92,11 +95,18 @@ public:
                                     int                               frameIndex,
                                     std::vector<std::vector<float>*>* resultValues ) override;
 
-    const std::vector<double> propertyData( RigFemResultPosEnum resultType, std::string propertyName, int partId ) const;
+    const std::vector<double> propertyData( RigFemResultPosEnum resultType, std::string propertyName, int partId, int stepId ) const;
 
 private:
     void close();
-    void readScalarData( std::map<int, std::string>& parts, std::vector<RifInpIncludeEntry>& includeEntries );
+
+    void readScalarData( RigFemPartCollection*            femParts,
+                         std::map<int, std::string>&      parts,
+                         std::vector<RifInpIncludeEntry>& includeEntries,
+                         int                              timeStepCount );
+
+    const std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* propertyDataMap( RigFemResultPosEnum resultType ) const;
+    std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>*       propertyDataMap( RigFemResultPosEnum resultType );
 
     static void                                          skipComments( std::istream& stream );
     static std::string                                   parseLabel( const std::string& line, const std::string& labelName );
@@ -116,12 +126,12 @@ private:
                                 std::vector<RifInpIncludeEntry>&                                         includeEntries );
 
 private:
-    bool                                                      m_enableIncludes;
-    std::map<int, std::vector<std::string>>                   m_partElementSetNames;
-    std::vector<std::string>                                  m_stepNames;
-    std::vector<RifInpIncludeEntry>                           m_includeEntries;
-    std::ifstream                                             m_stream;
-    std::filesystem::path                                     m_inputPath;
-    std::map<std::string, std::map<int, std::vector<double>>> m_propertyPartDataNodes;
-    std::map<std::string, std::map<int, std::vector<double>>> m_propertyPartDataElements;
+    bool                                                                     m_enableIncludes;
+    std::map<int, std::vector<std::string>>                                  m_partElementSetNames;
+    std::vector<std::string>                                                 m_stepNames;
+    std::vector<RifInpIncludeEntry>                                          m_includeEntries;
+    std::ifstream                                                            m_stream;
+    std::filesystem::path                                                    m_inputPath;
+    std::map<std::string, std::map<int, std::map<int, std::vector<double>>>> m_propertyPartDataNodes;
+    std::map<std::string, std::map<int, std::map<int, std::vector<double>>>> m_propertyPartDataElements;
 };
