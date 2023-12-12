@@ -106,7 +106,6 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
     std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>> elementSets;
 
     auto elementType = read( m_stream, parts, nodes, elements, elementSets, m_stepNames, m_enableIncludes, m_includeEntries );
-    int  nTimeSteps  = (int)m_stepNames.size();
 
     for ( int i = 0; i < m_includeEntries.size(); i++ )
     {
@@ -115,7 +114,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 
     RiaLogging::debug( QString( "Read FEM parts: %1, steps: %2, element type: %3" )
                            .arg( parts.size() )
-                           .arg( nTimeSteps )
+                           .arg( m_stepNames.size() )
                            .arg( QString::fromStdString( RigFemTypes::elementTypeText( elementType ) ) ) );
 
     if ( !RigFemTypes::is8NodeElement( elementType ) )
@@ -193,7 +192,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
         modelProgress.incrementProgress();
     }
 
-    readScalarData( femParts, parts, m_includeEntries, nTimeSteps );
+    readScalarData( femParts, parts, m_includeEntries );
 
     return true;
 }
@@ -641,10 +640,14 @@ void RifInpReader::readNodeField( const std::string&                fieldName,
 {
     CVF_ASSERT( resultValues );
 
-    if ( stepIndex < 0 ) stepIndex = 0;
-
     if ( m_propertyPartDataNodes.count( fieldName ) == 0 ) return;
-    if ( m_propertyPartDataNodes[fieldName].count( stepIndex ) == 0 ) return;
+
+    // is there only a static result? Use it for all steps.
+    if ( m_propertyPartDataNodes[fieldName].count( stepIndex ) == 0 )
+    {
+        if ( m_propertyPartDataNodes[fieldName].count( -1 ) == 0 ) return;
+        stepIndex = -1;
+    }
     if ( m_propertyPartDataNodes[fieldName][stepIndex].count( partIndex ) == 0 ) return;
 
     auto dataSize = m_propertyPartDataNodes[fieldName][stepIndex][partIndex].size();
@@ -668,6 +671,26 @@ void RifInpReader::readElementNodeField( const std::string&                field
                                          std::vector<std::vector<float>*>* resultValues )
 {
     CVF_ASSERT( resultValues );
+
+    if ( m_propertyPartDataElements.count( fieldName ) == 0 ) return;
+
+    // is there only a static result? Use it for all steps.
+    if ( m_propertyPartDataElements[fieldName].count( stepIndex ) == 0 )
+    {
+        if ( m_propertyPartDataElements[fieldName].count( -1 ) == 0 ) return;
+        stepIndex = -1;
+    }
+    if ( m_propertyPartDataElements[fieldName][stepIndex].count( partIndex ) == 0 ) return;
+
+    auto dataSize = m_propertyPartDataElements[fieldName][stepIndex][partIndex].size();
+
+    ( *resultValues )[0]->resize( dataSize );
+
+    std::vector<float>* singleComponentValues = ( *resultValues )[0];
+    for ( size_t i = 0; i < dataSize; i++ )
+    {
+        ( *singleComponentValues )[i] = (float)m_propertyPartDataElements[fieldName][stepIndex][partIndex][i];
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -685,33 +708,9 @@ void RifInpReader::readIntegrationPointField( const std::string&                
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double> RifInpReader::propertyData( RigFemResultPosEnum resultType, std::string propertyName, int partId, int stepId ) const
-{
-    const auto* pData = propertyDataMap( resultType );
-    if ( pData != nullptr )
-    {
-        if ( pData->count( propertyName ) > 0 )
-        {
-            if ( pData->at( propertyName ).count( stepId ) > 0 )
-            {
-                if ( pData->at( propertyName ).at( stepId ).count( partId ) > 0 )
-                {
-                    return pData->at( propertyName ).at( stepId ).at( partId );
-                }
-            }
-        }
-    }
-
-    return {};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RifInpReader::readScalarData( RigFemPartCollection*            femParts,
                                    std::map<int, std::string>&      parts,
-                                   std::vector<RifInpIncludeEntry>& includeEntries,
-                                   int                              timeStepCount )
+                                   std::vector<RifInpIncludeEntry>& includeEntries )
 {
     for ( auto& entry : includeEntries )
     {
@@ -723,7 +722,7 @@ void RifInpReader::readScalarData( RigFemPartCollection*            femParts,
         }
 
         int stepId = entry.stepId;
-        if ( stepId < 0 ) stepId = 0;
+
         if ( ( *map )[entry.propertyName].count( stepId ) == 0 )
         {
             ( *map )[entry.propertyName][stepId] = {};
@@ -753,17 +752,6 @@ void RifInpReader::readScalarData( RigFemPartCollection*            femParts,
 
 //--------------------------------------------------------------------------------------------------
 ///  Map keys: result name / time step / part id
-//--------------------------------------------------------------------------------------------------
-const std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* RifInpReader::propertyDataMap( RigFemResultPosEnum resultType ) const
-{
-    if ( resultType == RigFemResultPosEnum::RIG_ELEMENT ) return &m_propertyPartDataElements;
-    if ( resultType == RigFemResultPosEnum::RIG_NODAL ) return &m_propertyPartDataNodes;
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* RifInpReader::propertyDataMap( RigFemResultPosEnum resultType )
 {

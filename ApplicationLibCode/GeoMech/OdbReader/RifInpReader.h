@@ -95,18 +95,12 @@ public:
                                     int                               frameIndex,
                                     std::vector<std::vector<float>*>* resultValues ) override;
 
-    const std::vector<double> propertyData( RigFemResultPosEnum resultType, std::string propertyName, int partId, int stepId ) const;
-
 private:
     void close();
 
-    void readScalarData( RigFemPartCollection*            femParts,
-                         std::map<int, std::string>&      parts,
-                         std::vector<RifInpIncludeEntry>& includeEntries,
-                         int                              timeStepCount );
+    void readScalarData( RigFemPartCollection* femParts, std::map<int, std::string>& parts, std::vector<RifInpIncludeEntry>& includeEntries );
 
-    const std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* propertyDataMap( RigFemResultPosEnum resultType ) const;
-    std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>*       propertyDataMap( RigFemResultPosEnum resultType );
+    std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* propertyDataMap( RigFemResultPosEnum resultType );
 
     static void                                          skipComments( std::istream& stream );
     static std::string                                   parseLabel( const std::string& line, const std::string& labelName );
