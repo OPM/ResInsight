@@ -142,6 +142,14 @@ void RifOdbReader::close()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifOdbReader::populateDerivedResultNames() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOdbReader::openFile( const std::string& fileName, std::string* errorMessage )
 {
     close();
@@ -560,6 +568,15 @@ std::map<std::string, std::vector<std::string>> RifOdbReader::scalarNodeFieldAnd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<std::string>> RifOdbReader::scalarElementFieldAndComponentNames()
+{
+    // not supported, yet
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>> RifOdbReader::scalarElementNodeFieldAndComponentNames()
 {
     return fieldAndComponentNames( ELEMENT_NODAL );
@@ -825,6 +842,20 @@ void RifOdbReader::readNodeField( const std::string&                fieldName,
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOdbReader::readElementField( const std::string&                fieldName,
+                                     int                               partIndex,
+                                     int                               stepIndex,
+                                     int                               frameIndex,
+                                     std::vector<std::vector<float>*>* resultValues )
+{
+    CVF_ASSERT( resultValues );
+
+    // Not supported, yet
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <tuple>
 #include <utility>
 
 class RigFemPartCollection;
@@ -74,6 +75,7 @@ public:
     std::vector<size_t>      elementSet( int partIndex, std::string partName, int setIndex ) override;
 
     std::map<std::string, std::vector<std::string>> scalarNodeFieldAndComponentNames() override;
+    std::map<std::string, std::vector<std::string>> scalarElementFieldAndComponentNames() override;
     std::map<std::string, std::vector<std::string>> scalarElementNodeFieldAndComponentNames() override;
     std::map<std::string, std::vector<std::string>> scalarIntegrationPointFieldAndComponentNames() override;
 
@@ -84,6 +86,11 @@ public:
                         int                               stepIndex,
                         int                               frameIndex,
                         std::vector<std::vector<float>*>* resultValues ) override;
+    void readElementField( const std::string&                fieldName,
+                           int                               partIndex,
+                           int                               stepIndex,
+                           int                               frameIndex,
+                           std::vector<std::vector<float>*>* resultValues ) override;
     void readElementNodeField( const std::string&                fieldName,
                                int                               partIndex,
                                int                               stepIndex,
@@ -94,6 +101,8 @@ public:
                                     int                               stepIndex,
                                     int                               frameIndex,
                                     std::vector<std::vector<float>*>* resultValues ) override;
+
+    bool populateDerivedResultNames() const override;
 
 private:
     void close();
@@ -110,7 +119,6 @@ private:
 
     static void                                          skipComments( std::istream& stream );
     static std::string                                   parseLabel( const std::string& line, const std::string& labelName );
-    static std::pair<std::string, RigFemResultPosEnum>   decodeFilename( const std::string filename );
     static std::vector<std::pair<int, cvf::Vec3d>>       readNodes( std::istream& stream );
     static std::vector<std::pair<int, std::vector<int>>> readElements( std::istream& stream );
     static std::vector<size_t>                           readElementSet( std::istream& stream );

@@ -71,6 +71,14 @@ void RifInpReader::close()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifInpReader::populateDerivedResultNames() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifInpReader::openFile( const std::string& fileName, std::string* errorMessage )
 {
     m_stream.open( fileName );
@@ -280,6 +288,7 @@ RigElementType RifInpReader::read( std::istream&                                
                 RigFemResultPosEnum resultType = RigFemResultPosEnum::RIG_ELEMENT;
                 std::string         propertyName( "" );
                 int                 columnIndex = 1;
+
                 if ( prevline.starts_with( "*BOUNDARY" ) )
                 {
                     propertyName = "POR";
@@ -299,7 +308,19 @@ RigElementType RifInpReader::read( std::istream&                                
                 }
                 if ( propertyName.empty() )
                 {
-                    // propertyName = decodeFilename( filename );
+                    std::string uppercasedFilename = RiaStdStringTools::toUpper( filename );
+
+                    if ( uppercasedFilename.find( "DENSITY" ) != std::string::npos )
+                    {
+                        propertyName = "DENSITY";
+                    }
+                    else if ( uppercasedFilename.find( "ELASTICS" ) != std::string::npos )
+                    {
+                        includeEntries.push_back( RifInpIncludeEntry( "MODULUS", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 1 ) );
+
+                        propertyName = "RATIO";
+                        columnIndex  = 2;
+                    }
                 }
                 if ( !propertyName.empty() )
                 {
@@ -314,18 +335,6 @@ RigElementType RifInpReader::read( std::istream&                                
     }
 
     return elementType;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<std::string, RigFemResultPosEnum> RifInpReader::decodeFilename( const std::string filename )
-{
-    std::string uppercased = RiaStdStringTools::toUpper( filename );
-
-    if ( uppercased.find( "RATIO" ) != std::string::npos ) return { "RATIO", RigFemResultPosEnum::RIG_ELEMENT };
-
-    return { "", RigFemResultPosEnum::RIG_ELEMENT };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,9 +576,7 @@ int RifInpReader::frameCount( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifInpReader::elementSetNames( int partIndex, std::string partName )
 {
-    // TODO: not implemented yet
     if ( partIndex >= m_partElementSetNames.size() ) return {};
-
     return m_partElementSetNames.at( partIndex );
 }
 
@@ -583,9 +590,9 @@ std::vector<size_t> RifInpReader::elementSet( int partIndex, std::string partNam
     return elementIndexes;
 }
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>> RifInpReader::scalarNodeFieldAndComponentNames()
 {
     std::map<std::string, std::vector<std::string>> retVal;
@@ -601,7 +608,7 @@ std::map<std::string, std::vector<std::string>> RifInpReader::scalarNodeFieldAnd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::string>> RifInpReader::scalarElementNodeFieldAndComponentNames()
+std::map<std::string, std::vector<std::string>> RifInpReader::scalarElementFieldAndComponentNames()
 {
     std::map<std::string, std::vector<std::string>> retVal;
 
@@ -611,6 +618,14 @@ std::map<std::string, std::vector<std::string>> RifInpReader::scalarElementNodeF
     }
 
     return retVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, std::vector<std::string>> RifInpReader::scalarElementNodeFieldAndComponentNames()
+{
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -679,13 +694,25 @@ void RifInpReader::readNodeField( const std::string&                fieldName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifInpReader::readElementField( const std::string&                fieldName,
+                                     int                               partIndex,
+                                     int                               stepIndex,
+                                     int                               frameIndex,
+                                     std::vector<std::vector<float>*>* resultValues )
+{
+    readField( RigFemResultPosEnum::RIG_ELEMENT, fieldName, partIndex, stepIndex, resultValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifInpReader::readElementNodeField( const std::string&                fieldName,
                                          int                               partIndex,
                                          int                               stepIndex,
                                          int                               frameIndex,
                                          std::vector<std::vector<float>*>* resultValues )
 {
-    readField( RigFemResultPosEnum::RIG_ELEMENT, fieldName, partIndex, stepIndex, resultValues );
+    readField( RigFemResultPosEnum::RIG_ELEMENT_NODAL, fieldName, partIndex, stepIndex, resultValues );
 }
 
 //--------------------------------------------------------------------------------------------------
