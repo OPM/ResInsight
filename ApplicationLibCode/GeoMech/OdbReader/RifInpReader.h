@@ -98,6 +98,12 @@ public:
 private:
     void close();
 
+    void readField( RigFemResultPosEnum               resultType,
+                    const std::string&                fieldName,
+                    int                               partIndex,
+                    int                               stepIndex,
+                    std::vector<std::vector<float>*>* resultValues );
+
     void readScalarData( RigFemPartCollection* femParts, std::map<int, std::string>& parts, std::vector<RifInpIncludeEntry>& includeEntries );
 
     std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* propertyDataMap( RigFemResultPosEnum resultType );

@@ -632,33 +632,48 @@ void RifInpReader::readDisplacements( int partIndex, int stepIndex, int frameInd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifInpReader::readNodeField( const std::string&                fieldName,
-                                  int                               partIndex,
-                                  int                               stepIndex,
-                                  int                               frameIndex,
-                                  std::vector<std::vector<float>*>* resultValues )
+void RifInpReader::readField( RigFemResultPosEnum               resultType,
+                              const std::string&                fieldName,
+                              int                               partIndex,
+                              int                               stepIndex,
+                              std::vector<std::vector<float>*>* resultValues )
 {
     CVF_ASSERT( resultValues );
 
-    if ( m_propertyPartDataNodes.count( fieldName ) == 0 ) return;
+    auto dataMap = propertyDataMap( resultType );
+    if ( dataMap == nullptr ) return;
+
+    if ( dataMap->count( fieldName ) == 0 ) return;
 
     // is there only a static result? Use it for all steps.
-    if ( m_propertyPartDataNodes[fieldName].count( stepIndex ) == 0 )
+    if ( ( *dataMap )[fieldName].count( stepIndex ) == 0 )
     {
-        if ( m_propertyPartDataNodes[fieldName].count( -1 ) == 0 ) return;
+        if ( ( *dataMap )[fieldName].count( -1 ) == 0 ) return;
         stepIndex = -1;
     }
-    if ( m_propertyPartDataNodes[fieldName][stepIndex].count( partIndex ) == 0 ) return;
+    if ( ( *dataMap )[fieldName][stepIndex].count( partIndex ) == 0 ) return;
 
-    auto dataSize = m_propertyPartDataNodes[fieldName][stepIndex][partIndex].size();
+    auto dataSize = ( *dataMap )[fieldName][stepIndex][partIndex].size();
 
     ( *resultValues )[0]->resize( dataSize );
 
     std::vector<float>* singleComponentValues = ( *resultValues )[0];
     for ( size_t i = 0; i < dataSize; i++ )
     {
-        ( *singleComponentValues )[i] = (float)m_propertyPartDataNodes[fieldName][stepIndex][partIndex][i];
+        ( *singleComponentValues )[i] = (float)( *dataMap )[fieldName][stepIndex][partIndex][i];
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifInpReader::readNodeField( const std::string&                fieldName,
+                                  int                               partIndex,
+                                  int                               stepIndex,
+                                  int                               frameIndex,
+                                  std::vector<std::vector<float>*>* resultValues )
+{
+    readField( RigFemResultPosEnum::RIG_NODAL, fieldName, partIndex, stepIndex, resultValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -670,27 +685,7 @@ void RifInpReader::readElementNodeField( const std::string&                field
                                          int                               frameIndex,
                                          std::vector<std::vector<float>*>* resultValues )
 {
-    CVF_ASSERT( resultValues );
-
-    if ( m_propertyPartDataElements.count( fieldName ) == 0 ) return;
-
-    // is there only a static result? Use it for all steps.
-    if ( m_propertyPartDataElements[fieldName].count( stepIndex ) == 0 )
-    {
-        if ( m_propertyPartDataElements[fieldName].count( -1 ) == 0 ) return;
-        stepIndex = -1;
-    }
-    if ( m_propertyPartDataElements[fieldName][stepIndex].count( partIndex ) == 0 ) return;
-
-    auto dataSize = m_propertyPartDataElements[fieldName][stepIndex][partIndex].size();
-
-    ( *resultValues )[0]->resize( dataSize );
-
-    std::vector<float>* singleComponentValues = ( *resultValues )[0];
-    for ( size_t i = 0; i < dataSize; i++ )
-    {
-        ( *singleComponentValues )[i] = (float)m_propertyPartDataElements[fieldName][stepIndex][partIndex][i];
-    }
+    readField( RigFemResultPosEnum::RIG_ELEMENT, fieldName, partIndex, stepIndex, resultValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -702,7 +697,7 @@ void RifInpReader::readIntegrationPointField( const std::string&                
                                               int                               frameIndex,
                                               std::vector<std::vector<float>*>* resultValues )
 {
-    CVF_ASSERT( resultValues );
+    readField( RigFemResultPosEnum::RIG_INTEGRATION_POINT, fieldName, partIndex, stepIndex, resultValues );
 }
 
 //--------------------------------------------------------------------------------------------------
