@@ -2,7 +2,7 @@
 
 #include <vector>
 
-class QString;
+#include <QString>
 
 namespace caf
 {
