@@ -27,7 +27,6 @@
 #include <fstream>
 #include <map>
 #include <string>
-#include <tuple>
 #include <utility>
 
 class RigFemPartCollection;

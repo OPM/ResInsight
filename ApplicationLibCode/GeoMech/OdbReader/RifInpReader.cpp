@@ -30,7 +30,6 @@
 #include "cafProgressInfo.h"
 
 #include <QString>
-#include <QStringList>
 
 #include <iostream>
 #include <limits>
