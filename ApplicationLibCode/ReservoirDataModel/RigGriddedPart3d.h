@@ -58,8 +58,12 @@ public:
     bool   useLocalCoordinates() const;
     double topHeight() const;
 
+    void   setFaultSafetyDistance( double distance );
+    double faultSafetyDistance() const;
+
     const std::vector<cvf::Vec3d>& nodes() const;
     const std::vector<cvf::Vec3d>& globalNodes() const;
+    const std::vector<cvf::Vec3d>& dataNodes() const;
 
     const std::vector<std::vector<unsigned int>>&                                   elementIndices() const;
     const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& borderSurfaceElements() const;
@@ -97,8 +101,10 @@ private:
     bool m_useLocalCoordinates;
 
     double m_topHeight;
+    double m_faultSafetyDistance;
 
     std::vector<cvf::Vec3d>                                                  m_nodes;
+    std::vector<cvf::Vec3d>                                                  m_dataNodes;
     std::vector<cvf::Vec3d>                                                  m_localNodes;
     std::vector<std::vector<unsigned int>>                                   m_elementIndices;
     std::vector<int>                                                         m_elementKLayer;
