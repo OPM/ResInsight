@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.8)
-
 project(LibViewing_UnitTests)
 
 # Compile flags should already be setup by caller

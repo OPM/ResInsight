@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 2.8.12)
-
 project(cafHexInterpolator_UnitTests)
 
 if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
