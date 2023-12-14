@@ -443,6 +443,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
     frames = calculateDerivedResult( partIndex, resVarAddr );
     if ( frames ) return frames;
 
+    // is it available as an imported property
     if ( resVarAddr.resultPosType == RIG_ELEMENT )
     {
         std::map<std::string, std::vector<float>> elementProperties =
@@ -462,11 +463,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
         if ( frames )
         {
             return frames;
-        }
-        else
-        {
-            // Create a dummy empty result
-            return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
         }
     }
 
@@ -503,6 +499,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
                 {
                     case RIG_NODAL:
                         m_readerInterface->readNodeField( resVarAddr.fieldName, partIndex, stepIndex, frameIndex, &componentDataVectors );
+                        break;
+                    case RIG_ELEMENT:
+                        m_readerInterface->readElementField( resVarAddr.fieldName, partIndex, stepIndex, frameIndex, &componentDataVectors );
                         break;
                     case RIG_ELEMENT_NODAL:
                         m_readerInterface->readElementNodeField( resVarAddr.fieldName, partIndex, stepIndex, frameIndex, &componentDataVectors );
@@ -573,13 +572,19 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         if ( resPos == RIG_NODAL )
         {
             fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
-            if ( fieldCompNames.contains( "U" ) ) fieldCompNames["U"].push_back( "U_LENGTH" );
             fieldCompNames[RigFemAddressDefines::porBar()];
-            fieldCompNames[FIELD_NAME_COMPACTION];
+
+            if ( m_readerInterface->populateDerivedResultNames() )
+            {
+                if ( fieldCompNames.contains( "U" ) ) fieldCompNames["U"].push_back( "U_LENGTH" );
+                fieldCompNames[FIELD_NAME_COMPACTION];
+            }
         }
         else if ( resPos == RIG_ELEMENT_NODAL )
         {
             fieldCompNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
+
+            if ( !m_readerInterface->populateDerivedResultNames() ) return fieldCompNames;
 
             fieldCompNames["SE"].push_back( "SM" );
             fieldCompNames["SE"].push_back( "SFI" );
@@ -676,6 +681,8 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
             fieldCompNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
+
+            if ( !m_readerInterface->populateDerivedResultNames() ) return fieldCompNames;
 
             fieldCompNames["SE"].push_back( "SM" );
             fieldCompNames["SE"].push_back( "SFI" );
@@ -779,6 +786,8 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
+            if ( !m_readerInterface->populateDerivedResultNames() ) return fieldCompNames;
+
             fieldCompNames["Plane"].push_back( "Pinc" );
             fieldCompNames["Plane"].push_back( "Pazi" );
 
@@ -799,9 +808,11 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         }
         else if ( resPos == RIG_ELEMENT )
         {
+            fieldCompNames = m_readerInterface->scalarElementFieldAndComponentNames();
+
             for ( const std::string& field : m_elementPropertyReader->scalarElementFields() )
             {
-                fieldCompNames[field];
+                fieldCompNames[field] = {};
             }
         }
         else if ( resPos == RIG_WELLPATH_DERIVED )
@@ -882,6 +893,9 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompon
     {
         case RIG_NODAL:
             fieldAndComponentNames = m_readerInterface->scalarNodeFieldAndComponentNames();
+            break;
+        case RIG_ELEMENT:
+            fieldAndComponentNames = m_readerInterface->scalarElementFieldAndComponentNames();
             break;
         case RIG_ELEMENT_NODAL:
             fieldAndComponentNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();

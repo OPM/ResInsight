@@ -51,6 +51,7 @@ public:
     virtual std::vector<size_t>      elementSet( int partIndex, std::string partName, int setIndex ) = 0;
 
     virtual std::map<std::string, std::vector<std::string>> scalarNodeFieldAndComponentNames()             = 0;
+    virtual std::map<std::string, std::vector<std::string>> scalarElementFieldAndComponentNames()          = 0;
     virtual std::map<std::string, std::vector<std::string>> scalarElementNodeFieldAndComponentNames()      = 0;
     virtual std::map<std::string, std::vector<std::string>> scalarIntegrationPointFieldAndComponentNames() = 0;
 
@@ -61,6 +62,11 @@ public:
                                 int                               stepIndex,
                                 int                               frameIndex,
                                 std::vector<std::vector<float>*>* resultValues )             = 0;
+    virtual void readElementField( const std::string&                fieldName,
+                                   int                               partIndex,
+                                   int                               stepIndex,
+                                   int                               frameIndex,
+                                   std::vector<std::vector<float>*>* resultValues )          = 0;
     virtual void readElementNodeField( const std::string&                fieldName,
                                        int                               partIndex,
                                        int                               stepIndex,
@@ -71,6 +77,8 @@ public:
                                             int                               stepIndex,
                                             int                               frameIndex,
                                             std::vector<std::vector<float>*>* resultValues ) = 0;
+
+    virtual bool populateDerivedResultNames() const = 0;
 
     void setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices, bool readOnlyLastFrame );
     bool isTimeStepIncludedByFilter( int timeStepIndex ) const;

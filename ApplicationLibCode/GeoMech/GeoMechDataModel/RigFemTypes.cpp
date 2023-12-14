@@ -30,7 +30,7 @@ int RigFemTypes::elementNodeCount( RigElementType elmType )
 {
     static int elementTypeCounts[3] = { 8, 8, 4 };
 
-    return elementTypeCounts[elmType];
+    return elementTypeCounts[(unsigned int)elmType];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ int RigFemTypes::elementFaceCount( RigElementType elmType )
 {
     const static int elementFaceCounts[3] = { 6, 6, 1 };
 
-    return elementFaceCounts[elmType];
+    return elementFaceCounts[(unsigned int)elmType];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,12 +63,12 @@ const int* RigFemTypes::localElmNodeIndicesForFace( RigElementType elmType, int 
 
     switch ( elmType )
     {
-        case HEX8:
-        case HEX8P:
+        case RigElementType::HEX8:
+        case RigElementType::HEX8P:
             ( *faceNodeCount ) = 4;
             return HEX8_Faces[faceIdx];
             break;
-        case CAX4:
+        case RigElementType::CAX4:
             ( *faceNodeCount ) = 4;
             return CAX4_Faces;
             break;
@@ -86,11 +86,11 @@ int RigFemTypes::oppositeFace( RigElementType elmType, int faceIdx )
 
     switch ( elmType )
     {
-        case HEX8:
-        case HEX8P:
+        case RigElementType::HEX8:
+        case RigElementType::HEX8P:
             return HEX8_OppositeFaces[faceIdx];
             break;
-        case CAX4:
+        case RigElementType::CAX4:
             return faceIdx;
             break;
         default:
@@ -111,11 +111,11 @@ const int* RigFemTypes::localElmNodeToIntegrationPointMapping( RigElementType el
 
     switch ( elmType )
     {
-        case HEX8:
-        case HEX8P:
+        case RigElementType::HEX8:
+        case RigElementType::HEX8P:
             return HEX8_Mapping;
             break;
-        case CAX4:
+        case RigElementType::CAX4:
             return HEX8_Mapping; // First four is identical to HEX8
             break;
         default:
@@ -129,26 +129,68 @@ const int* RigFemTypes::localElmNodeToIntegrationPointMapping( RigElementType el
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigFemTypes::elementTypeText( RigElementType elemType )
+std::string RigFemTypes::elementTypeText( RigElementType elemType )
 {
-    QString txt = "UNKNOWN_ELM_TYPE";
+    std::string txt = "UNKNOWN_ELM_TYPE";
 
     switch ( elemType )
     {
-        case HEX8:
+        case RigElementType::HEX8:
             txt = "HEX8";
             break;
-        case HEX8P:
+        case RigElementType::HEX8P:
             txt = "HEX8P";
             break;
-        case CAX4:
+        case RigElementType::CAX4:
             txt = "CAX4";
             break;
-        case UNKNOWN_ELM_TYPE:
+        case RigElementType::UNKNOWN_ELM_TYPE:
             break;
         default:
             break;
     }
 
     return txt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, RigElementType> RigFemTypes::femTypeMap()
+{
+    std::map<std::string, RigElementType> typeMap;
+    typeMap["C3D8R"]   = RigElementType::HEX8;
+    typeMap["C3D8"]    = RigElementType::HEX8;
+    typeMap["C3D8P"]   = RigElementType::HEX8P;
+    typeMap["CAX4"]    = RigElementType::CAX4;
+    typeMap["C3D20RT"] = RigElementType::HEX8;
+    typeMap["C3D8RT"]  = RigElementType::HEX8;
+    typeMap["C3D8T"]   = RigElementType::HEX8;
+
+    return typeMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigElementType RigFemTypes::toRigElementType( const std::string odbTypeName )
+{
+    static std::map<std::string, RigElementType> odbElmTypeToRigElmTypeMap = femTypeMap();
+
+    std::map<std::string, RigElementType>::iterator it = odbElmTypeToRigElmTypeMap.find( odbTypeName );
+
+    if ( it == odbElmTypeToRigElmTypeMap.end() )
+    {
+        return RigElementType::UNKNOWN_ELM_TYPE;
+    }
+
+    return it->second;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemTypes::is8NodeElement( RigElementType elmType )
+{
+    return ( elmType == RigElementType::HEX8 ) || ( elmType == RigElementType::HEX8P );
 }

@@ -92,7 +92,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int p
             {
                 RigElementType elmType = femPart->elementType( elmIdx );
 
-                if ( elmType == HEX8P )
+                if ( elmType == RigElementType::HEX8P )
                 {
                     int elmNodeCount = RigFemTypes::elementNodeCount( elmType );
                     for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )

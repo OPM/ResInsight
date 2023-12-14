@@ -241,7 +241,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
                 RigFemPart*    femPart = geoMechView->femParts()->part( femPartIndex );
                 RigElementType elType  = femPart->elementType( elementIndex );
 
-                if ( elType == HEX8 || elType == HEX8P )
+                if ( RigFemTypes::is8NodeElement( elType ) )
                 {
                     cellIndex                     = elementIndex;
                     const RigFemPartGrid* femGrid = femPart->getOrCreateStructGrid();

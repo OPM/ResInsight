@@ -58,6 +58,7 @@ public:
     void appendElement( RigElementType elmType, int elementId, const int* connectivities );
 
     int elementCount() const;
+    int nodeCount() const;
     int allConnectivitiesCount() const;
 
     int            elmId( size_t elementIdx ) const;

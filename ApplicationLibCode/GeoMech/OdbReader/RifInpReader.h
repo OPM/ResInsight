@@ -20,15 +20,38 @@
 
 #include "RifGeoMechReaderInterface.h"
 
+#include "RigFemResultPosEnum.h"
+#include "RigFemTypes.h"
+
+#include <filesystem>
 #include <fstream>
 #include <map>
 #include <string>
+#include <utility>
 
 class RigFemPartCollection;
 
+struct RifInpIncludeEntry
+{
+public:
+    RifInpIncludeEntry( std::string propertyName, RigFemResultPosEnum resultType, int stepId, std::string fileName, int columnIndex )
+    {
+        this->propertyName = propertyName;
+        this->stepId       = stepId;
+        this->fileName     = fileName;
+        this->resultType   = resultType;
+        this->columnIndex  = columnIndex;
+    }
+
+public:
+    std::string         propertyName;
+    int                 stepId;
+    std::string         fileName;
+    RigFemResultPosEnum resultType;
+    int                 columnIndex;
+};
+
 //==================================================================================================
-//
-// Data interface base class
 //
 //==================================================================================================
 class RifInpReader : public RifGeoMechReaderInterface
@@ -36,6 +59,8 @@ class RifInpReader : public RifGeoMechReaderInterface
 public:
     RifInpReader();
     ~RifInpReader() override;
+
+    void enableIncludes( bool enable );
 
     bool                     openFile( const std::string& fileName, std::string* errorMessage ) override;
     bool                     isOpen() const override;
@@ -49,6 +74,7 @@ public:
     std::vector<size_t>      elementSet( int partIndex, std::string partName, int setIndex ) override;
 
     std::map<std::string, std::vector<std::string>> scalarNodeFieldAndComponentNames() override;
+    std::map<std::string, std::vector<std::string>> scalarElementFieldAndComponentNames() override;
     std::map<std::string, std::vector<std::string>> scalarElementNodeFieldAndComponentNames() override;
     std::map<std::string, std::vector<std::string>> scalarIntegrationPointFieldAndComponentNames() override;
 
@@ -59,6 +85,11 @@ public:
                         int                               stepIndex,
                         int                               frameIndex,
                         std::vector<std::vector<float>*>* resultValues ) override;
+    void readElementField( const std::string&                fieldName,
+                           int                               partIndex,
+                           int                               stepIndex,
+                           int                               frameIndex,
+                           std::vector<std::vector<float>*>* resultValues ) override;
     void readElementNodeField( const std::string&                fieldName,
                                int                               partIndex,
                                int                               stepIndex,
@@ -70,8 +101,20 @@ public:
                                     int                               frameIndex,
                                     std::vector<std::vector<float>*>* resultValues ) override;
 
+    bool populateDerivedResultNames() const override;
+
 private:
     void close();
+
+    void readField( RigFemResultPosEnum               resultType,
+                    const std::string&                fieldName,
+                    int                               partIndex,
+                    int                               stepIndex,
+                    std::vector<std::vector<float>*>* resultValues );
+
+    void readScalarData( RigFemPartCollection* femParts, std::map<int, std::string>& parts, std::vector<RifInpIncludeEntry>& includeEntries );
+
+    std::map<std::string, std::map<int, std::map<int, std::vector<double>>>>* propertyDataMap( RigFemResultPosEnum resultType );
 
     static void                                          skipComments( std::istream& stream );
     static std::string                                   parseLabel( const std::string& line, const std::string& labelName );
@@ -80,14 +123,22 @@ private:
     static std::vector<size_t>                           readElementSet( std::istream& stream );
     static std::vector<size_t>                           readElementSetGenerate( std::istream& stream );
 
-    static void read( std::istream&                                                            stream,
-                      std::map<int, std::string>&                                              parts,
-                      std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&                  nodes,
-                      std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
-                      std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets );
+    static RigElementType read( std::istream&                                                            stream,
+                                std::map<int, std::string>&                                              parts,
+                                std::map<int, std::vector<std::pair<int, cvf::Vec3d>>>&                  nodes,
+                                std::map<int, std::vector<std::pair<int, std::vector<int>>>>&            elements,
+                                std::map<int, std::vector<std::pair<std::string, std::vector<size_t>>>>& elementSets,
+                                std::vector<std::string>&                                                stepNames,
+                                bool                                                                     enableIncludes,
+                                std::vector<RifInpIncludeEntry>&                                         includeEntries );
 
 private:
-    std::map<int, std::vector<std::string>> m_partElementSetNames;
-
-    std::ifstream m_stream;
+    bool                                                                     m_enableIncludes;
+    std::map<int, std::vector<std::string>>                                  m_partElementSetNames;
+    std::vector<std::string>                                                 m_stepNames;
+    std::vector<RifInpIncludeEntry>                                          m_includeEntries;
+    std::ifstream                                                            m_stream;
+    std::filesystem::path                                                    m_inputPath;
+    std::map<std::string, std::map<int, std::map<int, std::vector<double>>>> m_propertyPartDataNodes;
+    std::map<std::string, std::map<int, std::map<int, std::vector<double>>>> m_propertyPartDataElements;
 };
