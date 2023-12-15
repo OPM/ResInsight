@@ -35,6 +35,7 @@
 RigGriddedPart3d::RigGriddedPart3d()
     : m_useLocalCoordinates( false )
     , m_topHeight( 0.0 )
+    , m_faultSafetyDistance( 1.0 )
 {
 }
 
@@ -54,6 +55,7 @@ void RigGriddedPart3d::reset()
     m_boundaryNodes.clear();
     m_borderSurfaceElements.clear();
     m_nodes.clear();
+    m_dataNodes.clear();
     m_localNodes.clear();
     m_elementIndices.clear();
     m_meshLines.clear();
@@ -268,7 +270,9 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     tVec.normalize();
     tVec *= modelThickness;
 
-    m_nodes.reserve( ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 ) );
+    size_t reserveSize = ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
+    m_nodes.reserve( reserveSize );
+    m_dataNodes.reserve( reserveSize );
 
     unsigned int nodeIndex = 0;
     unsigned int layer     = 0;
@@ -331,6 +335,9 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
             cvf::Vec3d stepHorz = toPos - fromPos;
             cvf::Vec3d p;
+            cvf::Vec3d safetyOffset = fromPos - toPos;
+            safetyOffset.normalize();
+            safetyOffset *= m_faultSafetyDistance;
 
             m_meshLines.push_back( { fromPos, toPos } );
 
@@ -341,6 +348,16 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
                 {
                     m_nodes.push_back( p + m_thicknessFactors[t] * tVec );
+
+                    if ( h == (int)nHorzCells )
+                    {
+                        m_dataNodes.push_back( p + safetyOffset );
+                    }
+                    else
+                    {
+                        m_dataNodes.push_back( p );
+                    }
+
                     if ( layer == 0 )
                     {
                         m_boundaryNodes[Boundary::Bottom].push_back( nodeIndex );
@@ -521,6 +538,16 @@ const std::vector<cvf::Vec3d>& RigGriddedPart3d::globalNodes() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns nodes in global coordinates, adjusted to always extract data as if the model has no
+/// thickness. Additionally, nodes closest to the fault are moved away from the fault
+/// to make sure data results come from the correct side of the fault.
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d>& RigGriddedPart3d::dataNodes() const
+{
+    return m_dataNodes;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RigGriddedPart3d::setUseLocalCoordinates( bool useLocalCoordinates )
@@ -542,6 +569,22 @@ bool RigGriddedPart3d::useLocalCoordinates() const
 double RigGriddedPart3d::topHeight() const
 {
     return m_topHeight;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::setFaultSafetyDistance( double distance )
+{
+    m_faultSafetyDistance = distance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigGriddedPart3d::faultSafetyDistance() const
+{
+    return m_faultSafetyDistance;
 }
 
 //--------------------------------------------------------------------------------------------------
