@@ -256,7 +256,7 @@ void RigReservoirBuilderMock::populateReservoir( RigEclipseCaseData* eclipseCase
         addWellData( eclipseCase, eclipseCase->mainGrid() );
     }
 
-    //addFaults( eclipseCase );
+    // addFaults( eclipseCase );
 
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
