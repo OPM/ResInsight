@@ -90,8 +90,7 @@ RicImportGeneralDataFeature::OpenCaseResults
         {
             roffFiles.push_back( fileName );
         }
-
-        if ( fileName.endsWith( "h5grid" ) )
+        else if ( fileTypeAsInt & int( ImportFileType::EM_H5GRID ) )
         {
             emFiles.push_back( fileName );
         }
