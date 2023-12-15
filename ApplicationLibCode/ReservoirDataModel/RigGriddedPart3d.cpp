@@ -349,7 +349,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 {
                     m_nodes.push_back( p + m_thicknessFactors[t] * tVec );
 
-                    if ( h == nHorzCells )
+                    if ( h == (int)nHorzCells )
                     {
                         m_dataNodes.push_back( p + safetyOffset );
                     }
