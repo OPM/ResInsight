@@ -148,13 +148,6 @@ bool RimEmCase::openEclipseGridFile()
 
     if ( numCells[0] > 0 )
     {
-        if ( false )
-        {
-            auto tmp    = numCells;
-            numCells[0] = tmp[1];
-            numCells[1] = tmp[0];
-        }
-
         RigReservoirBuilderMock builder;
 
         std::array<double, 3> originEND;
@@ -182,10 +175,10 @@ bool RimEmCase::openEclipseGridFile()
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
-    for ( auto a : resultData )
+    for ( auto data : resultData )
     {
         QString newResultName =
-            eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( QString::fromStdString( a.first ) );
+            eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( QString::fromStdString( data.first ) );
 
         RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, RiaDefines::ResultDataType::FLOAT, newResultName );
         eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
@@ -194,23 +187,21 @@ bool RimEmCase::openEclipseGridFile()
             eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
         std::vector<double> reorganizedData;
-        for ( auto val : a.second )
-        {
-            reorganizedData.push_back( val );
-        }
 
-        /*
-                for ( int ix = 0; ix < numCells[0]; ix++ )
+        auto ordering = numCells;
+        ordering[0]   = numCells[2];
+        ordering[2]   = numCells[0];
+
+        for ( size_t i = 0; i < ordering[0]; i++ )
+        {
+            for ( size_t j = 0; j < ordering[1]; j++ )
+            {
+                for ( size_t k = 0; k < ordering[2]; k++ )
                 {
-                    for ( int iy = 0; iy < numCells[1]; iy++ )
-                    {
-                        for ( int iz = 0; iz < numCells[2]; iz++ )
-                        {
-                            reorganizedData.push_back( a.second[ix + iy * numCells[0] + iz * numCells[0] * numCells[1]] );
-                        }
-                    }
+                    reorganizedData.push_back( data.second[i + j * ordering[0] + k * ordering[0] * ordering[1]] );
                 }
-        */
+            }
+        }
 
         newPropertyData->push_back( reorganizedData );
     }
