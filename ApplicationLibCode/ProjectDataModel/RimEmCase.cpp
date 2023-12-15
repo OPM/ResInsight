@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022-     Equinor ASA
+//  Copyright (C) Ceetron Solutions AS
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,8 @@
 
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafProgressInfo.h"
+
+#include "H5Cpp.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -75,21 +77,34 @@ bool RimEmCase::openEclipseGridFile()
     // First find and read the grid data
     if ( eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
     {
-        QString errorMessages;
-        if ( RifRoffFileTools::openGridFile( fileName, eclipseCaseData(), &errorMessages ) )
+        try
         {
-            QFileInfo gridFileInfo( fileName );
-            QString   caseName = gridFileInfo.completeBaseName();
+            H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 
-            setCaseUserDescription( caseName );
-            eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
-            computeCachedData();
+            H5::H5File mainFile( fileName.toStdString().c_str(),
+                                 H5F_ACC_RDONLY ); // initial date part is an attribute of SourSimRL main file
         }
-        else
+        catch ( ... )
         {
-            RiaLogging::error( errorMessages );
-            return false;
         }
+
+        /*
+    QString errorMessages;
+    if ( RifRoffFileTools::openGridFile( fileName, eclipseCaseData(), &errorMessages ) )
+    {
+        QFileInfo gridFileInfo( fileName );
+        QString   caseName = gridFileInfo.completeBaseName();
+
+        setCaseUserDescription( caseName );
+        eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
+        computeCachedData();
+    }
+    else
+    {
+        RiaLogging::error( errorMessages );
+        return false;
+    }
+*/
     }
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createPlaceholderResultEntries();
