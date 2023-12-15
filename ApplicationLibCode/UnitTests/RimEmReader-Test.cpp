@@ -36,17 +36,18 @@ TEST( RigReservoirTest, DISABLED_TestImportGrid )
 {
     QString fileName( "f:/Models/emgs/BrickvilleProject/Horizons/test.h5grid" );
 
+    std::array<double, 3>                      originNED;
+    std::array<double, 3>                      originMesh;
+    std::array<double, 3>                      cellSizes;
+    std::array<int, 3>                         numCells;
+    std::map<std::string, std::vector<double>> resultData;
+
     try
     {
         H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 
         H5::H5File mainFile( fileName.toStdString().c_str(),
                              H5F_ACC_RDONLY ); // initial date part is an attribute of SourSimRL main file
-
-        std::array<double, 3> originNED;
-        std::array<double, 3> originMesh;
-        std::array<double, 3> cellSizes;
-        std::array<int, 3>    numCells;
 
         {
             auto         attr        = mainFile.openAttribute( "description::OriginNED" );
@@ -77,8 +78,6 @@ TEST( RigReservoirTest, DISABLED_TestImportGrid )
                 attr.read( type, originMesh.data() );
             }
         }
-
-        std::map<std::string, std::vector<double>> resultData;
 
         H5::Group group  = mainFile.openGroup( "Data" );
         auto      numObj = group.getNumObjs();
