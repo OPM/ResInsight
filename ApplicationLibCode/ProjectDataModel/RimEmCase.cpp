@@ -28,7 +28,9 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigReservoirBuilderMock.h"
 
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
@@ -74,7 +76,12 @@ bool RimEmCase::openEclipseGridFile()
 
     QString fileName = gridFileName();
 
-    // First find and read the grid data
+    std::array<double, 3>                     originNED;
+    std::array<double, 3>                     originMesh;
+    std::array<double, 3>                     cellSizes;
+    std::array<int, 3>                        numCells;
+    std::map<std::string, std::vector<float>> resultData;
+
     if ( eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
     {
         try
@@ -83,28 +90,86 @@ bool RimEmCase::openEclipseGridFile()
 
             H5::H5File mainFile( fileName.toStdString().c_str(),
                                  H5F_ACC_RDONLY ); // initial date part is an attribute of SourSimRL main file
+
+            {
+                auto         attr        = mainFile.openAttribute( "description::OriginNED" );
+                H5::DataType type        = attr.getDataType();
+                auto         storageSize = attr.getStorageSize();
+                attr.read( type, originNED.data() );
+            }
+
+            {
+                H5::Group group = mainFile.openGroup( "Mesh" );
+
+                {
+                    auto         attr        = group.openAttribute( "cell_sizes" );
+                    H5::DataType type        = attr.getDataType();
+                    auto         storageSize = attr.getStorageSize();
+                    attr.read( type, cellSizes.data() );
+                }
+                {
+                    auto         attr        = group.openAttribute( "num_cells" );
+                    H5::DataType type        = attr.getDataType();
+                    auto         storageSize = attr.getStorageSize();
+                    attr.read( type, numCells.data() );
+                }
+                {
+                    auto         attr        = group.openAttribute( "origin" );
+                    H5::DataType type        = attr.getDataType();
+                    auto         storageSize = attr.getStorageSize();
+                    attr.read( type, originMesh.data() );
+                }
+            }
+
+            H5::Group group  = mainFile.openGroup( "Data" );
+            auto      numObj = group.getNumObjs();
+            for ( auto i = 0; i < numObj; i++ )
+            {
+                auto objName = group.getObjnameByIdx( i );
+                auto objType = group.getObjTypeByIdx( i );
+
+                std::vector<float> resultValues;
+                H5::DataSet        dataset = H5::DataSet( group.openDataSet( objName ) );
+
+                hsize_t       dims[3];
+                H5::DataSpace dataspace = dataset.getSpace();
+                dataspace.getSimpleExtentDims( dims, nullptr );
+
+                resultValues.resize( dims[0] * dims[1] * dims[2] );
+                dataset.read( resultValues.data(), H5::PredType::NATIVE_FLOAT );
+
+                resultData[objName] = resultValues;
+            }
         }
         catch ( ... )
         {
         }
-
-        /*
-    QString errorMessages;
-    if ( RifRoffFileTools::openGridFile( fileName, eclipseCaseData(), &errorMessages ) )
-    {
-        QFileInfo gridFileInfo( fileName );
-        QString   caseName = gridFileInfo.completeBaseName();
-
-        setCaseUserDescription( caseName );
-        eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
-        computeCachedData();
     }
-    else
+
+    if ( numCells[0] > 0 )
     {
-        RiaLogging::error( errorMessages );
-        return false;
-    }
-*/
+        if ( false )
+        {
+            auto tmp    = numCells;
+            numCells[0] = tmp[1];
+            numCells[1] = tmp[0];
+        }
+
+        RigReservoirBuilderMock builder;
+
+        std::array<double, 3> originEND;
+        originEND[0] = originNED[1];
+        originEND[1] = originNED[0];
+        originEND[2] = originNED[2];
+
+        builder.setWorldCoordinates( cvf::Vec3d( originEND[0], originEND[1], originEND[2] ),
+                                     cvf::Vec3d( originEND[0] + cellSizes[0] * numCells[0],
+                                                 originEND[1] + cellSizes[1] * numCells[1],
+                                                 originEND[2] + cellSizes[2] * numCells[2] ) );
+
+        builder.setGridPointDimensions( cvf::Vec3st( numCells[0] + 1, numCells[1] + 1, numCells[2] + 1 ) );
+        builder.enableWellData( false );
+        builder.populateReservoir( eclipseCaseData() );
     }
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createPlaceholderResultEntries();
@@ -117,8 +182,38 @@ bool RimEmCase::openEclipseGridFile()
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
-    // Read properties from grid file
-    RifRoffFileTools::createInputProperties( fileName, eclipseCaseData() );
+    for ( auto a : resultData )
+    {
+        QString newResultName =
+            eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( QString::fromStdString( a.first ) );
+
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, RiaDefines::ResultDataType::FLOAT, newResultName );
+        eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
+
+        auto newPropertyData =
+            eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+
+        std::vector<double> reorganizedData;
+        for ( auto val : a.second )
+        {
+            reorganizedData.push_back( val );
+        }
+
+        /*
+                for ( int ix = 0; ix < numCells[0]; ix++ )
+                {
+                    for ( int iy = 0; iy < numCells[1]; iy++ )
+                    {
+                        for ( int iz = 0; iz < numCells[2]; iz++ )
+                        {
+                            reorganizedData.push_back( a.second[ix + iy * numCells[0] + iz * numCells[0] * numCells[1]] );
+                        }
+                    }
+                }
+        */
+
+        newPropertyData->push_back( reorganizedData );
+    }
 
     // Read properties from input property collection
     loadAndSynchronizeInputProperties( false );

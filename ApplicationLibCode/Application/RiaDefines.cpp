@@ -272,7 +272,7 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
     if ( fileName.endsWith( "h5grid", Qt::CaseInsensitive ) )
     {
         // EM data must be detected first, since "h5grid" also matches "grid" and is interpreted as Eclipse file
-        return ImportFileType::NOT_A_VALID_IMPORT_FILE;
+        return ImportFileType::EM_H5GRID;
     }
 
     if ( fileName.endsWith( "EGRID", Qt::CaseInsensitive ) )

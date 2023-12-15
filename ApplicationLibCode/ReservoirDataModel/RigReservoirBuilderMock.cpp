@@ -256,7 +256,7 @@ void RigReservoirBuilderMock::populateReservoir( RigEclipseCaseData* eclipseCase
         addWellData( eclipseCase, eclipseCase->mainGrid() );
     }
 
-    addFaults( eclipseCase );
+    //addFaults( eclipseCase );
 
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -271,11 +271,11 @@ void RigReservoirBuilderMock::populateReservoir( RigEclipseCaseData* eclipseCase
     activeCellInfo->computeDerivedData();
 
     // Add grid coarsening for main grid
-    if ( cellDimension().x() > 4 && cellDimension().y() > 5 && cellDimension().z() > 6 )
-    {
-        eclipseCase->mainGrid()->addCoarseningBox( 1, 2, 1, 3, 1, 4 );
-        eclipseCase->mainGrid()->addCoarseningBox( 3, 4, 4, 5, 5, 6 );
-    }
+    //     if ( cellDimension().x() > 4 && cellDimension().y() > 5 && cellDimension().z() > 6 )
+    //     {
+    //         eclipseCase->mainGrid()->addCoarseningBox( 1, 2, 1, 3, 1, 4 );
+    //         eclipseCase->mainGrid()->addCoarseningBox( 3, 4, 4, 5, 5, 6 );
+    //     }
 }
 
 //--------------------------------------------------------------------------------------------------
