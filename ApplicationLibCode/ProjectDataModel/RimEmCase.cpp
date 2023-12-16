@@ -30,7 +30,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
-#include "RigReservoirBuilderMock.h"
+#include "RigReservoirBuilder.h"
 
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
@@ -148,7 +148,7 @@ bool RimEmCase::openEclipseGridFile()
 
     if ( numCells[0] > 0 )
     {
-        RigReservoirBuilderMock builder;
+        RigReservoirBuilder builder;
 
         std::array<double, 3> originEND;
         originEND[0] = originNED[1];
@@ -160,8 +160,7 @@ bool RimEmCase::openEclipseGridFile()
                                                  originEND[1] + cellSizes[1] * numCells[1],
                                                  originEND[2] + cellSizes[2] * numCells[2] ) );
 
-        builder.setGridPointDimensions( cvf::Vec3st( numCells[0] + 1, numCells[1] + 1, numCells[2] + 1 ) );
-        builder.enableWellData( false );
+        builder.setIJKCount( cvf::Vec3st( numCells[0], numCells[1], numCells[2] ) );
         builder.populateReservoir( eclipseCaseData() );
     }
 

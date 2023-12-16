@@ -21,12 +21,11 @@
 #pragma once
 
 #include "RigNncConnection.h"
+#include "RigReservoirBuilder.h"
 
 #include "cvfArray.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-
-#include <deque>
 
 class RigEclipseCaseData;
 class RigMainGrid;
@@ -34,21 +33,6 @@ class RigGridBase;
 class RigCell;
 
 class QString;
-
-class LocalGridRefinement
-{
-public:
-    LocalGridRefinement( const cvf::Vec3st& mainGridMin, const cvf::Vec3st& mainGridMax, const cvf::Vec3st& singleCellRefinementFactors )
-    {
-        m_mainGridMinCellPosition     = mainGridMin;
-        m_mainGridMaxCellPosition     = mainGridMax;
-        m_singleCellRefinementFactors = singleCellRefinementFactors;
-    }
-
-    cvf::Vec3st m_mainGridMinCellPosition;
-    cvf::Vec3st m_mainGridMaxCellPosition;
-    cvf::Vec3st m_singleCellRefinementFactors;
-};
 
 class RigReservoirBuilderMock
 {
