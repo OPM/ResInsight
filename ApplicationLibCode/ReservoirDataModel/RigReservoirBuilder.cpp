@@ -66,7 +66,7 @@ void RigReservoirBuilder::addLocalGridRefinement( const cvf::Vec3st& minCellPosi
 void RigReservoirBuilder::populateReservoir( RigEclipseCaseData* eclipseCase )
 {
     std::vector<cvf::Vec3d>& mainGridNodes = eclipseCase->mainGrid()->nodes();
-    appendNodes( m_minWorldCoordinate, m_maxWorldCoordinate, cellDimension(), mainGridNodes );
+    appendNodes( m_minWorldCoordinate, m_maxWorldCoordinate, ijkCount(), mainGridNodes );
     size_t mainGridNodeCount = mainGridNodes.size();
     size_t mainGridCellCount = mainGridNodeCount / 8;
 
@@ -275,7 +275,7 @@ size_t RigReservoirBuilder::cellIndexFromIJK( size_t i, size_t j, size_t k ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RigReservoirBuilder::cellDimension()
+cvf::Vec3st RigReservoirBuilder::ijkCount() const
 {
     return cvf::Vec3st( m_gridPointDimensions.x() - 1, m_gridPointDimensions.y() - 1, m_gridPointDimensions.z() - 1 );
 }

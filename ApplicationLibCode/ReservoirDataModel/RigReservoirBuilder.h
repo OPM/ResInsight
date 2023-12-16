@@ -47,7 +47,9 @@ public:
     RigReservoirBuilder();
 
     void setWorldCoordinates( cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate );
-    void setIJKCount( const cvf::Vec3st& ijkCount );
+
+    void        setIJKCount( const cvf::Vec3st& ijkCount );
+    cvf::Vec3st ijkCount() const;
 
     void addLocalGridRefinement( const cvf::Vec3st& minCellPosition,
                                  const cvf::Vec3st& maxCellPosition,
@@ -62,8 +64,6 @@ private:
     static void appendCubeNodes( const cvf::Vec3d& min, const cvf::Vec3d& max, std::vector<cvf::Vec3d>& nodes );
 
     size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const;
-
-    cvf::Vec3st cellDimension();
 
 private:
     cvf::Vec3d  m_minWorldCoordinate;
