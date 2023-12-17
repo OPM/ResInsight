@@ -158,6 +158,8 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
     activeCellInfo->setGridCount( 1 );
     activeCellInfo->setGridActiveCellCounts( 0, eclipseCase->mainGrid()->globalCellArray().size() );
     activeCellInfo->computeDerivedData();
+
+    eclipseCase->computeActiveCellBoundingBoxes();
 }
 
 //--------------------------------------------------------------------------------------------------

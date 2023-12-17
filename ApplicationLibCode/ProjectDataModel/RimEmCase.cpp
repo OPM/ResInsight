@@ -114,11 +114,11 @@ bool RimEmCase::openEclipseGridFile()
         kjiNumCells[0]   = emData.ijkNumCells[2];
         kjiNumCells[2]   = emData.ijkNumCells[0];
 
-        for ( size_t k = 0; k < kjiNumCells[0]; k++ )
+        for ( int k = 0; k < kjiNumCells[0]; k++ )
         {
-            for ( size_t j = 0; j < kjiNumCells[1]; j++ )
+            for ( int j = 0; j < kjiNumCells[1]; j++ )
             {
-                for ( size_t i = 0; i < kjiNumCells[2]; i++ )
+                for ( int i = 0; i < kjiNumCells[2]; i++ )
                 {
                     reorganizedData.push_back( data[k + j * kjiNumCells[0] + i * kjiNumCells[0] * kjiNumCells[1]] );
                 }
