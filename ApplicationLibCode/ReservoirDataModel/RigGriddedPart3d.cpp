@@ -644,8 +644,15 @@ void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
 {
     m_localNodes.clear();
 
+    // need to flip the Y axis for the element corners to be in an acceptable order for abaqus and the IJK numbering algorithm in resinsight
+    cvf::Vec3d xAxis = { 1.0, 0.0, 0.0 };
+    cvf::Vec3d yAxis = { 0.0, -1.0, 0.0 };
+    cvf::Vec3d zAxis = { 0.0, 0.0, 1.0 };
+    cvf::Mat4d flipY = cvf::Mat4d::fromCoordSystemAxes( &xAxis, &yAxis, &zAxis );
+
     for ( auto& node : m_nodes )
     {
-        m_localNodes.push_back( node.getTransformedPoint( transform ) );
+        auto tn = node.getTransformedPoint( transform );
+        m_localNodes.push_back( tn.getTransformedPoint( flipY ) );
     }
 }
