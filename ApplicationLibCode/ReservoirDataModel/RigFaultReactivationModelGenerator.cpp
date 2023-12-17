@@ -154,8 +154,6 @@ void RigFaultReactivationModelGenerator::setupLocalCoordinateTransform()
 {
     auto [xNormal, yNormal] = modelLocalNormalsXY();
 
-    // yNormal = yNormal * -1.0;
-
     m_localCoordTransform = cvf::Mat4d::fromCoordSystemAxes( &xNormal, &yNormal, &cvf::Vec3d::Z_AXIS );
     cvf::Vec3d center     = m_startPosition * -1.0;
     center.z()            = 0.0;
