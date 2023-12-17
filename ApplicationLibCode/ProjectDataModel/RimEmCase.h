@@ -39,12 +39,9 @@ public:
 
     bool openEclipseGridFile() override;
     void reloadEclipseGridFile() override;
-    bool importAsciiInputProperties( const QStringList& fileNames ) override;
 
     QString locationOnDisc() const override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
-private:
 };
