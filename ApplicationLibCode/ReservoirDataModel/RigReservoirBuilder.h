@@ -55,11 +55,10 @@ public:
                                  const cvf::Vec3st& maxCellPosition,
                                  const cvf::Vec3st& singleCellRefinementFactors );
 
-    void populateReservoir( RigEclipseCaseData* eclipseCase );
+    void createGridsAndCells( RigEclipseCaseData* eclipseCase );
 
 private:
     static void appendCells( size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells );
-
     static void appendNodes( const cvf::Vec3d& min, const cvf::Vec3d& max, const cvf::Vec3st& cubeDimension, std::vector<cvf::Vec3d>& nodes );
     static void appendCubeNodes( const cvf::Vec3d& min, const cvf::Vec3d& max, std::vector<cvf::Vec3d>& nodes );
 

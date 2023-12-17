@@ -66,7 +66,7 @@ void RigReservoirBuilderMock::setResultInfo( size_t resultCount, size_t timeStep
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::populateReservoir( RigEclipseCaseData* eclipseCase )
 {
-    m_reservoirBuilder.populateReservoir( eclipseCase );
+    m_reservoirBuilder.createGridsAndCells( eclipseCase );
 
     if ( m_enableWellData )
     {

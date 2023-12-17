@@ -61,9 +61,13 @@ void RigReservoirBuilder::addLocalGridRefinement( const cvf::Vec3st& minCellPosi
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Build the geometry for a grids and cells
+/// - create 8 nodes for each cell
+/// - create cells by referencing the nodes
+/// - optionally create and add LGR grids
+/// - set all cells to active
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilder::populateReservoir( RigEclipseCaseData* eclipseCase )
+void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
 {
     std::vector<cvf::Vec3d>& mainGridNodes = eclipseCase->mainGrid()->nodes();
     appendNodes( m_minWorldCoordinate, m_maxWorldCoordinate, ijkCount(), mainGridNodes );
