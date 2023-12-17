@@ -23,9 +23,17 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include <array>
+
+struct RimEmData
+{
+    std::array<double, 3>                     originNED;
+    std::array<double, 3>                     cellSizes;
+    std::array<int, 3>                        ijkNumCells;
+    std::map<std::string, std::vector<float>> resultData;
+};
 
 //==================================================================================================
-//
 //
 //
 //==================================================================================================
@@ -44,4 +52,7 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    RimEmData readDataFromFile();
 };

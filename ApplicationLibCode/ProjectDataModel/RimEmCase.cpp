@@ -29,7 +29,9 @@
 #include "RigMainGrid.h"
 #include "RigReservoirBuilder.h"
 
+#ifdef USE_HDF5
 #include "H5Cpp.h"
+#endif
 
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -65,88 +67,23 @@ bool RimEmCase::openEclipseGridFile()
 
     setReservoirData( new RigEclipseCaseData( this ) );
 
-    QString fileName = gridFileName();
-
-    std::array<double, 3>                     originNED;
-    std::array<double, 3>                     originMesh;
-    std::array<double, 3>                     cellSizes;
-    std::array<int, 3>                        numCells;
-    std::map<std::string, std::vector<float>> resultData;
-
-    try
-    {
-        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
-
-        H5::H5File mainFile( fileName.toStdString().c_str(), H5F_ACC_RDONLY );
-
-        {
-            auto         attr        = mainFile.openAttribute( "description::OriginNED" );
-            H5::DataType type        = attr.getDataType();
-            auto         storageSize = attr.getStorageSize();
-            attr.read( type, originNED.data() );
-        }
-
-        {
-            H5::Group group = mainFile.openGroup( "Mesh" );
-
-            {
-                auto         attr        = group.openAttribute( "cell_sizes" );
-                H5::DataType type        = attr.getDataType();
-                auto         storageSize = attr.getStorageSize();
-                attr.read( type, cellSizes.data() );
-            }
-            {
-                auto         attr        = group.openAttribute( "num_cells" );
-                H5::DataType type        = attr.getDataType();
-                auto         storageSize = attr.getStorageSize();
-                attr.read( type, numCells.data() );
-            }
-            {
-                auto         attr        = group.openAttribute( "origin" );
-                H5::DataType type        = attr.getDataType();
-                auto         storageSize = attr.getStorageSize();
-                attr.read( type, originMesh.data() );
-            }
-        }
-
-        H5::Group group  = mainFile.openGroup( "Data" );
-        auto      numObj = group.getNumObjs();
-        for ( auto i = 0; i < numObj; i++ )
-        {
-            auto resultName = group.getObjnameByIdx( i );
-
-            std::vector<float> resultValues;
-            H5::DataSet        dataset = H5::DataSet( group.openDataSet( resultName ) );
-
-            hsize_t       dims[3];
-            H5::DataSpace dataspace = dataset.getSpace();
-            dataspace.getSimpleExtentDims( dims, nullptr );
-
-            resultValues.resize( dims[0] * dims[1] * dims[2] );
-            dataset.read( resultValues.data(), H5::PredType::NATIVE_FLOAT );
-
-            resultData[resultName] = resultValues;
-        }
-    }
-    catch ( ... )
-    {
-    }
+    auto emData = readDataFromFile();
 
     {
         RigReservoirBuilder builder;
 
         std::array<double, 3> originEND;
-        originEND[0] = originNED[1];
-        originEND[1] = originNED[0];
-        originEND[2] = originNED[2];
+        originEND[0] = emData.originNED[1];
+        originEND[1] = emData.originNED[0];
+        originEND[2] = emData.originNED[2];
 
         builder.setWorldCoordinates( cvf::Vec3d( originEND[0], originEND[1], originEND[2] ),
-                                     cvf::Vec3d( originEND[0] + cellSizes[0] * numCells[0],
-                                                 originEND[1] + cellSizes[1] * numCells[1],
-                                                 originEND[2] + cellSizes[2] * numCells[2] ) );
+                                     cvf::Vec3d( originEND[0] + emData.cellSizes[0] * emData.ijkNumCells[0],
+                                                 originEND[1] + emData.cellSizes[1] * emData.ijkNumCells[1],
+                                                 originEND[2] + emData.cellSizes[2] * emData.ijkNumCells[2] ) );
 
-        builder.setIJKCount( cvf::Vec3st( numCells[0], numCells[1], numCells[2] ) );
-        builder.populateReservoir( eclipseCaseData() );
+        builder.setIJKCount( cvf::Vec3st( emData.ijkNumCells[0], emData.ijkNumCells[1], emData.ijkNumCells[2] ) );
+        builder.createGridsAndCells( eclipseCaseData() );
     }
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createPlaceholderResultEntries();
@@ -159,7 +96,7 @@ bool RimEmCase::openEclipseGridFile()
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
-    for ( auto [resultName, data] : resultData )
+    for ( auto [resultName, data] : emData.resultData )
     {
         QString riResultName =
             eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( QString::fromStdString( resultName ) );
@@ -172,9 +109,10 @@ bool RimEmCase::openEclipseGridFile()
 
         std::vector<double> reorganizedData;
 
-        auto kjiNumCells = numCells;
-        kjiNumCells[0]   = numCells[2];
-        kjiNumCells[2]   = numCells[0];
+        // Switch cell size ordering from IJK to KJI to make the data layout fit internal ResInsight result ordering
+        auto kjiNumCells = emData.ijkNumCells;
+        kjiNumCells[0]   = emData.ijkNumCells[2];
+        kjiNumCells[2]   = emData.ijkNumCells[0];
 
         for ( size_t k = 0; k < kjiNumCells[0]; k++ )
         {
@@ -216,6 +154,79 @@ void RimEmCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
     group->add( &m_activeFormationNames );
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEmData RimEmCase::readDataFromFile()
+{
+#ifndef USE_HDF5
+    return {};
+#else
+
+    QString fileName = gridFileName();
+
+    std::array<double, 3>                     originNED;
+    std::array<double, 3>                     cellSizes;
+    std::array<int, 3>                        ijkNumCells;
+    std::map<std::string, std::vector<float>> resultData;
+
+    try
+    {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
+        H5::H5File mainFile( fileName.toStdString().c_str(), H5F_ACC_RDONLY );
+
+        {
+            auto         attr        = mainFile.openAttribute( "description::OriginNED" );
+            H5::DataType type        = attr.getDataType();
+            auto         storageSize = attr.getStorageSize();
+            attr.read( type, originNED.data() );
+        }
+
+        {
+            H5::Group group = mainFile.openGroup( "Mesh" );
+
+            {
+                auto         attr        = group.openAttribute( "cell_sizes" );
+                H5::DataType type        = attr.getDataType();
+                auto         storageSize = attr.getStorageSize();
+                attr.read( type, cellSizes.data() );
+            }
+            {
+                auto         attr        = group.openAttribute( "num_cells" );
+                H5::DataType type        = attr.getDataType();
+                auto         storageSize = attr.getStorageSize();
+                attr.read( type, ijkNumCells.data() );
+            }
+        }
+
+        H5::Group group  = mainFile.openGroup( "Data" );
+        auto      numObj = group.getNumObjs();
+        for ( auto i = 0; i < numObj; i++ )
+        {
+            auto resultName = group.getObjnameByIdx( i );
+
+            std::vector<float> resultValues;
+            H5::DataSet        dataset = H5::DataSet( group.openDataSet( resultName ) );
+
+            hsize_t       dims[3];
+            H5::DataSpace dataspace = dataset.getSpace();
+            dataspace.getSimpleExtentDims( dims, nullptr );
+
+            resultValues.resize( dims[0] * dims[1] * dims[2] );
+            dataset.read( resultValues.data(), H5::PredType::NATIVE_FLOAT );
+
+            resultData[resultName] = resultValues;
+        }
+    }
+    catch ( ... )
+    {
+    }
+
+    return { originNED, cellSizes, ijkNumCells, resultData };
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
