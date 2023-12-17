@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#ifdef USE_HDF5
+
 #include "gtest/gtest.h"
 
 #include "RigEclipseCaseData.h"
@@ -104,3 +106,5 @@ TEST( RigReservoirTest, DISABLED_TestImportGrid )
     {
     }
 }
+
+#endif // USE_HDF5
