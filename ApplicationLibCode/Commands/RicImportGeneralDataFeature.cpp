@@ -34,15 +34,6 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
-#include "RiaGuiApplication.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseView.h"
-#include "RimEmCase.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RiuMainWindow.h"
-
 #include <QAction>
 #include <QFileInfo>
 #include <QString>
@@ -136,12 +127,10 @@ RicImportGeneralDataFeature::OpenCaseResults
 
     if ( !emFiles.empty() )
     {
-        if ( !openEmFilesFromFileNames( emFiles, createDefaultView, results.createdCaseIds ) )
+        if ( !RiaImportEclipseCaseTools::openEmFilesFromFileNames( emFiles, createDefaultView, results.createdCaseIds ) )
         {
             return OpenCaseResults();
         }
-        //    results.emFiles = emFiles;
-        // RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::EM_FILE ), defaultDir );
     }
 
     return results;
@@ -544,61 +533,6 @@ bool RicImportGeneralDataFeature::openRoffCaseAndPropertiesFromFileNames( const 
         propertyFileNames.push_back( *fileNameItr );
     }
     generatedRoffCase->importAsciiInputProperties( propertyFileNames );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openEmFilesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds )
-{
-    if ( fileNames.empty() ) return false;
-
-    RimProject* project = RimProject::current();
-    if ( !project ) return false;
-
-    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
-    if ( !analysisModels ) return false;
-
-    const size_t initialNumCases = createdCaseIds.size();
-
-    for ( auto fileName : fileNames )
-    {
-        auto* roffCase = new RimEmCase();
-        project->assignCaseIdToCase( roffCase );
-        roffCase->setGridFileName( fileName );
-
-        bool gridImportSuccess = roffCase->openEclipseGridFile();
-        if ( !gridImportSuccess )
-        {
-            const auto errMsg = "Failed to import grid from file: " + fileName.toStdString();
-            RiaLogging::error( errMsg.c_str() );
-            delete roffCase;
-            continue;
-        }
-
-        analysisModels->cases.push_back( roffCase );
-        analysisModels->updateConnectedEditors();
-
-        RimEclipseView* eclipseView = nullptr;
-        if ( createDefaultView )
-        {
-            eclipseView = roffCase->createAndAddReservoirView();
-
-            eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
-            eclipseView->loadDataAndUpdate();
-
-            roffCase->updateAllRequiredEditors();
-            if ( RiaGuiApplication::isRunning() )
-            {
-                if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
-
-                // Make sure the call to setExpanded is done after the call to selectAsCurrentItem
-                Riu3DMainWindowTools::setExpanded( eclipseView );
-            }
-        }
-    }
 
     return true;
 }
