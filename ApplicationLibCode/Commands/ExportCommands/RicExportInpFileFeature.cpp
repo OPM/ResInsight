@@ -53,7 +53,7 @@ void RicExportInpFileFeature::onActionTriggered( bool isChecked )
         if ( !isOk )
         {
             const QString frmTitle( "Fault Reactivation Modeling" );
-            QString       outErrorText =
+            QString outErrorText =
                 QString( "Failed to export INP model to file %1.\n\n%2" ).arg( exportFile ).arg( QString::fromStdString( errorMessage ) );
             QMessageBox::critical( nullptr, frmTitle, outErrorText );
         }

@@ -425,7 +425,9 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     sizeModelGrp->add( &m_modelMinZ );
     sizeModelGrp->add( &m_modelBelowSize );
 
-    if ( m_geomechCase() != nullptr )
+    const bool hasGeoMechCase = ( m_geomechCase() != nullptr );
+
+    if ( hasGeoMechCase )
     {
         m_modelMinZ.setValue( std::abs( m_geomechCase->allCellsBoundingBox().max().z() ) );
         m_modelMinZ.uiCapability()->setUiReadOnly( true );
@@ -462,14 +464,14 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     propertiesGrp->add( &m_useGridPorePressure );
     propertiesGrp->add( &m_useGridVoidRatio );
     propertiesGrp->add( &m_useGridTemperature );
-    propertiesGrp->add( &m_useGridDensity );
-    propertiesGrp->add( &m_useGridElasticProperties );
-    propertiesGrp->add( &m_useGridStress );
-    propertiesGrp->add( &m_waterDensity );
 
-    auto trgGroup = uiOrdering.addNewGroup( "Debug" );
-    trgGroup->setCollapsedByDefault();
-    trgGroup->add( &m_targets );
+    if ( hasGeoMechCase )
+    {
+        propertiesGrp->add( &m_useGridDensity );
+        propertiesGrp->add( &m_useGridElasticProperties );
+        propertiesGrp->add( &m_useGridStress );
+        propertiesGrp->add( &m_waterDensity );
+    }
 
     uiOrdering.skipRemainingFields();
 }

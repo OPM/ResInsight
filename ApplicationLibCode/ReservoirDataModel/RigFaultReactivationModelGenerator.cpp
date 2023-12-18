@@ -33,6 +33,8 @@
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
+#include <ranges>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -572,39 +574,31 @@ void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf:
 {
     std::vector<cvf::Vec3d> additionalPoints;
 
-    std::pair<double, cvf::Vec3d> prevLayer;
-    std::vector<int>              newKLayers;
+    std::vector<int> newKLayers;
 
-    bool first = true;
-    int  k     = 0;
+    const int nLayers  = (int)layers.size();
+    const int nKLayers = (int)kLayers.size();
 
-    const int nLayers = (int)layers.size();
-    int       n       = 0;
+    auto                    kv = std::views::keys( layers );
+    std::vector<double>     keys{ kv.begin(), kv.end() };
+    auto                    vv = std::views::values( layers );
+    std::vector<cvf::Vec3d> vals{ vv.begin(), vv.end() };
 
-    for ( auto& layer : layers )
+    for ( int k = 0; k < nLayers; k++ )
     {
-        if ( n++ == ( nLayers - 1 ) ) break;
-
-        if ( first )
+        if ( k > 0 )
         {
-            prevLayer = layer;
-            first     = false;
-            newKLayers.push_back( kLayers[k++] );
-            continue;
-        }
-
-        if ( std::abs( prevLayer.first - layer.first ) > maxHeight )
-        {
-            const auto& points = interpolateExtraPoints( prevLayer.second, layer.second, maxHeight );
-            for ( auto& p : points )
+            if ( std::abs( keys[k] - keys[k - 1] ) > maxHeight )
             {
-                additionalPoints.push_back( p );
-                newKLayers.push_back( kLayers[k - 1] );
+                const auto& points = interpolateExtraPoints( vals[k - 1], vals[k], maxHeight );
+                for ( auto& p : points )
+                {
+                    additionalPoints.push_back( p );
+                    newKLayers.push_back( kLayers[k - 1] );
+                }
             }
         }
-
-        prevLayer = layer;
-        newKLayers.push_back( kLayers[k++] );
+        if ( k < nKLayers ) newKLayers.push_back( kLayers[k] );
     }
 
     for ( auto& p : additionalPoints )
