@@ -179,8 +179,8 @@ RimEmData RimEmCase::readDataFromFile()
         H5::H5File mainFile( fileName.toStdString().c_str(), H5F_ACC_RDONLY );
 
         {
-            auto         attr        = mainFile.openAttribute( "description::OriginNED" );
-            H5::DataType type        = attr.getDataType();
+            auto         attr = mainFile.openAttribute( "description::OriginNED" );
+            H5::DataType type = attr.getDataType();
             attr.read( type, originNED.data() );
         }
 
@@ -188,13 +188,13 @@ RimEmData RimEmCase::readDataFromFile()
             H5::Group group = mainFile.openGroup( "Mesh" );
 
             {
-                auto         attr        = group.openAttribute( "cell_sizes" );
-                H5::DataType type        = attr.getDataType();
+                auto         attr = group.openAttribute( "cell_sizes" );
+                H5::DataType type = attr.getDataType();
                 attr.read( type, cellSizes.data() );
             }
             {
-                auto         attr        = group.openAttribute( "num_cells" );
-                H5::DataType type        = attr.getDataType();
+                auto         attr = group.openAttribute( "num_cells" );
+                H5::DataType type = attr.getDataType();
                 attr.read( type, ijkNumCells.data() );
             }
         }
