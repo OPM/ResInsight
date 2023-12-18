@@ -111,4 +111,7 @@ private:
     static std::string createFileName( const std::string& title, const std::string& stepName );
 
     static std::string createFilePath( const std::string& dir, const std::string& fileName );
+
+    static bool                                            exportModelSettings( const RimFaultReactivationModel& model );
+    static std::shared_ptr<RimFaultReactivationDataAccess> extractAndExportModelData( const RimFaultReactivationModel& model );
 };

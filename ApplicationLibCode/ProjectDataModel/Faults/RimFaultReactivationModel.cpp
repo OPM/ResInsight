@@ -46,7 +46,6 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
-#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimFaultReactivationTools.h"
 #include "RimGeoMechCase.h"
@@ -542,22 +541,20 @@ void RimFaultReactivationModel::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimFaultReactivationModel::eclipseCase()
+RimEclipseCase* RimFaultReactivationModel::eclipseCase() const
 {
     auto eCase = firstAncestorOrThisOfType<RimEclipseCase>();
 
-    if ( eCase == nullptr )
-    {
-        eCase = dynamic_cast<RimEclipseCase*>( RiaApplication::instance()->activeGridView()->ownerCase() );
-    }
-
-    return eCase;
+    if ( eCase != nullptr )
+        return eCase;
+    else
+        return dynamic_cast<RimEclipseCase*>( RiaApplication::instance()->activeGridView()->ownerCase() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RimFaultReactivationModel::geoMechCase()
+RimGeoMechCase* RimFaultReactivationModel::geoMechCase() const
 {
     return m_geomechCase();
 }
@@ -600,6 +597,22 @@ std::vector<QDateTime> RimFaultReactivationModel::selectedTimeSteps() const
     // selected dates might come in the order they were selected, sort them
     std::sort( dates.begin(), dates.end() );
     return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimFaultReactivationModel::selectedTimeStepIndexes() const
+{
+    std::vector<size_t> selectedTimeStepIndexes;
+    for ( auto& timeStep : selectedTimeSteps() )
+    {
+        auto idx = std::find( m_availableTimeSteps.begin(), m_availableTimeSteps.end(), timeStep );
+        if ( idx == m_availableTimeSteps.end() ) return {};
+
+        selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
+    }
+    return selectedTimeStepIndexes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -663,60 +676,6 @@ QString RimFaultReactivationModel::baseFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::exportModelSettings()
-{
-    if ( m_2Dmodel.isNull() ) return false;
-    if ( !m_2Dmodel->isValid() ) return false;
-
-    QMap<QString, QVariant> settings;
-
-    auto [topPosition, bottomPosition] = m_2Dmodel->faultTopBottom();
-    auto faultNormal                   = m_2Dmodel->faultNormal();
-
-    // make sure we move horizontally, and along the 2D model
-    faultNormal.z() = 0.0;
-    faultNormal.normalize();
-    faultNormal = faultNormal ^ cvf::Vec3d::Z_AXIS;
-
-    RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
-
-    QDir directory( baseDir() );
-    return ResInsightInternalJson::JsonWriter::encodeFile( settingsFilename(), settings );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::extractAndExportModelData()
-{
-    if ( m_dataAccess ) m_dataAccess->clearModelData();
-
-    if ( !exportModelSettings() ) return false;
-
-    auto eCase = eclipseCase();
-    if ( eCase == nullptr ) return false;
-
-    // get the selected time step indexes
-    std::vector<size_t> selectedTimeStepIndexes;
-    for ( auto& timeStep : selectedTimeSteps() )
-    {
-        auto idx = std::find( m_availableTimeSteps.begin(), m_availableTimeSteps.end(), timeStep );
-        if ( idx == m_availableTimeSteps.end() ) return false;
-
-        selectedTimeStepIndexes.push_back( idx - m_availableTimeSteps.begin() );
-    }
-
-    // extract data for each timestep
-    m_dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, geoMechCase(), selectedTimeStepIndexes );
-    m_dataAccess->extractModelData( *model() );
-    m_dataAccess.reset();
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets elementSet ) const
 {
     std::array<double, 3>                     retVal   = { 0.0, 0.0, 0.0 };
@@ -739,14 +698,6 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
     }
 
     return retVal;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<RimFaultReactivationDataAccess> RimFaultReactivationModel::dataAccess() const
-{
-    return m_dataAccess;
 }
 
 //--------------------------------------------------------------------------------------------------
