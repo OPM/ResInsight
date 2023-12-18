@@ -167,7 +167,7 @@ std::vector<QString> RimWellRftEnsembleCurveSet::parametersWithVariation() const
 //--------------------------------------------------------------------------------------------------
 void RimWellRftEnsembleCurveSet::clearEnsembleStatistics()
 {
-    m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( m_ensemble(), m_eclipseCase() );
+    m_statisticsEclipseRftReader = std::make_unique<RifReaderEnsembleStatisticsRft>( m_ensemble(), m_eclipseCase() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ RimEclipseCase* RimWellRftEnsembleCurveSet::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimWellRftEnsembleCurveSet::statisticsEclipseRftReader()
 {
-    return m_statisticsEclipseRftReader.p();
+    return m_statisticsEclipseRftReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------
