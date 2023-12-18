@@ -181,7 +181,6 @@ RimEmData RimEmCase::readDataFromFile()
         {
             auto         attr        = mainFile.openAttribute( "description::OriginNED" );
             H5::DataType type        = attr.getDataType();
-            auto         storageSize = attr.getStorageSize();
             attr.read( type, originNED.data() );
         }
 
@@ -191,20 +190,18 @@ RimEmData RimEmCase::readDataFromFile()
             {
                 auto         attr        = group.openAttribute( "cell_sizes" );
                 H5::DataType type        = attr.getDataType();
-                auto         storageSize = attr.getStorageSize();
                 attr.read( type, cellSizes.data() );
             }
             {
                 auto         attr        = group.openAttribute( "num_cells" );
                 H5::DataType type        = attr.getDataType();
-                auto         storageSize = attr.getStorageSize();
                 attr.read( type, ijkNumCells.data() );
             }
         }
 
         H5::Group group  = mainFile.openGroup( "Data" );
         auto      numObj = group.getNumObjs();
-        for ( auto i = 0; i < numObj; i++ )
+        for ( size_t i = 0; i < numObj; i++ )
         {
             auto resultName = group.getObjnameByIdx( i );
 
