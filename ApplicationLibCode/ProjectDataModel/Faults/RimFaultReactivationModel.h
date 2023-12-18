@@ -75,7 +75,7 @@ public:
     QString userDescription();
     void    setUserDescription( QString description );
 
-    std::pair<bool, std::string> validateBeforeRun() const;
+    std::pair<bool, std::string> validateModel() const;
 
     void            setFaultInformation( RimFaultInView* fault, size_t cellIndex, cvf::StructGridInterface::FaceType face );
     RimFaultInView* fault() const;
