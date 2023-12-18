@@ -302,8 +302,23 @@ RigElementType RifInpReader::read( std::istream&                                
                 else if ( prevline.starts_with( "*INITIAL" ) )
                 {
                     auto label = parseLabel( prevline, "type" );
-                    if ( label == "RATIO" ) propertyName = "VOIDR";
-                    resultType = RigFemResultPosEnum::RIG_NODAL;
+                    if ( label == "RATIO" )
+                    {
+                        propertyName = "VOIDR";
+                        resultType   = RigFemResultPosEnum::RIG_NODAL;
+                    }
+                    else if ( label == "STRESS" )
+                    {
+                        includeEntries.push_back( RifInpIncludeEntry( "STRESS_TOP", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 1 ) );
+                        includeEntries.push_back( RifInpIncludeEntry( "DEPTH_TOP", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 2 ) );
+                        includeEntries.push_back( RifInpIncludeEntry( "STRESS_BOTTOM", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 3 ) );
+                        includeEntries.push_back( RifInpIncludeEntry( "DEPTH_BOTTOM", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 4 ) );
+                        includeEntries.push_back(
+                            RifInpIncludeEntry( "LATERAL_STRESS_X", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 5 ) );
+
+                        propertyName = "LATERAL_STRESS_Y";
+                        columnIndex  = 6;
+                    }
                 }
                 if ( propertyName.empty() )
                 {
