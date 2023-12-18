@@ -283,47 +283,44 @@ RigElementType RifInpReader::read( std::istream&                                
             }
             else if ( enableIncludes && uppercasedLine.starts_with( "*INCLUDE" ) )
             {
-                auto                filename   = parseLabel( line, "input" );
-                RigFemResultPosEnum resultType = RigFemResultPosEnum::RIG_ELEMENT;
-                std::string         propertyName( "" );
-                int                 columnIndex = 1;
+                auto filename = parseLabel( line, "input" );
 
                 if ( prevline.starts_with( "*BOUNDARY" ) )
                 {
-                    propertyName = "POR";
-                    resultType   = RigFemResultPosEnum::RIG_NODAL;
-                    columnIndex  = 3;
+                    includeEntries.push_back( RifInpIncludeEntry( "POR", RigFemResultPosEnum::RIG_NODAL, stepId, filename, 3 ) );
                 }
                 else if ( prevline.starts_with( "*TEMPERATURE" ) )
                 {
-                    propertyName = "TEMP";
-                    resultType   = RigFemResultPosEnum::RIG_NODAL;
+                    includeEntries.push_back( RifInpIncludeEntry( "TEMP", RigFemResultPosEnum::RIG_NODAL, stepId, filename, 1 ) );
                 }
                 else if ( prevline.starts_with( "*INITIAL" ) )
                 {
                     auto label = parseLabel( prevline, "type" );
-                    if ( label == "RATIO" ) propertyName = "VOIDR";
-                    resultType = RigFemResultPosEnum::RIG_NODAL;
+                    if ( label == "RATIO" )
+                    {
+                        includeEntries.push_back( RifInpIncludeEntry( "VOIDR", RigFemResultPosEnum::RIG_NODAL, stepId, filename, 1 ) );
+                    }
+                    else if ( label == "STRESS" )
+                    {
+                        includeEntries.push_back( RifInpIncludeEntry( "STRESS_TOP", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 1 ) );
+                        includeEntries.push_back( RifInpIncludeEntry( "STRESS_BOTTOM", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 3 ) );
+                        includeEntries.push_back( RifInpIncludeEntry( "STRESS_K0X", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 5 ) );
+                        includeEntries.push_back( RifInpIncludeEntry( "STRESS_K0Y", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 6 ) );
+                    }
                 }
-                if ( propertyName.empty() )
+                else
                 {
                     std::string uppercasedFilename = RiaStdStringTools::toUpper( filename );
 
                     if ( uppercasedFilename.find( "DENSITY" ) != std::string::npos )
                     {
-                        propertyName = "DENSITY";
+                        includeEntries.push_back( RifInpIncludeEntry( "DENSITY", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 1 ) );
                     }
                     else if ( uppercasedFilename.find( "ELASTICS" ) != std::string::npos )
                     {
                         includeEntries.push_back( RifInpIncludeEntry( "MODULUS", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 1 ) );
-
-                        propertyName = "RATIO";
-                        columnIndex  = 2;
+                        includeEntries.push_back( RifInpIncludeEntry( "RATIO", RigFemResultPosEnum::RIG_ELEMENT, stepId, filename, 2 ) );
                     }
-                }
-                if ( !propertyName.empty() )
-                {
-                    includeEntries.push_back( RifInpIncludeEntry( propertyName, resultType, stepId, filename, columnIndex ) );
                 }
             }
             prevline = uppercasedLine;
