@@ -87,7 +87,7 @@ private:
     caf::PdmField<QString>                      m_ensembleParameter;
     caf::PdmChildField<RimRegularLegendConfig*> m_ensembleLegendConfig;
 
-    cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
+    std::unique_ptr<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
 
 protected:
     void initAfterRead() override;

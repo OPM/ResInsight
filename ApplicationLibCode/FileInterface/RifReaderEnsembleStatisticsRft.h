@@ -29,7 +29,7 @@ class RimSummaryCaseCollection;
 class RimEclipseCase;
 class RigWellPath;
 
-class RifReaderEnsembleStatisticsRft : public RifReaderRftInterface, public cvf::Object
+class RifReaderEnsembleStatisticsRft : public RifReaderRftInterface
 {
 public:
     RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection, RimEclipseCase* eclipseCase );
