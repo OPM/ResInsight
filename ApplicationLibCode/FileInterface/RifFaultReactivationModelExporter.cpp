@@ -45,6 +45,9 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
                                                                                 const std::string&               exportDirectory,
                                                                                 const RimFaultReactivationModel& rimModel )
 {
+    auto [modelOk, errorMsg] = rimModel.validateModel();
+    if ( !modelOk ) return { false, errorMsg };
+
     auto dataAccess = extractAndExportModelData( rimModel );
     if ( !dataAccess ) return { false, "Unable to get necessary data from the input case." };
 

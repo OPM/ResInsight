@@ -573,6 +573,7 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         {
             fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
             fieldCompNames[RigFemAddressDefines::porBar()];
+            if ( fieldCompNames.contains( "VOIDR" ) ) fieldCompNames["PORO-PERM"].push_back( "PHI0" );
 
             if ( m_readerInterface->populateDerivedResultNames() )
             {
@@ -584,7 +585,10 @@ std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::sca
         {
             fieldCompNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
 
-            if ( !m_readerInterface->populateDerivedResultNames() ) return fieldCompNames;
+            if ( !m_readerInterface->populateDerivedResultNames() )
+            {
+                return fieldCompNames;
+            }
 
             fieldCompNames["SE"].push_back( "SM" );
             fieldCompNames["SE"].push_back( "SFI" );

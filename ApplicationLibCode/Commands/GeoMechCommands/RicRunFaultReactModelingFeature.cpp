@@ -62,14 +62,6 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
     runProgress.setProgressDescription( "Writing input files." );
 
-    auto [modelOk, errorMsg] = model->validateBeforeRun();
-
-    if ( !modelOk )
-    {
-        QMessageBox::critical( nullptr, frmTitle, QString::fromStdString( errorMsg ) );
-        return;
-    }
-
     QString exportFile     = model->inputFilename();
     auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *model );
 

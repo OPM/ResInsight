@@ -302,7 +302,7 @@ RigElementType RifInpReader::read( std::istream&                                
                 else if ( prevline.starts_with( "*INITIAL" ) )
                 {
                     auto label = parseLabel( prevline, "type" );
-                    if ( label == "RATIO" ) propertyName = "RATIO";
+                    if ( label == "RATIO" ) propertyName = "VOIDR";
                     resultType = RigFemResultPosEnum::RIG_NODAL;
                 }
                 if ( propertyName.empty() )
