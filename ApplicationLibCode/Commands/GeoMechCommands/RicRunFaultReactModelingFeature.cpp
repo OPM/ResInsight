@@ -70,12 +70,6 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    if ( !model->extractAndExportModelData() )
-    {
-        QMessageBox::critical( nullptr, frmTitle, "Unable to get necessary data from the input case." );
-        return;
-    }
-
     QString exportFile     = model->inputFilename();
     auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *model );
 

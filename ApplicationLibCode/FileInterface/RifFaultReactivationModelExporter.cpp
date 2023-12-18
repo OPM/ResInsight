@@ -28,9 +28,12 @@
 #include "RiaWellLogUnitTools.h"
 
 #include "RifInpExportTools.h"
+#include "RifJsonEncodeDecode.h"
+
 #include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimFaultReactivationModel.h"
+#include "RimFaultReactivationTools.h"
 
 #include <filesystem>
 #include <fstream>
@@ -42,6 +45,9 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
                                                                                 const std::string&               exportDirectory,
                                                                                 const RimFaultReactivationModel& rimModel )
 {
+    auto dataAccess = extractAndExportModelData( rimModel );
+    if ( !dataAccess ) return { false, "Unable to get necessary data from the input case." };
+
     std::string applicationNameAndVersion = std::string( RI_APPLICATION_NAME ) + " " + std::string( STRPRODUCTVER );
 
     using PartBorderSurface                                        = RimFaultReactivation::BorderSurface;
@@ -89,8 +95,6 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
     double seaBedDepth  = rimModel.seaBedDepth();
     double waterDensity = rimModel.waterDensity();
     double seaWaterLoad = RiaWellLogUnitTools<double>::gravityAcceleration() * seaBedDepth * waterDensity;
-
-    auto dataAccess = rimModel.dataAccess();
 
     auto model = rimModel.model();
     CAF_ASSERT( !model.isNull() );
@@ -808,4 +812,45 @@ std::string RifFaultReactivationModelExporter::createFileName( const std::string
 std::string RifFaultReactivationModelExporter::createFilePath( const std::string& dir, const std::string& fileName )
 {
     return dir + "/" + fileName;
-};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifFaultReactivationModelExporter::exportModelSettings( const RimFaultReactivationModel& rimModel )
+{
+    auto model = rimModel.model();
+
+    if ( model.isNull() ) return false;
+    if ( !model->isValid() ) return false;
+
+    QMap<QString, QVariant> settings;
+
+    auto [topPosition, bottomPosition] = model->faultTopBottom();
+    auto faultNormal                   = model->faultNormal();
+
+    // make sure we move horizontally, and along the 2D model
+    faultNormal.z() = 0.0;
+    faultNormal.normalize();
+    faultNormal = faultNormal ^ cvf::Vec3d::Z_AXIS;
+
+    RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
+    return ResInsightInternalJson::JsonWriter::encodeFile( rimModel.settingsFilename(), settings );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RimFaultReactivationDataAccess>
+    RifFaultReactivationModelExporter::extractAndExportModelData( const RimFaultReactivationModel& rimModel )
+{
+    if ( !exportModelSettings( rimModel ) ) return nullptr;
+
+    auto eCase = rimModel.eclipseCase();
+    if ( eCase == nullptr ) return nullptr;
+
+    // extract data for each timestep
+    auto dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, rimModel.geoMechCase(), rimModel.selectedTimeStepIndexes() );
+    dataAccess->extractModelData( *rimModel.model() );
+    return dataAccess;
+}

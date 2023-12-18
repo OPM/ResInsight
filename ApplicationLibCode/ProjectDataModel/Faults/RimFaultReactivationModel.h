@@ -18,7 +18,6 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
-#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
@@ -53,7 +52,6 @@ class RimTimeStepFilter;
 class RivFaultReactivationModelPartMgr;
 class RigBasicPlane;
 class RigFaultReactivationModel;
-class RimFaultReactivationDataAccess;
 
 namespace cvf
 {
@@ -102,12 +100,11 @@ public:
     cvf::ref<RigFaultReactivationModel> model() const;
     bool                                showModel() const;
 
-    bool extractAndExportModelData();
-
     QString baseDir() const;
     void    setBaseDir( QString path );
 
     std::vector<QDateTime> selectedTimeSteps() const;
+    std::vector<size_t>    selectedTimeStepIndexes() const;
 
     std::array<double, 3> materialParameters( ElementSets elementSet ) const;
 
@@ -119,8 +116,6 @@ public:
 
     void updateTimeSteps();
 
-    std::shared_ptr<RimFaultReactivationDataAccess> dataAccess() const;
-
     bool useGridVoidRatio() const;
     bool useGridPorePressure() const;
     bool useGridTemperature() const;
@@ -131,6 +126,9 @@ public:
     double seaBedDepth() const;
     double waterDensity() const;
 
+    RimEclipseCase* eclipseCase() const;
+    RimGeoMechCase* geoMechCase() const;
+
 protected:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -139,12 +137,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    RimEclipseCase* eclipseCase();
-    RimGeoMechCase* geoMechCase();
-
     QString baseFilename() const;
-
-    bool exportModelSettings();
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
@@ -197,6 +190,4 @@ private:
     caf::PdmChildArrayField<RimParameterGroup*> m_materialParameters;
 
     std::vector<QDateTime> m_availableTimeSteps;
-
-    std::shared_ptr<RimFaultReactivationDataAccess> m_dataAccess;
 };

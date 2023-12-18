@@ -56,12 +56,6 @@ void RicShowFaultReactModelFeature::onActionTriggered( bool isChecked )
     const QString frmTitle( "Fault Reactivation Modeling" );
     const QString exportFile = model->inputFilename();
 
-    if ( !model->extractAndExportModelData() )
-    {
-        QMessageBox::critical( nullptr, frmTitle, "Unable to get necessary data from the input case." );
-        return;
-    }
-
     auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *model );
     if ( !result )
     {
