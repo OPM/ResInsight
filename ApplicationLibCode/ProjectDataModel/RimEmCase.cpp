@@ -67,20 +67,27 @@ bool RimEmCase::openEclipseGridFile()
 
     setReservoirData( new RigEclipseCaseData( this ) );
 
-    auto emData = readDataFromFile();
+    auto emDataFromFile = readDataFromFile();
+
+    auto emData = emDataFromFile;
+
+    // Flip X and Y axis
+    emData.cellSizes[0] = emDataFromFile.cellSizes[1];
+    emData.cellSizes[1] = emDataFromFile.cellSizes[0];
+
+    emData.ijkNumCells[0] = emDataFromFile.ijkNumCells[1];
+    emData.ijkNumCells[1] = emDataFromFile.ijkNumCells[0];
+
+    emData.originNED[0] = emDataFromFile.originNED[1];
+    emData.originNED[1] = emDataFromFile.originNED[0];
 
     {
         RigReservoirBuilder builder;
 
-        std::array<double, 3> originEND;
-        originEND[0] = emData.originNED[1];
-        originEND[1] = emData.originNED[0];
-        originEND[2] = emData.originNED[2];
-
-        builder.setWorldCoordinates( cvf::Vec3d( originEND[0], originEND[1], originEND[2] ),
-                                     cvf::Vec3d( originEND[0] + emData.cellSizes[0] * emData.ijkNumCells[0],
-                                                 originEND[1] + emData.cellSizes[1] * emData.ijkNumCells[1],
-                                                 originEND[2] + emData.cellSizes[2] * emData.ijkNumCells[2] ) );
+        builder.setWorldCoordinates( cvf::Vec3d( emData.originNED[0], emData.originNED[1], emData.originNED[2] ),
+                                     cvf::Vec3d( emData.originNED[0] + emData.cellSizes[0] * emData.ijkNumCells[0],
+                                                 emData.originNED[1] + emData.cellSizes[1] * emData.ijkNumCells[1],
+                                                 -( emData.originNED[2] + emData.cellSizes[2] * emData.ijkNumCells[2] ) ) );
 
         builder.setIJKCount( cvf::Vec3st( emData.ijkNumCells[0], emData.ijkNumCells[1], emData.ijkNumCells[2] ) );
         builder.createGridsAndCells( eclipseCaseData() );
@@ -116,9 +123,9 @@ bool RimEmCase::openEclipseGridFile()
 
         for ( int k = 0; k < kjiNumCells[0]; k++ )
         {
-            for ( int j = 0; j < kjiNumCells[1]; j++ )
+            for ( int i = 0; i < kjiNumCells[2]; i++ )
             {
-                for ( int i = 0; i < kjiNumCells[2]; i++ )
+                for ( int j = 0; j < kjiNumCells[1]; j++ )
                 {
                     reorganizedData.push_back( data[k + j * kjiNumCells[0] + i * kjiNumCells[0] * kjiNumCells[1]] );
                 }
@@ -127,6 +134,8 @@ bool RimEmCase::openEclipseGridFile()
 
         newPropertyData->push_back( reorganizedData );
     }
+
+    computeCachedData();
 
     return true;
 }
