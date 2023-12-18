@@ -52,8 +52,8 @@ TEST( RigReservoirTest, DISABLED_TestImportGrid )
                              H5F_ACC_RDONLY ); // initial date part is an attribute of SourSimRL main file
 
         {
-            auto         attr        = mainFile.openAttribute( "description::OriginNED" );
-            H5::DataType type        = attr.getDataType();
+            auto         attr = mainFile.openAttribute( "description::OriginNED" );
+            H5::DataType type = attr.getDataType();
             attr.read( type, originNED.data() );
         }
 
@@ -61,18 +61,18 @@ TEST( RigReservoirTest, DISABLED_TestImportGrid )
             H5::Group group = mainFile.openGroup( "Mesh" );
 
             {
-                auto         attr        = group.openAttribute( "cell_sizes" );
-                H5::DataType type        = attr.getDataType();
+                auto         attr = group.openAttribute( "cell_sizes" );
+                H5::DataType type = attr.getDataType();
                 attr.read( type, cellSizes.data() );
             }
             {
-                auto         attr        = group.openAttribute( "num_cells" );
-                H5::DataType type        = attr.getDataType();
+                auto         attr = group.openAttribute( "num_cells" );
+                H5::DataType type = attr.getDataType();
                 attr.read( type, numCells.data() );
             }
             {
-                auto         attr        = group.openAttribute( "origin" );
-                H5::DataType type        = attr.getDataType();
+                auto         attr = group.openAttribute( "origin" );
+                H5::DataType type = attr.getDataType();
                 attr.read( type, originMesh.data() );
             }
         }
