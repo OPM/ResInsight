@@ -160,14 +160,14 @@ jobs:
       - name: Install clang-16
         if: ${{contains( matrix.config.cc, 'clang') }}
         run: |
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo add-apt-repository -y "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
-          sudo apt-get -q update  
-          sudo apt-get -y install clang-16 clang++-16 lld-16 libc++-16-dev libc++abi-16-dev libomp-16-dev
-          #wget https://apt.llvm.org/llvm.sh
-          #sudo chmod +x llvm.sh
-          #sudo ./llvm.sh 16
+          #sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+          #wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          #sudo add-apt-repository -y "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
+          #sudo apt-get -q update  
+          #sudo apt-get -y install clang-16 clang++-16 lld-16 libc++-16-dev libc++abi-16-dev libomp-16-dev
+          wget https://apt.llvm.org/llvm.sh
+          sudo chmod +x llvm.sh
+          sudo ./llvm.sh 16 all
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
