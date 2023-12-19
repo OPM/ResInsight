@@ -103,12 +103,47 @@ bool RimEmCase::openEclipseGridFile()
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
+    {
+        // Compute resistivity as the inverted value for sigmaN and sigmaT
+
+        std::map<std::string, std::vector<float>> additionalData;
+        for ( auto [resultName, resultData] : emData.resultData )
+        {
+            auto resultNameStr = QString::fromStdString( resultName );
+            if ( resultNameStr.contains( QString( "sigmaN" ), Qt::CaseInsensitive ) )
+            {
+                int index     = resultNameStr.lastIndexOf( QString( "sigmaN" ), -1, Qt::CaseInsensitive );
+                resultNameStr = resultNameStr.left( index ) + "ResistivityN";
+
+                std::vector<float> inverted;
+                inverted.resize( resultData.size() );
+                std::transform( resultData.begin(), resultData.end(), inverted.begin(), []( float val ) { return 1.0f / val; } );
+                additionalData[resultNameStr.toStdString()] = inverted;
+            }
+            if ( resultNameStr.contains( QString( "sigmaT" ), Qt::CaseInsensitive ) )
+            {
+                int index     = resultNameStr.lastIndexOf( QString( "sigmaT" ), -1, Qt::CaseInsensitive );
+                resultNameStr = resultNameStr.left( index ) + "ResistivityT";
+
+                std::vector<float> inverted;
+                inverted.resize( resultData.size() );
+                std::transform( resultData.begin(), resultData.end(), inverted.begin(), []( float val ) { return 1.0f / val; } );
+                additionalData[resultNameStr.toStdString()] = inverted;
+            }
+        }
+
+        for ( const auto& obj : additionalData )
+        {
+            emData.resultData[obj.first] = obj.second;
+        }
+    }
+
     for ( auto [resultName, data] : emData.resultData )
     {
         QString riResultName =
             eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( QString::fromStdString( resultName ) );
 
-        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, RiaDefines::ResultDataType::FLOAT, riResultName );
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::ResultDataType::FLOAT, riResultName );
         eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
         auto newPropertyData =
