@@ -165,6 +165,7 @@ jobs:
           #sudo add-apt-repository -y "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
           #sudo apt-get -q update  
           #sudo apt-get -y install clang-16 clang++-16 lld-16 libc++-16-dev libc++abi-16-dev libomp-16-dev
+          sudo apt-get upgrade
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
           sudo ./llvm.sh 16 all
