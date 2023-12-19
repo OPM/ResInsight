@@ -40,6 +40,7 @@
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
+#include "RimEmCase.h"
 #include "RimFileSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
@@ -587,4 +588,57 @@ RimRoffCase* RiaImportEclipseCaseTools::openRoffCaseFromFileName( const QString&
     }
 
     return roffCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaImportEclipseCaseTools::openEmFilesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds )
+{
+    if ( fileNames.empty() ) return false;
+
+    RimProject* project = RimProject::current();
+    if ( !project ) return false;
+
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if ( !analysisModels ) return false;
+
+    for ( auto fileName : fileNames )
+    {
+        auto* emCase = new RimEmCase();
+        project->assignCaseIdToCase( emCase );
+        emCase->setGridFileName( fileName );
+
+        bool gridImportSuccess = emCase->openEclipseGridFile();
+        if ( !gridImportSuccess )
+        {
+            const auto errMsg = "Failed to import grid from file: " + fileName.toStdString();
+            RiaLogging::error( errMsg.c_str() );
+            delete emCase;
+            continue;
+        }
+
+        analysisModels->cases.push_back( emCase );
+        analysisModels->updateConnectedEditors();
+
+        RimEclipseView* eclipseView = nullptr;
+        if ( createDefaultView )
+        {
+            eclipseView = emCase->createAndAddReservoirView();
+
+            eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+            eclipseView->loadDataAndUpdate();
+
+            emCase->updateAllRequiredEditors();
+            if ( RiaGuiApplication::isRunning() )
+            {
+                if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+
+                // Make sure the call to setExpanded is done after the call to selectAsCurrentItem
+                Riu3DMainWindowTools::setExpanded( eclipseView );
+            }
+        }
+    }
+
+    return true;
 }

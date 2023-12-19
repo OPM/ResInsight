@@ -269,6 +269,12 @@ RiaDefines::EclipseUnitSystem RiaDefines::fromDepthUnit( DepthUnitType depthUnit
 //--------------------------------------------------------------------------------------------------
 RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString& fileName )
 {
+    if ( fileName.endsWith( "h5grid", Qt::CaseInsensitive ) )
+    {
+        // EM data must be detected first, since "h5grid" also matches "grid" and is interpreted as Eclipse file
+        return ImportFileType::EM_H5GRID;
+    }
+
     if ( fileName.endsWith( "EGRID", Qt::CaseInsensitive ) )
     {
         return ImportFileType::ECLIPSE_EGRID_FILE;
