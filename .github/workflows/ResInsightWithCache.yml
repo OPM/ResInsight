@@ -160,8 +160,8 @@ jobs:
       - name: Install clang-15
         if: ${{contains( matrix.config.cc, 'clang') }}
         run: |
-          sudo apt-get install clang-15
-          sudo apt-get install clang++-15
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-get install clang-16 clang++-16 libomp-16-dev
   
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
