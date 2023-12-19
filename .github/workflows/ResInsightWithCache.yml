@@ -193,7 +193,7 @@ jobs:
           key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v05
 
       - name: Install dynamic version of OpenSSL (Linux)
-        if: ${{contains( matrix.config.os, 'ubuntu') }}
+        if: ${{contains( matrix.config.os, 'ubuntu_disabled') }}
         run: |
           $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
 
