@@ -33,8 +33,6 @@
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
-#include <ranges>
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -579,10 +577,14 @@ void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf:
     const int nLayers  = (int)layers.size();
     const int nKLayers = (int)kLayers.size();
 
-    auto                    kv = std::views::keys( layers );
-    std::vector<double>     keys{ kv.begin(), kv.end() };
-    auto                    vv = std::views::values( layers );
-    std::vector<cvf::Vec3d> vals{ vv.begin(), vv.end() };
+    std::vector<double>     keys;
+    std::vector<cvf::Vec3d> vals;
+
+    for ( auto& layer : layers )
+    {
+        keys.push_back( layer.first );
+        vals.push_back( layer.second );
+    }
 
     for ( int k = 0; k < nLayers; k++ )
     {
