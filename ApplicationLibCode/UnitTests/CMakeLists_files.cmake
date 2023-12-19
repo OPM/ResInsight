@@ -100,6 +100,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifInpExportTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifGridCalculationIO-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationIO-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEmReader-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
