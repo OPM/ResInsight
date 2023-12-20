@@ -109,26 +109,25 @@ bool RimEmCase::openEclipseGridFile()
         std::map<std::string, std::vector<float>> additionalData;
         for ( auto [resultName, resultData] : emData.resultData )
         {
-            auto resultNameStr = QString::fromStdString( resultName );
-            if ( resultNameStr.contains( QString( "sigmaN" ), Qt::CaseInsensitive ) )
-            {
-                int index     = resultNameStr.lastIndexOf( QString( "sigmaN" ), -1, Qt::CaseInsensitive );
-                resultNameStr = resultNameStr.left( index ) + "ResistivityN";
+            auto fullResultName = QString::fromStdString( resultName );
+            auto resultWords    = fullResultName.split( "::" );
+            auto lastResultName = resultWords.last();
+            resultWords.removeLast();
+            auto resultNameSpace = resultWords.join( "::" );
 
-                std::vector<float> inverted;
-                inverted.resize( resultData.size() );
-                std::transform( resultData.begin(), resultData.end(), inverted.begin(), []( float val ) { return 1.0f / val; } );
-                additionalData[resultNameStr.toStdString()] = inverted;
-            }
-            if ( resultNameStr.contains( QString( "sigmaT" ), Qt::CaseInsensitive ) )
-            {
-                int index     = resultNameStr.lastIndexOf( QString( "sigmaT" ), -1, Qt::CaseInsensitive );
-                resultNameStr = resultNameStr.left( index ) + "ResistivityT";
+            std::map<QString, QString> invertedResultNameMap = { { "Sigma", "Resistivity" },
+                                                                 { "SigmaN", "ResistivityN" },
+                                                                 { "SigmaT", "ResistivityT" } };
 
-                std::vector<float> inverted;
-                inverted.resize( resultData.size() );
-                std::transform( resultData.begin(), resultData.end(), inverted.begin(), []( float val ) { return 1.0f / val; } );
-                additionalData[resultNameStr.toStdString()] = inverted;
+            for ( auto [originalName, invertedName] : invertedResultNameMap )
+            {
+                if ( lastResultName.compare( originalName, Qt::CaseInsensitive ) == 0 )
+                {
+                    std::vector<float> inverted;
+                    inverted.resize( resultData.size() );
+                    std::transform( resultData.begin(), resultData.end(), inverted.begin(), []( float val ) { return 1.0f / val; } );
+                    additionalData[( resultNameSpace + "::" + invertedName ).toStdString()] = inverted;
+                }
             }
         }
 
