@@ -372,21 +372,38 @@ void RimFaultReactivationDataAccessorStress::fillInMissingValues( const std::vec
 {
     CAF_ASSERT( intersections.size() == values.size() );
 
+    auto calculatePorePressure = []( double depth, double gradient )
+    { return RiaEclipseUnitTools::pascalToBar( gradient * 9.81 * depth * 1000.0 ); };
+
+    auto computeGradient = []( double depth1, double value1, double depth2, double value2 )
+    { return ( value2 - value1 ) / ( depth2 - depth1 ); };
+
     auto [lastOverburdenIndex, firstUnderburdenIndex] = findOverburdenAndUnderburdenIndex( values );
 
     // Fill in overburden values using gradient
+    double topPorePressure = calculatePorePressure( std::abs( intersections[0].z() ), 1.0 );
+    double overburdenGradient =
+        computeGradient( intersections[0].z(), topPorePressure, intersections[lastOverburdenIndex].z(), values[lastOverburdenIndex] );
+
     for ( int i = 0; i < lastOverburdenIndex; i++ )
     {
-        values[i] = computePorBarWithGradient( intersections, values, i, lastOverburdenIndex, gradient );
+        values[i] = computePorBarWithGradient( intersections, values, i, lastOverburdenIndex, -overburdenGradient );
     }
 
     // Fill in underburden values using gradient
-    int lastElementIndex = static_cast<int>( values.size() ) - 1;
+    int    lastElementIndex    = static_cast<int>( values.size() ) - 1;
+    double bottomPorePressure  = calculatePorePressure( std::abs( intersections[lastElementIndex].z() ), 1.0 );
+    double underburdenGradient = computeGradient( intersections[firstUnderburdenIndex].z(),
+                                                  values[firstUnderburdenIndex],
+                                                  intersections[lastElementIndex].z(),
+                                                  bottomPorePressure );
+
     for ( int i = lastElementIndex; i >= firstUnderburdenIndex; i-- )
     {
-        values[i] = computePorBarWithGradient( intersections, values, i, firstUnderburdenIndex, gradient );
+        values[i] = computePorBarWithGradient( intersections, values, i, firstUnderburdenIndex, -underburdenGradient );
     }
 
+    // Interpolate the missing values (should only be intra-reservoir by now)
     std::vector<double> intersectionsZ;
     for ( auto i : intersections )
     {
