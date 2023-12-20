@@ -1845,7 +1845,8 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
         }
     }
 
-    for ( size_t cellIdx = 0; cellIdx < m_ownerMainGrid->globalCellArray().size(); cellIdx++ )
+#pragma omp parallel for
+    for ( long cellIdx = 0; cellIdx < static_cast<long>( m_ownerMainGrid->globalCellArray().size() ); cellIdx++ )
     {
         const RigCell& cell = m_ownerMainGrid->globalCellArray()[cellIdx];
 
