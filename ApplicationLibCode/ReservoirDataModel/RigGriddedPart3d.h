@@ -73,7 +73,8 @@ public:
     const std::map<Boundary, std::vector<unsigned int>>&    boundaryNodes() const;
     const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
     const std::vector<int>                                  elementKLayer() const;
-    const std::vector<cvf::Vec3d>                           elementCorners( size_t elementIndex ) const;
+    std::vector<cvf::Vec3d>                                 elementCorners( size_t elementIndex ) const;
+    std::vector<cvf::Vec3d>                                 elementDataCorners( size_t elementIndex ) const;
     const std::vector<std::pair<double, double>>            layers( ElementSets elementSet ) const;
 
 protected:
@@ -95,7 +96,10 @@ private:
         UpperOverburden
     };
 
-    static std::vector<Regions> allRegions();
+    static std::vector<Regions>    allRegions();
+    static std::vector<cvf::Vec3d> extractCornersForElement( const std::vector<std::vector<unsigned int>>& elementIndices,
+                                                             const std::vector<cvf::Vec3d>&                nodes,
+                                                             size_t                                        elementIndex );
 
 private:
     bool m_useLocalCoordinates;
