@@ -48,8 +48,8 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
                                                                 const std::vector<size_t>& timeSteps )
     : m_timeSteps( timeSteps )
 {
-    // TODO: correct default pore pressure gradient?
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, 1.0 ) );
+    double porePressureGradient = 1.0;
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, porePressureGradient ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase ) );
     if ( geoMechCase )
@@ -71,7 +71,7 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
                                                                          RimFaultReactivation::Property::LateralStressComponentY };
         for ( auto property : stressProperties )
         {
-            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property, 0.003 ) );
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property, porePressureGradient ) );
         }
     }
 }

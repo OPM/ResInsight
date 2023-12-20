@@ -381,7 +381,7 @@ void RimFaultReactivationDataAccessorStress::fillInMissingValues( const std::vec
     auto [lastOverburdenIndex, firstUnderburdenIndex] = findOverburdenAndUnderburdenIndex( values );
 
     // Fill in overburden values using gradient
-    double topPorePressure = calculatePorePressure( std::abs( intersections[0].z() ), 1.0 );
+    double topPorePressure = calculatePorePressure( std::abs( intersections[0].z() ), gradient );
     double overburdenGradient =
         computeGradient( intersections[0].z(), topPorePressure, intersections[lastOverburdenIndex].z(), values[lastOverburdenIndex] );
 
@@ -392,7 +392,7 @@ void RimFaultReactivationDataAccessorStress::fillInMissingValues( const std::vec
 
     // Fill in underburden values using gradient
     int    lastElementIndex    = static_cast<int>( values.size() ) - 1;
-    double bottomPorePressure  = calculatePorePressure( std::abs( intersections[lastElementIndex].z() ), 1.0 );
+    double bottomPorePressure  = calculatePorePressure( std::abs( intersections[lastElementIndex].z() ), gradient );
     double underburdenGradient = computeGradient( intersections[firstUnderburdenIndex].z(),
                                                   values[firstUnderburdenIndex],
                                                   intersections[lastElementIndex].z(),
