@@ -608,16 +608,34 @@ const std::vector<std::vector<unsigned int>>& RigGriddedPart3d::elementIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) const
+std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) const
 {
-    if ( elementIndex >= m_elementIndices.size() ) return {};
+    return extractCornersForElement( m_elementIndices, m_nodes, elementIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigGriddedPart3d::elementDataCorners( size_t elementIndex ) const
+{
+    return extractCornersForElement( m_elementIndices, m_dataNodes, elementIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigGriddedPart3d::extractCornersForElement( const std::vector<std::vector<unsigned int>>& elementIndices,
+                                                                    const std::vector<cvf::Vec3d>&                nodes,
+                                                                    size_t                                        elementIndex )
+{
+    if ( elementIndex >= elementIndices.size() ) return {};
 
     std::vector<cvf::Vec3d> corners;
 
-    for ( auto nodeIdx : m_elementIndices[elementIndex] )
+    for ( auto nodeIdx : elementIndices[elementIndex] )
     {
-        if ( nodeIdx >= m_nodes.size() ) continue;
-        corners.push_back( m_nodes[nodeIdx] );
+        if ( nodeIdx >= nodes.size() ) continue;
+        corners.push_back( nodes[nodeIdx] );
     }
 
     return corners;

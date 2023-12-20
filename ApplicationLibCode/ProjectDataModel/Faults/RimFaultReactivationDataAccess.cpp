@@ -142,7 +142,7 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
 
         if ( nodeProperties.contains( property ) )
         {
-            for ( auto& node : grid->globalNodes() )
+            for ( auto& node : grid->dataNodes() )
             {
                 double value = accessor->valueAtPosition( node, model, gridPart );
                 values.push_back( value );
@@ -153,7 +153,7 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
             size_t numElements = grid->elementIndices().size();
             for ( size_t elementIndex = 0; elementIndex < numElements; elementIndex++ )
             {
-                std::vector<cvf::Vec3d> corners = grid->elementCorners( elementIndex );
+                std::vector<cvf::Vec3d> corners = grid->elementDataCorners( elementIndex );
 
                 // Move top of sea bed element down to end up inside top element
                 bool   isTopElement   = seabedElements.contains( static_cast<unsigned int>( elementIndex ) );
