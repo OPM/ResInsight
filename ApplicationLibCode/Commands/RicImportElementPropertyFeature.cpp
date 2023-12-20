@@ -28,6 +28,8 @@
 
 #include "RiuFileDialogTools.h"
 
+#include "cafSelectionManagerTools.h"
+
 #include <QAction>
 #include <QFileInfo>
 
@@ -38,14 +40,37 @@ CAF_CMD_SOURCE_INIT( RicImportElementPropertyFeature, "RicImportElementPropertyF
 //--------------------------------------------------------------------------------------------------
 void RicImportElementPropertyFeature::onActionTriggered( bool isChecked )
 {
-    importElementProperties();
+    std::vector<caf::PdmUiItem*> uiItems;
+    caf::SelectionManager::instance()->selectedItems( uiItems );
+
+    RimGeoMechCase* geomCase = nullptr;
+
+    if ( !uiItems.empty() )
+    {
+        geomCase = dynamic_cast<RimGeoMechCase*>( uiItems[0] );
+    }
+
+    if ( geomCase == nullptr )
+    {
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+        if ( !activeView ) return;
+
+        RimGeoMechView* activeGmv = dynamic_cast<RimGeoMechView*>( activeView );
+        if ( !activeGmv ) return;
+
+        geomCase = activeGmv->geoMechCase();
+    }
+
+    importElementProperties( geomCase );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportElementPropertyFeature::importElementProperties()
+void RicImportElementPropertyFeature::importElementProperties( RimGeoMechCase* pCase )
 {
+    if ( pCase == nullptr ) return;
+
     RiaApplication* app = RiaApplication::instance();
 
     QString     defaultDir = app->lastUsedDialogDirectory( "ELM_PROPS" );
@@ -65,16 +90,7 @@ void RicImportElementPropertyFeature::importElementProperties()
 
     app->setLastUsedDialogDirectory( "ELM_PROPS", defaultDir );
 
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    if ( !activeView ) return;
-
-    RimGeoMechView* activeGmv = dynamic_cast<RimGeoMechView*>( activeView );
-    if ( !activeGmv ) return;
-
-    if ( activeGmv->geoMechCase() )
-    {
-        activeGmv->geoMechCase()->addElementPropertyFiles( filePaths );
-    }
+    pCase->addElementPropertyFiles( filePaths );
 }
 
 //--------------------------------------------------------------------------------------------------

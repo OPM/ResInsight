@@ -1067,7 +1067,7 @@ void RimGeoMechCase::reloadSelectedElementPropertyFiles()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::importElementPropertyFile()
 {
-    RicImportElementPropertyFeature::importElementProperties();
+    RicImportElementPropertyFeature::importElementProperties( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1125,15 +1125,15 @@ void RimGeoMechCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
 {
     if ( field == &m_importElementPropertyFileCommand )
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Import Element Property";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Import New Element Property";
     }
     if ( field == &m_reloadElementPropertyFileCommand )
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Reload Element Property";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Reload Selected Properties";
     }
     if ( field == &m_closeElementPropertyFileCommand )
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Close Element Property";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Close Selected Properties";
     }
 
     if ( field == &m_biotFixedCoefficient )
@@ -1160,7 +1160,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::
     {
         for ( size_t i = 0; i < m_elementPropertyFileNames.v().size(); i++ )
         {
-            options.push_back( caf::PdmOptionItemInfo( m_elementPropertyFileNames.v().at( i ).path(), (int)i, true ) );
+            options.push_back( caf::PdmOptionItemInfo( m_elementPropertyFileNames.v().at( i ).path(), (int)i, false ) );
         }
     }
     else if ( fieldNeedingOptions == &m_biotResultAddress || fieldNeedingOptions == &m_initialPermeabilityResultAddress )

@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+class RimGeoMechCase;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -27,7 +29,7 @@ class RicImportElementPropertyFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static void importElementProperties();
+    static void importElementProperties( RimGeoMechCase* pCase );
 
 protected:
     void onActionTriggered( bool isChecked ) override;
