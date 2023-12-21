@@ -709,7 +709,7 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 {
                     RiaLogging::error( QString( "  No data found for variable '%1'." ).arg( v->name() ) );
                 }
-                else if ( inputValueVisibilityFilter )
+                else if ( inputValueVisibilityFilter && hasAggregationExpression )
                 {
                     const double defaultValue = 0.0;
                     replaceFilteredValuesWithDefaultValue( defaultValue, inputValueVisibilityFilter, dataForVariable, porosityModel, calculationCase );
