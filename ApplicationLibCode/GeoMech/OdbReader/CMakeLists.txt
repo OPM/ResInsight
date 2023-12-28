@@ -32,12 +32,7 @@ else()
   add_definitions(-DABQ_MPI_PMPI)
 endif(MSVC)
 
-add_library(
-  ${PROJECT_NAME}
-  RifOdbReader.h
-  RifOdbReader.cpp
-  OdbSetup.cmake
-)
+add_library(${PROJECT_NAME} RifOdbReader.h RifOdbReader.cpp OdbSetup.cmake)
 
 target_include_directories(
   ${PROJECT_NAME} PRIVATE ${RESINSIGHT_ODB_API_DIR}/include
@@ -82,7 +77,8 @@ endif(MSVC)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
-  ${PROJECT_NAME} ${RI_ODB_LIBS} RigGeoMechDataModel RifGeoMechFileInterface LibCore
+  ${PROJECT_NAME} ${RI_ODB_LIBS} RigGeoMechDataModel RifGeoMechFileInterface
+  LibCore
 )
 
 source_group("" FILES ${PROJECT_FILES})
