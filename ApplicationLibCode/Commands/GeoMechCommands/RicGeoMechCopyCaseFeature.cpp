@@ -50,10 +50,15 @@ void RicGeoMechCopyCaseFeature::onActionTriggered( bool isChecked )
         RiaApplication* app          = RiaApplication::instance();
         QString         defaultDir   = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
 
+        QString filterStr;
+#if USE_ODB_API
+        filterStr += "Abaqus results (*.odb);;";
+#endif
+        filterStr += "Abaqus input file (*.inp)";
+
         for ( RimGeoMechCase* gmc : cases )
         {
-            QString fileName =
-                RiuFileDialogTools::getOpenFileName( nullptr, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)" );
+            QString fileName = RiuFileDialogTools::getOpenFileName( nullptr, "Import Geo-Mechanical Model", defaultDir, filterStr );
             if ( fileName.isEmpty() ) break;
 
             defaultDir = QFileInfo( fileName ).absolutePath();

@@ -36,12 +36,6 @@ add_library(
   ${PROJECT_NAME}
   RifOdbReader.h
   RifOdbReader.cpp
-  RifInpReader.h
-  RifInpReader.cpp
-  RifGeoMechReaderInterface.h
-  RifGeoMechReaderInterface.cpp
-  RifInpIncludeReader.h
-  RifInpIncludeReader.cpp
   OdbSetup.cmake
 )
 
@@ -88,7 +82,7 @@ endif(MSVC)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
-  ${PROJECT_NAME} ${RI_ODB_LIBS} RigGeoMechDataModel LibCore
+  ${PROJECT_NAME} ${RI_ODB_LIBS} RigGeoMechDataModel RifGeoMechFileInterface LibCore
 )
 
 source_group("" FILES ${PROJECT_FILES})

@@ -73,10 +73,6 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#ifdef USE_ODB_API
-#include "RifOdbReader.h"
-#endif
-
 #include "cafProgressInfo.h"
 #include "cafTensor3.h"
 
@@ -158,6 +154,11 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_hydrostaticMultiplierPPNonResMudWeightWindow   = 1.0;
 
     m_waterDensityShearSlipIndicator = 1.03;
+
+    m_fractureGradientCalculationTypeMudWeightWindow = RimMudWeightWindowParameters::FractureGradientCalculationType::DERIVED_FROM_K0FG;
+    m_lowerLimitParameterMudWeightWindow             = RimMudWeightWindowParameters::LowerLimitType::PORE_PRESSURE;
+    m_upperLimitParameterMudWeightWindow             = RimMudWeightWindowParameters::UpperLimitType::FG;
+    m_nonReservoirPorePressureTypeMudWeightWindow    = RimMudWeightWindowParameters::NonReservoirPorePressureType::PER_ELEMENT;
 
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
