@@ -41,10 +41,7 @@ void RicImportGeoMechCaseFeature::onActionTriggered( bool isChecked )
     filterStr += "Abaqus input file (*.inp)";
 
     QString     defaultDir = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
-    QStringList fileNames  = RiuFileDialogTools::getOpenFileNames( nullptr,
-                                                                  "Import Geo-Mechanical Model",
-                                                                  defaultDir,
-                                                                  filterStr );
+    QStringList fileNames  = RiuFileDialogTools::getOpenFileNames( nullptr, "Import Geo-Mechanical Model", defaultDir, filterStr );
     if ( !fileNames.empty() ) defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     app->setLastUsedDialogDirectory( "GEOMECH_MODEL", defaultDir );
 
