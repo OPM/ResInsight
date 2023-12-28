@@ -942,8 +942,13 @@ if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
   )
 
   set(TARGETS_FOR_STATIC_ANALYSIS
-      ${APP_FWK_LIBRARIES} ${APP_FWK_TEST_PROJECTS} ApplicationLibCode Commands
-      ResultStatisticsCache RigGeoMechDataModel RifGeoMechFileInterface
+      ${APP_FWK_LIBRARIES}
+      ${APP_FWK_TEST_PROJECTS}
+      ApplicationLibCode
+      Commands
+      ResultStatisticsCache
+      RigGeoMechDataModel
+      RifGeoMechFileInterface
   )
 
   foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})
