@@ -838,7 +838,7 @@ bool RifFaultReactivationModelExporter::exportModelSettings( const RimFaultReact
     faultNormal = faultNormal ^ cvf::Vec3d::Z_AXIS;
 
     RimFaultReactivationTools::addSettingsToMap( settings, faultNormal, topPosition, bottomPosition );
-    return ResInsightInternalJson::JsonWriter::encodeFile( rimModel.settingsFilename(), settings );
+    return ResInsightInternalJson::JsonWriter::encodeFile( QString::fromStdString( rimModel.settingsFilename() ), settings );
 }
 
 //--------------------------------------------------------------------------------------------------

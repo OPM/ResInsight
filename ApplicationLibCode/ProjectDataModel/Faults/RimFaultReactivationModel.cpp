@@ -625,8 +625,8 @@ QStringList RimFaultReactivationModel::commandParameters() const
     QStringList retlist;
 
     retlist << baseDir();
-    retlist << inputFilename();
-    retlist << outputOdbFilename();
+    retlist << QString::fromStdString( inputFilename() );
+    retlist << QString::fromStdString( outputOdbFilename() );
 
     return retlist;
 }
@@ -634,45 +634,72 @@ QStringList RimFaultReactivationModel::commandParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::outputOdbFilename() const
+std::string RimFaultReactivationModel::outputOdbFilename() const
 {
     QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".odb" );
+    return directory.absoluteFilePath( QString::fromStdString( baseFilename() + ".odb" ) ).toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::inputFilename() const
+std::string RimFaultReactivationModel::inputFilename() const
 {
     QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".inp" );
+    return directory.absoluteFilePath( QString::fromStdString( baseFilename() + ".inp" ) ).toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::settingsFilename() const
+std::string RimFaultReactivationModel::includeFilename( const std::string propertyName, const std::string timeStep ) const
 {
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".settings.json" );
+    QDir        directory( baseDir() );
+    std::string name = baseFilename();
+    if ( !propertyName.empty() )
+    {
+        name += "_" + cleanUpName( propertyName );
+    }
+    if ( !timeStep.empty() )
+    {
+        name += "_" + cleanUpName( timeStep );
+    }
+
+    return directory.absoluteFilePath( QString::fromStdString( name + ".inp" ) ).toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::baseFilename() const
+std::string RimFaultReactivationModel::settingsFilename() const
 {
-    QString tmp = m_userDescription();
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( QString::fromStdString( baseFilename() + ".settings.json" ) ).toStdString();
+}
 
-    if ( tmp.isEmpty() ) return "faultReactivation";
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimFaultReactivationModel::cleanUpName( const std::string candidate )
+{
+    QString tmp = QString::fromStdString( candidate );
+
+    if ( tmp.isEmpty() ) return "unknown";
 
     tmp.replace( ' ', '_' );
     tmp.replace( '/', '_' );
     tmp.replace( '\\', '_' );
     tmp.replace( ':', '_' );
 
-    return tmp;
+    return tmp.toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimFaultReactivationModel::baseFilename() const
+{
+    return cleanUpName( m_userDescription().toStdString() );
 }
 
 //--------------------------------------------------------------------------------------------------

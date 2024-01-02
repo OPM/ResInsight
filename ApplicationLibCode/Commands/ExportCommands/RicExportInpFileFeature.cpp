@@ -48,13 +48,14 @@ void RicExportInpFileFeature::onActionTriggered( bool isChecked )
     auto faultReactivationModel = caf::SelectionManager::instance()->selectedItemOfType<RimFaultReactivationModel>();
     if ( faultReactivationModel )
     {
-        QString exportFile        = faultReactivationModel->baseDir() + "/faultreactivation.inp";
-        auto [isOk, errorMessage] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *faultReactivationModel );
+        std::string exportFile    = faultReactivationModel->inputFilename();
+        auto [isOk, errorMessage] = RifFaultReactivationModelExporter::exportToFile( exportFile, *faultReactivationModel );
         if ( !isOk )
         {
             const QString frmTitle( "Fault Reactivation Modeling" );
-            QString       outErrorText =
-                QString( "Failed to export INP model to file %1.\n\n%2" ).arg( exportFile ).arg( QString::fromStdString( errorMessage ) );
+            QString       outErrorText = QString( "Failed to export INP model to file %1.\n\n%2" )
+                                       .arg( QString::fromStdString( exportFile ) )
+                                       .arg( QString::fromStdString( errorMessage ) );
             QMessageBox::critical( nullptr, frmTitle, outErrorText );
         }
     }
