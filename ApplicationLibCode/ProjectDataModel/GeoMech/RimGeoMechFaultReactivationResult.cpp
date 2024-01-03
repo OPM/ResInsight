@@ -327,7 +327,7 @@ void RimGeoMechFaultReactivationResult::createWellLogCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RimGeoMechFaultReactivationResult::createWellLogExtractionCurveAndAddToTrack( RimWellLogTrack*           track,
+RimWellLogExtractionCurve* RimGeoMechFaultReactivationResult::createWellLogExtractionCurveAndAddToTrack( RimWellLogTrack* track,
                                                                                                          const RigFemResultAddress& resultAddress,
                                                                                                          RimModeledWellPath* wellPath,
                                                                                                          int                 partId )

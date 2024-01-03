@@ -382,8 +382,7 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
     for ( int i = 0; i < 8; ++i )
         elmBBox.add( geoMechConvertedEclCell[i] );
 
-    std::vector<size_t> closeElements;
-    dependentFemPart->findIntersectingElementIndices( elmBBox, &closeElements );
+    std::vector<size_t> closeElements = dependentFemPart->findIntersectingElementIndices( elmBBox );
 
     cvf::Vec3d elmCorners[8];
     int        elmIdxToBestMatch        = -1;
@@ -465,10 +464,8 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
     for ( int i = 0; i < 8; ++i )
         elmBBox.add( elmCorners[i] );
 
-    std::vector<size_t> closeCells;
-    masterEclGrid->findIntersectingCells( elmBBox,
-                                          &closeCells ); // This might actually miss the exact one, but we have no other
-                                                         // alternative yet.
+    // This might actually miss the exact one, but we have no other alternative yet.
+    std::vector<size_t> closeCells = masterEclGrid->findIntersectingCells( elmBBox );
 
     size_t     globCellIdxToBestMatch    = cvf::UNDEFINED_SIZE_T;
     double     sqDistToClosestCellCenter = HUGE_VAL;

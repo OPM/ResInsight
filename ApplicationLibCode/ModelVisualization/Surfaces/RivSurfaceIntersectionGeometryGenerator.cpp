@@ -154,8 +154,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
     // Ensure AABB search tree is constructed outside parallel loop
     {
-        std::vector<size_t> triIntersectedCellCandidates;
-        m_hexGrid->findIntersectingCells( cvf::BoundingBox(), &triIntersectedCellCandidates );
+        std::vector<size_t> triIntersectedCellCandidates = m_hexGrid->findIntersectingCells( cvf::BoundingBox() );
     }
 
 #pragma omp parallel num_threads( 6 ) // More threads have nearly no effect
@@ -193,8 +192,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
             cvf::Vec3d maxHeightVec;
 
-            std::vector<size_t> triIntersectedCellCandidates;
-            m_hexGrid->findIntersectingCells( triangleBBox, &triIntersectedCellCandidates );
+            std::vector<size_t> triIntersectedCellCandidates = m_hexGrid->findIntersectingCells( triangleBBox );
 
             cvf::Plane plane;
             plane.setFromPoints( p0, p1, p2 );

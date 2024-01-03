@@ -914,8 +914,7 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
         rayBBox.add( lowestPoint );
 
         // Find the cells intersecting the ray
-        std::vector<size_t> allCellIndices;
-        mainGrid->findIntersectingCells( rayBBox, &allCellIndices );
+        std::vector<size_t> allCellIndices = mainGrid->findIntersectingCells( rayBBox );
 
         // Get the minimum K layer index
         int  minK    = std::numeric_limits<int>::max();

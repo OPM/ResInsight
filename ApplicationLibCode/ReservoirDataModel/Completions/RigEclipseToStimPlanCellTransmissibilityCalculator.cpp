@@ -343,10 +343,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 std::vector<size_t>
     RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon( const std::vector<cvf::Vec3d>& polygon ) const
 {
-    std::vector<size_t> cellIndices;
-
     const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
-    if ( !mainGrid ) return cellIndices;
+    if ( !mainGrid ) return {};
 
     cvf::BoundingBox polygonBBox;
     for ( const cvf::Vec3d& nodeCoord : polygon )
@@ -354,7 +352,7 @@ std::vector<size_t>
         polygonBBox.add( nodeCoord );
     }
 
-    mainGrid->findIntersectingCells( polygonBBox, &cellIndices );
+    std::vector<size_t> cellIndices = mainGrid->findIntersectingCells( polygonBBox );
 
     std::vector<size_t> cellIndicesToLeafCells;
     for ( const size_t& index : cellIndices )

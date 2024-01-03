@@ -193,9 +193,7 @@ void RigEclipseWellLogExtractor::curveData( const RigResultAccessor* resultAcces
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigEclipseWellLogExtractor::findCloseCellIndices( const cvf::BoundingBox& bb )
 {
-    std::vector<size_t> closeCells;
-    m_caseData->mainGrid()->findIntersectingCells( bb, &closeCells );
-    return closeCells;
+    return m_caseData->mainGrid()->findIntersectingCells( bb );
 }
 
 //--------------------------------------------------------------------------------------------------

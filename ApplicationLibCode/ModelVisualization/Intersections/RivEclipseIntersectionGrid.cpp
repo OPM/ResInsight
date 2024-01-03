@@ -51,9 +51,9 @@ cvf::BoundingBox RivEclipseIntersectionGrid::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivEclipseIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells ) const
+std::vector<size_t> RivEclipseIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB ) const
 {
-    m_mainGrid->findIntersectingCells( intersectingBB, intersectedCells );
+    return m_mainGrid->findIntersectingCells( intersectingBB );
 }
 
 //--------------------------------------------------------------------------------------------------
