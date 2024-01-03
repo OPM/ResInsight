@@ -99,48 +99,16 @@ void RimFaultReactivationDataAccessorStress::updateResultAccessor()
     {
         std::vector<cvf::Vec3d> wellPoints = generateWellPoints( faultTopPosition, faultBottomPosition, faultNormal * distanceFromFault );
         m_faceAWellPath                    = new RigWellPath( wellPoints, generateMds( wellPoints ) );
-        m_partIndexA                       = getPartIndexFromPoint( *geoMechPartCollection, wellPoints[1] );
+        m_partIndexA                       = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
         m_extractorA                       = new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, m_faceAWellPath.p(), errorName );
     }
 
     {
         std::vector<cvf::Vec3d> wellPoints = generateWellPoints( faultTopPosition, faultBottomPosition, -faultNormal * distanceFromFault );
         m_faceBWellPath                    = new RigWellPath( wellPoints, generateMds( wellPoints ) );
-        m_partIndexB                       = getPartIndexFromPoint( *geoMechPartCollection, wellPoints[1] );
+        m_partIndexB                       = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
         m_extractorB                       = new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, m_faceBWellPath.p(), errorName );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimFaultReactivationDataAccessorStress::getPartIndexFromPoint( const RigFemPartCollection& partCollection, const cvf::Vec3d& point )
-{
-    const int idx = 0;
-
-    // Find candidates for intersected global elements
-    const cvf::BoundingBox intersectingBb( point, point );
-    std::vector<size_t>    intersectedGlobalElementIndexCandidates;
-    partCollection.findIntersectingGlobalElementIndices( intersectingBb, &intersectedGlobalElementIndexCandidates );
-
-    if ( intersectedGlobalElementIndexCandidates.empty() ) return idx;
-
-    // Iterate through global element candidates and check if point is in hexCorners
-    for ( const auto& globalElementIndex : intersectedGlobalElementIndexCandidates )
-    {
-        const auto [part, elementIndex] = partCollection.partAndElementIndex( globalElementIndex );
-
-        // Find nodes from element
-        std::array<cvf::Vec3d, 8> coordinates;
-        const bool                isSuccess = part->fillElementCoordinates( elementIndex, coordinates );
-        if ( !isSuccess ) continue;
-
-        const bool isPointInCell = RigHexIntersectionTools::isPointInCell( point, coordinates.data() );
-        if ( isPointInCell ) return part->elementPartId();
-    }
-
-    // Utilize first part to have an id
-    return idx;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,8 +223,8 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStress::getPorBar(
                                                                                  int                  frameIndex ) const
 {
     RigFemPartCollection*                partCollection = m_geoMechCaseData->femParts();
-    cvf::ref<RigGeoMechWellLogExtractor> extractor      = m_partIndexA == getPartIndexFromPoint( *partCollection, position ) ? m_extractorA
-                                                                                                                             : m_extractorB;
+    cvf::ref<RigGeoMechWellLogExtractor> extractor      = m_partIndexA == partCollection->getPartIndexFromPoint( position ) ? m_extractorA
+                                                                                                                            : m_extractorB;
     if ( !extractor->valid() )
     {
         RiaLogging::error( "Invalid extractor when extracting PorBar" );

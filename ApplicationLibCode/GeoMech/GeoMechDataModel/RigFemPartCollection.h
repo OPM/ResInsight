@@ -49,6 +49,8 @@ public:
 
     size_t globalElementNodeResultIdx( int part, int elementIdx, int elmLocalNodeIdx ) const;
 
+    int getPartIndexFromPoint( const cvf::Vec3d& point ) const;
+
 private:
     cvf::Collection<RigFemPart> m_femParts;
     std::vector<size_t>         m_partElementOffset;
