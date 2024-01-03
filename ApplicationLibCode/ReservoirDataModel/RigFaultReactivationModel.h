@@ -85,6 +85,8 @@ public:
     const cvf::Vec3d                        faultNormal() const;
     const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottom() const;
 
+    RimFaultReactivation::GridPart normalPointsAt() const;
+
 private:
     std::shared_ptr<RigFaultReactivationModelGenerator> m_generator;
 
@@ -94,4 +96,5 @@ private:
     bool m_isValid;
 
     std::map<GridPart, RigGriddedPart3d*> m_3dparts;
+    RimFaultReactivation::GridPart        m_normalPointsAt;
 };
