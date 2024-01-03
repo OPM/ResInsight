@@ -18,6 +18,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFemPartCollection.h"
+
+#include "RigHexIntersectionTools.h"
+
 #include "cvfBoundingBox.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -179,6 +182,40 @@ void RigFemPartCollection::findIntersectingGlobalElementIndices( const cvf::Boun
             intersectedGlobalElementIndices->push_back( globalIdx );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFemPartCollection::getPartIndexFromPoint( const cvf::Vec3d& point ) const
+{
+    const int idx = -1;
+
+    // Find candidates for intersected global elements
+    const cvf::BoundingBox intersectingBb( point, point );
+    std::vector<size_t>    intersectedGlobalElementIndexCandidates;
+    findIntersectingGlobalElementIndices( intersectingBb, &intersectedGlobalElementIndexCandidates );
+
+    if ( intersectedGlobalElementIndexCandidates.empty() ) return idx;
+
+    // Iterate through global element candidates and check if point is in hexCorners
+    for ( const auto& globalElementIndex : intersectedGlobalElementIndexCandidates )
+    {
+        const auto [part, elementIndex] = partAndElementIndex( globalElementIndex );
+
+        // Find nodes from element
+        std::array<cvf::Vec3d, 8> coordinates;
+        if ( part->fillElementCoordinates( elementIndex, coordinates ) )
+        {
+            if ( RigHexIntersectionTools::isPointInCell( point, coordinates.data() ) )
+            {
+                return part->elementPartId();
+            }
+        }
+    }
+
+    // Utilize first part to have an id
+    return idx;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -82,7 +82,6 @@ private:
         findElementSetContainingElement( const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets,
                                          unsigned int                                                                  elmIdx );
 
-    static int                 getPartIndexFromPoint( const RigFemPartCollection& partCollection, const cvf::Vec3d& point );
     static std::pair<int, int> findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd );
     static std::pair<int, int> findOverburdenAndUnderburdenIndex( const std::vector<double>& values );
     static double              computePorBarWithGradient( const std::vector<cvf::Vec3d>& intersections,
