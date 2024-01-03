@@ -17,21 +17,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFaultReactivationDataAccessorPorePressure.h"
+#include "RimEclipseCase.h"
 #include "RimFaciesProperties.h"
+#include "RimFaultReactivationDataAccessorWellLogExtraction.h"
 #include "RimFaultReactivationEnums.h"
 
 #include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaPorosityModel.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RigFaultReactivationModel.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-
-#include "RimEclipseCase.h"
+#include "RigWellPath.h"
 
 #include <cmath>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,6 +77,24 @@ void RimFaultReactivationDataAccessorPorePressure::updateResultAccessor()
                                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                               m_timeStep,
                                                                               resVarAddress );
+
+        auto [faultTopPosition, faultBottomPosition] = m_model->faultTopBottom();
+        auto   faultNormal                           = m_model->faultNormal();
+        double distanceFromFault                     = 1.0;
+
+        std::string errorName = "fault reactivation data access";
+
+        {
+            std::vector<cvf::Vec3d> wellPoints = generateWellPoints( faultTopPosition, faultBottomPosition, faultNormal * distanceFromFault );
+            m_faceWellPathA                    = new RigWellPath( wellPoints, generateMds( wellPoints ) );
+            m_extractorA                       = new RigEclipseWellLogExtractor( m_caseData, m_faceWellPathA.p(), errorName );
+        }
+
+        {
+            std::vector<cvf::Vec3d> wellPoints = generateWellPoints( faultTopPosition, faultBottomPosition, -faultNormal * distanceFromFault );
+            m_faceWellPathB                    = new RigWellPath( wellPoints, generateMds( wellPoints ) );
+            m_extractorB                       = new RigEclipseWellLogExtractor( m_caseData, m_faceWellPathB.p(), errorName );
+        }
     }
 }
 
@@ -95,24 +118,23 @@ double RimFaultReactivationDataAccessorPorePressure::valueAtPosition( const cvf:
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
-        auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-        if ( cellIdx != cvf::UNDEFINED_SIZE_T )
-        {
-            double value = m_resultAccessor->cellScalar( cellIdx );
-            if ( !std::isinf( value ) )
-            {
-                return 100000.0 * value; // return in pascal, not bar
-            }
-        }
+        // TODO: choose correct extractor
+        auto                extractor = m_extractorA;
+        std::vector<double> values;
+        extractor->curveData( m_resultAccessor.p(), &values );
+
+        auto intersections = extractor->intersections();
+
+        intersections.insert( intersections.begin(), m_faceWellPathA->wellPathPoints().front() );
+        values.insert( values.begin(), std::numeric_limits<double>::infinity() );
+
+        intersections.push_back( m_faceWellPathA->wellPathPoints().back() );
+        values.push_back( std::numeric_limits<double>::infinity() );
+
+        auto [value, pos] =
+            RimFaultReactivationDataAccessorWellLogExtraction::getPorBar( intersections, values, position, m_defaultPorePressureGradient );
+        return RiaEclipseUnitTools::barToPascal( value );
     }
 
-    return calculatePorePressure( std::abs( position.z() ), m_defaultPorePressureGradient );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorPorePressure::calculatePorePressure( double depth, double gradient )
-{
-    return gradient * 9.81 * depth * 1000.0;
+    return std::numeric_limits<double>::infinity();
 }

@@ -28,6 +28,8 @@ class RimEclipseCase;
 class RigEclipseCaseData;
 class RigMainGrid;
 class RigResultAccessor;
+class RigEclipseWellLogExtractor;
+class RigWellPath;
 
 //==================================================================================================
 ///
@@ -58,4 +60,9 @@ private:
     const RigMainGrid*          m_mainGrid;
     double                      m_defaultPorePressureGradient;
     cvf::ref<RigResultAccessor> m_resultAccessor;
+
+    cvf::ref<RigWellPath>                m_faceWellPathA;
+    cvf::ref<RigWellPath>                m_faceWellPathB;
+    cvf::ref<RigEclipseWellLogExtractor> m_extractorA;
+    cvf::ref<RigEclipseWellLogExtractor> m_extractorB;
 };
