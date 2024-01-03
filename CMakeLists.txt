@@ -907,6 +907,7 @@ add_subdirectory(ApplicationLibCode)
 add_subdirectory(ApplicationLibCode/Commands)
 add_subdirectory(ApplicationLibCode/ResultStatisticsCache)
 add_subdirectory(ApplicationLibCode/GeoMech/GeoMechDataModel)
+add_subdirectory(ApplicationLibCode/GeoMech/GeoMechFileInterface)
 if(RESINSIGHT_USE_ODB_API)
   add_subdirectory(ApplicationLibCode/GeoMech/OdbReader)
 endif()
@@ -941,8 +942,13 @@ if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
   )
 
   set(TARGETS_FOR_STATIC_ANALYSIS
-      ${APP_FWK_LIBRARIES} ${APP_FWK_TEST_PROJECTS} ApplicationLibCode Commands
-      ResultStatisticsCache RigGeoMechDataModel
+      ${APP_FWK_LIBRARIES}
+      ${APP_FWK_TEST_PROJECTS}
+      ApplicationLibCode
+      Commands
+      ResultStatisticsCache
+      RigGeoMechDataModel
+      RifGeoMechFileInterface
   )
 
   foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})

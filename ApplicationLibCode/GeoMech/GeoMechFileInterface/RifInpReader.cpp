@@ -114,7 +114,7 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
 
     auto elementType = read( m_stream, parts, nodes, elements, elementSets, m_stepNames, m_enableIncludes, m_includeEntries );
 
-    for ( int i = 0; i < m_includeEntries.size(); i++ )
+    for ( int i = 0; i < (int)m_includeEntries.size(); i++ )
     {
         m_includeEntries[i].fileName = ( m_inputPath / m_includeEntries[i].fileName ).string();
     }
@@ -590,7 +590,7 @@ int RifInpReader::frameCount( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifInpReader::elementSetNames( int partIndex, std::string partName )
 {
-    if ( partIndex >= m_partElementSetNames.size() ) return {};
+    if ( partIndex >= (int)m_partElementSetNames.size() ) return {};
     return m_partElementSetNames.at( partIndex );
 }
 

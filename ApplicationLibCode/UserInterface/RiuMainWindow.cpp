@@ -571,15 +571,14 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
         toolbar->hide();
     }
+
     {
-#ifdef USE_ODB_API
         QToolBar* toolbar = addToolBar( tr( "Import GeoMech" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
         toolbar->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseTimeStepFilterFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicImportElementPropertyFeature" ) );
         toolbar->hide();
-#endif
     }
 
     {

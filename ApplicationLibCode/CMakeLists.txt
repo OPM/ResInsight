@@ -441,6 +441,7 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
          ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
          ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
+         ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechFileInterface
          ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
          ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
          ${ResInsight_SOURCE_DIR}/ThirdParty

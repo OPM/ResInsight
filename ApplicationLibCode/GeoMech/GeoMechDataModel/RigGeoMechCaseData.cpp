@@ -25,8 +25,8 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 
-#ifdef USE_ODB_API
 #include "RifInpReader.h"
+#ifdef USE_ODB_API
 #include "RifOdbReader.h"
 #endif
 
@@ -86,19 +86,23 @@ RigFemPartResultsCollection* RigGeoMechCaseData::femPartResults()
     return m_femPartResultsColl.p();
 }
 
+#include "RiaStdStringTools.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RigGeoMechCaseData::open( std::string* errorMessage )
 {
-#ifdef USE_ODB_API
-    if ( m_geoMechCaseFileName.ends_with( ".odb" ) )
+    auto filename = RiaStdStringTools::toUpper( m_geoMechCaseFileName );
+
+    if ( filename.ends_with( ".INP" ) )
     {
-        m_readerInterface = new RifOdbReader;
+        m_readerInterface = new RifInpReader();
     }
-    else
+#ifdef USE_ODB_API
+    else if ( filename.ends_with( ".ODB" ) )
     {
-        m_readerInterface = new RifInpReader;
+        m_readerInterface = new RifOdbReader();
     }
 #endif
 
@@ -111,13 +115,11 @@ bool RigGeoMechCaseData::open( std::string* errorMessage )
 bool RigGeoMechCaseData::readTimeSteps( std::string* errorMessage, std::vector<std::string>* stepNames )
 {
     CVF_ASSERT( stepNames );
-#ifdef USE_ODB_API
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {
         *stepNames = m_readerInterface->allStepNames();
         return true;
     }
-#endif
     *errorMessage = std::string( "Could not read time steps" );
     return false;
 }
@@ -128,7 +130,7 @@ bool RigGeoMechCaseData::readTimeSteps( std::string* errorMessage, std::vector<s
 bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vector<size_t>& timeStepFilter, bool readOnlyLastFrame )
 {
     CVF_ASSERT( errorMessage );
-#ifdef USE_ODB_API
+
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {
         m_readerInterface->setTimeStepFilter( timeStepFilter, readOnlyLastFrame );
@@ -154,7 +156,7 @@ bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vec
             return true;
         }
     }
-#endif
+
     *errorMessage = std::string( "Could not read FEM parts" );
     return false;
 }
@@ -165,14 +167,13 @@ bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vec
 bool RigGeoMechCaseData::readDisplacements( std::string* errorMessage, int partId, int timeStep, int frameIndex, std::vector<cvf::Vec3f>* displacements )
 {
     CVF_ASSERT( errorMessage );
-#ifdef USE_ODB_API
+
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {
         m_readerInterface->readDisplacements( partId, timeStep, frameIndex, displacements );
         return true;
     }
 
-#endif
     *errorMessage = std::string( "Could not read displacements." );
     return false;
 }
