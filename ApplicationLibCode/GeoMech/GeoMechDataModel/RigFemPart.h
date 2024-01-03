@@ -87,8 +87,8 @@ public:
     cvf::BoundingBox        boundingBox() const;
     float                   characteristicElementSize() const;
     const std::vector<int>& possibleGridCornerElements() const;
-    void                    findIntersectingElementIndices( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const;
-    void findIntersectingElementsWithExistingSearchTree( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const;
+    std::vector<size_t>     findIntersectingElementIndices( const cvf::BoundingBox& inputBB ) const;
+    std::vector<size_t>     findIntersectingElementsWithExistingSearchTree( const cvf::BoundingBox& inputBB ) const;
 
     void ensureIntersectionSearchTreeIsBuilt() const;
 

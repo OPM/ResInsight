@@ -236,8 +236,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
     bb.add( mainGridNodes[sourceFaceIndices[2]] );
     bb.add( mainGridNodes[sourceFaceIndices[3]] );
 
-    std::vector<size_t> closeCells;
-    mainGrid->findIntersectingCells( bb, &closeCells );
+    std::vector<size_t> closeCells = mainGrid->findIntersectingCells( bb );
 
     cvf::StructGridInterface::FaceType candidateFace = cvf::StructGridInterface::oppositeFace( sourceCellFace );
 

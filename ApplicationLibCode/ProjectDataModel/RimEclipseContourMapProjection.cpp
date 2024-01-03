@@ -402,9 +402,7 @@ RimGridView* RimEclipseContourMapProjection::baseView() const
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimEclipseContourMapProjection::findIntersectingCells( const cvf::BoundingBox& bbox ) const
 {
-    std::vector<size_t> allCellIndices;
-    m_mainGrid->findIntersectingCells( bbox, &allCellIndices );
-    return allCellIndices;
+    return m_mainGrid->findIntersectingCells( bbox );
 }
 
 //--------------------------------------------------------------------------------------------------

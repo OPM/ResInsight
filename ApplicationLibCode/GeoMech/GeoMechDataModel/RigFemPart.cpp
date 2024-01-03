@@ -516,19 +516,21 @@ cvf::BoundingBox RigFemPart::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::findIntersectingElementIndices( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
+std::vector<size_t> RigFemPart::findIntersectingElementIndices( const cvf::BoundingBox& inputBB ) const
 {
     ensureIntersectionSearchTreeIsBuilt();
-    findIntersectingElementsWithExistingSearchTree( inputBB, elementIndices );
+    return findIntersectingElementsWithExistingSearchTree( inputBB );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::findIntersectingElementsWithExistingSearchTree( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
+std::vector<size_t> RigFemPart::findIntersectingElementsWithExistingSearchTree( const cvf::BoundingBox& inputBB ) const
 {
     CVF_ASSERT( m_elementSearchTree.notNull() );
-    m_elementSearchTree->findIntersections( inputBB, elementIndices );
+    std::vector<size_t> elementIndices;
+    m_elementSearchTree->findIntersections( inputBB, &elementIndices );
+    return elementIndices;
 }
 
 //--------------------------------------------------------------------------------------------------

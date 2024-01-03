@@ -1025,13 +1025,12 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigGeoMechWellLogExtractor::findCloseCells( const cvf::BoundingBox& bb )
 {
-    std::vector<size_t> closeCells;
-
     if ( m_caseData->femParts()->partCount() )
     {
-        m_caseData->femParts()->part( m_partId )->findIntersectingElementIndices( bb, &closeCells );
+        return m_caseData->femParts()->part( m_partId )->findIntersectingElementIndices( bb );
     }
-    return closeCells;
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

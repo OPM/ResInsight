@@ -451,9 +451,7 @@ RimGridView* RimGeoMechContourMapProjection::baseView() const
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimGeoMechContourMapProjection::findIntersectingCells( const cvf::BoundingBox& bbox ) const
 {
-    std::vector<size_t> allCellIndices;
-    m_femPart->findIntersectingElementsWithExistingSearchTree( bbox, &allCellIndices );
-    return allCellIndices;
+    return m_femPart->findIntersectingElementsWithExistingSearchTree( bbox );
 }
 
 //--------------------------------------------------------------------------------------------------

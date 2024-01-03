@@ -653,8 +653,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart( const Rim
         frBBox.add( pvd );
     }
 
-    std::vector<size_t> cellCandidates;
-    activeView.mainGrid()->findIntersectingCells( frBBox, &cellCandidates );
+    std::vector<size_t> cellCandidates = activeView.mainGrid()->findIntersectingCells( frBBox );
 
     auto displCoordTrans = activeView.displayCoordTransform();
 
@@ -780,8 +779,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid( con
 
         std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
 
-        std::vector<size_t> cellCandidates;
-        activeView.mainGrid()->findIntersectingCells( frBBox, &cellCandidates );
+        std::vector<size_t> cellCandidates = activeView.mainGrid()->findIntersectingCells( frBBox );
         if ( cellCandidates.empty() )
         {
             clippedPolygons.push_back( borderOfFractureCellPolygonLocalCsd );

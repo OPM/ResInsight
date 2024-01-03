@@ -363,8 +363,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays( cvf::UByteA
             sectionBBox.cutBelow( bottomDepth );
             sectionBBox.cutAbove( topDepth );
 
-            std::vector<size_t> columnCellCandidates;
-            m_hexGrid->findIntersectingCells( sectionBBox, &columnCellCandidates );
+            std::vector<size_t> columnCellCandidates = m_hexGrid->findIntersectingCells( sectionBBox );
 
             cvf::Plane plane;
             plane.setFromPoints( p1, p2, p2 + maxHeightVec );
