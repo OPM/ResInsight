@@ -86,14 +86,14 @@ void RimFaultReactivationDataAccessorPorePressure::updateResultAccessor()
 
         {
             std::vector<cvf::Vec3d> wellPoints = generateWellPoints( faultTopPosition, faultBottomPosition, faultNormal * distanceFromFault );
-            m_faceWellPathA                    = new RigWellPath( wellPoints, generateMds( wellPoints ) );
-            m_extractorA                       = new RigEclipseWellLogExtractor( m_caseData, m_faceWellPathA.p(), errorName );
+            m_faceWellPathA = new RigWellPath( wellPoints, generateMds( wellPoints ) );
+            m_extractorA    = new RigEclipseWellLogExtractor( m_caseData, m_faceWellPathA.p(), errorName );
         }
 
         {
             std::vector<cvf::Vec3d> wellPoints = generateWellPoints( faultTopPosition, faultBottomPosition, -faultNormal * distanceFromFault );
-            m_faceWellPathB                    = new RigWellPath( wellPoints, generateMds( wellPoints ) );
-            m_extractorB                       = new RigEclipseWellLogExtractor( m_caseData, m_faceWellPathB.p(), errorName );
+            m_faceWellPathB = new RigWellPath( wellPoints, generateMds( wellPoints ) );
+            m_extractorB    = new RigEclipseWellLogExtractor( m_caseData, m_faceWellPathB.p(), errorName );
         }
     }
 }

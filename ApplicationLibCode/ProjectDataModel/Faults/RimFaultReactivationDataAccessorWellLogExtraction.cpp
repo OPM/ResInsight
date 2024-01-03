@@ -98,7 +98,7 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction:
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                double                         tvd )
+                                                                                                double tvd )
 {
     int topIdx    = -1;
     int bottomIdx = -1;
