@@ -58,7 +58,7 @@ bool RifGeoMechReaderInterface::isTimeStepIncludedByFilter( int timeStepIndex ) 
 
     for ( auto i : m_fileTimeStepIndices )
     {
-        if ( i == static_cast<size_t>( timeStepIndex ) )
+        if ( i == timeStepIndex )
         {
             return true;
         }

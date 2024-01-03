@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2023-     Equinor ASA
+//  Copyright (C) 2023     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
-#pragma once
 
 #include "RifInpIncludeReader.h"
 
@@ -89,7 +87,7 @@ void RifInpIncludeReader::readData( int columnIndex, const std::map<int, std::st
 
             // is the requested column present?
             auto columns = RiaStdStringTools::splitString( line, ',' );
-            if ( columnIndex >= columns.size() ) continue;
+            if ( columnIndex >= (int)columns.size() ) continue;
 
             // split part/set/node/element in first column
             auto partNode = RiaStdStringTools::splitString( columns[0], '.' );
