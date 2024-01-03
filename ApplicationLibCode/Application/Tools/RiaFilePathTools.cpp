@@ -376,3 +376,22 @@ bool RiaFilePathTools::isFirstOlderThanSecond( const std::string& firstFileName,
 
     return ( timeFirstFile < timeSecondFile );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaFilePathTools::makeSuitableAsFileName( const std::string candidateName )
+{
+    if ( candidateName.empty() ) return "noname";
+
+    QString tmp = QString::fromStdString( candidateName );
+
+    tmp.replace( ' ', '_' );
+    tmp.replace( '/', '_' );
+    tmp.replace( '\\', '_' );
+    tmp.replace( ':', '_' );
+    tmp.replace( '&', '_' );
+    tmp.replace( '|', '_' );
+
+    return tmp.toStdString();
+}

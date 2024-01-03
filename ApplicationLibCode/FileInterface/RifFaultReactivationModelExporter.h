@@ -34,9 +34,8 @@
 class RifFaultReactivationModelExporter
 {
 public:
-    static std::pair<bool, std::string>
-        exportToStream( std::ostream& stream, const std::string& exportDirecotry, const RimFaultReactivationModel& model );
-    static std::pair<bool, std::string> exportToFile( const std::string& filePath, const RimFaultReactivationModel& model );
+    static std::pair<bool, std::string> exportToStream( std::ostream& stream, const RimFaultReactivationModel& model );
+    static std::pair<bool, std::string> exportToFile( const RimFaultReactivationModel& model );
 
 private:
     static std::pair<bool, std::string> printHeading( std::ostream& stream, const std::string& applicationNameAndVersion );
@@ -108,9 +107,7 @@ private:
                                        const std::string&                                           tableName,
                                        const std::string&                                           heading );
 
-    static std::string createFileName( const std::string& title, const std::string& stepName );
-
-    static std::string createFilePath( const std::string& dir, const std::string& fileName );
+    static std::string createFilePostfix( const std::string& title, const std::string& stepName );
 
     static bool                                            exportModelSettings( const RimFaultReactivationModel& model );
     static std::shared_ptr<RimFaultReactivationDataAccess> extractAndExportModelData( const RimFaultReactivationModel& model );

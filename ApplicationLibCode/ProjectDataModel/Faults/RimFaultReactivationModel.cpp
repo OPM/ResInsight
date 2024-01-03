@@ -19,6 +19,7 @@
 #include "RimFaultReactivationModel.h"
 
 #include "RiaApplication.h"
+#include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaQDateTimeTools.h"
@@ -636,8 +637,7 @@ QStringList RimFaultReactivationModel::commandParameters() const
 //--------------------------------------------------------------------------------------------------
 std::string RimFaultReactivationModel::outputOdbFilename() const
 {
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( QString::fromStdString( baseFilename() + ".odb" ) ).toStdString();
+    return baseFilePath() + ".odb";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -645,27 +645,7 @@ std::string RimFaultReactivationModel::outputOdbFilename() const
 //--------------------------------------------------------------------------------------------------
 std::string RimFaultReactivationModel::inputFilename() const
 {
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( QString::fromStdString( baseFilename() + ".inp" ) ).toStdString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string RimFaultReactivationModel::includeFilename( const std::string propertyName, const std::string timeStep ) const
-{
-    QDir        directory( baseDir() );
-    std::string name = baseFilename();
-    if ( !propertyName.empty() )
-    {
-        name += "_" + cleanUpName( propertyName );
-    }
-    if ( !timeStep.empty() )
-    {
-        name += "_" + cleanUpName( timeStep );
-    }
-
-    return directory.absoluteFilePath( QString::fromStdString( name + ".inp" ) ).toStdString();
+    return baseFilePath() + ".inp";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -673,25 +653,7 @@ std::string RimFaultReactivationModel::includeFilename( const std::string proper
 //--------------------------------------------------------------------------------------------------
 std::string RimFaultReactivationModel::settingsFilename() const
 {
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( QString::fromStdString( baseFilename() + ".settings.json" ) ).toStdString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string RimFaultReactivationModel::cleanUpName( const std::string candidate )
-{
-    QString tmp = QString::fromStdString( candidate );
-
-    if ( tmp.isEmpty() ) return "unknown";
-
-    tmp.replace( ' ', '_' );
-    tmp.replace( '/', '_' );
-    tmp.replace( '\\', '_' );
-    tmp.replace( ':', '_' );
-
-    return tmp.toStdString();
+    return baseFilePath() + ".settings.json";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -699,7 +661,16 @@ std::string RimFaultReactivationModel::cleanUpName( const std::string candidate 
 //--------------------------------------------------------------------------------------------------
 std::string RimFaultReactivationModel::baseFilename() const
 {
-    return cleanUpName( m_userDescription().toStdString() );
+    return RiaFilePathTools::makeSuitableAsFileName( m_userDescription().toStdString() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimFaultReactivationModel::baseFilePath() const
+{
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( QString::fromStdString( baseFilename() ) ).toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------

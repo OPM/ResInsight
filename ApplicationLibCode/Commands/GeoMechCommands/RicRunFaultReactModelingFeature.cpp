@@ -62,13 +62,13 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
     runProgress.setProgressDescription( "Writing input files." );
 
-    QString exportFile     = model->inputFilename();
-    auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( exportFile.toStdString(), *model );
+    auto [result, errText] = RifFaultReactivationModelExporter::exportToFile( *model );
 
     if ( !result )
     {
-        QString outErrorText =
-            QString( "Failed to export INP model to file %1.\n\n%2" ).arg( exportFile ).arg( QString::fromStdString( errText ) );
+        QString outErrorText = QString( "Failed to export INP model to file %1.\n\n%2" )
+                                   .arg( QString::fromStdString( model->inputFilename() ) )
+                                   .arg( QString::fromStdString( errText ) );
         QMessageBox::critical( nullptr, frmTitle, outErrorText );
         return;
     }
@@ -107,7 +107,7 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
 
     for ( auto gCase : RimProject::current()->geoMechCases() )
     {
-        if ( model->outputOdbFilename() == gCase->gridFileName() )
+        if ( QString::fromStdString( model->outputOdbFilename() ) == gCase->gridFileName() )
         {
             gCase->reloadDataAndUpdate();
             auto& views = gCase->geoMechViews();
@@ -124,11 +124,11 @@ void RicRunFaultReactModelingFeature::onActionTriggered( bool isChecked )
     }
 
     RiaApplication* app = RiaApplication::instance();
-    if ( !app->openOdbCaseFromFile( model->outputOdbFilename() ) )
+    if ( !app->openOdbCaseFromFile( QString::fromStdString( model->outputOdbFilename() ) ) )
     {
         QMessageBox::critical( nullptr,
                                frmTitle,
-                               "Failed to load modeling results from file \"" + model->outputOdbFilename() +
+                               "Failed to load modeling results from file \"" + QString::fromStdString( model->outputOdbFilename() ) +
                                    "\". Check log window for additional information." );
     }
 }
