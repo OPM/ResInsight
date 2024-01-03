@@ -289,8 +289,7 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays( cvf::UByteArray* visi
 
         // Similar code as IntersectionGenerator :
 
-        std::vector<size_t> columnCellCandidates;
-        m_hexGrid->findIntersectingCells( sectionBBox, &columnCellCandidates );
+        std::vector<size_t> columnCellCandidates = m_hexGrid->findIntersectingCells( sectionBBox );
 
         std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
         hexPlaneCutTriangleVxes.reserve( 5 * 3 );

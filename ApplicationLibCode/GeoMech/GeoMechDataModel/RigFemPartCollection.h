@@ -42,8 +42,7 @@ public:
     std::pair<const RigFemPart*, size_t> partAndElementIndex( size_t globalIndex ) const;
     size_t                               globalElementIndex( int partId, size_t localIndex ) const;
 
-    void findIntersectingGlobalElementIndices( const cvf::BoundingBox& intersectingBB,
-                                               std::vector<size_t>*    intersectedGlobalElementIndices ) const;
+    std::vector<size_t> findIntersectingGlobalElementIndices( const cvf::BoundingBox& intersectingBB ) const;
 
     int nodeIdxFromElementNodeResultIdx( size_t globalResultIdx ) const;
 

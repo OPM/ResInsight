@@ -54,8 +54,7 @@ cvf::Vec3d RigStimPlanModelTools::calculateTSTDirection( RigEclipseCaseData* ecl
 
     // Find upper face of cells close to the anchor point
     cvf::BoundingBox    boundingBox( anchorPosition - boundingBoxSize, anchorPosition + boundingBoxSize );
-    std::vector<size_t> closeCells;
-    mainGrid->findIntersectingCells( boundingBox, &closeCells );
+    std::vector<size_t> closeCells = mainGrid->findIntersectingCells( boundingBox );
 
     // The stratigraphic thickness is the averge of normals of the top face
     cvf::Vec3d direction = cvf::Vec3d::ZERO;

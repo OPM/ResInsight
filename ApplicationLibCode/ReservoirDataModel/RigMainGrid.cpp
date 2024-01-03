@@ -151,8 +151,7 @@ size_t RigMainGrid::findReservoirCellIndexFromPoint( const cvf::Vec3d& point ) c
     cvf::BoundingBox pointBBox;
     pointBBox.add( point );
 
-    std::vector<size_t> cellIndices;
-    m_mainGrid->findIntersectingCells( pointBBox, &cellIndices );
+    std::vector<size_t> cellIndices = m_mainGrid->findIntersectingCells( pointBBox );
 
     cvf::Vec3d hexCorners[8];
     for ( size_t cellIndex : cellIndices )
@@ -781,11 +780,12 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace( size_t reservoir
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::findIntersectingCells( const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices ) const
+std::vector<size_t> RigMainGrid::findIntersectingCells( const cvf::BoundingBox& inputBB ) const
 {
     CVF_ASSERT( m_cellSearchTree.notNull() );
-
-    m_cellSearchTree->findIntersections( inputBB, cellIndices );
+    std::vector<size_t> cellIndices;
+    m_cellSearchTree->findIntersections( inputBB, &cellIndices );
+    return cellIndices;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -94,8 +94,8 @@ public:
     cvf::Vec3d displayModelOffset() const override;
     void       setDisplayModelOffset( cvf::Vec3d offset );
 
-    void setFlipAxis( bool flipXAxis, bool flipYAxis );
-    void findIntersectingCells( const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices ) const;
+    void                setFlipAxis( bool flipXAxis, bool flipYAxis );
+    std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& inputBB ) const;
 
     cvf::BoundingBox boundingBox() const;
 

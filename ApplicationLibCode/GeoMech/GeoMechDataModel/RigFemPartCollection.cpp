@@ -169,9 +169,9 @@ size_t RigFemPartCollection::globalElementIndex( int partId, size_t localIndex )
 //--------------------------------------------------------------------------------------------------
 /// Find intersecting global element indexes for a given bounding box
 //--------------------------------------------------------------------------------------------------
-void RigFemPartCollection::findIntersectingGlobalElementIndices( const cvf::BoundingBox& intersectingBB,
-                                                                 std::vector<size_t>*    intersectedGlobalElementIndices ) const
+std::vector<size_t> RigFemPartCollection::findIntersectingGlobalElementIndices( const cvf::BoundingBox& intersectingBB ) const
 {
+    std::vector<size_t> intersectedGlobalElementIndices;
     for ( const auto& part : m_femParts )
     {
         std::vector<size_t> foundElements;
@@ -179,9 +179,11 @@ void RigFemPartCollection::findIntersectingGlobalElementIndices( const cvf::Boun
         for ( const auto& foundElement : foundElements )
         {
             const size_t globalIdx = globalElementIndex( part->elementPartId(), foundElement );
-            intersectedGlobalElementIndices->push_back( globalIdx );
+            intersectedGlobalElementIndices.push_back( globalIdx );
         }
     }
+
+    return intersectedGlobalElementIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,8 +195,7 @@ int RigFemPartCollection::getPartIndexFromPoint( const cvf::Vec3d& point ) const
 
     // Find candidates for intersected global elements
     const cvf::BoundingBox intersectingBb( point, point );
-    std::vector<size_t>    intersectedGlobalElementIndexCandidates;
-    findIntersectingGlobalElementIndices( intersectingBb, &intersectedGlobalElementIndexCandidates );
+    std::vector<size_t>    intersectedGlobalElementIndexCandidates = findIntersectingGlobalElementIndices( intersectingBb );
 
     if ( intersectedGlobalElementIndexCandidates.empty() ) return idx;
 
