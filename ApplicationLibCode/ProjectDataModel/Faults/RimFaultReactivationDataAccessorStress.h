@@ -71,29 +71,7 @@ private:
                                     const cvf::Vec3d&         position,
                                     const std::vector<float>& scalarResults ) const;
 
-    std::pair<double, cvf::Vec3d> getPorBar( RimWellIADataAccess& iaDataAccess,
-                                             const RigFemPart*    femPart,
-                                             const cvf::Vec3d&    position,
-                                             double               gradient,
-                                             int                  timeStepIndex,
-                                             int                  frameIndex ) const;
-
-    static std::pair<bool, RimFaultReactivation::ElementSets>
-        findElementSetContainingElement( const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets,
-                                         unsigned int                                                                  elmIdx );
-
-    static std::pair<int, int> findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd );
-    static std::pair<int, int> findOverburdenAndUnderburdenIndex( const std::vector<double>& values );
-    static double              computePorBarWithGradient( const std::vector<cvf::Vec3d>& intersections,
-                                                          const std::vector<double>&     values,
-                                                          int                            i1,
-                                                          int                            i2,
-                                                          double                         gradient );
-    static void fillInMissingValues( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double gradient );
-
-    static std::vector<double> generateMds( const std::vector<cvf::Vec3d>& points );
-    static std::vector<cvf::Vec3d>
-        generateWellPoints( const cvf::Vec3d& faultTopPosition, const cvf::Vec3d& faultBottomPosition, const cvf::Vec3d& offset );
+    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d& position, double gradient, int timeStepIndex, int frameIndex ) const;
 
     RimGeoMechCase*                m_geoMechCase;
     RimFaultReactivation::Property m_property;
