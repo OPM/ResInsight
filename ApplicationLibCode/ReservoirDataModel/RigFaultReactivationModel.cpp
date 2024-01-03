@@ -20,11 +20,6 @@
 
 #include "RigFaultReactivationModelGenerator.h"
 #include "RigGriddedPart3d.h"
-#include "RigPolyLinesData.h"
-
-#include "RimFaultReactivationDataAccess.h"
-
-#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -145,8 +140,9 @@ void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGri
 {
     reset();
 
-    auto frontPart = m_3dparts[GridPart::FW];
-    auto backPart  = m_3dparts[GridPart::HW];
+    auto frontPart   = m_3dparts[GridPart::FW];
+    auto backPart    = m_3dparts[GridPart::HW];
+    m_normalPointsAt = GridPart::FW;
 
     m_generator->generateGeometry( startCell, startFace, frontPart, backPart );
 
@@ -154,6 +150,7 @@ void RigFaultReactivationModel::updateGeometry( size_t startCell, cvf::StructGri
     {
         m_3dparts[GridPart::HW] = frontPart;
         m_3dparts[GridPart::FW] = backPart;
+        m_normalPointsAt        = GridPart::HW;
     }
 
     auto& frontPoints = m_generator->frontPoints();
@@ -227,4 +224,12 @@ const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::faultTopBotto
 {
     if ( m_generator.get() == nullptr ) return std::make_pair( cvf::Vec3d(), cvf::Vec3d() );
     return m_generator->faultTopBottomPoints();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultReactivation::GridPart RigFaultReactivationModel::normalPointsAt() const
+{
+    return m_normalPointsAt;
 }

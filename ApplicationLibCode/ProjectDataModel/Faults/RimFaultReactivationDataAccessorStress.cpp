@@ -19,7 +19,6 @@
 #include "RimFaultReactivationDataAccessorStress.h"
 
 #include "RiaEclipseUnitTools.h"
-#include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 
 #include "RigFaultReactivationModel.h"
@@ -34,8 +33,8 @@
 #include "RigResultAccessorFactory.h"
 #include "RigWellPath.h"
 
+#include "RimFaultReactivationDataAccessorWellLogExtraction.h"
 #include "RimFaultReactivationEnums.h"
-#include "RimFracture.h"
 #include "RimGeoMechCase.h"
 #include "RimWellIADataAccess.h"
 
@@ -97,17 +96,23 @@ void RimFaultReactivationDataAccessorStress::updateResultAccessor()
     std::string           errorName             = "fault reactivation data access";
 
     {
-        std::vector<cvf::Vec3d> wellPoints = generateWellPoints( faultTopPosition, faultBottomPosition, faultNormal * distanceFromFault );
-        m_faceAWellPath                    = new RigWellPath( wellPoints, generateMds( wellPoints ) );
-        m_partIndexA                       = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
-        m_extractorA                       = new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, m_faceAWellPath.p(), errorName );
+        std::vector<cvf::Vec3d> wellPoints =
+            RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
+                                                                                   faultBottomPosition,
+                                                                                   faultNormal * distanceFromFault );
+        m_faceAWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
+        m_partIndexA    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
+        m_extractorA    = new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, m_faceAWellPath.p(), errorName );
     }
 
     {
-        std::vector<cvf::Vec3d> wellPoints = generateWellPoints( faultTopPosition, faultBottomPosition, -faultNormal * distanceFromFault );
-        m_faceBWellPath                    = new RigWellPath( wellPoints, generateMds( wellPoints ) );
-        m_partIndexB                       = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
-        m_extractorB                       = new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, m_faceBWellPath.p(), errorName );
+        std::vector<cvf::Vec3d> wellPoints =
+            RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
+                                                                                   faultBottomPosition,
+                                                                                   -faultNormal * distanceFromFault );
+        m_faceBWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
+        m_partIndexB    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
+        m_extractorB    = new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, m_faceBWellPath.p(), errorName );
     }
 }
 
@@ -156,14 +161,14 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
 
         if ( m_property == RimFaultReactivation::Property::StressTop )
         {
-            auto [porBar, extractionPos] = getPorBar( iaDataAccess, m_femPart, topPosition, m_gradient, timeStepIndex, frameIndex );
+            auto [porBar, extractionPos] = calculatePorBar( topPosition, m_gradient, timeStepIndex, frameIndex );
             if ( std::isinf( porBar ) ) return porBar;
             double s33 = interpolatedResultValue( iaDataAccess, m_femPart, extractionPos, s33Data );
             return RiaEclipseUnitTools::barToPascal( s33 - porBar );
         }
         else if ( m_property == RimFaultReactivation::Property::StressBottom )
         {
-            auto [porBar, extractionPos] = getPorBar( iaDataAccess, m_femPart, bottomPosition, m_gradient, timeStepIndex, frameIndex );
+            auto [porBar, extractionPos] = calculatePorBar( bottomPosition, m_gradient, timeStepIndex, frameIndex );
             if ( std::isinf( porBar ) ) return porBar;
             double s33 = interpolatedResultValue( iaDataAccess, m_femPart, extractionPos, s33Data );
             return RiaEclipseUnitTools::barToPascal( s33 - porBar );
@@ -178,7 +183,7 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
         }
         else if ( m_property == RimFaultReactivation::Property::LateralStressComponentX )
         {
-            auto [porBar, extractionPos] = getPorBar( iaDataAccess, m_femPart, position, m_gradient, timeStepIndex, frameIndex );
+            auto [porBar, extractionPos] = calculatePorBar( position, m_gradient, timeStepIndex, frameIndex );
             if ( std::isinf( porBar ) ) return porBar;
 
             const std::vector<float>& s11Data = m_s11Frames->frameData( timeStepIndex, frameIndex );
@@ -188,7 +193,7 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
         }
         else if ( m_property == RimFaultReactivation::Property::LateralStressComponentY )
         {
-            auto [porBar, extractionPos] = getPorBar( iaDataAccess, m_femPart, position, m_gradient, timeStepIndex, frameIndex );
+            auto [porBar, extractionPos] = calculatePorBar( position, m_gradient, timeStepIndex, frameIndex );
             if ( std::isinf( porBar ) ) return porBar;
 
             const std::vector<float>& s22Data = m_s22Frames->frameData( timeStepIndex, frameIndex );
@@ -215,12 +220,8 @@ double RimFaultReactivationDataAccessorStress::interpolatedResultValue( RimWellI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStress::getPorBar( RimWellIADataAccess& iaDataAccess,
-                                                                                 const RigFemPart*    femPart,
-                                                                                 const cvf::Vec3d&    position,
-                                                                                 double               gradient,
-                                                                                 int                  timeStepIndex,
-                                                                                 int                  frameIndex ) const
+std::pair<double, cvf::Vec3d>
+    RimFaultReactivationDataAccessorStress::calculatePorBar( const cvf::Vec3d& position, double gradient, int timeStepIndex, int frameIndex ) const
 {
     RigFemPartCollection*                partCollection = m_geoMechCaseData->femParts();
     cvf::ref<RigGeoMechWellLogExtractor> extractor      = m_partIndexA == partCollection->getPartIndexFromPoint( position ) ? m_extractorA
@@ -235,180 +236,5 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStress::getPorBar(
     std::vector<double> values;
     extractor->curveData( resAddr, timeStepIndex, frameIndex, &values );
 
-    // Fill in missing values
-    auto intersections = extractor->intersections();
-    fillInMissingValues( intersections, values, gradient );
-
-    // Linear interpolation between two points
-    auto lerp = []( const cvf::Vec3d& start, const cvf::Vec3d& end, double t ) { return start + t * ( end - start ); };
-
-    auto [topIdx, bottomIdx] = findIntersectionsForTvd( intersections, position.z() );
-    if ( topIdx != -1 && bottomIdx != -1 )
-    {
-        double topValue    = values[topIdx];
-        double bottomValue = values[bottomIdx];
-        if ( !std::isinf( topValue ) && !std::isinf( bottomValue ) )
-        {
-            // Interpolate value from the two closest points.
-            std::vector<double> xs     = { intersections[bottomIdx].z(), intersections[topIdx].z() };
-            std::vector<double> ys     = { values[bottomIdx], values[topIdx] };
-            double              porBar = RiaInterpolationTools::linear( xs, ys, position.z() );
-
-            // Interpolate position from depth
-            double     fraction           = RiaInterpolationTools::linear( xs, { 0.0, 1.0 }, position.z() );
-            cvf::Vec3d extractionPosition = lerp( intersections[bottomIdx], intersections[topIdx], fraction );
-            return { porBar, extractionPosition };
-        }
-    }
-
-    return { std::numeric_limits<double>::infinity(), cvf::Vec3d::UNDEFINED };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<int, int> RimFaultReactivationDataAccessorStress::findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd )
-{
-    int topIdx    = -1;
-    int bottomIdx = -1;
-    if ( intersections.size() >= 2 )
-    {
-        for ( size_t i = 1; i < intersections.size(); i++ )
-        {
-            auto top    = intersections[i - 1];
-            auto bottom = intersections[i];
-            if ( top.z() > tvd && bottom.z() < tvd )
-            {
-                topIdx    = static_cast<int>( i ) - 1;
-                bottomIdx = static_cast<int>( i );
-                break;
-            }
-        }
-    }
-    return std::make_pair( topIdx, bottomIdx );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<int, int> RimFaultReactivationDataAccessorStress::findOverburdenAndUnderburdenIndex( const std::vector<double>& values )
-{
-    auto findLastOverburdenIndex = []( const std::vector<double>& values )
-    {
-        for ( size_t i = 0; i < values.size(); i++ )
-        {
-            if ( !std::isinf( values[i] ) ) return static_cast<int>( i );
-        }
-
-        return -1;
-    };
-
-    auto findFirstUnderburdenIndex = []( const std::vector<double>& values )
-    {
-        for ( size_t i = values.size() - 1; i > 0; i-- )
-        {
-            if ( !std::isinf( values[i] ) ) return static_cast<int>( i );
-        }
-
-        return -1;
-    };
-
-    int lastOverburdenIndex   = findLastOverburdenIndex( values );
-    int firstUnderburdenIndex = findFirstUnderburdenIndex( values );
-    return { lastOverburdenIndex, firstUnderburdenIndex };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStress::computePorBarWithGradient( const std::vector<cvf::Vec3d>& intersections,
-                                                                          const std::vector<double>&     values,
-                                                                          int                            i1,
-                                                                          int                            i2,
-                                                                          double                         gradient )
-{
-    double tvdDiff = intersections[i2].z() - intersections[i1].z();
-    return tvdDiff * gradient + values[i2];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultReactivationDataAccessorStress::fillInMissingValues( const std::vector<cvf::Vec3d>& intersections,
-                                                                  std::vector<double>&           values,
-                                                                  double                         gradient )
-{
-    CAF_ASSERT( intersections.size() == values.size() );
-
-    auto calculatePorePressure = []( double depth, double gradient )
-    { return RiaEclipseUnitTools::pascalToBar( gradient * 9.81 * depth * 1000.0 ); };
-
-    auto computeGradient = []( double depth1, double value1, double depth2, double value2 )
-    { return ( value2 - value1 ) / ( depth2 - depth1 ); };
-
-    auto [lastOverburdenIndex, firstUnderburdenIndex] = findOverburdenAndUnderburdenIndex( values );
-
-    // Fill in overburden values using gradient
-    double topPorePressure = calculatePorePressure( std::abs( intersections[0].z() ), gradient );
-    double overburdenGradient =
-        computeGradient( intersections[0].z(), topPorePressure, intersections[lastOverburdenIndex].z(), values[lastOverburdenIndex] );
-
-    for ( int i = 0; i < lastOverburdenIndex; i++ )
-    {
-        values[i] = computePorBarWithGradient( intersections, values, i, lastOverburdenIndex, -overburdenGradient );
-    }
-
-    // Fill in underburden values using gradient
-    int    lastElementIndex    = static_cast<int>( values.size() ) - 1;
-    double bottomPorePressure  = calculatePorePressure( std::abs( intersections[lastElementIndex].z() ), gradient );
-    double underburdenGradient = computeGradient( intersections[firstUnderburdenIndex].z(),
-                                                  values[firstUnderburdenIndex],
-                                                  intersections[lastElementIndex].z(),
-                                                  bottomPorePressure );
-
-    for ( int i = lastElementIndex; i >= firstUnderburdenIndex; i-- )
-    {
-        values[i] = computePorBarWithGradient( intersections, values, i, firstUnderburdenIndex, -underburdenGradient );
-    }
-
-    // Interpolate the missing values (should only be intra-reservoir by now)
-    std::vector<double> intersectionsZ;
-    for ( auto i : intersections )
-    {
-        intersectionsZ.push_back( i.z() );
-    }
-
-    RiaInterpolationTools::interpolateMissingValues( intersectionsZ, values );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimFaultReactivationDataAccessorStress::generateMds( const std::vector<cvf::Vec3d>& points )
-{
-    CAF_ASSERT( points.size() >= 2 );
-
-    // Assume first at zero, all other points relative to that.
-    std::vector<double> mds = { 0.0 };
-    double              sum = 0.0;
-    for ( size_t i = 1; i < points.size(); i++ )
-    {
-        sum += points[i - 1].pointDistance( points[i] );
-        mds.push_back( sum );
-    }
-    return mds;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimFaultReactivationDataAccessorStress::generateWellPoints( const cvf::Vec3d& faultTopPosition,
-                                                                                    const cvf::Vec3d& faultBottomPosition,
-                                                                                    const cvf::Vec3d& offset )
-{
-    cvf::Vec3d faultTop = faultTopPosition + offset;
-    cvf::Vec3d seabed( faultTop.x(), faultTop.y(), 0.0 );
-    cvf::Vec3d faultBottom = faultBottomPosition + offset;
-    cvf::Vec3d underburdenBottom( faultBottom.x(), faultBottom.y(), -10000.0 );
-    return { seabed, faultTop, faultBottom, underburdenBottom };
+    return RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( extractor->intersections(), values, position, gradient );
 }

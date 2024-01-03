@@ -18,16 +18,17 @@
 
 #pragma once
 
+#include "RimFaultReactivationDataAccessor.h"
+
 #include "cvfObject.h"
 #include "cvfVector3.h"
-
-#include "RimFaultReactivationDataAccessor.h"
-#include "RimFaultReactivationEnums.h"
 
 class RimEclipseCase;
 class RigEclipseCaseData;
 class RigMainGrid;
 class RigResultAccessor;
+class RigEclipseWellLogExtractor;
+class RigWellPath;
 
 //==================================================================================================
 ///
@@ -58,4 +59,7 @@ private:
     const RigMainGrid*          m_mainGrid;
     double                      m_defaultPorePressureGradient;
     cvf::ref<RigResultAccessor> m_resultAccessor;
+
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> m_extractors;
 };
