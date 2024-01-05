@@ -28,6 +28,7 @@
 class RigWellPath;
 class RigEclipseWellLogExtractor;
 class RigEclipseCaseData;
+class RigResultAccessor;
 
 //==================================================================================================
 ///
@@ -50,6 +51,10 @@ public:
         generateWellPoints( const cvf::Vec3d& faultTopPosition, const cvf::Vec3d& faultBottomPosition, const cvf::Vec3d& offset );
 
     static std::vector<double> generateMds( const std::vector<cvf::Vec3d>& points );
+
+    static std::pair<std::vector<double>, std::vector<cvf::Vec3d>> extractValuesAndIntersections( const RigResultAccessor& resultAccessor,
+                                                                                                  RigEclipseWellLogExtractor& extractor,
+                                                                                                  const RigWellPath&          wellPath );
 
 protected:
     static std::pair<int, int> findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd );
