@@ -43,10 +43,10 @@
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
+#include <QWidget>
 
 class QAction;
 class QKeySequence;
-class QWidget;
 
 namespace caf
 {

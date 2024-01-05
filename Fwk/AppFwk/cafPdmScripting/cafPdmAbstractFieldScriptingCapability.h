@@ -39,7 +39,6 @@
 #include <QString>
 
 class QTextStream;
-class QStringList;
 
 namespace caf
 {
