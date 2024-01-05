@@ -10,13 +10,22 @@ endif()
 set(MOC_HEADER_FILES cafCmdFeature.h cafCmdFeatureManager.h)
 
 # Qt
-find_package(
-  Qt5
-  COMPONENTS
-  REQUIRED Core Gui Widgets
-)
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+if(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core Gui Widgets
+  )
+  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
+else()
+  find_package(
+    Qt5
+    COMPONENTS
+    REQUIRED Core Gui Widgets
+  )
+  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+endif()
 
 set(PROJECT_FILES
     cafCmdExecCommandManager.cpp
@@ -46,7 +55,7 @@ target_link_libraries(${PROJECT_NAME} cafProjectDataModel ${QT_LIBRARIES})
 
 if(MSVC)
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127 /wd4996"
   )
 endif()
 

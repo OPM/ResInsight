@@ -6,12 +6,21 @@ if(CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-find_package(
-  Qt5
-  COMPONENTS
-  REQUIRED Core
-)
-set(QT_LIBRARIES Qt5::Core)
+if(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core
+  )
+  set(QT_LIBRARIES Qt6::Core)
+else()
+  find_package(
+    Qt5
+    COMPONENTS
+    REQUIRED Core
+  )
+  set(QT_LIBRARIES Qt5::Core)
+endif()
 
 set(PROJECT_FILES
     cafAssert.h
