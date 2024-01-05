@@ -128,6 +128,7 @@ public:
     double seaBedDepth() const;
     double waterDensity() const;
     double frictionAngleDeg() const;
+    double seabedTemperature() const;
 
     RimEclipseCase* eclipseCase() const;
     RimGeoMechCase* geoMechCase() const;
@@ -182,6 +183,7 @@ private:
 
     caf::PdmField<double> m_waterDensity;
     caf::PdmField<double> m_frictionAngleDeg;
+    caf::PdmField<double> m_seabedTemperature;
 
     caf::PdmField<size_t> m_startCellIndex;
     caf::PdmField<int>    m_startCellFace;

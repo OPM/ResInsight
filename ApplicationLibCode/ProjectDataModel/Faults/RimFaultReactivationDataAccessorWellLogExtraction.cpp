@@ -63,13 +63,37 @@ RimFaultReactivationDataAccessorWellLogExtraction::~RimFaultReactivationDataAcce
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                  std::vector<double>&           values,
-                                                                                                  const cvf::Vec3d&              position,
-                                                                                                  double                         gradient )
+                                                                                                  std::vector<double>& values,
+                                                                                                  const cvf::Vec3d&    position,
+                                                                                                  double               gradient )
 {
     // Fill in missing values
-    fillInMissingValues( intersections, values, gradient );
+    fillInMissingValuesWithGradient( intersections, values, gradient );
+    return findValueAndPosition( intersections, values, position );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, cvf::Vec3d>
+    RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( const std::vector<cvf::Vec3d>& intersections,
+                                                                             std::vector<double>&           values,
+                                                                             const cvf::Vec3d&              position,
+                                                                             double                         seabedTemperature )
+{
+    // Fill in missing values
+    fillInMissingValuesWithTopValue( intersections, values, seabedTemperature );
+    return findValueAndPosition( intersections, values, position );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, cvf::Vec3d>
+    RimFaultReactivationDataAccessorWellLogExtraction::findValueAndPosition( const std::vector<cvf::Vec3d>& intersections,
+                                                                             const std::vector<double>&     values,
+                                                                             const cvf::Vec3d&              position )
+{
     // Linear interpolation between two points
     auto lerp = []( const cvf::Vec3d& start, const cvf::Vec3d& end, double t ) { return start + t * ( end - start ); };
 
@@ -99,7 +123,7 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction:
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                double                         tvd )
+                                                                                                double tvd )
 {
     int topIdx    = -1;
     int bottomIdx = -1;
@@ -109,7 +133,7 @@ std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findInter
         {
             auto top    = intersections[i - 1];
             auto bottom = intersections[i];
-            if ( top.z() > tvd && bottom.z() < tvd )
+            if ( top.z() >= tvd && bottom.z() < tvd )
             {
                 topIdx    = static_cast<int>( i ) - 1;
                 bottomIdx = static_cast<int>( i );
@@ -153,11 +177,11 @@ std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findOverb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorWellLogExtraction::computePorBarWithGradient( const std::vector<cvf::Vec3d>& intersections,
-                                                                                     const std::vector<double>&     values,
-                                                                                     int                            i1,
-                                                                                     int                            i2,
-                                                                                     double                         gradient )
+double RimFaultReactivationDataAccessorWellLogExtraction::computeValueWithGradient( const std::vector<cvf::Vec3d>& intersections,
+                                                                                    const std::vector<double>&     values,
+                                                                                    int                            i1,
+                                                                                    int                            i2,
+                                                                                    double                         gradient )
 {
     double tvdDiff = intersections[i2].z() - intersections[i1].z();
     return tvdDiff * gradient + values[i2];
@@ -166,50 +190,51 @@ double RimFaultReactivationDataAccessorWellLogExtraction::computePorBarWithGradi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValues( const std::vector<cvf::Vec3d>& intersections,
-                                                                             std::vector<double>&           values,
-                                                                             double                         gradient )
+void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValuesWithGradient( const std::vector<cvf::Vec3d>& intersections,
+                                                                                         std::vector<double>&           values,
+                                                                                         double                         gradient )
 {
     CAF_ASSERT( intersections.size() == values.size() );
 
     auto calculatePorePressure = []( double depth, double gradient )
     { return RiaEclipseUnitTools::pascalToBar( gradient * 9.81 * depth * 1000.0 ); };
 
-    auto computeGradient = []( double depth1, double value1, double depth2, double value2 )
-    { return ( value2 - value1 ) / ( depth2 - depth1 ); };
-
     auto [lastOverburdenIndex, firstUnderburdenIndex] = findOverburdenAndUnderburdenIndex( values );
 
     // Fill in overburden values using gradient
     double topPorePressure = calculatePorePressure( std::abs( intersections[0].z() ), gradient );
-    double overburdenGradient =
-        computeGradient( intersections[0].z(), topPorePressure, intersections[lastOverburdenIndex].z(), values[lastOverburdenIndex] );
-
-    for ( int i = 0; i < lastOverburdenIndex; i++ )
-    {
-        values[i] = computePorBarWithGradient( intersections, values, i, lastOverburdenIndex, -overburdenGradient );
-    }
+    insertOverburdenValues( intersections, values, lastOverburdenIndex, topPorePressure );
 
     // Fill in underburden values using gradient
-    int    lastElementIndex    = static_cast<int>( values.size() ) - 1;
-    double bottomPorePressure  = calculatePorePressure( std::abs( intersections[lastElementIndex].z() ), gradient );
-    double underburdenGradient = computeGradient( intersections[firstUnderburdenIndex].z(),
-                                                  values[firstUnderburdenIndex],
-                                                  intersections[lastElementIndex].z(),
-                                                  bottomPorePressure );
-
-    for ( int i = lastElementIndex; i >= firstUnderburdenIndex; i-- )
-    {
-        values[i] = computePorBarWithGradient( intersections, values, i, firstUnderburdenIndex, -underburdenGradient );
-    }
+    int    lastElementIndex   = static_cast<int>( values.size() ) - 1;
+    double bottomPorePressure = calculatePorePressure( std::abs( intersections[lastElementIndex].z() ), gradient );
+    insertUnderburdenValues( intersections, values, firstUnderburdenIndex, bottomPorePressure );
 
     // Interpolate the missing values (should only be intra-reservoir by now)
-    std::vector<double> intersectionsZ;
-    for ( auto i : intersections )
-    {
-        intersectionsZ.push_back( i.z() );
-    }
+    std::vector<double> intersectionsZ = extractDepthValues( intersections );
+    RiaInterpolationTools::interpolateMissingValues( intersectionsZ, values );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValuesWithTopValue( const std::vector<cvf::Vec3d>& intersections,
+                                                                                         std::vector<double>&           values,
+                                                                                         double                         topValue )
+{
+    CAF_ASSERT( intersections.size() == values.size() );
+
+    auto [lastOverburdenIndex, firstUnderburdenIndex] = findOverburdenAndUnderburdenIndex( values );
+
+    // Fill in overburden values using gradient
+    insertOverburdenValues( intersections, values, lastOverburdenIndex, topValue );
+
+    // Fill in underburden values
+    double bottomValue = values[firstUnderburdenIndex - 1];
+    insertUnderburdenValues( intersections, values, firstUnderburdenIndex, bottomValue );
+
+    // Interpolate the missing values (should only be intra-reservoir by now)
+    std::vector<double> intersectionsZ = extractDepthValues( intersections );
     RiaInterpolationTools::interpolateMissingValues( intersectionsZ, values );
 }
 
@@ -218,10 +243,11 @@ void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValues( con
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( const cvf::Vec3d& faultTopPosition,
                                                                                                const cvf::Vec3d& faultBottomPosition,
+                                                                                               double            seabedDepth,
                                                                                                const cvf::Vec3d& offset )
 {
     cvf::Vec3d faultTop = faultTopPosition + offset;
-    cvf::Vec3d seabed( faultTop.x(), faultTop.y(), 0.0 );
+    cvf::Vec3d seabed( faultTop.x(), faultTop.y(), seabedDepth );
     cvf::Vec3d faultBottom = faultBottomPosition + offset;
     cvf::Vec3d underburdenBottom( faultBottom.x(), faultBottom.y(), -10000.0 );
     return { seabed, faultTop, faultBottom, underburdenBottom };
@@ -250,7 +276,8 @@ std::vector<double> RimFaultReactivationDataAccessorWellLogExtraction::generateM
 //--------------------------------------------------------------------------------------------------
 std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>>>
     RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( const RigFaultReactivationModel& model,
-                                                                                        RigEclipseCaseData&              eclipseCaseData )
+                                                                                        RigEclipseCaseData&              eclipseCaseData,
+                                                                                        double                           seabedDepth )
 {
     auto [faultTopPosition, faultBottomPosition] = model.faultTopBottom();
     auto   faultNormal                           = model.faultNormal();
@@ -265,6 +292,7 @@ std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::
         std::vector<cvf::Vec3d> wellPoints =
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
+                                                                                   seabedDepth,
                                                                                    sign * faultNormal * distanceFromFault );
         cvf::ref<RigWellPath> wellPath =
             new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
@@ -301,4 +329,62 @@ std::pair<std::vector<double>, std::vector<cvf::Vec3d>>
     values.push_back( std::numeric_limits<double>::infinity() );
 
     return { values, intersections };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationDataAccessorWellLogExtraction::computeGradient( double depth1, double value1, double depth2, double value2 )
+{
+    return ( value2 - value1 ) / ( depth2 - depth1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFaultReactivationDataAccessorWellLogExtraction::extractDepthValues( const std::vector<cvf::Vec3d>& intersections )
+{
+    std::vector<double> intersectionsZ;
+    for ( auto i : intersections )
+    {
+        intersectionsZ.push_back( i.z() );
+    }
+    return intersectionsZ;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationDataAccessorWellLogExtraction::insertUnderburdenValues( const std::vector<cvf::Vec3d>& intersections,
+                                                                                 std::vector<double>&           values,
+                                                                                 int                            firstUnderburdenIndex,
+                                                                                 double                         bottomValue )
+{
+    int    lastElementIndex    = static_cast<int>( values.size() ) - 1;
+    double underburdenGradient = computeGradient( intersections[firstUnderburdenIndex].z(),
+                                                  values[firstUnderburdenIndex],
+                                                  intersections[lastElementIndex].z(),
+                                                  bottomValue );
+
+    for ( int i = lastElementIndex; i >= firstUnderburdenIndex; i-- )
+    {
+        values[i] = computeValueWithGradient( intersections, values, i, firstUnderburdenIndex, -underburdenGradient );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationDataAccessorWellLogExtraction::insertOverburdenValues( const std::vector<cvf::Vec3d>& intersections,
+                                                                                std::vector<double>&           values,
+                                                                                int                            lastOverburdenIndex,
+                                                                                double                         topValue )
+{
+    double overburdenGradient =
+        computeGradient( intersections[0].z(), topValue, intersections[lastOverburdenIndex].z(), values[lastOverburdenIndex] );
+
+    for ( int i = 0; i < lastOverburdenIndex; i++ )
+    {
+        values[i] = computeValueWithGradient( intersections, values, i, lastOverburdenIndex, -overburdenGradient );
+    }
 }
