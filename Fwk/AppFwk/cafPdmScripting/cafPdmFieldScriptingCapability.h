@@ -44,6 +44,7 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
 
+#include <QIODevice>
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
