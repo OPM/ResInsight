@@ -25,10 +25,13 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+#include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
+#include "RimFaultReactivationDataAccessorWellLogExtraction.h"
 
 #include <cmath>
 #include <limits>
@@ -36,10 +39,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationDataAccessorTemperature::RimFaultReactivationDataAccessorTemperature( RimEclipseCase* eclipseCase )
+RimFaultReactivationDataAccessorTemperature::RimFaultReactivationDataAccessorTemperature( RimEclipseCase* eclipseCase,
+                                                                                          double          topTemperature,
+                                                                                          double          bottomTemperature )
     : m_eclipseCase( eclipseCase )
     , m_caseData( nullptr )
     , m_mainGrid( nullptr )
+    , m_topTemperature( topTemperature )
+    , m_bottomTemperature( bottomTemperature )
 {
     if ( m_eclipseCase )
     {
@@ -60,16 +67,16 @@ RimFaultReactivationDataAccessorTemperature::~RimFaultReactivationDataAccessorTe
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationDataAccessorTemperature::updateResultAccessor()
 {
-    if ( m_caseData )
-    {
-        RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "TEMP" );
-        m_eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( resVarAddress );
-        m_resultAccessor = RigResultAccessorFactory::createFromResultAddress( m_caseData,
-                                                                              0,
-                                                                              RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                              m_timeStep,
-                                                                              resVarAddress );
-    }
+    if ( !m_caseData ) return;
+
+    RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "TEMP" );
+    m_eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( resVarAddress );
+    m_resultAccessor =
+        RigResultAccessorFactory::createFromResultAddress( m_caseData, 0, RiaDefines::PorosityModelType::MATRIX_MODEL, m_timeStep, resVarAddress );
+
+    auto [wellPaths, extractors] = RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData );
+    m_wellPaths                  = wellPaths;
+    m_extractors                 = extractors;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,11 +99,21 @@ double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
-        auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-        if ( cellIdx != cvf::UNDEFINED_SIZE_T )
-        {
-            return m_resultAccessor->cellScalar( cellIdx );
-        }
+        CAF_ASSERT( m_extractors.find( gridPart ) != m_extractors.end() );
+        auto extractor = m_extractors.find( gridPart )->second;
+
+        CAF_ASSERT( m_wellPaths.find( gridPart ) != m_wellPaths.end() );
+        auto wellPath = m_wellPaths.find( gridPart )->second;
+
+        auto [values, intersections] =
+            RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
+
+        auto [value, pos] = RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( intersections,
+                                                                                                     values,
+                                                                                                     position,
+                                                                                                     m_topTemperature,
+                                                                                                     m_bottomTemperature );
+        return value;
     }
 
     return std::numeric_limits<double>::infinity();

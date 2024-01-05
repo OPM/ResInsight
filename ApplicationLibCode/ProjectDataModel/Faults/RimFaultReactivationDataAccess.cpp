@@ -49,9 +49,12 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase* 
     : m_timeSteps( timeSteps )
 {
     double porePressureGradient = 1.0;
+    // TODO: get values form UI.
+    double topTemperature    = 2.0;
+    double bottomTemperature = -1.2;
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, porePressureGradient ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase, topTemperature, bottomTemperature ) );
     if ( geoMechCase )
     {
         std::vector<RimFaultReactivation::Property> properties = { RimFaultReactivation::Property::YoungsModulus,
