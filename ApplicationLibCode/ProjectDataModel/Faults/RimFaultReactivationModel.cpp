@@ -127,6 +127,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
 
     CAF_PDM_InitField( &m_waterDensity, "WaterDensity", 1030.0, "Water Density [kg/m3]" );
     CAF_PDM_InitField( &m_frictionAngleDeg, "FrictionAngle", 20.0, "Friction Angle [degree]" );
+    CAF_PDM_InitField( &m_seabedTemperature, "SeabedTemperature", 5.0, "Seabed Temperature [C]" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -480,6 +481,11 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
         propertiesGrp->add( &m_useGridElasticProperties );
         propertiesGrp->add( &m_useGridStress );
         propertiesGrp->add( &m_waterDensity );
+
+        propertiesGrp->add( &m_seabedTemperature );
+
+        bool useTemperatureFromGrid = m_useGridTemperature();
+        m_seabedTemperature.uiCapability()->setUiReadOnly( !useTemperatureFromGrid );
     }
 
     propertiesGrp->add( &m_frictionAngleDeg );
@@ -789,4 +795,12 @@ double RimFaultReactivationModel::frictionAngleDeg() const
 double RimFaultReactivationModel::waterDensity() const
 {
     return m_waterDensity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::seabedTemperature() const
+{
+    return m_seabedTemperature;
 }

@@ -49,7 +49,10 @@ class RigGeoMechWellLogExtractor;
 class RimFaultReactivationDataAccessorStress : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorStress( RimGeoMechCase* geoMechCase, RimFaultReactivation::Property property, double gradient );
+    RimFaultReactivationDataAccessorStress( RimGeoMechCase*                geoMechCase,
+                                            RimFaultReactivation::Property property,
+                                            double                         gradient,
+                                            double                         seabedDepth );
     ~RimFaultReactivationDataAccessorStress();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
@@ -76,6 +79,7 @@ private:
     RimGeoMechCase*                m_geoMechCase;
     RimFaultReactivation::Property m_property;
     double                         m_gradient;
+    double                         m_seabedDepth;
     RigGeoMechCaseData*            m_geoMechCaseData;
     RigFemScalarResultFrames*      m_s11Frames;
     RigFemScalarResultFrames*      m_s22Frames;
