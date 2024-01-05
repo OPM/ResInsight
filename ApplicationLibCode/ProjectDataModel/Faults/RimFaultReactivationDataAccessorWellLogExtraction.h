@@ -43,12 +43,18 @@ public:
     static std::pair<double, cvf::Vec3d>
         calculatePorBar( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, const cvf::Vec3d& position, double gradient );
 
+    static std::pair<double, cvf::Vec3d> calculateTemperature( const std::vector<cvf::Vec3d>& intersections,
+                                                               std::vector<double>&           values,
+                                                               const cvf::Vec3d&              position,
+                                                               double                         seabedTemperature );
     static std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>,
                      std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>>>
-        createEclipseWellPathExtractors( const RigFaultReactivationModel& model, RigEclipseCaseData& eclipseCaseData );
+        createEclipseWellPathExtractors( const RigFaultReactivationModel& model, RigEclipseCaseData& eclipseCaseData, double seabedDepth );
 
-    static std::vector<cvf::Vec3d>
-        generateWellPoints( const cvf::Vec3d& faultTopPosition, const cvf::Vec3d& faultBottomPosition, const cvf::Vec3d& offset );
+    static std::vector<cvf::Vec3d> generateWellPoints( const cvf::Vec3d& faultTopPosition,
+                                                       const cvf::Vec3d& faultBottomPosition,
+                                                       double            seabedDepth,
+                                                       const cvf::Vec3d& offset );
 
     static std::vector<double> generateMds( const std::vector<cvf::Vec3d>& points );
 
@@ -59,10 +65,26 @@ public:
 protected:
     static std::pair<int, int> findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd );
     static std::pair<int, int> findOverburdenAndUnderburdenIndex( const std::vector<double>& values );
-    static double              computePorBarWithGradient( const std::vector<cvf::Vec3d>& intersections,
-                                                          const std::vector<double>&     values,
-                                                          int                            i1,
-                                                          int                            i2,
-                                                          double                         gradient );
-    static void fillInMissingValues( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double gradient );
+    static double              computeValueWithGradient( const std::vector<cvf::Vec3d>& intersections,
+                                                         const std::vector<double>&     values,
+                                                         int                            i1,
+                                                         int                            i2,
+                                                         double                         gradient );
+    static void fillInMissingValuesWithGradient( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double gradient );
+    static void fillInMissingValuesWithTopValue( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double topValue );
+
+    static std::pair<double, cvf::Vec3d>
+        findValueAndPosition( const std::vector<cvf::Vec3d>& intersections, const std::vector<double>& values, const cvf::Vec3d& position );
+
+    static double              computeGradient( double depth1, double value1, double depth2, double value2 );
+    static std::vector<double> extractDepthValues( const std::vector<cvf::Vec3d>& intersections );
+
+    static void insertUnderburdenValues( const std::vector<cvf::Vec3d>& intersections,
+                                         std::vector<double>&           values,
+                                         int                            firstUnderburdenIndex,
+                                         double                         bottomValue );
+    static void insertOverburdenValues( const std::vector<cvf::Vec3d>& intersections,
+                                        std::vector<double>&           values,
+                                        int                            lastOverburdenIndex,
+                                        double                         topValue );
 };

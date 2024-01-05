@@ -48,10 +48,12 @@
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationDataAccessorStress::RimFaultReactivationDataAccessorStress( RimGeoMechCase*                geoMechCase,
                                                                                 RimFaultReactivation::Property property,
-                                                                                double                         gradient )
+                                                                                double                         gradient,
+                                                                                double                         seabedDepth )
     : m_geoMechCase( geoMechCase )
     , m_property( property )
     , m_gradient( gradient )
+    , m_seabedDepth( seabedDepth )
 {
     m_geoMechCaseData = geoMechCase->geoMechData();
 }
@@ -99,6 +101,7 @@ void RimFaultReactivationDataAccessorStress::updateResultAccessor()
         std::vector<cvf::Vec3d> wellPoints =
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
+                                                                                   m_seabedDepth,
                                                                                    faultNormal * distanceFromFault );
         m_faceAWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
         m_partIndexA    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
@@ -109,6 +112,7 @@ void RimFaultReactivationDataAccessorStress::updateResultAccessor()
         std::vector<cvf::Vec3d> wellPoints =
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
+                                                                                   m_seabedDepth,
                                                                                    -faultNormal * distanceFromFault );
         m_faceBWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
         m_partIndexB    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
