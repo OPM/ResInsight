@@ -272,8 +272,7 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, 
 
     SolveStatus solveResultStatus = NOT_SOLVED;
 
-    int backstepLevel = 0;
-    int iteration     = 1;
+    int iteration = 1;
     for ( iteration = 1; iteration < maxIterations; ++iteration )
     {
         if ( fabs( q1Step ) > maxStepSize || fabs( q2Step ) > maxStepSize )
@@ -349,17 +348,11 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, 
                 // if (isZeroCrossingR2)
                 q2Step = 0.9 * q2Step * fabs( R2_error ) / ( fabs( R2_error_new ) + fabs( R2_error ) );
 
-                ++backstepLevel;
-
 #ifdef DEBUG_OUTPUT_ON
                 std::cout << " Backstep needed. " << std::endl;
 #endif
 
                 continue;
-            }
-            else
-            {
-                backstepLevel = 0;
             }
         }
 

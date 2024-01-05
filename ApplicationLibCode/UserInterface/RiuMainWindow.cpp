@@ -1765,7 +1765,6 @@ void RiuMainWindow::updateMemoryUsage()
 
     QColor okColor( 0, 150, 0 );
     QColor warningColor( 200, 0, 0 );
-    QColor criticalColor( 255, 100, 0 );
 
     float currentUsageFraction = 0.0f;
     float availVirtualFraction = 1.0f;
