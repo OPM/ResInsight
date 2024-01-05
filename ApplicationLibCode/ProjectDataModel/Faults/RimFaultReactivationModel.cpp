@@ -19,6 +19,7 @@
 #include "RimFaultReactivationModel.h"
 
 #include "RiaApplication.h"
+#include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaQDateTimeTools.h"
@@ -625,8 +626,8 @@ QStringList RimFaultReactivationModel::commandParameters() const
     QStringList retlist;
 
     retlist << baseDir();
-    retlist << inputFilename();
-    retlist << outputOdbFilename();
+    retlist << QString::fromStdString( inputFilename() );
+    retlist << QString::fromStdString( outputOdbFilename() );
 
     return retlist;
 }
@@ -634,45 +635,42 @@ QStringList RimFaultReactivationModel::commandParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::outputOdbFilename() const
+std::string RimFaultReactivationModel::outputOdbFilename() const
 {
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".odb" );
+    return baseFilePath() + ".odb";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::inputFilename() const
+std::string RimFaultReactivationModel::inputFilename() const
 {
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".inp" );
+    return baseFilePath() + ".inp";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::settingsFilename() const
+std::string RimFaultReactivationModel::settingsFilename() const
 {
-    QDir directory( baseDir() );
-    return directory.absoluteFilePath( baseFilename() + ".settings.json" );
+    return baseFilePath() + ".settings.json";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultReactivationModel::baseFilename() const
+std::string RimFaultReactivationModel::baseFilename() const
 {
-    QString tmp = m_userDescription();
+    return RiaFilePathTools::makeSuitableAsFileName( m_userDescription().toStdString() );
+}
 
-    if ( tmp.isEmpty() ) return "faultReactivation";
-
-    tmp.replace( ' ', '_' );
-    tmp.replace( '/', '_' );
-    tmp.replace( '\\', '_' );
-    tmp.replace( ':', '_' );
-
-    return tmp;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimFaultReactivationModel::baseFilePath() const
+{
+    QDir directory( baseDir() );
+    return directory.absoluteFilePath( QString::fromStdString( baseFilename() ) ).toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------

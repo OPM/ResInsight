@@ -110,9 +110,10 @@ public:
 
     QStringList commandParameters() const;
 
-    QString outputOdbFilename() const;
-    QString inputFilename() const;
-    QString settingsFilename() const;
+    std::string outputOdbFilename() const;
+    std::string inputFilename() const;
+    std::string settingsFilename() const;
+    std::string baseFilePath() const;
 
     void updateTimeSteps();
 
@@ -137,7 +138,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    QString baseFilename() const;
+    std::string baseFilename() const;
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;

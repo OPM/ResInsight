@@ -44,6 +44,7 @@ public:
     static QString                     removeDuplicatePathSeparators( const QString& path );
     static QString                     rootSearchPathFromSearchFilter( const QString& searchFilter );
     static QString                     commonRootOfFileNames( const QStringList& filePaths );
+    static std::string                 makeSuitableAsFileName( const std::string candidateName );
 
     static QStringList splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
 
