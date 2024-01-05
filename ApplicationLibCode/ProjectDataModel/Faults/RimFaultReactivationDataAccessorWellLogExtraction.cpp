@@ -22,6 +22,7 @@
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 
+#include "RigEclipseWellLogExtractor.h"
 #include "RigFaultReactivationModel.h"
 #include "RigFemAddressDefines.h"
 #include "RigFemPartCollection.h"
@@ -62,9 +63,9 @@ RimFaultReactivationDataAccessorWellLogExtraction::~RimFaultReactivationDataAcce
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                  std::vector<double>& values,
-                                                                                                  const cvf::Vec3d&    position,
-                                                                                                  double               gradient )
+                                                                                                  std::vector<double>&           values,
+                                                                                                  const cvf::Vec3d&              position,
+                                                                                                  double                         gradient )
 {
     // Fill in missing values
     fillInMissingValues( intersections, values, gradient );
@@ -98,7 +99,7 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction:
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                double tvd )
+                                                                                                double                         tvd )
 {
     int topIdx    = -1;
     int bottomIdx = -1;
@@ -242,4 +243,37 @@ std::vector<double> RimFaultReactivationDataAccessorWellLogExtraction::generateM
         mds.push_back( sum );
     }
     return mds;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>>>
+    RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( const RigFaultReactivationModel& model,
+                                                                                        RigEclipseCaseData&              eclipseCaseData )
+{
+    auto [faultTopPosition, faultBottomPosition] = model.faultTopBottom();
+    auto   faultNormal                           = model.faultNormal();
+    double distanceFromFault                     = 1.0;
+
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                wellPaths;
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> extractors;
+
+    for ( auto gridPart : model.allGridParts() )
+    {
+        double                  sign = model.normalPointsAt() == gridPart ? 1.0 : -1.0;
+        std::vector<cvf::Vec3d> wellPoints =
+            RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
+                                                                                   faultBottomPosition,
+                                                                                   sign * faultNormal * distanceFromFault );
+        cvf::ref<RigWellPath> wellPath =
+            new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
+        wellPaths[gridPart] = wellPath;
+
+        std::string                          errorName = "fault reactivation data access";
+        cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor( &eclipseCaseData, wellPath.p(), errorName );
+        extractors[gridPart]                           = extractor;
+    }
+
+    return { wellPaths, extractors };
 }
