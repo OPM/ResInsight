@@ -11,10 +11,13 @@ if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   )
 endif()
 
-# Use CMake to enforce C++17
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+endif()
 
 # Qt
 if(NOT DEFINED (CEE_USE_QT5))
@@ -24,38 +27,6 @@ endif(NOT DEFINED (CEE_USE_QT5))
 if(NOT DEFINED (CEE_USE_QT6))
   option(CEE_USE_QT6 "Use Qt6" OFF)
 endif(NOT DEFINED (CEE_USE_QT6))
-
-if(CEE_USE_QT5)
-  find_package(
-    Qt5
-    COMPONENTS
-    REQUIRED Core Gui OpenGL Widgets
-  )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
-elseif(CEE_USE_QT6)
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui OpenGL Widgets
-  )
-  qt_standard_project_setup()
-  set(CMAKE_AUTOMOC ON)
-else()
-  find_package(
-    Qt4
-    COMPONENTS QtCore QtGui QtMain QtOpenGl
-    REQUIRED
-  )
-  include(${QT_USE_FILE})
-endif(CEE_USE_QT5)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-endif()
 
 # CeeViz is not available here, exclude it from the build
 set(CAF_EXCLUDE_CVF ON)
