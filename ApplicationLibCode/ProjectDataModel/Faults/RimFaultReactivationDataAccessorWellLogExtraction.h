@@ -21,7 +21,13 @@
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationEnums.h"
 
+#include "cvfObject.h"
+
 #include <vector>
+
+class RigWellPath;
+class RigEclipseWellLogExtractor;
+class RigEclipseCaseData;
 
 //==================================================================================================
 ///
@@ -35,6 +41,11 @@ public:
 
     static std::pair<double, cvf::Vec3d>
         calculatePorBar( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, const cvf::Vec3d& position, double gradient );
+
+    static std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>,
+                     std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>>>
+        createEclipseWellPathExtractors( const RigFaultReactivationModel& model, RigEclipseCaseData& eclipseCaseData );
+
     static std::vector<cvf::Vec3d>
         generateWellPoints( const cvf::Vec3d& faultTopPosition, const cvf::Vec3d& faultBottomPosition, const cvf::Vec3d& offset );
 

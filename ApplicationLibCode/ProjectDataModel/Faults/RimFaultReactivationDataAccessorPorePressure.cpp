@@ -75,25 +75,9 @@ void RimFaultReactivationDataAccessorPorePressure::updateResultAccessor()
     m_resultAccessor =
         RigResultAccessorFactory::createFromResultAddress( m_caseData, 0, RiaDefines::PorosityModelType::MATRIX_MODEL, m_timeStep, resVarAddress );
 
-    auto [faultTopPosition, faultBottomPosition] = m_model->faultTopBottom();
-    auto   faultNormal                           = m_model->faultNormal();
-    double distanceFromFault                     = 1.0;
-
-    for ( auto gridPart : m_model->allGridParts() )
-    {
-        double                  sign = m_model->normalPointsAt() == gridPart ? 1.0 : -1.0;
-        std::vector<cvf::Vec3d> wellPoints =
-            RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
-                                                                                   faultBottomPosition,
-                                                                                   sign * faultNormal * distanceFromFault );
-        cvf::ref<RigWellPath> wellPath =
-            new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
-        m_wellPaths[gridPart] = wellPath;
-
-        std::string                          errorName = "fault reactivation data access";
-        cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor( m_caseData, wellPath.p(), errorName );
-        m_extractors[gridPart]                         = extractor;
-    }
+    auto [wellPaths, extractors] = RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData );
+    m_wellPaths                  = wellPaths;
+    m_extractors                 = extractors;
 }
 
 //--------------------------------------------------------------------------------------------------
