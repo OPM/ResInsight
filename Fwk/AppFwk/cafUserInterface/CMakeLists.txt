@@ -55,13 +55,22 @@ set(MOC_HEADER_FILES
     cafPdmUiValueRangeEditor.h
 )
 
-find_package(
-  Qt5
-  COMPONENTS
-  REQUIRED Core Gui Widgets Svg
-)
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Svg)
-qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+if(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core Gui Widgets Svg
+  )
+  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg)
+else()
+  find_package(
+    Qt5
+    COMPONENTS
+    REQUIRED Core Gui Widgets Svg
+  )
+  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Svg)
+  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+endif()
 
 set(PROJECT_FILES
     # field editors
@@ -184,7 +193,7 @@ add_library(
 
 if(MSVC)
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127 /wd4996"
   )
 endif()
 
