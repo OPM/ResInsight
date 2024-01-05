@@ -110,7 +110,7 @@ QWidget* PdmUiCheckBoxAndTextEditor::createEditorWidget( QWidget* parent )
 
     layout->addWidget( m_checkBox );
     layout->addWidget( m_lineEdit );
-    layout->setMargin( 0 );
+    layout->setContentsMargins( 0, 0, 0, 0 );
 
     containerWidget->setLayout( layout );
 
