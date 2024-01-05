@@ -40,6 +40,7 @@
 #include <QtCore/QFileInfo>
 
 #include <QLineEdit>
+#include <QRegularExpression>
 
 #include <QtOpenGL/QGLContext>
 
@@ -153,7 +154,7 @@ QString Utils::makeValidFileBasename( const QString& fileBasenameCandidate )
     cleanBasename.replace( "\n", "_" );
     cleanBasename.replace( "#", "_" );
 
-    cleanBasename.replace( QRegExp( "_+" ), "_" );
+    cleanBasename.replace( QRegularExpression( "_+" ), "_" );
 
     return cleanBasename;
 }
@@ -283,8 +284,12 @@ bool Utils::isStringMatch( const QString& filterString, const QString& value )
             return false;
     }
 
-    QRegExp searcher( filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
-    return searcher.exactMatch( value );
+    auto               regExpString = QRegularExpression::wildcardToRegularExpression( filterString );
+    QRegularExpression regExp( regExpString );
+    regExp.setPatternOptions( QRegularExpression::CaseInsensitiveOption );
+    auto match = regExp.match( value );
+
+    return match.hasMatch();
 }
 
 //--------------------------------------------------------------------------------------------------
