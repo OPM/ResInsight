@@ -68,7 +68,7 @@ bool RicNewContourMapViewFeature::isCommandEnabled() const
     bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
 
     RimGeoMechView* gmView = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
-    if ( gmView )
+    if ( gmView && gmView->femParts() )
     {
         // if we have more than one geomech part, contour maps does not work with the current implementation
         if ( gmView->femParts()->partCount() > 1 ) return false;
