@@ -37,7 +37,7 @@ jobs:
               publish-to-pypi: false,
             }
           - {
-              name: "Ubuntu gcc",
+              name: "Ubuntu 20.04 gcc",
               os: ubuntu-20.04,
               cc: "gcc",
               cxx: "g++",
@@ -49,7 +49,7 @@ jobs:
               publish-to-pypi: true,
             }
           - {
-              name: "Ubuntu clang",
+              name: "Ubuntu 22.04 clang-16",
               os: ubuntu-22.04,
               cc: "clang-16",
               cxx: "clang++-16",
@@ -139,7 +139,7 @@ jobs:
 
       - name: Set apt mirror
         # see https://github.com/actions/runner-images/issues/7048
-        if: ${{contains( matrix.config.os, 'ubuntu') }}
+        if: contains( matrix.config.os, 'ubuntu')
         run: |
           # make sure there is a `\t` between URL and `priority:*` attributes
           printf 'http://azure.archive.ubuntu.com/ubuntu	priority:1\n' | sudo tee /etc/apt/mirrors.txt
@@ -147,18 +147,18 @@ jobs:
           sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
 
       - name: Install Linux dependencies
-        if: ${{contains( matrix.config.os, 'ubuntu') }}
+        if: contains( matrix.config.os, 'ubuntu')
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
 
       - name: Install gcc-10
-        if: ${{contains( matrix.config.cc, 'gcc') }}
+        if: contains( matrix.config.cc, 'gcc')
         run: |
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
   
       - name: Install clang-16
-        if: ${{contains( matrix.config.cc, 'clang') }}
+        if: contains( matrix.config.cc, 'clang')
         run: |
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
           #wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -187,14 +187,14 @@ jobs:
           appendedCacheKey: ${{ matrix.config.os }}-${{ matrix.config.cxx }}-cache-key-v2
 
       - name: Cache dynamic version of OpenSSL (Linux)
-        if: ${{contains( matrix.config.os, 'ubuntu_disabled') }}
+        if: contains( matrix.config.os, 'ubuntu')
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
           key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v05
 
       - name: Install dynamic version of OpenSSL (Linux)
-        if: ${{contains( matrix.config.os, 'ubuntu_disabled') }}
+        if: contains( matrix.config.os, 'ubuntu_disabled')
         run: |
           $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
 
@@ -258,7 +258,7 @@ jobs:
       - name: Run pytest
         if: matrix.config.build-python-module
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
+          RESINSIGHT_EXECUTABLE: ${{ github.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
           cd GrpcInterface/Python
           python setup.py sdist          
@@ -273,11 +273,11 @@ jobs:
           path: GrpcInterface/Python/dist
 
       - name: Upload Windows install artifact
-        if: ${{contains( matrix.config.os, 'windows') }}
+        if: contains( matrix.config.os, 'windows')
         uses: actions/upload-artifact@v3
         with:
           name: ResInsight-${{ matrix.config.name }}
-          path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
+          path: ${{ github.workspace }}/ResInsight/cmakebuild/install
 
   pypi-publish:
     name: Upload release to PyPI
