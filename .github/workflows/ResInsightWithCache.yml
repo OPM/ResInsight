@@ -258,7 +258,7 @@ jobs:
       - name: Run pytest
         if: matrix.config.build-python-module
         env:
-          RESINSIGHT_EXECUTABLE: ${{ github.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
           cd GrpcInterface/Python
           python setup.py sdist          
@@ -277,7 +277,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ResInsight-${{ matrix.config.name }}
-          path: ${{ github.workspace }}/ResInsight/cmakebuild/install
+          path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
 
   pypi-publish:
     name: Upload release to PyPI
