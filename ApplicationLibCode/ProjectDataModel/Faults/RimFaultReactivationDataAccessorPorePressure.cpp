@@ -103,22 +103,11 @@ double RimFaultReactivationDataAccessorPorePressure::valueAtPosition( const cvf:
         CAF_ASSERT( m_extractors.find( gridPart ) != m_extractors.end() );
         auto extractor = m_extractors.find( gridPart )->second;
 
-        // Extract values along well path
-        std::vector<double> values;
-        extractor->curveData( m_resultAccessor.p(), &values );
-
-        auto intersections = extractor->intersections();
-
         CAF_ASSERT( m_wellPaths.find( gridPart ) != m_wellPaths.end() );
         auto wellPath = m_wellPaths.find( gridPart )->second;
 
-        // Insert top of overburden point
-        intersections.insert( intersections.begin(), wellPath->wellPathPoints().front() );
-        values.insert( values.begin(), std::numeric_limits<double>::infinity() );
-
-        // Insert bottom of underburden point
-        intersections.push_back( wellPath->wellPathPoints().back() );
-        values.push_back( std::numeric_limits<double>::infinity() );
+        auto [values, intersections] =
+            RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
         auto [value, pos] =
             RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( intersections, values, position, m_defaultPorePressureGradient );

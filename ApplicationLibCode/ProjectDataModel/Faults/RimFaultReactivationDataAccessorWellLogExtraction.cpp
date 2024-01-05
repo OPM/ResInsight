@@ -277,3 +277,28 @@ std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::
 
     return { wellPaths, extractors };
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<double>, std::vector<cvf::Vec3d>>
+    RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( const RigResultAccessor&    resultAccessor,
+                                                                                      RigEclipseWellLogExtractor& extractor,
+                                                                                      const RigWellPath&          wellPath )
+{
+    // Extract values along well path
+    std::vector<double> values;
+    extractor.curveData( &resultAccessor, &values );
+
+    auto intersections = extractor.intersections();
+
+    // Insert top of overburden point
+    intersections.insert( intersections.begin(), wellPath.wellPathPoints().front() );
+    values.insert( values.begin(), std::numeric_limits<double>::infinity() );
+
+    // Insert bottom of underburden point
+    intersections.push_back( wellPath.wellPathPoints().back() );
+    values.push_back( std::numeric_limits<double>::infinity() );
+
+    return { values, intersections };
+}
