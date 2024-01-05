@@ -272,7 +272,7 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, 
 
     SolveStatus solveResultStatus = NOT_SOLVED;
 
-    int iteration     = 1;
+    int iteration = 1;
     for ( iteration = 1; iteration < maxIterations; ++iteration )
     {
         if ( fabs( q1Step ) > maxStepSize || fabs( q2Step ) > maxStepSize )
