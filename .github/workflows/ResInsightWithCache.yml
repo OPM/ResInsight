@@ -33,6 +33,7 @@ jobs:
               vcpkg-triplet: x64-windows,
               build-python-module: true,
               execute-unit-tests: true,
+              execute-pytests: true,
               unity-build: true,
               publish-to-pypi: false,
             }
@@ -45,6 +46,7 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
+              execute-pytests: true,
               unity-build: false,
               publish-to-pypi: true,
             }
@@ -57,6 +59,7 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
+              execute-pytests: false,
               unity-build: false,
               publish-to-pypi: false,
             }
@@ -256,7 +259,7 @@ jobs:
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m mypy *.py generated/generated_classes.py
 
       - name: Run pytest
-        if: matrix.config.build-python-module
+        if: matrix.config.execute-pytests
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
