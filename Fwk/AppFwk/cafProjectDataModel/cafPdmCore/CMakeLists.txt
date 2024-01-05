@@ -13,6 +13,7 @@ if(CEE_USE_QT6)
     REQUIRED Core
   )
   set(QT_LIBRARIES Qt6::Core)
+  qt_standard_project_setup()
 else()
   find_package(
     Qt5
