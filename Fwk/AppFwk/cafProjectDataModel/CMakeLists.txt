@@ -7,12 +7,21 @@ if(CAF_ENABLE_UNITY_BUILD)
 endif()
 
 # Qt
-find_package(
-  Qt5
-  COMPONENTS
-  REQUIRED Core Gui Widgets
-)
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+if(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core Gui Widgets
+  )
+  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
+else()
+  find_package(
+    Qt5
+    COMPONENTS
+    REQUIRED Core Gui Widgets
+  )
+  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+endif()
 
 set(PROJECT_FILES
     cafFactory.h
