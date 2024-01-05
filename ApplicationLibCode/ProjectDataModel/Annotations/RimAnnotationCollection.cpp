@@ -164,7 +164,6 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
         }
     }
 
-    size_t newLinesIdx = 0;
     for ( const QString& newFileName : newFileNames )
     {
         RimPolylinesFromFileAnnotation* newPolyLinesAnnot = new RimPolylinesFromFileAnnotation;
@@ -177,8 +176,6 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 
         m_polylineFromFileAnnotations->addAnnotation( newPolyLinesAnnot );
         polyLinesObjsToReload.push_back( newPolyLinesAnnot );
-
-        ++newLinesIdx;
     }
 
     updateViewAnnotationCollections();

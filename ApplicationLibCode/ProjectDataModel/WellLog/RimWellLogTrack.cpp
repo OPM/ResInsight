@@ -377,7 +377,6 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
     double maxValue = -HUGE_VAL;
 
     size_t topologyCurveCount = 0;
-    size_t visibleCurves      = 0u;
     for ( const auto& curve : m_curves )
     {
         double minCurveValue = HUGE_VAL;
@@ -385,7 +384,6 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
 
         if ( curve->isChecked() )
         {
-            visibleCurves++;
             if ( curve->propertyValueRangeInData( &minCurveValue, &maxCurveValue ) )
             {
                 if ( minCurveValue < minValue )

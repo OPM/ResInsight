@@ -478,7 +478,6 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
 
     cvf::Vec2d primaryAxisVector = pairs[0].first * axesVectorCandidates[pairs[0].first];
 
-    size_t                             row    = 0;
     size_t                             column = 0;
     std::vector<std::vector<unsigned>> indexToPointData;
     std::vector<unsigned>              startOffsets;
@@ -512,7 +511,6 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
                 {
                     indexToPointData.push_back( std::vector<unsigned>() );
                 }
-                row        = 0;
                 int offset = distanceOnLine( lineStartPoint, lineEndPoint, to2d( surfacePoints[index] ) );
                 if ( offset < 0 )
                 {
@@ -524,7 +522,6 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
                     for ( int i = 0; i < offset; i++ )
                     {
                         indexToPointData[column].push_back( -1 );
-                        row++;
                     }
                     startOffsets.push_back( 0 );
                 }
@@ -537,7 +534,6 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
                     for ( size_t i = 1; i < rowDiff; i++ )
                     {
                         indexToPointData[column].push_back( -1 );
-                        row++;
                     }
                 }
                 int offset       = distanceOnLine( lineStartPoint, lineEndPoint, to2d( surfacePoints[index] ) );
@@ -555,7 +551,6 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
             indexToPointData.push_back( std::vector<unsigned>() );
         }
         indexToPointData[column].push_back( static_cast<unsigned>( index ) );
-        row++;
     }
 
     for ( size_t i = 0; i < startOffsets.size(); i++ )
