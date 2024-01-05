@@ -160,7 +160,7 @@ QWidget* PdmUiTableViewEditor::createLabelWidget( QWidget* parent )
     }
 
     QHBoxLayout* layoutForIconLabel = new QHBoxLayout();
-    layoutForIconLabel->setMargin( 0 );
+    layoutForIconLabel->setContentsMargins( 0, 0, 0, 0 );
     layoutForIconLabel->addWidget( m_tableHeadingIcon );
     layoutForIconLabel->addSpacing( 3 );
     layoutForIconLabel->addWidget( m_tableHeading );

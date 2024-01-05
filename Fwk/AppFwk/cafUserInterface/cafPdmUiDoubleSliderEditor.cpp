@@ -107,7 +107,7 @@ QWidget* PdmUiDoubleSliderEditor::createEditorWidget( QWidget* parent )
     QWidget* containerWidget = new QWidget( parent );
 
     QHBoxLayout* layout = new QHBoxLayout();
-    layout->setMargin( 0 );
+    layout->setContentsMargins( 0, 0, 0, 0 );
     containerWidget->setLayout( layout );
 
     m_lineEdit = new QLineEdit( containerWidget );
