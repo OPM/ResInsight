@@ -10,6 +10,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+#include <cassert>
 #include <iostream>
 
 namespace caf
