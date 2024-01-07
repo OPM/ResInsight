@@ -41,7 +41,10 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QVariant>
+
+#if ( QT_VERSION < QT_VERSION_CHECK( 6, 0, 0 ) )
 #include <QtOpenGL/QGLFormat>
+#endif
 
 namespace caf
 {
@@ -299,6 +302,7 @@ QString AboutDialog::versionStringForcurrentOpenGLContext()
 {
     QString versionString( "OpenGL " );
 
+#if ( QT_VERSION < QT_VERSION_CHECK( 6, 0, 0 ) )
     QGLFormat::OpenGLVersionFlags flags = QGLFormat::openGLVersionFlags();
 
     if ( flags & QGLFormat::OpenGL_Version_4_0 )
@@ -339,7 +343,7 @@ QString AboutDialog::versionStringForcurrentOpenGLContext()
         versionString += "None";
     else
         versionString += "Unknown";
-
+#endif
     return versionString;
 }
 
