@@ -141,6 +141,7 @@ RimPolygonFilter::RimPolygonFilter()
 
     CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines" );
     CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres" );
+    CAF_PDM_InitField( &m_closePolygon, "ClosePolygon", true, "Closed Polygon" );
 
     CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
     CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
@@ -823,8 +824,8 @@ void RimPolygonFilter::updateCells()
         if ( target->isEnabled() ) points.push_back( target->targetPointXYZ() );
     }
 
-    // We need at least three points to make a sensible polygon
-    if ( points.size() < 3 ) return;
+    // We need at least three points to make a closed polygon, or just 2 for a polyline
+    if ((m_closePolygon() && (points.size() < 2)) || (!m_closePolygon() && (points.size() < 3) )) return;
 
     // make sure first and last point is the same (req. by polygon methods used later)
     points.push_back( points.front() );
@@ -855,7 +856,7 @@ cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLinesData() const
     }
     pld->setPolyLine( line );
 
-    pld->setLineAppearance( m_lineThickness, m_lineColor, true );
+    pld->setLineAppearance( m_lineThickness, m_lineColor, m_closePolygon );
     pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
     pld->setZPlaneLock( m_lockPolygonToPlane, -m_polygonPlaneDepth );
 
