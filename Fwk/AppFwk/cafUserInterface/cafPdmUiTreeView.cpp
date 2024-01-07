@@ -80,10 +80,8 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     connect( m_clearAction, &QAction::triggered, this, &PdmUiTreeView::slotOnClearSearchBox );
     m_clearAction->setVisible( false );
 
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
     m_layout->addLayout( searchLayout );
     connect( m_searchBox, SIGNAL( textChanged( QString ) ), SLOT( slotOnSearchTextChanged() ) );
-#endif
 
     m_treeViewEditor    = new PdmUiTreeViewEditor();
     QWidget* treewidget = m_treeViewEditor->getOrCreateWidget( this );

@@ -163,11 +163,9 @@ void CmdFeature::applyShortcutWithHintToAction( QAction* action, const QKeySeque
 {
     action->setShortcut( keySequence );
 
-#if ( QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 ) )
     // Qt made keyboard shortcuts in context menus platform dependent in Qt 5.10
     // With no global way of removing it.
     action->setShortcutVisibleInContextMenu( true );
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
