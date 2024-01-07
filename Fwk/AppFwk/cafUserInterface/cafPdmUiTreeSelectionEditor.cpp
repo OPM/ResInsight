@@ -598,7 +598,7 @@ void PdmUiTreeSelectionEditor::slotInvertCheckedStateOfAll()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::setCheckedStateForIntegerItemsMatchingFilter()
 {
-#if ( QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 ) )
+#if ( QT_VERSION < QT_VERSION_CHECK( 6, 0, 0 ) )
     auto SkipEmptyParts = QString::SkipEmptyParts;
 #else
     auto SkipEmptyParts = Qt::SkipEmptyParts;
@@ -692,8 +692,10 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
     searchString.replace( "[", "\\[" );
     searchString.replace( "]", "\\]" );
 
-    QRegExp searcher( searchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
-    m_proxyModel->setFilterRegExp( searcher );
+    auto               regExpString = QRegularExpression::wildcardToRegularExpression( searchString );
+    QRegularExpression regExp( regExpString );
+    regExp.setPatternOptions( QRegularExpression::CaseInsensitiveOption );
+    m_proxyModel->setFilterRegularExpression( regExp );
 
     updateUi();
 }
