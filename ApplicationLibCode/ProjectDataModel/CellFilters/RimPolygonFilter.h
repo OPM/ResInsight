@@ -133,6 +133,7 @@ private:
     caf::PdmField<bool>                                m_lockPolygonToPlane;
     caf::PdmField<bool>                                m_enableKFilter;
     caf::PdmField<QString>                             m_kFilterStr;
+    caf::PdmField<bool>                                m_closePolygon;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
