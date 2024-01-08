@@ -32,29 +32,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif()
 
-if(CEE_USE_QT6)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
-  find_package(
-    Qt6
-    COMPONENTS
-    REQUIRED Core Gui Widgets OpenGL Svg
-  )
-  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGL Qt6::Svg)
-else()
-  find_package(
-    Qt5
-    COMPONENTS
-    REQUIRED Core Gui Widgets OpenGL
-  )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
-  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
-  qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
-endif()
-
+find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
 
 # Libraries
 add_subdirectory(AppFwk/cafProjectDataModel/cafPdmCore)
