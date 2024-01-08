@@ -73,11 +73,9 @@ set(QRC_FILES
 # https://gitlab.kitware.com/cmake/community/wikis/doc/tutorials/Object-Library
 # and
 # https://cmake.org/cmake/help/v3.15/command/add_library.html?highlight=add_library#object-libraries
+
 add_library(${PROJECT_NAME} OBJECT ${PROJECT_FILES} ${MOC_SOURCE_FILES})
 
-# Before cmake 3.12 OBJECT libraries could not use the target_link_libraries
-# command, So we need to set the POSITION_INDEPENDENT_CODE option  manually
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(
   ${PROJECT_NAME} cafCommand cafUserInterface ${QT_LIBRARIES}
