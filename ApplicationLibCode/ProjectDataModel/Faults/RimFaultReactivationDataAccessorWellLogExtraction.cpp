@@ -63,9 +63,9 @@ RimFaultReactivationDataAccessorWellLogExtraction::~RimFaultReactivationDataAcce
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                  std::vector<double>&           values,
-                                                                                                  const cvf::Vec3d&              position,
-                                                                                                  double                         gradient )
+                                                                                                  std::vector<double>& values,
+                                                                                                  const cvf::Vec3d&    position,
+                                                                                                  double               gradient )
 {
     // Fill in missing values
     fillInMissingValuesWithGradient( intersections, values, gradient );
