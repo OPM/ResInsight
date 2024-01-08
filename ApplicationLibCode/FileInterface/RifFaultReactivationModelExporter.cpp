@@ -36,6 +36,7 @@
 #include "RimFaultReactivationModel.h"
 #include "RimFaultReactivationTools.h"
 
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <numbers>
