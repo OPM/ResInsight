@@ -278,7 +278,16 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         RimProject::current()->allViews( views );
 
         RimEclipseCase* firstEclipseCase = nullptr;
-        if ( !inputCases().empty() ) firstEclipseCase = inputCases().front();
+        if ( !inputCases().empty() )
+        {
+            firstEclipseCase = inputCases().front();
+        }
+        else
+        {
+            // If no input cases are defined, use the destination case to determine the grid size. This will enable use of expressions with
+            // no input cases like "calculation := 1.0"
+            firstEclipseCase = m_destinationCase();
+        }
 
         if ( firstEclipseCase )
         {
@@ -727,7 +736,15 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
             }
 
             std::vector<double> resultValues;
-            resultValues.resize( dataForAllVariables[0].size() );
+            if ( m_destinationCase && m_destinationCase->eclipseCaseData() )
+            {
+                // Find number of active cells in the destination case.
+                auto activeCellInfoDestination = m_destinationCase->eclipseCaseData()->activeCellInfo( porosityModel );
+                if ( activeCellInfoDestination )
+                {
+                    resultValues.resize( activeCellInfoDestination->reservoirActiveCellCount() );
+                }
+            }
             parser.assignVector( leftHandSideVariableName, resultValues );
 
             QString errorText;
