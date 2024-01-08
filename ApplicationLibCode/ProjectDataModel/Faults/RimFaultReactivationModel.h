@@ -168,6 +168,7 @@ private:
     caf::PdmField<double> m_faultExtendDownwards;
 
     caf::PdmField<double> m_maxReservoirCellHeight;
+    caf::PdmField<double> m_minReservoirCellHeight;
     caf::PdmField<double> m_cellHeightGrowFactor;
     caf::PdmField<double> m_minReservoirCellWidth;
     caf::PdmField<double> m_cellWidthGrowFactor;

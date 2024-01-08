@@ -48,6 +48,7 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_useLocalCoordinates( false )
     , m_cellSizeHeightFactor( 1.0 )
     , m_cellSizeWidthFactor( 1.0 )
+    , m_minCellHeight( 0.5 )
     , m_maxCellHeight( 20.0 )
     , m_minCellWidth( 20.0 )
 {
@@ -122,11 +123,13 @@ void RigFaultReactivationModelGenerator::setUseLocalCoordinates( bool useLocalCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::setModelGriddingOptions( double maxCellHeight,
+void RigFaultReactivationModelGenerator::setModelGriddingOptions( double minCellHeight,
+                                                                  double maxCellHeight,
                                                                   double cellSizeFactorHeight,
                                                                   double minCellWidth,
                                                                   double cellSizeFactorWidth )
 {
+    m_minCellHeight        = minCellHeight;
     m_maxCellHeight        = maxCellHeight;
     m_cellSizeHeightFactor = cellSizeFactorHeight;
     m_minCellWidth         = minCellWidth;
@@ -479,6 +482,9 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     splitLargeLayers( zPositionsFront, kLayersFront, m_maxCellHeight );
     splitLargeLayers( zPositionsBack, kLayersBack, m_maxCellHeight );
 
+    mergeTinyLayers( zPositionsFront, kLayersFront, m_minCellHeight );
+    mergeTinyLayers( zPositionsBack, kLayersBack, m_minCellHeight );
+
     std::vector<cvf::Vec3d> frontReservoirLayers;
     for ( auto& kvp : zPositionsFront )
         frontReservoirLayers.push_back( kvp.second );
@@ -563,6 +569,55 @@ cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d star
     direction.normalize();
 
     return endPoint + ( buffer * direction );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double minHeight )
+{
+    std::vector<int>        newKLayers;
+    std::vector<cvf::Vec3d> newLayers;
+
+    const int nLayers  = (int)layers.size();
+    const int nKLayers = (int)kLayers.size();
+
+    std::vector<double>     keys;
+    std::vector<cvf::Vec3d> vals;
+
+    for ( auto& layer : layers )
+    {
+        keys.push_back( layer.first );
+        vals.push_back( layer.second );
+    }
+
+    newLayers.push_back( vals.front() );
+    newKLayers.push_back( kLayers.front() );
+
+    for ( int k = 1; k < nLayers - 1; k++ )
+    {
+        if ( std::abs( keys[k] - keys[k - 1] ) < minHeight )
+        {
+            continue;
+        }
+        newKLayers.push_back( kLayers[k] );
+        newLayers.push_back( vals[k] );
+    }
+    newLayers.push_back( vals.back() );
+
+    // TODO : remove second topmost layer if too close to top
+
+    layers.clear();
+    for ( auto& p : newLayers )
+    {
+        layers[p.z()] = p;
+    }
+
+    kLayers.clear();
+    for ( auto k : newKLayers )
+    {
+        kLayers.push_back( k );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
