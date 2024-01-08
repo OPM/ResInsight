@@ -38,7 +38,7 @@ class RigFaultReactivationModelGenerator : cvf::Object
 {
 public:
     RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal );
-    ~RigFaultReactivationModelGenerator();
+    ~RigFaultReactivationModelGenerator() override;
 
     void setFault( const RigFault* fault );
     void setGrid( const RigMainGrid* grid );
