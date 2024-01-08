@@ -579,8 +579,7 @@ void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::
     std::vector<int>        newKLayers;
     std::vector<cvf::Vec3d> newLayers;
 
-    const int nLayers  = (int)layers.size();
-    const int nKLayers = (int)kLayers.size();
+    const int nLayers = (int)layers.size();
 
     std::vector<double>     keys;
     std::vector<cvf::Vec3d> vals;
