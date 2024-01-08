@@ -126,6 +126,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_useGridStress, "UseGridStress", false, "Output Grid Stress" );
 
     CAF_PDM_InitField( &m_waterDensity, "WaterDensity", 1030.0, "Water Density [kg/m3]" );
+    CAF_PDM_InitField( &m_frictionAngleDeg, "FrictionAngle", 20.0, "Friction Angle [degree]" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -196,19 +197,26 @@ caf::PdmFieldHandle* RimFaultReactivationModel::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 std::pair<bool, std::string> RimFaultReactivationModel::validateModel() const
 {
+    const std::string postStr = ". Please check your model settings.";
+
     if ( fault() == nullptr )
     {
-        return std::make_pair( false, "A fault has not been selected. Please check your model settings." );
+        return std::make_pair( false, "A fault has not been selected" + postStr );
     }
 
     if ( selectedTimeSteps().size() < 2 )
     {
-        return std::make_pair( false, "You need at least 2 selected timesteps. Please check your model settings." );
+        return std::make_pair( false, "You need at least 2 selected timesteps" + postStr );
     }
 
     if ( selectedTimeSteps()[0] != m_availableTimeSteps[0] )
     {
-        return std::make_pair( false, "The first available timestep must always be selected. Please check your model settings." );
+        return std::make_pair( false, "The first available timestep must always be selected" + postStr );
+    }
+
+    if ( ( m_frictionAngleDeg() <= 0.0 ) || ( m_frictionAngleDeg() >= 90.0 ) )
+    {
+        return std::make_pair( false, "Friction angle must be between 0 and 90 degrees" + postStr );
     }
 
     return std::make_pair( true, "" );
@@ -474,6 +482,8 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
         propertiesGrp->add( &m_waterDensity );
     }
 
+    propertiesGrp->add( &m_frictionAngleDeg );
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -482,8 +492,9 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimFaultReactivationModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_useGridPorePressure ) || ( changedField == &m_useGridVoidRatio ) || ( changedField == &m_useGridTemperature ) ||
-         ( changedField == &m_useGridDensity ) || ( changedField == &m_useGridElasticProperties ) )
+    if ( ( changedField == &m_useGridPorePressure ) || ( changedField == &m_useGridVoidRatio ) ||
+         ( changedField == &m_useGridTemperature ) || ( changedField == &m_useGridDensity ) ||
+         ( changedField == &m_useGridElasticProperties ) || ( changedField == &m_waterDensity ) || ( changedField == &m_frictionAngleDeg ) )
     {
         return; // do nothing
     }
@@ -703,6 +714,14 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::useLocalCoordinates() const
+{
+    return m_useLocalCoordinates();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationModel::useGridVoidRatio() const
 {
     return m_useGridVoidRatio();
@@ -754,6 +773,14 @@ bool RimFaultReactivationModel::useGridStress() const
 double RimFaultReactivationModel::seaBedDepth() const
 {
     return m_modelMinZ;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::frictionAngleDeg() const
+{
+    return m_frictionAngleDeg;
 }
 
 //--------------------------------------------------------------------------------------------------

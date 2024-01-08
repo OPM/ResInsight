@@ -38,6 +38,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <numbers>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,17 +87,17 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         { RimFaultReactivation::ElementSets::UnderBurden, "UNDERBURDEN" },
     };
 
-    double faultFriction            = 0.0;
-    bool   useGridVoidRatio         = rimModel.useGridVoidRatio();
-    bool   useGridPorePressure      = rimModel.useGridPorePressure();
-    bool   useGridTemperature       = rimModel.useGridTemperature();
-    bool   useGridDensity           = rimModel.useGridDensity();
-    bool   useGridElasticProperties = rimModel.useGridElasticProperties();
-    bool   useGridStress            = rimModel.useGridStress();
+    bool useGridVoidRatio         = rimModel.useGridVoidRatio();
+    bool useGridPorePressure      = rimModel.useGridPorePressure();
+    bool useGridTemperature       = rimModel.useGridTemperature();
+    bool useGridDensity           = rimModel.useGridDensity();
+    bool useGridElasticProperties = rimModel.useGridElasticProperties();
+    bool useGridStress            = rimModel.useGridStress();
 
-    double seaBedDepth  = rimModel.seaBedDepth();
-    double waterDensity = rimModel.waterDensity();
-    double seaWaterLoad = RiaWellLogUnitTools<double>::gravityAcceleration() * seaBedDepth * waterDensity;
+    double seaBedDepth   = rimModel.seaBedDepth();
+    double waterDensity  = rimModel.waterDensity();
+    double seaWaterLoad  = RiaWellLogUnitTools<double>::gravityAcceleration() * seaBedDepth * waterDensity;
+    double frictionValue = std::tan( ( rimModel.frictionAngleDeg() / 180.0 ) * std::numbers::pi );
 
     auto model = rimModel.model();
     CAF_ASSERT( !model.isNull() );
@@ -106,11 +107,11 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
     std::vector<std::function<std::pair<bool, std::string>()>> methods = {
         [&]() { return printHeading( stream, applicationNameAndVersion ); },
         [&]() { return printParts( stream, *model, partNames, borders, faces, boundaries, materialNames ); },
-        [&]() { return printAssembly( stream, *model, partNames, model->modelLocalNormalsXY() ); },
+        [&]() { return printAssembly( stream, *model, partNames, !rimModel.useLocalCoordinates(), model->modelLocalNormalsXY() ); },
         [&]() {
             return printMaterials( stream, rimModel, materialNames, *dataAccess, basePath, partNames, useGridDensity, useGridElasticProperties );
         },
-        [&]() { return printInteractionProperties( stream, faultFriction ); },
+        [&]() { return printInteractionProperties( stream, frictionValue ); },
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
         [&]() { return printPredefinedFields( stream, *model, *dataAccess, basePath, partNames, useGridVoidRatio, useGridStress ); },
         [&]() { return printInteractions( stream, partNames, borders ); },
@@ -264,6 +265,7 @@ std::pair<bool, std::string>
     RifFaultReactivationModelExporter::printAssembly( std::ostream&                                                stream,
                                                       const RigFaultReactivationModel&                             model,
                                                       const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
+                                                      bool                                                         includeTransform,
                                                       const std::pair<cvf::Vec3d, cvf::Vec3d>&                     transform )
 {
     // ASSEMBLY part
@@ -283,15 +285,18 @@ std::pair<bool, std::string>
         RifInpExportTools::printHeading( stream, "End Instance" );
     }
 
-    for ( const auto& part : parts )
+    if ( includeTransform )
     {
-        auto partNameIt = partNames.find( part );
-        CAF_ASSERT( partNameIt != partNames.end() );
-        std::string partName = partNameIt->second;
+        for ( const auto& part : parts )
+        {
+            auto partNameIt = partNames.find( part );
+            CAF_ASSERT( partNameIt != partNames.end() );
+            std::string partName = partNameIt->second;
 
-        RifInpExportTools::printHeading( stream, "Transform, nset=" + partName + ".ALL" );
-        auto [dir1, dir2] = transform;
-        RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
+            RifInpExportTools::printHeading( stream, "Transform, nset=" + partName + ".ALL" );
+            auto [dir1, dir2] = transform;
+            RifInpExportTools::printNumbers( stream, { dir1.x(), dir1.y(), dir1.z(), dir2.x(), dir2.y(), dir2.z() } );
+        }
     }
 
     RifInpExportTools::printHeading( stream, "End Assembly" );
@@ -521,10 +526,9 @@ std::pair<bool, std::string>
         {
             fields.push_back( PredefinedField{ .initialConditionType = "RATIO", .partName = name, .value = 0.3 } );
         }
-        fields.push_back( PredefinedField{ .initialConditionType = "PORE PRESSURE", .partName = name, .value = 0.0 } );
     }
 
-    RifInpExportTools::printSectionComment( stream, "PREDEFINED FIELDS" );
+    RifInpExportTools::printSectionComment( stream, "INITIAL CONDITIONS" );
 
     for ( auto field : fields )
     {
@@ -574,7 +578,7 @@ std::pair<bool, std::string>
 
         if ( !isOk ) return { false, "Failed to create " + stressName + " file." };
 
-        RifInpExportTools::printHeading( stream, "Initial Conditions, TYPE=" + stressName );
+        RifInpExportTools::printHeading( stream, "Initial Conditions, TYPE=" + stressName + ", geostatic" );
         RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
     }
 
@@ -601,17 +605,21 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
     {
         std::string stepNum  = std::to_string( i + 1 );
         std::string stepName = timeSteps[i].toString( "yyyy-MM-dd" ).toStdString();
+        if ( i == 0 ) stepName = "Geostatic_" + stepName;
+        std::string stepType = i == 0 ? "Geostatic, utol" : "Soils, utol=1.0";
+
         RifInpExportTools::printComment( stream, "----------------------------------------------------------------" );
         RifInpExportTools::printSectionComment( stream, "STEP: " + stepName );
 
         RifInpExportTools::printHeading( stream, "Step, name=" + stepName + ", nlgeom=NO" );
 
-        std::string stepType = i == 0 ? "Geostatic, utol" : "Soils, utol=1.0";
         RifInpExportTools::printHeading( stream, stepType );
         RifInpExportTools::printNumbers( stream, { 1.0, 1.0, 1e-05, 1.0 } );
 
         if ( i == 0 )
         {
+            RifInpExportTools::printComment( stream, "GRAVITY LOADS FROM ROCK AND SEAWATER" );
+
             RifInpExportTools::printHeading( stream, "Dload" );
             RifInpExportTools::printLine( stream, ",GRAV, 9.80665, 0., 0., -1." );
 
@@ -658,13 +666,14 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printSteps( std:
             RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
         }
 
-        RifInpExportTools::printSectionComment( stream, "OUTPUT REQUESTS" );
-        RifInpExportTools::printHeading( stream, "Restart, write, frequency=0" );
+        RifInpExportTools::printSectionComment( stream, "OUTPUT" );
+        RifInpExportTools::printHeading( stream, "Output, field" );
+        RifInpExportTools::printHeading( stream, "Node Output" );
+        RifInpExportTools::printLine( stream, "COORD, POR, U" );
+        RifInpExportTools::printHeading( stream, "Element Output" );
+        RifInpExportTools::printLine( stream, "COORD, VOIDR, S, E, TEMP" );
 
-        RifInpExportTools::printSectionComment( stream, "FIELD OUTPUT: F-Output-" + stepNum );
-        RifInpExportTools::printHeading( stream, "Output, field, variable=PRESELECT" );
-
-        RifInpExportTools::printSectionComment( stream, "HISTORY OUTPUT: H-Output-" + stepNum );
+        RifInpExportTools::printComment( stream, "" );
         RifInpExportTools::printHeading( stream, "Output, history, variable=PRESELECT" );
 
         RifInpExportTools::printHeading( stream, "End Step" );
