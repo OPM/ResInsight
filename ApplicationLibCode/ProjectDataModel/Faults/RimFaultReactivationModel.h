@@ -123,9 +123,11 @@ public:
     bool useGridDensity() const;
     bool useGridElasticProperties() const;
     bool useGridStress() const;
+    bool useLocalCoordinates() const;
 
     double seaBedDepth() const;
     double waterDensity() const;
+    double frictionAngleDeg() const;
 
     RimEclipseCase* eclipseCase() const;
     RimGeoMechCase* geoMechCase() const;
@@ -179,6 +181,7 @@ private:
     caf::PdmField<bool> m_useGridStress;
 
     caf::PdmField<double> m_waterDensity;
+    caf::PdmField<double> m_frictionAngleDeg;
 
     caf::PdmField<size_t> m_startCellIndex;
     caf::PdmField<int>    m_startCellFace;
