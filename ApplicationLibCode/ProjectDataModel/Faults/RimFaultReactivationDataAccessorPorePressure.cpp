@@ -76,8 +76,8 @@ void RimFaultReactivationDataAccessorPorePressure::updateResultAccessor()
         RigResultAccessorFactory::createFromResultAddress( m_caseData, 0, RiaDefines::PorosityModelType::MATRIX_MODEL, m_timeStep, resVarAddress );
 
     auto [wellPaths, extractors] = RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData );
-    m_wellPaths                  = wellPaths;
-    m_extractors                 = extractors;
+    m_wellPaths  = wellPaths;
+    m_extractors = extractors;
 }
 
 //--------------------------------------------------------------------------------------------------
