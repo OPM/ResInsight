@@ -14,9 +14,9 @@ else()
   find_package(
     Qt5
     COMPONENTS
-    REQUIRED Core Gui Widgets
+    REQUIRED Core Gui Widgets OpenGL
   )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui)
+  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
