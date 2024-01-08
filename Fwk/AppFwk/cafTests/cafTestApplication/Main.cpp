@@ -18,6 +18,8 @@ int main( int argc, char* argv[] )
     {
         QApplication app( argc, argv );
 
+        caf::CmdFeatureManager::createSingleton();
+
         MainWindow window;
         window.setWindowTitle( "Ceetron Application Framework Test Application" );
         window.resize( 1000, 810 );
