@@ -76,7 +76,6 @@ set(QRC_FILES
 
 add_library(${PROJECT_NAME} OBJECT ${PROJECT_FILES} ${MOC_SOURCE_FILES})
 
-
 target_link_libraries(
   ${PROJECT_NAME} cafCommand cafUserInterface ${QT_LIBRARIES}
 )
