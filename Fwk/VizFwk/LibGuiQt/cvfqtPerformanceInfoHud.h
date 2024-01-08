@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace cvf {
     class PerformanceInfo;

@@ -35,14 +35,12 @@ QMVWidget.h
 
 # Qt
 if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+    find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+    qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGl REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CEE_USE_QT5)
+    message(FATAL_ERROR "No supported Qt version selected for build")
+endif()
 
 set(SYSTEM_LIBRARIES)
 if (CMAKE_COMPILER_IS_GNUCXX)

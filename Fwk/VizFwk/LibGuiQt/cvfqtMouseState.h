@@ -40,7 +40,7 @@
 class QMouseEvent;
 class QGraphicsSceneMouseEvent;
 
-#include <QtCore/Qt>
+#include <Qt>
 
 
 namespace cvfqt {

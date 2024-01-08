@@ -42,7 +42,7 @@
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfOpenGLResourceManager.h"
 
-#include <QtCore/QString>
+#include <QString>
 #include <QPainter>
 
 #include <vector>

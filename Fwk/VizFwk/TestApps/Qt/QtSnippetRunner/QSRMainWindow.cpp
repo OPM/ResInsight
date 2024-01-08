@@ -753,7 +753,6 @@ void QSRMainWindow::slotShowHelp()
             
             QGLFormat currrentFormat = m_currentSnippetWidget->format();
 
-#if QT_VERSION >= 0x040700
             oglInfo += QString("\nOpenGL version:\t%1.%2").arg(currrentFormat.majorVersion()).arg(currrentFormat.minorVersion());
 
             switch (currrentFormat.profile())
@@ -762,7 +761,6 @@ void QSRMainWindow::slotShowHelp()
                 case QGLFormat::CoreProfile:            oglInfo += "\nProfile:\t\tCoreProfile"; break;
                 case QGLFormat::CompatibilityProfile:   oglInfo += "\nProfile:\t\tCompatibilityProfile"; break;
             }
-#endif
 
             oglInfo += QString("\nColor buffer size:\t<%1 %2 %3 %4>").arg(currrentFormat.redBufferSize()).arg(currrentFormat.greenBufferSize()).arg(currrentFormat.blueBufferSize()).arg(currrentFormat.alphaBufferSize());
             oglInfo += QString("\nDepth buffer size:\t%1").arg(currrentFormat.depthBufferSize());

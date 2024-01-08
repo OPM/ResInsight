@@ -44,11 +44,7 @@
 
 #include "cvfqtOpenGLContext.h"
 
-#if QT_VERSION >= 0x050000
 #include <QMouseEvent>
-#else
-#include <QtGui/QMouseEvent>
-#endif
 
 using cvf::ref;
 
@@ -132,9 +128,7 @@ void QMWidget::paintEvent(QPaintEvent* /*event*/)
     CVF_ASSERT(currentOglContext);
     CVF_CHECK_OGL(currentOglContext);
 
-#if QT_VERSION >= 0x040600
     painter.beginNativePainting();
-#endif
 
 	cvfqt::OpenGLContext::saveOpenGLState(currentOglContext);
 
@@ -145,9 +139,7 @@ void QMWidget::paintEvent(QPaintEvent* /*event*/)
 
 	cvfqt::OpenGLContext::restoreOpenGLState(currentOglContext);
 
-#if QT_VERSION >= 0x040600
     painter.endNativePainting();
-#endif
 }
 
 
