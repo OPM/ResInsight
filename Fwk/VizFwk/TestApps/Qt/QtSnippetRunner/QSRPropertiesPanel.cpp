@@ -626,10 +626,3 @@ void QSRPropertiesPanel::onPropertyValueChangedBySnippet(cvfu::Property* propert
         }
     }
 }
-
-
-// -------------------------------------------------------
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QSRPropertiesPanel.cpp"
-#endif
-

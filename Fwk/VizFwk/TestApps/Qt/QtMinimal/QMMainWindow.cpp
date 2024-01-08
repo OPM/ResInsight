@@ -158,10 +158,3 @@ void QMMainWindow::closeEvent(QCloseEvent* /*event*/)
     // Deletes all OpenGL resources and removes context from context group
     m_vizWidget->cvfShutdownOpenGLContext();
 }
-
-
-#ifndef CVF_USING_CMAKE
-//########################################################
-#include "qt-generated/moc_QMMainWindow.cpp"
-//########################################################
-#endif

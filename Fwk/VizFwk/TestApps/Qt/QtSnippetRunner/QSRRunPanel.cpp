@@ -232,10 +232,3 @@ void QSRRunPanel::slotPrevButtonClicked()
     executeCurrentSnippet();
     updateCurrSnippetInfoWidgets();
 }
-
-
-// -------------------------------------------------------
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QSRRunPanel.cpp"
-#endif
-

@@ -753,11 +753,3 @@ void QSRSnippetWidget::keyPressEvent(QKeyEvent* event)
         parentWidget()->repaint();
     }
 }
-
-
-//########################################################
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QSRSnippetWidget.cpp"
-#endif
-//########################################################
-

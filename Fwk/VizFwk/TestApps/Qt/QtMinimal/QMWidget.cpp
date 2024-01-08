@@ -223,12 +223,3 @@ void QMWidget::mouseReleaseEvent(QMouseEvent* /*event*/)
 {
     m_trackball->endNavigation();
 }
-
-
-
-
-#ifndef CVF_USING_CMAKE
-//########################################################
-#include "qt-generated/moc_QMWidget.cpp"
-//########################################################
-#endif

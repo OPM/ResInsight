@@ -661,11 +661,3 @@ void QMVMainWindow::slotUpdateStatusbar()
     QStatusBar* sb = statusBar();
     sb->showMessage(msg);
 }
-
-
-//########################################################
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QMVMainWindow.cpp"
-#endif
-//########################################################
-

@@ -832,9 +832,3 @@ void QSRMainWindow::slotUpdateViewMenu()
 
     m_showHUDAction->blockSignals(false);
 }
-
-
-// -------------------------------------------------------
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QSRMainWindow.cpp"
-#endif

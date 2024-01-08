@@ -44,9 +44,6 @@ else()
 	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 endif(CEE_USE_QT5)
 
-# Run MOC on the headers
-add_definitions(-DCVF_USING_CMAKE)
-
 set(SYSTEM_LIBRARIES)
 if (CMAKE_COMPILER_IS_GNUCXX)
 	set(SYSTEM_LIBRARIES -lrt -lpthread)

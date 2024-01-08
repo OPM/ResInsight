@@ -15,8 +15,6 @@ find_package(
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
-add_definitions(-DCVF_USING_CMAKE)
-
 add_library(
   ${PROJECT_NAME}
   cafPdmCoreColor3f.h
