@@ -127,13 +127,13 @@ if(CEE_USE_QT6)
     NO_UNSUPPORTED_PLATFORM_ERROR NO_TRANSLATIONS
   )
   install(SCRIPT ${deploy_script})
-  
+
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CPACK_GENERATOR TGZ)
   elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(CPACK_GENERATOR ZIP)
   endif()
 
-  include (CPack)
+  include(CPack)
 
 endif(CEE_USE_QT6)
