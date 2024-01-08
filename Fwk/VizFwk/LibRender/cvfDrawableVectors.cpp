@@ -46,10 +46,7 @@
 #include "cvfUniform.h"
 #include "cvfPrimitiveSetIndexedUShort.h"
 #include "cvfRay.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#endif
 
 namespace cvf {
 
@@ -219,10 +216,9 @@ void DrawableVectors::render(OpenGLContext* oglContext, ShaderProgram* shaderPro
     GLint colorUniformLocation = shaderProgram->uniformLocation(m_colorUniformName.toAscii().ptr());
     CVF_ASSERT(colorUniformLocation != -1);
 
-#ifndef CVF_OPENGL_ES
     uint minIndex = m_vectorGlyphPrimSet->minIndex();
     uint maxIndex = m_vectorGlyphPrimSet->maxIndex();
-#endif
+
     GLsizei indexCount = static_cast<GLsizei>(m_vectorGlyphPrimSet->indexCount());
 
     // Set the single color to use
@@ -248,11 +244,7 @@ void DrawableVectors::render(OpenGLContext* oglContext, ShaderProgram* shaderPro
         }
 
         // Draw the arrow
-#ifdef CVF_OPENGL_ES
-        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_SHORT, ptrOrOffset);
-#else
         glDrawRangeElements(GL_TRIANGLES, minIndex, maxIndex, indexCount, GL_UNSIGNED_SHORT, ptrOrOffset);
-#endif
     }
 
     // Cleanup
@@ -277,9 +269,6 @@ void DrawableVectors::render(OpenGLContext* oglContext, ShaderProgram* shaderPro
 //--------------------------------------------------------------------------------------------------
 void DrawableVectors::renderFixedFunction(OpenGLContext* oglContext, const MatrixState& matrixState)
 {
-#ifdef CVF_OPENGL_ES
-    CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else    
     CVF_ASSERT(oglContext);
     CVF_ASSERT(m_vertexArray->size() == m_vectorArray->size());
     CVF_ASSERT(m_vectorGlyph.notNull());
@@ -318,7 +307,6 @@ void DrawableVectors::renderFixedFunction(OpenGLContext* oglContext, const Matri
     glDisable(GL_NORMALIZE);
 
     CVF_CHECK_OGL(oglContext);
-#endif  // CVF_OPENGL_ES
 }
 
 
@@ -327,9 +315,6 @@ void DrawableVectors::renderFixedFunction(OpenGLContext* oglContext, const Matri
 //--------------------------------------------------------------------------------------------------
 void DrawableVectors::renderImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState)
 {
-#ifdef CVF_OPENGL_ES
-    CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else    
     CVF_ASSERT(oglContext);
     CVF_ASSERT(m_vertexArray->size() == m_vectorArray->size());
     CVF_ASSERT(m_vectorGlyph.notNull());
@@ -368,7 +353,6 @@ void DrawableVectors::renderImmediateMode(OpenGLContext* oglContext, const Matri
     glDisable(GL_NORMALIZE);
 
     CVF_CHECK_OGL(oglContext);
-#endif  // CVF_OPENGL_ES
 }
 
 

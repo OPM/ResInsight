@@ -42,11 +42,8 @@
 #include "cvfUniformSet.h"
 #include "cvfRenderStateSet.h"
 #include "cvfRenderStateTextureBindings.h"
-
-#ifndef CVF_OPENGL_ES 
 #include "cvfRenderState_FF.h"
 #include "cvfTexture2D_FF.h"
-#endif
 
 namespace cvf {
 
@@ -286,7 +283,6 @@ void Effect::deleteOrReleaseOpenGLResources(OpenGLContext* oglContext)
             }
         }
 
-#ifndef CVF_OPENGL_ES
         RenderStateTextureMapping_FF* textureMapping = static_cast<RenderStateTextureMapping_FF*>(m_renderStateSet->renderStateOfType(RenderState::TEXTURE_MAPPING_FF));
         if (textureMapping)
         {
@@ -296,7 +292,6 @@ void Effect::deleteOrReleaseOpenGLResources(OpenGLContext* oglContext)
                 texture->deleteTexture(oglContext);
             }
         }
-#endif
     }
 }
 

@@ -51,10 +51,7 @@
 #include "cvfRenderStateTextureBindings.h"
 #include "cvfOpenGLContext.h"
 #include "cvfOpenGLCapabilities.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#endif
 
 #include <memory.h>
 
@@ -100,13 +97,11 @@ void RenderStateTracker::setupDefaultRenderStates()
     m_defaultRenderStates[RenderState::STENCIL]             = new RenderStateStencil;
     m_defaultRenderStates[RenderState::TEXTURE_BINDINGS]    = new RenderStateTextureBindings;
 
-#ifndef CVF_OPENGL_ES
     m_defaultRenderStates[RenderState::LIGHTING_FF]         = new RenderStateLighting_FF;
     m_defaultRenderStates[RenderState::MATERIAL_FF]         = new RenderStateMaterial_FF;
     m_defaultRenderStates[RenderState::NORMALIZE_FF]        = new RenderStateNormalize_FF(false);
     m_defaultRenderStates[RenderState::TEXTURE_MAPPING_FF]  = new RenderStateTextureMapping_FF;
     m_defaultRenderStates[RenderState::CLIP_PLANES_FF]      = new RenderStateClipPlanes_FF;
-#endif
 }
 
 

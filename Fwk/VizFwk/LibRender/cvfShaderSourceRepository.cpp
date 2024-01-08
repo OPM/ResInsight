@@ -82,17 +82,12 @@ String ShaderSourceRepository::shaderSource(ShaderIdent shaderIdent)
     {
         if (rawSource.size() > 0)
         {
-#ifdef CVF_OPENGL_ES
-            // Always version 100 on OpenGL ES
-            shaderProg = "#version 100\nprecision highp float;\n";
-#else
             // Default on desktop is GLSL 1.2 (OpenGL 2.1) unless the shader explicitly specifies a version
             if (rawSource[0] != '#')
             {
                 shaderProg = "#version 120\n";
             }
-#endif
-    
+
             shaderProg += rawSource.ptr();
         }
     }

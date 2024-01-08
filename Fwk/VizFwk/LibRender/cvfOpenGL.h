@@ -38,10 +38,8 @@
 #pragma once
 
 
-// Currently we utilize GLEW everywhere except for OpenGLES
-#ifndef CVF_OPENGL_ES
+// Currently we utilize GLEW everywhere
 #define CVF_USE_GLEW
-#endif
 
 
 #ifdef CVF_USE_GLEW

@@ -128,9 +128,7 @@ void RenderStatePoint::applyOpenGL(OpenGLContext* oglContext) const
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
-    // OpenGL ES does not support fixed point size
     // Point size is always specified using GLSL's gl_PointSize
-#ifndef CVF_OPENGL_ES
     bool openGL2Support = oglContext->capabilities()->supportsOpenGL2();
 
     if (m_sizeMode == FIXED_SIZE)
@@ -173,7 +171,6 @@ void RenderStatePoint::applyOpenGL(OpenGLContext* oglContext) const
             CVF_LOG_RENDER_ERROR(oglContext, "Context does not support point sprites.");
         }
     }
-#endif
 
     CVF_CHECK_OGL(oglContext);
 }

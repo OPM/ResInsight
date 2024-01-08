@@ -139,9 +139,7 @@ void RenderingScissor::applyOpenGL(OpenGLContext* oglContext, Viewport::ClearMod
         if ( clearFlags & GL_DEPTH_BUFFER_BIT )
         {
             glDepthMask(GL_TRUE);
-            #ifndef CVF_OPENGL_ES
             glClearDepth(1.0f);
-            #endif  // CVF_OPENGL_ES
         }
 
         if ( clearFlags & GL_STENCIL_BUFFER_BIT )

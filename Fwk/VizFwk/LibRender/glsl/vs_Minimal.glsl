@@ -18,8 +18,4 @@ void main ()
 	vec3 ecPosition = (cvfu_modelViewMatrix * cvfa_vertex).xyz;
 	calcClipDistances(vec4(ecPosition, 1));
 #endif
-
-#ifdef CVF_OPENGL_ES
-    gl_PointSize = 1.0;
-#endif
 }

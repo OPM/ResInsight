@@ -335,7 +335,6 @@ void RenderSequence::preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext
 
     CVF_CHECK_OGL(oglContext);
 
-#ifndef CVF_OPENGL_ES
     if (oglCaps->supportsFixedFunction())
     {
         glMatrixMode(GL_TEXTURE);
@@ -385,7 +384,6 @@ void RenderSequence::preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext
 
         CVF_CHECK_OGL(oglContext);
     }
-#endif
 }
 
 

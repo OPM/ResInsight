@@ -54,10 +54,7 @@
 #include "cvfRenderStateBlending.h"
 #include "cvfRenderStatePolygonOffset.h"
 #include "cvfOpenGLCapabilities.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#endif
 
 namespace cvf {
 
@@ -309,7 +306,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
             ShaderProgram::useNoProgram(oglContext);
         }
 
-#ifndef CVF_OPENGL_ES
         RenderStateMaterial_FF mat;
         mat.enableColorMaterial(true);
         mat.applyOpenGL(oglContext);
@@ -329,7 +325,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         glDisable(GL_TEXTURE_2D);
 
         projCam.applyOpenGL();
-#endif
     }
     else
     {
@@ -390,7 +385,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
             {
                 if (softwareRendering)
                 {
-#ifndef CVF_OPENGL_ES
                     glEnable(GL_COLOR_MATERIAL);
                     glDisable(GL_TEXTURE_2D);
                     glColor3fv(m_backgroundColor.ptr());
@@ -400,7 +394,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                         glVertex3fv(vertices[v]);
                     }
                     glEnd();
-#endif
                 }
                 else
                 {
@@ -416,7 +409,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
             {
                 if (softwareRendering)
                 {
-#ifndef CVF_OPENGL_ES
                     glColor3fv(m_borderColor.ptr());
                     glBegin(GL_LINE_LOOP);
                     for (size_t v = 0; v < vertices.size(); ++v)
@@ -424,7 +416,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                         glVertex3fv(vertices[v]);
                     }
                     glEnd();
-#endif
                 }
                 else
                 {
@@ -448,10 +439,8 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     // -------------------------------------------------------------------------
     if (softwareRendering)
     {
-#ifndef CVF_OPENGL_ES
         glEnable(GL_TEXTURE_2D);
         glColor3fv(m_textColor.ptr());
-#endif
     }
     else
     {
@@ -547,7 +536,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 
                 if (softwareRendering)
                 {
-#ifndef CVF_OPENGL_ES
                     glBegin(GL_TRIANGLES);
 
                     // First triangle in quad
@@ -567,7 +555,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                     glVertex3fv(vertices[3]);
 
                     glEnd();
-#endif
                 }
                 else
                 {
@@ -590,7 +577,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 
     if (softwareRendering)
     {
-#ifndef CVF_OPENGL_ES
         // apply the projection matrix
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(matrixState.projectionMatrix().ptr());
@@ -604,7 +590,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 
         RenderStateLighting_FF light;
         light.applyOpenGL(oglContext);
-#endif
     }
     else    
     {

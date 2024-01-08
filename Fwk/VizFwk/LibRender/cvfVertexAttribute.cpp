@@ -175,9 +175,7 @@ void AttribSetupStrategyInt::setupFromBufferObject(OpenGLContext* oglContext, ui
     
     if (oglContext->capabilities()->supportsOpenGLVer(3))
     {
-#ifndef CVF_OPENGL_ES
         glVertexAttribIPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, static_cast<GLsizei>(strideInBytes), CVF_OGL_BUFFER_OFFSET(bufferOffsetInBytes));
-#endif
     }
     else
     {
@@ -197,9 +195,7 @@ void AttribSetupStrategyInt::setupFromClientMemory(OpenGLContext* oglContext, ui
 
     if (oglContext->capabilities()->supportsOpenGLVer(3))
     {
-#ifndef CVF_OPENGL_ES
         glVertexAttribIPointer(static_cast<GLuint>(vertexAttributeIndex), static_cast<GLint>(compCount), compTypeOpenGL, 0, ptr);
-#endif
     }
     else
     {

@@ -55,10 +55,7 @@
 #include "cvfGlyph.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStateLine.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#endif
 
 namespace cvf {
 
@@ -421,11 +418,7 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
             UniformFloat uniformColor("u_color", Color4f(Color3f(clr)));
             shaderProgram->applyUniform(oglContext, uniformColor);
 
-#ifdef CVF_OPENGL_ES
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, trianglesConnects);
-#else
             glDrawRangeElements(GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects);
-#endif
         }
 
         // Draw legend lines
@@ -435,11 +428,7 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
             UniformFloat uniformColor("u_color", Color4f(m_lineColor));
             shaderProgram->applyUniform(oglContext, uniformColor);
 
-#ifdef CVF_OPENGL_ES
-            glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, linesConnects);
-#else
             glDrawRangeElements(GL_LINES, 0, 5, 8, GL_UNSIGNED_SHORT, linesConnects);
-#endif
         }
     }
 
@@ -464,10 +453,6 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
 //--------------------------------------------------------------------------------------------------
 void OverlayColorLegend::renderLegendImmediateMode(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout)
 {
-#ifdef CVF_OPENGL_ES
-    CVF_UNUSED(layout);
-    CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
     CVF_TIGHT_ASSERT(layout);
     CVF_TIGHT_ASSERT(layout->size.x() > 0);
     CVF_TIGHT_ASSERT(layout->size.y() > 0);
@@ -551,7 +536,6 @@ void OverlayColorLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Ov
     resetDepth.applyOpenGL(oglContext);
 
     CVF_CHECK_OGL(oglContext);
-#endif // CVF_OPENGL_ES
 }
 
 

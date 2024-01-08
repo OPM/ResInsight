@@ -165,11 +165,9 @@ cvfGLenum RenderbufferObject::intenalFormatOpenGL() const
     {
         case RGBA:              return GL_RGBA;
         case DEPTH_COMPONENT16: return GL_DEPTH_COMPONENT16;
-#ifndef CVF_OPENGL_ES
         case DEPTH_COMPONENT24: return GL_DEPTH_COMPONENT24;
         case DEPTH_COMPONENT32: return GL_DEPTH_COMPONENT32;
         case DEPTH24_STENCIL8:  return GL_DEPTH24_STENCIL8;
-#endif
     }
 
     CVF_FAIL_MSG("Illegal renderbuffer format");

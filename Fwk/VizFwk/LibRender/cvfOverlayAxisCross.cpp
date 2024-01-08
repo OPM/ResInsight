@@ -53,10 +53,7 @@
 #include "cvfArrowGenerator.h"
 #include "cvfBufferObjectManaged.h"
 #include "cvfDrawableText.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#endif
 
 
 namespace cvf {
@@ -250,9 +247,6 @@ void OverlayAxisCross::renderAxis(OpenGLContext* oglContext, const MatrixState& 
 //--------------------------------------------------------------------------------------------------
 void OverlayAxisCross::renderAxisImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState)
 {
-#ifdef CVF_OPENGL_ES
-    CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
     m_axis->renderImmediateMode(oglContext, matrixState);  
 
     // Draw X axis triangle
@@ -264,7 +258,6 @@ void OverlayAxisCross::renderAxisImmediateMode(OpenGLContext* oglContext, const 
     RenderStateMaterial_FF yMaterial(RenderStateMaterial_FF::PURE_GREEN);
     yMaterial.applyOpenGL(oglContext);
     m_yAxisTriangle->renderImmediateMode(oglContext, matrixState);
-#endif // CVF_OPENGL_ES
 }
 
 

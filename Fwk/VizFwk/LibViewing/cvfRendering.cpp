@@ -205,12 +205,10 @@ void Rendering::render(OpenGLContext* oglContext)
     }
     else
     {
-#ifndef CVF_OPENGL_ES
         if (FramebufferObject::supportedOpenGL(oglContext))
         {
             FramebufferObject::useDefaultWindowFramebuffer(oglContext);
         }
-#endif
     }
 
     // Setup camera and view

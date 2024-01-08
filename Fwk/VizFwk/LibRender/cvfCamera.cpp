@@ -1035,7 +1035,6 @@ Mat4d Camera::createLookAtMatrix(Vec3d eye, Vec3d vrp, Vec3d up)
 //--------------------------------------------------------------------------------------------------
 void Camera::applyOpenGL() const
 {
-#ifndef CVF_OPENGL_ES
     // apply the projection matrix
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(m_projectionMatrix.ptr());
@@ -1043,7 +1042,6 @@ void Camera::applyOpenGL() const
     // apply the view matrix
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(viewMatrix().ptr());
-#endif
 }
 
 } // namespace cvf

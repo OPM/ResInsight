@@ -241,10 +241,6 @@ String ShaderSourceCombiner::combinedSource() const
         combinedSource = String("#version %1\n\n").arg(maxVersion);
     }
     
-#ifdef CVF_OPENGL_ES
-    combinedSource += "#define CVF_OPENGL_ES\n";
-#endif
-
     for (i = 0; i < m_shaderCodes.size(); i++)
     {
         if (m_enableDebugComments)

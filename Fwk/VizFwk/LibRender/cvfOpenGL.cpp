@@ -46,8 +46,6 @@
 
 CVF_GCC_DIAGNOSTIC_IGNORE("-Wconversion")
 
-#ifndef CVF_OPENGL_ES
-
 #undef glewGetContext
 
 extern "C"
@@ -55,7 +53,6 @@ extern "C"
 #include "glew/glew.c"
 }
 
-#endif  // CVF_OPENGL_ES
 
 namespace cvf {
 
@@ -133,10 +130,8 @@ String OpenGL::mapOpenGLErrorToString(cvfGLenum errorCode)
 		case GL_INVALID_VALUE:      errCodeStr = "GL_INVALID_VALUE";      break;
 		case GL_INVALID_OPERATION:  errCodeStr = "GL_INVALID_OPERATION";  break;
 		case GL_OUT_OF_MEMORY:      errCodeStr = "GL_OUT_OF_MEMORY";      break;
-#ifndef CVF_OPENGL_ES
 		case GL_STACK_OVERFLOW:     errCodeStr = "GL_STACK_OVERFLOW";     break;
 		case GL_STACK_UNDERFLOW:    errCodeStr = "GL_STACK_UNDERFLOW";    break;
-#endif
         case GL_NO_ERROR:           errCodeStr = "GL_NO_ERROR";           break;
 
 		default:
