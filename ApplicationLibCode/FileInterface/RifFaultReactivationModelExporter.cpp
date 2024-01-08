@@ -840,7 +840,8 @@ std::shared_ptr<RimFaultReactivationDataAccess>
     if ( eCase == nullptr ) return nullptr;
 
     // extract data for each timestep
-    auto dataAccess = std::make_shared<RimFaultReactivationDataAccess>( eCase, rimModel.geoMechCase(), rimModel.selectedTimeStepIndexes() );
+    auto dataAccess =
+        std::make_shared<RimFaultReactivationDataAccess>( rimModel, eCase, rimModel.geoMechCase(), rimModel.selectedTimeStepIndexes() );
     dataAccess->extractModelData( *rimModel.model() );
     return dataAccess;
 }

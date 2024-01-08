@@ -39,19 +39,20 @@
 #include "RimFaultReactivationDataAccessorTemperature.h"
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
 #include "RimFaultReactivationEnums.h"
+#include "RimFaultReactivationModel.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( RimEclipseCase*            thecase,
-                                                                RimGeoMechCase*            geoMechCase,
-                                                                const std::vector<size_t>& timeSteps )
+RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultReactivationModel& model,
+                                                                RimEclipseCase*                  thecase,
+                                                                RimGeoMechCase*                  geoMechCase,
+                                                                const std::vector<size_t>&       timeSteps )
     : m_timeSteps( timeSteps )
 {
     double porePressureGradient = 1.0;
-    // TODO: get values form UI.
-    double topTemperature    = 2.0;
-    double bottomTemperature = -1.2;
+    double topTemperature       = model.topTemperature();
+    double bottomTemperature    = model.bottomTemperature();
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, porePressureGradient ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase, topTemperature, bottomTemperature ) );

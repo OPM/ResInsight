@@ -126,6 +126,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_useGridStress, "UseGridStress", false, "Output Grid Stress" );
 
     CAF_PDM_InitField( &m_waterDensity, "WaterDensity", 1030.0, "Water Density [kg/m3]" );
+    CAF_PDM_InitField( &m_topTemperature, "TopTemperature", 200.0, "Top Temperature [C]" );
+    CAF_PDM_InitField( &m_bottomTemperature, "BottomTemperature", 240.0, "Bottom Temperature [C]" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -472,6 +474,13 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
         propertiesGrp->add( &m_useGridElasticProperties );
         propertiesGrp->add( &m_useGridStress );
         propertiesGrp->add( &m_waterDensity );
+
+        propertiesGrp->add( &m_topTemperature );
+        propertiesGrp->add( &m_bottomTemperature );
+
+        bool useTemperatureFromGrid = m_useGridTemperature();
+        m_topTemperature.uiCapability()->setUiReadOnly( !useTemperatureFromGrid );
+        m_bottomTemperature.uiCapability()->setUiReadOnly( !useTemperatureFromGrid );
     }
 
     uiOrdering.skipRemainingFields();
@@ -762,4 +771,20 @@ double RimFaultReactivationModel::seaBedDepth() const
 double RimFaultReactivationModel::waterDensity() const
 {
     return m_waterDensity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::topTemperature() const
+{
+    return m_topTemperature;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::bottomTemperature() const
+{
+    return m_bottomTemperature;
 }
