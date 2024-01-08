@@ -212,14 +212,17 @@ TEST(Vector4Test, AssignMemebers)
     vf.x() = 1.0f + 2.5f*3.0f;
     vf.y() = 2.0f - 2.5f*3.0f;
     vf.z() = 3.0f + 2.5f*2.0f;
+    vf.w() = 4.0f - 2.5f*2.0f;
 
     ASSERT_FLOAT_EQ(8.5f, vf.x());
     ASSERT_FLOAT_EQ(-5.5f, vf.y());
     ASSERT_FLOAT_EQ(8.0f, vf.z());
+    ASSERT_FLOAT_EQ(-1.0f, vf.w());
 
     vf.x() = 0.0f;
     vf.y() = 0.0f;
     vf.z() = 0.0f;
+    vf.w() = 0.0f;
     ASSERT_TRUE(vf.isZero());
 
     vf.y() = 0.1f;
@@ -231,14 +234,17 @@ TEST(Vector4Test, AssignMemebers)
     vd.x() = 1.0 + 2.5*3.0;
     vd.y() = 2.0 - 2.5*3.0;
     vd.z() = 3.0 + 2.5*2.0;
+    vd.w() = 4.0 - 2.5*2.0;
 
     ASSERT_DOUBLE_EQ(8.5, vd.x());
     ASSERT_DOUBLE_EQ(-5.5, vd.y());
     ASSERT_DOUBLE_EQ(8.0, vd.z());
+    ASSERT_DOUBLE_EQ(-1.0, vd.w());
 
     vd.x() = 0.0;
     vd.y() = 0.0;
     vd.z() = 0.0;
+    vd.w() = 0.0;
     ASSERT_TRUE(vd.isZero());
 
     vd.y() = 0.1;

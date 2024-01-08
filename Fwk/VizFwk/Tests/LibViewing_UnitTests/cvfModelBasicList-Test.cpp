@@ -100,13 +100,27 @@ TEST(ModelBasicListTest, BasicLifeCycle)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(ModelBasicListTest, RemoveWithNullPointerPart)
+{
+    // Test adjusted to fit recent framework code where removal of NULL-parts is allowed
+    ref<ModelBasicList> myModel = new ModelBasicList;
+    myModel->addPart(new Part);
+    ASSERT_EQ(1, myModel->partCount());
+
+    myModel->removePart(NULL);
+    ASSERT_EQ(1, myModel->partCount());
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 #ifdef _DEBUG
-TEST(ModelBasicListDeathTest, AddRemoveWithNullPointerPart)
+TEST(ModelBasicListDeathTest, AddNullPointerPart)
 {
     ref<ModelBasicList> myModel = new ModelBasicList;
 
     EXPECT_DEATH(myModel->addPart(NULL), "Assertion");
-    EXPECT_DEATH(myModel->removePart(NULL), "Assertion");
 }
 #endif
 
