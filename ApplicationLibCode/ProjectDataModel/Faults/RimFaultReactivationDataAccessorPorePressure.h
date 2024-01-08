@@ -37,7 +37,7 @@ class RigWellPath;
 class RimFaultReactivationDataAccessorPorePressure : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorPorePressure( RimEclipseCase* eclipseCase, double porePressureGradient );
+    RimFaultReactivationDataAccessorPorePressure( RimEclipseCase* eclipseCase, double porePressureGradient, double seabedDepth );
     ~RimFaultReactivationDataAccessorPorePressure();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
@@ -58,6 +58,7 @@ private:
     RigEclipseCaseData*         m_caseData;
     const RigMainGrid*          m_mainGrid;
     double                      m_defaultPorePressureGradient;
+    double                      m_seabedDepth;
     cvf::ref<RigResultAccessor> m_resultAccessor;
 
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;

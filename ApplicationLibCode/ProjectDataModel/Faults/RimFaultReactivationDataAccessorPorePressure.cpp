@@ -42,9 +42,11 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationDataAccessorPorePressure::RimFaultReactivationDataAccessorPorePressure( RimEclipseCase* eclipseCase,
-                                                                                            double          porePressureGradient )
+                                                                                            double          porePressureGradient,
+                                                                                            double          seabedDepth )
     : m_eclipseCase( eclipseCase )
     , m_defaultPorePressureGradient( porePressureGradient )
+    , m_seabedDepth( seabedDepth )
     , m_caseData( nullptr )
     , m_mainGrid( nullptr )
 {
@@ -75,7 +77,8 @@ void RimFaultReactivationDataAccessorPorePressure::updateResultAccessor()
     m_resultAccessor =
         RigResultAccessorFactory::createFromResultAddress( m_caseData, 0, RiaDefines::PorosityModelType::MATRIX_MODEL, m_timeStep, resVarAddress );
 
-    auto [wellPaths, extractors] = RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData );
+    auto [wellPaths, extractors] =
+        RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData, m_seabedDepth );
     m_wellPaths  = wellPaths;
     m_extractors = extractors;
 }

@@ -126,8 +126,7 @@ public:
 
     double seaBedDepth() const;
     double waterDensity() const;
-    double topTemperature() const;
-    double bottomTemperature() const;
+    double seabedTemperature() const;
 
     RimEclipseCase* eclipseCase() const;
     RimGeoMechCase* geoMechCase() const;
@@ -181,8 +180,7 @@ private:
     caf::PdmField<bool> m_useGridStress;
 
     caf::PdmField<double> m_waterDensity;
-    caf::PdmField<double> m_topTemperature;
-    caf::PdmField<double> m_bottomTemperature;
+    caf::PdmField<double> m_seabedTemperature;
 
     caf::PdmField<size_t> m_startCellIndex;
     caf::PdmField<int>    m_startCellFace;

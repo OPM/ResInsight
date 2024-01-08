@@ -40,13 +40,13 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationDataAccessorTemperature::RimFaultReactivationDataAccessorTemperature( RimEclipseCase* eclipseCase,
-                                                                                          double          topTemperature,
-                                                                                          double          bottomTemperature )
+                                                                                          double          seabedTemperature,
+                                                                                          double          seabedDepth )
     : m_eclipseCase( eclipseCase )
     , m_caseData( nullptr )
     , m_mainGrid( nullptr )
-    , m_topTemperature( topTemperature )
-    , m_bottomTemperature( bottomTemperature )
+    , m_seabedTemperature( seabedTemperature )
+    , m_seabedDepth( seabedDepth )
 {
     if ( m_eclipseCase )
     {
@@ -69,12 +69,13 @@ void RimFaultReactivationDataAccessorTemperature::updateResultAccessor()
 {
     if ( !m_caseData ) return;
 
-    RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "TEMP" );
+    RigEclipseResultAddress resVarAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" );
     m_eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( resVarAddress );
     m_resultAccessor =
         RigResultAccessorFactory::createFromResultAddress( m_caseData, 0, RiaDefines::PorosityModelType::MATRIX_MODEL, m_timeStep, resVarAddress );
 
-    auto [wellPaths, extractors] = RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData );
+    auto [wellPaths, extractors] =
+        RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData, m_seabedDepth );
     m_wellPaths  = wellPaths;
     m_extractors = extractors;
 }
@@ -108,11 +109,9 @@ double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::
         auto [values, intersections] =
             RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
-        auto [value, pos] = RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( intersections,
-                                                                                                     values,
-                                                                                                     position,
-                                                                                                     m_topTemperature,
-                                                                                                     m_bottomTemperature );
+        auto [value, pos] =
+            RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( intersections, values, position, m_seabedTemperature );
+
         return value;
     }
 

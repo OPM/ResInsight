@@ -51,11 +51,11 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
     : m_timeSteps( timeSteps )
 {
     double porePressureGradient = 1.0;
-    double topTemperature       = model.topTemperature();
-    double bottomTemperature    = model.bottomTemperature();
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, porePressureGradient ) );
+    double topTemperature       = model.seabedTemperature();
+    double seabedDepth          = -model.seaBedDepth();
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, porePressureGradient, seabedDepth ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase, topTemperature, bottomTemperature ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase, topTemperature, seabedDepth ) );
     if ( geoMechCase )
     {
         std::vector<RimFaultReactivation::Property> properties = { RimFaultReactivation::Property::YoungsModulus,
@@ -75,7 +75,8 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
                                                                          RimFaultReactivation::Property::LateralStressComponentY };
         for ( auto property : stressProperties )
         {
-            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property, porePressureGradient ) );
+            m_accessors.push_back(
+                std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property, porePressureGradient, seabedDepth ) );
         }
     }
 }

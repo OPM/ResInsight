@@ -46,15 +46,15 @@ public:
     static std::pair<double, cvf::Vec3d> calculateTemperature( const std::vector<cvf::Vec3d>& intersections,
                                                                std::vector<double>&           values,
                                                                const cvf::Vec3d&              position,
-                                                               double                         topTemperature,
-                                                               double                         bottomTemperature );
-
+                                                               double                         seabedTemperature );
     static std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>,
                      std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>>>
-        createEclipseWellPathExtractors( const RigFaultReactivationModel& model, RigEclipseCaseData& eclipseCaseData );
+        createEclipseWellPathExtractors( const RigFaultReactivationModel& model, RigEclipseCaseData& eclipseCaseData, double seabedDepth );
 
-    static std::vector<cvf::Vec3d>
-        generateWellPoints( const cvf::Vec3d& faultTopPosition, const cvf::Vec3d& faultBottomPosition, const cvf::Vec3d& offset );
+    static std::vector<cvf::Vec3d> generateWellPoints( const cvf::Vec3d& faultTopPosition,
+                                                       const cvf::Vec3d& faultBottomPosition,
+                                                       double            seabedDepth,
+                                                       const cvf::Vec3d& offset );
 
     static std::vector<double> generateMds( const std::vector<cvf::Vec3d>& points );
 
@@ -70,9 +70,8 @@ protected:
                                                          int                            i1,
                                                          int                            i2,
                                                          double                         gradient );
-    static void fillInMissingValues( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double gradient );
-    static void
-        fillInMissingValues( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double topValue, double bottomValue );
+    static void fillInMissingValuesWithGradient( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double gradient );
+    static void fillInMissingValuesWithTopValue( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, double topValue );
 
     static std::pair<double, cvf::Vec3d>
         findValueAndPosition( const std::vector<cvf::Vec3d>& intersections, const std::vector<double>& values, const cvf::Vec3d& position );

@@ -63,12 +63,12 @@ RimFaultReactivationDataAccessorWellLogExtraction::~RimFaultReactivationDataAcce
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                  std::vector<double>& values,
-                                                                                                  const cvf::Vec3d&    position,
-                                                                                                  double               gradient )
+                                                                                                  std::vector<double>&           values,
+                                                                                                  const cvf::Vec3d&              position,
+                                                                                                  double                         gradient )
 {
     // Fill in missing values
-    fillInMissingValues( intersections, values, gradient );
+    fillInMissingValuesWithGradient( intersections, values, gradient );
     return findValueAndPosition( intersections, values, position );
 }
 
@@ -79,11 +79,10 @@ std::pair<double, cvf::Vec3d>
     RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( const std::vector<cvf::Vec3d>& intersections,
                                                                              std::vector<double>&           values,
                                                                              const cvf::Vec3d&              position,
-                                                                             double                         topTemperature,
-                                                                             double                         bottomTemperature )
+                                                                             double                         seabedTemperature )
 {
     // Fill in missing values
-    fillInMissingValues( intersections, values, topTemperature, bottomTemperature );
+    fillInMissingValuesWithTopValue( intersections, values, seabedTemperature );
     return findValueAndPosition( intersections, values, position );
 }
 
@@ -134,7 +133,7 @@ std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findInter
         {
             auto top    = intersections[i - 1];
             auto bottom = intersections[i];
-            if ( top.z() > tvd && bottom.z() < tvd )
+            if ( top.z() >= tvd && bottom.z() < tvd )
             {
                 topIdx    = static_cast<int>( i ) - 1;
                 bottomIdx = static_cast<int>( i );
@@ -191,9 +190,9 @@ double RimFaultReactivationDataAccessorWellLogExtraction::computeValueWithGradie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValues( const std::vector<cvf::Vec3d>& intersections,
-                                                                             std::vector<double>&           values,
-                                                                             double                         gradient )
+void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValuesWithGradient( const std::vector<cvf::Vec3d>& intersections,
+                                                                                         std::vector<double>&           values,
+                                                                                         double                         gradient )
 {
     CAF_ASSERT( intersections.size() == values.size() );
 
@@ -219,10 +218,9 @@ void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValues( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValues( const std::vector<cvf::Vec3d>& intersections,
-                                                                             std::vector<double>&           values,
-                                                                             double                         topValue,
-                                                                             double                         bottomValue )
+void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValuesWithTopValue( const std::vector<cvf::Vec3d>& intersections,
+                                                                                         std::vector<double>&           values,
+                                                                                         double                         topValue )
 {
     CAF_ASSERT( intersections.size() == values.size() );
 
@@ -231,7 +229,8 @@ void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValues( con
     // Fill in overburden values using gradient
     insertOverburdenValues( intersections, values, lastOverburdenIndex, topValue );
 
-    // Fill in underburden values using gradient
+    // Fill in underburden values
+    double bottomValue = values[firstUnderburdenIndex - 1];
     insertUnderburdenValues( intersections, values, firstUnderburdenIndex, bottomValue );
 
     // Interpolate the missing values (should only be intra-reservoir by now)
@@ -244,10 +243,11 @@ void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValues( con
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( const cvf::Vec3d& faultTopPosition,
                                                                                                const cvf::Vec3d& faultBottomPosition,
+                                                                                               double            seabedDepth,
                                                                                                const cvf::Vec3d& offset )
 {
     cvf::Vec3d faultTop = faultTopPosition + offset;
-    cvf::Vec3d seabed( faultTop.x(), faultTop.y(), 0.0 );
+    cvf::Vec3d seabed( faultTop.x(), faultTop.y(), seabedDepth );
     cvf::Vec3d faultBottom = faultBottomPosition + offset;
     cvf::Vec3d underburdenBottom( faultBottom.x(), faultBottom.y(), -10000.0 );
     return { seabed, faultTop, faultBottom, underburdenBottom };
@@ -276,7 +276,8 @@ std::vector<double> RimFaultReactivationDataAccessorWellLogExtraction::generateM
 //--------------------------------------------------------------------------------------------------
 std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>>>
     RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( const RigFaultReactivationModel& model,
-                                                                                        RigEclipseCaseData&              eclipseCaseData )
+                                                                                        RigEclipseCaseData&              eclipseCaseData,
+                                                                                        double                           seabedDepth )
 {
     auto [faultTopPosition, faultBottomPosition] = model.faultTopBottom();
     auto   faultNormal                           = model.faultNormal();
@@ -291,6 +292,7 @@ std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::
         std::vector<cvf::Vec3d> wellPoints =
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
+                                                                                   seabedDepth,
                                                                                    sign * faultNormal * distanceFromFault );
         cvf::ref<RigWellPath> wellPath =
             new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
