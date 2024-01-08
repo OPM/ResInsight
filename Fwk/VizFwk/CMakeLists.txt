@@ -47,7 +47,7 @@ add_subdirectory(LibUtilities)
 
 option(CEE_BUILD_GUI_QT "Build GUI library for Qt" ON)
 if (CEE_BUILD_GUI_QT)
-    option(CEE_USE_QT5 "Use Qt5" OFF)
+    option(CEE_USE_QT5 "Use Qt5" ON)
 	add_subdirectory(LibGuiQt)
 endif()
 
@@ -62,13 +62,17 @@ if (CEE_STAND_ALONE)
 
     option(CEE_BUILD_TEST_APPS "Build test apps" ON)
     if (CEE_BUILD_TEST_APPS)
-        if (CEE_BUILD_GUI_QT)
-            # For now, build the snippet libs here
-            add_subdirectory(Tests/SnippetsBasis)
+        # For now, build the snippet libs here
+        add_subdirectory(Tests/SnippetsBasis)
 
+        if (CEE_BUILD_GUI_QT)
             add_subdirectory(TestApps/Qt/QtMinimal)
             add_subdirectory(TestApps/Qt/QtMultiView)
             add_subdirectory(TestApps/Qt/QtSnippetRunner)
+        endif()
+
+        if (WIN32)
+            add_subdirectory(TestApps/Win32/Win32SnippetRunner)
         endif()
     endif()
 

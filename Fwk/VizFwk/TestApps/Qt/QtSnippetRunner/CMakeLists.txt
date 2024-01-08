@@ -63,22 +63,3 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${MOC_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES} ${SYSTEM_LIBRARIES})
-
-
-if (CEE_USE_QT5)
-    foreach (qtlib ${QT_LIBRARIES})
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
-	endforeach(qtlib)
-else()
-	# Copy Qt Dlls
-	if (MSVC)
-	    set (QTLIBLIST QtCore QtGui QtOpenGl)
-	    foreach (qtlib ${QTLIBLIST})
-	        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different ${QT_BINARY_DIR}/$<IF:$<CONFIG:Debug>,${qtlib}d4.dll,${qtlib}4.dll> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-			)
-	    endforeach( qtlib )
-	endif(MSVC)
-endif(CEE_USE_QT5)
