@@ -7,12 +7,22 @@ if(CAF_ENABLE_UNITY_BUILD)
 endif()
 
 # Qt
-find_package(
-  Qt5
-  COMPONENTS
-  REQUIRED Core Gui Widgets
-)
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+if(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core Gui Widgets
+  )
+  set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets)
+  qt_standard_project_setup()
+else()
+  find_package(
+    Qt5
+    COMPONENTS
+    REQUIRED Core Gui Widgets
+  )
+  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+endif()
 
 set(PROJECT_FILES
     cafFactory.h
@@ -33,7 +43,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(MSVC)
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127 /wd4996"
   )
 endif()
 
