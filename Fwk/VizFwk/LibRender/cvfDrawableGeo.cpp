@@ -159,10 +159,6 @@ void DrawableGeo::renderFixedFunction(OpenGLContext* oglContext, const MatrixSta
 {
     CVF_ASSERT(BufferObjectManaged::supportedOpenGL(oglContext));
 
-#ifdef CVF_OPENGL_ES
-    CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
-
     size_t numPrimitiveSets = m_primitiveSets.size();
     if (numPrimitiveSets == 0 || m_vertexBundle->vertexCount() == 0)
     {
@@ -184,9 +180,7 @@ void DrawableGeo::renderFixedFunction(OpenGLContext* oglContext, const MatrixSta
     CVF_CHECK_OGL(oglContext);
 
     m_vertexBundle->finishUseBundle(oglContext, &bundleUsage);
-
-#endif // CVF_OPENGL_ES
-    }
+}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -247,9 +241,6 @@ void DrawableGeo::releaseBufferObjectsGPU()
 //--------------------------------------------------------------------------------------------------
 void DrawableGeo::renderImmediateMode(OpenGLContext* oglContext, const MatrixState&)
 {
-#ifdef CVF_OPENGL_ES
-    CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
     CVF_ASSERT(oglContext);
 
     const Vec3fArray* vertexArr = m_vertexBundle->vertexArray();
@@ -292,8 +283,6 @@ void DrawableGeo::renderImmediateMode(OpenGLContext* oglContext, const MatrixSta
 
         glEnd();
     }
-
-#endif // CVF_OPENGL_ES
 }
 
 

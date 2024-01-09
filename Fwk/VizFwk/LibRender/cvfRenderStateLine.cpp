@@ -110,7 +110,6 @@ void RenderStateLine::applyOpenGL(OpenGLContext* oglContext) const
 
     glLineWidth(m_lineWidth);
 
-#ifndef CVF_OPENGL_ES
     if (m_smooth)
     {
         glEnable(GL_LINE_SMOOTH);
@@ -119,7 +118,6 @@ void RenderStateLine::applyOpenGL(OpenGLContext* oglContext) const
     {
         glDisable(GL_LINE_SMOOTH);
     }
-#endif
 }
 
 

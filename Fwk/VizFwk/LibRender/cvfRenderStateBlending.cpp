@@ -229,10 +229,8 @@ cvfGLenum RenderStateBlending::blendEquationOpenGL(Equation eq) const
         case FUNC_ADD:              return GL_FUNC_ADD;
         case FUNC_SUBTRACT:         return GL_FUNC_SUBTRACT;
         case FUNC_REVERSE_SUBTRACT: return GL_FUNC_REVERSE_SUBTRACT;
-#ifndef CVF_OPENGL_ES
         case MIN:                   return GL_MIN;
         case MAX:                   return GL_MAX;
-#endif
     }
 
     CVF_FAIL_MSG("Unhandled blend equation");

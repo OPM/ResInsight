@@ -40,7 +40,7 @@
 #include "cvfString.h"
 #include "cvfTextureImage.h"
 
-#include <QtCore/QString>
+#include <QString>
 #include <QImage>
 
 namespace cvfqt {

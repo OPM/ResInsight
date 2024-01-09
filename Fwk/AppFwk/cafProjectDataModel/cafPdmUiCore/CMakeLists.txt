@@ -30,8 +30,6 @@ else()
   qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 endif()
 
-add_definitions(-DCVF_USING_CMAKE)
-
 set(PROJECT_FILES
     cafInternalPdmFieldTypeSpecializations.h
     cafInternalPdmUiFieldCapability.h

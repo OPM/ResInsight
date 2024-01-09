@@ -54,10 +54,7 @@
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStateTextureBindings.h"
 #include "cvfRenderStateBlending.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#endif
 #include "cvfTexture2D_FF.h"
 
 namespace cvf {
@@ -173,7 +170,6 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
             ShaderProgram::useNoProgram(oglContext);
         }
 
-#ifndef CVF_OPENGL_ES
         RenderStateMaterial_FF mat;
         mat.enableColorMaterial(true);
         mat.applyOpenGL(oglContext);
@@ -196,7 +192,7 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
 
             m_textureBindings = textureMapping;
         }
-#endif
+
         // Adjust texture coordinates
         if (m_pow2Image.notNull())
         {
@@ -282,7 +278,6 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
 
     if (software)
     {
-#ifndef CVF_OPENGL_ES
         glColor4f(1.0f, 1.0f, 1.0f, m_blendMode == GLOBAL_ALPHA ? m_alpha : 1.0f);
         glBegin(GL_TRIANGLE_FAN);
         glTexCoord2f(textureCoords[0], textureCoords[1]);
@@ -294,7 +289,6 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
         glTexCoord2f(textureCoords[6], textureCoords[7]);
         glVertex3fv(v4);
         glEnd();
-#endif
     }
     else
     {
@@ -318,10 +312,8 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
 
     if (software)
     {
-#ifndef CVF_OPENGL_ES
         RenderStateTextureMapping_FF resetTextureMapping;
         resetTextureMapping.applyOpenGL(oglContext);
-#endif
     }
 
     if (!software)

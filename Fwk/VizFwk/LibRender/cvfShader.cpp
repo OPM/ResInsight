@@ -141,9 +141,7 @@ bool Shader::compile(OpenGLContext* oglContext)
         {
             case VERTEX_SHADER:     glShaderType = GL_VERTEX_SHADER;        break;
             case FRAGMENT_SHADER:   glShaderType = GL_FRAGMENT_SHADER;      break;
-#ifndef CVF_OPENGL_ES
             case GEOMETRY_SHADER:   glShaderType = GL_GEOMETRY_SHADER;      break;
-#endif
             default:                CVF_FAIL_MSG("Unhandled shader type");  break;
         }
 

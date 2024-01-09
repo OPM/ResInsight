@@ -40,12 +40,12 @@
 
 #include "cvfqtBasicAboutDialog.h"
 
-#include <QtCore/QVariant>
-#include <QtCore/QString>
-
+#include <QVariant>
+#include <QString>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+
 namespace cvfqt {
 
 

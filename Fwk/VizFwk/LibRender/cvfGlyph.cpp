@@ -43,11 +43,8 @@
 #include "cvfTexture.h"
 #include "cvfSampler.h"
 #include "cvfRenderStateTextureBindings.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfTexture2D_FF.h"
 #include "cvfRenderState_FF.h"
-#endif
 
 namespace cvf {
 
@@ -267,7 +264,6 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
         RenderState::Type renderStateType = m_textureBindings->type();
         if (software)
         {
-#ifndef CVF_OPENGL_ES
             if (renderStateType == RenderState::TEXTURE_MAPPING_FF)
             {
                 RenderStateTextureMapping_FF* texMapping = static_cast<RenderStateTextureMapping_FF*>(m_textureBindings.p());
@@ -275,9 +271,6 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
                 texMapping->applyOpenGL(oglContext);
                 return;
             }
-#else
-            CVF_FAIL_MSG("Not supported on OpenGL ES");
-#endif
         }
         else
         {
@@ -341,9 +334,6 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
 
         if (software)
         {
-#ifdef CVF_OPENGL_ES
-            CVF_FAIL_MSG("Not supported on OpenGL ES");
-#else
             // Use fixed function texture setup
             ref<Texture2D_FF> texture = new Texture2D_FF(m_textureImage.p());
             texture->setWrapMode(Texture2D_FF::CLAMP);
@@ -370,7 +360,6 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
             textureMapping->setupTexture(oglContext);
 
             m_textureBindings = textureMapping;
-#endif
         }
         else
         {

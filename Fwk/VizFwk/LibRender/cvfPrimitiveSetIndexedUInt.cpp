@@ -122,11 +122,7 @@ void PrimitiveSetIndexedUInt::render(OpenGLContext* oglContext) const
         ptrOrOffset = m_indices->ptr();
     }
 
-#ifdef CVF_OPENGL_ES
-    glDrawElements(primitiveTypeOpenGL(), numIndices, GL_UNSIGNED_INT, ptrOrOffset);
-#else
     glDrawRangeElements(primitiveTypeOpenGL(), m_minIndex, m_maxIndex, numIndices, GL_UNSIGNED_INT, ptrOrOffset);
-#endif
 
     CVF_CHECK_OGL(oglContext);
 }

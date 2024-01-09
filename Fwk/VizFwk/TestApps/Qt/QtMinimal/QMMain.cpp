@@ -40,11 +40,9 @@
 #include "QMMainWindow.h"
 
 #include <QtGlobal>
-#if QT_VERSION >= 0x050000
 #include <QApplication>
-#else
-#include <QtGui/QApplication>
-#endif
+
+#include <locale.h>
 
 
 //--------------------------------------------------------------------------------------------------

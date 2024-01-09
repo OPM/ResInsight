@@ -114,7 +114,6 @@ RenderStatePolygonMode::Mode RenderStatePolygonMode::backFace() const
 //--------------------------------------------------------------------------------------------------
 void RenderStatePolygonMode::applyOpenGL(OpenGLContext* oglContext) const
 {
-#ifndef CVF_OPENGL_ES
     if (m_frontFaceMode == m_backFaceMode)
     {
         glPolygonMode(GL_FRONT_AND_BACK, polygonModeOpenGL(m_frontFaceMode)); 
@@ -124,7 +123,6 @@ void RenderStatePolygonMode::applyOpenGL(OpenGLContext* oglContext) const
         glPolygonMode(GL_FRONT, polygonModeOpenGL(m_frontFaceMode)); 
         glPolygonMode(GL_BACK, polygonModeOpenGL(m_backFaceMode)); 
     }
-#endif
 
     CVF_CHECK_OGL(oglContext);
 }
@@ -137,12 +135,10 @@ cvfGLenum RenderStatePolygonMode::polygonModeOpenGL(Mode mode)
 {
     switch (mode)
     {
-#ifndef CVF_OPENGL_ES
         case FILL:  return GL_FILL;
         case LINE:  return GL_LINE;
         case POINT: return GL_POINT;
         default:    CVF_FAIL_MSG("Unhandled polygon mode");
-#endif
     }
 
     return 0;

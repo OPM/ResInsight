@@ -55,10 +55,7 @@
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePolygonOffset.h"
 #include "cvfRenderStateBlending.h"
-
-#ifndef CVF_OPENGL_ES 
 #include "cvfRenderState_FF.h"
-#endif
 
 namespace cvf {
 
@@ -344,13 +341,11 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
                 ShaderProgram::useNoProgram(oglContext);
             }
 
-#ifndef CVF_OPENGL_ES
             RenderStateMaterial_FF mat;
             mat.enableColorMaterial(true);
 
             RenderStateLighting_FF noLight(false);
             noLight.applyOpenGL(oglContext);
-#endif
         }
 
         RenderStateDepth visibleCheckDepthRS(true, RenderStateDepth::LEQUAL, false);
@@ -396,7 +391,6 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
         RenderStateBlending resetBlend;
         resetBlend.applyOpenGL(oglContext);
 
-#ifndef CVF_OPENGL_ES
         if (!shaderProgram)
         {
             RenderStateMaterial_FF mat;
@@ -405,7 +399,6 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
             RenderStateLighting_FF light;
             light.applyOpenGL(oglContext);
         }
-#endif
     }
 
     TextDrawer drawer(m_font.p());
@@ -454,13 +447,11 @@ bool DrawableText::labelAnchorVisible(OpenGLContext* oglContext, const Vec3d win
 
     if (softwareRendering)
     {
-#ifndef CVF_OPENGL_ES
         glPointSize(3);
         glColor3f(0.02f, 0.02f, 0.02f);
         glBegin(GL_POINTS);
         glVertex3fv(worldCoord.ptr());
         glEnd();
-#endif
     }
     else
     {

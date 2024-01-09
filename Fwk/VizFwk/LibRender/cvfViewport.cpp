@@ -206,9 +206,7 @@ void Viewport::applyOpenGL(OpenGLContext* oglContext, ClearMode clearMode)
         if (clearFlags & GL_DEPTH_BUFFER_BIT)
         {
             glDepthMask(GL_TRUE);
-            #ifndef CVF_OPENGL_ES
             glClearDepth(m_clearDepth);
-            #endif  // CVF_OPENGL_ES
         }
 
         if (clearFlags & GL_STENCIL_BUFFER_BIT)

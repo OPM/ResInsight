@@ -24,8 +24,6 @@ else()
   qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
 endif()
 
-add_definitions(-DCVF_USING_CMAKE)
-
 add_library(
   ${PROJECT_NAME}
   cafPdmCoreColor3f.h

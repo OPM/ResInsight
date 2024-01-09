@@ -108,9 +108,6 @@
 #include "cvfVertexAttribute.h"
 #include "cvfVertexBundle.h"
 #include "cvfViewport.h"
-
-#ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
 #include "cvfTexture2D_FF.h"
-#endif
 

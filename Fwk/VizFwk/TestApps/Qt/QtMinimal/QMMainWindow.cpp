@@ -42,19 +42,13 @@
 
 #include "QMMainWindow.h"
 #include "QMWidget.h"
-#if QT_VERSION >= 0x050000
+
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QAction>
 #include <QMenu>
 #include <QMenuBar>
-#else
-#include <QtGui/QFrame>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#endif
+
 using cvf::ref;
 
 
@@ -158,10 +152,3 @@ void QMMainWindow::closeEvent(QCloseEvent* /*event*/)
     // Deletes all OpenGL resources and removes context from context group
     m_vizWidget->cvfShutdownOpenGLContext();
 }
-
-
-#ifndef CVF_USING_CMAKE
-//########################################################
-#include "qt-generated/moc_QMMainWindow.cpp"
-//########################################################
-#endif

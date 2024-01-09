@@ -199,3 +199,17 @@ if (CMAKE_UNITY_BUILD)
   set_source_files_properties (cvfOpenGL.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
   set_source_files_properties (cvfOpenGLContextGroup.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
 endif()
+
+
+# Create a target for building the cvfShaderSourceStrings.h file from our GLSL files (currently Win only)
+if (WIN32)
+    FILE(GLOB CEE_ALL_GLSL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/glsl/*.glsl")
+    add_custom_target(run_Glsl2Include 
+        COMMAND ../Tools/Glsl2Include/Glsl2Include  glsl/ cvfShaderSourceStrings.h
+        COMMAND ${CMAKE_COMMAND} -E remove cvfShaderSourceStrings.h.temp
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Launching Glsl2Include tool..."
+        VERBATIM
+        SOURCES ${CEE_ALL_GLSL_FILES}
+    )
+endif()

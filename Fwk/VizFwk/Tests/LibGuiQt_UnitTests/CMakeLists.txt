@@ -6,12 +6,11 @@ find_package(OpenGL)
 
 # Qt
 if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+    find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGl REQUIRED)
-    include(${QT_USE_FILE})
-endif(CEE_USE_QT5)
+    message(FATAL_ERROR "No supported Qt version selected for build")
+endif()
 
 include_directories(${LibCore_SOURCE_DIR})
 include_directories(${LibIo_SOURCE_DIR})
@@ -31,8 +30,8 @@ LibGuiQt_UnitTests.cpp
 )
 
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
-  # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
-  add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
+    # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
+    add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
 endif()
 
 add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES})

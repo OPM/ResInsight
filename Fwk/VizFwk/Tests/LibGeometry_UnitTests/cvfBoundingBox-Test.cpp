@@ -229,15 +229,19 @@ TEST(BoundingBoxDeathTest, AccessInvalidBox)
     EXPECT_DEATH(bb.min(), "Assertion");
     EXPECT_DEATH(bb.max(), "Assertion");
     EXPECT_DEATH(bb.center(), "Assertion");
-    EXPECT_DEATH(bb.extent(), "Assertion");
-    EXPECT_DEATH(bb.radius(), "Assertion");
+
+    // Not any more
+    //EXPECT_DEATH(bb.extent(), "Assertion");
+    //EXPECT_DEATH(bb.radius(), "Assertion");
 
     bb.reset();
     EXPECT_DEATH(bb.min(), "Assertion");
     EXPECT_DEATH(bb.max(), "Assertion");
     EXPECT_DEATH(bb.center(), "Assertion");
-    EXPECT_DEATH(bb.extent(), "Assertion");
-    EXPECT_DEATH(bb.radius(), "Assertion");
+
+    // Not any more
+    //EXPECT_DEATH(bb.extent(), "Assertion");
+    //EXPECT_DEATH(bb.radius(), "Assertion");
 }
 #endif
 

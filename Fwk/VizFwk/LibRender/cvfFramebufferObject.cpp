@@ -308,11 +308,7 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
                 {
                     if (texture->textureType() == Texture::TEXTURE_RECTANGLE)
                     {
-#ifndef CVF_OPENGL_ES
                         glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), GL_TEXTURE_RECTANGLE, texture->textureOglId(), 0);
-#else
-                        CVF_FAIL_MSG("Not supported on iOS");
-#endif
                     }
                     else
                     {
@@ -327,7 +323,6 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
     }
 
     // Setup draw buffers. Drawbuffer settings are stored in the FBO, so we only need to do this whenever the FBO attachments are changed.
-#ifndef CVF_OPENGL_ES
     if (attachmentsModified)
     {
         size_t maxAttachmentIndex = CVF_MAX(m_colorRenderBuffers.size(), m_colorTextures.size());
@@ -369,7 +364,6 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
             glDrawBuffer(GL_NONE);
         }
     }
-#endif
 
     // Depth attachment, can only have one
     CVF_ASSERT(!(m_depthTexture2d.notNull() && m_depthRenderBuffer.notNull()));
@@ -410,11 +404,7 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
             }
             else if (m_depthTexture2d->textureType() == Texture::TEXTURE_RECTANGLE)
             {
-#ifndef CVF_OPENGL_ES
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE, m_depthTexture2d->textureOglId(), 0);
-#else
-                CVF_FAIL_MSG("Not supported on iOS");
-#endif
             }
             else
             {
@@ -437,11 +427,7 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
                 }
             }
 
-#ifndef CVF_OPENGL_ES
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRenderBuffer->renderbufferOglId());
-#else
-            CVF_FAIL_MSG("Not supported on iOS");
-#endif
 
             m_depthAttachmentVersionTick = m_depthStencilRenderBuffer->versionTick();
         }
@@ -461,19 +447,11 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
 
             if (m_depthStencilTexture2d->textureType() == Texture::TEXTURE_2D)
             {
-#ifndef CVF_OPENGL_ES                
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depthStencilTexture2d->textureOglId(), 0);
-#else
-                CVF_FAIL_MSG("Not supported on iOS");
-#endif
             }
             else if (m_depthStencilTexture2d->textureType() == Texture::TEXTURE_RECTANGLE)
             {
-#ifndef CVF_OPENGL_ES
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_RECTANGLE, m_depthStencilTexture2d->textureOglId(), 0);
-#else
-                CVF_FAIL_MSG("Not supported on iOS");
-#endif
             }
             else
             {
@@ -507,12 +485,8 @@ void FramebufferObject::useDefaultWindowFramebuffer(OpenGLContext* oglContext)
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
-#ifdef CVF_OPENGL_ES
-    CVF_FAIL_MSG("FrameBufferObject::useDefaultWindowFramebuffer() not supported on OpenGL ES");
-#else
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
-#endif
 
     CVF_CHECK_OGL(oglContext);
 }
@@ -614,16 +588,11 @@ bool FramebufferObject::isFramebufferComplete(OpenGLContext* oglContext, String*
             case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:          *failReason = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT is returned if any of the framebuffer attachment points are framebuffer incomplete."; break;
             case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:  *failReason = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT is returned if the framebuffer does not have at least one image attached to it."; break;
             case GL_FRAMEBUFFER_UNSUPPORTED:                    *failReason = "GL_FRAMEBUFFER_UNSUPPORTED is returned if the combination of internal formats of the attached images violates an implementation-dependent set of restrictions."; break;
-
-#ifdef CVF_OPENGL_ES
-            case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:          *failReason = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS. Not all attached images has same width and height."; break;                
-#else
             case GL_FRAMEBUFFER_UNDEFINED:                      *failReason = "GL_FRAMEBUFFER_UNDEFINED is returned if target is the default framebuffer, but the default framebuffer does not exist."; break;
             case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:         *failReason = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER is returned if the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for any color attachment point(s) named by GL_DRAWBUFFERi."; break;
             case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:         *failReason = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER is returned if GL_READ_BUFFER is not GL_NONE and the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_READ_BUFFER."; break;
             case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:         *failReason = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is returned if the value of GL_RENDERBUFFER_SAMPLES is not the same for all attached renderbuffers; if the value of GL_TEXTURE_SAMPLES is the not same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_RENDERBUFFER_SAMPLES does not match the value of GL_TEXTURE_SAMPLES."; break;
             case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:       *failReason = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS is returned if any framebuffer attachment is layered, and any populated attachment is not layered, or if all populated color attachments are not from textures of the same target."; break;
-#endif
         }
     }
 

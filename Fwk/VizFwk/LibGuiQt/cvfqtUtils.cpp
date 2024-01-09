@@ -39,7 +39,7 @@
 #include "cvfVector2.h"
 #include "cvfqtUtils.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace cvfqt {
 

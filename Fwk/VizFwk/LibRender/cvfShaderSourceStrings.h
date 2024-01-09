@@ -7,11 +7,7 @@
 //#############################################################################################################################
 static const char calcClipDistances_inl[] =
 "                                                                                                      \n"
-"#ifdef CVF_OPENGL_ES                                                                                  \n"
-"uniform mediump int u_clipPlaneCount;                                                                 \n"
-"#else                                                                                                 \n"
 "uniform int u_clipPlaneCount;                                                                         \n"
-"#endif                                                                                                \n"
 "                                                                                                      \n"
 "uniform vec4 u_ecClipPlanes[6];                                                                       \n"
 "                                                                                                      \n"
@@ -1066,10 +1062,6 @@ static const char vs_Minimal_inl[] =
 "    vec3 ecPosition = (cvfu_modelViewMatrix * cvfa_vertex).xyz;                                       \n"
 "    calcClipDistances(vec4(ecPosition, 1));                                                           \n"
 "#endif                                                                                                \n"
-"                                                                                                      \n"
-"#ifdef CVF_OPENGL_ES                                                                                  \n"
-"    gl_PointSize = 1.0;                                                                               \n"
-"#endif                                                                                                \n"
 "}                                                                                                     \n";
 
 
@@ -1099,10 +1091,6 @@ static const char vs_MinimalTexture_inl[] =
 "#ifdef CVF_CALC_CLIP_DISTANCES_IMPL                                                                   \n"
 "    vec3 ecPosition = (cvfu_modelViewMatrix * cvfa_vertex).xyz;                                       \n"
 "    calcClipDistances(vec4(ecPosition, 1));                                                           \n"
-"#endif                                                                                                \n"
-"                                                                                                      \n"
-"#ifdef CVF_OPENGL_ES                                                                                  \n"
-"    gl_PointSize = 1.0;                                                                               \n"
 "#endif                                                                                                \n"
 "}                                                                                                     \n";
 

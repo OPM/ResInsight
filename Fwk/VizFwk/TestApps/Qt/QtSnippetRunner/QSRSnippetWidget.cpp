@@ -592,13 +592,9 @@ void QSRSnippetWidget::paintEvent(QPaintEvent* /*event*/)
 
     QPainter painter(this);
 
-#if QT_VERSION >= 0x040600
-    // Qt 4.6
     painter.beginNativePainting();
     CVF_CHECK_OGL(currentOglContext);
-#endif
 
-    
 	cvfqt::OpenGLContext::saveOpenGLState(currentOglContext);
     CVF_CHECK_OGL(currentOglContext);
 
@@ -624,12 +620,8 @@ void QSRSnippetWidget::paintEvent(QPaintEvent* /*event*/)
         update();
     }
 
-
-#if QT_VERSION >= 0x040600
-    // Qt 4.6
     painter.endNativePainting();
     CVF_CHECK_OGL(currentOglContext);
-#endif
 
     if (m_drawHUD)
     {
@@ -753,11 +745,3 @@ void QSRSnippetWidget::keyPressEvent(QKeyEvent* event)
         parentWidget()->repaint();
     }
 }
-
-
-//########################################################
-#ifndef CVF_USING_CMAKE
-#include "qt-generated/moc_QSRSnippetWidget.cpp"
-#endif
-//########################################################
-
