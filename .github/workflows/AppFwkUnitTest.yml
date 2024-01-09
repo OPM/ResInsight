@@ -8,9 +8,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        qtver: [5.12.12, 6.5.3]
+        include:
+          - qtver: 6.5.3
+            build_flags: -DCEE_USE_QT6=ON -DCEE_USE_QT5=OFF
+          - qtver: 5.12.12
+            build_flags: -DCEE_USE_QT6=OFF -DCEE_USE_QT5=ON
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set apt mirror
         # see https://github.com/actions/runner-images/issues/7048
@@ -22,7 +28,7 @@ jobs:
           sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
 
       - name: Install Linux dependencies
-        if: ${{contains( matrix.os, 'ubuntu') }}
+        if: contains(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
@@ -30,10 +36,10 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: 5.12.12
-          modules: qtscript
+          version: ${{ matrix.qtver }}
           dir: "${{ github.workspace }}/Qt/"
           cache: true
+          cache-key-prefix: ${{ matrix.qtver }}-${{ matrix.os }}
 
       - name: Get CMake and Ninja
         uses: lukka/get-cmake@latest
@@ -41,42 +47,41 @@ jobs:
       - name: Use MSVC (Windows)
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Configure
-        shell: cmake -P {0}
+      - name: Configure and build
         run: |
-          execute_process(
-            COMMAND cmake
-              -S Fwk
-              -B cmakebuild
-              -G Ninja
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
-      
-      - name: Build
-        shell: cmake -P {0}
-        run: |
-          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-          execute_process(
-            COMMAND cmake --build cmakebuild
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
+          cmake -S Fwk/AppFwk ${{matrix.build_flags}} -B cmakebuild -G Ninja
+          cmake --build cmakebuild
 
-      - name: Run Unit Tests
+      - name: Install
+        run: |
+          cd cmakebuild
+          cmake --install . --prefix ${{github.workspace}}/cmakebuild/install
+
+      - name: Run Unit Tests Qt5
+        if: matrix.qtver == '5.12.12'
         shell: bash
         run: |
-          cmakebuild/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
-          cmakebuild/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
-          cmakebuild/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
-          cmakebuild/AppFwk/cafPdmScripting/cafPdmScripting_UnitTests/cafPdmScripting_UnitTests
+          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
+          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
+          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
+          cmakebuild/cafPdmScripting/cafPdmScripting_UnitTests/cafPdmScripting_UnitTests
 
-      - name: Run Unit Tests Windows (does not work on Linux)
-        if: contains( matrix.os, 'windows')
+      - name: Run Unit Tests Windows Qt5 (does not work on Linux)
+        if: (contains( matrix.os, 'windows') && (matrix.qtver == '5.12.12'))
+        shell: bash
+        run: cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
+
+      - name: Run Unit Tests Qt6
+        if: matrix.qtver == '6.5.3'
         shell: bash
         run: |
-          cmakebuild/AppFwk/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
+          cmakebuild/install/bin/cafPdmCore_UnitTests
+          cmakebuild/install/bin/cafPdmXml_UnitTests
+          cmakebuild/install/bin/cafProjectDataModel_UnitTests
+          cmakebuild/install/bin/cafPdmScripting_UnitTests
+  
+      - name: Run Unit Tests Windows Qt6 (does not work on Linux)
+        if: (contains( matrix.os, 'windows') && (matrix.qtver == '6.5.3'))
+        shell: bash
+        run: cmakebuild/install/bin/cafUserInterface_UnitTests
+  
