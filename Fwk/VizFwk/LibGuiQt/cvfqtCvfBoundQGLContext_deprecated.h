@@ -39,9 +39,34 @@
 
 #include "cvfOpenGLContext.h"
 
-#include <QtOpenGL/QGLContext>
+#include <QGLContext>
 
 namespace cvfqt {
+
+
+//==================================================================================================
+//
+// Derived OpenGLContext that adapts a Qt QGLContext
+//
+//==================================================================================================
+class OpenGLContext_QGLContextAdapter_deprecated : public cvf::OpenGLContext
+{
+public:
+    OpenGLContext_QGLContextAdapter_deprecated(cvf::OpenGLContextGroup* contextGroup, QGLContext* backingQGLContext);
+    virtual ~OpenGLContext_QGLContextAdapter_deprecated();
+
+    virtual bool    initializeContext();
+
+    virtual void    makeCurrent();
+    virtual bool    isCurrent() const;
+
+private:
+    QGLContext*     m_qtGLContext;
+    bool            m_isCoreOpenGLProfile;  // This is a Core OpenGL profile. Implies OpenGL version of 3.2 or more
+    int             m_majorVersion;         // OpenGL version as reported by Qt
+    int             m_minorVersion;
+};
+
 
 
 //==================================================================================================
@@ -49,11 +74,11 @@ namespace cvfqt {
 // Utility class used to piggyback OpenGLContext onto Qt's QGLContext
 //
 //==================================================================================================
-class CvfBoundQGLContext : public QGLContext
+class CvfBoundQGLContext_deprecated : public QGLContext
 {
 public:
-    CvfBoundQGLContext(cvf::OpenGLContextGroup* contextGroup, const QGLFormat & format);
-    virtual ~CvfBoundQGLContext();
+    CvfBoundQGLContext_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat & format);
+    virtual ~CvfBoundQGLContext_deprecated();
 
     cvf::OpenGLContext* cvfOpenGLContext() const;
 

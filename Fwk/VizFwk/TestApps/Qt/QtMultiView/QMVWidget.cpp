@@ -42,8 +42,6 @@
 
 #include "QMVWidget.h"
 
-#include "cvfqtOpenGLContext.h"
-
 #include <QMouseEvent>
 
 using cvf::ref;
@@ -54,7 +52,7 @@ using cvf::ref;
 /// 
 //--------------------------------------------------------------------------------------------------
 QMVWidget::QMVWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent)
-:   cvfqt::OpenGLWidget(contextGroup, format, parent)
+:   cvfqt::GLWidget_deprecated(contextGroup, format, parent)
 {
     m_trackball = new cvf::ManipulatorTrackball;
 }
@@ -64,7 +62,7 @@ QMVWidget::QMVWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& for
 /// 
 //--------------------------------------------------------------------------------------------------
 QMVWidget::QMVWidget(QMVWidget* shareWidget, QWidget* parent)
-:   cvfqt::OpenGLWidget(shareWidget, parent)
+:   cvfqt::GLWidget_deprecated(shareWidget, parent)
 {
     m_trackball = new cvf::ManipulatorTrackball;
 }
@@ -141,7 +139,7 @@ void QMVWidget::paintGL()
     CVF_ASSERT(currentOglContext);
     CVF_CHECK_OGL(currentOglContext);
 
-    cvfqt::OpenGLContext::saveOpenGLState(currentOglContext);
+    cvf::OpenGLUtils::pushOpenGLState(currentOglContext);
 
     if (m_renderSequence.notNull())
     {
@@ -153,7 +151,7 @@ void QMVWidget::paintGL()
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    cvfqt::OpenGLContext::restoreOpenGLState(currentOglContext);
+    cvf::OpenGLUtils::popOpenGLState(currentOglContext);
 }
 
 

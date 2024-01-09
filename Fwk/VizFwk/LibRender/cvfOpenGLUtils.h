@@ -37,37 +37,22 @@
 
 #pragma once
 
-#include "cvfOpenGLContext.h"
+namespace cvf {
 
-class QGLContext;
-
-namespace cvfqt {
+class OpenGLContext;
 
 
 //==================================================================================================
 //
-// Derived OpenGLContext that adapts a Qt QGLContext
+// 
 //
 //==================================================================================================
-class OpenGLContext : public cvf::OpenGLContext
+class OpenGLUtils
 {
 public:
-    OpenGLContext(cvf::OpenGLContextGroup* contextGroup, QGLContext* backingQGLContext);
-    virtual ~OpenGLContext();
-
-    virtual bool    initializeContext();
-
-    virtual void    makeCurrent();
-    virtual bool    isCurrent() const;
-
-    static void		saveOpenGLState(cvf::OpenGLContext* oglContext);
-    static void     restoreOpenGLState(cvf::OpenGLContext* oglContext);
-
-private:
-    QGLContext*     m_qtGLContext;
-    bool            m_isCoreOpenGLProfile;  // This is a Core OpenGL profile. Implies OpenGL version of 3.2 or more
-    int             m_majorVersion;         // OpenGL version as reported by Qt
-    int             m_minorVersion;
+    static void     pushOpenGLState(OpenGLContext* oglContext);
+    static void     popOpenGLState(OpenGLContext* oglContext);
 };
 
 }
+

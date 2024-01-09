@@ -44,7 +44,7 @@
 #include "cvfScene.h"
 #include "cvfOpenGLContextGroup.h"
 
-#include "cvfqtOpenGLWidget.h"
+#include "cvfqtGLWidget_deprecated.h"
 
 
 
@@ -53,7 +53,7 @@
 // 
 //
 //==================================================================================================
-class QMWidget : public cvfqt::OpenGLWidget
+class QMWidget : public cvfqt::GLWidget_deprecated
 {
     Q_OBJECT
 

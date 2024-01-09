@@ -36,12 +36,8 @@
 
 
 #include "cvfBase.h"
-#include "cvfOpenGL.h"
-#include "cvfqtOpenGLContext.h"
-#include "cvfqtCvfBoundQGLContext.h"
-
-#include "cvfOpenGLContextGroup.h"
 #include "cvfOpenGLCapabilities.h"
+#include "cvfqtCvfBoundQGLContext_deprecated.h"
 
 namespace cvfqt {
 
@@ -49,7 +45,7 @@ namespace cvfqt {
 
 //==================================================================================================
 ///
-/// \class cvfqt::OpenGLContext
+/// \class cvfqt::OpenGLContext_QGLContextAdapter_deprecated
 /// \ingroup GuiQt
 ///
 /// Derived OpenGLContext that adapts a Qt QGLContext
@@ -59,7 +55,7 @@ namespace cvfqt {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-OpenGLContext::OpenGLContext(cvf::OpenGLContextGroup* contextGroup, QGLContext* backingQGLContext)
+OpenGLContext_QGLContextAdapter_deprecated::OpenGLContext_QGLContextAdapter_deprecated(cvf::OpenGLContextGroup* contextGroup, QGLContext* backingQGLContext)
 :   cvf::OpenGLContext(contextGroup),
     m_isCoreOpenGLProfile(false),
     m_majorVersion(0),
@@ -78,7 +74,7 @@ OpenGLContext::OpenGLContext(cvf::OpenGLContextGroup* contextGroup, QGLContext* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-OpenGLContext::~OpenGLContext()
+OpenGLContext_QGLContextAdapter_deprecated::~OpenGLContext_QGLContextAdapter_deprecated()
 {
     m_qtGLContext = NULL;
 }
@@ -87,7 +83,7 @@ OpenGLContext::~OpenGLContext()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool OpenGLContext::initializeContext()
+bool OpenGLContext_QGLContextAdapter_deprecated::initializeContext()
 {
     if (!cvf::OpenGLContext::initializeContext())
     {
@@ -107,7 +103,7 @@ bool OpenGLContext::initializeContext()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OpenGLContext::makeCurrent()
+void OpenGLContext_QGLContextAdapter_deprecated::makeCurrent()
 {
     CVF_ASSERT(m_qtGLContext);
     m_qtGLContext->makeCurrent();
@@ -117,7 +113,7 @@ void OpenGLContext::makeCurrent()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool OpenGLContext::isCurrent() const
+bool OpenGLContext_QGLContextAdapter_deprecated::isCurrent() const
 {
     if (m_qtGLContext)
     {
@@ -131,93 +127,50 @@ bool OpenGLContext::isCurrent() const
 }
 
 
+
+
+//==================================================================================================
+///
+/// \class cvfqt::CvfBoundQGLContext_deprecated
+/// \ingroup GuiQt
+///
+/// 
+/// 
+//==================================================================================================
+
 //--------------------------------------------------------------------------------------------------
-/// Make an effort to save current OpenGL state. Must be matched by a call to restoreOpenGLState()
+/// 
 //--------------------------------------------------------------------------------------------------
-void OpenGLContext::saveOpenGLState(cvf::OpenGLContext* oglContext)
+CvfBoundQGLContext_deprecated::CvfBoundQGLContext_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat & format)
+:   QGLContext(format)
 {
-    CVF_CALLSITE_OPENGL(oglContext);
-    const cvf::OpenGLCapabilities* oglCaps = oglContext->capabilities();
-
-    // Only relevant for fixed function
-    if (!oglCaps->supportsFixedFunction())
-    {
-        return;
-    }
-
-    CVF_CHECK_OGL(oglContext);
-
-    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-    CVF_CHECK_OGL(oglContext);
-
-    // For now disable pushing of the vertex array related attributes as it gives a mystical
-    // crash on Redhat5 under VMWare. Not a big issue, but maybe we can do without this push?
-    //glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-    CVF_CHECK_OGL(oglContext);
-
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    CVF_CHECK_OGL(oglContext);
-
-    //  Note: Only preserves matrix stack for texture unit 0
-    if (oglCaps->supportsOpenGL2())
-    {
-        glActiveTexture(GL_TEXTURE0);
-    }
-    glMatrixMode(GL_TEXTURE);
-    glPushMatrix();
-    CVF_CHECK_OGL(oglContext);
-
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    CVF_CHECK_OGL(oglContext);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    CVF_CHECK_OGL(oglContext);
+    m_cvfGLContext = new OpenGLContext_QGLContextAdapter_deprecated(contextGroup, this);
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// Restore OpenGL state that has been saved by saveOpenGLState()
+/// 
 //--------------------------------------------------------------------------------------------------
-void OpenGLContext::restoreOpenGLState(cvf::OpenGLContext* oglContext)
+CvfBoundQGLContext_deprecated::~CvfBoundQGLContext_deprecated()
 {
-    CVF_CALLSITE_OPENGL(oglContext);
-    const cvf::OpenGLCapabilities* oglCaps = oglContext->capabilities();
-
-    // Only relevant for fixed function
-    if (!oglCaps->supportsFixedFunction())
+    if (m_cvfGLContext.notNull())
     {
-        return;
+        // TODO
+        // Need to resolve the case where the Qt QGLcontext (that we're deriving from) is deleted
+        // and we are still holding a reference to one or more OpenGLContext objects
+        // By the time we get here we expect that we're holding the only reference
+        CVF_ASSERT(m_cvfGLContext->refCount() == 1);
+        m_cvfGLContext = NULL;
     }
+}
 
-    CVF_CHECK_OGL(oglContext);
 
-    //  Note: Only preserves matrix stack for texture unit 0
-    if (oglCaps->supportsOpenGL2())
-    {
-        glActiveTexture(GL_TEXTURE0);
-    }
-    glMatrixMode(GL_TEXTURE);
-    glPopMatrix();
-    CVF_CHECK_OGL(oglContext);
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    CVF_CHECK_OGL(oglContext);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    CVF_CHECK_OGL(oglContext);
-
-    glPopAttrib();
-    CVF_CHECK_OGL(oglContext);
- 
-    // Currently not pushing vertex attribs, so comment out the pop
-    //glPopClientAttrib();
-
-    glPopClientAttrib();
-    CVF_CHECK_OGL(oglContext);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::OpenGLContext* CvfBoundQGLContext_deprecated::cvfOpenGLContext() const
+{
+    return const_cast<cvf::OpenGLContext*>(m_cvfGLContext.p());
 }
 
 

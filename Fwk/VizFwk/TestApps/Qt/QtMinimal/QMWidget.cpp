@@ -42,8 +42,6 @@
 
 #include "QMWidget.h"
 
-#include "cvfqtOpenGLContext.h"
-
 #include <QMouseEvent>
 
 using cvf::ref;
@@ -54,7 +52,7 @@ using cvf::ref;
 /// 
 //--------------------------------------------------------------------------------------------------
 QMWidget::QMWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent)
-:   cvfqt::OpenGLWidget(contextGroup, QGLFormat(), parent)
+:   cvfqt::GLWidget_deprecated(contextGroup, QGLFormat(), parent)
 {
     m_camera = new cvf::Camera;
 
@@ -130,14 +128,14 @@ void QMWidget::paintEvent(QPaintEvent* /*event*/)
 
     painter.beginNativePainting();
 
-	cvfqt::OpenGLContext::saveOpenGLState(currentOglContext);
+	cvf::OpenGLUtils::pushOpenGLState(currentOglContext);
 
     if (m_renderSequence.notNull())
     {
         m_renderSequence->render(currentOglContext);
     }
 
-	cvfqt::OpenGLContext::restoreOpenGLState(currentOglContext);
+    cvf::OpenGLUtils::popOpenGLState(currentOglContext);
 
     painter.endNativePainting();
 }

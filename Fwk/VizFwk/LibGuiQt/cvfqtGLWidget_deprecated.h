@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include <QtOpenGL/QGLWidget>
+#include <QGLWidget>
 
 namespace cvf
 {
@@ -53,11 +53,11 @@ namespace cvfqt {
 // Derived QGLWidget
 //
 //==================================================================================================
-class OpenGLWidget : public QGLWidget
+class GLWidget_deprecated : public QGLWidget
 {
 public:
-    OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f = 0);
-    OpenGLWidget(OpenGLWidget* shareWidget, QWidget* parent , Qt::WindowFlags f = 0);
+    GLWidget_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f = 0);
+    GLWidget_deprecated(GLWidget_deprecated* shareWidget, QWidget* parent , Qt::WindowFlags f = 0);
 
     cvf::OpenGLContext* cvfOpenGLContext() const;
     void                cvfShutdownOpenGLContext();

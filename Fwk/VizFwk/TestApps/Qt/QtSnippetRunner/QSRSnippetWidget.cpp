@@ -40,7 +40,6 @@
 #include "QSRTranslateEvent.h"
 
 #include "cvfqtPerformanceInfoHud.h"
-#include "cvfqtOpenGLContext.h"
 
 #include <math.h>
 
@@ -54,7 +53,7 @@ using cvfu::TestSnippet;
 /// 
 //--------------------------------------------------------------------------------------------------
 QSRSnippetWidget::QSRSnippetWidget(TestSnippet* snippet, cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent)
-:   cvfqt::OpenGLWidget(contextGroup, format, parent),
+:   cvfqt::GLWidget_deprecated(contextGroup, format, parent),
     m_drawHUD(false),
     m_lastSetRenderMode(DrawableGeo::VERTEX_ARRAY),
     m_enableMultisampleWhenDrawing(false)
@@ -595,7 +594,7 @@ void QSRSnippetWidget::paintEvent(QPaintEvent* /*event*/)
     painter.beginNativePainting();
     CVF_CHECK_OGL(currentOglContext);
 
-	cvfqt::OpenGLContext::saveOpenGLState(currentOglContext);
+	cvf::OpenGLUtils::pushOpenGLState(currentOglContext);
     CVF_CHECK_OGL(currentOglContext);
 
     if (m_enableMultisampleWhenDrawing)
@@ -612,7 +611,7 @@ void QSRSnippetWidget::paintEvent(QPaintEvent* /*event*/)
         glDisable(GL_MULTISAMPLE);
     }
 
-    cvfqt::OpenGLContext::restoreOpenGLState(currentOglContext);
+    cvf::OpenGLUtils::popOpenGLState(currentOglContext);
     CVF_CHECK_OGL(currentOglContext);
 
     if (postEventAction == cvfu::REDRAW)

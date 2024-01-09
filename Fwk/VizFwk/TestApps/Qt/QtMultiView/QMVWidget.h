@@ -40,7 +40,7 @@
 #include "cvfBase.h"
 #include "cvfRenderSequence.h"
 #include "cvfManipulatorTrackball.h"
-#include "cvfqtOpenGLWidget.h"
+#include "cvfqtGLWidget_deprecated.h"
 
 
 //==================================================================================================
@@ -48,7 +48,7 @@
 // 
 //
 //==================================================================================================
-class QMVWidget : public cvfqt::OpenGLWidget
+class QMVWidget : public cvfqt::GLWidget_deprecated
 {
     Q_OBJECT
 

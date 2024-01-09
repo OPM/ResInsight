@@ -37,7 +37,7 @@
 #include "cafOpenGLWidget.h"
 #include "cvfBase.h"
 #include "cvfOpenGLContextGroup.h"
-#include "cvfqtCvfBoundQGLContext.h"
+#include "cvfqtCvfBoundQGLContext_deprecated.h"
 
 namespace caf
 {
@@ -58,7 +58,7 @@ OpenGLWidget::OpenGLWidget( cvf::OpenGLContextGroup* contextGroup,
                             QWidget*                 parent,
                             OpenGLWidget*            shareWidget,
                             Qt::WindowFlags          f )
-    : QGLWidget( new cvfqt::CvfBoundQGLContext( contextGroup, format ), parent, shareWidget, f )
+    : QGLWidget( new cvfqt::CvfBoundQGLContext_deprecated( contextGroup, format ), parent, shareWidget, f )
 {
     if ( isValid() )
     {
@@ -106,7 +106,7 @@ OpenGLWidget::OpenGLWidget( cvf::OpenGLContextGroup* contextGroup,
 /// If the context is not valid, sharing failed and the newly created widget/context be discarded.
 //--------------------------------------------------------------------------------------------------
 OpenGLWidget::OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::WindowFlags f )
-    : QGLWidget( new cvfqt::CvfBoundQGLContext( shareWidget->cvfOpenGLContext()->group(), shareWidget->format() ),
+    : QGLWidget( new cvfqt::CvfBoundQGLContext_deprecated( shareWidget->cvfOpenGLContext()->group(), shareWidget->format() ),
                  parent,
                  shareWidget,
                  f )
@@ -145,7 +145,7 @@ OpenGLWidget::OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::Wind
 cvf::OpenGLContext* OpenGLWidget::cvfOpenGLContext() const
 {
     const QGLContext*                qglContext     = context();
-    const cvfqt::CvfBoundQGLContext* contextBinding = dynamic_cast<const cvfqt::CvfBoundQGLContext*>( qglContext );
+    const cvfqt::CvfBoundQGLContext_deprecated* contextBinding = dynamic_cast<const cvfqt::CvfBoundQGLContext_deprecated*>( qglContext );
     CVF_ASSERT( contextBinding );
 
     return contextBinding->cvfOpenGLContext();

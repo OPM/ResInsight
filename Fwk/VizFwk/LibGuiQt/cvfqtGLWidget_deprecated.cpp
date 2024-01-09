@@ -37,8 +37,8 @@
 
 #include "cvfBase.h"
 #include "cvfOpenGLContextGroup.h"
-#include "cvfqtCvfBoundQGLContext.h"
-#include "cvfqtOpenGLWidget.h"
+#include "cvfqtCvfBoundQGLContext_deprecated.h"
+#include "cvfqtGLWidget_deprecated.h"
 
 namespace cvfqt {
 
@@ -46,7 +46,7 @@ namespace cvfqt {
 
 //==================================================================================================
 ///
-/// \class cvfqt::OpenGLWidget
+/// \class cvfqt::GLWidget_deprecated
 /// \ingroup GuiQt
 ///
 /// 
@@ -56,8 +56,8 @@ namespace cvfqt {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-OpenGLWidget::OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f)
-:   QGLWidget(new CvfBoundQGLContext(contextGroup, format), parent, NULL, f)
+GLWidget_deprecated::GLWidget_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f)
+:   QGLWidget(new CvfBoundQGLContext_deprecated(contextGroup, format), parent, NULL, f)
 {
     // This constructor can only be used with an empty context group!
     // We're not able to check this up front, but assert that the count is 1 by the time we get here
@@ -86,8 +86,8 @@ OpenGLWidget::OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLForma
 ///
 /// If the context is not valid, sharing failed and the newly created widget/context be discarded.
 //--------------------------------------------------------------------------------------------------
-OpenGLWidget::OpenGLWidget(OpenGLWidget* shareWidget, QWidget* parent , Qt::WindowFlags f)
-:   QGLWidget(new CvfBoundQGLContext(shareWidget->cvfOpenGLContext()->group(), shareWidget->format()), parent, shareWidget, f)
+GLWidget_deprecated::GLWidget_deprecated(GLWidget_deprecated* shareWidget, QWidget* parent , Qt::WindowFlags f)
+:   QGLWidget(new CvfBoundQGLContext_deprecated(shareWidget->cvfOpenGLContext()->group(), shareWidget->format()), parent, shareWidget, f)
 {
     CVF_ASSERT(shareWidget);
     cvf::ref<cvf::OpenGLContext> shareContext = shareWidget->cvfOpenGLContext();
@@ -120,10 +120,10 @@ OpenGLWidget::OpenGLWidget(OpenGLWidget* shareWidget, QWidget* parent , Qt::Wind
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::OpenGLContext* OpenGLWidget::cvfOpenGLContext() const
+cvf::OpenGLContext* GLWidget_deprecated::cvfOpenGLContext() const
 {
     const QGLContext* qglContext = context();
-    const CvfBoundQGLContext* contextBinding = dynamic_cast<const CvfBoundQGLContext*>(qglContext);
+    const CvfBoundQGLContext_deprecated* contextBinding = dynamic_cast<const CvfBoundQGLContext_deprecated*>(qglContext);
     CVF_ASSERT(contextBinding);
 
     return contextBinding->cvfOpenGLContext();
@@ -133,7 +133,7 @@ cvf::OpenGLContext* OpenGLWidget::cvfOpenGLContext() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OpenGLWidget::cvfShutdownOpenGLContext()
+void GLWidget_deprecated::cvfShutdownOpenGLContext()
 {
     // It should be safe to call shutdown multiple times so this call should 
     // amount to a no-op if the user has already shut down the context

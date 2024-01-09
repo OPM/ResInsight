@@ -45,7 +45,7 @@
 
 #include "cvfuTestSnippet.h"
 
-#include "cvfqtOpenGLWidget.h"
+#include "cvfqtGLWidget_deprecated.h"
 
 class QTimer;
 
@@ -55,7 +55,7 @@ class QTimer;
 // 
 //
 //==================================================================================================
-class QSRSnippetWidget : public cvfqt::OpenGLWidget
+class QSRSnippetWidget : public cvfqt::GLWidget_deprecated
 {
     Q_OBJECT
 

@@ -52,6 +52,7 @@
 #include "cvfModel.h"
 #include "cvfOpenGLCapabilities.h"
 #include "cvfOpenGLResourceManager.h"
+#include "cvfOpenGLUtils.h"
 #include "cvfOverlayImage.h"
 #include "cvfPart.h"
 #include "cvfRay.h"
@@ -69,7 +70,6 @@
 #include "cvfUniform.h"
 #include "cvfUniformSet.h"
 
-#include "cvfqtOpenGLContext.h"
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfqtUtils.h"
 
@@ -850,7 +850,7 @@ void caf::Viewer::paintEvent( QPaintEvent* event )
 
     if ( isShadersSupported() )
     {
-        cvfqt::OpenGLContext::saveOpenGLState( myOglContext.p() );
+        cvf::OpenGLUtils::pushOpenGLState( myOglContext.p() );
     }
 
     optimizeClippingPlanes();
@@ -880,7 +880,7 @@ void caf::Viewer::paintEvent( QPaintEvent* event )
 
     if ( isShadersSupported() )
     {
-        cvfqt::OpenGLContext::restoreOpenGLState( myOglContext.p() );
+        cvf::OpenGLUtils::popOpenGLState( myOglContext.p() );
     }
 
     painter.endNativePainting();
