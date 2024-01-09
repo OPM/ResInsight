@@ -479,11 +479,11 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     }
     m_topFault = top_point;
 
-    splitLargeLayers( zPositionsFront, kLayersFront, m_maxCellHeight );
-    splitLargeLayers( zPositionsBack, kLayersBack, m_maxCellHeight );
-
     mergeTinyLayers( zPositionsFront, kLayersFront, m_minCellHeight );
     mergeTinyLayers( zPositionsBack, kLayersBack, m_minCellHeight );
+
+    splitLargeLayers( zPositionsFront, kLayersFront, m_maxCellHeight );
+    splitLargeLayers( zPositionsBack, kLayersBack, m_maxCellHeight );
 
     std::vector<cvf::Vec3d> frontReservoirLayers;
     for ( auto& kvp : zPositionsFront )
@@ -590,9 +590,11 @@ void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::
         vals.push_back( layer.second );
     }
 
+    // bottom layer must always be included
     newLayers.push_back( vals.front() );
     newKLayers.push_back( kLayers.front() );
 
+    // remove any layer that is less than minHeight above the previous layer, starting at the bottom
     for ( int k = 1; k < nLayers - 1; k++ )
     {
         if ( std::abs( keys[k] - keys[k - 1] ) < minHeight )
@@ -602,9 +604,21 @@ void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::
         newKLayers.push_back( kLayers[k] );
         newLayers.push_back( vals[k] );
     }
+    // top layer must always be included
     newLayers.push_back( vals.back() );
 
-    // TODO : remove second topmost layer if too close to top
+    // make sure the top two layers aren't too close, if so, remove the second topmost
+    const int nNewLayers = (int)newLayers.size();
+    if ( nNewLayers > 2 )
+    {
+        if ( std::abs( newLayers[nNewLayers - 1].z() - newLayers[nNewLayers - 2].z() ) < minHeight )
+        {
+            newKLayers.pop_back();
+            newLayers.pop_back();
+            newLayers.pop_back();
+            newLayers.push_back( vals.back() );
+        }
+    }
 
     layers.clear();
     for ( auto& p : newLayers )
