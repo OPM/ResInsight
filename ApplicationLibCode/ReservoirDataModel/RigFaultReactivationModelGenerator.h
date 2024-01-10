@@ -46,7 +46,11 @@ public:
     void setFaultBufferDepth( double aboveFault, double belowFault );
     void setModelSize( double startDepth, double depthBelowFault, double horzExtentFromFault );
     void setModelThickness( double thickness );
-    void setModelGriddingOptions( double maxCellHeight, double cellSizeFactorHeight, double minCellWidth, double cellSizeFactorWidth );
+    void setModelGriddingOptions( double minCellHeight,
+                                  double maxCellHeight,
+                                  double cellSizeFactorHeight,
+                                  double minCellWidth,
+                                  double cellSizeFactorWidth );
 
     void setUseLocalCoordinates( bool useLocalCoordinates );
     void setupLocalCoordinateTransform();
@@ -71,6 +75,7 @@ protected:
     static cvf::Vec3d lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB );
     static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
     static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight );
+    static void       mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double minHeight );
 
     std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, std::vector<size_t>& cellIndexColumn );
     std::vector<int>             elementKLayers( const std::vector<size_t>& cellIndexColumn );
@@ -102,6 +107,7 @@ private:
     double m_horzExtentFromFault;
     double m_modelThickness;
 
+    double m_minCellHeight;
     double m_maxCellHeight;
     double m_cellSizeHeightFactor;
     double m_minCellWidth;

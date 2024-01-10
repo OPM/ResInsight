@@ -105,6 +105,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelPart2Color, "ModelPart2Color", cvf::Color3f( cvf::Color3f::BLUE ), "Part 2 Color" );
 
     CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 20.0, "Max. Reservoir Cell Height" );
+    CAF_PDM_InitField( &m_minReservoirCellHeight, "MinReservoirCellHeight", 0.5, "Min. Reservoir Cell Height" );
     CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.05, "Cell Height Grow Factor" );
 
     CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 20.0, "Reservoir Cell Width" );
@@ -326,7 +327,11 @@ void RimFaultReactivationModel::updateVisualization()
     generator->setModelSize( m_modelMinZ, m_modelBelowSize, m_modelExtentFromAnchor );
     generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards );
     generator->setModelThickness( m_modelThickness );
-    generator->setModelGriddingOptions( m_maxReservoirCellHeight, m_cellHeightGrowFactor, m_minReservoirCellWidth, m_cellWidthGrowFactor );
+    generator->setModelGriddingOptions( m_minReservoirCellHeight,
+                                        m_maxReservoirCellHeight,
+                                        m_cellHeightGrowFactor,
+                                        m_minReservoirCellWidth,
+                                        m_cellWidthGrowFactor );
     generator->setupLocalCoordinateTransform();
     generator->setUseLocalCoordinates( m_useLocalCoordinates );
 
@@ -452,6 +457,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     faultGrp->add( &m_faultExtendDownwards );
 
     auto gridModelGrp = modelGrp->addNewGroup( "Grid Definition" );
+    gridModelGrp->add( &m_minReservoirCellHeight );
     gridModelGrp->add( &m_maxReservoirCellHeight );
     gridModelGrp->add( &m_cellHeightGrowFactor );
 
