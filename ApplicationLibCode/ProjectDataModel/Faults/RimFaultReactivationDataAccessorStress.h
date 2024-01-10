@@ -63,7 +63,8 @@ protected:
 
     virtual double extractStressValue( StressType stressType, const cvf::Vec3d& position ) const = 0;
 
-    virtual std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d& position, double gradient ) const = 0;
+    virtual std::pair<double, cvf::Vec3d>
+        calculatePorBar( const cvf::Vec3d& position, double gradient, RimFaultReactivation::GridPart gridPart ) const = 0;
 
     virtual bool isPositionValid( const cvf::Vec3d& position, const cvf::Vec3d& topPosition, const cvf::Vec3d& bottomPosition ) const = 0;
 
