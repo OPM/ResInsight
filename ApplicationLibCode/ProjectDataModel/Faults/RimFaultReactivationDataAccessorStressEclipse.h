@@ -21,39 +21,33 @@
 #include "RimFaultReactivationDataAccessorStress.h"
 #include "RimFaultReactivationEnums.h"
 
-#include "RigFemResultAddress.h"
-
-#include <vector>
-
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
 #include "cvfObject.h"
 
-class RigFemPart;
-class RigFemPartResultsCollection;
-class RigFemScalarResultFrames;
-class RigGeoMechCaseData;
+#include <vector>
+
 class RigGriddedPart3d;
-class RimGeoMechCase;
-class RimWellIADataAccess;
 class RimModeledWellPath;
 class RigWellPath;
-class RigFemPartCollection;
-class RigGeoMechWellLogExtractor;
+class RimEclipseCase;
+class RigEclipseCaseData;
+class RigResultAccessor;
+class RigEclipseWellLogExtractor;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimFaultReactivationDataAccessorStressGeoMech : public RimFaultReactivationDataAccessorStress
+class RimFaultReactivationDataAccessorStressEclipse : public RimFaultReactivationDataAccessorStress
 {
 public:
-    RimFaultReactivationDataAccessorStressGeoMech( RimGeoMechCase*                geoMechCase,
+    RimFaultReactivationDataAccessorStressEclipse( RimEclipseCase*                geoMechCase,
                                                    RimFaultReactivation::Property property,
                                                    double                         gradient,
                                                    double                         seabedDepth );
-    ~RimFaultReactivationDataAccessorStressGeoMech() override;
+    ~RimFaultReactivationDataAccessorStressEclipse() override;
 
 private:
     void updateResultAccessor() override;
@@ -67,28 +61,17 @@ private:
 
     bool isPositionValid( const cvf::Vec3d& position, const cvf::Vec3d& topPosition, const cvf::Vec3d& bottomPosition ) const override;
 
-    static RigFemResultAddress getResultAddress( const std::string& fieldName, const std::string& componentName );
+    static std::vector<double> integrateVerticalStress( const RigWellPath&             wellPath,
+                                                        const std::vector<cvf::Vec3d>& intersections,
+                                                        double                         seabedDepth,
+                                                        double                         waterDensity );
 
-    double interpolatedResultValue( RimWellIADataAccess&      iaDataAccess,
-                                    const RigFemPart*         femPart,
-                                    const cvf::Vec3d&         position,
-                                    const std::vector<float>& scalarResults ) const;
+    RimEclipseCase*             m_eclipseCase;
+    RigEclipseCaseData*         m_caseData;
+    const RigMainGrid*          m_mainGrid;
+    cvf::ref<RigResultAccessor> m_resultAccessor;
 
-    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d& position, double gradient, int timeStepIndex, int frameIndex ) const;
-
-    RigFemScalarResultFrames* dataFrames( StressType stressType ) const;
-
-    RimGeoMechCase*           m_geoMechCase;
-    RigGeoMechCaseData*       m_geoMechCaseData;
-    RigFemScalarResultFrames* m_s11Frames;
-    RigFemScalarResultFrames* m_s22Frames;
-    RigFemScalarResultFrames* m_s33Frames;
-    const RigFemPart*         m_femPart;
-
-    cvf::ref<RigWellPath>                m_faceAWellPath;
-    cvf::ref<RigWellPath>                m_faceBWellPath;
-    int                                  m_partIndexA;
-    int                                  m_partIndexB;
-    cvf::ref<RigGeoMechWellLogExtractor> m_extractorA;
-    cvf::ref<RigGeoMechWellLogExtractor> m_extractorB;
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> m_extractors;
+    std::map<RimFaultReactivation::GridPart, std::vector<double>>                  m_stressValues;
 };
