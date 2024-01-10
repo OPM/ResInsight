@@ -84,6 +84,7 @@ public:
 
     const cvf::Vec3d                        faultNormal() const;
     const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottom() const;
+    std::pair<double, double>               depthTopBottom() const;
 
     RimFaultReactivation::GridPart normalPointsAt() const;
 
