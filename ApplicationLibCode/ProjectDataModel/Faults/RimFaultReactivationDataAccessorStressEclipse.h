@@ -59,7 +59,10 @@ private:
     std::pair<double, cvf::Vec3d>
         calculatePorBar( const cvf::Vec3d& position, double gradient, RimFaultReactivation::GridPart gridPart ) const override;
 
-    bool isPositionValid( const cvf::Vec3d& position, const cvf::Vec3d& topPosition, const cvf::Vec3d& bottomPosition ) const override;
+    bool isPositionValid( const cvf::Vec3d&              position,
+                          const cvf::Vec3d&              topPosition,
+                          const cvf::Vec3d&              bottomPosition,
+                          RimFaultReactivation::GridPart gridPart ) const override;
 
     static std::vector<double> integrateVerticalStress( const RigWellPath&             wellPath,
                                                         const std::vector<cvf::Vec3d>& intersections,
