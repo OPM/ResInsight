@@ -21,8 +21,6 @@
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationEnums.h"
 
-#include "RigFemResultAddress.h"
-
 #include <vector>
 
 #include "cafPdmField.h"
@@ -30,17 +28,9 @@
 
 #include "cvfObject.h"
 
-class RigFemPart;
-class RigFemPartResultsCollection;
-class RigFemScalarResultFrames;
-class RigGeoMechCaseData;
 class RigGriddedPart3d;
-class RimGeoMechCase;
-class RimWellIADataAccess;
 class RimModeledWellPath;
 class RigWellPath;
-class RigFemPartCollection;
-class RigGeoMechWellLogExtractor;
 
 //==================================================================================================
 ///
@@ -49,11 +39,15 @@ class RigGeoMechWellLogExtractor;
 class RimFaultReactivationDataAccessorStress : public RimFaultReactivationDataAccessor
 {
 public:
-    RimFaultReactivationDataAccessorStress( RimGeoMechCase*                geoMechCase,
-                                            RimFaultReactivation::Property property,
-                                            double                         gradient,
-                                            double                         seabedDepth );
-    ~RimFaultReactivationDataAccessorStress();
+    enum class StressType
+    {
+        S11,
+        S22,
+        S33
+    };
+
+    RimFaultReactivationDataAccessorStress( RimFaultReactivation::Property property, double gradient, double seabedDepth );
+    virtual ~RimFaultReactivationDataAccessorStress();
 
     bool isMatching( RimFaultReactivation::Property property ) const override;
 
@@ -64,32 +58,16 @@ public:
                             double                           bottomDepth  = std::numeric_limits<double>::infinity(),
                             size_t                           elementIndex = std::numeric_limits<size_t>::max() ) const override;
 
-private:
-    void updateResultAccessor() override;
+protected:
+    virtual bool isDataAvailable() const = 0;
 
-    static RigFemResultAddress getResultAddress( const std::string& fieldName, const std::string& componentName );
+    virtual double extractStressValue( StressType stressType, const cvf::Vec3d& position ) const = 0;
 
-    double interpolatedResultValue( RimWellIADataAccess&      iaDataAccess,
-                                    const RigFemPart*         femPart,
-                                    const cvf::Vec3d&         position,
-                                    const std::vector<float>& scalarResults ) const;
+    virtual std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d& position, double gradient ) const = 0;
 
-    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d& position, double gradient, int timeStepIndex, int frameIndex ) const;
+    virtual bool isPositionValid( const cvf::Vec3d& position, const cvf::Vec3d& topPosition, const cvf::Vec3d& bottomPosition ) const = 0;
 
-    RimGeoMechCase*                m_geoMechCase;
     RimFaultReactivation::Property m_property;
     double                         m_gradient;
     double                         m_seabedDepth;
-    RigGeoMechCaseData*            m_geoMechCaseData;
-    RigFemScalarResultFrames*      m_s11Frames;
-    RigFemScalarResultFrames*      m_s22Frames;
-    RigFemScalarResultFrames*      m_s33Frames;
-    const RigFemPart*              m_femPart;
-
-    cvf::ref<RigWellPath>                m_faceAWellPath;
-    cvf::ref<RigWellPath>                m_faceBWellPath;
-    int                                  m_partIndexA;
-    int                                  m_partIndexB;
-    cvf::ref<RigGeoMechWellLogExtractor> m_extractorA;
-    cvf::ref<RigGeoMechWellLogExtractor> m_extractorB;
 };
