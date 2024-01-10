@@ -78,6 +78,9 @@ public:
 
     static bool pointInsidePolygon2D( const cvf::Vec3d point, const std::vector<cvf::Vec3d>& polygon );
 
+    static std::pair<bool, cvf::Vec2d>
+        lineLineIntersection2D( const cvf::Vec3d a1, const cvf::Vec3d b1, const cvf::Vec3d a2, const cvf::Vec3d b2 );
+
 private:
     static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex( const std::vector<cvf::Vec3d>& polyLine,
                                                                              const std::vector<cvf::Vec3d>& polygon );
