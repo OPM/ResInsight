@@ -11,6 +11,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorTemperature.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorGeoMech.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorStress.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorStressGeoMech.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorWellLogExtraction.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationEnums.h
 )
@@ -28,6 +29,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorTemperature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorGeoMech.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorStress.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorStressGeoMech.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorWellLogExtraction.cpp
 )
 

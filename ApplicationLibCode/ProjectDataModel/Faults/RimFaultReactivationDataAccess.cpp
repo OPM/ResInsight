@@ -35,7 +35,7 @@
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationDataAccessorGeoMech.h"
 #include "RimFaultReactivationDataAccessorPorePressure.h"
-#include "RimFaultReactivationDataAccessorStress.h"
+#include "RimFaultReactivationDataAccessorStressGeoMech.h"
 #include "RimFaultReactivationDataAccessorTemperature.h"
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
 #include "RimFaultReactivationEnums.h"
@@ -76,7 +76,7 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
         for ( auto property : stressProperties )
         {
             m_accessors.push_back(
-                std::make_shared<RimFaultReactivationDataAccessorStress>( geoMechCase, property, porePressureGradient, seabedDepth ) );
+                std::make_shared<RimFaultReactivationDataAccessorStressGeoMech>( geoMechCase, property, porePressureGradient, seabedDepth ) );
         }
     }
 }
