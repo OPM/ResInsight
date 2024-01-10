@@ -34,16 +34,13 @@
 //
 //##################################################################################################
 
+
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfOpenGLContextGroup.h"
-
-#include <QtGlobal>
-#include <QMainWindow>
-
-class QMWidget;
+#include "cvfRenderSequence.h"
+#include "cvfManipulatorTrackball.h"
+#include "cvfqtGLWidget_deprecated.h"
 
 
 //==================================================================================================
@@ -51,24 +48,30 @@ class QMWidget;
 // 
 //
 //==================================================================================================
-class QMMainWindow : public QMainWindow
+class QMVWidget_deprecated : public cvfqt::GLWidget_deprecated
 {
     Q_OBJECT
 
 public:
-    QMMainWindow();
+    QMVWidget_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent);
+    QMVWidget_deprecated(QMVWidget_deprecated* shareWidget, QWidget* parent);
+    ~QMVWidget_deprecated();
 
-private slots:
-    void    slotCreateDefaultScene();
-    void    slotClearScene();
-
-private:
-    void	closeEvent(QCloseEvent* event);
+    void                    setRenderSequence(cvf::RenderSequence* renderSequence);
+    cvf::RenderSequence*    renderSequence();
 
 private:
-    cvf::ref<cvf::OpenGLContextGroup>   m_contextGroup;
-    QMWidget*                           m_vizWidget;
-    QAction*                            m_createDefaultSceneAction;
-    QAction*                            m_clearSceneAction;
+    void            resizeGL(int width, int height);
+    void            paintGL();
+
+    cvf::Camera*    currentCamera();
+    void            mousePressEvent(QMouseEvent* event);
+    void            mouseMoveEvent(QMouseEvent* event);
+    void            mouseReleaseEvent(QMouseEvent* event);
+
+private:
+    cvf::ref<cvf::RenderSequence>       m_renderSequence;
+    cvf::ref<cvf::ManipulatorTrackball> m_trackball;
 };
+
 

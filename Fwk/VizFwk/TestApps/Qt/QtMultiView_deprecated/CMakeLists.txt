@@ -1,4 +1,4 @@
-project(QtMinimal)
+project(QtMultiView_deprecated)
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_BASE_CXX_FLAGS}")
@@ -15,20 +15,22 @@ include_directories(${LibGeometry_SOURCE_DIR})
 include_directories(${LibRender_SOURCE_DIR})
 include_directories(${LibViewing_SOURCE_DIR})
 include_directories(${LibGuiQt_SOURCE_DIR})
+include_directories(${LibUtilities_SOURCE_DIR})
 
-set(CEE_LIBS LibGuiQt LibViewing LibRender LibGeometry LibCore)
- 
+set(CEE_LIBS LibUtilities LibGuiQt LibViewing LibRender LibGeometry LibIo LibCore)
+set(EXTERNAL_LIBS)
 
 set(CEE_SOURCE_FILES
-QMMain.cpp
-QMMainWindow.cpp
-QMWidget.cpp
+QMVFactory_deprecated.cpp
+QMVMain_deprecated.cpp
+QMVMainWindow_deprecated.cpp
+QMVWidget_deprecated.cpp
 )
 
 # Headers that need MOCing
 set(MOC_HEADER_FILES
-QMMainWindow.h
-QMWidget.h
+QMVMainWindow_deprecated.h
+QMVWidget_deprecated.h
 )
 
 # Qt
@@ -47,4 +49,3 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${MOC_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES} ${SYSTEM_LIBRARIES})
-

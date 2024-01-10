@@ -37,10 +37,10 @@
 
 #include "cvfLibCore.h"
 
-#include "QMMainWindow.h"
+#include "QMVMainWindow_deprecated.h"
 
-#include <QtGlobal>
 #include <QApplication>
+#include "QtOpenGL/qgl.h"
 
 #include <locale.h>
 
@@ -50,14 +50,18 @@
 //--------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+    // It seems that if we are using paintEvent() instead of paintGL() to 
+    // draw we might have to set OpenGL as the preferred paint engine
+    //QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
+
     QApplication app(argc, argv);
 
     // On Linux, Qt will use the system locale, force number formatting settings back to "C" locale
     setlocale(LC_NUMERIC,"C");
 
-    QMMainWindow window;
+    QMVMainWindow_deprecated window;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
-    window.setWindowTitle("Qt Minimal " + platform);
+    window.setWindowTitle("Qt MultiView " + platform);
     window.resize(1000, 800);;
     window.show();
 

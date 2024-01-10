@@ -66,8 +66,8 @@ if (CEE_STAND_ALONE)
         add_subdirectory(Tests/SnippetsBasis)
 
         if (CEE_BUILD_GUI_QT)
-            add_subdirectory(TestApps/Qt/QtMinimal)
-            add_subdirectory(TestApps/Qt/QtMultiView)
+            add_subdirectory(TestApps/Qt/QtMinimal_deprecated)
+            add_subdirectory(TestApps/Qt/QtMultiView_deprecated)
             add_subdirectory(TestApps/Qt/QtSnippetRunner)
         endif()
 

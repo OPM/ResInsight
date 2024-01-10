@@ -40,9 +40,9 @@
 #include "cvfLibGeometry.h"
 #include "cvfLibViewing.h"
 
-#include "QMVMainWindow.h"
-#include "QMVWidget.h"
-#include "QMVFactory.h"
+#include "QMVMainWindow_deprecated.h"
+#include "QMVWidget_deprecated.h"
+#include "QMVFactory_deprecated.h"
 
 #include <QTimer>
 #include <QFrame>
@@ -60,7 +60,7 @@ using cvf::ref;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMVMainWindow::QMVMainWindow()
+QMVMainWindow_deprecated::QMVMainWindow_deprecated()
 {
     memset(m_vizWidgets, 0, sizeof(m_vizWidgets));
 
@@ -169,7 +169,7 @@ QMVMainWindow::QMVMainWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMVMainWindow::~QMVMainWindow()
+QMVMainWindow_deprecated::~QMVMainWindow_deprecated()
 {
 }
 
@@ -177,7 +177,7 @@ QMVMainWindow::~QMVMainWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int QMVMainWindow::vizWidgetCount()
+int QMVMainWindow_deprecated::vizWidgetCount()
 {
     int count = 0;
 
@@ -197,7 +197,7 @@ int QMVMainWindow::vizWidgetCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::createVizWidgets(int numWidgets, bool software, bool recycleScenes)
+void QMVMainWindow_deprecated::createVizWidgets(int numWidgets, bool software, bool recycleScenes)
 {
     CVF_ASSERT(numWidgets <= MAX_NUM_WIDGETS);
 
@@ -223,19 +223,19 @@ void QMVMainWindow::createVizWidgets(int numWidgets, bool software, bool recycle
     CVF_ASSERT(m_contextGroup.notNull());
     CVF_ASSERT(m_contextGroup->contextCount() == 0);
     
-    QMVWidget* shareWidget = NULL;
+    QMVWidget_deprecated* shareWidget = NULL;
     
     int i;
     for (i = 0; i < numWidgets; i++)
     {
-        QMVWidget* newWidget = NULL;
+        QMVWidget_deprecated* newWidget = NULL;
         if (shareWidget)
         {
-            newWidget = new QMVWidget(shareWidget, parentWidget);
+            newWidget = new QMVWidget_deprecated(shareWidget, parentWidget);
         }
         else
         {
-            newWidget = new QMVWidget(m_contextGroup.p(), oglFormat, parentWidget);
+            newWidget = new QMVWidget_deprecated(m_contextGroup.p(), oglFormat, parentWidget);
             shareWidget = newWidget;
         }
 
@@ -256,7 +256,7 @@ void QMVMainWindow::createVizWidgets(int numWidgets, bool software, bool recycle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::deleteAllOpenGLResourcesInAllVizWidgets()
+void QMVMainWindow_deprecated::deleteAllOpenGLResourcesInAllVizWidgets()
 {
     cvf::OpenGLResourceManager* resourceManager = m_contextGroup.notNull() ? m_contextGroup->resourceManager() : NULL;
 
@@ -265,7 +265,7 @@ void QMVMainWindow::deleteAllOpenGLResourcesInAllVizWidgets()
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
     {
-        QMVWidget* vizWidget = m_vizWidgets[i];
+        QMVWidget_deprecated* vizWidget = m_vizWidgets[i];
         if (vizWidget)
         {
             vizWidget->makeCurrent();
@@ -289,7 +289,7 @@ void QMVMainWindow::deleteAllOpenGLResourcesInAllVizWidgets()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::deleteAllVizWidgets()
+void QMVMainWindow_deprecated::deleteAllVizWidgets()
 {
     QWidget* parentWidget = centralWidget();
     QLayout* layout = parentWidget->layout();
@@ -314,7 +314,7 @@ void QMVMainWindow::deleteAllVizWidgets()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::setSceneInAllVizWidgets(cvf::Scene* scene)
+void QMVMainWindow_deprecated::setSceneInAllVizWidgets(cvf::Scene* scene)
 {
     QMVRenderSequenceFactory factory;
 
@@ -335,14 +335,14 @@ void QMVMainWindow::setSceneInAllVizWidgets(cvf::Scene* scene)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::spreadScenesAcrossVizWidgets(cvf::Collection<cvf::Scene>* sceneCollection)
+void QMVMainWindow_deprecated::spreadScenesAcrossVizWidgets(cvf::Collection<cvf::Scene>* sceneCollection)
 {
     QMVRenderSequenceFactory factory;
 
     cvf::uint i;
     for (i = 0; i < static_cast<cvf::uint>(MAX_NUM_WIDGETS); i++)
     {
-        QMVWidget* vizWidget = m_vizWidgets[i];
+        QMVWidget_deprecated* vizWidget = m_vizWidgets[i];
         if (vizWidget)
         {
             cvf::Scene* scene = (sceneCollection->size() > i) ? sceneCollection->at(i) : NULL;
@@ -359,7 +359,7 @@ void QMVMainWindow::spreadScenesAcrossVizWidgets(cvf::Collection<cvf::Scene>* sc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::gatherAllScenes(cvf::Collection<cvf::Scene>* sceneCollection)
+void QMVMainWindow_deprecated::gatherAllScenes(cvf::Collection<cvf::Scene>* sceneCollection)
 {
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
@@ -381,7 +381,7 @@ void QMVMainWindow::gatherAllScenes(cvf::Collection<cvf::Scene>* sceneCollection
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::redrawAllVizWidgets()
+void QMVMainWindow_deprecated::redrawAllVizWidgets()
 {
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
@@ -397,7 +397,7 @@ void QMVMainWindow::redrawAllVizWidgets()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::setRenderModeInAllModels(cvf::DrawableGeo::RenderMode renderMode)
+void QMVMainWindow_deprecated::setRenderModeInAllModels(cvf::DrawableGeo::RenderMode renderMode)
 {
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
@@ -437,7 +437,7 @@ void QMVMainWindow::setRenderModeInAllModels(cvf::DrawableGeo::RenderMode render
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::closeEvent(QCloseEvent*)
+void QMVMainWindow_deprecated::closeEvent(QCloseEvent*)
 {
     deleteAllOpenGLResourcesInAllVizWidgets();
 }
@@ -446,7 +446,7 @@ void QMVMainWindow::closeEvent(QCloseEvent*)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotSoftwareRenderingWidgets(bool software)
+void QMVMainWindow_deprecated::slotSoftwareRenderingWidgets(bool software)
 {
     int currNumWidgets = vizWidgetCount();
 
@@ -458,7 +458,7 @@ void QMVMainWindow::slotSoftwareRenderingWidgets(bool software)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotConfigNumWidgets()
+void QMVMainWindow_deprecated::slotConfigNumWidgets()
 {
     QObject* senderAct = sender();
 
@@ -475,9 +475,9 @@ void QMVMainWindow::slotConfigNumWidgets()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotCreateSphereAndBoxScene()
+void QMVMainWindow_deprecated::slotCreateSphereAndBoxScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
     QMVSceneFactory sceneFactory(&modelFactory);
 
     ref<cvf::Model> model = modelFactory.createSphereAndBox();
@@ -490,9 +490,9 @@ void QMVMainWindow::slotCreateSphereAndBoxScene()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotCreateSpheresScene()
+void QMVMainWindow_deprecated::slotCreateSpheresScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
     QMVSceneFactory sceneFactory(&modelFactory);
 
     ref<cvf::Model> model = modelFactory.createSpheres();
@@ -505,9 +505,9 @@ void QMVMainWindow::slotCreateSpheresScene()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotCreateBoxesScene()
+void QMVMainWindow_deprecated::slotCreateBoxesScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
     QMVSceneFactory sceneFactory(&modelFactory);
 
     ref<cvf::Model> model = modelFactory.createBoxes();
@@ -520,9 +520,9 @@ void QMVMainWindow::slotCreateBoxesScene()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotCreateTrianglesScene()
+void QMVMainWindow_deprecated::slotCreateTrianglesScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
     QMVSceneFactory sceneFactory(&modelFactory);
 
     ref<cvf::Model> model = modelFactory.createTriangles();
@@ -535,9 +535,9 @@ void QMVMainWindow::slotCreateTrianglesScene()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotAllWidgetsDifferentScene()
+void QMVMainWindow_deprecated::slotAllWidgetsDifferentScene()
 {
-    QMVModelFactory modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
+    QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
     QMVSceneFactory sceneFactory(&modelFactory);
     QMVRenderSequenceFactory renderSeqFactory;
 
@@ -559,7 +559,7 @@ void QMVMainWindow::slotAllWidgetsDifferentScene()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotClearScene()
+void QMVMainWindow_deprecated::slotClearScene()
 {
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
@@ -576,7 +576,7 @@ void QMVMainWindow::slotClearScene()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotUseBufferObjects()
+void QMVMainWindow_deprecated::slotUseBufferObjects()
 {
     setRenderModeInAllModels(cvf::DrawableGeo::BUFFER_OBJECT);
     redrawAllVizWidgets();
@@ -585,7 +585,7 @@ void QMVMainWindow::slotUseBufferObjects()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotUseClientVertexArrays()
+void QMVMainWindow_deprecated::slotUseClientVertexArrays()
 {
     setRenderModeInAllModels(cvf::DrawableGeo::VERTEX_ARRAY);
     redrawAllVizWidgets();
@@ -595,14 +595,14 @@ void QMVMainWindow::slotUseClientVertexArrays()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotDeleteAllResourcesInResourceManager()
+void QMVMainWindow_deprecated::slotDeleteAllResourcesInResourceManager()
 {
     if (m_contextGroup.notNull())
     {
         cvf::OpenGLResourceManager* rcMgr = m_contextGroup->resourceManager();
         CVF_ASSERT(rcMgr);
 
-        QMVWidget* vizWidget = m_vizWidgets[0];
+        QMVWidget_deprecated* vizWidget = m_vizWidgets[0];
         cvf::OpenGLContext* oglContext = vizWidget ? vizWidget->cvfOpenGLContext() : NULL;
         if (oglContext)
         {
@@ -618,7 +618,7 @@ void QMVMainWindow::slotDeleteAllResourcesInResourceManager()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMVMainWindow::slotUpdateStatusbar()
+void QMVMainWindow_deprecated::slotUpdateStatusbar()
 {
     cvf::OpenGLResourceManager* resourceManager = m_contextGroup.notNull() ? m_contextGroup->resourceManager() : NULL;
 
@@ -633,7 +633,7 @@ void QMVMainWindow::slotUpdateStatusbar()
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
     {
-        QMVWidget* vizWidget = m_vizWidgets[i];
+        QMVWidget_deprecated* vizWidget = m_vizWidgets[i];
         if (vizWidget)
         {
             cvf::RenderSequence* renderSeq = vizWidget->renderSequence();

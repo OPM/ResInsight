@@ -40,7 +40,7 @@
 #include "cvfLibGeometry.h"
 #include "cvfLibViewing.h"
 
-#include "QMWidget.h"
+#include "QMVWidget_deprecated.h"
 
 #include <QMouseEvent>
 
@@ -51,100 +51,132 @@ using cvf::ref;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMWidget::QMWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent)
-:   cvfqt::GLWidget_deprecated(contextGroup, QGLFormat(), parent)
+QMVWidget_deprecated::QMVWidget_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent)
+:   cvfqt::GLWidget_deprecated(contextGroup, format, parent)
 {
-    m_camera = new cvf::Camera;
-
-    ref<cvf::Rendering> rendering = new cvf::Rendering;
-    rendering->setCamera(m_camera.p());
-    rendering->addOverlayItem(new cvf::OverlayAxisCross(m_camera.p(), new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD)));
-
-    m_renderSequence = new cvf::RenderSequence;
-    m_renderSequence->addRendering(rendering.p());
-
     m_trackball = new cvf::ManipulatorTrackball;
-    m_trackball->setCamera(m_camera.p());
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMWidget::~QMWidget()
+QMVWidget_deprecated::QMVWidget_deprecated(QMVWidget_deprecated* shareWidget, QWidget* parent)
+:   cvfqt::GLWidget_deprecated(shareWidget, parent)
 {
+    m_trackball = new cvf::ManipulatorTrackball;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMWidget::setScene(cvf::Scene* scene)
+QMVWidget_deprecated::~QMVWidget_deprecated()
 {
-    ref<cvf::Rendering> rendering = m_renderSequence->firstRendering();
-    CVF_ASSERT(rendering.notNull());
+    cvfShutdownOpenGLContext();
+}
 
-    rendering->setScene(scene);
 
-    if (scene)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMVWidget_deprecated::setRenderSequence(cvf::RenderSequence* renderSequence)
+{
+    m_trackball->setCamera(NULL);
+    m_renderSequence = renderSequence;
+
+    if (m_renderSequence.notNull())
     {
-        cvf::BoundingBox bb = scene->boundingBox();
+        // Camera extracted from first rendering of the view
+        cvf::Camera* camera = currentCamera();
+        camera->viewport()->set(0, 0, width(), height());
+        camera->setProjectionAsPerspective(camera->fieldOfViewYDeg(), camera->nearPlane(), camera->farPlane());
+
+        m_trackball->setCamera(camera);
+
+        cvf::BoundingBox bb = m_renderSequence->boundingBox();
         if (bb.isValid())
         {
-            m_camera->fitView(bb, -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS);
             m_trackball->setRotationPoint(bb.center());
         }
     }
+}
 
-    update();
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::RenderSequence* QMVWidget_deprecated::renderSequence()
+{
+    return m_renderSequence.p();
 }
 
 
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-void QMWidget::resizeGL(int width, int height)
+void QMVWidget_deprecated::resizeGL(int width, int height)
 {
-    if (m_camera.notNull())
+    cvf::Camera* camera = currentCamera();
+    if (camera)
     {
-        m_camera->viewport()->set(0, 0, width, height);
-        m_camera->setProjectionAsPerspective(m_camera->fieldOfViewYDeg(), m_camera->nearPlane(), m_camera->farPlane());
+        camera->viewport()->set(0, 0, width, height);
+        camera->setProjectionAsPerspective(camera->fieldOfViewYDeg(), camera->nearPlane(), camera->farPlane());
+    }
+    else
+    {
+        glViewport(0, 0, width, height);
     }
 }
 
 
 //--------------------------------------------------------------------------------------------------
-///  
+/// 
 //--------------------------------------------------------------------------------------------------
-void QMWidget::paintEvent(QPaintEvent* /*event*/)
+void QMVWidget_deprecated::paintGL()
 {
-    QPainter painter(this);
-
-    makeCurrent();
-
     cvf::OpenGLContext* currentOglContext = cvfOpenGLContext();
     CVF_ASSERT(currentOglContext);
     CVF_CHECK_OGL(currentOglContext);
 
-    painter.beginNativePainting();
-
-	cvf::OpenGLUtils::pushOpenGLState(currentOglContext);
+    cvf::OpenGLUtils::pushOpenGLState(currentOglContext);
 
     if (m_renderSequence.notNull())
     {
         m_renderSequence->render(currentOglContext);
     }
+    else
+    {
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
 
     cvf::OpenGLUtils::popOpenGLState(currentOglContext);
-
-    painter.endNativePainting();
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMWidget::mouseMoveEvent(QMouseEvent* event)
+cvf::Camera* QMVWidget_deprecated::currentCamera()
+{
+    if (m_renderSequence.notNull())
+    {
+        cvf::Rendering* rendering = m_renderSequence->firstRendering();
+        if (rendering)
+        {
+            return rendering->camera();
+        }
+    }
+
+    return NULL;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMVWidget_deprecated::mouseMoveEvent(QMouseEvent* event)
 {
     if (m_renderSequence.isNull()) return;
 
@@ -182,7 +214,7 @@ void QMWidget::mouseMoveEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMWidget::mousePressEvent(QMouseEvent* event)
+void QMVWidget_deprecated::mousePressEvent(QMouseEvent* event)
 {
     if (m_renderSequence.isNull()) return;
 
@@ -209,7 +241,7 @@ void QMWidget::mousePressEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMWidget::mouseReleaseEvent(QMouseEvent* /*event*/)
+void QMVWidget_deprecated::mouseReleaseEvent(QMouseEvent* /*event*/)
 {
     m_trackball->endNavigation();
 }

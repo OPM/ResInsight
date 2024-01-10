@@ -34,10 +34,16 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-using cvf::ref;
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfOpenGLContextGroup.h"
+
+#include <QtGlobal>
+#include <QMainWindow>
+
+class QMWidget_deprecated;
 
 
 //==================================================================================================
@@ -45,53 +51,24 @@ using cvf::ref;
 // 
 //
 //==================================================================================================
-class QMVModelFactory
+class QMMainWindow_deprecated : public QMainWindow
 {
-public:
-    QMVModelFactory(bool useShaders);
+    Q_OBJECT
 
-    ref<cvf::Model>   createSphereAndBox();
-    ref<cvf::Model>   createSpheres();
-    ref<cvf::Model>   createBoxes();
-    ref<cvf::Model>   createTriangles();
+public:
+    QMMainWindow_deprecated();
+
+private slots:
+    void    slotCreateDefaultScene();
+    void    slotClearScene();
 
 private:
-    ref<cvf::ShaderProgram> createProgramStandardHeadlightColor();
-    ref<cvf::ShaderProgram> createProgramUnlit();
+    void	closeEvent(QCloseEvent* event);
 
 private:
-    bool                    m_useShaders;
-};
-
-
-
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-class QMVSceneFactory
-{
-public:
-    QMVSceneFactory(QMVModelFactory* modelFactory);
-
-    ref<cvf::Scene>   createNumberedScene(int sceneNumber);
-    ref<cvf::Scene>   createFromModel(cvf::Model* model);
-
-private:
-    QMVModelFactory*  m_modelFactory;
-};
-
-
-
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-class QMVRenderSequenceFactory
-{
-public:
-    ref<cvf::RenderSequence>   createFromScene(cvf::Scene* model);
+    cvf::ref<cvf::OpenGLContextGroup>   m_contextGroup;
+    QMWidget_deprecated*                m_vizWidget;
+    QAction*                            m_createDefaultSceneAction;
+    QAction*                            m_clearSceneAction;
 };
 

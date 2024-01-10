@@ -44,7 +44,7 @@
 #include <QtGlobal>
 #include <QMainWindow>
 
-class QMVWidget;
+class QMVWidget_deprecated;
 
 namespace cvf {
     class View;
@@ -60,13 +60,13 @@ namespace cvf {
 // 
 //
 //==================================================================================================
-class QMVMainWindow : public QMainWindow
+class QMVMainWindow_deprecated : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    QMVMainWindow();
-    ~QMVMainWindow();
+    QMVMainWindow_deprecated();
+    ~QMVMainWindow_deprecated();
 
 private:
     int                         vizWidgetCount();
@@ -104,7 +104,7 @@ private slots:
 private:
     static const int                    MAX_NUM_WIDGETS = 4;
     cvf::ref<cvf::OpenGLContextGroup>   m_contextGroup;
-    QMVWidget*                          m_vizWidgets[MAX_NUM_WIDGETS];
+    QMVWidget_deprecated*               m_vizWidgets[MAX_NUM_WIDGETS];
 
     QAction*                            m_recycleScenesInWidgetConfigAction;
     QAction*                            m_softwareRenderingWidgetsAction;

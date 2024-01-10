@@ -40,8 +40,8 @@
 #include "cvfLibGeometry.h"
 #include "cvfLibViewing.h"
 
-#include "QMMainWindow.h"
-#include "QMWidget.h"
+#include "QMMainWindow_deprecated.h"
+#include "QMWidget_deprecated.h"
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -56,14 +56,14 @@ using cvf::ref;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMMainWindow::QMMainWindow()
+QMMainWindow_deprecated::QMMainWindow_deprecated()
 {
     QFrame* mainFrame = new QFrame;
     QHBoxLayout* frameLayout = new QHBoxLayout(mainFrame);
     setCentralWidget(mainFrame);
 
     m_contextGroup = new cvf::OpenGLContextGroup;
-    m_vizWidget = new QMWidget(m_contextGroup.p(), mainFrame);
+    m_vizWidget = new QMWidget_deprecated(m_contextGroup.p(), mainFrame);
 
     m_vizWidget->setFocus();
     frameLayout->addWidget(m_vizWidget);
@@ -86,7 +86,7 @@ QMMainWindow::QMMainWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMMainWindow::slotCreateDefaultScene()
+void QMMainWindow_deprecated::slotCreateDefaultScene()
 {
     ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
 
@@ -133,7 +133,7 @@ void QMMainWindow::slotCreateDefaultScene()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMMainWindow::slotClearScene()
+void QMMainWindow_deprecated::slotClearScene()
 {
     CVF_ASSERT(m_vizWidget);
     m_vizWidget->setScene(NULL);
@@ -143,7 +143,7 @@ void QMMainWindow::slotClearScene()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void QMMainWindow::closeEvent(QCloseEvent* /*event*/)
+void QMMainWindow_deprecated::closeEvent(QCloseEvent* /*event*/)
 {
     CVF_ASSERT(m_contextGroup.notNull());
     CVF_ASSERT(m_vizWidget);

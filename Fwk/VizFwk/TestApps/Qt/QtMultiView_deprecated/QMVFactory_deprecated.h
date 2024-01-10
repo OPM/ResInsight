@@ -37,14 +37,31 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfRenderSequence.h"
-#include "cvfManipulatorTrackball.h"
-#include "cvfScene.h"
-#include "cvfOpenGLContextGroup.h"
+using cvf::ref;
 
-#include "cvfqtGLWidget_deprecated.h"
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class QMVModelFactory_deprecated
+{
+public:
+    QMVModelFactory_deprecated(bool useShaders);
+
+    ref<cvf::Model>   createSphereAndBox();
+    ref<cvf::Model>   createSpheres();
+    ref<cvf::Model>   createBoxes();
+    ref<cvf::Model>   createTriangles();
+
+private:
+    ref<cvf::ShaderProgram> createProgramStandardHeadlightColor();
+    ref<cvf::ShaderProgram> createProgramUnlit();
+
+private:
+    bool                    m_useShaders;
+};
 
 
 
@@ -53,28 +70,28 @@
 // 
 //
 //==================================================================================================
-class QMWidget : public cvfqt::GLWidget_deprecated
+class QMVSceneFactory
 {
-    Q_OBJECT
-
 public:
-    QMWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent);
-    ~QMWidget();
+    QMVSceneFactory(QMVModelFactory_deprecated* modelFactory);
 
-    void    setScene(cvf::Scene* scene);
-
-protected:
-    void    resizeGL(int width, int height);
-    void    paintEvent(QPaintEvent *event);
-
-    void    mousePressEvent(QMouseEvent* event);
-    void    mouseMoveEvent(QMouseEvent* event);
-    void    mouseReleaseEvent(QMouseEvent* event);
+    ref<cvf::Scene>   createNumberedScene(int sceneNumber);
+    ref<cvf::Scene>   createFromModel(cvf::Model* model);
 
 private:
-    cvf::ref<cvf::RenderSequence>       m_renderSequence;
-    cvf::ref<cvf::Camera>               m_camera;
-    cvf::ref<cvf::ManipulatorTrackball> m_trackball;
+    QMVModelFactory_deprecated*  m_modelFactory;
 };
 
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class QMVRenderSequenceFactory
+{
+public:
+    ref<cvf::RenderSequence>   createFromScene(cvf::Scene* model);
+};
 

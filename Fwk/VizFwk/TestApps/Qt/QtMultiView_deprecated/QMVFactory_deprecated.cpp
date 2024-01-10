@@ -42,7 +42,7 @@
 
 #include "cvfuPartCompoundGenerator.h"
 
-#include "QMVFactory.h"
+#include "QMVFactory_deprecated.h"
 
 
 
@@ -56,7 +56,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMVModelFactory::QMVModelFactory(bool useShaders)
+QMVModelFactory_deprecated::QMVModelFactory_deprecated(bool useShaders)
 :   m_useShaders(useShaders)
 {
 }
@@ -65,7 +65,7 @@ QMVModelFactory::QMVModelFactory(bool useShaders)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Model> QMVModelFactory::createSphereAndBox()
+ref<cvf::Model> QMVModelFactory_deprecated::createSphereAndBox()
 {
     ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
 
@@ -120,7 +120,7 @@ ref<cvf::Model> QMVModelFactory::createSphereAndBox()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Model> QMVModelFactory::createSpheres() 
+ref<cvf::Model> QMVModelFactory_deprecated::createSpheres() 
 {
     cvfu::PartCompoundGenerator gen;
     gen.setPartDistribution(cvf::Vec3i(5, 5, 5));
@@ -158,7 +158,7 @@ ref<cvf::Model> QMVModelFactory::createSpheres()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Model> QMVModelFactory::createBoxes() 
+ref<cvf::Model> QMVModelFactory_deprecated::createBoxes() 
 {
     cvfu::PartCompoundGenerator gen;
     gen.setPartDistribution(cvf::Vec3i(5, 5, 5));
@@ -196,7 +196,7 @@ ref<cvf::Model> QMVModelFactory::createBoxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Model> QMVModelFactory::createTriangles() 
+ref<cvf::Model> QMVModelFactory_deprecated::createTriangles() 
 {
     cvfu::PartCompoundGenerator gen;
     gen.setPartDistribution(cvf::Vec3i(5, 5, 5));
@@ -234,7 +234,7 @@ ref<cvf::Model> QMVModelFactory::createTriangles()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::ShaderProgram> QMVModelFactory::createProgramStandardHeadlightColor()
+ref<cvf::ShaderProgram> QMVModelFactory_deprecated::createProgramStandardHeadlightColor()
 {
     cvf::ShaderProgramGenerator gen("StandardHeadlightColor", cvf::ShaderSourceProvider::instance());
     gen.configureStandardHeadlightColor();
@@ -246,7 +246,7 @@ ref<cvf::ShaderProgram> QMVModelFactory::createProgramStandardHeadlightColor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::ShaderProgram> QMVModelFactory::createProgramUnlit()
+ref<cvf::ShaderProgram> QMVModelFactory_deprecated::createProgramUnlit()
 {
     cvf::ShaderProgramGenerator gen("Unlit", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
@@ -266,7 +266,7 @@ ref<cvf::ShaderProgram> QMVModelFactory::createProgramUnlit()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMVSceneFactory::QMVSceneFactory(QMVModelFactory* modelFactory)
+QMVSceneFactory::QMVSceneFactory(QMVModelFactory_deprecated* modelFactory)
 :   m_modelFactory(modelFactory)
 {
 }
