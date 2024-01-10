@@ -35,6 +35,7 @@
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationDataAccessorGeoMech.h"
 #include "RimFaultReactivationDataAccessorPorePressure.h"
+#include "RimFaultReactivationDataAccessorStressEclipse.h"
 #include "RimFaultReactivationDataAccessorStressGeoMech.h"
 #include "RimFaultReactivationDataAccessorTemperature.h"
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
@@ -56,6 +57,14 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, porePressureGradient, seabedDepth ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
     m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase, topTemperature, seabedDepth ) );
+
+    std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
+                                                                     RimFaultReactivation::Property::DepthTop,
+                                                                     RimFaultReactivation::Property::StressBottom,
+                                                                     RimFaultReactivation::Property::DepthBottom,
+                                                                     RimFaultReactivation::Property::LateralStressComponentX,
+                                                                     RimFaultReactivation::Property::LateralStressComponentY };
+
     if ( geoMechCase )
     {
         std::vector<RimFaultReactivation::Property> properties = { RimFaultReactivation::Property::YoungsModulus,
@@ -67,16 +76,38 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
             m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorGeoMech>( geoMechCase, property ) );
         }
 
-        std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
-                                                                         RimFaultReactivation::Property::DepthTop,
-                                                                         RimFaultReactivation::Property::StressBottom,
-                                                                         RimFaultReactivation::Property::DepthBottom,
-                                                                         RimFaultReactivation::Property::LateralStressComponentX,
-                                                                         RimFaultReactivation::Property::LateralStressComponentY };
         for ( auto property : stressProperties )
         {
             m_accessors.push_back(
                 std::make_shared<RimFaultReactivationDataAccessorStressGeoMech>( geoMechCase, property, porePressureGradient, seabedDepth ) );
+        }
+    }
+    else
+    {
+        auto extractDensities = []( const RimFaultReactivationModel& model )
+        {
+            std::map<RimFaultReactivation::ElementSets, double> densities;
+            std::vector<RimFaultReactivation::ElementSets>      elementSets = { RimFaultReactivation::ElementSets::OverBurden,
+                                                                                RimFaultReactivation::ElementSets::UnderBurden,
+                                                                                RimFaultReactivation::ElementSets::Reservoir,
+                                                                                RimFaultReactivation::ElementSets::IntraReservoir };
+            for ( auto e : elementSets )
+            {
+                densities[e] = model.materialParameters( e )[2];
+            }
+            return densities;
+        };
+
+        std::map<RimFaultReactivation::ElementSets, double> densities = extractDensities( model );
+        for ( auto property : stressProperties )
+        {
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStressEclipse>( thecase,
+                                                                                                    property,
+                                                                                                    porePressureGradient,
+                                                                                                    seabedDepth,
+                                                                                                    model.lateralStressCoefficientX(),
+                                                                                                    model.lateralStressCoefficientY(),
+                                                                                                    densities ) );
         }
     }
 }

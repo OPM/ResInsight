@@ -21,6 +21,8 @@
 #include "RigFaultReactivationModelGenerator.h"
 #include "RigGriddedPart3d.h"
 
+#include <limits>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -224,6 +226,16 @@ const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModel::faultTopBotto
 {
     if ( m_generator.get() == nullptr ) return std::make_pair( cvf::Vec3d(), cvf::Vec3d() );
     return m_generator->faultTopBottomPoints();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigFaultReactivationModel::depthTopBottom() const
+{
+    if ( m_generator.get() == nullptr )
+        return std::make_pair( std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity() );
+    return m_generator->depthTopBottom();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,6 +42,7 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_bufferAboveFault( 0.0 )
     , m_bufferBelowFault( 0.0 )
     , m_startDepth( 0.0 )
+    , m_bottomDepth( 0.0 )
     , m_depthBelowFault( 100.0 )
     , m_horzExtentFromFault( 1000.0 )
     , m_modelThickness( 100.0 )
@@ -294,14 +295,14 @@ void RigFaultReactivationModelGenerator::generatePointsFrontBack()
     auto alongModel = m_normal ^ cvf::Vec3d::Z_AXIS;
     alongModel.normalize();
 
-    double top_depth    = -m_startDepth;
-    double bottom_depth = m_bottomFault.z() - m_depthBelowFault;
+    double top_depth = -m_startDepth;
+    m_bottomDepth    = m_bottomFault.z() - m_depthBelowFault;
 
     cvf::Vec3d edge_front = m_startPosition - m_horzExtentFromFault * alongModel;
     cvf::Vec3d edge_back  = m_startPosition + m_horzExtentFromFault * alongModel;
 
     points[8]     = m_bottomFault;
-    points[8].z() = bottom_depth;
+    points[8].z() = m_bottomDepth;
 
     points[9]  = m_bottomFault;
     points[10] = m_bottomReservoirBack;
@@ -723,4 +724,12 @@ const cvf::Vec3d RigFaultReactivationModelGenerator::normal() const
 const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::faultTopBottomPoints() const
 {
     return std::make_pair( m_topFault, m_bottomFault );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigFaultReactivationModelGenerator::depthTopBottom() const
+{
+    return { -m_startDepth, m_bottomDepth };
 }

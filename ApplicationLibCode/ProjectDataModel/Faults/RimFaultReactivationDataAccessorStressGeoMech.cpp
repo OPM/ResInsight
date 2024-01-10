@@ -90,8 +90,11 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
     m_s22Frames       = loadFrameLambda( femParts, getResultAddress( "ST", "S22" ), timeStepIndex );
 
     auto [faultTopPosition, faultBottomPosition] = m_model->faultTopBottom();
-    auto   faultNormal                           = m_model->faultNormal();
-    double distanceFromFault                     = 1.0;
+    auto faultNormal                             = m_model->faultNormal() ^ cvf::Vec3d::Z_AXIS;
+    faultNormal.normalize();
+
+    double distanceFromFault     = 1.0;
+    auto [topDepth, bottomDepth] = m_model->depthTopBottom();
 
     RigFemPartCollection* geoMechPartCollection = m_geoMechCaseData->femParts();
     std::string           errorName             = "fault reactivation data access";
@@ -101,6 +104,7 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
                                                                                    m_seabedDepth,
+                                                                                   bottomDepth,
                                                                                    faultNormal * distanceFromFault );
         m_faceAWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
         m_partIndexA    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
@@ -112,6 +116,7 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
                                                                                    m_seabedDepth,
+                                                                                   bottomDepth,
                                                                                    -faultNormal * distanceFromFault );
         m_faceBWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
         m_partIndexB    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
@@ -139,7 +144,9 @@ bool RimFaultReactivationDataAccessorStressGeoMech::isDataAvailable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStressGeoMech::extractStressValue( StressType stressType, const cvf::Vec3d& position ) const
+double RimFaultReactivationDataAccessorStressGeoMech::extractStressValue( StressType                     stressType,
+                                                                          const cvf::Vec3d&              position,
+                                                                          RimFaultReactivation::GridPart gridPart ) const
 {
     RimWellIADataAccess iaDataAccess( m_geoMechCase );
 
@@ -170,7 +177,9 @@ RigFemScalarResultFrames* RimFaultReactivationDataAccessorStressGeoMech::dataFra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d& position, double gradient ) const
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d& position,
+                                                                                              double            gradient,
+                                                                                              RimFaultReactivation::GridPart gridPart ) const
 {
     int timeStepIndex = 0;
     int frameIndex    = m_s33Frames->frameCount( timeStepIndex ) - 1;
@@ -180,9 +189,10 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::cal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorStressGeoMech::isPositionValid( const cvf::Vec3d& position,
-                                                                     const cvf::Vec3d& topPosition,
-                                                                     const cvf::Vec3d& bottomPosition ) const
+bool RimFaultReactivationDataAccessorStressGeoMech::isPositionValid( const cvf::Vec3d&              position,
+                                                                     const cvf::Vec3d&              topPosition,
+                                                                     const cvf::Vec3d&              bottomPosition,
+                                                                     RimFaultReactivation::GridPart gridPart ) const
 {
     RimWellIADataAccess iaDataAccess( m_geoMechCase );
     int                 centerElementIdx = iaDataAccess.elementIndex( position );

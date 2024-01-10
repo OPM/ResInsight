@@ -115,6 +115,10 @@ std::pair<double, cvf::Vec3d>
             return { porBar, extractionPosition };
         }
     }
+    else if ( position.z() <= intersections.back().z() )
+    {
+        return { values.back(), intersections.back() };
+    }
 
     return { std::numeric_limits<double>::infinity(), cvf::Vec3d::UNDEFINED };
 }
@@ -244,12 +248,13 @@ void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValuesWithT
 std::vector<cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( const cvf::Vec3d& faultTopPosition,
                                                                                                const cvf::Vec3d& faultBottomPosition,
                                                                                                double            seabedDepth,
+                                                                                               double            bottomDepth,
                                                                                                const cvf::Vec3d& offset )
 {
     cvf::Vec3d faultTop = faultTopPosition + offset;
     cvf::Vec3d seabed( faultTop.x(), faultTop.y(), seabedDepth );
     cvf::Vec3d faultBottom = faultBottomPosition + offset;
-    cvf::Vec3d underburdenBottom( faultBottom.x(), faultBottom.y(), -10000.0 );
+    cvf::Vec3d underburdenBottom( faultBottom.x(), faultBottom.y(), bottomDepth );
     return { seabed, faultTop, faultBottom, underburdenBottom };
 }
 
@@ -280,19 +285,23 @@ std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::
                                                                                         double                           seabedDepth )
 {
     auto [faultTopPosition, faultBottomPosition] = model.faultTopBottom();
-    auto   faultNormal                           = model.faultNormal();
-    double distanceFromFault                     = 1.0;
+    auto faultNormal                             = model.faultNormal() ^ cvf::Vec3d::Z_AXIS;
+    faultNormal.normalize();
+
+    double distanceFromFault     = 1.0;
+    auto [topDepth, bottomDepth] = model.depthTopBottom();
 
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                wellPaths;
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> extractors;
 
     for ( auto gridPart : model.allGridParts() )
     {
-        double                  sign = model.normalPointsAt() == gridPart ? 1.0 : -1.0;
+        double                  sign = model.normalPointsAt() == gridPart ? -1.0 : 1.0;
         std::vector<cvf::Vec3d> wellPoints =
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
                                                                                    seabedDepth,
+                                                                                   bottomDepth,
                                                                                    sign * faultNormal * distanceFromFault );
         cvf::ref<RigWellPath> wellPath =
             new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
@@ -347,7 +356,7 @@ std::vector<double> RimFaultReactivationDataAccessorWellLogExtraction::extractDe
     std::vector<double> intersectionsZ;
     for ( auto i : intersections )
     {
-        intersectionsZ.push_back( i.z() );
+        intersectionsZ.push_back( -i.z() );
     }
     return intersectionsZ;
 }
