@@ -170,7 +170,9 @@ RigFemScalarResultFrames* RimFaultReactivationDataAccessorStressGeoMech::dataFra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d& position, double gradient ) const
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d&              position,
+                                                                                              double                         gradient,
+                                                                                              RimFaultReactivation::GridPart gridPart ) const
 {
     int timeStepIndex = 0;
     int frameIndex    = m_s33Frames->frameCount( timeStepIndex ) - 1;

@@ -88,14 +88,14 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
     {
         if ( m_property == RimFaultReactivation::Property::StressTop )
         {
-            auto [porBar, extractionPos] = calculatePorBar( topPosition, m_gradient );
+            auto [porBar, extractionPos] = calculatePorBar( topPosition, m_gradient, gridPart );
             if ( std::isinf( porBar ) ) return porBar;
             double s33 = extractStressValue( StressType::S33, extractionPos );
             return RiaEclipseUnitTools::barToPascal( s33 - porBar );
         }
         else if ( m_property == RimFaultReactivation::Property::StressBottom )
         {
-            auto [porBar, extractionPos] = calculatePorBar( bottomPosition, m_gradient );
+            auto [porBar, extractionPos] = calculatePorBar( bottomPosition, m_gradient, gridPart );
             if ( std::isinf( porBar ) ) return porBar;
             double s33 = extractStressValue( StressType::S33, extractionPos );
             return RiaEclipseUnitTools::barToPascal( s33 - porBar );
@@ -110,7 +110,7 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
         }
         else if ( m_property == RimFaultReactivation::Property::LateralStressComponentX )
         {
-            auto [porBar, extractionPos] = calculatePorBar( position, m_gradient );
+            auto [porBar, extractionPos] = calculatePorBar( position, m_gradient, gridPart );
             if ( std::isinf( porBar ) ) return porBar;
             double s11 = extractStressValue( StressType::S11, extractionPos );
             double s33 = extractStressValue( StressType::S33, extractionPos );
@@ -118,7 +118,7 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
         }
         else if ( m_property == RimFaultReactivation::Property::LateralStressComponentY )
         {
-            auto [porBar, extractionPos] = calculatePorBar( position, m_gradient );
+            auto [porBar, extractionPos] = calculatePorBar( position, m_gradient, gridPart );
             if ( std::isinf( porBar ) ) return porBar;
             double s22 = extractStressValue( StressType::S22, extractionPos );
             double s33 = extractStressValue( StressType::S33, extractionPos );
