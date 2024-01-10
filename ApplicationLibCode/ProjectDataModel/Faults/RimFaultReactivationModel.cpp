@@ -390,6 +390,7 @@ QList<caf::PdmOptionItemInfo> RimFaultReactivationModel::calculateValueOptions( 
     else if ( fieldNeedingOptions == &m_geomechCase )
     {
         RimTools::geoMechCaseOptionItems( &options );
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
 
     return options;
