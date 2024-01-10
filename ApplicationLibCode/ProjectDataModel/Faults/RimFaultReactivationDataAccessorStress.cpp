@@ -84,7 +84,7 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
     cvf::Vec3d topPosition( position.x(), position.y(), topDepth );
     cvf::Vec3d bottomPosition( position.x(), position.y(), bottomDepth );
 
-    if ( isPositionValid( position, topPosition, bottomPosition ) )
+    if ( isPositionValid( position, topPosition, bottomPosition, gridPart ) )
     {
         if ( m_property == RimFaultReactivation::Property::StressTop )
         {

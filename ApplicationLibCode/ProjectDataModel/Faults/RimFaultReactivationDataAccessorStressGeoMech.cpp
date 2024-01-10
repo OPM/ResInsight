@@ -182,9 +182,10 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::cal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorStressGeoMech::isPositionValid( const cvf::Vec3d& position,
-                                                                     const cvf::Vec3d& topPosition,
-                                                                     const cvf::Vec3d& bottomPosition ) const
+bool RimFaultReactivationDataAccessorStressGeoMech::isPositionValid( const cvf::Vec3d&              position,
+                                                                     const cvf::Vec3d&              topPosition,
+                                                                     const cvf::Vec3d&              bottomPosition,
+                                                                     RimFaultReactivation::GridPart gridPart ) const
 {
     RimWellIADataAccess iaDataAccess( m_geoMechCase );
     int                 centerElementIdx = iaDataAccess.elementIndex( position );

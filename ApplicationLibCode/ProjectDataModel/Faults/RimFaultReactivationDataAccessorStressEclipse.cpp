@@ -115,9 +115,10 @@ double RimFaultReactivationDataAccessorStressEclipse::extractStressValue( Stress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationDataAccessorStressEclipse::isPositionValid( const cvf::Vec3d& position,
-                                                                     const cvf::Vec3d& topPosition,
-                                                                     const cvf::Vec3d& bottomPosition ) const
+bool RimFaultReactivationDataAccessorStressEclipse::isPositionValid( const cvf::Vec3d&              position,
+                                                                     const cvf::Vec3d&              topPosition,
+                                                                     const cvf::Vec3d&              bottomPosition,
+                                                                     RimFaultReactivation::GridPart gridPart ) const
 {
     // TODO: get grid part from somewhere!!!!!!!!!!!!!!!!!!!
     auto [porBar, extractionPosition] = calculatePorBar( position, m_gradient, RimFaultReactivation::GridPart::FW );
