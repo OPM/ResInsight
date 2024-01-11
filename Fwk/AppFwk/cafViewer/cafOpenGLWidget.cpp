@@ -144,8 +144,9 @@ OpenGLWidget::OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::Wind
 //--------------------------------------------------------------------------------------------------
 cvf::OpenGLContext* OpenGLWidget::cvfOpenGLContext() const
 {
-    const QGLContext*                qglContext     = context();
-    const cvfqt::CvfBoundQGLContext_deprecated* contextBinding = dynamic_cast<const cvfqt::CvfBoundQGLContext_deprecated*>( qglContext );
+    const QGLContext*                           qglContext = context();
+    const cvfqt::CvfBoundQGLContext_deprecated* contextBinding =
+        dynamic_cast<const cvfqt::CvfBoundQGLContext_deprecated*>( qglContext );
     CVF_ASSERT( contextBinding );
 
     return contextBinding->cvfOpenGLContext();
