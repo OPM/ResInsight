@@ -40,7 +40,9 @@
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/io/eclipse/RestartFileView.hpp"
 #include "opm/io/eclipse/rst/state.hpp"
+#include "opm/output/eclipse/VectorItems/doubhead.hpp"
 #include "opm/output/eclipse/VectorItems/group.hpp"
+#include "opm/output/eclipse/VectorItems/intehead.hpp"
 #include "opm/output/eclipse/VectorItems/well.hpp"
 
 using namespace Opm;
@@ -434,28 +436,24 @@ void RifReaderOpmCommon::readWellCells( std::shared_ptr<EclIO::ERst>  restartFil
 //--------------------------------------------------------------------------------------------------
 std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps( std::shared_ptr<EclIO::ERst> restartFile )
 {
-    // It is required to create a deck as the input parameter to runspec. The default() initialization of the runspec keyword does not
-    // initialize the object as expected.
-
-    Deck    deck;
-    Runspec runspec( deck );
-    Parser  parser( false );
-
     std::vector<RifReaderOpmCommon::TimeDataFile> reportTimeData;
     try
     {
+        namespace VI = Opm::RestartIO::Helpers::VectorItems;
+
         for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
         {
             auto fileView = std::make_shared<EclIO::RestartFileView>( restartFile, seqNumber );
 
-            auto state  = RestartIO::RstState::load( fileView, runspec, parser );
-            auto header = state.header;
+            auto intehead = fileView->intehead();
 
-            int year  = header.year;
-            int month = header.month;
-            int day   = header.mday;
+            auto year  = intehead[VI::intehead::YEAR];
+            auto month = intehead[VI::intehead::MONTH];
+            auto day   = intehead[VI::intehead::DAY];
 
-            double daySinceSimStart = header.next_timestep1;
+            auto doubhead = fileView->doubhead();
+
+            auto daySinceSimStart = doubhead[VI::doubhead::TsInit];
 
             reportTimeData.emplace_back(
                 TimeDataFile{ .sequenceNumber = seqNumber, .year = year, .month = month, .day = day, .simulationTimeFromStart = daySinceSimStart } );
