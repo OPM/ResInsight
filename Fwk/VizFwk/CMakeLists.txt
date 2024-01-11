@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 3.15)
 project(VizFramework)
 
 
+if (CEE_CEEVIZ_ROOT)
+    message(STATUS "CEE_CEEVIZ_ROOT: ${CEE_CEEVIZ_ROOT}")
+else()
+    set(CEE_CEEVIZ_ROOT ${PROJECT_SOURCE_DIR})
+    message(STATUS "Setting CEE_CEEVIZ_ROOT to ${CEE_CEEVIZ_ROOT}")
+endif()	
+
 # Determine if we're being run stand-alone or invoked from some other project
 set(CEE_STAND_ALONE ON)
 if (PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -44,7 +51,6 @@ add_subdirectory(ThirdParty/FreeType)
 add_subdirectory(LibUtilities)
 
 
-
 option(CEE_BUILD_GUI_QT "Build GUI library for Qt" ON)
 if (CEE_BUILD_GUI_QT)
     option(CEE_USE_QT5 "Use Qt5" ON)
@@ -53,27 +59,30 @@ endif()
 
 
 if (CEE_STAND_ALONE)
-
     option(CEE_BUILD_UNIT_TESTS "Build unit tests" ON)
-    if (CEE_BUILD_UNIT_TESTS)
-        add_subdirectory(Tests)
-    endif()
-
-
     option(CEE_BUILD_TEST_APPS "Build test apps" ON)
-    if (CEE_BUILD_TEST_APPS)
-        # For now, build the snippet libs here
-        add_subdirectory(Tests/SnippetsBasis)
+endif()
 
-        if (CEE_BUILD_GUI_QT)
-            add_subdirectory(TestApps/Qt/QtMinimal_deprecated)
-            add_subdirectory(TestApps/Qt/QtMultiView_deprecated)
-            add_subdirectory(TestApps/Qt/QtSnippetRunner)
-        endif()
+if (CEE_BUILD_UNIT_TESTS OR CEE_BUILD_TEST_APPS)
+    # Add CeeViz's root source dir as a preprocessor directive so unit tests and test apps can determine where to find the resources they want.
+    add_definitions(-DCVF_CEEVIZ_ROOT_SOURCE_DIR="${CEE_CEEVIZ_ROOT}")
+endif()
 
-        if (WIN32)
-            add_subdirectory(TestApps/Win32/Win32SnippetRunner)
-        endif()
+if (CEE_BUILD_UNIT_TESTS)
+    add_subdirectory(Tests)
+endif()
+
+if (CEE_BUILD_TEST_APPS)
+    # For now, build the snippet libs here
+    add_subdirectory(Tests/SnippetsBasis)
+
+    if (CEE_BUILD_GUI_QT)
+        add_subdirectory(TestApps/Qt/QtMinimal_deprecated)
+        add_subdirectory(TestApps/Qt/QtMultiView_deprecated)
+        add_subdirectory(TestApps/Qt/QtSnippetRunner)
     endif()
 
+    if (WIN32)
+        add_subdirectory(TestApps/Win32/Win32SnippetRunner)
+    endif()
 endif()

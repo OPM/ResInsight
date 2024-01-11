@@ -60,9 +60,12 @@ int main(int argc, char *argv[])
     // On Linux, Qt will use the system locale, force number formatting settings back to "C" locale
     setlocale(LC_NUMERIC,"C");
 
-    // These directories are correct when running from within visual studio
-    cvf::String testDataDir = "../../../Tests/TestData/";
-    cvf::String shaderDir   = "../../../Tests/SnippetsBasis/Shaders/";
+    cvf::String testDataDir = "";
+    cvf::String shaderDir = "";
+#ifdef CVF_CEEVIZ_ROOT_SOURCE_DIR
+    testDataDir = CVF_CEEVIZ_ROOT_SOURCE_DIR "/Tests/TestData/";
+    shaderDir = CVF_CEEVIZ_ROOT_SOURCE_DIR "/Tests/SnippetsBasis/Shaders/";
+#endif
 
     {
         QSRCommandLineArgs cmdLineArgs;

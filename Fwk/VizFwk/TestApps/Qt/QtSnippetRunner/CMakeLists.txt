@@ -35,6 +35,15 @@ QSRStdInclude.cpp
 QSRTranslateEvent.cpp
 )
 
+set(CEE_HEADER_FILES
+QSRCommandLineArgs.h
+QSRPropertiesPanel.h
+QSRRunPanel.h
+QSRSnippetWidget.h
+QSRStdInclude.h
+QSRTranslateEvent.h
+)
+
 # Headers that need MOCing
 set(MOC_HEADER_FILES
 QSRMainWindow.h
@@ -57,5 +66,5 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	set(SYSTEM_LIBRARIES -lrt -lpthread)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${MOC_SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${CEE_HEADER_FILES} ${MOC_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES} ${SYSTEM_LIBRARIES})

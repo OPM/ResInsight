@@ -38,7 +38,7 @@
 #include "cvfBase.h"
 
 #include "gtest/gtest.h"
-#include "gtest/cvftestUtils.h"
+
 #include <stdio.h>
 
 
@@ -53,8 +53,6 @@ int main(int argc, char **argv)
     cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
 
     testing::InitGoogleTest(&argc, argv);
-
-    cvftest::TestDataDir::initializeInstance(cvftest::TestDataDir::DEFAULT_DEFINE_THEN_VIZ_FRAMEWORK, true);
 
     return RUN_ALL_TESTS();
 }
