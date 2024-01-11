@@ -857,7 +857,7 @@ std::pair<bool, cvf::Vec2d>
     numera = ( x4 - x3 ) * ( y1 - y3 ) - ( y4 - y3 ) * ( x1 - x3 );
     numerb = ( x2 - x1 ) * ( y1 - y3 ) - ( y2 - y1 ) * ( x1 - x3 );
 
-    // Are the line coincident?
+    // Are the lines coincident?
     if ( ( std::abs( numera ) < EPS ) && ( std::abs( numerb ) < EPS ) && ( std::abs( denom ) < EPS ) )
     {
         return std::make_pair( true, cvf::Vec2d( ( x1 + x2 ) / 2, ( y1 + y2 ) / 2 ) );
