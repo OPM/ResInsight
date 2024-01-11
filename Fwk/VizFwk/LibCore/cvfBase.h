@@ -123,6 +123,13 @@ typedef __int64 int64;
 typedef int64_t int64;  
 #endif 
 
+// 64bit unsigned integer support via the int64 type
+#ifdef WIN32
+typedef unsigned __int64 uint64;  
+#elif defined(CVF_LINUX) || defined(CVF_IOS) || defined(CVF_OSX) || defined(CVF_ANDROID)
+typedef uint64_t uint64;  
+#endif 
+
 }
 
 #include "cvfConfigCore.h"
