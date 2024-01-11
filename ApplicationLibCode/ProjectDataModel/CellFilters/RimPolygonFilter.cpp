@@ -360,8 +360,17 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
     group->add( &m_enableFiltering );
-    group->add( &m_showLines );
-    group->add( &m_showSpheres );
+    group->add( &m_closePolygon );
+
+    if ( !m_closePolygon() )
+    {
+        m_polyFilterMode = RimPolygonFilter::PolygonFilterModeType::INDEX_K;
+        m_polyFilterMode.uiCapability()->setUiReadOnly( true );
+    }
+    else
+    {
+        m_polyFilterMode.uiCapability()->setUiReadOnly( false );
+    }
 
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
     group1->add( &m_polyFilterMode );
@@ -372,6 +381,8 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
 
     auto group2 = uiOrdering.addNewGroup( "Appearance" );
+    group2->add( &m_showLines );
+    group2->add( &m_showSpheres );
     if ( m_showLines )
     {
         group2->add( &m_lineThickness );

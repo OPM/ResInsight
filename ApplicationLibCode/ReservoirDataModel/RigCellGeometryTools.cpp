@@ -861,7 +861,7 @@ std::pair<bool, cvf::Vec2d>
         return std::make_pair( true, cvf::Vec2d( ( x1 + x2 ) / 2, ( y1 + y2 ) / 2 ) );
     }
 
-    // Are the line parallel?
+    // Are the lines parallel?
     if ( std::abs( denom ) < EPS )
     {
         return std::make_pair( false, cvf::Vec2d() );
