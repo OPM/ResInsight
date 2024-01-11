@@ -795,6 +795,7 @@ inline double RigCellGeometryTools::isLeftOfLine2D( const cvf::Vec3d& point1, co
 
 //--------------------------------------------------------------------------------------------------
 /// winding number test for a point in a polygon
+/// Operates only in the XY plane
 ///      Input:   point = the point to test,
 ///               polygon[] = vertex points of a closed polygon of size n, where polygon[n-1]=polygon[0]
 ///
@@ -835,7 +836,7 @@ bool RigCellGeometryTools::pointInsidePolygon2D( const cvf::Vec3d point, const s
 
 //--------------------------------------------------------------------------------------------------
 /// Returns the intersection of line 1 (a1 to b1) and line 2 (a2 to b2).
-/// - only looks in 2D in the X,Y plane
+/// - operates only in the XY plane
 /// - returns true and the x,y intersection if the lines intersect
 /// - returns false if they do not intersect
 /// ref. http://www.paulbourke.net/geometry/pointlineplane/pdb.c
@@ -881,6 +882,7 @@ std::pair<bool, cvf::Vec2d>
 //--------------------------------------------------------------------------------------------------
 ///
 /// Returns true if the line from a1 to b1 intersects the line from a2 to b2
+/// Operates only in the XY plane
 ///
 //--------------------------------------------------------------------------------------------------
 bool RigCellGeometryTools::lineIntersectsLine2D( const cvf::Vec3d a1, const cvf::Vec3d b1, const cvf::Vec3d a2, const cvf::Vec3d b2 )
@@ -892,6 +894,7 @@ bool RigCellGeometryTools::lineIntersectsLine2D( const cvf::Vec3d a1, const cvf:
 ///
 /// Returns true if the line from a to b intersects the closed, simple polygon defined by the corner
 /// points in the input polygon vector, otherwise false
+/// Operates only in the XY plane
 ///
 //--------------------------------------------------------------------------------------------------
 bool RigCellGeometryTools::lineIntersectsPolygon2D( const cvf::Vec3d a, const cvf::Vec3d b, const std::vector<cvf::Vec3d>& polygon )
@@ -911,9 +914,10 @@ bool RigCellGeometryTools::lineIntersectsPolygon2D( const cvf::Vec3d a, const cv
 //--------------------------------------------------------------------------------------------------
 ///
 /// Returns true if the polyline intersects the simple polygon defined by the NEGK face corners of the input cell
+/// Operates only in the XY plane
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigCellGeometryTools::polylineIntersectsCellNegK( const std::vector<cvf::Vec3d>& polyline, const std::array<cvf::Vec3d, 8>& cellCorners )
+bool RigCellGeometryTools::polylineIntersectsCellNegK2D( const std::vector<cvf::Vec3d>& polyline, const std::array<cvf::Vec3d, 8>& cellCorners )
 {
     const int nPoints  = (int)polyline.size();
     const int nCorners = 4;

@@ -612,7 +612,7 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
             else
             {
                 // check if the polyline touches the top face of the cell
-                if ( RigCellGeometryTools::polylineIntersectsCellNegK( points, hexCorners ) )
+                if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
                 {
 #pragma omp critical
                     foundCells.push_back( cellIdx );
@@ -652,6 +652,8 @@ void RimPolygonFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& poi
 
     if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
     {
+        if ( !m_closePolygon() ) return;
+
         for ( size_t gridIndex = 0; gridIndex < data->gridCount(); gridIndex++ )
         {
             auto grid = data->grid( gridIndex );
@@ -795,7 +797,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
             else
             {
                 // check if the polyline touches the top face of the cell
-                if ( RigCellGeometryTools::polylineIntersectsCellNegK( points, hexCorners ) )
+                if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
                 {
 #pragma omp critical
                     foundCells.push_back( cellIdx );
@@ -837,7 +839,10 @@ void RimPolygonFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& poi
 
             if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
             {
-                updateCellsDepthGeoMech( points, grid, i );
+                if ( m_closePolygon() )
+                {
+                    updateCellsDepthGeoMech( points, grid, i );
+                }
             }
             else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
             {
@@ -866,7 +871,7 @@ void RimPolygonFilter::updateCells()
     }
 
     // We need at least three points to make a closed polygon, or just 2 for a polyline
-    if ( ( m_closePolygon() && ( points.size() < 2 ) ) || ( !m_closePolygon() && ( points.size() < 3 ) ) ) return;
+    if ( ( !m_closePolygon() && ( points.size() < 2 ) ) || ( m_closePolygon() && ( points.size() < 3 ) ) ) return;
 
     // make sure first and last point is the same (req. by closed polygon methods used later)
     if ( m_closePolygon() ) points.push_back( points.front() );
