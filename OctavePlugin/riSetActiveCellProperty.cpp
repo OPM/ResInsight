@@ -54,7 +54,11 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     socketStream << (qint64)(timeStepCount);
     socketStream << (qint64)timeStepByteCount;
 
-    const double* internalData = propertyFrames.fortran_vec();
+#if OCTAVE_MAJOR_VERSION > 6
+    auto internalData = propertyFrames.data();
+#else
+    auto internalData = propertyFrames.fortran_vec();
+#endif
 
     QStringList errorMessages;
     if (!RiaSocketDataTransfer::writeBlockDataToSocket(&socket, (const char *)internalData, timeStepByteCount*timeStepCount, errorMessages))
@@ -134,7 +138,6 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
     }
 
     Matrix propertyFrames = args(0).matrix_value();
-
 
     dim_vector mxDims = propertyFrames.dims();
     if (mxDims.length() != 2)
