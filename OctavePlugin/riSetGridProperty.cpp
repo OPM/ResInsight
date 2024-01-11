@@ -71,7 +71,11 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     socketStream << (qint64)(timeStepCount);
     socketStream << (qint64)singleTimeStepByteCount;
 
-    const double* internalData = propertyFrames.fortran_vec();
+#if OCTAVE_MAJOR_VERSION > 6
+    auto internalData = propertyFrames.data();
+#else
+    auto internalData = propertyFrames.fortran_vec();
+#endif
 
     QStringList errorMessages;
     if (!RiaSocketDataTransfer::writeBlockDataToSocket(&socket, (const char *)internalData, timeStepCount*singleTimeStepByteCount, errorMessages))
