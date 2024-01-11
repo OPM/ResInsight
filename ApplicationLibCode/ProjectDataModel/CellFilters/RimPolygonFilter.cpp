@@ -362,19 +362,9 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     group->add( &m_enableFiltering );
     group->add( &m_closePolygon );
 
-    if ( !m_closePolygon() )
-    {
-        m_polyFilterMode = RimPolygonFilter::PolygonFilterModeType::INDEX_K;
-        m_polyFilterMode.uiCapability()->setUiReadOnly( true );
-    }
-    else
-    {
-        m_polyFilterMode.uiCapability()->setUiReadOnly( false );
-    }
-
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
     group1->add( &m_polyFilterMode );
-    group1->add( &m_polyIncludeType );
+    if ( m_closePolygon() ) group1->add( &m_polyIncludeType );
     group1->add( &m_targets );
     group1->add( &m_enablePicking );
 
@@ -410,6 +400,16 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     for ( auto& objField : objFields )
     {
         objField->uiCapability()->setUiReadOnly( readOnlyState );
+    }
+
+    if ( !m_closePolygon() )
+    {
+        m_polyFilterMode = RimPolygonFilter::PolygonFilterModeType::INDEX_K;
+        m_polyFilterMode.uiCapability()->setUiReadOnly( true );
+    }
+    else
+    {
+        m_polyFilterMode.uiCapability()->setUiReadOnly( readOnlyState );
     }
 }
 
@@ -583,9 +583,10 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
     const int gIdx = static_cast<int>( grid->gridIndex() );
 
     std::list<size_t> foundCells;
+    const bool        closedPolygon = m_closePolygon();
 
-#pragma omp parallel for
     // find all cells in the K layer that matches the polygon
+#pragma omp parallel for
     for ( int i = 0; i < (int)grid->cellCountI(); i++ )
     {
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
@@ -599,11 +600,23 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
             std::array<cvf::Vec3d, 8> hexCorners;
             grid->cellCornerVertices( cellIdx, hexCorners.data() );
 
-            // check if the polygon includes the cell
-            if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
+            if ( closedPolygon )
             {
+                // check if the polygon includes the cell
+                if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
+                {
 #pragma omp critical
-                foundCells.push_back( cellIdx );
+                    foundCells.push_back( cellIdx );
+                }
+            }
+            else
+            {
+                // check if the polyline touches the top face of the cell
+                if ( RigCellGeometryTools::polylineIntersectsCellNegK( points, hexCorners ) )
+                {
+#pragma omp critical
+                    foundCells.push_back( cellIdx );
+                }
             }
         }
     }
@@ -705,6 +718,8 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
+    const bool closedPolygon = m_closePolygon();
+
     // we need to find the K layer we hit with the first point
     size_t nk;
     // move the point a bit downwards to make sure it is inside something
@@ -768,11 +783,23 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
             grid->cellCornerVertices( cellIdx, hexCorners.data() );
             cvf::Vec3d center = grid->cellCentroid( cellIdx );
 
-            // check if the polygon includes the cell
-            if ( cellInsidePolygon2D( center, hexCorners, points ) )
+            if ( closedPolygon )
             {
+                // check if the polygon includes the cell
+                if ( cellInsidePolygon2D( center, hexCorners, points ) )
+                {
 #pragma omp critical
-                foundCells.push_back( cellIdx );
+                    foundCells.push_back( cellIdx );
+                }
+            }
+            else
+            {
+                // check if the polyline touches the top face of the cell
+                if ( RigCellGeometryTools::polylineIntersectsCellNegK( points, hexCorners ) )
+                {
+#pragma omp critical
+                    foundCells.push_back( cellIdx );
+                }
             }
         }
     }
@@ -841,8 +868,8 @@ void RimPolygonFilter::updateCells()
     // We need at least three points to make a closed polygon, or just 2 for a polyline
     if ( ( m_closePolygon() && ( points.size() < 2 ) ) || ( !m_closePolygon() && ( points.size() < 3 ) ) ) return;
 
-    // make sure first and last point is the same (req. by polygon methods used later)
-    points.push_back( points.front() );
+    // make sure first and last point is the same (req. by closed polygon methods used later)
+    if ( m_closePolygon() ) points.push_back( points.front() );
 
     RimEclipseCase* eCase = eclipseCase();
     RimGeoMechCase* gCase = geoMechCase();

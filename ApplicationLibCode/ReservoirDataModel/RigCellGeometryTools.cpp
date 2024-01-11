@@ -856,7 +856,7 @@ std::pair<bool, cvf::Vec2d>
     numerb = ( x2 - x1 ) * ( y1 - y3 ) - ( y2 - y1 ) * ( x1 - x3 );
 
     // Are the line coincident?
-    if ( std::abs( numera ) < EPS && std::abs( numerb ) < EPS && std::abs( denom ) < EPS )
+    if ( ( std::abs( numera ) < EPS ) && ( std::abs( numerb ) < EPS ) && ( std::abs( denom ) < EPS ) )
     {
         return std::make_pair( true, cvf::Vec2d( ( x1 + x2 ) / 2, ( y1 + y2 ) / 2 ) );
     }
@@ -867,7 +867,7 @@ std::pair<bool, cvf::Vec2d>
         return std::make_pair( false, cvf::Vec2d() );
     }
 
-    // Is the intersection along the the segments?
+    // Is the intersection along the segments?
     mua = numera / denom;
     mub = numerb / denom;
     if ( mua < 0 || mua > 1 || mub < 0 || mub > 1 )
@@ -876,4 +876,56 @@ std::pair<bool, cvf::Vec2d>
     }
 
     return std::make_pair( true, cvf::Vec2d( x1 + mua * ( x2 - x1 ), y1 + mua * ( y2 - y1 ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+/// Returns true if the line from a1 to b1 intersects the line from a2 to b2
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCellGeometryTools::lineIntersectsLine2D( const cvf::Vec3d a1, const cvf::Vec3d b1, const cvf::Vec3d a2, const cvf::Vec3d b2 )
+{
+    return lineLineIntersection2D( a1, b1, a2, b2 ).first;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+/// Returns true if the line from a to b intersects the closed, simple polygon defined by the corner
+/// points in the input polygon vector, otherwise false
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCellGeometryTools::lineIntersectsPolygon2D( const cvf::Vec3d a, const cvf::Vec3d b, const std::vector<cvf::Vec3d>& polygon )
+{
+    int nPolyLines = (int)polygon.size();
+
+    for ( int i = 1; i < nPolyLines; i++ )
+    {
+        if ( lineIntersectsLine2D( a, b, polygon[i - 1], polygon[i] ) ) return true;
+    }
+
+    if ( lineIntersectsLine2D( a, b, polygon[nPolyLines - 1], polygon[0] ) ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+/// Returns true if the polyline intersects the simple polygon defined by the NEGK face corners of the input cell
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCellGeometryTools::polylineIntersectsCellNegK( const std::vector<cvf::Vec3d>& polyline, const std::array<cvf::Vec3d, 8>& cellCorners )
+{
+    const int nPoints  = (int)polyline.size();
+    const int nCorners = 4;
+
+    for ( int i = 1; i < nPoints; i++ )
+    {
+        for ( int j = 1; j < nCorners; j++ )
+        {
+            if ( lineIntersectsLine2D( polyline[i - 1], polyline[i], cellCorners[j - 1], cellCorners[j] ) ) return true;
+        }
+        if ( lineIntersectsLine2D( polyline[i - 1], polyline[i], cellCorners[nCorners - 1], cellCorners[0] ) ) return true;
+    }
+
+    return false;
 }
