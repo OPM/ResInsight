@@ -70,10 +70,10 @@ private:
 // 
 //
 //==================================================================================================
-class QMVSceneFactory
+class QMVSceneFactory_deprecated
 {
 public:
-    QMVSceneFactory(QMVModelFactory_deprecated* modelFactory);
+    QMVSceneFactory_deprecated(QMVModelFactory_deprecated* modelFactory);
 
     ref<cvf::Scene>   createNumberedScene(int sceneNumber);
     ref<cvf::Scene>   createFromModel(cvf::Model* model);
@@ -89,7 +89,7 @@ private:
 // 
 //
 //==================================================================================================
-class QMVRenderSequenceFactory
+class QMVRenderSequenceFactory_deprecated
 {
 public:
     ref<cvf::RenderSequence>   createFromScene(cvf::Scene* model);

@@ -266,7 +266,7 @@ ref<cvf::ShaderProgram> QMVModelFactory_deprecated::createProgramUnlit()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMVSceneFactory::QMVSceneFactory(QMVModelFactory_deprecated* modelFactory)
+QMVSceneFactory_deprecated::QMVSceneFactory_deprecated(QMVModelFactory_deprecated* modelFactory)
 :   m_modelFactory(modelFactory)
 {
 }
@@ -275,7 +275,7 @@ QMVSceneFactory::QMVSceneFactory(QMVModelFactory_deprecated* modelFactory)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Scene> QMVSceneFactory::createNumberedScene(int sceneNumber) 
+ref<cvf::Scene> QMVSceneFactory_deprecated::createNumberedScene(int sceneNumber) 
 {
     ref<cvf::Model> model;
     switch (sceneNumber)
@@ -293,7 +293,7 @@ ref<cvf::Scene> QMVSceneFactory::createNumberedScene(int sceneNumber)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::Scene> QMVSceneFactory::createFromModel(cvf::Model* model) 
+ref<cvf::Scene> QMVSceneFactory_deprecated::createFromModel(cvf::Model* model) 
 {
     ref<cvf::Scene> scene = new cvf::Scene;
 
@@ -316,7 +316,7 @@ ref<cvf::Scene> QMVSceneFactory::createFromModel(cvf::Model* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<cvf::RenderSequence> QMVRenderSequenceFactory::createFromScene(cvf::Scene* scene) 
+ref<cvf::RenderSequence> QMVRenderSequenceFactory_deprecated::createFromScene(cvf::Scene* scene) 
 {
     ref<cvf::Rendering> rendering = new cvf::Rendering;
     rendering->renderEngine()->enableItemCountUpdate(true);

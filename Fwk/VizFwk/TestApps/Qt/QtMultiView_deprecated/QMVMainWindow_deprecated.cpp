@@ -316,7 +316,7 @@ void QMVMainWindow_deprecated::deleteAllVizWidgets()
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow_deprecated::setSceneInAllVizWidgets(cvf::Scene* scene)
 {
-    QMVRenderSequenceFactory factory;
+    QMVRenderSequenceFactory_deprecated factory;
 
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
@@ -337,7 +337,7 @@ void QMVMainWindow_deprecated::setSceneInAllVizWidgets(cvf::Scene* scene)
 //--------------------------------------------------------------------------------------------------
 void QMVMainWindow_deprecated::spreadScenesAcrossVizWidgets(cvf::Collection<cvf::Scene>* sceneCollection)
 {
-    QMVRenderSequenceFactory factory;
+    QMVRenderSequenceFactory_deprecated factory;
 
     cvf::uint i;
     for (i = 0; i < static_cast<cvf::uint>(MAX_NUM_WIDGETS); i++)
@@ -478,7 +478,7 @@ void QMVMainWindow_deprecated::slotConfigNumWidgets()
 void QMVMainWindow_deprecated::slotCreateSphereAndBoxScene()
 {
     QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
-    QMVSceneFactory sceneFactory(&modelFactory);
+    QMVSceneFactory_deprecated sceneFactory(&modelFactory);
 
     ref<cvf::Model> model = modelFactory.createSphereAndBox();
     ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
@@ -493,7 +493,7 @@ void QMVMainWindow_deprecated::slotCreateSphereAndBoxScene()
 void QMVMainWindow_deprecated::slotCreateSpheresScene()
 {
     QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
-    QMVSceneFactory sceneFactory(&modelFactory);
+    QMVSceneFactory_deprecated sceneFactory(&modelFactory);
 
     ref<cvf::Model> model = modelFactory.createSpheres();
     ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
@@ -508,7 +508,7 @@ void QMVMainWindow_deprecated::slotCreateSpheresScene()
 void QMVMainWindow_deprecated::slotCreateBoxesScene()
 {
     QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
-    QMVSceneFactory sceneFactory(&modelFactory);
+    QMVSceneFactory_deprecated sceneFactory(&modelFactory);
 
     ref<cvf::Model> model = modelFactory.createBoxes();
     ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
@@ -523,7 +523,7 @@ void QMVMainWindow_deprecated::slotCreateBoxesScene()
 void QMVMainWindow_deprecated::slotCreateTrianglesScene()
 {
     QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
-    QMVSceneFactory sceneFactory(&modelFactory);
+    QMVSceneFactory_deprecated sceneFactory(&modelFactory);
 
     ref<cvf::Model> model = modelFactory.createTriangles();
     ref<cvf::Scene> scene = sceneFactory.createFromModel(model.p());
@@ -538,8 +538,8 @@ void QMVMainWindow_deprecated::slotCreateTrianglesScene()
 void QMVMainWindow_deprecated::slotAllWidgetsDifferentScene()
 {
     QMVModelFactory_deprecated modelFactory(!m_softwareRenderingWidgetsAction->isChecked());
-    QMVSceneFactory sceneFactory(&modelFactory);
-    QMVRenderSequenceFactory renderSeqFactory;
+    QMVSceneFactory_deprecated sceneFactory(&modelFactory);
+    QMVRenderSequenceFactory_deprecated renderSeqFactory;
 
     int i;
     for (i = 0; i < MAX_NUM_WIDGETS; i++)
