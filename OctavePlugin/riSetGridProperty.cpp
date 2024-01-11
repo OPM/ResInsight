@@ -155,14 +155,6 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
 
     NDArray propertyFrames = args(0).array_value();
 
-    if (error_state)
-    {
-        error("riSetGridProperty: The supplied first argument is not a valid Matrix");
-        print_usage();
-
-        return octave_value_list ();
-    }
-
 
     dim_vector mxDims = propertyFrames.dims();
     if (!(mxDims.length() == 3 || mxDims.length() == 4))

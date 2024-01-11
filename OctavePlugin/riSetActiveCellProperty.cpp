@@ -135,14 +135,6 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
 
     Matrix propertyFrames = args(0).matrix_value();
 
-    if (error_state)
-    {
-        error("riSetActiveCellProperty: The supplied first argument is not a valid Matrix");
-        print_usage();
-
-        return octave_value_list ();
-    }
-
 
     dim_vector mxDims = propertyFrames.dims();
     if (mxDims.length() != 2)
