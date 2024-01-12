@@ -57,7 +57,7 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
 #if OCTAVE_MAJOR_VERSION > 6
     auto internalData = propertyFrames.data();
 #else
-    auto internalData = propertyFrames.fortran_vec();
+    const double* internalData = propertyFrames.fortran_vec();
 #endif
 
     QStringList errorMessages;

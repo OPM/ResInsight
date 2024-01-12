@@ -66,7 +66,7 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
 #if OCTAVE_MAJOR_VERSION > 6
     auto internalMatrixData = (qint32*)activeCellInfo.fortran_vec();
 #else
-    auto internalMatrixData = (qint32*)activeCellInfo.fortran_vec()->mex_get_data();
+    qint32* internalMatrixData = (qint32*)activeCellInfo.fortran_vec()->mex_get_data();
 #endif
 
     QStringList errorMessages;
