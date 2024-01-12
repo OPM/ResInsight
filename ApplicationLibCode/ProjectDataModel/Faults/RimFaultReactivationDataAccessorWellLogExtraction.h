@@ -61,9 +61,9 @@ public:
     static std::pair<std::vector<double>, std::vector<cvf::Vec3d>> extractValuesAndIntersections( const RigResultAccessor& resultAccessor,
                                                                                                   RigEclipseWellLogExtractor& extractor,
                                                                                                   const RigWellPath&          wellPath );
+    static std::pair<int, int> findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd );
 
 protected:
-    static std::pair<int, int> findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd );
     static std::pair<int, int> findOverburdenAndUnderburdenIndex( const std::vector<double>& values );
     static double              computeValueWithGradient( const std::vector<cvf::Vec3d>& intersections,
                                                          const std::vector<double>&     values,

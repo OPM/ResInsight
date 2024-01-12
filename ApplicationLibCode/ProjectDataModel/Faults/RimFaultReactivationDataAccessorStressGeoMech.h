@@ -60,7 +60,7 @@ private:
 
     bool isDataAvailable() const override;
 
-    double extractStressValue( StressType stressType, const cvf::Vec3d& position ) const override;
+    double extractStressValue( StressType stressType, const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const override;
 
     std::pair<double, cvf::Vec3d>
         calculatePorBar( const cvf::Vec3d& position, double gradient, RimFaultReactivation::GridPart gridPart ) const override;
