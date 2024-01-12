@@ -45,6 +45,7 @@ cvfOpenGL.h
 cvfOpenGLCapabilities.h
 cvfOpenGLContext.h
 cvfOpenGLContextGroup.h
+cvfOpenGLInfo.h
 cvfOpenGLResourceManager.h
 cvfOpenGLTypes.h
 cvfOpenGLUtils.h
@@ -123,6 +124,7 @@ cvfOglRc.cpp
 cvfOpenGLCapabilities.cpp
 cvfOpenGLContext.cpp
 cvfOpenGLContextGroup.cpp
+cvfOpenGLInfo.cpp
 cvfOpenGLResourceManager.cpp
 cvfOpenGLUtils.cpp
 cvfOpenGL.cpp
