@@ -714,7 +714,8 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
     static std::map<ElementSets, std::string> groupMap = { { ElementSets::OverBurden, "material_overburden" },
                                                            { ElementSets::Reservoir, "material_reservoir" },
                                                            { ElementSets::IntraReservoir, "material_intrareservoir" },
-                                                           { ElementSets::UnderBurden, "material_underburden" } };
+                                                           { ElementSets::UnderBurden, "material_underburden" },
+                                                           { ElementSets::FaultZone, "material_faultzone" } };
 
     auto keyName = QString::fromStdString( groupMap[elementSet] );
 

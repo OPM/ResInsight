@@ -391,6 +391,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     m_elementSets[ElementSets::Reservoir]      = {};
     m_elementSets[ElementSets::IntraReservoir] = {};
     m_elementSets[ElementSets::UnderBurden]    = {};
+    m_elementSets[ElementSets::FaultZone]      = {};
 
     m_boundaryElements[Boundary::Bottom]  = {};
     m_boundaryElements[Boundary::FarSide] = {};
