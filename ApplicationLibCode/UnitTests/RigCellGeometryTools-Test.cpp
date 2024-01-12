@@ -287,6 +287,55 @@ TEST( RigCellGeometryTools, lengthCalcTestTriangle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RigCellGeometryTools, lineIntersectsLine2DTest )
+{
+    cvf::Vec3d a1( 0, 0, 0 );
+    cvf::Vec3d b1( 1, 1, 1 );
+
+    cvf::Vec3d a2( 0, 1, 500 );
+    cvf::Vec3d b2( 1, 0, 7000 );
+
+    cvf::Vec3d a3( -10, -10, 0 );
+    cvf::Vec3d b3( -4, -1, 0 );
+
+    EXPECT_TRUE( RigCellGeometryTools::lineIntersectsLine2D( a1, b1, a2, b2 ) );
+    EXPECT_FALSE( RigCellGeometryTools::lineIntersectsLine2D( a1, b1, a3, b3 ) );
+
+    auto [intersect, point] = RigCellGeometryTools::lineLineIntersection2D( a1, b1, a2, b2 );
+    EXPECT_TRUE( intersect );
+    EXPECT_DOUBLE_EQ( 0.5, point.x() );
+    EXPECT_DOUBLE_EQ( 0.5, point.y() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigCellGeometryTools, lineIntersectsPolygon2DTest )
+{
+    cvf::Vec3d a1( 0, 0, 0 );
+    cvf::Vec3d b1( 1, 1, 1 );
+
+    cvf::Vec3d a2( 5, -5, 0 );
+    cvf::Vec3d b2( 15, 25, 0 );
+
+    cvf::Vec3d p1( 10, 10, 0 );
+    cvf::Vec3d p2( 11, 20, 1000 );
+    cvf::Vec3d p3( 20, 7, -20 );
+    cvf::Vec3d p4( 21, -1, 55 );
+
+    std::vector<cvf::Vec3d> polygon;
+    polygon.push_back( p1 );
+    polygon.push_back( p2 );
+    polygon.push_back( p3 );
+    polygon.push_back( p4 );
+
+    EXPECT_FALSE( RigCellGeometryTools::lineIntersectsPolygon2D( a1, b1, polygon ) );
+    EXPECT_TRUE( RigCellGeometryTools::lineIntersectsPolygon2D( a2, b2, polygon ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RigCellGeometryTools, polylinePolygonIntersectionTest )
 {
     std::vector<cvf::Vec3d> polygonExample;

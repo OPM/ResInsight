@@ -141,6 +141,7 @@ RimPolygonFilter::RimPolygonFilter()
 
     CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines" );
     CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres" );
+    CAF_PDM_InitField( &m_closePolygon, "ClosePolygon", true, "Closed Polygon" );
 
     CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
     CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
@@ -359,18 +360,19 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
     group->add( &m_enableFiltering );
-    group->add( &m_showLines );
-    group->add( &m_showSpheres );
+    group->add( &m_closePolygon );
 
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
     group1->add( &m_polyFilterMode );
-    group1->add( &m_polyIncludeType );
+    if ( m_closePolygon() ) group1->add( &m_polyIncludeType );
     group1->add( &m_targets );
     group1->add( &m_enablePicking );
 
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
 
     auto group2 = uiOrdering.addNewGroup( "Appearance" );
+    group2->add( &m_showLines );
+    group2->add( &m_showSpheres );
     if ( m_showLines )
     {
         group2->add( &m_lineThickness );
@@ -398,6 +400,16 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     for ( auto& objField : objFields )
     {
         objField->uiCapability()->setUiReadOnly( readOnlyState );
+    }
+
+    if ( !m_closePolygon() )
+    {
+        m_polyFilterMode = RimPolygonFilter::PolygonFilterModeType::INDEX_K;
+        m_polyFilterMode.uiCapability()->setUiReadOnly( true );
+    }
+    else
+    {
+        m_polyFilterMode.uiCapability()->setUiReadOnly( readOnlyState );
     }
 }
 
@@ -527,6 +539,9 @@ bool RimPolygonFilter::cellInsidePolygon2D( cvf::Vec3d center, std::array<cvf::V
     return bInside;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigGridBase* grid )
 {
     // we should look in depth using Z coordinate
@@ -568,9 +583,10 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
     const int gIdx = static_cast<int>( grid->gridIndex() );
 
     std::list<size_t> foundCells;
+    const bool        closedPolygon = m_closePolygon();
 
-#pragma omp parallel for
     // find all cells in the K layer that matches the polygon
+#pragma omp parallel for
     for ( int i = 0; i < (int)grid->cellCountI(); i++ )
     {
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
@@ -584,11 +600,23 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
             std::array<cvf::Vec3d, 8> hexCorners;
             grid->cellCornerVertices( cellIdx, hexCorners.data() );
 
-            // check if the polygon includes the cell
-            if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
+            if ( closedPolygon )
             {
+                // check if the polygon includes the cell
+                if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
+                {
 #pragma omp critical
-                foundCells.push_back( cellIdx );
+                    foundCells.push_back( cellIdx );
+                }
+            }
+            else
+            {
+                // check if the polyline touches the top face of the cell
+                if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
+                {
+#pragma omp critical
+                    foundCells.push_back( cellIdx );
+                }
             }
         }
     }
@@ -624,6 +652,8 @@ void RimPolygonFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& poi
 
     if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
     {
+        if ( !m_closePolygon() ) return;
+
         for ( size_t gridIndex = 0; gridIndex < data->gridCount(); gridIndex++ )
         {
             auto grid = data->grid( gridIndex );
@@ -690,6 +720,8 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
+    const bool closedPolygon = m_closePolygon();
+
     // we need to find the K layer we hit with the first point
     size_t nk;
     // move the point a bit downwards to make sure it is inside something
@@ -753,11 +785,23 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
             grid->cellCornerVertices( cellIdx, hexCorners.data() );
             cvf::Vec3d center = grid->cellCentroid( cellIdx );
 
-            // check if the polygon includes the cell
-            if ( cellInsidePolygon2D( center, hexCorners, points ) )
+            if ( closedPolygon )
             {
+                // check if the polygon includes the cell
+                if ( cellInsidePolygon2D( center, hexCorners, points ) )
+                {
 #pragma omp critical
-                foundCells.push_back( cellIdx );
+                    foundCells.push_back( cellIdx );
+                }
+            }
+            else
+            {
+                // check if the polyline touches the top face of the cell
+                if ( RigCellGeometryTools::polylineIntersectsCellNegK2D( points, hexCorners ) )
+                {
+#pragma omp critical
+                    foundCells.push_back( cellIdx );
+                }
             }
         }
     }
@@ -795,7 +839,10 @@ void RimPolygonFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& poi
 
             if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
             {
-                updateCellsDepthGeoMech( points, grid, i );
+                if ( m_closePolygon() )
+                {
+                    updateCellsDepthGeoMech( points, grid, i );
+                }
             }
             else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
             {
@@ -823,11 +870,11 @@ void RimPolygonFilter::updateCells()
         if ( target->isEnabled() ) points.push_back( target->targetPointXYZ() );
     }
 
-    // We need at least three points to make a sensible polygon
-    if ( points.size() < 3 ) return;
+    // We need at least three points to make a closed polygon, or just 2 for a polyline
+    if ( ( !m_closePolygon() && ( points.size() < 2 ) ) || ( m_closePolygon() && ( points.size() < 3 ) ) ) return;
 
-    // make sure first and last point is the same (req. by polygon methods used later)
-    points.push_back( points.front() );
+    // make sure first and last point is the same (req. by closed polygon methods used later)
+    if ( m_closePolygon() ) points.push_back( points.front() );
 
     RimEclipseCase* eCase = eclipseCase();
     RimGeoMechCase* gCase = geoMechCase();
@@ -855,7 +902,7 @@ cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLinesData() const
     }
     pld->setPolyLine( line );
 
-    pld->setLineAppearance( m_lineThickness, m_lineColor, true );
+    pld->setLineAppearance( m_lineThickness, m_lineColor, m_closePolygon );
     pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
     pld->setZPlaneLock( m_lockPolygonToPlane, -m_polygonPlaneDepth );
 

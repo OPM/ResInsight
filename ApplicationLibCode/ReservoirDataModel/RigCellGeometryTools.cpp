@@ -28,6 +28,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
+#include <utility>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -698,7 +700,7 @@ double RigCellGeometryTools::getLengthOfPolygonAlongLine( const std::pair<cvf::V
 {
     cvf::BoundingBox lineBoundingBox;
 
-    for ( cvf::Vec3d polygonPoint : polygon )
+    for ( const cvf::Vec3d& polygonPoint : polygon )
     {
         cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine( line.first, line.second, polygonPoint, nullptr );
         lineBoundingBox.add( pointOnLine );
@@ -794,6 +796,7 @@ inline double RigCellGeometryTools::isLeftOfLine2D( const cvf::Vec3d& point1, co
 
 //--------------------------------------------------------------------------------------------------
 /// winding number test for a point in a polygon
+/// Operates only in the XY plane
 ///      Input:   point = the point to test,
 ///               polygon[] = vertex points of a closed polygon of size n, where polygon[n-1]=polygon[0]
 ///
@@ -830,4 +833,104 @@ bool RigCellGeometryTools::pointInsidePolygon2D( const cvf::Vec3d point, const s
         }
     }
     return wn != 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the intersection of line 1 (a1 to b1) and line 2 (a2 to b2).
+/// - operates only in the XY plane
+/// - returns true and the x,y intersection if the lines intersect
+/// - returns false if they do not intersect
+/// ref. http://www.paulbourke.net/geometry/pointlineplane/pdb.c
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, cvf::Vec2d>
+    RigCellGeometryTools::lineLineIntersection2D( const cvf::Vec3d a1, const cvf::Vec3d b1, const cvf::Vec3d a2, const cvf::Vec3d b2 )
+{
+    constexpr double EPS = 0.000001;
+    double           mua, mub;
+    double           denom, numera, numerb;
+    const double     x1 = a1.x(), x2 = b1.x();
+    const double     x3 = a2.x(), x4 = b2.x();
+    const double     y1 = a1.y(), y2 = b1.y();
+    const double     y3 = a2.y(), y4 = b2.y();
+
+    denom  = ( y4 - y3 ) * ( x2 - x1 ) - ( x4 - x3 ) * ( y2 - y1 );
+    numera = ( x4 - x3 ) * ( y1 - y3 ) - ( y4 - y3 ) * ( x1 - x3 );
+    numerb = ( x2 - x1 ) * ( y1 - y3 ) - ( y2 - y1 ) * ( x1 - x3 );
+
+    // Are the lines coincident?
+    if ( ( std::abs( numera ) < EPS ) && ( std::abs( numerb ) < EPS ) && ( std::abs( denom ) < EPS ) )
+    {
+        return std::make_pair( true, cvf::Vec2d( ( x1 + x2 ) / 2, ( y1 + y2 ) / 2 ) );
+    }
+
+    // Are the lines parallel?
+    if ( std::abs( denom ) < EPS )
+    {
+        return std::make_pair( false, cvf::Vec2d() );
+    }
+
+    // Is the intersection along the segments?
+    mua = numera / denom;
+    mub = numerb / denom;
+    if ( mua < 0 || mua > 1 || mub < 0 || mub > 1 )
+    {
+        return std::make_pair( false, cvf::Vec2d() );
+    }
+
+    return std::make_pair( true, cvf::Vec2d( x1 + mua * ( x2 - x1 ), y1 + mua * ( y2 - y1 ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+/// Returns true if the line from a1 to b1 intersects the line from a2 to b2
+/// Operates only in the XY plane
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCellGeometryTools::lineIntersectsLine2D( const cvf::Vec3d a1, const cvf::Vec3d b1, const cvf::Vec3d a2, const cvf::Vec3d b2 )
+{
+    return lineLineIntersection2D( a1, b1, a2, b2 ).first;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+/// Returns true if the line from a to b intersects the closed, simple polygon defined by the corner
+/// points in the input polygon vector, otherwise false
+/// Operates only in the XY plane
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCellGeometryTools::lineIntersectsPolygon2D( const cvf::Vec3d a, const cvf::Vec3d b, const std::vector<cvf::Vec3d>& polygon )
+{
+    int nPolyLines = (int)polygon.size();
+
+    for ( int i = 1; i < nPolyLines; i++ )
+    {
+        if ( lineIntersectsLine2D( a, b, polygon[i - 1], polygon[i] ) ) return true;
+    }
+
+    if ( lineIntersectsLine2D( a, b, polygon[nPolyLines - 1], polygon[0] ) ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+/// Returns true if the polyline intersects the simple polygon defined by the NEGK face corners of the input cell
+/// Operates only in the XY plane
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCellGeometryTools::polylineIntersectsCellNegK2D( const std::vector<cvf::Vec3d>& polyline, const std::array<cvf::Vec3d, 8>& cellCorners )
+{
+    const int nPoints  = (int)polyline.size();
+    const int nCorners = 4;
+
+    for ( int i = 1; i < nPoints; i++ )
+    {
+        for ( int j = 1; j < nCorners; j++ )
+        {
+            if ( lineIntersectsLine2D( polyline[i - 1], polyline[i], cellCorners[j - 1], cellCorners[j] ) ) return true;
+        }
+        if ( lineIntersectsLine2D( polyline[i - 1], polyline[i], cellCorners[nCorners - 1], cellCorners[0] ) ) return true;
+    }
+
+    return false;
 }
