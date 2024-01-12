@@ -44,7 +44,6 @@
 #include <QPointer>
 #include <QEvent>
 #include <QOpenGLContext>
-#include <QOpenGLFunctions>
 #include <QPlatformSurfaceEvent>
 
 namespace cvfqt {

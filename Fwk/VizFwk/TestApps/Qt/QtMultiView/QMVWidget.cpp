@@ -42,7 +42,6 @@
 #include "QMVWidget.h"
 
 #include <QMouseEvent>
-#include <QOpenGLFunctions>
 #include <QPainter>
 
 
@@ -134,9 +133,8 @@ void QMVWidget::paintGL()
     else
     {
         // Reddish background for empty widgets
-        QOpenGLFunctions* funcs = context()->functions();
-        funcs->glClearColor(0.9f, 0.5f, 0.5f, 1.0f);
-        funcs->glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.9f, 0.5f, 0.5f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
 
     cvf::OpenGLUtils::popOpenGLState(currentOglContext);
