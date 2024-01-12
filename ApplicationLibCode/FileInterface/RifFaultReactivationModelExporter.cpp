@@ -86,6 +86,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         { RimFaultReactivation::ElementSets::IntraReservoir, "INTRA_RESERVOIR" },
         { RimFaultReactivation::ElementSets::Reservoir, "RESERVOIR" },
         { RimFaultReactivation::ElementSets::UnderBurden, "UNDERBURDEN" },
+        { RimFaultReactivation::ElementSets::FaultZone, "FAULT_ZONE" }
     };
 
     bool useGridVoidRatio         = rimModel.useGridVoidRatio();

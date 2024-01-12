@@ -46,7 +46,8 @@ enum class ElementSets
     OverBurden,
     UnderBurden,
     Reservoir,
-    IntraReservoir
+    IntraReservoir,
+    FaultZone
 };
 
 enum class Property
