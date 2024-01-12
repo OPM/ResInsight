@@ -19,6 +19,7 @@
 #include "RimFaultReactivationDataAccessorStressEclipse.h"
 
 #include "RiaEclipseUnitTools.h"
+#include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 #include "RiaWellLogUnitTools.h"
 
@@ -44,14 +45,17 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationDataAccessorStressEclipse::RimFaultReactivationDataAccessorStressEclipse( RimEclipseCase*                eclipseCase,
-                                                                                              RimFaultReactivation::Property property,
-                                                                                              double                         gradient,
-                                                                                              double                         seabedDepth )
+RimFaultReactivationDataAccessorStressEclipse::RimFaultReactivationDataAccessorStressEclipse(
+    RimEclipseCase*                                            eclipseCase,
+    RimFaultReactivation::Property                             property,
+    double                                                     gradient,
+    double                                                     seabedDepth,
+    const std::map<RimFaultReactivation::ElementSets, double>& densities )
     : RimFaultReactivationDataAccessorStress( property, gradient, seabedDepth )
     , m_eclipseCase( eclipseCase )
     , m_caseData( nullptr )
     , m_mainGrid( nullptr )
+    , m_densities( densities )
 {
     if ( m_eclipseCase )
     {
@@ -86,14 +90,29 @@ void RimFaultReactivationDataAccessorStressEclipse::updateResultAccessor()
     m_extractors = extractors;
 
     // TODO: get from model
-    double waterDensity = 1.030;
+    double waterDensity = 1030.0;
 
-    for ( auto [gridPart, wellPaths] : m_wellPaths )
+    for ( auto [gridPart, wellPath] : m_wellPaths )
     {
         auto                    extractor     = m_extractors[gridPart];
         std::vector<cvf::Vec3d> intersections = extractor->intersections();
-        m_stressValues[gridPart]              = integrateVerticalStress( *wellPaths.p(), intersections, m_seabedDepth, waterDensity );
+
+        addOverburdenAndUnderburdenPoints( intersections, wellPath->wellPathPoints() );
+
+        m_stressValues[gridPart] =
+            integrateVerticalStress( *wellPath.p(), intersections, *m_model, gridPart, m_seabedDepth, waterDensity, m_densities );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationDataAccessorStressEclipse::addOverburdenAndUnderburdenPoints( std::vector<cvf::Vec3d>&       intersections,
+                                                                                       const std::vector<cvf::Vec3d>& wellPathPoints )
+{
+    // Insert points at top of overburden and under underburden
+    intersections.insert( intersections.begin(), wellPathPoints.front() );
+    intersections.push_back( wellPathPoints.back() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,9 +126,40 @@ bool RimFaultReactivationDataAccessorStressEclipse::isDataAvailable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStressEclipse::extractStressValue( StressType stressType, const cvf::Vec3d& position ) const
+double RimFaultReactivationDataAccessorStressEclipse::extractStressValue( StressType                     stressType,
+                                                                          const cvf::Vec3d&              position,
+                                                                          RimFaultReactivation::GridPart gridPart ) const
 {
-    return 1.0;
+    CAF_ASSERT( m_extractors.find( gridPart ) != m_extractors.end() );
+    auto extractor = m_extractors.find( gridPart )->second;
+
+    CAF_ASSERT( m_stressValues.find( gridPart ) != m_stressValues.end() );
+    auto stressValues = m_stressValues.find( gridPart )->second;
+
+    CAF_ASSERT( m_wellPaths.find( gridPart ) != m_wellPaths.end() );
+    auto wellPath = m_wellPaths.find( gridPart )->second;
+
+    auto intersections = extractor->intersections();
+    addOverburdenAndUnderburdenPoints( intersections, wellPath->wellPathPoints() );
+
+    CAF_ASSERT( stressValues.size() == intersections.size() );
+
+    auto [topIdx, bottomIdx] = RimFaultReactivationDataAccessorWellLogExtraction::findIntersectionsForTvd( intersections, position.z() );
+    if ( topIdx != -1 && bottomIdx != -1 )
+    {
+        double topValue    = stressValues[topIdx];
+        double bottomValue = stressValues[bottomIdx];
+
+        if ( !std::isinf( topValue ) && !std::isinf( bottomValue ) )
+        {
+            // Interpolate value from the two closest points.
+            std::vector<double> xs = { intersections[bottomIdx].z(), intersections[topIdx].z() };
+            std::vector<double> ys = { stressValues[bottomIdx], stressValues[topIdx] };
+            return RiaInterpolationTools::linear( xs, ys, position.z() );
+        }
+    }
+
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,16 +170,15 @@ bool RimFaultReactivationDataAccessorStressEclipse::isPositionValid( const cvf::
                                                                      const cvf::Vec3d&              bottomPosition,
                                                                      RimFaultReactivation::GridPart gridPart ) const
 {
-    // TODO: get grid part from somewhere!!!!!!!!!!!!!!!!!!!
-    auto [porBar, extractionPosition] = calculatePorBar( position, m_gradient, RimFaultReactivation::GridPart::FW );
+    auto [porBar, extractionPosition] = calculatePorBar( position, m_gradient, gridPart );
     return !std::isinf( porBar ) && extractionPosition != cvf::Vec3d::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::calculatePorBar( const cvf::Vec3d& position,
-                                                                                              double            gradient,
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::calculatePorBar( const cvf::Vec3d&              position,
+                                                                                              double                         gradient,
                                                                                               RimFaultReactivation::GridPart gridPart ) const
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
@@ -153,28 +202,80 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::cal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimFaultReactivationDataAccessorStressEclipse::integrateVerticalStress( const RigWellPath&             wellPath,
-                                                                                            const std::vector<cvf::Vec3d>& intersections,
-                                                                                            double                         seabedDepth,
-                                                                                            double                         waterDensity )
+std::vector<double>
+    RimFaultReactivationDataAccessorStressEclipse::integrateVerticalStress( const RigWellPath&               wellPath,
+                                                                            const std::vector<cvf::Vec3d>&   intersections,
+                                                                            const RigFaultReactivationModel& model,
+                                                                            RimFaultReactivation::GridPart   gridPart,
+                                                                            double                           seabedDepth,
+                                                                            double                           waterDensity,
+                                                                            const std::map<RimFaultReactivation::ElementSets, double>& densities )
 {
     double              gravity      = RiaWellLogUnitTools<double>::gravityAcceleration();
-    double              seaWaterLoad = gravity * seabedDepth * waterDensity;
+    double              seaWaterLoad = gravity * std::abs( seabedDepth ) * waterDensity;
     std::vector<double> values       = { seaWaterLoad };
 
+    auto g           = model.grid( gridPart );
+    auto elementSets = g->elementSets();
+
+    auto getElementSet =
+        []( auto part, const cvf::Vec3d& point, const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets )
+        -> std::pair<bool, RimFaultReactivation::ElementSets>
+    {
+        for ( auto [elementSet, elements] : elementSets )
+        {
+            for ( unsigned int elementIndex : elements )
+            {
+                // Find nodes from element
+                auto positions = part->elementCorners( elementIndex );
+
+                std::array<cvf::Vec3d, 8> coordinates;
+                for ( size_t i = 0; i < positions.size(); ++i )
+                {
+                    coordinates[i] = positions[i];
+                }
+
+                if ( RigHexIntersectionTools::isPointInCell( point, coordinates.data() ) )
+                {
+                    return { true, elementSet };
+                }
+            }
+        }
+
+        return { false, RimFaultReactivation::ElementSets::OverBurden };
+    };
+
+    int numMisses = 0;
     for ( size_t i = 1; i < intersections.size(); i++ )
     {
         double previousValue = values[i - 1];
         double previousDepth = intersections[i - 1].z();
         double currentDepth  = intersections[i].z();
 
-        double deltaDepth = currentDepth - previousDepth;
+        double deltaDepth = previousDepth - currentDepth;
 
-        double density = 999.0;
-        double value   = previousValue + density * gravity * deltaDepth;
+        auto [isOk, elementSet] = getElementSet( g, intersections[i], elementSets );
+        if ( isOk )
+        {
+            // Unit: kg/m^3
+            CAF_ASSERT( densities.find( elementSet ) != densities.end() );
+            double density = densities.find( elementSet )->second;
 
-        values.push_back( value );
+            double value = previousValue + density * gravity * deltaDepth;
+            printf( "[%zu] tvd: %f. %f + %f * %f * %f = %f\n", i, currentDepth, previousValue, density, gravity, deltaDepth, value );
+
+            values.push_back( value );
+        }
+        else
+        {
+            // printf( "No valid element set [%zu] [%f %f %f]\n", i, intersections[i].x(), intersections[i].y(), intersections[i].z() );
+            values.push_back( std::numeric_limits<double>::infinity() );
+
+            numMisses++;
+        }
     }
+
+    printf( "Misses: %d/%zu %d\n", numMisses, intersections.size() - 1, (int)gridPart );
 
     return values;
 }

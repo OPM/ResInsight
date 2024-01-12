@@ -139,7 +139,9 @@ bool RimFaultReactivationDataAccessorStressGeoMech::isDataAvailable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStressGeoMech::extractStressValue( StressType stressType, const cvf::Vec3d& position ) const
+double RimFaultReactivationDataAccessorStressGeoMech::extractStressValue( StressType                     stressType,
+                                                                          const cvf::Vec3d&              position,
+                                                                          RimFaultReactivation::GridPart gridPart ) const
 {
     RimWellIADataAccess iaDataAccess( m_geoMechCase );
 
@@ -170,8 +172,8 @@ RigFemScalarResultFrames* RimFaultReactivationDataAccessorStressGeoMech::dataFra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d& position,
-                                                                                              double            gradient,
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d&              position,
+                                                                                              double                         gradient,
                                                                                               RimFaultReactivation::GridPart gridPart ) const
 {
     int timeStepIndex = 0;

@@ -43,10 +43,11 @@ class RigEclipseWellLogExtractor;
 class RimFaultReactivationDataAccessorStressEclipse : public RimFaultReactivationDataAccessorStress
 {
 public:
-    RimFaultReactivationDataAccessorStressEclipse( RimEclipseCase*                geoMechCase,
-                                                   RimFaultReactivation::Property property,
-                                                   double                         gradient,
-                                                   double                         seabedDepth );
+    RimFaultReactivationDataAccessorStressEclipse( RimEclipseCase*                                            geoMechCase,
+                                                   RimFaultReactivation::Property                             property,
+                                                   double                                                     gradient,
+                                                   double                                                     seabedDepth,
+                                                   const std::map<RimFaultReactivation::ElementSets, double>& densities );
     ~RimFaultReactivationDataAccessorStressEclipse() override;
 
 private:
@@ -54,7 +55,7 @@ private:
 
     bool isDataAvailable() const override;
 
-    double extractStressValue( StressType stressType, const cvf::Vec3d& position ) const override;
+    double extractStressValue( StressType stressType, const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const override;
 
     std::pair<double, cvf::Vec3d>
         calculatePorBar( const cvf::Vec3d& position, double gradient, RimFaultReactivation::GridPart gridPart ) const override;
@@ -64,10 +65,15 @@ private:
                           const cvf::Vec3d&              bottomPosition,
                           RimFaultReactivation::GridPart gridPart ) const override;
 
-    static std::vector<double> integrateVerticalStress( const RigWellPath&             wellPath,
-                                                        const std::vector<cvf::Vec3d>& intersections,
-                                                        double                         seabedDepth,
-                                                        double                         waterDensity );
+    static std::vector<double> integrateVerticalStress( const RigWellPath&                                         wellPath,
+                                                        const std::vector<cvf::Vec3d>&                             intersections,
+                                                        const RigFaultReactivationModel&                           model,
+                                                        RimFaultReactivation::GridPart                             gridPart,
+                                                        double                                                     seabedDepth,
+                                                        double                                                     waterDensity,
+                                                        const std::map<RimFaultReactivation::ElementSets, double>& densities );
+
+    static void addOverburdenAndUnderburdenPoints( std::vector<cvf::Vec3d>& intersections, const std::vector<cvf::Vec3d>& wellPathPoints );
 
     RimEclipseCase*             m_eclipseCase;
     RigEclipseCaseData*         m_caseData;
@@ -77,4 +83,5 @@ private:
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> m_extractors;
     std::map<RimFaultReactivation::GridPart, std::vector<double>>                  m_stressValues;
+    std::map<RimFaultReactivation::ElementSets, double>                            m_densities;
 };

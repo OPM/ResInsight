@@ -84,10 +84,25 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
     }
     else
     {
+        auto extractDensities = []( const RimFaultReactivationModel& model )
+        {
+            std::map<RimFaultReactivation::ElementSets, double> densities;
+            std::vector<RimFaultReactivation::ElementSets>      elementSets = { RimFaultReactivation::ElementSets::OverBurden,
+                                                                                RimFaultReactivation::ElementSets::UnderBurden,
+                                                                                RimFaultReactivation::ElementSets::Reservoir,
+                                                                                RimFaultReactivation::ElementSets::IntraReservoir };
+            for ( auto e : elementSets )
+            {
+                densities[e] = model.materialParameters( e )[2];
+            }
+            return densities;
+        };
+
+        std::map<RimFaultReactivation::ElementSets, double> densities = extractDensities( model );
         for ( auto property : stressProperties )
         {
             m_accessors.push_back(
-                std::make_shared<RimFaultReactivationDataAccessorStressEclipse>( thecase, property, porePressureGradient, seabedDepth ) );
+                std::make_shared<RimFaultReactivationDataAccessorStressEclipse>( thecase, property, porePressureGradient, seabedDepth, densities ) );
         }
     }
 }

@@ -61,7 +61,7 @@ public:
 protected:
     virtual bool isDataAvailable() const = 0;
 
-    virtual double extractStressValue( StressType stressType, const cvf::Vec3d& position ) const = 0;
+    virtual double extractStressValue( StressType stressType, const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const = 0;
 
     virtual std::pair<double, cvf::Vec3d>
         calculatePorBar( const cvf::Vec3d& position, double gradient, RimFaultReactivation::GridPart gridPart ) const = 0;
