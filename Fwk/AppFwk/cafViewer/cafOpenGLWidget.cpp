@@ -71,12 +71,12 @@ OpenGLWidget::OpenGLWidget( cvf::OpenGLContextGroup* contextGroup,
             {
                 // We need to check if we actually got a context that shares resources with shareWidget.
                 cvf::ref<cvf::OpenGLContext> shareContext = shareWidget->cvfOpenGLContext();
-                CVF_ASSERT(myOwnerContextGroup == shareContext->group());
+                CVF_ASSERT( myOwnerContextGroup == shareContext->group() );
 
                 if ( isSharing() )
                 {
                     makeCurrent();
-                    myOwnerContextGroup->initializeContextGroup(myContext.p());
+                    myOwnerContextGroup->initializeContextGroup( myContext.p() );
                 }
                 else
                 {
@@ -84,14 +84,14 @@ OpenGLWidget::OpenGLWidget( cvf::OpenGLContextGroup* contextGroup,
                     // since the construction process above has already optimistically added the new context to the
                     // existing group. In this case, the newly context is basically defunct so we just shut it down
                     // (which will also remove it from the group)
-                    myOwnerContextGroup->contextAboutToBeShutdown(myContext.p());
+                    myOwnerContextGroup->contextAboutToBeShutdown( myContext.p() );
                     CVF_ASSERT( myContext->group() == nullptr );
                 }
             }
             else
             {
                 makeCurrent();
-                contextGroup->initializeContextGroup(myContext.p());
+                contextGroup->initializeContextGroup( myContext.p() );
             }
         }
     }
@@ -131,7 +131,7 @@ OpenGLWidget::OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::Wind
             {
                 CVF_ASSERT( myContext->group() == shareContext->group() );
                 makeCurrent();
-                myOwnerContextGroup->initializeContextGroup(myContext.p());
+                myOwnerContextGroup->initializeContextGroup( myContext.p() );
             }
         }
         else
@@ -140,7 +140,7 @@ OpenGLWidget::OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::Wind
             // the construction process above has already optimistically added the new context to the existing group.
             // In this case, the newly context is basically defunct so we just shut it down (which will also remove it
             // from the group)
-            myOwnerContextGroup->contextAboutToBeShutdown(myContext.p());
+            myOwnerContextGroup->contextAboutToBeShutdown( myContext.p() );
             CVF_ASSERT( myContext->group() == nullptr );
         }
     }
@@ -151,8 +151,9 @@ OpenGLWidget::OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::Wind
 //--------------------------------------------------------------------------------------------------
 cvf::OpenGLContext* OpenGLWidget::cvfOpenGLContext() const
 {
-    const QGLContext*                qglContext     = context();
-    const cvfqt::CvfBoundQGLContext_deprecated* contextBinding = dynamic_cast<const cvfqt::CvfBoundQGLContext_deprecated*>( qglContext );
+    const QGLContext*                           qglContext = context();
+    const cvfqt::CvfBoundQGLContext_deprecated* contextBinding =
+        dynamic_cast<const cvfqt::CvfBoundQGLContext_deprecated*>( qglContext );
     CVF_ASSERT( contextBinding );
 
     return contextBinding->cvfOpenGLContext();
@@ -171,10 +172,10 @@ void OpenGLWidget::cvfShutdownOpenGLContext()
         cvf::OpenGLContextGroup* myOwnerContextGroup = myContext->group();
 
         // If shutdown has already been called, the context is no longer member of any group
-        if (myOwnerContextGroup)
+        if ( myOwnerContextGroup )
         {
             makeCurrent();
-            myOwnerContextGroup->contextAboutToBeShutdown(myContext.p());
+            myOwnerContextGroup->contextAboutToBeShutdown( myContext.p() );
         }
     }
 }
