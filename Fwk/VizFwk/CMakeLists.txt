@@ -81,6 +81,8 @@ if (CEE_BUILD_TEST_APPS)
 
     if (CEE_BUILD_GUI_QT)
         add_subdirectory(TestApps/Qt/QtMinimal)
+        add_subdirectory(TestApps/Qt/QtMultiView)
+        #add_subdirectory(TestApps/Qt/QtTestBenchOpenGLWidget)
         add_subdirectory(TestApps/Qt/QtSnippetRunner)
 
         if (CEE_USE_QT5)
