@@ -15,31 +15,43 @@ endif()
 
 find_package(OpenGL)
 
-find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+if (CEE_USE_QT6)
+    find_package(Qt6 COMPONENTS REQUIRED Core Gui Widgets OpenGLWidgets)
+    set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGLWidgets )
+elseif (CEE_USE_QT5)
+    find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+else()
+    message(FATAL_ERROR "No supported Qt version selected for build")
+endif()
+
+
+
 
 set(CEE_HEADER_FILES
 cvfqtBasicAboutDialog.h
-cvfqtGLWidget.h
 cvfqtMouseState.h
 cvfqtOpenGLWidget.h
 cvfqtPerformanceInfoHud.h
 cvfqtUtils.h
-cvfqtCvfBoundQGLContext_deprecated.h
-cvfqtGLWidget_deprecated.h
 )
 
 set(CEE_SOURCE_FILES
 cvfqtBasicAboutDialog.cpp
-cvfqtGLWidget.cpp
 cvfqtMouseState.cpp
 cvfqtOpenGLWidget.cpp
 cvfqtPerformanceInfoHud.cpp
 cvfqtUtils.cpp
-cvfqtCvfBoundQGLContext_deprecated.cpp
-cvfqtGLWidget_deprecated.cpp
 )
 
+if (CEE_USE_QT5)
+    set(CEE_HEADER_FILES ${CEE_HEADER_FILES} cvfqtGLWidget.h)
+    set(CEE_SOURCE_FILES ${CEE_SOURCE_FILES} cvfqtGLWidget.cpp)
+    set(CEE_HEADER_FILES ${CEE_HEADER_FILES} cvfqtCvfBoundQGLContext_deprecated.h)
+    set(CEE_SOURCE_FILES ${CEE_SOURCE_FILES} cvfqtCvfBoundQGLContext_deprecated.cpp)
+    set(CEE_HEADER_FILES ${CEE_HEADER_FILES} cvfqtGLWidget_deprecated.h)
+    set(CEE_SOURCE_FILES ${CEE_SOURCE_FILES} cvfqtGLWidget_deprecated.cpp)
+endif()
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 
