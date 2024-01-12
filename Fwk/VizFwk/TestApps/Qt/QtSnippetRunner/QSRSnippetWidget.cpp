@@ -52,8 +52,13 @@ using cvfu::TestSnippet;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+#ifdef QSR_USE_OPENGLWIDGET
+QSRSnippetWidget::QSRSnippetWidget(TestSnippet* snippet, cvf::OpenGLContextGroup* contextGroup, QWidget* parent)
+:   OglWidgetBaseClass(contextGroup, parent),
+#else
 QSRSnippetWidget::QSRSnippetWidget(TestSnippet* snippet, cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent)
-:   cvfqt::GLWidget_deprecated(contextGroup, format, parent),
+:   OglWidgetBaseClass(contextGroup, format, parent),
+#endif
     m_drawHUD(false),
     m_lastSetRenderMode(DrawableGeo::VERTEX_ARRAY),
     m_enableMultisampleWhenDrawing(false)
@@ -87,8 +92,6 @@ QSRSnippetWidget::~QSRSnippetWidget()
         m_snippet->destroySnippet();
         m_snippet = NULL;
     }
-
-    cvfShutdownOpenGLContext();
 }
 
 
@@ -525,6 +528,8 @@ void QSRSnippetWidget::showModelStatistics()
 //--------------------------------------------------------------------------------------------------
 void QSRSnippetWidget::initializeGL()
 {
+    OglWidgetBaseClass::initializeGL();
+
     CVF_ASSERT(m_snippet.notNull());
 
     cvf::OpenGLContext* currentOglContext = cvfOpenGLContext();
@@ -533,6 +538,7 @@ void QSRSnippetWidget::initializeGL()
 
     bool bInitOK = m_snippet->initializeSnippet(currentOglContext);
     CVF_ASSERT(bInitOK);
+    CVF_UNUSED(bInitOK);
 
     CVF_CHECK_OGL(currentOglContext);
 
@@ -594,7 +600,7 @@ void QSRSnippetWidget::paintEvent(QPaintEvent* /*event*/)
     painter.beginNativePainting();
     CVF_CHECK_OGL(currentOglContext);
 
-	cvf::OpenGLUtils::pushOpenGLState(currentOglContext);
+    cvf::OpenGLUtils::pushOpenGLState(currentOglContext);
     CVF_CHECK_OGL(currentOglContext);
 
     if (m_enableMultisampleWhenDrawing)

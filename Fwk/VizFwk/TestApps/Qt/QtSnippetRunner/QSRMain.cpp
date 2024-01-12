@@ -98,6 +98,8 @@ int main(int argc, char *argv[])
     // Comment in this line to be able to read the glsl directly from file
     //cvf::ShaderSourceProvider::instance()->setSourceRepository(new cvf::ShaderSourceRepositoryFile("../../../LibRender/glsl/"));
 
+    cvf::LogManager* logManager = cvf::LogManager::instance();
+    logManager->logger("cee.cvf.OpenGL")->setLevel(cvf::Logger::LL_DEBUG);
 
     QSRMainWindow window;
     window.resize(1000, 800);;

@@ -60,10 +60,9 @@ CVF_GCC_DIAGNOSTIC_IGNORE("-Wmisleading-indentation")
 #endif
 
 
+// !!!
 // Big time hack since C++17 does not allow ‘register’ storage class specifier
-#if __cplusplus > 199711L
 #define register
-#endif
 
 
 // Doxygen conditional section to hide contents of the cvfu_jpgFreeImage namespace

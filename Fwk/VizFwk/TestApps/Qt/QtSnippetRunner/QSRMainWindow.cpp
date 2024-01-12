@@ -302,7 +302,21 @@ void QSRMainWindow::createDockPanels()
 //--------------------------------------------------------------------------------------------------
 void QSRMainWindow::executeTestSnippetInNewWidget(const cvf::String& snippetId, TestSnippet* snippet)
 {
+    cvf::Trace::show("Executing snippet: %s", snippetId.toAscii().ptr());
+
     closeCurrentSnippet();
+
+    QWidget* parentWidget = centralWidget();
+    CVF_ASSERT(m_contextGroup.notNull());
+
+#ifdef QSR_USE_OPENGLWIDGET
+
+    QSurfaceFormat surfFormat;
+    surfFormat.setSamples(m_formatMultisampleAction->isChecked() ? 8 : 0);
+    m_currentSnippetWidget = new QSRSnippetWidget(snippet, m_contextGroup.p(), parentWidget);
+    m_currentSnippetWidget->setFormat(surfFormat);
+
+#else
 
     QGLFormat glFormat;
 
@@ -320,9 +334,11 @@ void QSRMainWindow::executeTestSnippetInNewWidget(const cvf::String& snippetId, 
     // For FSAA, use with glEnable(GL_MULTISAMPLE);
     //glFormat.setSampleBuffers(true);
 
-    QWidget* parentWidget = centralWidget();
-    CVF_ASSERT(m_contextGroup.notNull());
     m_currentSnippetWidget = new QSRSnippetWidget(snippet, m_contextGroup.p(), glFormat, parentWidget);
+
+#endif
+
+
     m_currentSnippetWidget->setFocus();
 
     if (m_formatMultisampleAction->isChecked())
@@ -537,6 +553,9 @@ void QSRMainWindow::slotViewMultipleRedrawMany()
 //--------------------------------------------------------------------------------------------------
 void QSRMainWindow::slotSaveFrameBufferToFile()
 {
+#ifdef QSR_USE_OPENGLWIDGET
+    cvf::Trace::show("NOT IMPLEMENTED!!");
+#else
     if (!m_currentSnippetWidget) 
     {
         cvf::Trace::show("No current widget");
@@ -556,7 +575,7 @@ void QSRMainWindow::slotSaveFrameBufferToFile()
     {
         cvf::Trace::show("FAILED to saved image: %s", (const char*)fileName.toLatin1());
     }
-
+#endif
 }
 
 
@@ -740,32 +759,49 @@ void QSRMainWindow::slotShowHelp()
         }
 
         // OpenGL info
+        cvf::OpenGLContext* currentOglContext = m_currentSnippetWidget->cvfOpenGLContext();
+        if (currentOglContext)
         {
+            cvf::OpenGLInfo cvfOglInfo = currentOglContext->group()->info();
             oglInfo  = QString("OpenGL info:");
-            oglInfo += QString("\nversion:\t") + reinterpret_cast<const char*>(glGetString(GL_VERSION));
-            oglInfo += QString("\nrenderer:\t") + reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-            oglInfo += QString("\nvendor:\t") + reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-            oglInfo += QString("\nglsl ver.:\t") + reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+            oglInfo += QString("\nversion: ") + cvfqt::Utils::toQString(cvfOglInfo.version());
+            oglInfo += QString("\nrenderer: ") + cvfqt::Utils::toQString(cvfOglInfo.renderer());
+            oglInfo += QString("\nvendor: ") + cvfqt::Utils::toQString(cvfOglInfo.vendor());
         }
 
+#ifdef QSR_USE_OPENGLWIDGET
         {
-            oglInfo += "\n\nReported by Qt:";
-            
-            QGLFormat currrentFormat = m_currentSnippetWidget->format();
+            oglInfo += "\n\nReported by Qt QSurfaceFormat:";
 
+            QSurfaceFormat currrentFormat = m_currentSnippetWidget->format();
             oglInfo += QString("\nOpenGL version:\t%1.%2").arg(currrentFormat.majorVersion()).arg(currrentFormat.minorVersion());
-
             switch (currrentFormat.profile())
             {
-                case QGLFormat::NoProfile:              oglInfo += "\nProfile:\t\tNoProfile (GLver < 3.3)"; break;
-                case QGLFormat::CoreProfile:            oglInfo += "\nProfile:\t\tCoreProfile"; break;
-                case QGLFormat::CompatibilityProfile:   oglInfo += "\nProfile:\t\tCompatibilityProfile"; break;
+                case QSurfaceFormat::NoProfile:              oglInfo += "\nProfile:NoProfile (GLver < 3.3)"; break;
+                case QSurfaceFormat::CoreProfile:            oglInfo += "\nProfile:CoreProfile"; break;
+                case QSurfaceFormat::CompatibilityProfile:   oglInfo += "\nProfile:CompatibilityProfile"; break;
             }
 
-            oglInfo += QString("\nColor buffer size:\t<%1 %2 %3 %4>").arg(currrentFormat.redBufferSize()).arg(currrentFormat.greenBufferSize()).arg(currrentFormat.blueBufferSize()).arg(currrentFormat.alphaBufferSize());
-            oglInfo += QString("\nDepth buffer size:\t%1").arg(currrentFormat.depthBufferSize());
+            oglInfo += QString("\nColor buffer size:<%1 %2 %3 %4>").arg(currrentFormat.redBufferSize()).arg(currrentFormat.greenBufferSize()).arg(currrentFormat.blueBufferSize()).arg(currrentFormat.alphaBufferSize());
+            oglInfo += QString("\nDepth buffer size:%1").arg(currrentFormat.depthBufferSize());
         }
+#else
+        {
+            oglInfo += "\n\nReported by Qt QGLFormat:";
+            
+            QGLFormat currrentFormat = m_currentSnippetWidget->format();
+            oglInfo += QString("\nOpenGL version:\t%1.%2").arg(currrentFormat.majorVersion()).arg(currrentFormat.minorVersion());
+            switch (currrentFormat.profile())
+            {
+                case QGLFormat::NoProfile:              oglInfo += "\nProfile:NoProfile (GLver < 3.3)"; break;
+                case QGLFormat::CoreProfile:            oglInfo += "\nProfile:CoreProfile"; break;
+                case QGLFormat::CompatibilityProfile:   oglInfo += "\nProfile:CompatibilityProfile"; break;
+            }
 
+            oglInfo += QString("\nColor buffer size:<%1 %2 %3 %4>").arg(currrentFormat.redBufferSize()).arg(currrentFormat.greenBufferSize()).arg(currrentFormat.blueBufferSize()).arg(currrentFormat.alphaBufferSize());
+            oglInfo += QString("\nDepth buffer size:%1").arg(currrentFormat.depthBufferSize());
+        }
+#endif
     }
 
     QMessageBox dlg(this);
