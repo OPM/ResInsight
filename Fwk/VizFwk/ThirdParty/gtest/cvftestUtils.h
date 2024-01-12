@@ -39,17 +39,6 @@ private:
             return std::string();
         }
     }
-
-    static std::string getMyExecutablePath()
-    {
-#ifdef WIN32
-        std::string exe = std::string(testing::internal::GetArgvs()[0]);
-#else
-        std::string dir = std::string(testing::internal::FilePath::GetCurrentDir().ToString());
-        std::string exe = dir + std::string("/") + std::string(testing::internal::GetArgvs()[0]);
-#endif
-        return exe;
-    }
 };
 
 
