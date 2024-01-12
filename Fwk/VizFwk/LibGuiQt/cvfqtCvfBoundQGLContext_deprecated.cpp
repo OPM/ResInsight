@@ -56,18 +56,9 @@ namespace cvfqt {
 /// 
 //--------------------------------------------------------------------------------------------------
 OpenGLContext_QGLContextAdapter_deprecated::OpenGLContext_QGLContextAdapter_deprecated(cvf::OpenGLContextGroup* contextGroup, QGLContext* backingQGLContext)
-:   cvf::OpenGLContext(contextGroup),
-    m_isCoreOpenGLProfile(false),
-    m_majorVersion(0),
-    m_minorVersion(0)
+:   cvf::OpenGLContext(contextGroup)
 {
     m_qtGLContext = backingQGLContext;
-
-    CVF_ASSERT(m_qtGLContext);
-    QGLFormat glFormat = m_qtGLContext->format();
-    m_majorVersion = glFormat.majorVersion();
-    m_minorVersion = glFormat.minorVersion();
-    m_isCoreOpenGLProfile = (glFormat.profile() == QGLFormat::CoreProfile) ? true : false;
 }
 
 
@@ -77,26 +68,6 @@ OpenGLContext_QGLContextAdapter_deprecated::OpenGLContext_QGLContextAdapter_depr
 OpenGLContext_QGLContextAdapter_deprecated::~OpenGLContext_QGLContextAdapter_deprecated()
 {
     m_qtGLContext = NULL;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool OpenGLContext_QGLContextAdapter_deprecated::initializeContext()
-{
-    if (!cvf::OpenGLContext::initializeContext())
-    {
-        return false;
-    }
-
-    // Possibly override setting for fixed function support
-    if (m_isCoreOpenGLProfile)
-    {
-        group()->capabilities()->setSupportsFixedFunction(false);
-    }
-
-    return true;
 }
 
 

@@ -68,7 +68,9 @@ GLWidget_deprecated::GLWidget_deprecated(cvf::OpenGLContextGroup* contextGroup, 
         cvf::ref<cvf::OpenGLContext> myContext = cvfOpenGLContext();
         if (myContext.notNull())
         {
-            myContext->initializeContext();
+            // We must ensure the context is current before initialization
+            makeCurrent();
+            contextGroup->initializeContextGroup(myContext.p());
         }
     }
 }
@@ -96,13 +98,16 @@ GLWidget_deprecated::GLWidget_deprecated(GLWidget_deprecated* shareWidget, QWidg
     cvf::ref<cvf::OpenGLContext> myContext = cvfOpenGLContext();
     if (myContext.notNull())
     {
+        cvf::OpenGLContextGroup* myOwnerContextGroup = myContext->group();
+        CVF_ASSERT(myOwnerContextGroup == shareContext->group());
+
         // We need to check if we actually got a context that shares resources with shareWidget.
         if (isSharing())
         {
             if (isValid())
             {
-                CVF_ASSERT(myContext->group() == shareContext->group());
-                myContext->initializeContext();
+                makeCurrent();
+                myOwnerContextGroup->initializeContextGroup(myContext.p());
             }
         }
         else
@@ -110,7 +115,9 @@ GLWidget_deprecated::GLWidget_deprecated(GLWidget_deprecated* shareWidget, QWidg
             // If we didn't, we need to remove the newly created context from the group it has been added to since
             // the construction process above has already optimistically added the new context to the existing group.
             // In this case, the newly context is basically defunct so we just shut it down (which will also remove it from the group)
-            myContext->shutdownContext();
+            // Normally, we would need to ensure the context is current before calling shutdown, but in this case we are not the last 
+            // context in the group so there should be no need for cleaning up resources.
+            myOwnerContextGroup->contextAboutToBeShutdown(myContext.p());
             CVF_ASSERT(myContext->group() == NULL);
         }
     }
@@ -140,7 +147,14 @@ void GLWidget_deprecated::cvfShutdownOpenGLContext()
     cvf::ref<cvf::OpenGLContext> myContext = cvfOpenGLContext();
     if (myContext.notNull())
     {
-        myContext->shutdownContext();
+        cvf::OpenGLContextGroup* myOwnerContextGroup = myContext->group();
+
+        // If shutdown has already been called, the context is no longer member of any group
+        if (myOwnerContextGroup)
+        {
+            makeCurrent();
+            myOwnerContextGroup->contextAboutToBeShutdown(myContext.p());
+        }
     }
 }
 

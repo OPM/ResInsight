@@ -485,8 +485,13 @@ void FramebufferObject::useDefaultWindowFramebuffer(OpenGLContext* oglContext)
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDrawBuffer(GL_BACK);
+    const OglId defaultFBO = oglContext->defaultFramebufferObject();
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
+
+    if (defaultFBO == 0)
+    {
+        glDrawBuffer(GL_BACK);
+    }
 
     CVF_CHECK_OGL(oglContext);
 }

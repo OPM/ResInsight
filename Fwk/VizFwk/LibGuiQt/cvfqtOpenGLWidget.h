@@ -34,50 +34,63 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfOpenGLContextGroup.h"
-#include "cvfOpenGLTypes.h"
+
+#include <QOpenGLWidget>
 
 namespace cvf {
+    class OpenGLContext;
+    class OpenGLContextGroup;
+    class Logger;
+}
 
-class OpenGLResourceManager;
-class OpenGLCapabilities;
+namespace cvfqt {
+
 
 
 //==================================================================================================
 //
-// Encapsulates an OpenGL rendering context
+// 
 //
 //==================================================================================================
-class OpenGLContext : public Object
+class OpenGLWidget : public QOpenGLWidget
 {
 public:
-    OpenGLContext(OpenGLContextGroup* contextGroup);
-    virtual ~OpenGLContext();
+    OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags());
+    ~OpenGLWidget();
 
-    bool                        isContextValid() const;
+    cvf::OpenGLContext*     cvfOpenGLContext();
 
-    virtual void                makeCurrent() = 0;
-    virtual bool                isCurrent() const = 0;
-    virtual OglId               defaultFramebufferObject() const;
+protected:
+    virtual void            initializeGL();
+    virtual void            resizeGL(int w, int h);
+    virtual void            paintGL();
+    
+    int                     instanceNumber() const;
 
-    OpenGLContextGroup*         group();
-    const OpenGLContextGroup*   group() const;
-    OpenGLResourceManager*      resourceManager();
-    const OpenGLCapabilities*   capabilities();
+    virtual void            onWidgetOpenGLReady();
 
 private:
-    OpenGLContextGroup*         m_contextGroup;         // Raw pointer (to avoid circular reference) to the context group that this context belongs to. 
+    void                    qtOpenGLContextAboutToBeDestroyed();
+    void                    shutdownCvfOpenGLContext();
 
-    friend class OpenGLContextGroup;
+private:
+    enum InitializationState
+    {
+        UNINITIALIZED,
+        PENDING_REINITIALIZATION,
+        IS_INITIALIZED
+    };
+
+    int                                 m_instanceNumber;
+    InitializationState                 m_initializationState;
+    cvf::ref<cvf::OpenGLContextGroup>   m_cvfOpenGlContextGroup;
+    cvf::ref<cvf::OpenGLContext>        m_cvfForwardingOpenGlContext;
+    cvf::ref<cvf::Logger>               m_logger;
 };
 
 
-#define CVF_LOG_RENDER_ERROR(OGL_CTX_PTR, THE_MESSAGE)  CVF_LOG_ERROR( (OGL_CTX_PTR->group()->logger()), (THE_MESSAGE))
-
-
 }
-

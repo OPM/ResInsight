@@ -20,7 +20,9 @@ set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 
 set(CEE_HEADER_FILES
 cvfqtBasicAboutDialog.h
+cvfqtGLWidget.h
 cvfqtMouseState.h
+cvfqtOpenGLWidget.h
 cvfqtPerformanceInfoHud.h
 cvfqtUtils.h
 cvfqtCvfBoundQGLContext_deprecated.h
@@ -29,12 +31,15 @@ cvfqtGLWidget_deprecated.h
 
 set(CEE_SOURCE_FILES
 cvfqtBasicAboutDialog.cpp
+cvfqtGLWidget.cpp
 cvfqtMouseState.cpp
+cvfqtOpenGLWidget.cpp
 cvfqtPerformanceInfoHud.cpp
 cvfqtUtils.cpp
 cvfqtCvfBoundQGLContext_deprecated.cpp
 cvfqtGLWidget_deprecated.cpp
 )
+
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 
@@ -57,5 +62,4 @@ source_group("" FILES ${PROJECT_FILES})
 # Unity Build
 if (CMAKE_UNITY_BUILD)
   set_source_files_properties (cvfqtGLWidget_deprecated.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
-  set_source_files_properties (cvfqtOpenGLContext.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
 endif()

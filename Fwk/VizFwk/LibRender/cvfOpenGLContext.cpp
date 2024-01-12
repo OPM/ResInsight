@@ -59,8 +59,7 @@ namespace cvf {
 /// The context will be added unconditionally to the \a contextGroup group
 //--------------------------------------------------------------------------------------------------
 OpenGLContext::OpenGLContext(OpenGLContextGroup* contextGroup)
-:   m_contextGroup(contextGroup),
-    m_isValid(false)
+:   m_contextGroup(contextGroup)
 {
     CVF_ASSERT(m_contextGroup);
     m_contextGroup->addContext(this);
@@ -74,8 +73,6 @@ OpenGLContext::~OpenGLContext()
 {
     //Trace::show("OpenGLContext destructor");
 
-    m_isValid = false;
-
     // Context group is holding references to contexts, so by the time we get to this
     // destructor the link to the context group must already be broken
     CVF_ASSERT(m_contextGroup == NULL);
@@ -87,8 +84,7 @@ OpenGLContext::~OpenGLContext()
 //--------------------------------------------------------------------------------------------------
 bool OpenGLContext::isContextValid() const
 {
-    // Also check on context group, since it may have been set to NULL after valid flag was set
-    if (m_contextGroup && m_isValid)
+    if (m_contextGroup && m_contextGroup->isContextGroupInitialized())
     {
         return true;
     }
@@ -102,59 +98,9 @@ bool OpenGLContext::isContextValid() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool OpenGLContext::initializeContext()
+OglId OpenGLContext::defaultFramebufferObject() const
 {
-    makeCurrent();
-
-    if (!m_contextGroup)
-    {
-        return false;
-    }
-
-    if (!m_contextGroup->isContextGroupInitialized())
-    {
-        if (!m_contextGroup->initializeContextGroup(this))
-        {
-            return false;
-        }
-    }
-
-    m_isValid = true;
-
-    return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Prepare the context for deletion
-///
-/// Prepares the context for deletion by removing the context from its context group. If this is the
-/// last context in the context group, this function will also try and delete the context group's
-/// OpenGL resources.
-/// 
-/// \warning  After calling this function the context is no longer usable and should be deleted.
-/// \warning  May try and make the context current in order to free resources if this context
-///           is the last context in the context group.
-//--------------------------------------------------------------------------------------------------
-void OpenGLContext::shutdownContext()
-{
-    if (m_contextGroup)
-    {
-        CVF_ASSERT(m_contextGroup->containsContext(this));
-
-        // If our ref count is down to 1, there is probably something strange going on.
-        // Since one reference to us is being held by the context group, this means that the
-        // caller ISN'T holding a reference which may give him a nast surprise when this function returns!
-        CVF_ASSERT(refCount() > 1);
-
-        // This call will remove the context from the group AND clean up resources in the
-        // group if we are the last context in the group
-        m_contextGroup->contextAboutToBeShutdown(this);
-    }
-
-    CVF_ASSERT(m_contextGroup == NULL);
-
-    m_isValid = false;
+    return 0;
 }
 
 

@@ -55,16 +55,11 @@ public:
     OpenGLContext_QGLContextAdapter_deprecated(cvf::OpenGLContextGroup* contextGroup, QGLContext* backingQGLContext);
     virtual ~OpenGLContext_QGLContextAdapter_deprecated();
 
-    virtual bool    initializeContext();
-
     virtual void    makeCurrent();
     virtual bool    isCurrent() const;
 
 private:
     QGLContext*     m_qtGLContext;
-    bool            m_isCoreOpenGLProfile;  // This is a Core OpenGL profile. Implies OpenGL version of 3.2 or more
-    int             m_majorVersion;         // OpenGL version as reported by Qt
-    int             m_minorVersion;
 };
 
 

@@ -91,7 +91,7 @@ TEST(OpenGLContextGroupTest, LifeCycle)
     EXPECT_EQ(2, ctx2->refCount());
     EXPECT_EQ(2, ctx3->refCount());
 
-    ctx1->shutdownContext();
+    grp->contextAboutToBeShutdown(ctx1.p());
     EXPECT_EQ(1, ctx1->refCount());
     EXPECT_TRUE(ctx1->group() == NULL);
     EXPECT_FALSE(grp->containsContext(ctx1.p()));

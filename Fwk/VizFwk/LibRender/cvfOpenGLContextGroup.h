@@ -40,6 +40,8 @@
 #include "cvfObject.h"
 #include "cvfCollection.h"
 #include "cvfLogger.h"
+#include "cvfOpenGLCapabilities.h"
+#include "cvfOpenGLInfo.h"
 
 struct GLEWContextStruct;
 struct WGLEWContextStruct;
@@ -48,7 +50,6 @@ namespace cvf {
 
 class OpenGLContext;
 class OpenGLResourceManager;
-class OpenGLCapabilities;
 
 
 //==================================================================================================
@@ -63,24 +64,27 @@ public:
     virtual ~OpenGLContextGroup();
 
     bool                    isContextGroupInitialized() const;
+    bool                    initializeContextGroup(OpenGLContext* currentContext);
+    void                    contextAboutToBeShutdown(OpenGLContext* currentContextToShutdown);
 
     size_t                  contextCount() const;
+    OpenGLContext*          context(size_t index);
     bool                    containsContext(const OpenGLContext* context) const;
 
     OpenGLResourceManager*  resourceManager();
     Logger*                 logger();
 
     OpenGLCapabilities*     capabilities();
+    OpenGLInfo              info() const;
+    
     GLEWContextStruct*      glewContextStruct();
     WGLEWContextStruct*     wglewContextStruct();
 
 private:
-    bool                    initializeContextGroup(OpenGLContext* currentContext);
     void                    uninitializeContextGroup();
-    void                    contextAboutToBeShutdown(OpenGLContext* contextToShutdown);
     bool                    initializeGLEW(OpenGLContext* currentContext);
     bool                    initializeWGLEW(OpenGLContext* currentContext);
-    void                    configureCapablititesFromGLEW(OpenGLContext* currentContext);
+    void                    configureCapabilitiesFromGLEW(OpenGLContext* currentContext);
     void                    addContext(OpenGLContext* contextToAdd);
 
 private:
@@ -89,6 +93,7 @@ private:
     ref<OpenGLResourceManager>  m_resourceManager;      // Resource manager that is shared between all contexts in this group
     ref<Logger>                 m_logger;
     ref<OpenGLCapabilities>     m_capabilities;         // Capabilities of the contexts in this group context
+    OpenGLInfo                  m_info;
     GLEWContextStruct*          m_glewContextStruct;    // Pointer to the GLEW context struct 
     WGLEWContextStruct*         m_wglewContextStruct;   // Pointer to the GLEW context struct 
 

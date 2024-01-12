@@ -34,50 +34,53 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfOpenGLContextGroup.h"
-#include "cvfOpenGLTypes.h"
+
+#include <QGLWidget>
 
 namespace cvf {
-
-class OpenGLResourceManager;
-class OpenGLCapabilities;
-
-
-//==================================================================================================
-//
-// Encapsulates an OpenGL rendering context
-//
-//==================================================================================================
-class OpenGLContext : public Object
-{
-public:
-    OpenGLContext(OpenGLContextGroup* contextGroup);
-    virtual ~OpenGLContext();
-
-    bool                        isContextValid() const;
-
-    virtual void                makeCurrent() = 0;
-    virtual bool                isCurrent() const = 0;
-    virtual OglId               defaultFramebufferObject() const;
-
-    OpenGLContextGroup*         group();
-    const OpenGLContextGroup*   group() const;
-    OpenGLResourceManager*      resourceManager();
-    const OpenGLCapabilities*   capabilities();
-
-private:
-    OpenGLContextGroup*         m_contextGroup;         // Raw pointer (to avoid circular reference) to the context group that this context belongs to. 
-
-    friend class OpenGLContextGroup;
-};
-
-
-#define CVF_LOG_RENDER_ERROR(OGL_CTX_PTR, THE_MESSAGE)  CVF_LOG_ERROR( (OGL_CTX_PTR->group()->logger()), (THE_MESSAGE))
-
-
+    class OpenGLContext;
+    class OpenGLContextGroup;
+    class Logger;
 }
 
+namespace cvfqt {
+
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class GLWidget : public QGLWidget
+{
+public:
+    GLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags());
+    GLWidget(GLWidget* shareWidget, QWidget* parent , Qt::WindowFlags f = Qt::WindowFlags());
+    ~GLWidget();
+
+    cvf::OpenGLContext* cvfOpenGLContext();
+    void                cvfShutdownOpenGLContext();
+
+    void                logOpenGLInfo();
+
+protected:
+    virtual void        initializeGL();
+    virtual void        resizeGL(int width, int height);
+    virtual void        paintGL();
+    virtual bool        eventFilter(QObject* watched, QEvent* event);
+
+private:
+    void                qtOpenGLContextAboutToBeDestroyed();
+
+private:
+    cvf::ref<cvf::OpenGLContextGroup>   m_cvfOpenGLContextGroup;
+    cvf::ref<cvf::OpenGLContext>        m_cvfForwardingOpenGLContext;
+    cvf::ref<cvf::Logger>               m_logger;
+};
+
+}
