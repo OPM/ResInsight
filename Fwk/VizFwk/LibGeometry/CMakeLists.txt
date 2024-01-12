@@ -9,6 +9,11 @@ endif()
 # Use our strict compile flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
 
+# For now, disable warning about unknown pragmas locally here (due to usage of OpenMP)
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas")
+endif()
+
 
 set(CEE_HEADER_FILES
 cvfArrowGenerator.h

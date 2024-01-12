@@ -27,6 +27,8 @@ if (CEE_STAND_ALONE)
     endif()
 
     include(CMake/Utils/ceeDetermineCompilerFlags.cmake)
+
+    set(CMAKE_CXX_STANDARD 17)
 endif()
 
 
@@ -84,6 +86,7 @@ if (CEE_BUILD_TEST_APPS)
             add_subdirectory(TestApps/Qt/QtMinimal_GLWidget)
             add_subdirectory(TestApps/Qt/QtMinimal_deprecated)
             add_subdirectory(TestApps/Qt/QtMultiView_deprecated)
+            add_subdirectory(TestApps/Qt/QtSnippetRunner)
         endif()
     endif()
 

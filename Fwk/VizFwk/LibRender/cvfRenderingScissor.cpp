@@ -172,6 +172,8 @@ void RenderingScissor::unApplyOpenGL(OpenGLContext* oglContext)
               m_scissorBoxToRestore[1], 
               m_scissorBoxToRestore[2], 
               m_scissorBoxToRestore[3]);
+
+    CVF_CHECK_OGL(oglContext);
 }
 
 }

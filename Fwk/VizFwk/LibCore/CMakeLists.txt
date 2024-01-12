@@ -112,5 +112,11 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+if (UNIX AND NOT APPLE)
+    # Our core library has dependencies on librt and libpthread for timers and mutex.
+    target_link_libraries(${PROJECT_NAME} -lrt -lpthread)
+endif()
+
+
 set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 source_group("" FILES ${PROJECT_FILES})

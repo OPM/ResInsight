@@ -46,6 +46,9 @@
 
 CVF_GCC_DIAGNOSTIC_IGNORE("-Wconversion")
 CVF_GCC_DIAGNOSTIC_IGNORE("-Wunused-parameter")
+CVF_GCC_DIAGNOSTIC_IGNORE("-Wshift-negative-value")
+CVF_GCC_DIAGNOSTIC_IGNORE("-Wimplicit-fallthrough=")
+CVF_GCC_DIAGNOSTIC_IGNORE("-Wmisleading-indentation")
 
 #ifdef WIN32
 #include <windows.h>
@@ -55,6 +58,13 @@ CVF_GCC_DIAGNOSTIC_IGNORE("-Wunused-parameter")
 #elif CVF_ANDROID
 #include <stdlib.h>
 #endif
+
+
+// Big time hack since C++17 does not allow ‘register’ storage class specifier
+#if __cplusplus > 199711L
+#define register
+#endif
+
 
 // Doxygen conditional section to hide contents of the cvfu_jpgFreeImage namespace
 /// \cond CVF_NEVER_INCLUDE
@@ -25126,7 +25136,7 @@ SetMemoryIO(FreeImageIO *io) {
 //
 // Design and implementation by
 // - Ryan Rubley <ryan@lostreality.org> 
-// - Herv� Drolon (drolon@infonie.fr)
+// - Herv� Drolon (drolon@infonie.fr)
 //
 // This file is part of FreeImage 3
 //

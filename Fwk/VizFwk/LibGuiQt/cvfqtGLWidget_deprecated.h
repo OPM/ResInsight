@@ -56,8 +56,8 @@ namespace cvfqt {
 class GLWidget_deprecated : public QGLWidget
 {
 public:
-    GLWidget_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f = 0);
-    GLWidget_deprecated(GLWidget_deprecated* shareWidget, QWidget* parent , Qt::WindowFlags f = 0);
+    GLWidget_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags());
+    GLWidget_deprecated(GLWidget_deprecated* shareWidget, QWidget* parent , Qt::WindowFlags f = Qt::WindowFlags());
 
     cvf::OpenGLContext* cvfOpenGLContext() const;
     void                cvfShutdownOpenGLContext();

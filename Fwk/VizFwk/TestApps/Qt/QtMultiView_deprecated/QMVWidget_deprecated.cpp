@@ -193,7 +193,7 @@ void QMVWidget_deprecated::mouseMoveEvent(QMouseEvent* event)
     {
         navType = cvf::ManipulatorTrackball::ROTATE;
     }
-    else if (mouseBn == (Qt::LeftButton | Qt::RightButton) || mouseBn == Qt::MidButton)
+    else if (mouseBn == (Qt::LeftButton | Qt::RightButton) || mouseBn == Qt::MiddleButton)
     {
         navType = cvf::ManipulatorTrackball::WALK;
     }

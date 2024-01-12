@@ -10,7 +10,8 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_BASE_CXX_FLAGS}")
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wno-long-long")
+    # Due to usage of OpenMP, disable warning about unknown pragmas
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wno-long-long  -Wno-unknown-pragmas")
 endif()
 
 find_package(OpenGL)
