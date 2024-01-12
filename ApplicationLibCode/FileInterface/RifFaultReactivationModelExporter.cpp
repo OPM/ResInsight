@@ -81,13 +81,12 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         { RimFaultReactivation::Boundary::FarSide, "FARSIDE" },
     };
 
-    std::map<RimFaultReactivation::ElementSets, std::string> materialNames = {
-        { RimFaultReactivation::ElementSets::OverBurden, "OVERBURDEN" },
-        { RimFaultReactivation::ElementSets::IntraReservoir, "INTRA_RESERVOIR" },
-        { RimFaultReactivation::ElementSets::Reservoir, "RESERVOIR" },
-        { RimFaultReactivation::ElementSets::UnderBurden, "UNDERBURDEN" },
-        { RimFaultReactivation::ElementSets::FaultZone, "FAULT_ZONE" }
-    };
+    std::map<RimFaultReactivation::ElementSets, std::string> materialNames =
+        { { RimFaultReactivation::ElementSets::OverBurden, "OVERBURDEN" },
+          { RimFaultReactivation::ElementSets::IntraReservoir, "INTRA_RESERVOIR" },
+          { RimFaultReactivation::ElementSets::Reservoir, "RESERVOIR" },
+          { RimFaultReactivation::ElementSets::UnderBurden, "UNDERBURDEN" },
+          { RimFaultReactivation::ElementSets::FaultZone, "FAULT_ZONE" } };
 
     bool useGridVoidRatio         = rimModel.useGridVoidRatio();
     bool useGridPorePressure      = rimModel.useGridPorePressure();
