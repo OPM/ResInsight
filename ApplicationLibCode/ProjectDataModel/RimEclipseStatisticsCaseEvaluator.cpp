@@ -63,6 +63,9 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult( RigCaseCellResultsData* 
 
     size_t timeStepCount = std::max( size_t( 1 ), sourceTimeStepInfos.size() );
 
+    // Limit to one time step for static native results
+    if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE ) timeStepCount = 1;
+
     dataValues->resize( timeStepCount );
 
     // Initializes the size of the destination dataset to active union cell count
