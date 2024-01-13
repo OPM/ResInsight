@@ -907,9 +907,7 @@ bool RigCellGeometryTools::lineIntersectsPolygon2D( const cvf::Vec3d a, const cv
         if ( lineIntersectsLine2D( a, b, polygon[i - 1], polygon[i] ) ) return true;
     }
 
-    if ( lineIntersectsLine2D( a, b, polygon[nPolyLines - 1], polygon[0] ) ) return true;
-
-    return false;
+    return lineIntersectsLine2D( a, b, polygon[nPolyLines - 1], polygon[0] );
 }
 
 //--------------------------------------------------------------------------------------------------
