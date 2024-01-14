@@ -45,17 +45,16 @@
 
 #include "cvfuTestSnippet.h"
 
-#include "cvfqtGLWidget.h"
-#include "cvfqtOpenGLWidget.h"
-
 class QTimer;
 
 
 #define QSR_USE_OPENGLWIDGET
 
 #ifdef QSR_USE_OPENGLWIDGET
+#include "cvfqtOpenGLWidget.h"
 typedef cvfqt::OpenGLWidget OglWidgetBaseClass;
 #else
+#include "cvfqtGLWidget.h"
 typedef cvfqt::GLWidget OglWidgetBaseClass;
 #endif
 

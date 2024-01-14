@@ -52,8 +52,13 @@ QSRRunPanel.h
 QSRSnippetWidget.h
 )
 
+
 # Qt
-if (CEE_USE_QT5)
+if (CEE_USE_QT6)
+    find_package(Qt6 COMPONENTS REQUIRED OpenGLWidgets)
+    set(QT_LIBRARIES Qt6::OpenGLWidgets )
+    qt_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+elseif (CEE_USE_QT5)
     find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
     qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )

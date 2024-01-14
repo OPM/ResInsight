@@ -43,6 +43,7 @@
 
 #include <math.h>
 
+#include <QPainter>
 #include <QMouseEvent>
 
 using cvfu::TestSnippet;

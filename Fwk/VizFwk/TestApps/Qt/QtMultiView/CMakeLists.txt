@@ -10,7 +10,10 @@ endif()
 
 find_package(OpenGL)
 
-if (CEE_USE_QT5)
+if (CEE_USE_QT6)
+    find_package(Qt6 COMPONENTS REQUIRED OpenGLWidgets)
+    set(QT_LIBRARIES Qt6::OpenGLWidgets )
+elseif (CEE_USE_QT5)
     find_package(Qt5 REQUIRED COMPONENTS Widgets)
     set(QT_LIBRARIES Qt5::Widgets)
 else()
@@ -44,8 +47,10 @@ QMVMainWindow.h
 QMVWidget.h
 )
 
-if (CEE_USE_QT5)
-    qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+if (CEE_USE_QT6)
+    qt_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+elseif (CEE_USE_QT5)
+    qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 endif()
 
 add_executable(${PROJECT_NAME} ${CEE_CODE_FILES} ${MOC_SOURCE_FILES})

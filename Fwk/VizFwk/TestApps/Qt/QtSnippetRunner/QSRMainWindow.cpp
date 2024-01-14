@@ -127,7 +127,7 @@ void QSRMainWindow::createActions()
     }
 
     m_activateLastUsedSnippetAction = new QAction("Load last used snippet", this);
-    m_activateLastUsedSnippetAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L));
+    m_activateLastUsedSnippetAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
     connect(m_activateLastUsedSnippetAction, SIGNAL(triggered()), SLOT(slotRunLastUsedSnippet()));
 
     m_closeCurrentSnippetAction = new QAction("Close Current Snippet", this);
@@ -136,19 +136,19 @@ void QSRMainWindow::createActions()
     // View menu
     m_showHUDAction = new QAction("Show HUD", this);
     m_showHUDAction->setCheckable(true);
-    m_showHUDAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_H));
+    m_showHUDAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
     connect(m_showHUDAction, SIGNAL(triggered()), SLOT(slotShowHUD()));
 
     m_redrawAction = new QAction("Redraw view", this);
-    m_redrawAction ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+    m_redrawAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
     connect(m_redrawAction, SIGNAL(triggered()), SLOT(slotViewRedraw()));
 
     m_multipleRedrawAction = new QAction("Redraw 10 times", this);
-    m_multipleRedrawAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+    m_multipleRedrawAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_M));
     connect(m_multipleRedrawAction, SIGNAL(triggered()), SLOT(slotViewMultipleRedraw()));
 
     m_multipleRedrawManyAction = new QAction("Redraw 50 times", this);
-    m_multipleRedrawManyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_M));
+    m_multipleRedrawManyAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_M));
     connect(m_multipleRedrawManyAction, SIGNAL(triggered()), SLOT(slotViewMultipleRedrawMany()));
 
 
@@ -360,7 +360,7 @@ void QSRMainWindow::executeTestSnippetInNewWidget(const cvf::String& snippetId, 
 
     // Store ID of this 'last run' snippet in registry
     QSettings settings("Ceetron", "SnippetRunner");
-    settings.setValue("LastUsedSnippetID", snippetId.toAscii().ptr());
+    settings.setValue("LastUsedSnippetID", cvfqt::Utils::toQString(snippetId));
 
 	repaint();
 }
