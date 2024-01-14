@@ -103,8 +103,9 @@ void RiaConsoleApplication::initialize()
 
     RiaApplication::initialize();
 
-    RiaLogging::setLoggerInstance( std::make_unique<RiaStdOutLogger>() );
-    RiaLogging::loggerInstance()->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+    auto logger = std::make_unique<RiaStdOutLogger>();
+    logger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+    RiaLogging::setLoggerInstance( std::move( logger ) );
 
     m_socketServer = new RiaSocketServer( this );
 }

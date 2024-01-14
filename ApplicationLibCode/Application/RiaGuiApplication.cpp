@@ -433,9 +433,9 @@ void RiaGuiApplication::initialize()
         auto logger = std::make_unique<RiuMessagePanelLogger>();
         logger->addMessagePanel( m_mainWindow->messagePanel() );
         logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
-        RiaLogging::setLoggerInstance( std::move( logger ) );
+        logger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
 
-        RiaLogging::loggerInstance()->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+        RiaLogging::setLoggerInstance( std::move( logger ) );
 
         auto filename = RiaPreferences::current()->loggerFilename();
         if ( !filename.isEmpty() )
@@ -971,10 +971,14 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->showWindow();
 
     // if there is an existing logger, reconnect to it
-    auto logger = dynamic_cast<RiuMessagePanelLogger*>( RiaLogging::loggerInstance() );
-    if ( logger )
+
+    for ( auto logger : RiaLogging::loggerInstance() )
     {
-        logger->addMessagePanel( m_mainWindow->messagePanel() );
+        auto messagePanelLogger = dynamic_cast<RiuMessagePanelLogger*>( logger );
+        if ( messagePanelLogger )
+        {
+            messagePanelLogger->addMessagePanel( m_mainWindow->messagePanel() );
+        }
     }
 }
 
