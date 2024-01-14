@@ -440,6 +440,9 @@ void RiaGuiApplication::initialize()
         auto filename = RiaPreferences::current()->loggerFilename();
         if ( !filename.isEmpty() )
         {
+            auto fileLogger = std::make_unique<RiaFileLogger>( filename.toStdString() );
+            fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+
             RiaLogging::appendLoggerInstance( std::make_unique<RiaFileLogger>( filename.toStdString() ) );
         }
     }

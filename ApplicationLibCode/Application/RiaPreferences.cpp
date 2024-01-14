@@ -136,6 +136,8 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_loggerFilename, "loggerFilename", std::make_pair( false, defaultFilename ), "Logging To File" );
     m_loggerFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_loggerFlushInterval, "loggerFlushInterval", 500, "Logging Flush Interval [ms]" );
+
     CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
@@ -451,8 +453,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         scriptGroup->add( &scriptDirectories );
         scriptGroup->add( &m_maxScriptFoldersDepth );
         scriptGroup->add( &scriptEditorExecutable );
-
-        scriptGroup->add( &m_loggerFilename );
     }
 #ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
@@ -474,6 +474,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &m_gridCalculationExpressionFolder );
         otherGroup->add( &m_summaryCalculationExpressionFolder );
+
+        caf::PdmUiGroup* loggingGroup = uiOrdering.addNewGroup( "Logging" );
+        loggingGroup->add( &m_loggerFilename );
+        loggingGroup->add( &m_loggerFlushInterval );
+        m_loggerFlushInterval.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -956,6 +961,14 @@ QString RiaPreferences::loggerFilename() const
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferences::loggerFlushInterval() const
+{
+    return m_loggerFlushInterval();
 }
 
 //--------------------------------------------------------------------------------------------------
