@@ -443,7 +443,7 @@ void RiaGuiApplication::initialize()
             auto fileLogger = std::make_unique<RiaFileLogger>( filename.toStdString() );
             fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
 
-            RiaLogging::appendLoggerInstance( std::make_unique<RiaFileLogger>( filename.toStdString() ) );
+            RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
         }
     }
     m_socketServer = new RiaSocketServer( this );
