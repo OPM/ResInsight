@@ -623,6 +623,14 @@ set_property(
 
 add_subdirectory(ThirdParty/tomlplusplus)
 
+
+# ##############################################################################
+# spdlog
+# ##############################################################################
+
+add_subdirectory(ThirdParty/spdlog)
+list(APPEND THIRD_PARTY_LIBRARIES spdlog)
+
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
