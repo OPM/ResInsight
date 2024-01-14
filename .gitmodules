@@ -25,3 +25,6 @@
 [submodule "ThirdParty/qtadvanceddocking"]
 	path = ThirdParty/qtadvanceddocking
 	url = https://github.com/CeetronSolutions/qtadvanceddocking.git
+[submodule "ThirdParty/spdlog"]
+	path = ThirdParty/spdlog
+	url = https://github.com/gabime/spdlog.git
