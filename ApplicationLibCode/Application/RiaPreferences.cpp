@@ -34,6 +34,7 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmSettings.h"
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
@@ -124,6 +125,16 @@ RiaPreferences::RiaPreferences()
     m_pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_pythonExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     CAF_PDM_InitField( &showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info" );
+
+    auto defaultFilename = QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation );
+    if ( defaultFilename.isEmpty() )
+    {
+        defaultFilename = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+    }
+    defaultFilename += "/ResInsight.log";
+
+    CAF_PDM_InitField( &m_loggerFilename, "loggerFilename", std::make_pair( false, defaultFilename ), "Logging To File" );
+    m_loggerFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -440,6 +451,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         scriptGroup->add( &scriptDirectories );
         scriptGroup->add( &m_maxScriptFoldersDepth );
         scriptGroup->add( &scriptEditorExecutable );
+
+        scriptGroup->add( &m_loggerFilename );
     }
 #ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
@@ -930,6 +943,19 @@ QString RiaPreferences::pythonExecutable() const
 QString RiaPreferences::octaveExecutable() const
 {
     return m_octaveExecutable().trimmed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::loggerFilename() const
+{
+    if ( m_loggerFilename().first )
+    {
+        return m_loggerFilename().second;
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

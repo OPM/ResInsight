@@ -23,6 +23,7 @@
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaDefines.h"
+#include "RiaFileLogger.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
@@ -435,6 +436,12 @@ void RiaGuiApplication::initialize()
         RiaLogging::setLoggerInstance( std::move( logger ) );
 
         RiaLogging::loggerInstance()->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+
+        auto filename = RiaPreferences::current()->loggerFilename();
+        if ( !filename.isEmpty() )
+        {
+            RiaLogging::setLoggerInstance( std::make_unique<RiaFileLogger>( filename.toStdString() ) );
+        }
     }
     m_socketServer = new RiaSocketServer( this );
 }

@@ -116,6 +116,7 @@ public:
     // Script paths
     QString pythonExecutable() const;
     QString octaveExecutable() const;
+    QString loggerFilename() const;
 
     RiaPreferencesGeoMech* geoMechPreferences() const;
     RiaPreferencesSummary* summaryPreferences() const;
@@ -200,8 +201,9 @@ private:
     caf::PdmField<caf::FilePath> m_summaryCalculationExpressionFolder;
 
     // Script paths
-    caf::PdmField<QString> m_octaveExecutable;
-    caf::PdmField<QString> m_pythonExecutable;
+    caf::PdmField<QString>                  m_octaveExecutable;
+    caf::PdmField<QString>                  m_pythonExecutable;
+    caf::PdmField<std::pair<bool, QString>> m_loggerFilename;
 
     // Surface Import
     caf::PdmField<double> m_surfaceImportResamplingDistance;
