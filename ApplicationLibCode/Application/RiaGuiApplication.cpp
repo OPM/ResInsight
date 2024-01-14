@@ -435,12 +435,12 @@ void RiaGuiApplication::initialize()
         logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
         logger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
 
-        RiaLogging::setLoggerInstance( std::move( logger ) );
+        RiaLogging::appendLoggerInstance( std::move( logger ) );
 
         auto filename = RiaPreferences::current()->loggerFilename();
         if ( !filename.isEmpty() )
         {
-            RiaLogging::setLoggerInstance( std::make_unique<RiaFileLogger>( filename.toStdString() ) );
+            RiaLogging::appendLoggerInstance( std::make_unique<RiaFileLogger>( filename.toStdString() ) );
         }
     }
     m_socketServer = new RiaSocketServer( this );
@@ -508,7 +508,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         auto stdLogger = std::make_unique<RiaStdOutLogger>();
         stdLogger->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
-        RiaLogging::setLoggerInstance( std::move( stdLogger ) );
+        RiaLogging::appendLoggerInstance( std::move( stdLogger ) );
 
         RiaRegressionTestRunner::instance()->executeRegressionTests( regressionTestPath, QStringList() );
         return ApplicationStatus::EXIT_COMPLETED;
@@ -972,7 +972,7 @@ void RiaGuiApplication::createMainWindow()
 
     // if there is an existing logger, reconnect to it
 
-    for ( auto logger : RiaLogging::loggerInstance() )
+    for ( auto logger : RiaLogging::loggerInstances() )
     {
         auto messagePanelLogger = dynamic_cast<RiuMessagePanelLogger*>( logger );
         if ( messagePanelLogger )
