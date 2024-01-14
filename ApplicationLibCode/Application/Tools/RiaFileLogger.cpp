@@ -20,6 +20,7 @@
 
 #include "spdlog/logger.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/spdlog.h"
 
 class RiaFileLogger::Impl
 {
@@ -29,6 +30,8 @@ public:
         try
         {
             m_logger = spdlog::basic_logger_mt( "basic_logger", fileName );
+
+            spdlog::flush_every( std::chrono::milliseconds( 500 ) );
         }
         catch ( ... )
         {
