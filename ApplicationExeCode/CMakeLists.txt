@@ -400,7 +400,6 @@ foreach(riFileName ${RI_FILENAMES})
 endforeach()
 add_custom_target(
   PreBuildFileCopy
-  COMMENT "PreBuildFileCopy step: copy runtime files into build folder"
   ${copyCommands}
 )
 set_property(TARGET PreBuildFileCopy PROPERTY FOLDER "FileCopyTargets")
