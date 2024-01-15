@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaArgumentParser.h"
-#include "RiaLogging.h"
 #include "RiaMainTools.h"
 
 #ifdef ENABLE_GRPC
@@ -72,8 +71,6 @@ int main( int argc, char* argv[] )
         return 1;
     }
 #endif
-    // Global initialization
-    RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();

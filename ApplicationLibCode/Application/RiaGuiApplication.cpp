@@ -23,6 +23,7 @@
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaDefines.h"
+#include "RiaFileLogger.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
@@ -432,9 +433,18 @@ void RiaGuiApplication::initialize()
         auto logger = std::make_unique<RiuMessagePanelLogger>();
         logger->addMessagePanel( m_mainWindow->messagePanel() );
         logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
-        RiaLogging::setLoggerInstance( std::move( logger ) );
+        logger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
 
-        RiaLogging::loggerInstance()->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+        RiaLogging::appendLoggerInstance( std::move( logger ) );
+
+        auto filename = RiaPreferences::current()->loggerFilename();
+        if ( !filename.isEmpty() )
+        {
+            auto fileLogger = std::make_unique<RiaFileLogger>( filename.toStdString() );
+            fileLogger->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
+
+            RiaLogging::appendLoggerInstance( std::move( fileLogger ) );
+        }
     }
     m_socketServer = new RiaSocketServer( this );
 }
@@ -501,7 +511,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         auto stdLogger = std::make_unique<RiaStdOutLogger>();
         stdLogger->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
-        RiaLogging::setLoggerInstance( std::move( stdLogger ) );
+        RiaLogging::appendLoggerInstance( std::move( stdLogger ) );
 
         RiaRegressionTestRunner::instance()->executeRegressionTests( regressionTestPath, QStringList() );
         return ApplicationStatus::EXIT_COMPLETED;
@@ -964,10 +974,14 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->showWindow();
 
     // if there is an existing logger, reconnect to it
-    auto logger = dynamic_cast<RiuMessagePanelLogger*>( RiaLogging::loggerInstance() );
-    if ( logger )
+
+    for ( auto logger : RiaLogging::loggerInstances() )
     {
-        logger->addMessagePanel( m_mainWindow->messagePanel() );
+        auto messagePanelLogger = dynamic_cast<RiuMessagePanelLogger*>( logger );
+        if ( messagePanelLogger )
+        {
+            messagePanelLogger->addMessagePanel( m_mainWindow->messagePanel() );
+        }
     }
 }
 
