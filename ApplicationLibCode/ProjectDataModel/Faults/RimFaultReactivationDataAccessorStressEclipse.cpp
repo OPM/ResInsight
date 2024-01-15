@@ -212,7 +212,7 @@ std::vector<double>
                                                                             const std::map<RimFaultReactivation::ElementSets, double>& densities )
 {
     double              gravity      = RiaWellLogUnitTools<double>::gravityAcceleration();
-    double              seaWaterLoad = gravity * std::abs( seabedDepth ) * waterDensity / 1000.0;
+    double              seaWaterLoad = gravity * std::abs( seabedDepth ) * waterDensity;
     std::vector<double> values       = { seaWaterLoad };
 
     auto g           = model.grid( gridPart );
