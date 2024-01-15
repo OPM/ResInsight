@@ -101,8 +101,13 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
         std::map<RimFaultReactivation::ElementSets, double> densities = extractDensities( model );
         for ( auto property : stressProperties )
         {
-            m_accessors.push_back(
-                std::make_shared<RimFaultReactivationDataAccessorStressEclipse>( thecase, property, porePressureGradient, seabedDepth, densities ) );
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStressEclipse>( thecase,
+                                                                                                    property,
+                                                                                                    porePressureGradient,
+                                                                                                    seabedDepth,
+                                                                                                    model.lateralStressCoefficientX(),
+                                                                                                    model.lateralStressCoefficientY(),
+                                                                                                    densities ) );
         }
     }
 }

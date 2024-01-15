@@ -50,11 +50,15 @@ RimFaultReactivationDataAccessorStressEclipse::RimFaultReactivationDataAccessorS
     RimFaultReactivation::Property                             property,
     double                                                     gradient,
     double                                                     seabedDepth,
+    double                                                     lateralStressComponentX,
+    double                                                     lateralStressComponentY,
     const std::map<RimFaultReactivation::ElementSets, double>& densities )
     : RimFaultReactivationDataAccessorStress( property, gradient, seabedDepth )
     , m_eclipseCase( eclipseCase )
     , m_caseData( nullptr )
     , m_mainGrid( nullptr )
+    , m_lateralStressComponentX( lateralStressComponentX )
+    , m_lateralStressComponentY( lateralStressComponentY )
     , m_densities( densities )
 {
     if ( m_eclipseCase )
@@ -245,7 +249,6 @@ std::vector<double>
         return { false, RimFaultReactivation::ElementSets::OverBurden };
     };
 
-    int numMisses = 0;
     for ( size_t i = 1; i < intersections.size(); i++ )
     {
         double previousValue = values[i - 1];
@@ -267,9 +270,26 @@ std::vector<double>
         else
         {
             values.push_back( std::numeric_limits<double>::infinity() );
-            numMisses++;
         }
     }
 
     return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentX( const cvf::Vec3d&              position,
+                                                                               RimFaultReactivation::GridPart gridPart ) const
+{
+    return m_lateralStressComponentX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentY( const cvf::Vec3d&              position,
+                                                                               RimFaultReactivation::GridPart gridPart ) const
+{
+    return m_lateralStressComponentY;
 }
