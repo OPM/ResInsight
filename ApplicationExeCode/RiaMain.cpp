@@ -43,7 +43,6 @@
 
 void manageSegFailure( int signalCode );
 
-
 RiaApplication* createApplication( int& argc, char* argv[] )
 {
     for ( int i = 1; i < argc; ++i )
