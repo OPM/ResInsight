@@ -244,12 +244,13 @@ void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValuesWithT
 std::vector<cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( const cvf::Vec3d& faultTopPosition,
                                                                                                const cvf::Vec3d& faultBottomPosition,
                                                                                                double            seabedDepth,
+                                                                                               double            bottomDepth,
                                                                                                const cvf::Vec3d& offset )
 {
     cvf::Vec3d faultTop = faultTopPosition + offset;
     cvf::Vec3d seabed( faultTop.x(), faultTop.y(), seabedDepth );
     cvf::Vec3d faultBottom = faultBottomPosition + offset;
-    cvf::Vec3d underburdenBottom( faultBottom.x(), faultBottom.y(), -10000.0 );
+    cvf::Vec3d underburdenBottom( faultBottom.x(), faultBottom.y(), bottomDepth );
     return { seabed, faultTop, faultBottom, underburdenBottom };
 }
 
@@ -282,6 +283,7 @@ std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::
     auto [faultTopPosition, faultBottomPosition] = model.faultTopBottom();
     auto   faultNormal                           = model.faultNormal();
     double distanceFromFault                     = 1.0;
+    auto [topDepth, bottomDepth]                 = model.depthTopBottom();
 
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                wellPaths;
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> extractors;
@@ -293,6 +295,7 @@ std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
                                                                                    seabedDepth,
+                                                                                   bottomDepth,
                                                                                    sign * faultNormal * distanceFromFault );
         cvf::ref<RigWellPath> wellPath =
             new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );

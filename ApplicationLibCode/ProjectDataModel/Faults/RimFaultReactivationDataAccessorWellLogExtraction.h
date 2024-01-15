@@ -54,6 +54,7 @@ public:
     static std::vector<cvf::Vec3d> generateWellPoints( const cvf::Vec3d& faultTopPosition,
                                                        const cvf::Vec3d& faultBottomPosition,
                                                        double            seabedDepth,
+                                                       double            bottomDepth,
                                                        const cvf::Vec3d& offset );
 
     static std::vector<double> generateMds( const std::vector<cvf::Vec3d>& points );
