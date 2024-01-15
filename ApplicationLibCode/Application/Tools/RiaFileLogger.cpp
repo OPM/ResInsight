@@ -26,11 +26,14 @@
 class RiaFileLogger::Impl
 {
 public:
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
     Impl( const std::string& fileName )
     {
         try
         {
-            m_logger = spdlog::basic_logger_mt( "basic_logger", fileName );
+            m_spdlogger = spdlog::basic_logger_mt( "basic_logger", fileName );
 
             auto flushInterval = RiaPreferences::current()->loggerFlushInterval();
             spdlog::flush_every( std::chrono::milliseconds( flushInterval ) );
@@ -40,43 +43,48 @@ public:
         }
     }
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
     void log( const std::string& message )
     {
-        if ( !m_logger ) return;
-
-        m_logger->info( message );
+        if ( m_spdlogger ) m_spdlogger->info( message );
     }
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
     void info( const std::string& message )
     {
-        if ( !m_logger ) return;
-
-        m_logger->info( message );
+        if ( m_spdlogger ) m_spdlogger->info( message );
     }
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
     void debug( const std::string& message )
     {
-        if ( !m_logger ) return;
-
-        m_logger->debug( message );
+        if ( m_spdlogger ) m_spdlogger->debug( message );
     }
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
     void error( const std::string& message )
     {
-        if ( !m_logger ) return;
-
-        m_logger->error( message );
+        if ( m_spdlogger ) m_spdlogger->error( message );
     }
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
     void warning( const std::string& message )
     {
-        if ( !m_logger ) return;
-
-        m_logger->warn( message );
+        if ( m_spdlogger ) m_spdlogger->warn( message );
     }
 
 private:
-    std::shared_ptr<spdlog::logger> m_logger;
+    std::shared_ptr<spdlog::logger> m_spdlogger;
 };
 
 //--------------------------------------------------------------------------------------------------
