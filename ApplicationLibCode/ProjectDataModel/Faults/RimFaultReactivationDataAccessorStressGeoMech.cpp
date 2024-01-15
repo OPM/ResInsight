@@ -92,6 +92,7 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
     auto [faultTopPosition, faultBottomPosition] = m_model->faultTopBottom();
     auto   faultNormal                           = m_model->faultNormal();
     double distanceFromFault                     = 1.0;
+    auto [topDepth, bottomDepth]                 = m_model->depthTopBottom();
 
     RigFemPartCollection* geoMechPartCollection = m_geoMechCaseData->femParts();
     std::string           errorName             = "fault reactivation data access";
@@ -101,6 +102,7 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
                                                                                    m_seabedDepth,
+                                                                                   bottomDepth,
                                                                                    faultNormal * distanceFromFault );
         m_faceAWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
         m_partIndexA    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
@@ -112,6 +114,7 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
                                                                                    m_seabedDepth,
+                                                                                   bottomDepth,
                                                                                    -faultNormal * distanceFromFault );
         m_faceBWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
         m_partIndexB    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );

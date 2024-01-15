@@ -66,6 +66,7 @@ public:
     const std::array<cvf::Vec3d, 12>&       backPoints() const;
     const cvf::Vec3d                        normal() const;
     const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottomPoints() const;
+    std::pair<double, double>               depthTopBottom() const;
 
 protected:
     static const std::array<int, 4>      faceIJCornerIndexes( cvf::StructGridInterface::FaceType face );
@@ -103,6 +104,7 @@ private:
     double m_bufferBelowFault;
 
     double m_startDepth;
+    double m_bottomDepth;
     double m_depthBelowFault;
     double m_horzExtentFromFault;
     double m_modelThickness;
