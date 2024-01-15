@@ -130,6 +130,9 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_frictionAngleDeg, "FrictionAngle", 20.0, "Friction Angle [degree]" );
     CAF_PDM_InitField( &m_seabedTemperature, "SeabedTemperature", 5.0, "Seabed Temperature [C]" );
 
+    CAF_PDM_InitField( &m_lateralStressCoefficientX, "LateralStressCoefficientX", 0.5, "Lateral Stress Coeff. X" );
+    CAF_PDM_InitField( &m_lateralStressCoefficientY, "LateralStressCoefficientY", 0.5, "Lateral Stress Coeff. Y" );
+
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
@@ -486,13 +489,18 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     {
         propertiesGrp->add( &m_useGridDensity );
         propertiesGrp->add( &m_useGridElasticProperties );
-        propertiesGrp->add( &m_useGridStress );
         propertiesGrp->add( &m_waterDensity );
-
+        propertiesGrp->add( &m_useGridStress );
         propertiesGrp->add( &m_seabedTemperature );
 
         bool useTemperatureFromGrid = m_useGridTemperature();
         m_seabedTemperature.uiCapability()->setUiReadOnly( !useTemperatureFromGrid );
+    }
+
+    if ( !hasGeoMechCase || !m_useGridStress() )
+    {
+        propertiesGrp->add( &m_lateralStressCoefficientX );
+        propertiesGrp->add( &m_lateralStressCoefficientY );
     }
 
     propertiesGrp->add( &m_frictionAngleDeg );
@@ -810,4 +818,20 @@ double RimFaultReactivationModel::waterDensity() const
 double RimFaultReactivationModel::seabedTemperature() const
 {
     return m_seabedTemperature;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::lateralStressCoefficientX() const
+{
+    return m_lateralStressCoefficientX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationModel::lateralStressCoefficientY() const
+{
+    return m_lateralStressCoefficientY;
 }
