@@ -175,8 +175,8 @@ RigFemScalarResultFrames* RimFaultReactivationDataAccessorStressGeoMech::dataFra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d&              position,
-                                                                                              double                         gradient,
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d& position,
+                                                                                              double            gradient,
                                                                                               RimFaultReactivation::GridPart gridPart ) const
 {
     int timeStepIndex = 0;
