@@ -83,6 +83,14 @@ public:
         if ( m_spdlogger ) m_spdlogger->warn( message );
     }
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void flush()
+    {
+        if ( m_spdlogger ) m_spdlogger->flush();
+    }
+
 private:
     std::shared_ptr<spdlog::logger> m_spdlogger;
 };
@@ -149,4 +157,12 @@ void RiaFileLogger::info( const char* message )
 void RiaFileLogger::debug( const char* message )
 {
     m_impl->debug( message );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaFileLogger::flush()
+{
+    if ( m_impl ) m_impl->flush();
 }

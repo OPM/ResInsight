@@ -37,6 +37,8 @@ public:
     void info( const char* message ) override;
     void debug( const char* message ) override;
 
+    void flush();
+
 private:
     int m_logLevel;
 

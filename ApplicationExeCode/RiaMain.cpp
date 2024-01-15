@@ -39,6 +39,11 @@
 #include <unistd.h>
 #endif
 
+#include <signal.h>
+
+void manageSegFailure( int signalCode );
+
+
 RiaApplication* createApplication( int& argc, char* argv[] )
 {
     for ( int i = 1; i < argc; ++i )
@@ -108,6 +113,10 @@ int main( int argc, char* argv[] )
 
     QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
     setlocale( LC_NUMERIC, "C" );
+
+    {
+        signal( SIGSEGV, manageSegFailure );
+    }
 
     // Handle the command line arguments.
     // Todo: Move to a one-shot timer, delaying the execution until we are inside the event loop.

@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaMainTools.h"
+#include "RiaFileLogger.h"
+#include "RiaLogging.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketCommand.h"
 
@@ -24,6 +26,28 @@
 #include "cafCmdFeatureManager.h"
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmUiFieldEditorHandle.h"
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void manageSegFailure( int signalCode )
+{
+    auto loggers = RiaLogging::loggerInstances();
+
+    QString str = QString( "Segmentation fault. Signal code: %1" ).arg( signalCode );
+
+    for ( auto logger : loggers )
+    {
+        if ( auto fileLogger = dynamic_cast<RiaFileLogger*>( logger ) )
+        {
+            fileLogger->error( str.toStdString().data() );
+
+            fileLogger->flush();
+        }
+    }
+
+    exit( 1 );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

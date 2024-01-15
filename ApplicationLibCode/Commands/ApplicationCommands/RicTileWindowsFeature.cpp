@@ -37,6 +37,8 @@ CAF_CMD_SOURCE_INIT( RicTileWindowsFeature, "RicTileWindowsFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicTileWindowsFeature::applyTiling( RiuMainWindow* mainWindow, RiaDefines::WindowTileMode requestedTileMode )
 {
+    *(int*)0 = 0;
+
     auto mode = requestedTileMode;
 
     if ( auto proj = RimProject::current() )
