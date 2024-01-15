@@ -47,6 +47,8 @@ public:
                                                    RimFaultReactivation::Property                             property,
                                                    double                                                     gradient,
                                                    double                                                     seabedDepth,
+                                                   double                                                     lateralStressComponentX,
+                                                   double                                                     lateralStressComponentY,
                                                    const std::map<RimFaultReactivation::ElementSets, double>& densities );
     ~RimFaultReactivationDataAccessorStressEclipse() override;
 
@@ -65,6 +67,9 @@ private:
                           const cvf::Vec3d&              bottomPosition,
                           RimFaultReactivation::GridPart gridPart ) const override;
 
+    double lateralStressComponentX( const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const override;
+    double lateralStressComponentY( const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const override;
+
     static std::vector<double> integrateVerticalStress( const RigWellPath&                                         wellPath,
                                                         const std::vector<cvf::Vec3d>&                             intersections,
                                                         const RigFaultReactivationModel&                           model,
@@ -79,6 +84,8 @@ private:
     RigEclipseCaseData*         m_caseData;
     const RigMainGrid*          m_mainGrid;
     cvf::ref<RigResultAccessor> m_resultAccessor;
+    double                      m_lateralStressComponentX;
+    double                      m_lateralStressComponentY;
 
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> m_extractors;

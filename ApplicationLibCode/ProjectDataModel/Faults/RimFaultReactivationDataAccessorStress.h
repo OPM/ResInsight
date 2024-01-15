@@ -71,6 +71,9 @@ protected:
                                   const cvf::Vec3d&              bottomPosition,
                                   RimFaultReactivation::GridPart gridPart ) const = 0;
 
+    virtual double lateralStressComponentX( const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const;
+    virtual double lateralStressComponentY( const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const;
+
     RimFaultReactivation::Property m_property;
     double                         m_gradient;
     double                         m_seabedDepth;
