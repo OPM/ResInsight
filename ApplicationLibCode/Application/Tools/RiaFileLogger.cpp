@@ -90,6 +90,12 @@ RiaFileLogger::RiaFileLogger( const std::string& filename )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The destructor must be located in the cpp file after the definition of RiaFileLogger::Impl to make sure the Impl class is defined when
+/// the destructor of std::unique_ptr<Impl> is called
+//--------------------------------------------------------------------------------------------------
+RiaFileLogger::~RiaFileLogger() = default;
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 int RiaFileLogger::level() const
