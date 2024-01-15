@@ -155,7 +155,7 @@ double RimFaultReactivationDataAccessorStressEclipse::extractStressValue( Stress
             // Interpolate value from the two closest points.
             std::vector<double> xs = { intersections[bottomIdx].z(), intersections[topIdx].z() };
             std::vector<double> ys = { stressValues[bottomIdx], stressValues[topIdx] };
-            return RiaInterpolationTools::linear( xs, ys, position.z() );
+            return RiaEclipseUnitTools::pascalToBar( RiaInterpolationTools::linear( xs, ys, position.z() ) );
         }
     }
 
@@ -193,7 +193,7 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::cal
             RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
         auto [value, pos] = RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( intersections, values, position, m_gradient );
-        return { RiaEclipseUnitTools::barToPascal( value ), pos };
+        return { value, pos };
     }
 
     return { std::numeric_limits<double>::infinity(), cvf::Vec3d::UNDEFINED };
@@ -212,7 +212,7 @@ std::vector<double>
                                                                             const std::map<RimFaultReactivation::ElementSets, double>& densities )
 {
     double              gravity      = RiaWellLogUnitTools<double>::gravityAcceleration();
-    double              seaWaterLoad = gravity * std::abs( seabedDepth ) * waterDensity;
+    double              seaWaterLoad = gravity * std::abs( seabedDepth ) * waterDensity / 1000.0;
     std::vector<double> values       = { seaWaterLoad };
 
     auto g           = model.grid( gridPart );
@@ -262,20 +262,14 @@ std::vector<double>
             double density = densities.find( elementSet )->second;
 
             double value = previousValue + density * gravity * deltaDepth;
-            printf( "[%zu] tvd: %f. %f + %f * %f * %f = %f\n", i, currentDepth, previousValue, density, gravity, deltaDepth, value );
-
             values.push_back( value );
         }
         else
         {
-            // printf( "No valid element set [%zu] [%f %f %f]\n", i, intersections[i].x(), intersections[i].y(), intersections[i].z() );
             values.push_back( std::numeric_limits<double>::infinity() );
-
             numMisses++;
         }
     }
-
-    printf( "Misses: %d/%zu %d\n", numMisses, intersections.size() - 1, (int)gridPart );
 
     return values;
 }
