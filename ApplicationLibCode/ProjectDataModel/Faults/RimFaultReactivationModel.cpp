@@ -323,7 +323,7 @@ void RimFaultReactivationModel::updateVisualization()
     if ( !normal.normalize() ) return;
 
     auto modelNormal = normal ^ cvf::Vec3d::Z_AXIS;
-    modelNormal.normalize();
+    if ( !modelNormal.normalize() ) return;
 
     auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal, normal );
     generator->setFault( m_fault()->faultGeometry() );
@@ -507,6 +507,8 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     }
 
     propertiesGrp->add( &m_frictionAngleDeg );
+
+    uiOrdering.add( &m_targets );
 
     uiOrdering.skipRemainingFields();
 }

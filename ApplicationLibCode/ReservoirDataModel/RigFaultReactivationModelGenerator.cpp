@@ -498,6 +498,12 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     for ( auto& kvp : zPositionsBack )
         backReservoirLayers.push_back( kvp.second );
 
+    cvf::Plane modelPlane;
+    modelPlane.setFromPointAndNormal( m_startPosition, m_normal );
+
+    projectPointsToPlane( frontReservoirLayers, modelPlane );
+    projectPointsToPlane( backReservoirLayers, modelPlane );
+
     generatePointsFrontBack();
 
     frontPart->generateGeometry( m_frontPoints,
@@ -730,6 +736,25 @@ const cvf::Vec3d RigFaultReactivationModelGenerator::normal() const
 const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::faultTopBottomPoints() const
 {
     return std::make_pair( m_topFault, m_bottomFault );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::projectPointsToPlane( std::vector<cvf::Vec3d>& points, const cvf::Plane& plane )
+{
+    std::vector<cvf::Vec3d> newPoints;
+
+    for ( auto& p : points )
+    {
+        newPoints.push_back( plane.projectPoint( p ) );
+    }
+
+    points.clear();
+    for ( auto& p : newPoints )
+    {
+        points.push_back( p );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

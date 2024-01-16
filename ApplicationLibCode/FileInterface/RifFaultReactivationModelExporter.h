@@ -21,6 +21,7 @@
 #include "RigFaultReactivationModel.h"
 #include "RigGriddedPart3d.h"
 
+#include "RimFaultReactivationDataAccess.h"
 #include "RimFaultReactivationModel.h"
 
 #include <map>
