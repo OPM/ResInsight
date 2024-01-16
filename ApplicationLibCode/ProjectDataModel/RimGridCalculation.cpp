@@ -541,8 +541,9 @@ void RimGridCalculation::filterResults( RimGridView*                            
             replaceFilteredValuesWithVector( values[m_defaultPropertyVariableIndex], visibility, resultValues, porosityModel, outputEclipseCase );
         else
         {
-            QString errorMessage = "Invalid input data for default result property, no data assigned to non-visible cells.";
-            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
+            QString errorMessage =
+                "Grid Property Calculator: Invalid input data for default result property, no data assigned to non-visible cells.";
+            RiaLogging::error( errorMessage );
         }
     }
     else
