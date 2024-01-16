@@ -36,9 +36,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal )
+RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal, cvf::Vec3d modelDirection )
     : m_startPosition( position )
     , m_normal( normal )
+    , m_modelDirection( modelDirection )
     , m_bufferAboveFault( 0.0 )
     , m_bufferBelowFault( 0.0 )
     , m_startDepth( 0.0 )
@@ -89,10 +90,11 @@ void RigFaultReactivationModelGenerator::setActiveCellInfo( const RigActiveCellI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::setFaultBufferDepth( double aboveFault, double belowFault )
+void RigFaultReactivationModelGenerator::setFaultBufferDepth( double aboveFault, double belowFault, int faultZoneCells )
 {
     m_bufferAboveFault = aboveFault;
     m_bufferBelowFault = belowFault;
+    m_faultZoneCells   = faultZoneCells;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,9 +144,10 @@ void RigFaultReactivationModelGenerator::setModelGriddingOptions( double minCell
 //--------------------------------------------------------------------------------------------------
 std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::modelLocalNormalsXY()
 {
-    cvf::Vec3d xNormal = m_normal ^ cvf::Vec3d::Z_AXIS;
-    xNormal.z()        = 0.0;
-    xNormal.normalize();
+    cvf::Vec3d xNormal = m_modelDirection;
+    // = m_normal ^ cvf::Vec3d::Z_AXIS;
+    // xNormal.z()        = 0.0;
+    // xNormal.normalize();
 
     cvf::Vec3d yNormal = xNormal ^ cvf::Vec3d::Z_AXIS;
 
@@ -292,8 +295,9 @@ void RigFaultReactivationModelGenerator::generatePointsFrontBack()
 {
     std::array<cvf::Vec3d, 24> points;
 
-    auto alongModel = m_normal ^ cvf::Vec3d::Z_AXIS;
-    alongModel.normalize();
+    // auto alongModel = m_normal ^ cvf::Vec3d::Z_AXIS;
+    // alongModel.normalize();
+    const auto& alongModel = m_modelDirection;
 
     double top_depth = -m_startDepth;
     m_bottomDepth    = m_bottomFault.z() - m_depthBelowFault;
@@ -503,7 +507,8 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
                                  m_cellSizeHeightFactor,
                                  m_horizontalPartition,
                                  m_modelThickness,
-                                 m_topReservoirFront.z() );
+                                 m_topReservoirFront.z(),
+                                 m_normal );
     backPart->generateGeometry( m_backPoints,
                                 backReservoirLayers,
                                 kLayersBack,
@@ -511,7 +516,8 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
                                 m_cellSizeHeightFactor,
                                 m_horizontalPartition,
                                 m_modelThickness,
-                                m_topReservoirBack.z() );
+                                m_topReservoirBack.z(),
+                                m_normal );
 
     frontPart->generateLocalNodes( m_localCoordTransform );
     backPart->generateLocalNodes( m_localCoordTransform );

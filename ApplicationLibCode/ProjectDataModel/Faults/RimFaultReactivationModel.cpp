@@ -96,6 +96,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 0.0, "Below Reservoir" );
     m_faultExtendDownwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_faultZoneCells, "FaultZoneCells", 0, "Fault Zone Width [cells]" );
+
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
@@ -323,12 +325,12 @@ void RimFaultReactivationModel::updateVisualization()
     auto modelNormal = normal ^ cvf::Vec3d::Z_AXIS;
     modelNormal.normalize();
 
-    auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal );
+    auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal, normal );
     generator->setFault( m_fault()->faultGeometry() );
     generator->setGrid( eclipseCase()->mainGrid() );
     generator->setActiveCellInfo( eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
     generator->setModelSize( m_modelMinZ, m_modelBelowSize, m_modelExtentFromAnchor );
-    generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards );
+    generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards, m_faultZoneCells );
     generator->setModelThickness( m_modelThickness );
     generator->setModelGriddingOptions( m_minReservoirCellHeight,
                                         m_maxReservoirCellHeight,
@@ -443,6 +445,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     sizeModelGrp->add( &m_modelExtentFromAnchor );
     sizeModelGrp->add( &m_modelMinZ );
     sizeModelGrp->add( &m_modelBelowSize );
+    sizeModelGrp->add( &m_faultZoneCells );
 
     const bool hasGeoMechCase = ( m_geomechCase() != nullptr );
 
