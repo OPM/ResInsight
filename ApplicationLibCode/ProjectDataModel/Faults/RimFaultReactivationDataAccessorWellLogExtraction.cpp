@@ -115,6 +115,10 @@ std::pair<double, cvf::Vec3d>
             return { porBar, extractionPosition };
         }
     }
+    else if ( position.z() <= intersections.back().z() )
+    {
+        return { values.back(), intersections.back() };
+    }
 
     return { std::numeric_limits<double>::infinity(), cvf::Vec3d::UNDEFINED };
 }
@@ -281,16 +285,18 @@ std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::
                                                                                         double                           seabedDepth )
 {
     auto [faultTopPosition, faultBottomPosition] = model.faultTopBottom();
-    auto   faultNormal                           = model.faultNormal();
-    double distanceFromFault                     = 1.0;
-    auto [topDepth, bottomDepth]                 = model.depthTopBottom();
+    auto faultNormal                             = model.faultNormal() ^ cvf::Vec3d::Z_AXIS;
+    faultNormal.normalize();
+
+    double distanceFromFault     = 1.0;
+    auto [topDepth, bottomDepth] = model.depthTopBottom();
 
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                wellPaths;
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> extractors;
 
     for ( auto gridPart : model.allGridParts() )
     {
-        double                  sign = model.normalPointsAt() == gridPart ? 1.0 : -1.0;
+        double                  sign = model.normalPointsAt() == gridPart ? -1.0 : 1.0;
         std::vector<cvf::Vec3d> wellPoints =
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
@@ -350,7 +356,7 @@ std::vector<double> RimFaultReactivationDataAccessorWellLogExtraction::extractDe
     std::vector<double> intersectionsZ;
     for ( auto i : intersections )
     {
-        intersectionsZ.push_back( i.z() );
+        intersectionsZ.push_back( -i.z() );
     }
     return intersectionsZ;
 }

@@ -90,9 +90,11 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
     m_s22Frames       = loadFrameLambda( femParts, getResultAddress( "ST", "S22" ), timeStepIndex );
 
     auto [faultTopPosition, faultBottomPosition] = m_model->faultTopBottom();
-    auto   faultNormal                           = m_model->faultNormal();
-    double distanceFromFault                     = 1.0;
-    auto [topDepth, bottomDepth]                 = m_model->depthTopBottom();
+    auto faultNormal                             = m_model->faultNormal() ^ cvf::Vec3d::Z_AXIS;
+    faultNormal.normalize();
+
+    double distanceFromFault     = 1.0;
+    auto [topDepth, bottomDepth] = m_model->depthTopBottom();
 
     RigFemPartCollection* geoMechPartCollection = m_geoMechCaseData->femParts();
     std::string           errorName             = "fault reactivation data access";

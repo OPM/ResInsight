@@ -162,6 +162,10 @@ double RimFaultReactivationDataAccessorStressEclipse::extractStressValue( Stress
             return RiaEclipseUnitTools::pascalToBar( RiaInterpolationTools::linear( xs, ys, position.z() ) );
         }
     }
+    else if ( position.z() <= intersections.back().z() )
+    {
+        return RiaEclipseUnitTools::pascalToBar( stressValues.back() );
+    }
 
     return std::numeric_limits<double>::infinity();
 }
@@ -219,35 +223,11 @@ std::vector<double>
     double              seaWaterLoad = gravity * std::abs( seabedDepth ) * waterDensity;
     std::vector<double> values       = { seaWaterLoad };
 
-    auto g           = model.grid( gridPart );
-    auto elementSets = g->elementSets();
+    auto part = model.grid( gridPart );
+    CAF_ASSERT( part );
+    auto elementSets = part->elementSets();
 
-    auto getElementSet =
-        []( auto part, const cvf::Vec3d& point, const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets )
-        -> std::pair<bool, RimFaultReactivation::ElementSets>
-    {
-        for ( auto [elementSet, elements] : elementSets )
-        {
-            for ( unsigned int elementIndex : elements )
-            {
-                // Find nodes from element
-                auto positions = part->elementCorners( elementIndex );
-
-                std::array<cvf::Vec3d, 8> coordinates;
-                for ( size_t i = 0; i < positions.size(); ++i )
-                {
-                    coordinates[i] = positions[i];
-                }
-
-                if ( RigHexIntersectionTools::isPointInCell( point, coordinates.data() ) )
-                {
-                    return { true, elementSet };
-                }
-            }
-        }
-
-        return { false, RimFaultReactivation::ElementSets::OverBurden };
-    };
+    double previousDensity = densities.find( RimFaultReactivation::ElementSets::OverBurden )->second;
 
     for ( size_t i = 1; i < intersections.size(); i++ )
     {
@@ -256,25 +236,55 @@ std::vector<double>
         double currentDepth  = intersections[i].z();
 
         double deltaDepth = previousDepth - currentDepth;
+        double density    = previousDensity;
 
-        auto [isOk, elementSet] = getElementSet( g, intersections[i], elementSets );
+        auto [isOk, elementSet] = findElementSetForPoint( *part, intersections[i], elementSets );
         if ( isOk )
         {
             // Unit: kg/m^3
             CAF_ASSERT( densities.find( elementSet ) != densities.end() );
-            double density = densities.find( elementSet )->second;
+            density = densities.find( elementSet )->second;
+        }
 
-            double value = previousValue + density * gravity * deltaDepth;
-            values.push_back( value );
-        }
-        else
-        {
-            values.push_back( std::numeric_limits<double>::infinity() );
-        }
+        double value = previousValue + density * gravity * deltaDepth;
+        values.push_back( value );
+
+        previousDensity = density;
     }
 
     return values;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, RimFaultReactivation::ElementSets> RimFaultReactivationDataAccessorStressEclipse::findElementSetForPoint(
+    const RigGriddedPart3d&                                                       part,
+    const cvf::Vec3d&                                                             point,
+    const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets )
+{
+    for ( auto [elementSet, elements] : elementSets )
+    {
+        for ( unsigned int elementIndex : elements )
+        {
+            // Find nodes from element
+            auto positions = part.elementCorners( elementIndex );
+
+            std::array<cvf::Vec3d, 8> coordinates;
+            for ( size_t i = 0; i < positions.size(); ++i )
+            {
+                coordinates[i] = positions[i];
+            }
+
+            if ( RigHexIntersectionTools::isPointInCell( point, coordinates.data() ) )
+            {
+                return { true, elementSet };
+            }
+        }
+    }
+
+    return { false, RimFaultReactivation::ElementSets::OverBurden };
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
