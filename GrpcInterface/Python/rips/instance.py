@@ -285,9 +285,9 @@ class Instance:
             raise Exception(
                 "Error: Wrong Version of ResInsight at ",
                 location,
-                self.version_string(),
+                "Executable : " + self.version_string(),
                 " ",
-                self.client_version_string(),
+                "rips : " + self.client_version_string(),
             )
 
     def __version_message(self) -> App_pb2.Version:
