@@ -185,8 +185,8 @@ bool RimFaultReactivationDataAccessorStressEclipse::isPositionValid( const cvf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::calculatePorBar( const cvf::Vec3d&              position,
-                                                                                              double                         gradient,
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::calculatePorBar( const cvf::Vec3d& position,
+                                                                                              double            gradient,
                                                                                               RimFaultReactivation::GridPart gridPart ) const
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
