@@ -91,14 +91,14 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
             auto [porBar, extractionPos] = calculatePorBar( topPosition, m_gradient, gridPart );
             if ( std::isinf( porBar ) ) return porBar;
             double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
-            return RiaEclipseUnitTools::barToPascal( s33 - porBar );
+            return -RiaEclipseUnitTools::barToPascal( s33 - porBar );
         }
         else if ( m_property == RimFaultReactivation::Property::StressBottom )
         {
             auto [porBar, extractionPos] = calculatePorBar( bottomPosition, m_gradient, gridPart );
             if ( std::isinf( porBar ) ) return porBar;
             double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
-            return RiaEclipseUnitTools::barToPascal( s33 - porBar );
+            return -RiaEclipseUnitTools::barToPascal( s33 - porBar );
         }
         else if ( m_property == RimFaultReactivation::Property::DepthTop )
         {
