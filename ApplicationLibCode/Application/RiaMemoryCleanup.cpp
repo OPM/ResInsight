@@ -34,6 +34,10 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include <QDialog>
+#include <QTextEdit>
+#include <QVBoxLayout>
+
 //==================================================================================================
 ///
 ///
@@ -55,6 +59,9 @@ RiaMemoryCleanup::RiaMemoryCleanup()
 
     CAF_PDM_InitFieldNoDefault( &m_performDelete, "ClearSelectedData", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_performDelete );
+
+    CAF_PDM_InitFieldNoDefault( &m_showMemoryReport, "ShowMemoryReport", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_showMemoryReport );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +112,38 @@ void RiaMemoryCleanup::clearSelectedResultsFromMemory()
     m_resultsToDelete.v().clear();
     m_eclipseResultAddresses.clear();
     m_geomResultAddresses.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class TextDialog : public QDialog
+{
+public:
+    TextDialog( const QString& text, QWidget* parent = nullptr )
+        : QDialog( parent )
+    {
+        auto textWidget = new QTextEdit( "", this );
+        textWidget->setPlainText( text );
+        auto layout = new QVBoxLayout( this );
+        layout->addWidget( textWidget );
+        setLayout( layout );
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaMemoryCleanup::showMemoryReport()
+{
+    auto [summary, details] = createMemoryReport();
+
+    QString allText = summary + "\n\n" + details;
+
+    auto dialog = new TextDialog( allText );
+    dialog->setWindowTitle( "Memory Report" );
+    dialog->setMinimumSize( 800, 600 );
+    dialog->show();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,6 +242,12 @@ void RiaMemoryCleanup::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         clearSelectedResultsFromMemory();
         m_resultsToDelete.uiCapability()->updateConnectedEditors();
         m_performDelete = false;
+    }
+    else if ( changedField == &m_showMemoryReport )
+    {
+        m_showMemoryReport = false;
+
+        showMemoryReport();
     }
 }
 
@@ -310,10 +355,70 @@ void RiaMemoryCleanup::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 {
     if ( field == &m_performDelete )
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( attrib )
         {
             attrib->m_buttonText = "Clear Checked Data From Memory";
         }
     }
+    if ( field == &m_showMemoryReport )
+    {
+        auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_buttonText = "Show Memory Report";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<QString, QString> RiaMemoryCleanup::createMemoryReport()
+{
+    QString details;
+
+    auto allCases = RimProject::current()->allGridCases();
+
+    size_t totalMemory = 0;
+    for ( auto gridCase : allCases )
+    {
+        if ( auto eclipseCase = dynamic_cast<RimEclipseCase*>( gridCase ) )
+        {
+            RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            if ( caseData )
+            {
+                size_t  totalMemoryForCase = 0;
+                QString caseReport;
+
+                auto memoryUse = caseData->resultValueCount();
+                for ( const auto& [name, valueCount] : memoryUse )
+                {
+                    if ( valueCount > 0 )
+                    {
+                        size_t memory = valueCount * sizeof( double );
+                        totalMemoryForCase += memory;
+
+                        caseReport += QString( "  %1 MB\tValue count %2, %3\n" )
+                                          .arg( memory / 1024.0 / 1024.0, 0, 'f', 2 )
+                                          .arg( valueCount )
+                                          .arg( QString::fromStdString( name ) );
+                    }
+                }
+
+                totalMemory += totalMemoryForCase;
+
+                if ( totalMemoryForCase > 0 )
+                {
+                    details +=
+                        QString( "%1 - %2 MB\n" ).arg( eclipseCase->caseUserDescription() ).arg( totalMemoryForCase / 1024.0 / 1024.0, 0, 'f', 2 );
+
+                    details += caseReport;
+                }
+            }
+        }
+    }
+
+    QString summary = QString( "Total memory used: %1 MB\n\n" ).arg( totalMemory / 1024.0 / 1024.0, 0, 'f', 2 );
+    return std::make_pair( summary, details );
 }

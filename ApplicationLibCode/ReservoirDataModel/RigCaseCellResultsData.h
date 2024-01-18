@@ -99,6 +99,9 @@ public:
     void                    mobileVolumeWeightedMean( const RigEclipseResultAddress& resVarAddr, double& meanValue );
     void                    mobileVolumeWeightedMean( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue );
 
+    // Return the number of double values allocated for each result
+    std::map<std::string, size_t> resultValueCount() const;
+
     // Access meta-information about the results
 
     size_t timeStepCount( const RigEclipseResultAddress& resVarAddr ) const;
@@ -199,7 +202,8 @@ private:
     void computeFaultDistance();
     void computeNncsCells();
 
-    bool isDataPresent( size_t scalarResultIndex ) const;
+    bool   isDataPresent( size_t scalarResultIndex ) const;
+    size_t allocatedValueCount( size_t scalarResultIndex ) const;
 
     void assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& values );
 
