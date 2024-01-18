@@ -269,9 +269,6 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
     const int                 nThicknessCells    = 2;
     cvf::Vec3d                tVec               = modelThickness * thicknessDirection;
-    // cvf::Vec3d                tVec               = stepVector( inputPoints[0], inputPoints[6], 1 ) ^ cvf::Vec3d::Z_AXIS;
-    // tVec.normalize();
-    // tVec *= modelThickness;
 
     size_t reserveSize = ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     m_nodes.reserve( reserveSize );
