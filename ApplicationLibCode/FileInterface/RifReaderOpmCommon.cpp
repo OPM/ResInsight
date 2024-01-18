@@ -127,6 +127,10 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
                     }
                 }
             }
+
+            // Always clear data after reading to avoid memory use
+            m_initFile->clearData();
+
             return true;
         }
         catch ( std::exception& e )
@@ -178,6 +182,9 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                     }
                 }
             }
+
+            // Always clear data after reading to avoid memory use
+            m_restartFile->clearData();
 
             return true;
         }
