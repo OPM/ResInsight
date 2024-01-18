@@ -82,7 +82,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working Folder" );
     CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
 
-    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 3000.0, "Horz. Extent from Anchor" );
+    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Horz. Extent from Anchor" );
     CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Seabed Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
@@ -106,12 +106,12 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelPart1Color, "ModelPart1Color", cvf::Color3f( cvf::Color3f::GREEN ), "Part 1 Color" );
     CAF_PDM_InitField( &m_modelPart2Color, "ModelPart2Color", cvf::Color3f( cvf::Color3f::BLUE ), "Part 2 Color" );
 
-    CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 20.0, "Max. Reservoir Cell Height" );
+    CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 5.0, "Max. Reservoir Cell Height" );
     CAF_PDM_InitField( &m_minReservoirCellHeight, "MinReservoirCellHeight", 0.5, "Min. Reservoir Cell Height" );
-    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.05, "Cell Height Grow Factor" );
+    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.15, "Cell Height Grow Factor" );
 
-    CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 20.0, "Reservoir Cell Width" );
-    CAF_PDM_InitField( &m_cellWidthGrowFactor, "CellWidthGrowFactor", 1.05, "Cell Width Grow Factor" );
+    CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 5.0, "Reservoir Cell Width" );
+    CAF_PDM_InitField( &m_cellWidthGrowFactor, "CellWidthGrowFactor", 1.15, "Cell Width Grow Factor" );
 
     CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Export Using Local Coordinates" );
 
@@ -623,6 +623,15 @@ void RimFaultReactivationModel::updateTimeSteps()
     m_availableTimeSteps.clear();
     const auto eCase = eclipseCase();
     if ( eCase != nullptr ) m_availableTimeSteps = eCase->timeStepDates();
+
+    if ( m_selectedTimeSteps().size() == 0 )
+    {
+        std::vector<QDateTime> newVal;
+        if ( m_availableTimeSteps.size() > 0 ) newVal.push_back( m_availableTimeSteps.front() );
+        if ( m_availableTimeSteps.size() > 1 ) newVal.push_back( m_availableTimeSteps.back() );
+
+        m_selectedTimeSteps.setValue( newVal );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

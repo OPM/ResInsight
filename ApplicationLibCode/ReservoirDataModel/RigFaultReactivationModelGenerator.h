@@ -77,8 +77,6 @@ protected:
     static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
     static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight );
     static void       mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double minHeight );
-    static void       projectPointsToPlane( std::vector<cvf::Vec3d>& points, const cvf::Plane& plane );
-    static void       projectPointsToPlane( std::array<cvf::Vec3d, 12>& points, const cvf::Plane& plane );
 
     std::map<double, cvf::Vec3d> elementLayers( cvf::StructGridInterface::FaceType face, std::vector<size_t>& cellIndexColumn );
     std::vector<int>             elementKLayers( const std::vector<size_t>& cellIndexColumn );

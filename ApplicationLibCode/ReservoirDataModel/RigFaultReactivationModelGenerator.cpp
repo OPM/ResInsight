@@ -53,6 +53,7 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_minCellHeight( 0.5 )
     , m_maxCellHeight( 20.0 )
     , m_minCellWidth( 20.0 )
+    , m_faultZoneCells( 0 )
 {
 }
 
@@ -503,15 +504,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
 
     generatePointsFrontBack();
 
-    // cvf::Plane modelPlane;
-    // modelPlane.setFromPointAndNormal( m_startPosition, m_normal );
-
-    // projectPointsToPlane( frontReservoirLayers, modelPlane );
-    // projectPointsToPlane( backReservoirLayers, modelPlane );
-
-    // projectPointsToPlane( m_frontPoints, modelPlane );
-    // projectPointsToPlane( m_backPoints, modelPlane );
-
     frontPart->generateGeometry( m_frontPoints,
                                  frontReservoirLayers,
                                  kLayersFront,
@@ -742,28 +734,6 @@ const cvf::Vec3d RigFaultReactivationModelGenerator::normal() const
 const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::faultTopBottomPoints() const
 {
     return std::make_pair( m_topFault, m_bottomFault );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::projectPointsToPlane( std::vector<cvf::Vec3d>& points, const cvf::Plane& plane )
-{
-    for ( int i = 0; i < (int)points.size(); i++ )
-    {
-        points[i] = plane.projectPoint( points[i] );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::projectPointsToPlane( std::array<cvf::Vec3d, 12>& points, const cvf::Plane& plane )
-{
-    for ( int i = 0; i < (int)points.size(); i++ )
-    {
-        points[i] = plane.projectPoint( points[i] );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
