@@ -146,10 +146,6 @@ void RigFaultReactivationModelGenerator::setModelGriddingOptions( double minCell
 std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::modelLocalNormalsXY()
 {
     cvf::Vec3d xNormal = m_modelDirection;
-    // = m_normal ^ cvf::Vec3d::Z_AXIS;
-    // xNormal.z()        = 0.0;
-    // xNormal.normalize();
-
     cvf::Vec3d yNormal = xNormal ^ cvf::Vec3d::Z_AXIS;
 
     return std::make_pair( xNormal, yNormal );
