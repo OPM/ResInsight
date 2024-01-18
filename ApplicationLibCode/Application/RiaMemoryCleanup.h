@@ -39,6 +39,8 @@ public:
     void setPropertiesFromView( Rim3dView* view );
     void clearSelectedResultsFromMemory();
 
+    static void showMemoryReport();
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -52,10 +54,13 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
+    static std::pair<QString, QString> createMemoryReport();
+
 private:
     caf::PdmPtrField<RimCase*>           m_case;
     caf::PdmField<std::vector<size_t>>   m_resultsToDelete;
     std::vector<RigFemResultAddress>     m_geomResultAddresses;
     std::vector<RigEclipseResultAddress> m_eclipseResultAddresses;
     caf::PdmField<bool>                  m_performDelete;
+    caf::PdmField<bool>                  m_showMemoryReport;
 };

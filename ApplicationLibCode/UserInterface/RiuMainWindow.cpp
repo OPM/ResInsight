@@ -672,6 +672,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicExecuteLastUsedScriptFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicExportCompletionsForVisibleWellPathsFeature" ) );
+        toolbar->addAction( cmdFeatureMgr->action( "RicShowMemoryReportFeature" ) );
     }
 
     // Create animation toolbar
