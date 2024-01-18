@@ -47,6 +47,7 @@ public:
                                                    RimFaultReactivation::Property                             property,
                                                    double                                                     gradient,
                                                    double                                                     seabedDepth,
+                                                   double                                                     waterDensity,
                                                    double                                                     lateralStressComponentX,
                                                    double                                                     lateralStressComponentY,
                                                    const std::map<RimFaultReactivation::ElementSets, double>& densities );
@@ -89,6 +90,7 @@ private:
     RigEclipseCaseData*         m_caseData;
     const RigMainGrid*          m_mainGrid;
     cvf::ref<RigResultAccessor> m_resultAccessor;
+    double                      m_waterDensity;
     double                      m_lateralStressComponentX;
     double                      m_lateralStressComponentY;
 

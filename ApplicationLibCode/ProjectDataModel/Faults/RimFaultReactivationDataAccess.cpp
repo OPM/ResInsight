@@ -105,6 +105,7 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
                                                                                                     property,
                                                                                                     porePressureGradient,
                                                                                                     seabedDepth,
+                                                                                                    model.waterDensity(),
                                                                                                     model.lateralStressCoefficientX(),
                                                                                                     model.lateralStressCoefficientY(),
                                                                                                     densities ) );
