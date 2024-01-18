@@ -16,6 +16,9 @@ endif()
 
 find_package(OpenGL)
 
+
+message(STATUS "In LibGuiQt, CEE_USE_QT6=${CEE_USE_QT6}")
+message(STATUS "In LibGuiQt, CEE_USE_QT5=${CEE_USE_QT5}")
 if (CEE_USE_QT6)
     find_package(Qt6 COMPONENTS REQUIRED Core Gui Widgets OpenGLWidgets)
     set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGLWidgets )

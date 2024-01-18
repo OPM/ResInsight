@@ -681,6 +681,14 @@ if(CMAKE_COMPILER_IS_GNUCC)
 
 endif()
 
+
+# !!!
+# For now, we force Qt to version 5
+message(STATUS "Forcing setting of CEE_USE_QT5 to ON")
+set(CEE_USE_QT5 ON CACHE BOOL "Force usage of Qt5" FORCE)
+message(STATUS "CEE_USE_QT5=${CEE_USE_QT5}")
+
+
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
