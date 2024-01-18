@@ -219,6 +219,24 @@ void RigCaseCellResultsData::mobileVolumeWeightedMean( const RigEclipseResultAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<std::string, size_t> RigCaseCellResultsData::resultValueCount() const
+{
+    std::map<std::string, size_t> memoryUse;
+
+    for ( size_t i = 0; i < m_cellScalarResults.size(); i++ )
+    {
+        if ( allocatedValueCount( i ) > 0 )
+        {
+            memoryUse[m_resultInfos[i].resultName().toStdString()] = allocatedValueCount( i );
+        }
+    }
+
+    return memoryUse;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::resultCount() const
 {
     return m_cellScalarResults.size();
@@ -2838,22 +2856,25 @@ RigAllanDiagramData* RigCaseCellResultsData::allanDiagramData()
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::isDataPresent( size_t scalarResultIndex ) const
 {
-    if ( scalarResultIndex >= resultCount() )
+    return allocatedValueCount( scalarResultIndex ) > 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigCaseCellResultsData::allocatedValueCount( size_t scalarResultIndex ) const
+{
+    if ( scalarResultIndex >= resultCount() ) return 0;
+
+    const std::vector<std::vector<double>>& valuesAllTimeSteps = m_cellScalarResults[scalarResultIndex];
+
+    size_t valueCount = 0;
+    for ( const auto& values : valuesAllTimeSteps )
     {
-        return false;
+        valueCount += values.size();
     }
 
-    const std::vector<std::vector<double>>& data = m_cellScalarResults[scalarResultIndex];
-
-    for ( size_t tsIdx = 0; tsIdx < data.size(); ++tsIdx )
-    {
-        if ( !data[tsIdx].empty() )
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return valueCount;
 }
 
 //--------------------------------------------------------------------------------------------------
