@@ -559,22 +559,29 @@ std::vector<double> RimGridCalculation::getDataForResult( const QString&        
 
     auto eclipseCaseData        = sourceCase->eclipseCaseData();
     auto rigCaseCellResultsData = eclipseCaseData->results( porosityModel );
-    if ( !rigCaseCellResultsData->ensureKnownResultLoaded( resAddr ) ) return {};
+    if ( !rigCaseCellResultsData->findOrLoadKnownScalarResultForTimeStep( resAddr, timeStepToUse ) ) return {};
 
     // Active cell info must always be retrieved from the destination case, as the returned vector must be of the same size as number of
-    // active cells in the destination case.
+    // active cells in the destination case. Active cells can be different between source and destination case.
     auto activeCellInfoDestination = destinationCase->eclipseCaseData()->activeCellInfo( porosityModel );
     auto activeReservoirCells      = activeCellInfoDestination->activeReservoirCellIndices();
 
     std::vector<double> values( activeCellInfoDestination->activeReservoirCellIndices().size() );
 
-    auto resultAccessor = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, 0, porosityModel, timeStepToUse, resAddr );
+    size_t gridIndex = 0;
+    auto   resultAccessor =
+        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, gridIndex, porosityModel, timeStepToUse, resAddr );
 
 #pragma omp parallel for
     for ( int i = 0; i < static_cast<int>( activeReservoirCells.size() ); i++ )
     {
         values[i] = resultAccessor->cellScalarGlobIdx( activeReservoirCells[i] );
     }
+
+    auto categoriesToExclude = { RiaDefines::ResultCatType::GENERATED };
+
+    sourceCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepToUse );
+    sourceCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData( categoriesToExclude, timeStepToUse );
 
     return values;
 }

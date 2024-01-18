@@ -742,10 +742,14 @@ void RigCaseCellResultsData::freeAllocatedResultsData( std::vector<RiaDefines::R
             }
 
             auto& dataForTimeStep = m_cellScalarResults[resultIdx][index];
-            // Using swap with an empty vector as that is the safest way to really get rid of the allocated data in a
-            // vector
-            std::vector<double> empty;
-            dataForTimeStep.swap( empty );
+
+            if ( !dataForTimeStep.empty() )
+            {
+                // Using swap with an empty vector as that is the safest way to really get rid of the allocated data in a
+                // vector
+                std::vector<double> empty;
+                dataForTimeStep.swap( empty );
+            }
         }
     }
 }
