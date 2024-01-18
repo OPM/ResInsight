@@ -200,8 +200,11 @@ const std::array<int, 4> RigFaultReactivationModelGenerator::faceIJCornerIndexes
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigFaultReactivationModelGenerator::lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB )
 {
-    double dist = 0.0;
-    return caf::HexGridIntersectionTools::planeLineIntersectionForMC( plane, lineA, lineB, &dist );
+    double     dist = 0.0;
+    cvf::Vec3d intersect;
+    caf::HexGridIntersectionTools::planeLineIntersect( plane, lineA, lineB, &intersect, &dist, 0.01 );
+
+    return intersect;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,13 +501,16 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     for ( auto& kvp : zPositionsBack )
         backReservoirLayers.push_back( kvp.second );
 
-    cvf::Plane modelPlane;
-    modelPlane.setFromPointAndNormal( m_startPosition, m_normal );
-
-    projectPointsToPlane( frontReservoirLayers, modelPlane );
-    projectPointsToPlane( backReservoirLayers, modelPlane );
-
     generatePointsFrontBack();
+
+    // cvf::Plane modelPlane;
+    // modelPlane.setFromPointAndNormal( m_startPosition, m_normal );
+
+    // projectPointsToPlane( frontReservoirLayers, modelPlane );
+    // projectPointsToPlane( backReservoirLayers, modelPlane );
+
+    // projectPointsToPlane( m_frontPoints, modelPlane );
+    // projectPointsToPlane( m_backPoints, modelPlane );
 
     frontPart->generateGeometry( m_frontPoints,
                                  frontReservoirLayers,
@@ -743,17 +749,20 @@ const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::faul
 //--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModelGenerator::projectPointsToPlane( std::vector<cvf::Vec3d>& points, const cvf::Plane& plane )
 {
-    std::vector<cvf::Vec3d> newPoints;
-
-    for ( auto& p : points )
+    for ( int i = 0; i < (int)points.size(); i++ )
     {
-        newPoints.push_back( plane.projectPoint( p ) );
+        points[i] = plane.projectPoint( points[i] );
     }
+}
 
-    points.clear();
-    for ( auto& p : newPoints )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::projectPointsToPlane( std::array<cvf::Vec3d, 12>& points, const cvf::Plane& plane )
+{
+    for ( int i = 0; i < (int)points.size(); i++ )
     {
-        points.push_back( p );
+        points[i] = plane.projectPoint( points[i] );
     }
 }
 
