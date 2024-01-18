@@ -76,7 +76,7 @@ OpenGLContextGroup::OpenGLContextGroup()
     m_glewContextStruct(NULL),
     m_wglewContextStruct(NULL)
 {
-    Trace::show("OpenGLContextGroup constructor");
+    //Trace::show("OpenGLContextGroup constructor");
 
     m_resourceManager = new OpenGLResourceManager;
     m_logger = CVF_GET_LOGGER("cee.cvf.OpenGL"); 
@@ -89,7 +89,7 @@ OpenGLContextGroup::OpenGLContextGroup()
 //--------------------------------------------------------------------------------------------------
 OpenGLContextGroup::~OpenGLContextGroup()
 {
-    Trace::show("OpenGLContextGroup destructor");
+    //Trace::show("OpenGLContextGroup destructor");
 
     // Our resource manager must already be clean
     // There is no way of safely deleting the resources after all the contexts have been removed
@@ -108,7 +108,10 @@ OpenGLContextGroup::~OpenGLContextGroup()
 
     m_contexts.clear();
 
-    uninitializeContextGroup();
+    if (m_isInitialized)
+    {
+        uninitializeContextGroup();
+    }
 }
 
 
@@ -132,7 +135,7 @@ bool OpenGLContextGroup::isContextGroupInitialized() const
 //--------------------------------------------------------------------------------------------------
 bool OpenGLContextGroup::initializeContextGroup(OpenGLContext* currentContext)
 {
-    Trace::show("OpenGLContextGroup::initializeContextGroup()");
+    //Trace::show("OpenGLContextGroup::initializeContextGroup()");
 
     CVF_ASSERT(currentContext);
     CVF_ASSERT(currentContext->isCurrent());
@@ -177,7 +180,7 @@ bool OpenGLContextGroup::initializeContextGroup(OpenGLContext* currentContext)
 //--------------------------------------------------------------------------------------------------
 void OpenGLContextGroup::uninitializeContextGroup()
 {
-    Trace::show("OpenGLContextGroup::uninitializeContextGroup()");
+    //Trace::show("OpenGLContextGroup::uninitializeContextGroup()");
 
     CVF_ASSERT(m_contexts.empty());
     CVF_ASSERT(!m_resourceManager->hasAnyOpenGLResources());
@@ -200,7 +203,7 @@ void OpenGLContextGroup::uninitializeContextGroup()
 
 
 //--------------------------------------------------------------------------------------------------
-/// Called by OpenGLContext objects when they are being shut down
+/// Prepare a context for deletion
 ///
 /// This function will remove the context \a currentContextToShutdown from the context group.
 /// If \a currentContextToShutdown is the last context in the group, all resources in the group's
@@ -211,7 +214,7 @@ void OpenGLContextGroup::uninitializeContextGroup()
 //--------------------------------------------------------------------------------------------------
 void OpenGLContextGroup::contextAboutToBeShutdown(OpenGLContext* currentContextToShutdown)
 {
-    Trace::show("OpenGLContextGroup::contextAboutToBeShutdown()");
+    //Trace::show("OpenGLContextGroup::contextAboutToBeShutdown()");
 
     CVF_ASSERT(currentContextToShutdown);
     CVF_ASSERT(containsContext(currentContextToShutdown));
@@ -255,7 +258,7 @@ void OpenGLContextGroup::contextAboutToBeShutdown(OpenGLContext* currentContextT
 //--------------------------------------------------------------------------------------------------
 bool OpenGLContextGroup::initializeGLEW(OpenGLContext* currentContext)
 {
-    Trace::show("OpenGLContextGroup::initializeGLEW()");
+    //Trace::show("OpenGLContextGroup::initializeGLEW()");
 
     CVF_ASSERT(currentContext);
     CVF_ASSERT(m_glewContextStruct == NULL);
