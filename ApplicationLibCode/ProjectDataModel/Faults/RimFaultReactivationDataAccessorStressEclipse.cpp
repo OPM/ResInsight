@@ -50,6 +50,7 @@ RimFaultReactivationDataAccessorStressEclipse::RimFaultReactivationDataAccessorS
     RimFaultReactivation::Property                             property,
     double                                                     gradient,
     double                                                     seabedDepth,
+    double                                                     waterDensity,
     double                                                     lateralStressComponentX,
     double                                                     lateralStressComponentY,
     const std::map<RimFaultReactivation::ElementSets, double>& densities )
@@ -57,6 +58,7 @@ RimFaultReactivationDataAccessorStressEclipse::RimFaultReactivationDataAccessorS
     , m_eclipseCase( eclipseCase )
     , m_caseData( nullptr )
     , m_mainGrid( nullptr )
+    , m_waterDensity( waterDensity )
     , m_lateralStressComponentX( lateralStressComponentX )
     , m_lateralStressComponentY( lateralStressComponentY )
     , m_densities( densities )
@@ -93,9 +95,6 @@ void RimFaultReactivationDataAccessorStressEclipse::updateResultAccessor()
     m_wellPaths  = wellPaths;
     m_extractors = extractors;
 
-    // TODO: get from model
-    double waterDensity = 1030.0;
-
     for ( auto [gridPart, wellPath] : m_wellPaths )
     {
         auto                    extractor     = m_extractors[gridPart];
@@ -104,7 +103,7 @@ void RimFaultReactivationDataAccessorStressEclipse::updateResultAccessor()
         addOverburdenAndUnderburdenPoints( intersections, wellPath->wellPathPoints() );
 
         m_stressValues[gridPart] =
-            integrateVerticalStress( *wellPath.p(), intersections, *m_model, gridPart, m_seabedDepth, waterDensity, m_densities );
+            integrateVerticalStress( *wellPath.p(), intersections, *m_model, gridPart, m_seabedDepth, m_waterDensity, m_densities );
     }
 }
 
