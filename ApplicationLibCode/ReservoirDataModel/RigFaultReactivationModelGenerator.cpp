@@ -295,15 +295,11 @@ void RigFaultReactivationModelGenerator::generatePointsFrontBack()
 {
     std::array<cvf::Vec3d, 24> points;
 
-    // auto alongModel = m_normal ^ cvf::Vec3d::Z_AXIS;
-    // alongModel.normalize();
-    const auto& alongModel = m_modelDirection;
-
     double top_depth = -m_startDepth;
     m_bottomDepth    = m_bottomFault.z() - m_depthBelowFault;
 
-    cvf::Vec3d edge_front = m_startPosition - m_horzExtentFromFault * alongModel;
-    cvf::Vec3d edge_back  = m_startPosition + m_horzExtentFromFault * alongModel;
+    cvf::Vec3d edge_front = m_startPosition - m_horzExtentFromFault * m_modelDirection;
+    cvf::Vec3d edge_back  = m_startPosition + m_horzExtentFromFault * m_modelDirection;
 
     points[8]     = m_bottomFault;
     points[8].z() = m_bottomDepth;
