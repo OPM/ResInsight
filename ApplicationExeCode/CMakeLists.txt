@@ -398,11 +398,7 @@ foreach(riFileName ${RI_FILENAMES})
     $<TARGET_FILE_DIR:ResInsightDummyTarget>
   )
 endforeach()
-add_custom_target(
-  PreBuildFileCopy
-  COMMENT "PreBuildFileCopy step: copy runtime files into build folder"
-  ${copyCommands}
-)
+add_custom_target(PreBuildFileCopy ${copyCommands})
 set_property(TARGET PreBuildFileCopy PROPERTY FOLDER "FileCopyTargets")
 
 # Make ResInsight depend on the prebuild target.

@@ -42,12 +42,14 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_bufferAboveFault( 0.0 )
     , m_bufferBelowFault( 0.0 )
     , m_startDepth( 0.0 )
+    , m_bottomDepth( 0.0 )
     , m_depthBelowFault( 100.0 )
     , m_horzExtentFromFault( 1000.0 )
     , m_modelThickness( 100.0 )
     , m_useLocalCoordinates( false )
     , m_cellSizeHeightFactor( 1.0 )
     , m_cellSizeWidthFactor( 1.0 )
+    , m_minCellHeight( 0.5 )
     , m_maxCellHeight( 20.0 )
     , m_minCellWidth( 20.0 )
 {
@@ -122,11 +124,13 @@ void RigFaultReactivationModelGenerator::setUseLocalCoordinates( bool useLocalCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::setModelGriddingOptions( double maxCellHeight,
+void RigFaultReactivationModelGenerator::setModelGriddingOptions( double minCellHeight,
+                                                                  double maxCellHeight,
                                                                   double cellSizeFactorHeight,
                                                                   double minCellWidth,
                                                                   double cellSizeFactorWidth )
 {
+    m_minCellHeight        = minCellHeight;
     m_maxCellHeight        = maxCellHeight;
     m_cellSizeHeightFactor = cellSizeFactorHeight;
     m_minCellWidth         = minCellWidth;
@@ -291,14 +295,14 @@ void RigFaultReactivationModelGenerator::generatePointsFrontBack()
     auto alongModel = m_normal ^ cvf::Vec3d::Z_AXIS;
     alongModel.normalize();
 
-    double top_depth    = -m_startDepth;
-    double bottom_depth = m_bottomFault.z() - m_depthBelowFault;
+    double top_depth = -m_startDepth;
+    m_bottomDepth    = m_bottomFault.z() - m_depthBelowFault;
 
     cvf::Vec3d edge_front = m_startPosition - m_horzExtentFromFault * alongModel;
     cvf::Vec3d edge_back  = m_startPosition + m_horzExtentFromFault * alongModel;
 
     points[8]     = m_bottomFault;
-    points[8].z() = bottom_depth;
+    points[8].z() = m_bottomDepth;
 
     points[9]  = m_bottomFault;
     points[10] = m_bottomReservoirBack;
@@ -476,6 +480,9 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
     }
     m_topFault = top_point;
 
+    mergeTinyLayers( zPositionsFront, kLayersFront, m_minCellHeight );
+    mergeTinyLayers( zPositionsBack, kLayersBack, m_minCellHeight );
+
     splitLargeLayers( zPositionsFront, kLayersFront, m_maxCellHeight );
     splitLargeLayers( zPositionsBack, kLayersBack, m_maxCellHeight );
 
@@ -568,6 +575,68 @@ cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d star
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double minHeight )
+{
+    std::vector<int>        newKLayers;
+    std::vector<cvf::Vec3d> newLayers;
+
+    const int nLayers = (int)layers.size();
+
+    std::vector<double>     keys;
+    std::vector<cvf::Vec3d> vals;
+
+    for ( auto& layer : layers )
+    {
+        keys.push_back( layer.first );
+        vals.push_back( layer.second );
+    }
+
+    // bottom layer must always be included
+    newLayers.push_back( vals.front() );
+    newKLayers.push_back( kLayers.front() );
+
+    // remove any layer that is less than minHeight above the previous layer, starting at the bottom
+    for ( int k = 1; k < nLayers - 1; k++ )
+    {
+        if ( std::abs( keys[k] - keys[k - 1] ) < minHeight )
+        {
+            continue;
+        }
+        newKLayers.push_back( kLayers[k] );
+        newLayers.push_back( vals[k] );
+    }
+    // top layer must always be included
+    newLayers.push_back( vals.back() );
+
+    // make sure the top two layers aren't too close, if so, remove the second topmost
+    const int nNewLayers = (int)newLayers.size();
+    if ( nNewLayers > 2 )
+    {
+        if ( std::abs( newLayers[nNewLayers - 1].z() - newLayers[nNewLayers - 2].z() ) < minHeight )
+        {
+            newKLayers.pop_back();
+            newLayers.pop_back();
+            newLayers.pop_back();
+            newLayers.push_back( vals.back() );
+        }
+    }
+
+    layers.clear();
+    for ( auto& p : newLayers )
+    {
+        layers[p.z()] = p;
+    }
+
+    kLayers.clear();
+    for ( auto k : newKLayers )
+    {
+        kLayers.push_back( k );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight )
 {
     std::vector<cvf::Vec3d> additionalPoints;
@@ -655,4 +724,12 @@ const cvf::Vec3d RigFaultReactivationModelGenerator::normal() const
 const std::pair<cvf::Vec3d, cvf::Vec3d> RigFaultReactivationModelGenerator::faultTopBottomPoints() const
 {
     return std::make_pair( m_topFault, m_bottomFault );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RigFaultReactivationModelGenerator::depthTopBottom() const
+{
+    return { -m_startDepth, m_bottomDepth };
 }

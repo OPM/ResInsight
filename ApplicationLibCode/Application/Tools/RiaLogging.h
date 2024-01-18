@@ -60,8 +60,8 @@ public:
 class RiaLogging
 {
 public:
-    static RiaLogger* loggerInstance();
-    static void       setLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance );
+    static std::vector<RiaLogger*> loggerInstances();
+    static void                    appendLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance );
 
     static RILogLevel logLevelBasedOnPreferences();
 
@@ -73,7 +73,7 @@ public:
     static void errorInMessageBox( QWidget* parent, const QString& title, const QString& text );
 
 private:
-    static std::unique_ptr<RiaLogger> sm_logger;
+    static std::vector<std::unique_ptr<RiaLogger>> sm_logger;
 };
 
 //==================================================================================================
