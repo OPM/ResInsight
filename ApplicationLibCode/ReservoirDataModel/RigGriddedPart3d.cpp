@@ -235,7 +235,8 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                                          const std::vector<double>&        horizontalPartition,
                                          double                            modelThickness,
                                          double                            topHeight,
-                                         cvf::Vec3d                        thicknessDirection )
+                                         cvf::Vec3d                        thicknessDirection,
+                                         int                               nFaultZoneCells )
 {
     reset();
 
@@ -418,6 +419,8 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     const int nThicknessOff   = nThicknessCells + 1;
     const int seaBedLayer     = (int)( nVertCells - 2 );
 
+    const int nFaultZoneStart = (int)nHorzCells - nFaultZoneCells - 1;
+
     for ( int v = 0; v < (int)nVertCells - 1; v++ )
     {
         if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
@@ -455,21 +458,28 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                     m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
                 }
 
+                bool inFaultZone = ( currentSurfaceRegion == RimFaultReactivation::BorderSurface::FaultSurface ) && ( h >= nFaultZoneStart );
+
+                if ( inFaultZone ) m_elementSets[RimFaultReactivation::ElementSets::FaultZone].push_back( elementIdx );
+
                 if ( currentElementSet == RimFaultReactivation::ElementSets::Reservoir )
                 {
                     m_elementKLayer[elementIdx] = kLayers[kLayer];
-                    if ( kLayers[kLayer] < 0 )
+                    if ( !inFaultZone )
                     {
-                        m_elementSets[RimFaultReactivation::ElementSets::IntraReservoir].push_back( elementIdx );
-                    }
-                    else
-                    {
-                        m_elementSets[currentElementSet].push_back( elementIdx );
+                        if ( kLayers[kLayer] < 0 )
+                        {
+                            m_elementSets[RimFaultReactivation::ElementSets::IntraReservoir].push_back( elementIdx );
+                        }
+                        else
+                        {
+                            m_elementSets[currentElementSet].push_back( elementIdx );
+                        }
                     }
                 }
                 else
                 {
-                    m_elementSets[currentElementSet].push_back( elementIdx );
+                    if ( !inFaultZone ) m_elementSets[currentElementSet].push_back( elementIdx );
                     m_elementKLayer[elementIdx] = -2000;
                 }
             }

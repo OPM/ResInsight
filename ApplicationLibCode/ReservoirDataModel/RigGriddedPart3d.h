@@ -51,7 +51,8 @@ public:
                            const std::vector<double>&        horizontalPartition,
                            double                            modelThickness,
                            double                            topHeight,
-                           cvf::Vec3d                        thicknessDirection );
+                           cvf::Vec3d                        thicknessDirection,
+                           int                               nFaultZoneCells );
 
     void generateLocalNodes( const cvf::Mat4d transform );
     void setUseLocalCoordinates( bool useLocalCoordinates );
