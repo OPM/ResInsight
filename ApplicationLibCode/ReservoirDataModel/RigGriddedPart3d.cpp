@@ -458,7 +458,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                     m_boundaryElements[Boundary::FarSide].push_back( elementIdx );
                 }
 
-                bool inFaultZone = ( currentSurfaceRegion == RimFaultReactivation::BorderSurface::FaultSurface ) && ( h >= nFaultZoneStart );
+                bool inFaultZone = ( currentSurfaceRegion == RimFaultReactivation::BorderSurface::FaultSurface ) && ( h > nFaultZoneStart );
 
                 if ( inFaultZone ) m_elementSets[RimFaultReactivation::ElementSets::FaultZone].push_back( elementIdx );
 
