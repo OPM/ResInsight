@@ -828,8 +828,8 @@ bool RimGridCalculation::calculateForCases( const std::vector<RimEclipseCase*>& 
                 RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
                 CAF_ASSERT( v != nullptr );
 
-                bool useDataFromDestinationCase = ( v->eclipseCase() == m_destinationCase );
-                auto sourceCase                 = useDataFromDestinationCase ? m_destinationCase : calculationCase;
+                bool useDataFromSourceCase = ( v->eclipseCase() == m_destinationCase );
+                auto sourceCase            = useDataFromSourceCase ? calculationCase : m_destinationCase;
 
                 auto dataForVariable = getDataForVariable( v, tsId, porosityModel, sourceCase, m_destinationCase );
                 if ( dataForVariable.empty() )
