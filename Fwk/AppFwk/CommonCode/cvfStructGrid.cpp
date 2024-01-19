@@ -367,6 +367,8 @@ bool StructGridInterface::hasValidCharacteristicCellSizes() const
 //--------------------------------------------------------------------------------------------------
 void StructGridInterface::computeCharacteristicCellSize( const std::vector<size_t>& globalCellIndices ) const
 {
+    if ( globalCellIndices.empty() ) return;
+
     ubyte faceConnPosI[4];
     cellFaceVertexIndices( StructGridInterface::POS_I, faceConnPosI );
 
