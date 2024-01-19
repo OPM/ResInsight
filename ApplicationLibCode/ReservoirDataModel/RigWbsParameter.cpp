@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RigWbsParameter.h"
 
+#include "RiaResultNames.h"
 #include "RiaWellLogUnitTools.h"
 #include "RigFemAddressDefines.h"
 
@@ -262,6 +263,36 @@ RigWbsParameter RigWbsParameter::PP_NonReservoir()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::PP_Min()
+{
+    SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPMinResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
+
+    return RigWbsParameter( "PP_Min", true, sources );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::PP_Max()
+{
+    SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPMaxResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
+
+    return RigWbsParameter( "PP_Max", true, sources );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::PP_Exp()
+{
+    SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPExpResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
+
+    return RigWbsParameter( "PP_Exp", true, sources );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::poissonRatio()
 {
     return RigWbsParameter( "Poisson_Ratio",
@@ -381,7 +412,21 @@ RigWbsParameter RigWbsParameter::waterDensity()
 //--------------------------------------------------------------------------------------------------
 std::set<RigWbsParameter> RigWbsParameter::allParameters()
 {
-    return { PP_Reservoir(), PP_NonReservoir(), poissonRatio(), UCS(), OBG(), OBG0(), SH(), DF(), K0_FG(), K0_SH(), FG_Shale(), waterDensity() };
+    return { PP_Reservoir(),
+             PP_NonReservoir(),
+             PP_Min(),
+             PP_Max(),
+             PP_Exp(),
+             poissonRatio(),
+             UCS(),
+             OBG(),
+             OBG0(),
+             SH(),
+             DF(),
+             K0_FG(),
+             K0_SH(),
+             FG_Shale(),
+             waterDensity() };
 }
 
 //--------------------------------------------------------------------------------------------------

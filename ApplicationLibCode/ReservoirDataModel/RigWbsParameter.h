@@ -65,15 +65,18 @@ public:
     void                setOptionsExclusive( bool exclusive );
 
     std::vector<QString> allSourceUiLabels( const QString& delimiter = " ", double userDefinedValue = std::numeric_limits<double>::infinity() );
-    QString sourceUiLabel( Source         currentSource,
-                           const QString& delimiter        = " ",
-                           double         userDefinedValue = std::numeric_limits<double>::infinity() );
+    QString              sourceUiLabel( Source         currentSource,
+                                        const QString& delimiter        = " ",
+                                        double         userDefinedValue = std::numeric_limits<double>::infinity() );
 
     bool operator==( const RigWbsParameter& rhs ) const;
     bool operator<( const RigWbsParameter& rhs ) const;
 
     static RigWbsParameter PP_Reservoir();
     static RigWbsParameter PP_NonReservoir();
+    static RigWbsParameter PP_Min();
+    static RigWbsParameter PP_Max();
+    static RigWbsParameter PP_Exp();
     static RigWbsParameter poissonRatio();
     static RigWbsParameter UCS();
     static RigWbsParameter OBG();

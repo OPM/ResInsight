@@ -42,7 +42,7 @@ public:
     RigWellLogLasFile();
     ~RigWellLogLasFile() override;
 
-    bool open( const QString& fileName, QString* errorMessage ) override;
+    bool open( const QString& fileName, QString* errorMessage );
 
     QString     wellName() const override;
     QString     date() const override;

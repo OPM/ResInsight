@@ -166,9 +166,23 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
         {
             wellPathAngles( resAddr, values );
         }
-        else if ( resAddr.fieldName == RiaResultNames::wbsSHMkResult().toStdString() )
+        else if ( resAddr.fieldName == RiaResultNames::wbsSHMkResult().toStdString() ||
+                  resAddr.fieldName == RiaResultNames::wbsSHMkMinResult().toStdString() ||
+                  resAddr.fieldName == RiaResultNames::wbsSHMkMaxResult().toStdString() ||
+                  resAddr.fieldName == RiaResultNames::wbsSHMkExpResult().toStdString() )
         {
-            wellBoreSH_MatthewsKelly( timeStepIndex, frameIndex, values );
+            auto mapSHMkToPP = []( const QString& SHMkName )
+            {
+                if ( SHMkName == RiaResultNames::wbsSHMkMinResult() ) return RiaResultNames::wbsPPMinResult();
+                if ( SHMkName == RiaResultNames::wbsSHMkMaxResult() ) return RiaResultNames::wbsPPMaxResult();
+                if ( SHMkName == RiaResultNames::wbsSHMkExpResult() ) return RiaResultNames::wbsPPExpResult();
+
+                CAF_ASSERT( SHMkName == RiaResultNames::wbsSHMkResult() );
+                return RiaResultNames::wbsPPResult();
+            };
+
+            QString ppResultName = mapSHMkToPP( QString::fromStdString( resAddr.fieldName ) );
+            wellBoreSH_MatthewsKelly( timeStepIndex, frameIndex, ppResultName, values );
             values->front() = wbsCurveValuesAtMsl();
         }
         else
@@ -565,6 +579,12 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     {
         sources = calculateWbsParameterForAllSegments( RigWbsParameter::OBG(), timeStepIndex, frameIndex, values, true );
     }
+    else if ( resAddr.fieldName == RiaResultNames::wbsPPExpResult().toStdString() ||
+              resAddr.fieldName == RiaResultNames::wbsPPMinResult().toStdString() ||
+              resAddr.fieldName == RiaResultNames::wbsPPMaxResult().toStdString() )
+    {
+        sources = calculateWbsParameterForAllSegments( QString::fromStdString( resAddr.fieldName ), timeStepIndex, frameIndex, values, true );
+    }
     else
     {
         sources = calculateWbsParameterForAllSegments( RigWbsParameter::SH(), timeStepIndex, frameIndex, values, true );
@@ -726,12 +746,15 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int timeStepIndex, int frameIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int timeStepIndex, int frameIndex, std::vector<double>* values )
+void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int                  timeStepIndex,
+                                                           int                  frameIndex,
+                                                           const QString&       wbsPPResultName,
+                                                           std::vector<double>* values )
 {
     std::vector<double> PP, PP0; // results
     std::vector<double> K0_SH, OBG0, DF; // parameters
 
-    RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, RiaResultNames::wbsPPResult().toStdString(), "" );
+    RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, wbsPPResultName.toStdString(), "" );
 
     curveData( ppAddr, timeStepIndex, frameIndex, &PP );
     curveData( ppAddr, 0, 0, &PP0 );

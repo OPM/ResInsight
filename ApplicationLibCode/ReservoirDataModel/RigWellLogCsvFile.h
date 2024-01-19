@@ -24,8 +24,11 @@
 #include "RiaDefines.h"
 
 #include <QStringList>
+
 #include <map>
 #include <vector>
+
+class RigWellPath;
 
 //==================================================================================================
 ///
@@ -36,7 +39,7 @@ public:
     RigWellLogCsvFile();
     ~RigWellLogCsvFile() override;
 
-    bool open( const QString& fileName, QString* errorMessage ) override;
+    bool open( const QString& fileName, RigWellPath* wellPath, QString* errorMessage );
 
     QString     wellName() const override;
     QString     date() const override;
@@ -66,4 +69,5 @@ private:
     QString                                m_tvdMslLogName;
     QString                                m_tvdRkbLogName;
     std::map<QString, std::vector<double>> m_values;
+    std::map<QString, QString>             m_units;
 };

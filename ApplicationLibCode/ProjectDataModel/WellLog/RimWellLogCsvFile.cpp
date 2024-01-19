@@ -102,7 +102,13 @@ bool RimWellLogCsvFile::readFile( QString* errorMessage )
 
     m_name = QFileInfo( m_fileName().path() ).fileName();
 
-    if ( !m_wellLogDataFile->open( m_fileName().path(), errorMessage ) )
+    auto wellPath = firstAncestorOrThisOfType<RimFileWellPath>();
+    if ( !wellPath )
+    {
+        return false;
+    }
+
+    if ( !m_wellLogDataFile->open( m_fileName().path(), wellPath->wellPathGeometry(), errorMessage ) )
     {
         m_wellLogDataFile = nullptr;
         return false;

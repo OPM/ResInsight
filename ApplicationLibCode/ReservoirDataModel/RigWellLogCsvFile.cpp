@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -32,6 +31,7 @@
 
 #include <QFileInfo>
 #include <QString>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,7 +52,7 @@ RigWellLogCsvFile::~RigWellLogCsvFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage )
+bool RigWellLogCsvFile::open( const QString& fileName, RigWellPath* wellPath, QString* errorMessage )
 {
     m_values.clear();
     m_wellLogChannelNames.clear();
@@ -75,12 +75,13 @@ bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage )
             printf( "Column name: [%s] %s %zu\n", columnName.toStdString().c_str(), s.unitName.c_str(), s.values.size() );
             m_wellLogChannelNames.append( columnName );
             m_values[columnName] = s.values;
+            m_units[columnName]  = QString::fromStdString( s.unitName );
 
             if ( columnName.toUpper() == "DEPT" || columnName.toUpper() == "DEPTH" || columnName.toUpper() == "MD" )
             {
                 m_depthLogName = columnName;
             }
-            else if ( columnName.toUpper() == "TVDMSL" )
+            else if ( columnName.toUpper() == "TVDMSL" || columnName.toUpper().contains( "TVD" ) )
             {
                 m_tvdMslLogName = columnName;
             }
@@ -90,12 +91,20 @@ bool RigWellLogCsvFile::open( const QString& fileName, QString* errorMessage )
             }
         }
 
-        // auto wellPathMd  = wellPath->wellPathGeometry()->measuredDepths();
-        // auto wellPathTvd = wellPath->wellPathGeometry()->trueVerticalDepths();
+        if ( m_depthLogName.isEmpty() )
+        {
+            auto wellPathMd  = wellPath->measuredDepths();
+            auto wellPathTvd = wellPath->trueVerticalDepths();
 
-        // // Estimate measured depth for cells that do not have measured depth
+            // Estimate measured depth for cells that do not have measured depth
+            std::vector<double> tvdValuesToEstimate = tvdMslValues();
+            auto estimatedMeasuredDepth = RigWellPathGeometryTools::interpolateMdFromTvd( wellPathMd, wellPathTvd, tvdValuesToEstimate );
+            m_depthLogName              = "DEPTH";
+            m_wellLogChannelNames.append( m_depthLogName );
+            m_values[m_depthLogName] = estimatedMeasuredDepth;
 
-        // auto estimatedMeasuredDepth = RigWellPathGeometryTools::interpolateMdFromTvd( wellPathMd, wellPathTvd, tvdValuesToEstimate );
+            printf( "depth: %zu %zu\n", tvdValuesToEstimate.size(), estimatedMeasuredDepth.size() );
+        }
 
         return true;
     }
@@ -111,6 +120,7 @@ void RigWellLogCsvFile::close()
     m_wellLogChannelNames.clear();
     m_depthLogName.clear();
     m_values.clear();
+    m_units.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,14 +241,11 @@ QString RigWellLogCsvFile::wellLogChannelUnitString( const QString& wellLogChann
 //--------------------------------------------------------------------------------------------------
 QString RigWellLogCsvFile::wellLogChannelUnitString( const QString& wellLogChannelName ) const
 {
-    // QString unit;
-
-    // NRLib::CsvWell* lasWell = dynamic_cast<NRLib::CsvWell*>( m_wellLogFile );
-    // if ( lasWell )
-    // {
-    //     return QString::fromStdString( lasWell->unitName( wellLogChannelName.toStdString() ) );
-    // }
-    return "";
+    auto unit = m_units.find( wellLogChannelName );
+    if ( unit != m_units.end() )
+        return unit->second;
+    else
+        return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,9 +269,7 @@ bool RigWellLogCsvFile::hasTvdRkbChannel() const
 //--------------------------------------------------------------------------------------------------
 double RigWellLogCsvFile::getMissingValue() const
 {
-    // TODO:
-    return -1.0;
-    //  return m_wellLogFile->GetContMissing();
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------

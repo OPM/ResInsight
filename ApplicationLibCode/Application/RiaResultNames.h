@@ -97,6 +97,9 @@ QString wbsFGMkMinResult();
 QString wbsSHMkExpResult();
 QString wbsSHMkMinResult();
 QString wbsSHMkMaxResult();
+QString wbsPPMinResult();
+QString wbsPPMaxResult();
+QString wbsPPExpResult();
 
 // Fault results
 QString           formationBinaryAllanResultName();

@@ -125,7 +125,7 @@ private:
     void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int timeStepIndex, int frameIndex, std::vector<double>* values );
 
     void wellBoreFGShale( int timeStepIndex, int frameIndex, std::vector<double>* values );
-    void wellBoreSH_MatthewsKelly( int timeStepIndex, int frameIndex, std::vector<double>* values );
+    void wellBoreSH_MatthewsKelly( int timeStepIndex, int frameIndex, const QString& wbsPPResultName, std::vector<double>* values );
 
     template <typename T>
     T interpolateGridResultValue( RigFemResultPosEnum resultPosType, const std::vector<T>& gridResultValues, int64_t intersectionIdx ) const;

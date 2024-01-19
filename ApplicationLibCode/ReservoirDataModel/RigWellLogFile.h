@@ -37,8 +37,6 @@ public:
     RigWellLogFile();
     ~RigWellLogFile() override;
 
-    virtual bool open( const QString& fileName, QString* errorMessage ) = 0;
-
     virtual QString     date() const                = 0;
     virtual QString     wellName() const            = 0;
     virtual QStringList wellLogChannelNames() const = 0;
