@@ -82,7 +82,7 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDirectory", "Working Folder" );
     CAF_PDM_InitField( &m_modelThickness, "ModelThickness", 100.0, "Model Cell Thickness" );
 
-    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 3000.0, "Horz. Extent from Anchor" );
+    CAF_PDM_InitField( &m_modelExtentFromAnchor, "ModelExtentFromAnchor", 1000.0, "Horz. Extent from Anchor" );
     CAF_PDM_InitField( &m_modelMinZ, "ModelMinZ", 0.0, "Seabed Depth" );
     CAF_PDM_InitField( &m_modelBelowSize, "ModelBelowSize", 500.0, "Depth Below Fault" );
 
@@ -96,6 +96,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_faultExtendDownwards, "FaultExtendDownwards", 0.0, "Below Reservoir" );
     m_faultExtendDownwards.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_faultZoneCells, "FaultZoneCells", 0, "Fault Zone Width [cells]" );
+
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
@@ -104,14 +106,14 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_modelPart1Color, "ModelPart1Color", cvf::Color3f( cvf::Color3f::GREEN ), "Part 1 Color" );
     CAF_PDM_InitField( &m_modelPart2Color, "ModelPart2Color", cvf::Color3f( cvf::Color3f::BLUE ), "Part 2 Color" );
 
-    CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 20.0, "Max. Reservoir Cell Height" );
+    CAF_PDM_InitField( &m_maxReservoirCellHeight, "MaxReservoirCellHeight", 5.0, "Max. Reservoir Cell Height" );
     CAF_PDM_InitField( &m_minReservoirCellHeight, "MinReservoirCellHeight", 0.5, "Min. Reservoir Cell Height" );
-    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.05, "Cell Height Grow Factor" );
+    CAF_PDM_InitField( &m_cellHeightGrowFactor, "CellHeightGrowFactor", 1.15, "Cell Height Grow Factor" );
 
-    CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 20.0, "Reservoir Cell Width" );
-    CAF_PDM_InitField( &m_cellWidthGrowFactor, "CellWidthGrowFactor", 1.05, "Cell Width Grow Factor" );
+    CAF_PDM_InitField( &m_minReservoirCellWidth, "MinReservoirCellWidth", 5.0, "Reservoir Cell Width" );
+    CAF_PDM_InitField( &m_cellWidthGrowFactor, "CellWidthGrowFactor", 1.15, "Cell Width Grow Factor" );
 
-    CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Export Using Local Coordinates" );
+    CAF_PDM_InitField( &m_useLocalCoordinates, "UseLocalCoordinates", false, "Use Local Coordinates" );
 
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
@@ -321,14 +323,14 @@ void RimFaultReactivationModel::updateVisualization()
     if ( !normal.normalize() ) return;
 
     auto modelNormal = normal ^ cvf::Vec3d::Z_AXIS;
-    modelNormal.normalize();
+    if ( !modelNormal.normalize() ) return;
 
-    auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal );
+    auto generator = std::make_shared<RigFaultReactivationModelGenerator>( m_targets[0]->targetPointXYZ(), modelNormal, normal );
     generator->setFault( m_fault()->faultGeometry() );
     generator->setGrid( eclipseCase()->mainGrid() );
     generator->setActiveCellInfo( eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
     generator->setModelSize( m_modelMinZ, m_modelBelowSize, m_modelExtentFromAnchor );
-    generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards );
+    generator->setFaultBufferDepth( m_faultExtendUpwards, m_faultExtendDownwards, m_faultZoneCells );
     generator->setModelThickness( m_modelThickness );
     generator->setModelGriddingOptions( m_minReservoirCellHeight,
                                         m_maxReservoirCellHeight,
@@ -443,6 +445,7 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     sizeModelGrp->add( &m_modelExtentFromAnchor );
     sizeModelGrp->add( &m_modelMinZ );
     sizeModelGrp->add( &m_modelBelowSize );
+    sizeModelGrp->add( &m_faultZoneCells );
 
     const bool hasGeoMechCase = ( m_geomechCase() != nullptr );
 
@@ -504,6 +507,8 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     }
 
     propertiesGrp->add( &m_frictionAngleDeg );
+
+    uiOrdering.add( &m_targets );
 
     uiOrdering.skipRemainingFields();
 }
@@ -618,6 +623,15 @@ void RimFaultReactivationModel::updateTimeSteps()
     m_availableTimeSteps.clear();
     const auto eCase = eclipseCase();
     if ( eCase != nullptr ) m_availableTimeSteps = eCase->timeStepDates();
+
+    if ( m_selectedTimeSteps().size() == 0 )
+    {
+        std::vector<QDateTime> newVal;
+        if ( m_availableTimeSteps.size() > 0 ) newVal.push_back( m_availableTimeSteps.front() );
+        if ( m_availableTimeSteps.size() > 1 ) newVal.push_back( m_availableTimeSteps.back() );
+
+        m_selectedTimeSteps.setValue( newVal );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -714,7 +728,8 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
     static std::map<ElementSets, std::string> groupMap = { { ElementSets::OverBurden, "material_overburden" },
                                                            { ElementSets::Reservoir, "material_reservoir" },
                                                            { ElementSets::IntraReservoir, "material_intrareservoir" },
-                                                           { ElementSets::UnderBurden, "material_underburden" } };
+                                                           { ElementSets::UnderBurden, "material_underburden" },
+                                                           { ElementSets::FaultZone, "material_faultzone" } };
 
     auto keyName = QString::fromStdString( groupMap[elementSet] );
 
