@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaMemoryCleanup.h"
+#include "RiaStdStringTools.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultInfo.h"
@@ -399,9 +400,11 @@ std::pair<QString, QString> RiaMemoryCleanup::createMemoryReport()
                         size_t memory = valueCount * sizeof( double );
                         totalMemoryForCase += memory;
 
+                        auto formattedValueCount = RiaStdStringTools::formatThousandGrouping( valueCount );
+
                         caseReport += QString( "  %1 MB\tValue count %2, %3\n" )
                                           .arg( memory / 1024.0 / 1024.0, 0, 'f', 2 )
-                                          .arg( valueCount )
+                                          .arg( QString::fromStdString( formattedValueCount ) )
                                           .arg( QString::fromStdString( name ) );
                     }
                 }
