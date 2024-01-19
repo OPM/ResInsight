@@ -764,6 +764,13 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int                  
     calculateWbsParameterForAllSegments( RigWbsParameter::DF(), timeStepIndex, frameIndex, &DF, true );
 
     values->resize( intersections().size(), std::numeric_limits<double>::infinity() );
+    if ( PP.size() != intersections().size() ) return;
+
+    CAF_ASSERT( PP.size() == intersections().size() );
+    CAF_ASSERT( PP0.size() == intersections().size() );
+    CAF_ASSERT( OBG0.size() == intersections().size() );
+    CAF_ASSERT( K0_SH.size() == intersections().size() );
+    CAF_ASSERT( DF.size() == intersections().size() );
 
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < static_cast<int64_t>( intersections().size() ); ++intersectionIdx )

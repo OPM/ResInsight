@@ -267,7 +267,7 @@ RigWbsParameter RigWbsParameter::PP_Min()
 {
     SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPMinResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
 
-    return RigWbsParameter( "PP_Min", true, sources );
+    return RigWbsParameter( "PP_MIN", true, sources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ RigWbsParameter RigWbsParameter::PP_Max()
 {
     SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPMaxResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
 
-    return RigWbsParameter( "PP_Max", true, sources );
+    return RigWbsParameter( "PP_MAX", true, sources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,7 +287,7 @@ RigWbsParameter RigWbsParameter::PP_Exp()
 {
     SourceVector sources = { { LAS_FILE, SourceAddress( RiaResultNames::wbsPPExpResult(), "", RiaWellLogUnitTools<double>::barUnitString() ) } };
 
-    return RigWbsParameter( "PP_Exp", true, sources );
+    return RigWbsParameter( "PP_EXP", true, sources );
 }
 
 //--------------------------------------------------------------------------------------------------
