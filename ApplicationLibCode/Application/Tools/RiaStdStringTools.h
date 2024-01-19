@@ -43,6 +43,8 @@ public:
     static bool    containsAlphabetic( const std::string& s );
     static bool    startsWithAlphabetic( const std::string& s );
 
+    static std::string formatThousandGrouping( long value );
+
     // Conversion using fastest known approach
     static bool toDouble( const std::string_view& s, double& value );
     static bool toInt( const std::string_view& s, int& value );
