@@ -33,6 +33,7 @@ class RimEclipseCase;
 class RimGridView;
 class RigEclipseResultAddress;
 class RimEclipseResultAddress;
+class RimCaseCollection;
 
 //==================================================================================================
 ///
@@ -48,6 +49,13 @@ public:
         POSITIVE_INFINITY,
         FROM_PROPERTY,
         USER_DEFINED
+    };
+
+    enum class AdditionalCasesType
+    {
+        NONE,
+        GRID_CASE_GROUP,
+        ALL_CASES
     };
 
     RimGridCalculation();
@@ -136,11 +144,15 @@ private:
     caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
     caf::PdmField<double>                         m_defaultValue;
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
-    caf::PdmField<bool>                           m_applyToAllCases;
+
+    caf::PdmField<caf::AppEnum<AdditionalCasesType>> m_additionalCasesType;
+    caf::PdmPtrField<RimCaseCollection*>             m_additionalCaseGroup;
 
     caf::PdmField<std::vector<int>> m_selectedTimeSteps;
 
     caf::PdmProxyValueField<QString>             m_nonVisibleResultText;
     caf::PdmChildField<RimEclipseResultAddress*> m_nonVisibleResultAddress;
     caf::PdmField<bool>                          m_editNonVisibleResultAddress;
+
+    caf::PdmField<bool> m_applyToAllCases_OBSOLETE;
 };
