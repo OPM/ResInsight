@@ -178,7 +178,7 @@ bool RimFileSurface::loadDataFromFile()
 
         surface = m_gocadData->gocadGeometry();
     }
-    else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) )
+    else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) || filePath.endsWith( "xyz", Qt::CaseInsensitive ) )
     {
         double resamplingDistance = RiaPreferences::current()->surfaceImportResamplingDistance();
         surface                   = RifSurfaceImporter::readOpenWorksXyzFile( filePath, resamplingDistance );
