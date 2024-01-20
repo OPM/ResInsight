@@ -68,14 +68,12 @@ void RicCreateMultipleFracturesFeature::replaceFractures()
 //--------------------------------------------------------------------------------------------------
 std::pair<cvf::Vec3st, cvf::Vec3st> RicCreateMultipleFracturesFeature::ijkRangeForGrid( RimEclipseCase* gridCase ) const
 {
-    cvf::Vec3st minIJK;
-    cvf::Vec3st maxIJK;
     if ( gridCase && gridCase->eclipseCaseData() )
     {
-        gridCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->IJKBoundingBox( minIJK, maxIJK );
-        return std::make_pair( minIJK, maxIJK );
+        return gridCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->ijkBoundingBox();
     }
-    return std::make_pair( cvf::Vec3st(), cvf::Vec3st() );
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
