@@ -146,9 +146,9 @@ std::string RiaStdStringTools::formatThousandGrouping( long value )
     class my_punct : public std::numpunct<char>
     {
     protected:
-        virtual char        do_decimal_point() const { return '.'; }
-        virtual char        do_thousands_sep() const { return ' '; }
-        virtual std::string do_grouping() const { return std::string( "\3" ); }
+        char        do_decimal_point() const override { return '.'; }
+        char        do_thousands_sep() const override { return ' '; }
+        std::string do_grouping() const override { return std::string( "\3" ); }
     };
 
     std::ostringstream os;
