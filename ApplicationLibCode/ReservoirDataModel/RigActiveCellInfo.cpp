@@ -139,7 +139,7 @@ size_t RigActiveCellInfo::reservoirActiveCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setIJKBoundingBox( const cvf::Vec3st& min, const cvf::Vec3st& max )
+void RigActiveCellInfo::setIjkBoundingBox( const cvf::Vec3st& min, const cvf::Vec3st& max )
 {
     m_activeCellPositionMin = min;
     m_activeCellPositionMax = max;
@@ -148,10 +148,9 @@ void RigActiveCellInfo::setIJKBoundingBox( const cvf::Vec3st& min, const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::IJKBoundingBox( cvf::Vec3st& min, cvf::Vec3st& max ) const
+std::pair<cvf::Vec3st, cvf::Vec3st> RigActiveCellInfo::ijkBoundingBox() const
 {
-    min = m_activeCellPositionMin;
-    max = m_activeCellPositionMax;
+    return std::make_pair( m_activeCellPositionMin, m_activeCellPositionMax );
 }
 
 //--------------------------------------------------------------------------------------------------

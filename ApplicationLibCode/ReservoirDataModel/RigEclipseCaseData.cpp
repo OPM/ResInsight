@@ -445,8 +445,8 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
                 fractureModelActiveBB.add( i, j, k );
             }
         }
-        m_activeCellInfo->setIJKBoundingBox( matrixModelActiveBB.m_min, matrixModelActiveBB.m_max );
-        m_fractureActiveCellInfo->setIJKBoundingBox( fractureModelActiveBB.m_min, fractureModelActiveBB.m_max );
+        m_activeCellInfo->setIjkBoundingBox( matrixModelActiveBB.m_min, matrixModelActiveBB.m_max );
+        m_fractureActiveCellInfo->setIjkBoundingBox( fractureModelActiveBB.m_min, fractureModelActiveBB.m_max );
     }
 }
 

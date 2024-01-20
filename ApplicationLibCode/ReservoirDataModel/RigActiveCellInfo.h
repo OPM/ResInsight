@@ -45,8 +45,8 @@ public:
     size_t gridActiveCellCounts( size_t gridIndex ) const;
     void   computeDerivedData();
 
-    void setIJKBoundingBox( const cvf::Vec3st& min, const cvf::Vec3st& max );
-    void IJKBoundingBox( cvf::Vec3st& min, cvf::Vec3st& max ) const;
+    void                                setIjkBoundingBox( const cvf::Vec3st& min, const cvf::Vec3st& max );
+    std::pair<cvf::Vec3st, cvf::Vec3st> ijkBoundingBox() const;
 
     cvf::BoundingBox geometryBoundingBox() const;
     void             setGeometryBoundingBox( cvf::BoundingBox bb );
