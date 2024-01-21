@@ -181,7 +181,8 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
     CVF_ASSERT( eclipseCase );
     CVF_ASSERT( grid );
 
-    cvf::Vec3st dim = grid->gridPointDimensions();
+    auto cellCountJ = grid->cellCountJ();
+    auto cellCountK = grid->cellCountK();
 
     cvf::Collection<RigSimWellData> wells;
 
@@ -208,7 +209,7 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
 
             // Connections
             //            int connectionCount = std::min(dim.x(), std::min(dim.y(), dim.z())) - 2;
-            size_t connectionCount = dim.z() - 2;
+            size_t connectionCount = cellCountK - 2;
             if ( connectionCount > 0 )
             {
                 // Only main grid supported by now. Must be taken care of when LGRs are supported
@@ -224,10 +225,10 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
                     RigWellResultPoint data;
                     data.setGridIndex( 0 );
 
-                    if ( connIdx < dim.y() - 2 )
+                    if ( connIdx < cellCountJ - 2 )
                         data.setGridCellIndex( grid->cellIndexFromIJK( 1, 1 + connIdx, 1 + connIdx ) );
                     else
-                        data.setGridCellIndex( grid->cellIndexFromIJK( 1, dim.y() - 2, 1 + connIdx ) );
+                        data.setGridCellIndex( grid->cellIndexFromIJK( 1, cellCountJ - 2, 1 + connIdx ) );
 
                     if ( connIdx < connectionCount / 2 )
                     {
@@ -262,7 +263,7 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
                         }
                     }
 
-                    if ( connIdx < dim.y() - 2 )
+                    if ( connIdx < cellCountJ - 2 )
                     {
                         data.setGridCellIndex( grid->cellIndexFromIJK( 1, 1 + connIdx, 2 + connIdx ) );
 

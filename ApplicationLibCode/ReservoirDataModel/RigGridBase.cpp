@@ -64,14 +64,6 @@ void RigGridBase::setGridPointDimensions( const cvf::Vec3st& gridDimensions )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RigGridBase::gridPointDimensions()
-{
-    return m_gridPointDimensions;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RigGridBase::setGridName( const std::string& gridName )
 {
     m_gridName = gridName;
@@ -193,8 +185,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
     CVF_TIGHT_ASSERT( i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
     CVF_TIGHT_ASSERT( i < m_gridPointDimensions.x() && j < m_gridPointDimensions.y() && k < m_gridPointDimensions.z() );
 
-    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
-    return ci;
+    return i + j * cellCountI() + k * cellCountI() * cellCountJ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,8 +193,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
 {
-    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
-    return ci;
+    return i + j * cellCountI() + k * cellCountI() * cellCountJ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,8 +217,8 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
         return false;
     }
 
-    const size_t cellCountI = m_gridPointDimensions[0] - 1u;
-    const size_t cellCountJ = m_gridPointDimensions[1] - 1u;
+    const size_t cellCountI = this->cellCountI();
+    const size_t cellCountJ = this->cellCountJ();
 
     *i = index % cellCountI;
     index /= cellCountI;
@@ -274,8 +264,8 @@ void RigGridBase::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t
 {
     size_t index = cellIndex;
 
-    const size_t cellCountI = m_gridPointDimensions[0] - 1u;
-    const size_t cellCountJ = m_gridPointDimensions[1] - 1u;
+    const size_t cellCountI = this->cellCountI();
+    const size_t cellCountJ = this->cellCountJ();
 
     *i = index % cellCountI;
     index /= cellCountI;

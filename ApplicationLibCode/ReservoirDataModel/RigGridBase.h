@@ -43,14 +43,13 @@ public:
     explicit RigGridBase( RigMainGrid* mainGrid );
     ~RigGridBase() override;
 
-    void        setGridPointDimensions( const cvf::Vec3st& gridDimensions );
-    cvf::Vec3st gridPointDimensions();
+    void setGridPointDimensions( const cvf::Vec3st& gridDimensions );
 
     size_t cellCountI() const override;
     size_t cellCountJ() const override;
     size_t cellCountK() const override;
 
-    size_t         cellCount() const { return cellCountI() * cellCountJ() * cellCountK(); }
+    size_t         cellCount() const;
     RigCell&       cell( size_t gridLocalCellIndex );
     const RigCell& cell( size_t gridLocalCellIndex ) const;
 

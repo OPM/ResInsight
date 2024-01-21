@@ -73,7 +73,7 @@ bool RimRoffCase::openEclipseGridFile()
     QString fileName = gridFileName();
 
     // First find and read the grid data
-    if ( eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
+    if ( eclipseCaseData()->mainGrid()->cellCount() == 0 )
     {
         QString errorMessages;
         if ( RifRoffFileTools::openGridFile( fileName, eclipseCaseData(), &errorMessages ) )

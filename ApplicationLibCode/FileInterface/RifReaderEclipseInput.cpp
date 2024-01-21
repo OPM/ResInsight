@@ -73,7 +73,7 @@ bool RifReaderEclipseInput::open( const QString& fileName, RigEclipseCaseData* e
     //              create InputProperty object
 
     bool isOk = false;
-    if ( eclipseCase->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
+    if ( eclipseCase->mainGrid()->cellCount() == 0 )
     {
         QString errorMesssages;
         isOk = RifEclipseInputFileTools::openGridFile( fileName, eclipseCase, isFaultImportEnabled(), &errorMesssages );
