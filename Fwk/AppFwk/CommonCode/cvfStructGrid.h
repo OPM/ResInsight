@@ -77,13 +77,9 @@ public:
 public:
     StructGridInterface();
 
-    virtual size_t gridPointCountI() const = 0;
-    virtual size_t gridPointCountJ() const = 0;
-    virtual size_t gridPointCountK() const = 0;
-
-    size_t cellCountI() const;
-    size_t cellCountJ() const;
-    size_t cellCountK() const;
+    virtual size_t cellCountI() const = 0;
+    virtual size_t cellCountJ() const = 0;
+    virtual size_t cellCountK() const = 0;
 
     virtual bool isCellValid( size_t i, size_t j, size_t k ) const = 0;
 

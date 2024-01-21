@@ -585,7 +585,7 @@ QList<caf::PdmOptionItemInfo> RimMudWeightWindowParameters::calculateValueOption
         {
             if ( geoMechCase->geoMechData() )
             {
-                size_t kCount = geoMechCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->gridPointCountK() - 1;
+                size_t kCount = geoMechCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->cellCountK();
                 for ( size_t layerIdx = 0; layerIdx < kCount; ++layerIdx )
                 {
                     options.push_back( caf::PdmOptionItemInfo( QString::number( layerIdx + 1 ), (int)layerIdx ) );
