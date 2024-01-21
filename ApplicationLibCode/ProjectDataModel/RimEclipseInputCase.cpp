@@ -114,7 +114,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
     QString gridFileName;
 
     // First find and read the grid data
-    if ( eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
+    if ( eclipseCaseData()->mainGrid()->cellCount() == 0 )
     {
         for ( int i = 0; i < fileNames.size(); i++ )
         {
@@ -142,7 +142,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         }
     }
 
-    if ( eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
+    if ( eclipseCaseData()->mainGrid()->cellCount() == 0 )
     {
         for ( QString errorMessages : allErrorMessages )
         {

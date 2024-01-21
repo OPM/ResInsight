@@ -708,7 +708,7 @@ void RimEclipseCase::loadAndSynchronizeInputProperties( bool importGridOrFaultDa
     // Make sure we actually have reservoir data
 
     CVF_ASSERT( eclipseCaseData() );
-    CVF_ASSERT( eclipseCaseData()->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
+    CVF_ASSERT( eclipseCaseData()->mainGrid()->cellCount() != 0 );
 
     // Then read the properties from all the files referenced by the InputReservoir
 
