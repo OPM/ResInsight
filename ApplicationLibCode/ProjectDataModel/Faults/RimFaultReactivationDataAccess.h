@@ -41,10 +41,11 @@ class RimFaultReactivationModel;
 class RimFaultReactivationDataAccess
 {
 public:
-    RimFaultReactivationDataAccess( const RimFaultReactivationModel& model,
-                                    RimEclipseCase*                  eclipseCase,
-                                    RimGeoMechCase*                  geoMechCase,
-                                    const std::vector<size_t>&       timeSteps );
+    RimFaultReactivationDataAccess( const RimFaultReactivationModel&   model,
+                                    RimEclipseCase*                    eclipseCase,
+                                    RimGeoMechCase*                    geoMechCase,
+                                    const std::vector<size_t>&         timeSteps,
+                                    RimFaultReactivation::StressSource stressSource );
     ~RimFaultReactivationDataAccess();
 
     void extractModelData( const RigFaultReactivationModel& model );

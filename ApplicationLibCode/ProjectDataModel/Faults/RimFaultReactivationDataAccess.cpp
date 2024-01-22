@@ -45,18 +45,19 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultReactivationModel& model,
-                                                                RimEclipseCase*                  thecase,
-                                                                RimGeoMechCase*                  geoMechCase,
-                                                                const std::vector<size_t>&       timeSteps )
+RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultReactivationModel&   model,
+                                                                RimEclipseCase*                    eCase,
+                                                                RimGeoMechCase*                    geoMechCase,
+                                                                const std::vector<size_t>&         timeSteps,
+                                                                RimFaultReactivation::StressSource stressSource )
     : m_timeSteps( timeSteps )
 {
     double porePressureGradient = 1.0;
     double topTemperature       = model.seabedTemperature();
     double seabedDepth          = -model.seaBedDepth();
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( thecase, porePressureGradient, seabedDepth ) );
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( thecase, 0.0001 ) );
-    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( thecase, topTemperature, seabedDepth ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorPorePressure>( eCase, porePressureGradient, seabedDepth ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorVoidRatio>( eCase, 0.0001 ) );
+    m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorTemperature>( eCase, topTemperature, seabedDepth ) );
 
     std::vector<RimFaultReactivation::Property> stressProperties = { RimFaultReactivation::Property::StressTop,
                                                                      RimFaultReactivation::Property::DepthTop,
@@ -75,7 +76,10 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
         {
             m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorGeoMech>( geoMechCase, property ) );
         }
+    }
 
+    if ( ( stressSource == RimFaultReactivation::StressSource::StressFromGeoMech ) && ( geoMechCase ) )
+    {
         for ( auto property : stressProperties )
         {
             m_accessors.push_back(
@@ -102,13 +106,12 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
         std::map<RimFaultReactivation::ElementSets, double> densities = extractDensities( model );
         for ( auto property : stressProperties )
         {
-            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStressEclipse>( thecase,
+            m_accessors.push_back( std::make_shared<RimFaultReactivationDataAccessorStressEclipse>( eCase,
                                                                                                     property,
                                                                                                     porePressureGradient,
                                                                                                     seabedDepth,
                                                                                                     model.waterDensity(),
-                                                                                                    model.lateralStressCoefficientX(),
-                                                                                                    model.lateralStressCoefficientY(),
+                                                                                                    model.lateralStressCoefficient(),
                                                                                                     densities ) );
         }
     }

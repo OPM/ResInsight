@@ -51,16 +51,14 @@ RimFaultReactivationDataAccessorStressEclipse::RimFaultReactivationDataAccessorS
     double                                                     gradient,
     double                                                     seabedDepth,
     double                                                     waterDensity,
-    double                                                     lateralStressComponentX,
-    double                                                     lateralStressComponentY,
+    double                                                     lateralStressComponent,
     const std::map<RimFaultReactivation::ElementSets, double>& densities )
     : RimFaultReactivationDataAccessorStress( property, gradient, seabedDepth )
     , m_eclipseCase( eclipseCase )
     , m_caseData( nullptr )
     , m_mainGrid( nullptr )
     , m_waterDensity( waterDensity )
-    , m_lateralStressComponentX( lateralStressComponentX )
-    , m_lateralStressComponentY( lateralStressComponentY )
+    , m_lateralStressComponent( lateralStressComponent )
     , m_densities( densities )
 {
     if ( m_eclipseCase )
@@ -291,7 +289,7 @@ std::pair<bool, RimFaultReactivation::ElementSets> RimFaultReactivationDataAcces
 double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentX( const cvf::Vec3d&              position,
                                                                                RimFaultReactivation::GridPart gridPart ) const
 {
-    return m_lateralStressComponentX;
+    return m_lateralStressComponent;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,5 +298,5 @@ double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentX( c
 double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentY( const cvf::Vec3d&              position,
                                                                                RimFaultReactivation::GridPart gridPart ) const
 {
-    return m_lateralStressComponentY;
+    return m_lateralStressComponent;
 }
