@@ -656,15 +656,24 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
         }
         else
         {
-            std::array<cvf::Vec3d, 8> hexCorners;
-            for ( size_t i = 0; i < m_mainGrid->cellCount(); i++ )
+            // Use the top and bottom layer of active cells to compute the bounding box
+
+            auto [minBB, maxBB] = activeInfos[acIdx]->ijkBoundingBox();
+
+            for ( auto k : { minBB.z(), maxBB.z() } )
             {
-                if ( activeInfos[acIdx]->isActive( i ) )
+                for ( size_t i = minBB.x(); i <= maxBB.x(); i++ )
                 {
-                    m_mainGrid->cellCornerVertices( i, hexCorners.data() );
-                    for ( const auto& corner : hexCorners )
+                    for ( size_t j = minBB.y(); j <= maxBB.y(); j++ )
                     {
-                        bb.add( corner );
+                        size_t cellIndex = m_mainGrid->cellIndexFromIJK( i, j, k );
+
+                        std::array<cvf::Vec3d, 8> hexCorners;
+                        m_mainGrid->cellCornerVertices( cellIndex, hexCorners.data() );
+                        for ( const auto& corner : hexCorners )
+                        {
+                            bb.add( corner );
+                        }
                     }
                 }
             }
