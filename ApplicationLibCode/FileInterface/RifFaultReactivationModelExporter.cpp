@@ -94,7 +94,6 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
     bool useGridTemperature       = rimModel.useGridTemperature();
     bool useGridDensity           = rimModel.useGridDensity();
     bool useGridElasticProperties = rimModel.useGridElasticProperties();
-    bool useGridStress            = rimModel.useGridStress();
 
     double seaBedDepth   = rimModel.seaBedDepth();
     double waterDensity  = rimModel.waterDensity();
@@ -115,7 +114,7 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
         },
         [&]() { return printInteractionProperties( stream, frictionValue ); },
         [&]() { return printBoundaryConditions( stream, *model, partNames, boundaries ); },
-        [&]() { return printPredefinedFields( stream, *model, *dataAccess, basePath, partNames, useGridVoidRatio, useGridStress ); },
+        [&]() { return printPredefinedFields( stream, *model, *dataAccess, basePath, partNames, useGridVoidRatio ); },
         [&]() { return printInteractions( stream, partNames, borders ); },
         [&]()
         {
@@ -509,8 +508,7 @@ std::pair<bool, std::string>
                                                               const RimFaultReactivationDataAccess&                        dataAccess,
                                                               const std::string&                                           exportBasePath,
                                                               const std::map<RimFaultReactivation::GridPart, std::string>& partNames,
-                                                              bool voidRatioFromEclipse,
-                                                              bool stressFromGrid )
+                                                              bool voidRatioFromEclipse )
 {
     // PREDEFINED FIELDS
     struct PredefinedField
@@ -554,7 +552,7 @@ std::pair<bool, std::string>
         RifInpExportTools::printHeading( stream, "INCLUDE, input=" + fileName.toStdString() );
     }
 
-    if ( stressFromGrid )
+    // stress export
     {
         // Export the stress to a separate inp file
         std::string stressName    = "STRESS";
@@ -851,8 +849,11 @@ std::shared_ptr<RimFaultReactivationDataAccess>
     if ( eCase == nullptr ) return nullptr;
 
     // extract data for each timestep
-    auto dataAccess =
-        std::make_shared<RimFaultReactivationDataAccess>( rimModel, eCase, rimModel.geoMechCase(), rimModel.selectedTimeStepIndexes() );
+    auto dataAccess = std::make_shared<RimFaultReactivationDataAccess>( rimModel,
+                                                                        eCase,
+                                                                        rimModel.geoMechCase(),
+                                                                        rimModel.selectedTimeStepIndexes(),
+                                                                        rimModel.stressSource() );
     dataAccess->extractModelData( *rimModel.model() );
     return dataAccess;
 }

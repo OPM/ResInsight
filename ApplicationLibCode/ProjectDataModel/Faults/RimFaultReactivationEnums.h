@@ -50,6 +50,12 @@ enum class ElementSets
     FaultZone
 };
 
+enum class StressSource
+{
+    StressFromEclipse,
+    StressFromGeoMech
+};
+
 enum class Property
 {
     PorePressure,

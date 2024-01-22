@@ -48,8 +48,7 @@ public:
                                                    double                                                     gradient,
                                                    double                                                     seabedDepth,
                                                    double                                                     waterDensity,
-                                                   double                                                     lateralStressComponentX,
-                                                   double                                                     lateralStressComponentY,
+                                                   double                                                     lateralStressComponent,
                                                    const std::map<RimFaultReactivation::ElementSets, double>& densities );
     ~RimFaultReactivationDataAccessorStressEclipse() override;
 
@@ -91,8 +90,7 @@ private:
     const RigMainGrid*          m_mainGrid;
     cvf::ref<RigResultAccessor> m_resultAccessor;
     double                      m_waterDensity;
-    double                      m_lateralStressComponentX;
-    double                      m_lateralStressComponentY;
+    double                      m_lateralStressComponent;
 
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>> m_extractors;

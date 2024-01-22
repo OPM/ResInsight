@@ -126,14 +126,13 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_useGridTemperature, "UseGridTemperature", true, "Output Grid Temperature" );
     CAF_PDM_InitField( &m_useGridDensity, "UseGridDensity", false, "Output Grid Density" );
     CAF_PDM_InitField( &m_useGridElasticProperties, "UseGridElasticProperties", false, "Output Grid Elastic Properties" );
-    CAF_PDM_InitField( &m_useGridStress, "UseGridStress", false, "Output Grid Stress" );
 
     CAF_PDM_InitField( &m_waterDensity, "WaterDensity", 1030.0, "Water Density [kg/m3]" );
-    CAF_PDM_InitField( &m_frictionAngleDeg, "FrictionAngle", 20.0, "Friction Angle [degree]" );
+    CAF_PDM_InitField( &m_frictionAngleDeg, "FrictionAngle", 20.0, "Fault Friction Angle [degree]" );
     CAF_PDM_InitField( &m_seabedTemperature, "SeabedTemperature", 5.0, "Seabed Temperature [C]" );
+    CAF_PDM_InitField( &m_lateralStressCoefficient, "LateralStressCoefficient", 0.5, "Lateral Stress Coefficient" );
 
-    CAF_PDM_InitField( &m_lateralStressCoefficientX, "LateralStressCoefficientX", 0.5, "Lateral Stress Coeff. X" );
-    CAF_PDM_InitField( &m_lateralStressCoefficientY, "LateralStressCoefficientY", 0.5, "Lateral Stress Coeff. Y" );
+    CAF_PDM_InitFieldNoDefault( &m_stressSource, "StressSource", "Use Stress from" );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -223,7 +222,7 @@ std::pair<bool, std::string> RimFaultReactivationModel::validateModel() const
 
     if ( ( m_frictionAngleDeg() <= 0.0 ) || ( m_frictionAngleDeg() >= 90.0 ) )
     {
-        return std::make_pair( false, "Friction angle must be between 0 and 90 degrees" + postStr );
+        return std::make_pair( false, "Fault Friction Angle must be between 0 and 90 degrees" + postStr );
     }
 
     return std::make_pair( true, "" );
@@ -492,23 +491,35 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     {
         propertiesGrp->add( &m_useGridDensity );
         propertiesGrp->add( &m_useGridElasticProperties );
-        propertiesGrp->add( &m_waterDensity );
-        propertiesGrp->add( &m_useGridStress );
-        propertiesGrp->add( &m_seabedTemperature );
 
         bool useTemperatureFromGrid = m_useGridTemperature();
         m_seabedTemperature.uiCapability()->setUiReadOnly( !useTemperatureFromGrid );
     }
 
-    if ( !hasGeoMechCase || !m_useGridStress() )
+    propertiesGrp->add( &m_stressSource );
+    if ( hasGeoMechCase )
     {
-        propertiesGrp->add( &m_lateralStressCoefficientX );
-        propertiesGrp->add( &m_lateralStressCoefficientY );
+        m_stressSource.uiCapability()->setUiReadOnly( false );
+    }
+    else
+    {
+        m_stressSource = RimFaultReactivation::StressSource::StressFromEclipse;
+        m_stressSource.uiCapability()->setUiReadOnly( true );
     }
 
-    propertiesGrp->add( &m_frictionAngleDeg );
+    auto parmGrp = propertiesGrp->addNewGroup( "Parameters" );
 
-    uiOrdering.add( &m_targets );
+    parmGrp->add( &m_frictionAngleDeg );
+    if ( m_stressSource() == RimFaultReactivation::StressSource::StressFromEclipse )
+    {
+        parmGrp->add( &m_lateralStressCoefficient );
+    }
+
+    if ( hasGeoMechCase )
+    {
+        parmGrp->add( &m_waterDensity );
+        parmGrp->add( &m_seabedTemperature );
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -798,9 +809,9 @@ bool RimFaultReactivationModel::useGridElasticProperties() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaultReactivationModel::useGridStress() const
+RimFaultReactivation::StressSource RimFaultReactivationModel::stressSource() const
 {
-    return m_useGridStress();
+    return m_stressSource();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -838,15 +849,7 @@ double RimFaultReactivationModel::seabedTemperature() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationModel::lateralStressCoefficientX() const
+double RimFaultReactivationModel::lateralStressCoefficient() const
 {
-    return m_lateralStressCoefficientX;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimFaultReactivationModel::lateralStressCoefficientY() const
-{
-    return m_lateralStressCoefficientY;
+    return m_lateralStressCoefficient;
 }

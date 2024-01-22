@@ -33,6 +33,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorStressGeoMech.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorStressEclipse.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationDataAccessorWellLogExtraction.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFaultReactivationEnums.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

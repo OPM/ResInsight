@@ -65,6 +65,7 @@ class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPoly
 
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
     using ElementSets        = RimFaultReactivation::ElementSets;
+    using StressSourceEnum   = caf::AppEnum<RimFaultReactivation::StressSource>;
 
 public:
     RimFaultReactivationModel();
@@ -122,15 +123,15 @@ public:
     bool useGridTemperature() const;
     bool useGridDensity() const;
     bool useGridElasticProperties() const;
-    bool useGridStress() const;
     bool useLocalCoordinates() const;
 
     double seaBedDepth() const;
     double waterDensity() const;
     double frictionAngleDeg() const;
     double seabedTemperature() const;
-    double lateralStressCoefficientX() const;
-    double lateralStressCoefficientY() const;
+    double lateralStressCoefficient() const;
+
+    RimFaultReactivation::StressSource stressSource() const;
 
     RimEclipseCase* eclipseCase() const;
     RimGeoMechCase* geoMechCase() const;
@@ -183,13 +184,13 @@ private:
     caf::PdmField<bool> m_useGridTemperature;
     caf::PdmField<bool> m_useGridDensity;
     caf::PdmField<bool> m_useGridElasticProperties;
-    caf::PdmField<bool> m_useGridStress;
+
+    caf::PdmField<StressSourceEnum> m_stressSource;
 
     caf::PdmField<double> m_waterDensity;
     caf::PdmField<double> m_frictionAngleDeg;
     caf::PdmField<double> m_seabedTemperature;
-    caf::PdmField<double> m_lateralStressCoefficientX;
-    caf::PdmField<double> m_lateralStressCoefficientY;
+    caf::PdmField<double> m_lateralStressCoefficient;
 
     caf::PdmField<size_t> m_startCellIndex;
     caf::PdmField<int>    m_startCellFace;
