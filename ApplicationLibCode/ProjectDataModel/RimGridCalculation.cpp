@@ -248,7 +248,8 @@ std::vector<RimEclipseCase*> RimGridCalculation::outputEclipseCases() const
 
     if ( m_additionalCasesType() == RimGridCalculation::AdditionalCasesType::GRID_CASE_GROUP )
     {
-        if ( m_additionalCaseGroup() ) return m_additionalCaseGroup->reservoirs.childrenByType();
+        if ( m_additionalCaseGroup() && m_additionalCaseGroup()->caseCollection() )
+            return m_additionalCaseGroup()->caseCollection()->reservoirs.childrenByType();
     }
 
     return { m_destinationCase };

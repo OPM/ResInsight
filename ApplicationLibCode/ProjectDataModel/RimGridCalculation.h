@@ -33,7 +33,7 @@ class RimEclipseCase;
 class RimGridView;
 class RigEclipseResultAddress;
 class RimEclipseResultAddress;
-class RimCaseCollection;
+class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
 ///
@@ -146,7 +146,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>             m_destinationCase;
 
     caf::PdmField<caf::AppEnum<AdditionalCasesType>> m_additionalCasesType;
-    caf::PdmPtrField<RimCaseCollection*>             m_additionalCaseGroup;
+    caf::PdmPtrField<RimIdenticalGridCaseGroup*>     m_additionalCaseGroup;
 
     caf::PdmField<std::vector<int>> m_selectedTimeSteps;
 
