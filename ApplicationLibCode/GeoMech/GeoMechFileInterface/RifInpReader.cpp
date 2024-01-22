@@ -119,6 +119,8 @@ bool RifInpReader::readFemParts( RigFemPartCollection* femParts )
         m_includeEntries[i].fileName = ( m_inputPath / m_includeEntries[i].fileName ).string();
     }
 
+    if ( m_stepNames.empty() ) m_stepNames.push_back( "Geostatic" );
+
     RiaLogging::debug( QString( "Read FEM parts: %1, steps: %2, element type: %3" )
                            .arg( parts.size() )
                            .arg( m_stepNames.size() )
@@ -260,7 +262,14 @@ RigElementType RifInpReader::read( std::istream&                                
                 auto nodeType = parseLabel( line, "type" );
                 elementType   = RigFemTypes::toRigElementType( nodeType );
                 skipComments( stream );
-                elements[partId] = readElements( stream );
+
+                if ( !elements.contains( partId ) ) elements[partId] = {};
+
+                auto newElements = readElements( stream );
+                for ( const auto& e : newElements )
+                {
+                    elements[partId].push_back( e );
+                }
             }
             else if ( uppercasedLine.starts_with( "*ELSET," ) )
             {
@@ -385,7 +394,7 @@ std::vector<std::pair<int, std::vector<int>>> RifInpReader::readElements( std::i
 {
     std::vector<std::pair<int, std::vector<int>>> partElements;
 
-    // TODO: maybe support more element types
+    // only support C3D8* element type
     unsigned numNodesPerElement = 8;
 
     // Read until we find a new section (which should start with a '*').
