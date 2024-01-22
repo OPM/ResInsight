@@ -169,7 +169,7 @@ void RigFaultReactivationModelGenerator::setupLocalCoordinateTransform()
 /// change corner order to be consistent so that index (0,1) and (2,3) gives the lower and upper horz. lines no matter what I or J face we
 /// have
 //--------------------------------------------------------------------------------------------------
-const std::array<int, 4> RigFaultReactivationModelGenerator::faceIJCornerIndexes( cvf::StructGridInterface::FaceType face )
+const std::array<int, 4> RigFaultReactivationModelGenerator::faceIJCornerIndexes( FaceType face )
 {
     switch ( face )
     {
@@ -206,9 +206,26 @@ cvf::Vec3d RigFaultReactivationModelGenerator::lineIntersect( const cvf::Plane& 
 
 //--------------------------------------------------------------------------------------------------
 ///
+/// Returns 0 if the intersection in on the line between A and B
+/// Returns -1 if the intersections is on the infinte lineAB but outside A
+/// Returns 1 if the intersections is on the infinte lineAB but outside B
+///
 //--------------------------------------------------------------------------------------------------
-size_t RigFaultReactivationModelGenerator::oppositeStartCellIndex( const std::vector<size_t>          cellIndexColumn,
-                                                                   cvf::StructGridInterface::FaceType face )
+int RigFaultReactivationModelGenerator::lineIntersects( const cvf::Plane& plane,
+                                                        const cvf::Vec3d  lineA,
+                                                        const cvf::Vec3d  lineB,
+                                                        cvf::Vec3d&       intersection )
+{
+    double dist = 0.0;
+    if ( caf::HexGridIntersectionTools::planeLineIntersect( plane, lineA, lineB, &intersection, &dist, 0.0001 ) ) return 0;
+    if ( dist < 0.0 ) return -1;
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigFaultReactivationModelGenerator::oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, FaceType face )
 {
     auto   oppositeStartFace  = cvf::StructGridInterface::oppositeFace( face );
     bool   bFoundOppositeCell = false;
@@ -399,43 +416,86 @@ std::vector<int> RigFaultReactivationModelGenerator::elementKLayers( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::generateGeometry( size_t                             startCellIndex,
-                                                           cvf::StructGridInterface::FaceType startFace,
-                                                           RigGriddedPart3d*                  frontPart,
-                                                           RigGriddedPart3d*                  backPart )
+std::vector<size_t> RigFaultReactivationModelGenerator::buildCellColumn( size_t startCellIndex, FaceType startFace )
 {
-    std::vector<size_t> cellColumnBackSearch;
-    std::vector<size_t> cellColumnBack;
-    std::vector<size_t> cellColumnFront;
-    size_t              i, j, k;
+    size_t i, j, k;
 
-    // build column of cells behind fault
     m_grid->ijkFromCellIndexUnguarded( startCellIndex, &i, &j, &k );
-    cellColumnBackSearch.push_back( startCellIndex ); // want the user clicked cell to be the first in the search list
 
-    for ( size_t kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
+    std::vector<size_t> cellColumn;
+    size_t              cellIndex;
+
+    const size_t k_start = 0;
+    const size_t k_stop  = m_grid->cellCountK();
+
+    auto [side1, side2] = sideFacesIJ( startFace );
+
+    for ( size_t kLayer = k; kLayer >= k_start; kLayer-- )
     {
         if ( !m_grid->isCellValid( i, j, kLayer ) ) continue;
+        const auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
 
-        auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
+        RigCell cell = m_grid->cell( cellIdx );
 
-        if ( cellIdx != startCellIndex ) cellColumnBackSearch.push_back( cellIdx );
-        cellColumnBack.push_back( cellIdx );
+        std::vector<RigCell> cellRow;
+
+        cellRow.push_back( cell.neighborCell( side1 ) );
+        cellRow.push_back( cell );
+        cellRow.push_back( cell.neighborCell( side2 ) );
+
+        auto ij_pair = findCellWithIntersection( cellRow, startFace, &cellIndex );
+        i            = ij_pair.first;
+        j            = ij_pair.second;
+        cellColumn.push_back( cellIndex );
+    }
+
+    std::reverse( cellColumn.begin(), cellColumn.end() );
+
+    for ( size_t kLayer = k + 1; kLayer < k_stop; kLayer++ )
+    {
+        if ( !m_grid->isCellValid( i, j, kLayer ) ) continue;
+        const auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
+
+        RigCell cell = m_grid->cell( cellIdx );
+
+        std::vector<RigCell> cellRow;
+
+        cellRow.push_back( cell.neighborCell( side1 ) );
+        cellRow.push_back( cell );
+        cellRow.push_back( cell.neighborCell( side2 ) );
+
+        auto ij_pair = findCellWithIntersection( cellRow, startFace, &cellIndex );
+        i            = ij_pair.first;
+        j            = ij_pair.second;
+        cellColumn.push_back( cellIndex );
+    }
+
+    return cellColumn;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultReactivationModelGenerator::generateGeometry( size_t            startCellIndex,
+                                                           FaceType          startFace,
+                                                           RigGriddedPart3d* frontPart,
+                                                           RigGriddedPart3d* backPart )
+{
+    // build column of cells behind fault
+    std::vector<size_t> cellColumnBack = buildCellColumn( startCellIndex, startFace );
+
+    std::vector<size_t> cellColumnBackSearch;
+    cellColumnBackSearch.push_back( startCellIndex );
+    for ( auto cidx : cellColumnBack )
+    {
+        if ( cidx != startCellIndex ) cellColumnBackSearch.push_back( cidx );
     }
 
     // build cell column of cells in front of fault, opposite to the cell column behind the fault
-    auto   oppositeStartFace = cvf::StructGridInterface::oppositeFace( startFace );
-    size_t oppositeCellIdx   = oppositeStartCellIndex( cellColumnBackSearch, startFace );
+    auto   oppositeStartFace    = cvf::StructGridInterface::oppositeFace( startFace );
+    size_t oppositeStartCellIdx = oppositeStartCellIndex( cellColumnBackSearch, startFace );
 
-    m_grid->ijkFromCellIndexUnguarded( oppositeCellIdx, &i, &j, &k );
-    for ( size_t kLayer = 0; kLayer < m_grid->cellCountK(); kLayer++ )
-    {
-        if ( !m_grid->isCellValid( i, j, kLayer ) ) continue;
-
-        auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
-
-        cellColumnFront.push_back( cellIdx );
-    }
+    std::vector<size_t> cellColumnFront = buildCellColumn( oppositeStartCellIdx, oppositeStartFace );
 
     auto zPositionsBack  = elementLayers( startFace, cellColumnBack );
     auto zPositionsFront = elementLayers( oppositeStartFace, cellColumnFront );
@@ -527,8 +587,33 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t               
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( cvf::StructGridInterface::FaceType face,
-                                                                                std::vector<size_t>&               cellIndexColumn )
+std::pair<cvf::StructGridInterface::FaceType, cvf::StructGridInterface::FaceType> RigFaultReactivationModelGenerator::sideFacesIJ( FaceType face )
+{
+    switch ( face )
+    {
+        case cvf::StructGridInterface::POS_I:
+        case cvf::StructGridInterface::NEG_I:
+            return { cvf::StructGridInterface::NEG_J, cvf::StructGridInterface::POS_J };
+
+        case cvf::StructGridInterface::POS_J:
+        case cvf::StructGridInterface::NEG_J:
+            return { cvf::StructGridInterface::NEG_I, cvf::StructGridInterface::POS_I };
+
+        case cvf::StructGridInterface::POS_K:
+        case cvf::StructGridInterface::NEG_K:
+        case cvf::StructGridInterface::NO_FACE:
+        default:
+            break;
+    }
+
+    CVF_ASSERT( false ); // not supported for K faces
+    return { cvf::StructGridInterface::NO_FACE, cvf::StructGridInterface::NO_FACE };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( FaceType face, std::vector<size_t>& cellIndexColumn )
 {
     cvf::Plane modelPlane;
     modelPlane.setFromPointAndNormal( m_startPosition, m_normal );
