@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2023     Equinor ASA
+//  Copyright (C) 2024 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,52 +18,16 @@
 
 #pragma once
 
-namespace RimFaultReactivation
-{
+#include "cafCmdFeature.h"
 
-enum class GridPart
+//==================================================================================================
+///
+//==================================================================================================
+class RicShowMemoryReportFeature : public caf::CmdFeature
 {
-    FW, // footwall
-    HW // hanging wall
+    CAF_CMD_HEADER_INIT;
+
+private:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
-
-enum class BorderSurface
-{
-    UpperSurface,
-    FaultSurface,
-    LowerSurface,
-    Seabed
-};
-
-enum class Boundary
-{
-    FarSide,
-    Bottom
-};
-
-enum class ElementSets
-{
-    OverBurden,
-    UnderBurden,
-    Reservoir,
-    IntraReservoir,
-    FaultZone
-};
-
-enum class Property
-{
-    PorePressure,
-    VoidRatio,
-    Temperature,
-    Density,
-    YoungsModulus,
-    PoissonsRatio,
-    StressTop,
-    StressBottom,
-    DepthTop,
-    DepthBottom,
-    LateralStressComponentX,
-    LateralStressComponentY
-};
-
-} // namespace RimFaultReactivation

@@ -127,6 +127,10 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
                     }
                 }
             }
+
+            // Always clear data after reading to avoid memory use
+            m_initFile->clearData();
+
             return true;
         }
         catch ( std::exception& e )
@@ -178,6 +182,9 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                     }
                 }
             }
+
+            // Always clear data after reading to avoid memory use
+            m_restartFile->clearData();
 
             return true;
         }
@@ -441,22 +448,29 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
     {
         namespace VI = Opm::RestartIO::Helpers::VectorItems;
 
-        for ( auto seqNumber : restartFile->listOfReportStepNumbers() )
+        for ( auto seqNum : restartFile->listOfReportStepNumbers() )
         {
-            auto fileView = std::make_shared<EclIO::RestartFileView>( restartFile, seqNumber );
+            const std::string inteheadString = "INTEHEAD";
+            const std::string doubheadString = "DOUBHEAD";
 
-            auto intehead = fileView->intehead();
+            if ( restartFile->hasArray( inteheadString, seqNum ) )
+            {
+                auto intehead = restartFile->getRestartData<int>( inteheadString, seqNum );
+                auto year     = intehead[VI::intehead::YEAR];
+                auto month    = intehead[VI::intehead::MONTH];
+                auto day      = intehead[VI::intehead::DAY];
 
-            auto year  = intehead[VI::intehead::YEAR];
-            auto month = intehead[VI::intehead::MONTH];
-            auto day   = intehead[VI::intehead::DAY];
+                double daySinceSimStart = 0.0;
 
-            auto doubhead = fileView->doubhead();
+                if ( restartFile->hasArray( doubheadString, seqNum ) )
+                {
+                    auto doubhead    = restartFile->getRestartData<double>( doubheadString, seqNum );
+                    daySinceSimStart = doubhead[VI::doubhead::TsInit];
+                }
 
-            auto daySinceSimStart = doubhead[VI::doubhead::TsInit];
-
-            reportTimeData.emplace_back(
-                TimeDataFile{ .sequenceNumber = seqNumber, .year = year, .month = month, .day = day, .simulationTimeFromStart = daySinceSimStart } );
+                reportTimeData.emplace_back(
+                    TimeDataFile{ .sequenceNumber = seqNum, .year = year, .month = month, .day = day, .simulationTimeFromStart = daySinceSimStart } );
+            }
         }
     }
     catch ( std::exception& e )

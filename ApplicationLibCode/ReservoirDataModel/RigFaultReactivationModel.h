@@ -24,7 +24,6 @@
 #include "cvfColor3.h"
 #include "cvfMatrix4.h"
 #include "cvfObject.h"
-#include "cvfPlane.h"
 #include "cvfStructGrid.h"
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
@@ -37,7 +36,6 @@
 
 class RigGriddedPart3d;
 class RigMainGrid;
-class RimFaultReactivationDataAccess;
 class RigFaultReactivationModelGenerator;
 
 class RigFRModelPart

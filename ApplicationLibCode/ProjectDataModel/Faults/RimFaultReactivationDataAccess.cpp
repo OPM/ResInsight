@@ -90,7 +90,8 @@ RimFaultReactivationDataAccess::RimFaultReactivationDataAccess( const RimFaultRe
             std::vector<RimFaultReactivation::ElementSets>      elementSets = { RimFaultReactivation::ElementSets::OverBurden,
                                                                                 RimFaultReactivation::ElementSets::UnderBurden,
                                                                                 RimFaultReactivation::ElementSets::Reservoir,
-                                                                                RimFaultReactivation::ElementSets::IntraReservoir };
+                                                                                RimFaultReactivation::ElementSets::IntraReservoir,
+                                                                                RimFaultReactivation::ElementSets::FaultZone };
             for ( auto e : elementSets )
             {
                 densities[e] = model.materialParameters( e )[2];

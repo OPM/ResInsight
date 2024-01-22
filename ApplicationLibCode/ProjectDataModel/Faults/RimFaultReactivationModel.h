@@ -168,6 +168,7 @@ private:
 
     caf::PdmField<double> m_faultExtendUpwards;
     caf::PdmField<double> m_faultExtendDownwards;
+    caf::PdmField<int>    m_faultZoneCells;
 
     caf::PdmField<double> m_maxReservoirCellHeight;
     caf::PdmField<double> m_minReservoirCellHeight;

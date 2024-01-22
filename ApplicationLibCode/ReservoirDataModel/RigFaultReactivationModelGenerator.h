@@ -37,13 +37,13 @@ class RigActiveCellInfo;
 class RigFaultReactivationModelGenerator : cvf::Object
 {
 public:
-    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal );
+    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal, cvf::Vec3d direction );
     ~RigFaultReactivationModelGenerator() override;
 
     void setFault( const RigFault* fault );
     void setGrid( const RigMainGrid* grid );
     void setActiveCellInfo( const RigActiveCellInfo* activeCellInfo );
-    void setFaultBufferDepth( double aboveFault, double belowFault );
+    void setFaultBufferDepth( double aboveFault, double belowFault, int faultZoneCells );
     void setModelSize( double startDepth, double depthBelowFault, double horzExtentFromFault );
     void setModelThickness( double thickness );
     void setModelGriddingOptions( double minCellHeight,
@@ -90,6 +90,7 @@ protected:
 private:
     cvf::Vec3d m_startPosition;
     cvf::Vec3d m_normal;
+    cvf::Vec3d m_modelDirection;
 
     std::array<cvf::Vec3d, 12> m_frontPoints;
     std::array<cvf::Vec3d, 12> m_backPoints;
@@ -102,6 +103,7 @@ private:
 
     double m_bufferAboveFault;
     double m_bufferBelowFault;
+    int    m_faultZoneCells;
 
     double m_startDepth;
     double m_bottomDepth;

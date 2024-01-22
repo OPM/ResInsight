@@ -50,7 +50,9 @@ public:
                            double                            cellSizeFactor,
                            const std::vector<double>&        horizontalPartition,
                            double                            modelThickness,
-                           double                            topHeight );
+                           double                            topHeight,
+                           cvf::Vec3d                        thicknessDirection,
+                           int                               nFaultZoneCells );
 
     void generateLocalNodes( const cvf::Mat4d transform );
     void setUseLocalCoordinates( bool useLocalCoordinates );

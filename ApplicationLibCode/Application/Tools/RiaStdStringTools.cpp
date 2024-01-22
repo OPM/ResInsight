@@ -141,6 +141,26 @@ bool RiaStdStringTools::startsWithAlphabetic( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::formatThousandGrouping( long value )
+{
+    class my_punct : public std::numpunct<char>
+    {
+    protected:
+        char        do_decimal_point() const override { return '.'; }
+        char        do_thousands_sep() const override { return ' '; }
+        std::string do_grouping() const override { return std::string( "\3" ); }
+    };
+
+    std::ostringstream os;
+    os.imbue( std::locale( os.getloc(), new my_punct ) );
+    fixed( os );
+    os << value;
+    return os.str();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::toDouble( const std::string_view& s, double& value )
 {
     auto resultObject = fast_float::from_chars( s.data(), s.data() + s.size(), value );

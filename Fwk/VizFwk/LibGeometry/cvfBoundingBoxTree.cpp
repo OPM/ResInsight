@@ -716,6 +716,7 @@ std::string AABBTree::treeInfo() const
 {
     size_t treeSizeInMB = treeSize() / (1024u *1024u);
     auto text = "Tree size : " + std::to_string(treeSizeInMB) + "[MB] \n";
+    if (treeSize() == 0) return text;
     
     text += "Num leaves: " + std::to_string(leavesCount()) + "\n";
 
