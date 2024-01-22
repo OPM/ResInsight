@@ -35,15 +35,6 @@ class ERst;
 class RifReaderOpmCommon : public RifReaderInterface
 {
 public:
-    struct TimeDataFile
-    {
-        int    sequenceNumber;
-        int    year;
-        int    month;
-        int    day;
-        double simulationTimeFromStart;
-    };
-
     RifReaderOpmCommon();
     ~RifReaderOpmCommon() override;
 
@@ -54,6 +45,15 @@ public:
 
 private:
     void buildMetaData( RigEclipseCaseData* eclipseCase );
+
+    struct TimeDataFile
+    {
+        int    sequenceNumber;
+        int    year;
+        int    month;
+        int    day;
+        double simulationTimeFromStart;
+    };
 
     static std::vector<TimeDataFile> readTimeSteps( std::shared_ptr<Opm::EclIO::ERst> restartFile );
     static void                      readWellCells( std::shared_ptr<Opm::EclIO::ERst> restartFile,

@@ -40,7 +40,6 @@
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/io/eclipse/RestartFileView.hpp"
 #include "opm/io/eclipse/rst/state.hpp"
-#include "opm/output/eclipse/VectorItems/doubhead.hpp"
 #include "opm/output/eclipse/VectorItems/group.hpp"
 #include "opm/output/eclipse/VectorItems/intehead.hpp"
 #include "opm/output/eclipse/VectorItems/well.hpp"
@@ -273,7 +272,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
             QDate     date( timeStep.year, timeStep.month, timeStep.day );
             QDateTime dateTime = RiaQDateTimeTools::createDateTime( date );
             dateTimes.push_back( dateTime );
-            timeStepInfos.emplace_back( dateTime, timeStep.sequenceNumber, 0.0 );
+            timeStepInfos.emplace_back( dateTime, timeStep.sequenceNumber, timeStep.simulationTimeFromStart );
         }
         m_timeSteps = dateTimes;
 
@@ -464,8 +463,14 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
 
                 if ( restartFile->hasArray( doubheadString, seqNum ) )
                 {
-                    auto doubhead    = restartFile->getRestartData<double>( doubheadString, seqNum );
-                    daySinceSimStart = doubhead[VI::doubhead::TsInit];
+                    auto doubhead = restartFile->getRestartData<double>( doubheadString, seqNum );
+                    if ( !doubhead.empty() )
+                    {
+                        // Read out the simulation time from start from DOUBHEAD. There is no enum defined to access this value.
+                        // https://github.com/OPM/ResInsight/issues/11092
+
+                        daySinceSimStart = doubhead[0];
+                    }
                 }
 
                 reportTimeData.emplace_back(
