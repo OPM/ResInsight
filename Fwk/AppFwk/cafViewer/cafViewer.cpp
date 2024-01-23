@@ -74,9 +74,12 @@
 #include "cvfqtUtils.h"
 
 #include <QDebug>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QInputEvent>
 #include <QPainter>
+#include <QScreen>
+#include <QWindow>
 
 #include <cmath>
 
@@ -1241,15 +1244,16 @@ QImage caf::Viewer::snapshotImage()
     }
     else
     {
-        // Code moved from RimView::snapshotWindowContent()
+        QScreen* screen = QGuiApplication::primaryScreen();
 
-        GLint currentReadBuffer;
-        glGetIntegerv( GL_READ_BUFFER, &currentReadBuffer );
+        if ( const QWindow* window = windowHandle() ) screen = window->screen();
 
-        glReadBuffer( GL_FRONT );
-        image = QImage(); //this->grabFrameBuffer();
-
-        glReadBuffer( currentReadBuffer );
+        if ( screen )
+        {
+            auto windowId       = winId();
+            auto originalPixmap = screen->grabWindow( windowId );
+            image               = originalPixmap.toImage();
+        }
     }
 
     return image;
