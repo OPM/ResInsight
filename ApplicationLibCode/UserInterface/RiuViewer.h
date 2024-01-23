@@ -73,7 +73,7 @@ class RiuViewer : public caf::Viewer, public RiuInterfaceToViewWindow
     Q_OBJECT
 
 public:
-    RiuViewer( const QGLFormat& format, QWidget* parent );
+    RiuViewer( QWidget* parent );
     ~RiuViewer() override;
 
     RiuViewer( const RiuViewer& ) = delete;

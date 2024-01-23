@@ -92,8 +92,8 @@ std::unique_ptr<QCursor> RiuViewer::s_hoverCursor;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
-    : caf::Viewer( format, parent )
+RiuViewer::RiuViewer( QWidget* parent )
+    : caf::Viewer( parent )
     , m_isNavigationRotationEnabled( true )
     , m_zScale( 1.0 )
 {

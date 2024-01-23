@@ -45,7 +45,7 @@
 #include "cvfRenderingScissor.h"
 #include "cvfVector3.h"
 
-#include "cafOpenGLWidget.h"
+#include "cvfqtOpenGLWidget.h"
 
 namespace cvf
 {
@@ -79,11 +79,11 @@ namespace caf
 class GlobalViewerDynUniformSet;
 class ScissorChanger;
 
-class Viewer : public caf::OpenGLWidget
+class Viewer : public cvfqt::OpenGLWidget
 {
     Q_OBJECT
 public:
-    Viewer( const QGLFormat& format, QWidget* parent );
+    Viewer( QWidget* parent );
     ~Viewer() override;
 
     QWidget*     layoutWidget() { return m_layoutWidget; } // Use this when putting it into something

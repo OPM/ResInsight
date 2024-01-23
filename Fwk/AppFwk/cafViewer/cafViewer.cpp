@@ -76,6 +76,7 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>
+#include <QPainter>
 
 #include <cmath>
 
@@ -114,8 +115,8 @@ cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Viewer::Viewer( const QGLFormat& format, QWidget* parent )
-    : caf::OpenGLWidget( contextGroup(), format, nullptr, sharedWidget() )
+caf::Viewer::Viewer( QWidget* parent )
+    : cvfqt::OpenGLWidget( contextGroup(), parent )
     , m_navigationPolicy( nullptr )
     , m_navigationPolicyEnabled( true )
     , m_defaultPerspectiveNearPlaneDistance( 0.05 )
@@ -189,7 +190,8 @@ caf::Viewer::Viewer( const QGLFormat& format, QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 caf::Viewer::~Viewer()
 {
-    this->cvfShutdownOpenGLContext();
+    //this->cvfShutdownOpenGLContext();
+
     sm_viewers.remove( this );
 
     // To delete the layout widget
@@ -214,13 +216,15 @@ void caf::Viewer::setupMainRendering()
     m_mainRendering->addGlobalDynamicUniformSet( m_globalUniformSet.p() );
     m_comparisonMainRendering->addGlobalDynamicUniformSet( m_globalUniformSet.p() );
 
-    // Set fixed function rendering if QGLFormat does not support directRendering
-    if ( !this->format().directRendering() )
-    {
-        m_mainRendering->renderEngine()->enableForcedImmediateMode( true );
-        m_comparisonMainRendering->renderEngine()->enableForcedImmediateMode( true );
-        m_overlayItemsRendering->renderEngine()->enableForcedImmediateMode( true );
-    }
+    /*
+        // Set fixed function rendering if QGLFormat does not support directRendering
+        if ( !this->format().directRendering() )
+        {
+            m_mainRendering->renderEngine()->enableForcedImmediateMode( true );
+            m_comparisonMainRendering->renderEngine()->enableForcedImmediateMode( true );
+            m_overlayItemsRendering->renderEngine()->enableForcedImmediateMode( true );
+        }
+    */
 
     if ( contextGroup()->capabilities() &&
          contextGroup()->capabilities()->hasCapability( cvf::OpenGLCapabilities::FRAMEBUFFER_OBJECT ) )
@@ -595,14 +599,17 @@ bool caf::Viewer::event( QEvent* e )
     //   The underlying native surface will be destroyed immediately after this event.
     //   The SurfaceAboutToBeDestroyed event type is useful as a means of stopping rendering to a platform window before
     //   it is destroyed.
-    if ( e->type() == QEvent::PlatformSurface )
-    {
-        QPlatformSurfaceEvent* platformSurfaceEvent = static_cast<QPlatformSurfaceEvent*>( e );
-        if ( platformSurfaceEvent->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed )
+
+    /*
+        if ( e->type() == QEvent::PlatformSurface )
         {
-            cvfShutdownOpenGLContext();
+            QPlatformSurfaceEvent* platformSurfaceEvent = static_cast<QPlatformSurfaceEvent*>( e );
+            if ( platformSurfaceEvent->surfaceEventType() == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed )
+            {
+                cvfShutdownOpenGLContext();
+            }
         }
-    }
+    */
 
     if ( e && m_navigationPolicy.notNull() && m_navigationPolicyEnabled )
     {
@@ -628,15 +635,15 @@ bool caf::Viewer::event( QEvent* e )
                 if ( m_navigationPolicy->handleInputEvent( static_cast<QInputEvent*>( e ) ) )
                     return true;
                 else
-                    return QGLWidget::event( e );
+                    return cvfqt::OpenGLWidget::event( e );
                 break;
             default:
-                return QGLWidget::event( e );
+                return cvfqt::OpenGLWidget::event( e );
                 break;
         }
     }
     else
-        return QGLWidget::event( e );
+        return cvfqt::OpenGLWidget::event( e );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1176,6 +1183,8 @@ void caf::Viewer::updateCachedValuesInScene()
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::isShadersSupported()
 {
+    return true;
+    /*
     QGLFormat::OpenGLVersionFlags flags         = QGLFormat::openGLVersionFlags();
     bool                          hasOpenGL_2_0 = QGLFormat::OpenGL_Version_2_0 & flags;
 
@@ -1185,6 +1194,7 @@ bool caf::Viewer::isShadersSupported()
     }
 
     return false;
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1237,7 +1247,7 @@ QImage caf::Viewer::snapshotImage()
         glGetIntegerv( GL_READ_BUFFER, &currentReadBuffer );
 
         glReadBuffer( GL_FRONT );
-        image = this->grabFrameBuffer();
+        image = QImage(); //this->grabFrameBuffer();
 
         glReadBuffer( currentReadBuffer );
     }
