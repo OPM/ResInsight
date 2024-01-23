@@ -4,8 +4,10 @@ project(LibGuiQt_UnitTests)
 
 find_package(OpenGL)
 
-# Qt
-if (CEE_USE_QT5)
+if (CEE_USE_QT6)
+    find_package(Qt6 COMPONENTS REQUIRED Core Gui Widgets OpenGLWidgets)
+    set(QT_LIBRARIES Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGLWidgets )
+elseif (CEE_USE_QT5)
     find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 else()

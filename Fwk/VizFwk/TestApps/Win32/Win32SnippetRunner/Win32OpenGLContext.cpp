@@ -119,7 +119,9 @@ bool Win32OpenGLContext::createHardwareContext(HWND hWnd)
     m_hDC = hDC;
     m_hRC = hRC;
 
-    if (initializeContext())
+    cvf::OpenGLContextGroup* ownerContextGroup = group();
+    CVF_ASSERT(ownerContextGroup);
+    if (ownerContextGroup->initializeContextGroup(this))
     {
         return true;
     }
@@ -136,7 +138,11 @@ bool Win32OpenGLContext::createHardwareContext(HWND hWnd)
 void Win32OpenGLContext::shutdownContext()
 {
     // Clears up resources and removes us from our group
-    cvf::OpenGLContext::shutdownContext();
+    cvf::OpenGLContextGroup* ownerContextGroup = group();
+    CVF_ASSERT(ownerContextGroup);
+
+    makeCurrent();
+    ownerContextGroup->contextAboutToBeShutdown(this);
 
     if (m_hRC)
     {
@@ -165,7 +171,14 @@ void Win32OpenGLContext::makeCurrent()
 {
     if (m_hDC && m_hRC)
     {
-        wglMakeCurrent(m_hDC, m_hRC);
+        HGLRC currRCBefore = wglGetCurrentContext();
+        if (currRCBefore != m_hRC)
+        {
+            wglMakeCurrent(m_hDC, m_hRC);
+            HGLRC currRCAfter = wglGetCurrentContext();
+            CVF_ASSERT(currRCAfter = m_hRC);
+            CVF_UNUSED(currRCAfter);
+        }
     }
 }
 
@@ -177,7 +190,8 @@ bool Win32OpenGLContext::isCurrent() const
 {
     if (m_hDC && m_hRC)
     {
-        if (wglGetCurrentContext() == m_hRC)
+        HGLRC currRC = wglGetCurrentContext();
+        if (currRC == m_hRC)
         {
             return true;
         }

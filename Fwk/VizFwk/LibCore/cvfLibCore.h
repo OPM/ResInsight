@@ -57,6 +57,7 @@
 #include "cvfFlags.h"
 #include "cvfFunctorRange.h"
 #include "cvfLogger.h"
+#include "cvfLogManager.h"
 #include "cvfMath.h"
 #include "cvfMatrix4.h"
 #include "cvfObject.h"

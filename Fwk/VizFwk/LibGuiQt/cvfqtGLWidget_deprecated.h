@@ -37,28 +37,30 @@
 
 #pragma once
 
-#include "cvfOpenGLContext.h"
+#include <QGLWidget>
 
-#include <QtOpenGL/QGLContext>
+namespace cvf
+{
+    class OpenGLContext;
+    class OpenGLContextGroup;
+}
 
 namespace cvfqt {
 
 
 //==================================================================================================
 //
-// Utility class used to piggyback OpenGLContext onto Qt's QGLContext
+// Derived QGLWidget
 //
 //==================================================================================================
-class CvfBoundQGLContext : public QGLContext
+class GLWidget_deprecated : public QGLWidget
 {
 public:
-    CvfBoundQGLContext(cvf::OpenGLContextGroup* contextGroup, const QGLFormat & format);
-    virtual ~CvfBoundQGLContext();
+    GLWidget_deprecated(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags());
+    GLWidget_deprecated(GLWidget_deprecated* shareWidget, QWidget* parent , Qt::WindowFlags f = Qt::WindowFlags());
 
     cvf::OpenGLContext* cvfOpenGLContext() const;
-
-private:
-    cvf::ref<cvf::OpenGLContext>  m_cvfGLContext;
+    void                cvfShutdownOpenGLContext();
 };
 
 }

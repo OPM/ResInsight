@@ -35,6 +35,15 @@ QSRStdInclude.cpp
 QSRTranslateEvent.cpp
 )
 
+set(CEE_HEADER_FILES
+QSRCommandLineArgs.h
+QSRPropertiesPanel.h
+QSRRunPanel.h
+QSRSnippetWidget.h
+QSRStdInclude.h
+QSRTranslateEvent.h
+)
+
 # Headers that need MOCing
 set(MOC_HEADER_FILES
 QSRMainWindow.h
@@ -43,8 +52,13 @@ QSRRunPanel.h
 QSRSnippetWidget.h
 )
 
+
 # Qt
-if (CEE_USE_QT5)
+if (CEE_USE_QT6)
+    find_package(Qt6 COMPONENTS REQUIRED OpenGLWidgets)
+    set(QT_LIBRARIES Qt6::OpenGLWidgets )
+    qt_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+elseif (CEE_USE_QT5)
     find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
     qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
@@ -57,5 +71,5 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	set(SYSTEM_LIBRARIES -lrt -lpthread)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${MOC_SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES} ${CEE_HEADER_FILES} ${MOC_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES} ${SYSTEM_LIBRARIES})

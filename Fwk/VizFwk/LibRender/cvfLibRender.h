@@ -61,6 +61,7 @@
 #include "cvfOpenGLContextGroup.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOpenGLTypes.h"
+#include "cvfOpenGLUtils.h"
 #include "cvfOverlayAxisCross.h"
 #include "cvfOverlayColorLegend.h"
 #include "cvfOverlayImage.h"

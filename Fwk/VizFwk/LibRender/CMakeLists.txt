@@ -45,8 +45,10 @@ cvfOpenGL.h
 cvfOpenGLCapabilities.h
 cvfOpenGLContext.h
 cvfOpenGLContextGroup.h
+cvfOpenGLInfo.h
 cvfOpenGLResourceManager.h
 cvfOpenGLTypes.h
+cvfOpenGLUtils.h
 cvfOverlayAxisCross.h
 cvfOverlayScalarMapperLegend.h
 cvfOverlayColorLegend.h
@@ -122,7 +124,9 @@ cvfOglRc.cpp
 cvfOpenGLCapabilities.cpp
 cvfOpenGLContext.cpp
 cvfOpenGLContextGroup.cpp
+cvfOpenGLInfo.cpp
 cvfOpenGLResourceManager.cpp
+cvfOpenGLUtils.cpp
 cvfOpenGL.cpp
 cvfOverlayAxisCross.cpp
 cvfOverlayScalarMapperLegend.cpp

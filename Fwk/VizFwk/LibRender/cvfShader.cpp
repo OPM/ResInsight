@@ -181,6 +181,16 @@ bool Shader::compile(OpenGLContext* oglContext)
         String errStr = String("Error compiling shader: '%1'\n").arg(m_shaderName);
         errStr += "GLSL details:\n";
         errStr += shaderInfoLog(oglContext);
+
+        // {
+        //     errStr += "Shader prog:\n";
+        //     std::vector<String> progArr = m_source.split("\n");
+        //     for (size_t i = 0; i < progArr.size(); ++i)
+        //     {
+        //         errStr += String("%1: %2\n").arg(static_cast<int>(i + 1), 3).arg(progArr[i]);
+        //     }
+        // }
+
         CVF_LOG_RENDER_ERROR(oglContext, errStr);
         return false;
     }

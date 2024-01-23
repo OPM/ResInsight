@@ -36,105 +36,30 @@
 
 
 #include "cvfBase.h"
+#include "cvfOpenGLUtils.h"
 #include "cvfOpenGL.h"
-#include "cvfqtOpenGLContext.h"
-#include "cvfqtCvfBoundQGLContext.h"
-
-#include "cvfOpenGLContextGroup.h"
+#include "cvfOpenGLContext.h"
 #include "cvfOpenGLCapabilities.h"
 
-namespace cvfqt {
+namespace cvf {
 
 
 
 //==================================================================================================
 ///
-/// \class cvfqt::OpenGLContext
-/// \ingroup GuiQt
+/// \class cvf::OpenGLUtils
+/// \ingroup Render
 ///
-/// Derived OpenGLContext that adapts a Qt QGLContext
+/// Static class providing OpenGL helpers 
 /// 
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
+/// Store the current OpenGL context settings by using OpenGL's built in push methods.
 /// 
+/// Note: This call MUST be matched with a corresponding popOpenGLState() call.
 //--------------------------------------------------------------------------------------------------
-OpenGLContext::OpenGLContext(cvf::OpenGLContextGroup* contextGroup, QGLContext* backingQGLContext)
-:   cvf::OpenGLContext(contextGroup),
-    m_isCoreOpenGLProfile(false),
-    m_majorVersion(0),
-    m_minorVersion(0)
-{
-    m_qtGLContext = backingQGLContext;
-
-    CVF_ASSERT(m_qtGLContext);
-    QGLFormat glFormat = m_qtGLContext->format();
-    m_majorVersion = glFormat.majorVersion();
-    m_minorVersion = glFormat.minorVersion();
-    m_isCoreOpenGLProfile = (glFormat.profile() == QGLFormat::CoreProfile) ? true : false;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-OpenGLContext::~OpenGLContext()
-{
-    m_qtGLContext = NULL;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool OpenGLContext::initializeContext()
-{
-    if (!cvf::OpenGLContext::initializeContext())
-    {
-        return false;
-    }
-
-    // Possibly override setting for fixed function support
-    if (m_isCoreOpenGLProfile)
-    {
-        group()->capabilities()->setSupportsFixedFunction(false);
-    }
-
-    return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void OpenGLContext::makeCurrent()
-{
-    CVF_ASSERT(m_qtGLContext);
-    m_qtGLContext->makeCurrent();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool OpenGLContext::isCurrent() const
-{
-    if (m_qtGLContext)
-    {
-        if (QGLContext::currentContext() == m_qtGLContext)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Make an effort to save current OpenGL state. Must be matched by a call to restoreOpenGLState()
-//--------------------------------------------------------------------------------------------------
-void OpenGLContext::saveOpenGLState(cvf::OpenGLContext* oglContext)
+void OpenGLUtils::pushOpenGLState(OpenGLContext* oglContext)
 {
     CVF_CALLSITE_OPENGL(oglContext);
     const cvf::OpenGLCapabilities* oglCaps = oglContext->capabilities();
@@ -178,9 +103,11 @@ void OpenGLContext::saveOpenGLState(cvf::OpenGLContext* oglContext)
 
 
 //--------------------------------------------------------------------------------------------------
-/// Restore OpenGL state that has been saved by saveOpenGLState()
+/// Set back the stored OpenGL context settings by using OpenGL's built in pop methods.
+/// 
+/// Note: This call MUST be matched with a corresponding pushOpenGLState() call.
 //--------------------------------------------------------------------------------------------------
-void OpenGLContext::restoreOpenGLState(cvf::OpenGLContext* oglContext)
+void OpenGLUtils::popOpenGLState(OpenGLContext* oglContext)
 {
     CVF_CALLSITE_OPENGL(oglContext);
     const cvf::OpenGLCapabilities* oglCaps = oglContext->capabilities();
@@ -212,7 +139,7 @@ void OpenGLContext::restoreOpenGLState(cvf::OpenGLContext* oglContext)
 
     glPopAttrib();
     CVF_CHECK_OGL(oglContext);
- 
+
     // Currently not pushing vertex attribs, so comment out the pop
     //glPopClientAttrib();
 
@@ -221,6 +148,5 @@ void OpenGLContext::restoreOpenGLState(cvf::OpenGLContext* oglContext)
 }
 
 
-} // namespace cvfqt
-
+} // namespace cvf
 

@@ -45,9 +45,18 @@
 
 #include "cvfuTestSnippet.h"
 
-#include "cvfqtOpenGLWidget.h"
-
 class QTimer;
+
+
+#define QSR_USE_OPENGLWIDGET
+
+#ifdef QSR_USE_OPENGLWIDGET
+#include "cvfqtOpenGLWidget.h"
+typedef cvfqt::OpenGLWidget OglWidgetBaseClass;
+#else
+#include "cvfqtGLWidget.h"
+typedef cvfqt::GLWidget OglWidgetBaseClass;
+#endif
 
 
 //==================================================================================================
@@ -55,12 +64,16 @@ class QTimer;
 // 
 //
 //==================================================================================================
-class QSRSnippetWidget : public cvfqt::OpenGLWidget
+class QSRSnippetWidget : public OglWidgetBaseClass
 {
     Q_OBJECT
 
 public:
+#ifdef QSR_USE_OPENGLWIDGET
+    QSRSnippetWidget(cvfu::TestSnippet* snippet, cvf::OpenGLContextGroup* contextGroup, QWidget* parent);
+#else
     QSRSnippetWidget(cvfu::TestSnippet* snippet, cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent);
+#endif
     ~QSRSnippetWidget();
 
     cvfu::TestSnippet*      snippet();

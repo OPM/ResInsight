@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cvfLibCore.h"
 #include "cvfLibRender.h"
 #include "cvfLibGeometry.h"
@@ -42,40 +41,20 @@
 
 #include "QMVWidget.h"
 
-#include "cvfqtOpenGLContext.h"
-
 #include <QMouseEvent>
-
-using cvf::ref;
+#include <QPainter>
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMVWidget::QMVWidget(cvf::OpenGLContextGroup* contextGroup, const QGLFormat& format, QWidget* parent)
-:   cvfqt::OpenGLWidget(contextGroup, format, parent)
+QMVWidget::QMVWidget(cvf::OpenGLContextGroup* contextGroup, int indexOfWidget, QWidget* parent, Qt::WindowFlags f)
+:   cvfqt::OpenGLWidget(contextGroup, parent, f),
+    m_indexOfWidget(indexOfWidget),
+    m_paintCount(0)
 {
     m_trackball = new cvf::ManipulatorTrackball;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QMVWidget::QMVWidget(QMVWidget* shareWidget, QWidget* parent)
-:   cvfqt::OpenGLWidget(shareWidget, parent)
-{
-    m_trackball = new cvf::ManipulatorTrackball;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QMVWidget::~QMVWidget()
-{
-    cvfShutdownOpenGLContext();
 }
 
 
@@ -117,6 +96,14 @@ cvf::RenderSequence* QMVWidget::renderSequence()
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
+cvf::OpenGLContext* QMVWidget::cvfOpenGLContext()
+{
+    return cvfqt::OpenGLWidget::cvfOpenGLContext();
+}
+
+//--------------------------------------------------------------------------------------------------
+///  
+//--------------------------------------------------------------------------------------------------
 void QMVWidget::resizeGL(int width, int height)
 {
     cvf::Camera* camera = currentCamera();
@@ -124,10 +111,6 @@ void QMVWidget::resizeGL(int width, int height)
     {
         camera->viewport()->set(0, 0, width, height);
         camera->setProjectionAsPerspective(camera->fieldOfViewYDeg(), camera->nearPlane(), camera->farPlane());
-    }
-    else
-    {
-        glViewport(0, 0, width, height);
     }
 }
 
@@ -141,7 +124,7 @@ void QMVWidget::paintGL()
     CVF_ASSERT(currentOglContext);
     CVF_CHECK_OGL(currentOglContext);
 
-    cvfqt::OpenGLContext::saveOpenGLState(currentOglContext);
+    cvf::OpenGLUtils::pushOpenGLState(currentOglContext);
 
     if (m_renderSequence.notNull())
     {
@@ -149,11 +132,17 @@ void QMVWidget::paintGL()
     }
     else
     {
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        // Reddish background for empty widgets
+        glClearColor(0.9f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    cvfqt::OpenGLContext::restoreOpenGLState(currentOglContext);
+    cvf::OpenGLUtils::popOpenGLState(currentOglContext);
+
+    m_paintCount++;
+    QPainter p(this);
+    p.setPen(Qt::red);
+    p.drawText(10, 20, QString("VP%1, paint count: %2").arg(m_indexOfWidget).arg(m_paintCount));
 }
 
 
@@ -183,8 +172,13 @@ void QMVWidget::mouseMoveEvent(QMouseEvent* event)
     if (m_renderSequence.isNull()) return;
 
     Qt::MouseButtons mouseBn = event->buttons();
-    int posX = event->x();
-    int posY = height() - event->y();
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    const int posX = event->position().toPoint().x();
+    const int posY = height() - event->position().toPoint().y();
+#else
+    const int posX = event->x();
+    const int posY = height() - event->y();
+#endif
 
     cvf::ManipulatorTrackball::NavigationType navType = cvf::ManipulatorTrackball::NONE;
     if (mouseBn == Qt::LeftButton)
@@ -195,7 +189,7 @@ void QMVWidget::mouseMoveEvent(QMouseEvent* event)
     {
         navType = cvf::ManipulatorTrackball::ROTATE;
     }
-    else if (mouseBn == (Qt::LeftButton | Qt::RightButton) || mouseBn == Qt::MidButton)
+    else if (mouseBn == (Qt::LeftButton | Qt::RightButton) || mouseBn == Qt::MiddleButton)
     {
         navType = cvf::ManipulatorTrackball::WALK;
     }
@@ -220,10 +214,18 @@ void QMVWidget::mousePressEvent(QMouseEvent* event)
 {
     if (m_renderSequence.isNull()) return;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    const int posX = event->position().toPoint().x();
+    const int posY = height() - event->position().toPoint().y();
+#else
+    const int posX = event->x();
+    const int posY = height() - event->y();
+#endif
+
     if (event->buttons() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier)
     {
         cvf::Rendering* r = m_renderSequence->firstRendering();
-        ref<cvf::RayIntersectSpec> ris = r->rayIntersectSpecFromWindowCoordinates(event->x(), height() - event->y());
+        cvf::ref<cvf::RayIntersectSpec> ris = r->rayIntersectSpecFromWindowCoordinates(posX, posY);
 
         cvf::HitItemCollection hic;
         if (r->rayIntersect(*ris, &hic))
@@ -247,3 +249,5 @@ void QMVWidget::mouseReleaseEvent(QMouseEvent* /*event*/)
 {
     m_trackball->endNavigation();
 }
+
+

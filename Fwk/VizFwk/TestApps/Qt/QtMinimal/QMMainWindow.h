@@ -40,8 +40,8 @@
 #include "cvfObject.h"
 #include "cvfOpenGLContextGroup.h"
 
-#include <QtGlobal>
 #include <QMainWindow>
+#include <QPointer>
 
 class QMWidget;
 
@@ -58,17 +58,14 @@ class QMMainWindow : public QMainWindow
 public:
     QMMainWindow();
 
+    void    handleVizWidgetIsOpenGLReady();
+
 private slots:
     void    slotCreateDefaultScene();
     void    slotClearScene();
 
 private:
-    void	closeEvent(QCloseEvent* event);
-
-private:
     cvf::ref<cvf::OpenGLContextGroup>   m_contextGroup;
-    QMWidget*                           m_vizWidget;
-    QAction*                            m_createDefaultSceneAction;
-    QAction*                            m_clearSceneAction;
+    QPointer<QMWidget>                  m_vizWidget;
 };
 

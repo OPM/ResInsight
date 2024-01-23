@@ -34,15 +34,14 @@
 //
 //##################################################################################################
 
-
 #include "cvfLibCore.h"
 
 #include "QMVMainWindow.h"
 
 #include <QApplication>
-#include "QtOpenGL/qgl.h"
 
-#include <locale.h>
+#include <clocale>
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -50,11 +49,22 @@
 //--------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    // It seems that if we are using paintEvent() instead of paintGL() to 
-    // draw we might have to set OpenGL as the preferred paint engine
-    //QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
+    // Enables resource sharing between QOpenGLWidget instances that belong to different top-level windows
+    // Must be enabled if we want to create multiple OpenGL widgets in the same context group and they're not sitting as direct children of the same widget.
+    // Enable here so we can experiment with creating widgets as floating dialogs
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
+    // Can be used as a work-around if OpenGL scene appears as black in combination with remote desktop for Win7 clients
+    // See: https://bugreports.qt.io/browse/QTBUG-47975
+    //QSurfaceFormat surface;
+    //surface.setAlphaBufferSize(8);
+    //QSurfaceFormat::setDefaultFormat(surface);
+
 
     QApplication app(argc, argv);
+
+    cvf::LogManager* logManager = cvf::LogManager::instance();
+    logManager->logger("cee.cvf.OpenGL")->setLevel(4);
 
     // On Linux, Qt will use the system locale, force number formatting settings back to "C" locale
     setlocale(LC_NUMERIC,"C");
@@ -62,7 +72,7 @@ int main(int argc, char *argv[])
     QMVMainWindow window;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     window.setWindowTitle("Qt MultiView " + platform);
-    window.resize(1000, 800);;
+    window.resize(1000, 800);
     window.show();
 
     return app.exec();

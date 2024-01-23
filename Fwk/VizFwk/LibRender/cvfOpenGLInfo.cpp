@@ -36,58 +36,66 @@
 
 
 #include "cvfBase.h"
-#include "cvfqtCvfBoundQGLContext.h"
-#include "cvfqtOpenGLContext.h"
+#include "cvfOpenGLInfo.h"
 
-namespace cvfqt {
-
+namespace cvf {
 
 
 //==================================================================================================
 ///
-/// \class cvfqt::CvfBoundQGLContext
-/// \ingroup GuiQt
+/// \class cvf::OpenGLInfo
+/// \ingroup Render
 ///
 /// 
-/// 
+///
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CvfBoundQGLContext::CvfBoundQGLContext(cvf::OpenGLContextGroup* contextGroup, const QGLFormat & format)
-:   QGLContext(format)
+OpenGLInfo::OpenGLInfo()
 {
-    m_cvfGLContext = new OpenGLContext(contextGroup, this);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CvfBoundQGLContext::~CvfBoundQGLContext()
+OpenGLInfo::~OpenGLInfo()
 {
-    if (m_cvfGLContext.notNull())
-    {
-        // TODO
-        // Need to resolve the case where the Qt QGLcontext (that we're deriving from) is deleted
-        // and we are still holding a reference to one or more OpenGLContext objects
-        // By the time we get here we expect that we're holding the only reference
-        CVF_ASSERT(m_cvfGLContext->refCount() == 1);
-        m_cvfGLContext = NULL;
-    }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::OpenGLContext* CvfBoundQGLContext::cvfOpenGLContext() const
+String OpenGLInfo::version() const
 {
-    return const_cast<cvf::OpenGLContext*>(m_cvfGLContext.p());
+    return m_version;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+String OpenGLInfo::vendor() const
+{
+    return m_vendor;
+}
 
-} // namespace cvfqt
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+String OpenGLInfo::renderer() const
+{
+    return m_renderer;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OpenGLInfo::setOpenGLStrings(String version, String vendor, String renderer)
+{
+    m_version = version;
+    m_vendor = vendor;
+    m_renderer = renderer;
+}
 
+} // namespace cvf

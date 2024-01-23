@@ -52,7 +52,7 @@ public:
     ~Win32OpenGLContext();
 
     bool            createHardwareContext(HWND hWnd);
-    virtual void    shutdownContext();
+    void            shutdownContext();
 
     virtual void    makeCurrent();
     virtual bool    isCurrent() const;

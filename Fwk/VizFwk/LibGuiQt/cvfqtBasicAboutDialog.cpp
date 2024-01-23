@@ -255,8 +255,7 @@ void BasicAboutDialog::create()
         // Library version
         if (m_showLibraryVersion)
         {
-            QString ver;
-            ver.sprintf("%s.%s%s-%s", CVF_MAJOR_VERSION, CVF_MINOR_VERSION, CVF_SPECIAL_BUILD, CVF_BUILD_NUMBER);
+            QString ver = QString("%1.%2%3-%4").arg(CVF_MAJOR_VERSION).arg(CVF_MINOR_VERSION).arg(CVF_SPECIAL_BUILD).arg(CVF_BUILD_NUMBER);
 
             addStringPairToVerInfoLayout("Library ver.:  ", ver, verInfoLayout, insertRow++);
         }

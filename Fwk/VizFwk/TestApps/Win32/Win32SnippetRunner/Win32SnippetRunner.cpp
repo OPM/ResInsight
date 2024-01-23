@@ -69,11 +69,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
     cvf::ShaderSourceProvider* shaderProvider = cvf::ShaderSourceProvider::instance();
-    shaderProvider->setSourceRepository(new cvf::ShaderSourceRepositoryFile("../../../LibRender/glsl/"));
-    shaderProvider->addFileSearchDirectory("../../../Tests/SnippetsBasis/Shaders/");
+    shaderProvider->setSourceRepository(new cvf::ShaderSourceRepositoryFile(CVF_CEEVIZ_ROOT_SOURCE_DIR "/LibRender/glsl/"));
+    shaderProvider->addFileSearchDirectory(CVF_CEEVIZ_ROOT_SOURCE_DIR "/Tests/SnippetsBasis/Shaders/");
     shaderProvider->addFileSearchDirectory("./");
 
-    const cvf::String testDataDir = "../../../Tests/TestData/";
+    const cvf::String testDataDir = CVF_CEEVIZ_ROOT_SOURCE_DIR "/Tests/TestData/";
 
     cvfu::SnippetFactory* factoryBasis = new SnippetFactoryBasis;
     factoryBasis->setTestDataDir(testDataDir);
@@ -168,7 +168,8 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
         {
             //ref<cvfu::TestSnippet> snippet = SnippetRegistry::instance()->createSnippet("snip::MinimalModel");
             //ref<cvfu::TestSnippet> snippet = SnippetRegistry::instance()->createSnippet("snip::Highlight");
-            ref<cvfu::TestSnippet> snippet = SnippetRegistry::instance()->createSnippet("snip::Stencil");
+            //ref<cvfu::TestSnippet> snippet = SnippetRegistry::instance()->createSnippet("snip::Stencil");
+            ref<cvfu::TestSnippet> snippet = SnippetRegistry::instance()->createSnippet("snip::TransparentWeightedAverage");
             sl_snippetWnd = new Win32SnippetWindow;
             sl_snippetWnd->create(hWnd, snippet.p());
             SetFocus(sl_snippetWnd->windowHandle());

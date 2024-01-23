@@ -34,20 +34,18 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
 #include "cvfCollection.h"
 #include "cvfDrawableGeo.h"
 
-#include <QtGlobal>
 #include <QMainWindow>
+#include <QPointer>
 
 class QMVWidget;
 
 namespace cvf {
-    class View;
     class Scene;
     class OpenGLResourceManager;
     class OpenGLContextGroup;
@@ -70,22 +68,24 @@ public:
 
 private:
     int                         vizWidgetCount();
-    void                        createVizWidgets(int numWidgets, bool software, bool recycleScenes);
-    void                        deleteAllOpenGLResourcesInAllVizWidgets();
+    void                        createVizWidgets(int numWidgets, bool recycleScenes);
+    void                        deleteAllOpenGLResourcesInResourceManager();
+    void                        deleteOrReleaseOpenGLResourcesInAllVizWidgets();
     void                        deleteAllVizWidgets();
+    void                        deleteVizWidgetAt(int index);
     void                        setSceneInAllVizWidgets(cvf::Scene* scene);
     void                        spreadScenesAcrossVizWidgets(cvf::Collection<cvf::Scene>* sceneCollection);
     void                        gatherAllScenes(cvf::Collection<cvf::Scene>* sceneCollection);
     void                        redrawAllVizWidgets();
     void                        setRenderModeInAllModels(cvf::DrawableGeo::RenderMode renderMode);
 
-    // Protected overrides
 protected:
     virtual void    closeEvent(QCloseEvent* pCE);
 
 private slots:
-    void            slotSoftwareRenderingWidgets(bool);
-    void            slotConfigNumWidgets();
+    void            slotConfigNumVizWidgets();
+    void            slotDeleteFirstVizWidget();
+    void            slotDeleteSecondVizWidget();
 
     void            slotCreateSphereAndBoxScene();
     void            slotCreateSpheresScene();
@@ -98,31 +98,22 @@ private slots:
     void            slotUseClientVertexArrays();
 
     void            slotDeleteAllResourcesInResourceManager();
+    void            slotDeleteOrReleaseOpenGLResourcesInAllVizWidgets();
 
     void            slotUpdateStatusbar();
 
 private:
     static const int                    MAX_NUM_WIDGETS = 4;
     cvf::ref<cvf::OpenGLContextGroup>   m_contextGroup;
-    QMVWidget*                          m_vizWidgets[MAX_NUM_WIDGETS];
+    QPointer<QMVWidget>                 m_vizWidgets[MAX_NUM_WIDGETS];
 
+    QAction*                            m_createWidgetsAsFloatingDialogsAction;
     QAction*                            m_recycleScenesInWidgetConfigAction;
-    QAction*                            m_softwareRenderingWidgetsAction;
     QAction*                            m_configNumWidgets1Action;
     QAction*                            m_configNumWidgets2Action;
     QAction*                            m_configNumWidgets4Action;
     QAction*                            m_configNumWidgetsNoneAction;
 
-    QAction*                            m_createSphereAndBoxSceneAction;
-    QAction*                            m_createSpheresSceneAction;
-    QAction*                            m_createBoxesSceneAction;
-    QAction*                            m_createTrianglesSceneAction;
-    QAction*                            m_allWidgetsDifferentSceneAction;
-    QAction*                            m_clearSceneAction;
-
-    QAction*                            m_useBufferObjectsAction;
-    QAction*                            m_useClientVertexArraysAction;
-
-    QAction*                            m_deleteAllResourcesInResourceManagerAction;
+    QAction*                            m_useShadersAction;
 };
 

@@ -51,7 +51,7 @@ cvfu::MouseEvent QSRTranslateEvent::translateMouseEvent(int widgetHeight, const 
     Qt::MouseButtons qtButtons = event.buttons();
     cvfu::MouseButtons buttons = cvfu::NoButton;
     if (qtButtons & Qt::LeftButton)     buttons |= cvfu::LeftButton;
-    if (qtButtons & Qt::MidButton)      buttons |= cvfu::MiddleButton;
+    if (qtButtons & Qt::MiddleButton)   buttons |= cvfu::MiddleButton;
     if (qtButtons & Qt::RightButton)    buttons |= cvfu::RightButton;
 
     Qt::KeyboardModifiers qtModifiers = event.modifiers();
@@ -69,7 +69,7 @@ cvfu::MouseEvent QSRTranslateEvent::translateMouseEvent(int widgetHeight, const 
 cvfu::MouseButton QSRTranslateEvent::translateMouseButton(Qt::MouseButton qtMouseButton)
 {
     if (qtMouseButton == Qt::LeftButton)    return cvfu::LeftButton;
-    if (qtMouseButton == Qt::MidButton)     return cvfu::MiddleButton;
+    if (qtMouseButton == Qt::MiddleButton)  return cvfu::MiddleButton;
     if (qtMouseButton == Qt::RightButton)   return cvfu::RightButton;
 
     return cvfu::NoButton;

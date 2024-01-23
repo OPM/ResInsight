@@ -34,10 +34,8 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-using cvf::ref;
 
 
 //==================================================================================================
@@ -48,19 +46,20 @@ using cvf::ref;
 class QMVModelFactory
 {
 public:
-    QMVModelFactory(bool useShaders);
+    QMVModelFactory(bool useShaders, const cvf::OpenGLCapabilities& capabilities);
 
-    ref<cvf::Model>   createSphereAndBox();
-    ref<cvf::Model>   createSpheres();
-    ref<cvf::Model>   createBoxes();
-    ref<cvf::Model>   createTriangles();
+    cvf::ref<cvf::Model>   createSphereAndBox();
+    cvf::ref<cvf::Model>   createSpheres();
+    cvf::ref<cvf::Model>   createBoxes();
+    cvf::ref<cvf::Model>   createTriangles();
 
 private:
-    ref<cvf::ShaderProgram> createProgramStandardHeadlightColor();
-    ref<cvf::ShaderProgram> createProgramUnlit();
+    cvf::ref<cvf::ShaderProgram> createProgramStandardHeadlightColor();
+    cvf::ref<cvf::ShaderProgram> createProgramUnlit();
 
 private:
     bool                    m_useShaders;
+    cvf::OpenGLCapabilities m_capabilities;
 };
 
 
@@ -75,8 +74,8 @@ class QMVSceneFactory
 public:
     QMVSceneFactory(QMVModelFactory* modelFactory);
 
-    ref<cvf::Scene>   createNumberedScene(int sceneNumber);
-    ref<cvf::Scene>   createFromModel(cvf::Model* model);
+    cvf::ref<cvf::Scene>   createNumberedScene(int sceneNumber);
+    cvf::ref<cvf::Scene>   createFromModel(cvf::Model* model);
 
 private:
     QMVModelFactory*  m_modelFactory;
@@ -92,6 +91,6 @@ private:
 class QMVRenderSequenceFactory
 {
 public:
-    ref<cvf::RenderSequence>   createFromScene(cvf::Scene* model);
+    cvf::ref<cvf::RenderSequence>   createFromScene(cvf::Scene* model);
 };
 

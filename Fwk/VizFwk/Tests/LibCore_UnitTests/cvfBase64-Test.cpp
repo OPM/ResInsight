@@ -59,7 +59,7 @@ TEST(Base64Test, EncodeDecode)
     size_t i;
     for (i = 0; i < binaryDataSize; i++)
     {
-        binaryData.set(i, static_cast<const ubyte>(i%256));
+        binaryData.set(i, static_cast<ubyte>(i%256));
     }
 
     // Encode binary data

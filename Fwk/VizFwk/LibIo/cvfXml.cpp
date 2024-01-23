@@ -45,7 +45,14 @@
 #pragma warning( disable : 4365 )
 #endif
 
+CVF_GCC_DIAGNOSTIC_PUSH
+#if defined (CVF_GCC_VER) && (CVF_GCC_VER >= 70400)
+CVF_GCC_DIAGNOSTIC_IGNORE("-Wimplicit-fallthrough=")
+#endif
+
 #include "cvfTinyXmlFused.hpp"
+
+CVF_GCC_DIAGNOSTIC_POP
 
 #ifdef _MSC_VER
 #pragma warning( pop )

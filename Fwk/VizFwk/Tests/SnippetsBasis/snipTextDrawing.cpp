@@ -252,13 +252,13 @@ ref<Part> TextDrawing::createTextPart()
     m_textDrawable->setFont(NULL);
     m_textDrawable->setTextColor(Color3::RED);
 
-//     m_textDrawable->addText(L"Text:",                                               cvf::Vec3f(50, 200, 0));
-//     m_textDrawable->addText(L"   ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ",                    cvf::Vec3f(50, 170, 0));
-//     m_textDrawable->addText(L"   abcdefghijklmnopqrstuvwxyzæøå",                    cvf::Vec3f(50, 140, 0));
-//     m_textDrawable->addText(L"   0123456789 0123456789 0123456789",                 cvf::Vec3f(50, 110, 0));
-//     m_textDrawable->addText(L"   !\"#¤%&/()=?`^*@£$€{[]}´~¨',;.:+-_<>><VAWAVAA",    cvf::Vec3f(50,  80, 0));
-//     m_textDrawable->addText(L"   Unicode1: \x03B1\x03B2\x03B3\x03B4\x03B5",         cvf::Vec3f(50,  50, 0));
-//     m_textDrawable->addText(L"   Unicode2: 不仅是因为这两种语言截然不同",             cvf::Vec3f(50,  20, 0));
+    m_textDrawable->addText(L"Text:",                                               cvf::Vec3f(50, 200, 0));
+    m_textDrawable->addText(L"   ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ",                    cvf::Vec3f(50, 170, 0));
+    m_textDrawable->addText(L"   abcdefghijklmnopqrstuvwxyzæøå",                    cvf::Vec3f(50, 140, 0));
+    m_textDrawable->addText(L"   0123456789 0123456789 0123456789",                 cvf::Vec3f(50, 110, 0));
+    m_textDrawable->addText(L"   !\"#¤%&/()=?`^*@£$€{[]}´~¨',;.:+-_<>><VAWAVAA",    cvf::Vec3f(50,  80, 0));
+    m_textDrawable->addText(L"   Unicode1: \x03B1\x03B2\x03B3\x03B4\x03B5",         cvf::Vec3f(50,  50, 0));
+    m_textDrawable->addText(L"   Unicode2: 不仅是因为这两种语言截然不同",             cvf::Vec3f(50,  20, 0));
 
     // Set up transparency
     ref<RenderStateBlending> blending = new RenderStateBlending;

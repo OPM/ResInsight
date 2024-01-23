@@ -39,6 +39,7 @@
 
 #include "cvfObject.h"
 #include "cvfOpenGLContextGroup.h"
+#include "cvfOpenGLTypes.h"
 
 namespace cvf {
 
@@ -58,11 +59,10 @@ public:
     virtual ~OpenGLContext();
 
     bool                        isContextValid() const;
-    virtual bool                initializeContext();
-    virtual void                shutdownContext();
 
     virtual void                makeCurrent() = 0;
     virtual bool                isCurrent() const = 0;
+    virtual OglId               defaultFramebufferObject() const;
 
     OpenGLContextGroup*         group();
     const OpenGLContextGroup*   group() const;
@@ -71,7 +71,6 @@ public:
 
 private:
     OpenGLContextGroup*         m_contextGroup;         // Raw pointer (to avoid circular reference) to the context group that this context belongs to. 
-    bool                        m_isValid;              // Will be set to true after successful initialization
 
     friend class OpenGLContextGroup;
 };

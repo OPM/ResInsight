@@ -51,7 +51,7 @@ using namespace cvfu;
 //--------------------------------------------------------------------------------------------------
 TEST(ImageTgaTest, LoadUncompressed24bit)
 {
-    String fullFileName = cvftest::TestDataDir::instance()->dataDir() + "TgaTestSuite/UTC24.TGA";  
+    String fullFileName = cvftest::Utils::getTestDataDir() + "TgaTestSuite/UTC24.TGA";
     cvf::Trace::show("FN: %s\n", fullFileName.toAscii().ptr());
     ref<TextureImage> img = ImageTga::loadImage(fullFileName);
     ASSERT_TRUE(img.notNull());
@@ -68,7 +68,7 @@ TEST(ImageTgaTest, LoadUncompressed24bit)
 //--------------------------------------------------------------------------------------------------
 TEST(ImageTgaTest, LoadCompressed24bit)
 {
-    String fullFileName = cvftest::TestDataDir::instance()->dataDir() + "TgaTestSuite/CTC24.TGA";  
+    String fullFileName = cvftest::Utils::getTestDataDir() + "TgaTestSuite/CTC24.TGA";
     cvf::Trace::show("FN: %s\n", fullFileName.toAscii().ptr());
     ref<TextureImage> img = ImageTga::loadImage(fullFileName);
     ASSERT_TRUE(img.notNull());
@@ -85,7 +85,7 @@ TEST(ImageTgaTest, LoadCompressed24bit)
 //--------------------------------------------------------------------------------------------------
 TEST(ImageTgaTest, LoadUncompressed32bit)
 {
-    String fullFileName = cvftest::TestDataDir::instance()->dataDir() + "TgaTestSuite/UTC32.TGA";  
+    String fullFileName = cvftest::Utils::getTestDataDir() + "TgaTestSuite/UTC32.TGA";
     ref<TextureImage> img = ImageTga::loadImage(fullFileName);
     ASSERT_TRUE(img.notNull());
 
@@ -101,7 +101,7 @@ TEST(ImageTgaTest, LoadUncompressed32bit)
 //--------------------------------------------------------------------------------------------------
 TEST(ImageTgaTest, LoadCompressed32bit)
 {
-    String fullFileName = cvftest::TestDataDir::instance()->dataDir() + "TgaTestSuite/CTC32.TGA";  
+    String fullFileName = cvftest::Utils::getTestDataDir() + "TgaTestSuite/CTC32.TGA";
     ref<TextureImage> img = ImageTga::loadImage(fullFileName);
     ASSERT_TRUE(img.notNull());
 

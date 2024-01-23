@@ -34,40 +34,31 @@
 //
 //##################################################################################################
 
-
-#pragma once
-
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfScene.h"
 #include "cvfOpenGLContext.h"
 
-class QGLContext;
-
-namespace cvfqt {
-
 
 //==================================================================================================
 //
-// Derived OpenGLContext that adapts a Qt QGLContext
+// 
 //
 //==================================================================================================
-class OpenGLContext : public cvf::OpenGLContext
+class QTBSceneFactory
 {
 public:
-    OpenGLContext(cvf::OpenGLContextGroup* contextGroup, QGLContext* backingQGLContext);
-    virtual ~OpenGLContext();
+    QTBSceneFactory(bool useShaders);
 
-    virtual bool    initializeContext();
-
-    virtual void    makeCurrent();
-    virtual bool    isCurrent() const;
-
-    static void		saveOpenGLState(cvf::OpenGLContext* oglContext);
-    static void     restoreOpenGLState(cvf::OpenGLContext* oglContext);
+    cvf::ref<cvf::Scene>                createTestScene(const cvf::OpenGLCapabilities& capabilities) const;
 
 private:
-    QGLContext*     m_qtGLContext;
-    bool            m_isCoreOpenGLProfile;  // This is a Core OpenGL profile. Implies OpenGL version of 3.2 or more
-    int             m_majorVersion;         // OpenGL version as reported by Qt
-    int             m_minorVersion;
+    cvf::ref<cvf::Part>                 createTexturedPart(const cvf::OpenGLCapabilities& capabilities) const;
+    cvf::ref<cvf::Part>                 createDrawableTextPart(const cvf::OpenGLCapabilities& capabilities) const;
+    static cvf::ref<cvf::DrawableGeo>   createQuadGeoWithTexCoords(const cvf::Vec3f& origin, const cvf::Vec3f& u, const cvf::Vec3f& v);
+    static cvf::ref<cvf::TextureImage>  create4x4ColoredImage();
+
+private:
+    bool m_useShaders;
 };
 
-}
