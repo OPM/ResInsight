@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCell.h"
 #include "RigFault.h"
 #include "RigGriddedPart3d.h"
 #include "RigMainGrid.h"
@@ -54,7 +55,10 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_maxCellHeight( 20.0 )
     , m_minCellWidth( 20.0 )
     , m_faultZoneCells( 0 )
+    , m_frontFilter( nullptr )
+    , m_backFilter( nullptr )
 {
+    m_modelPlane.setFromPointAndNormal( position, normal );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,17 +262,30 @@ size_t RigFaultReactivationModelGenerator::oppositeStartCellIndex( const std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::addFilter( QString name, std::vector<size_t> cells )
+void RigFaultReactivationModelGenerator::updateFilters( std::vector<size_t> cellsFront, std::vector<size_t> cellsBack )
 {
-    RimEclipseView* view = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
-    if ( view == nullptr ) return;
+    if ( m_frontFilter == nullptr )
+    {
+        RimEclipseView* view = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
+        if ( view == nullptr ) return;
 
-    auto cellFilters = view->cellFilterCollection();
-    if ( cellFilters == nullptr ) return;
+        auto cellFilters = view->cellFilterCollection();
+        if ( cellFilters == nullptr ) return;
 
-    auto eCase  = cellFilters->firstAncestorOfType<RimEclipseCase>();
-    auto filter = cellFilters->addNewUserDefinedIndexFilter( eCase, cells );
-    filter->setName( name );
+        auto eCase    = cellFilters->firstAncestorOfType<RimEclipseCase>();
+        m_frontFilter = cellFilters->addNewUserDefinedIndexFilter( eCase, cellsFront );
+        m_frontFilter->setName( "Front" );
+
+        m_backFilter = cellFilters->addNewUserDefinedIndexFilter( eCase, cellsBack );
+        m_backFilter->setName( "Back" );
+    }
+    else
+    {
+        m_frontFilter->setCellIndexes( cellsFront );
+        m_backFilter->setCellIndexes( cellsBack );
+
+        m_frontFilter->triggerFilterChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -416,21 +433,35 @@ std::vector<int> RigFaultReactivationModelGenerator::elementKLayers( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigFaultReactivationModelGenerator::buildCellColumn( size_t startCellIndex, FaceType startFace )
+std::vector<size_t>
+    RigFaultReactivationModelGenerator::buildCellColumn( size_t startCellIndex, FaceType startFace, std::map<double, cvf::Vec3d>& layers )
 {
     size_t i, j, k;
 
     m_grid->ijkFromCellIndexUnguarded( startCellIndex, &i, &j, &k );
 
     std::vector<size_t> cellColumn;
-    size_t              cellIndex;
 
-    const size_t k_start = 0;
+    const int    k_start = 0;
     const size_t k_stop  = m_grid->cellCountK();
+
+    // build list of k indexes to go through, starting at the start cell and going up, then continuing down below the start cell
+    std::vector<size_t> k_values;
+
+    for ( int kLayer = (int)k; kLayer >= k_start; kLayer-- )
+    {
+        k_values.push_back( (size_t)kLayer );
+    }
+    for ( size_t kLayer = k + 1; kLayer < k_stop; kLayer++ )
+    {
+        k_values.push_back( kLayer );
+    }
 
     auto [side1, side2] = sideFacesIJ( startFace );
 
-    for ( size_t kLayer = k; kLayer >= k_start; kLayer-- )
+    bool isGoingUp = true;
+
+    for ( auto kLayer : k_values )
     {
         if ( !m_grid->isCellValid( i, j, kLayer ) ) continue;
         const auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
@@ -443,34 +474,85 @@ std::vector<size_t> RigFaultReactivationModelGenerator::buildCellColumn( size_t 
         cellRow.push_back( cell );
         cellRow.push_back( cell.neighborCell( side2 ) );
 
-        auto ij_pair = findCellWithIntersection( cellRow, startFace, &cellIndex );
-        i            = ij_pair.first;
-        j            = ij_pair.second;
-        cellColumn.push_back( cellIndex );
-    }
+        cvf::Vec3d intersect1, intersect2;
+        size_t     intersectedCell;
 
-    std::reverse( cellColumn.begin(), cellColumn.end() );
+        auto ij_pair = findCellWithIntersection( cellRow, startFace, intersectedCell, intersect1, intersect2, isGoingUp );
 
-    for ( size_t kLayer = k + 1; kLayer < k_stop; kLayer++ )
-    {
-        if ( !m_grid->isCellValid( i, j, kLayer ) ) continue;
-        const auto cellIdx = m_grid->cellIndexFromIJKUnguarded( i, j, kLayer );
+        if ( intersect1.z() != intersect2.z() )
+        {
+            cellColumn.push_back( intersectedCell );
+            layers[intersect1.z()] = intersect1;
+            layers[intersect2.z()] = intersect2;
+        }
 
-        RigCell cell = m_grid->cell( cellIdx );
+        if ( kLayer == k )
+        {
+            std::reverse( cellColumn.begin(), cellColumn.end() );
+            isGoingUp = false;
+        }
 
-        std::vector<RigCell> cellRow;
-
-        cellRow.push_back( cell.neighborCell( side1 ) );
-        cellRow.push_back( cell );
-        cellRow.push_back( cell.neighborCell( side2 ) );
-
-        auto ij_pair = findCellWithIntersection( cellRow, startFace, &cellIndex );
-        i            = ij_pair.first;
-        j            = ij_pair.second;
-        cellColumn.push_back( cellIndex );
+        i = ij_pair.first;
+        j = ij_pair.second;
     }
 
     return cellColumn;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<size_t, size_t> RigFaultReactivationModelGenerator::findCellWithIntersection( const std::vector<RigCell>& cellRow,
+                                                                                        FaceType                    face,
+                                                                                        size_t&                     cellIndex,
+                                                                                        cvf::Vec3d&                 intersect1,
+                                                                                        cvf::Vec3d&                 intersect2,
+                                                                                        bool                        goingUp )
+{
+    const auto cornerIndexes = faceIJCornerIndexes( face );
+
+    size_t i = 0, j = 0, k = 0;
+
+    for ( auto& cell : cellRow )
+    {
+        auto corners = cell.faceCorners( face );
+
+        cvf::Vec3d intersect;
+        double     dist = 0.0;
+        if ( caf::HexGridIntersectionTools::planeLineIntersect( m_modelPlane,
+                                                                corners[cornerIndexes[0]],
+                                                                corners[cornerIndexes[1]],
+                                                                &intersect,
+                                                                &dist,
+                                                                0.001 ) )
+        {
+            intersect1 = intersect;
+
+            if ( !goingUp )
+            {
+                cellIndex = cell.mainGridCellIndex();
+                m_grid->ijkFromCellIndexUnguarded( cellIndex, &i, &j, &k );
+            }
+        }
+
+        if ( caf::HexGridIntersectionTools::planeLineIntersect( m_modelPlane,
+                                                                corners[cornerIndexes[2]],
+                                                                corners[cornerIndexes[3]],
+                                                                &intersect,
+                                                                &dist,
+                                                                0.001 ) )
+        {
+            intersect2 = intersect;
+
+            if ( goingUp )
+            {
+                cellIndex = cell.mainGridCellIndex();
+                m_grid->ijkFromCellIndexUnguarded( cellIndex, &i, &j, &k );
+            }
+        }
+    }
+
+    return { i, j };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,77 +564,87 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
                                                            RigGriddedPart3d* backPart )
 {
     // build column of cells behind fault
-    std::vector<size_t> cellColumnBack = buildCellColumn( startCellIndex, startFace );
 
-    std::vector<size_t> cellColumnBackSearch;
-    cellColumnBackSearch.push_back( startCellIndex );
+    std::map<double, cvf::Vec3d> layersBack;
+    std::vector<size_t>          cellColumnBack = buildCellColumn( startCellIndex, startFace, layersBack );
+
+    // find start cell and face on the opposite side of the fault, start with the user clicked cell
+
+    std::vector<size_t> cellColumnBackSearch = { startCellIndex };
     for ( auto cidx : cellColumnBack )
     {
         if ( cidx != startCellIndex ) cellColumnBackSearch.push_back( cidx );
     }
-
-    // build cell column of cells in front of fault, opposite to the cell column behind the fault
     auto   oppositeStartFace    = cvf::StructGridInterface::oppositeFace( startFace );
     size_t oppositeStartCellIdx = oppositeStartCellIndex( cellColumnBackSearch, startFace );
 
-    std::vector<size_t> cellColumnFront = buildCellColumn( oppositeStartCellIdx, oppositeStartFace );
+    // build cell column of cells in front of fault, opposite to the cell column behind the fault
 
-    auto zPositionsBack  = elementLayers( startFace, cellColumnBack );
-    auto zPositionsFront = elementLayers( oppositeStartFace, cellColumnFront );
-    auto kLayersBack     = elementKLayers( cellColumnBack );
-    auto kLayersFront    = elementKLayers( cellColumnFront );
+    std::map<double, cvf::Vec3d> layersFront;
+    std::vector<size_t>          cellColumnFront = buildCellColumn( oppositeStartCellIdx, oppositeStartFace, layersFront );
+
+    // identify k layers used to classify reservoir/inter-reservoir
+
+    auto kLayersBack  = elementKLayers( cellColumnBack );
+    auto kLayersFront = elementKLayers( cellColumnFront );
+
+    // updateFilters( cellColumnFront, cellColumnBack );
 
     // add extra fault buffer below the fault, starting at the deepest bottom-most cell on either side of the fault
 
-    double front_bottom    = zPositionsFront.begin()->first;
-    double back_bottom     = zPositionsBack.begin()->first;
-    m_bottomReservoirFront = zPositionsFront.begin()->second;
-    m_bottomReservoirBack  = zPositionsBack.begin()->second;
+    double front_bottom    = layersFront.begin()->first;
+    double back_bottom     = layersBack.begin()->first;
+    m_bottomReservoirFront = layersFront.begin()->second;
+    m_bottomReservoirBack  = layersBack.begin()->second;
 
     cvf::Vec3d bottom_point = m_bottomReservoirFront;
 
     if ( front_bottom > back_bottom )
     {
-        bottom_point = extrapolatePoint( ( ++zPositionsBack.begin() )->second, zPositionsBack.begin()->second, m_bufferBelowFault );
+        bottom_point = extrapolatePoint( ( ++layersBack.begin() )->second, layersBack.begin()->second, m_bufferBelowFault );
     }
     else if ( front_bottom < back_bottom )
     {
-        bottom_point = extrapolatePoint( ( ++zPositionsFront.begin() )->second, zPositionsFront.begin()->second, m_bufferBelowFault );
+        bottom_point = extrapolatePoint( ( ++layersFront.begin() )->second, layersFront.begin()->second, m_bufferBelowFault );
     }
 
     m_bottomFault = bottom_point;
 
     // add extra fault buffer above the fault, starting at the shallowest top-most cell on either side of the fault
 
-    double front_top    = zPositionsFront.rbegin()->first;
-    double back_top     = zPositionsBack.rbegin()->first;
-    m_topReservoirFront = zPositionsFront.rbegin()->second;
-    m_topReservoirBack  = zPositionsBack.rbegin()->second;
+    double front_top    = layersFront.rbegin()->first;
+    double back_top     = layersBack.rbegin()->first;
+    m_topReservoirFront = layersFront.rbegin()->second;
+    m_topReservoirBack  = layersBack.rbegin()->second;
 
     cvf::Vec3d top_point = m_topReservoirFront;
     if ( front_top > back_top )
     {
-        top_point = extrapolatePoint( ( ++zPositionsFront.rbegin() )->second, zPositionsFront.rbegin()->second, m_bufferAboveFault );
+        top_point = extrapolatePoint( ( ++layersFront.rbegin() )->second, layersFront.rbegin()->second, m_bufferAboveFault );
     }
     else if ( front_top < back_top )
     {
-        top_point = extrapolatePoint( ( ++zPositionsBack.rbegin() )->second, zPositionsBack.rbegin()->second, m_bufferAboveFault );
+        top_point = extrapolatePoint( ( ++layersBack.rbegin() )->second, layersBack.rbegin()->second, m_bufferAboveFault );
     }
     m_topFault = top_point;
 
-    mergeTinyLayers( zPositionsFront, kLayersFront, m_minCellHeight );
-    mergeTinyLayers( zPositionsBack, kLayersBack, m_minCellHeight );
+    // make sure layers aren't too small or too thick
 
-    splitLargeLayers( zPositionsFront, kLayersFront, m_maxCellHeight );
-    splitLargeLayers( zPositionsBack, kLayersBack, m_maxCellHeight );
+    mergeTinyLayers( layersFront, kLayersFront, m_minCellHeight );
+    mergeTinyLayers( layersBack, kLayersBack, m_minCellHeight );
+
+    splitLargeLayers( layersFront, kLayersFront, m_maxCellHeight );
+    splitLargeLayers( layersBack, kLayersBack, m_maxCellHeight );
 
     std::vector<cvf::Vec3d> frontReservoirLayers;
-    for ( auto& kvp : zPositionsFront )
+    for ( auto& kvp : layersFront )
         frontReservoirLayers.push_back( kvp.second );
 
     std::vector<cvf::Vec3d> backReservoirLayers;
-    for ( auto& kvp : zPositionsBack )
+    for ( auto& kvp : layersBack )
         backReservoirLayers.push_back( kvp.second );
+
+    // generate the actual front and back grid parts
 
     generatePointsFrontBack();
 
@@ -615,9 +707,6 @@ std::pair<cvf::StructGridInterface::FaceType, cvf::StructGridInterface::FaceType
 //--------------------------------------------------------------------------------------------------
 std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( FaceType face, std::vector<size_t>& cellIndexColumn )
 {
-    cvf::Plane modelPlane;
-    modelPlane.setFromPointAndNormal( m_startPosition, m_normal );
-
     auto cornerIndexes = faceIJCornerIndexes( face );
 
     std::map<double, cvf::Vec3d> zPositions;
@@ -629,8 +718,8 @@ std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( 
         RigCell cell    = m_grid->cell( cellIdx );
         auto    corners = cell.faceCorners( face );
 
-        cvf::Vec3d intersect1 = lineIntersect( modelPlane, corners[cornerIndexes[0]], corners[cornerIndexes[1]] );
-        cvf::Vec3d intersect2 = lineIntersect( modelPlane, corners[cornerIndexes[2]], corners[cornerIndexes[3]] );
+        cvf::Vec3d intersect1 = lineIntersect( m_modelPlane, corners[cornerIndexes[0]], corners[cornerIndexes[1]] );
+        cvf::Vec3d intersect2 = lineIntersect( m_modelPlane, corners[cornerIndexes[2]], corners[cornerIndexes[3]] );
 
         if ( intersect1.z() != intersect2.z() )
         {

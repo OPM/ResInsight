@@ -70,6 +70,8 @@ public:
     bool isActive() const;
     void setActive( bool active );
 
+    void triggerFilterChanged() const;
+
     virtual void setCase( RimCase* srcCase );
 
     bool isRangeFilter() const;

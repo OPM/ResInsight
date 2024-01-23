@@ -33,6 +33,9 @@ class RigFault;
 class RigMainGrid;
 class RigGriddedPart3d;
 class RigActiveCellInfo;
+class RigCell;
+
+class RimUserDefinedIndexFilter;
 
 class RigFaultReactivationModelGenerator : cvf::Object
 {
@@ -82,18 +85,27 @@ protected:
     std::map<double, cvf::Vec3d> elementLayers( FaceType face, std::vector<size_t>& cellIndexColumn );
     std::vector<int>             elementKLayers( const std::vector<size_t>& cellIndexColumn );
 
-    std::vector<size_t> buildCellColumn( size_t startCell, FaceType startFace );
+    std::vector<size_t> buildCellColumn( size_t startCell, FaceType startFace, std::map<double, cvf::Vec3d>& layers );
 
-    void addFilter( QString name, std::vector<size_t> cells );
+    void updateFilters( std::vector<size_t> frontCells, std::vector<size_t> backCells );
 
     size_t oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, FaceType face );
 
     void generatePointsFrontBack();
 
+    std::pair<size_t, size_t> findCellWithIntersection( const std::vector<RigCell>& cellRow,
+                                                        FaceType                    face,
+                                                        size_t&                     cellIndex,
+                                                        cvf::Vec3d&                 intersect1,
+                                                        cvf::Vec3d&                 intersect2,
+                                                        bool                        goingUp );
+
 private:
     cvf::Vec3d m_startPosition;
     cvf::Vec3d m_normal;
     cvf::Vec3d m_modelDirection;
+
+    cvf::Plane m_modelPlane;
 
     std::array<cvf::Vec3d, 12> m_frontPoints;
     std::array<cvf::Vec3d, 12> m_backPoints;
@@ -103,6 +115,9 @@ private:
     cvf::cref<RigFault>          m_fault;
     cvf::cref<RigMainGrid>       m_grid;
     cvf::cref<RigActiveCellInfo> m_activeCellInfo;
+
+    RimUserDefinedIndexFilter* m_frontFilter;
+    RimUserDefinedIndexFilter* m_backFilter;
 
     double m_bufferAboveFault;
     double m_bufferBelowFault;
