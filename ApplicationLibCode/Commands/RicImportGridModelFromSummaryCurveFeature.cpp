@@ -43,9 +43,7 @@ void RicImportGridModelFromSummaryCurveFeature::onActionTriggered( bool isChecke
         {
             if ( sumCase->caseId() == summaryCaseId )
             {
-                auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( sumCase );
-
-                if ( fileSummaryCase )
+                if ( auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( sumCase ) )
                 {
                     RimReloadCaseTools::openOrImportGridModelFromSummaryCase( fileSummaryCase );
 
