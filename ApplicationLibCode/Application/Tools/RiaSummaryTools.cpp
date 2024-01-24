@@ -215,7 +215,7 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
 
     for ( RimUserDefinedCalculationVariable* v : calculation->allVariables() )
     {
-        RimSummaryCalculationVariable* scv = dynamic_cast<RimSummaryCalculationVariable*>( v );
+        auto* scv = dynamic_cast<RimSummaryCalculationVariable*>( v );
         if ( scv )
         {
             cases.push_back( scv->summaryCase() );
@@ -327,4 +327,66 @@ void RiaSummaryTools::copyCurveAxisData( RimSummaryCurve& curve, const RimSummar
     curve.setTopOrBottomAxisX( otherCurve.axisX() );
 
     curve.setLeftOrRightAxisY( otherCurve.axisY() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase )
+{
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+
+    for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
+    {
+        bool needsUpdate = RiaSummaryTools::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
+        if ( needsUpdate )
+        {
+            summaryCalculation->parseExpression();
+            summaryCalculation->calculate();
+            summaryCalculation->updateDependentObjects();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaSummaryTools::checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase )
+{
+    std::vector<RimUserDefinedCalculationVariable*> variables = summaryCalculation->allVariables();
+    for ( RimUserDefinedCalculationVariable* variable : variables )
+    {
+        auto* summaryVariable = dynamic_cast<RimSummaryCalculationVariable*>( variable );
+        if ( summaryVariable->summaryCase() == summaryCase )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
+{
+    if ( !summaryCase ) return;
+
+    summaryCase->updateAutoShortName();
+
+    summaryCase->createSummaryReaderInterface();
+    summaryCase->createRftReaderInterface();
+    summaryCase->refreshMetaData();
+
+    RiaSummaryTools::updateRequredCalculatedCurves( summaryCase );
+
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
+    {
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+        {
+            summaryPlot->loadDataAndUpdate();
+        }
+    }
 }

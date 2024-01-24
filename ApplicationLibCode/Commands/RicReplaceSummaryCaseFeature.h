@@ -27,13 +27,8 @@ class RicReplaceSummaryCaseFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static void updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
-
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-    static bool checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase );
 };

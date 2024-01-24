@@ -18,10 +18,9 @@
 
 #include "RicImportGridModelFromSummaryCurveFeature.h"
 
-#include "RicImportGridModelFromSummaryCaseFeature.h"
-
 #include "RimFileSummaryCase.h"
 #include "RimProject.h"
+#include "RimReloadCaseTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -48,7 +47,7 @@ void RicImportGridModelFromSummaryCurveFeature::onActionTriggered( bool isChecke
 
                 if ( fileSummaryCase )
                 {
-                    RicImportGridModelFromSummaryCaseFeature::openOrImportGridModelFromSummaryCase( fileSummaryCase );
+                    RimReloadCaseTools::openOrImportGridModelFromSummaryCase( fileSummaryCase );
 
                     return;
                 }

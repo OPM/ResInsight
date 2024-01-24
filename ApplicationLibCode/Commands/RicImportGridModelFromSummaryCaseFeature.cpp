@@ -18,64 +18,26 @@
 
 #include "RicImportGridModelFromSummaryCaseFeature.h"
 
-#include "ApplicationCommands/RicShowMainWindowFeature.h"
-
-#include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
-#include "RiaLogging.h"
 
 #include "RimEclipseCase.h"
 #include "RimFileSummaryCase.h"
-#include "RimGridView.h"
-#include "RimProject.h"
-
-#include "Riu3DMainWindowTools.h"
+#include "RimReloadCaseTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportGridModelFromSummaryCaseFeature, "RicImportGridModelFromSummaryCaseFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGridModelFromSummaryCaseFeature::openOrImportGridModelFromSummaryCase( const RimFileSummaryCase* summaryCase )
-{
-    if ( !summaryCase ) return false;
-
-    if ( findAndActivateFirstView( summaryCase ) ) return true;
-
-    QString                 summaryFileName = summaryCase->summaryHeaderFilename();
-    RiaEclipseFileNameTools fileHelper( summaryFileName );
-    auto                    candidateGridFileName = fileHelper.findRelatedGridFile();
-
-    if ( QFileInfo::exists( candidateGridFileName ) )
-    {
-        bool createView = true;
-        auto id         = RiaImportEclipseCaseTools::openEclipseCaseFromFile( candidateGridFileName, createView );
-        if ( id > -1 )
-        {
-            RiaLogging::info( QString( "Imported %1" ).arg( candidateGridFileName ) );
-
-            return true;
-        }
-    }
-
-    RiaLogging::info( QString( "No grid case found based on summary file %1" ).arg( summaryFileName ) );
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicImportGridModelFromSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
-    RimFileSummaryCase* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
+    auto* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
 
-    openOrImportGridModelFromSummaryCase( summaryCase );
+    RimReloadCaseTools::openOrImportGridModelFromSummaryCase( summaryCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,13 +47,13 @@ void RicImportGridModelFromSummaryCaseFeature::setupActionLook( QAction* actionT
 {
     actionToSetup->setIcon( QIcon( ":/3DWindow.svg" ) );
 
-    RimFileSummaryCase* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
+    auto* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
 
     QString summaryCaseName;
     if ( summaryCase ) summaryCaseName = summaryCase->caseName();
 
     QString txt;
-    auto    gridCase = gridModelFromSummaryCase( summaryCase );
+    auto    gridCase = RimReloadCaseTools::gridModelFromSummaryCase( summaryCase );
     if ( gridCase )
     {
         txt = "Open Grid Model View";
@@ -107,45 +69,4 @@ void RicImportGridModelFromSummaryCaseFeature::setupActionLook( QAction* actionT
     }
 
     actionToSetup->setText( txt );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportGridModelFromSummaryCaseFeature::findAndActivateFirstView( const RimFileSummaryCase* summaryCase )
-{
-    auto gridCase = gridModelFromSummaryCase( summaryCase );
-    if ( gridCase )
-    {
-        if ( !gridCase->gridViews().empty() )
-        {
-            RicShowMainWindowFeature::showMainWindow();
-
-            Riu3DMainWindowTools::selectAsCurrentItem( gridCase->gridViews().front() );
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicImportGridModelFromSummaryCaseFeature::gridModelFromSummaryCase( const RimSummaryCase* summaryCase )
-{
-    if ( summaryCase )
-    {
-        QString                 summaryFileName = summaryCase->summaryHeaderFilename();
-        RiaEclipseFileNameTools fileHelper( summaryFileName );
-        auto                    candidateGridFileName = fileHelper.findRelatedGridFile();
-
-        RimProject* project  = RimProject::current();
-        auto        gridCase = project->eclipseCaseFromGridFileName( candidateGridFileName );
-
-        return gridCase;
-    }
-
-    return nullptr;
 }

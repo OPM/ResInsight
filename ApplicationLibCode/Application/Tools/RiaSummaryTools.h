@@ -25,6 +25,7 @@
 
 #include <vector>
 
+class RifEclipseSummaryAddress;
 class RimSummaryPlot;
 class RimSummaryMultiPlot;
 class RimSummaryMultiPlotCollection;
@@ -35,8 +36,7 @@ class RimSummaryTable;
 class RimSummaryTableCollection;
 class RimObservedDataCollection;
 class RimSummaryCurve;
-
-class RifEclipseSummaryAddress;
+class RimUserDefinedCalculation;
 
 class QStringList;
 
@@ -85,4 +85,8 @@ public:
 
     static void copyCurveDataSources( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
     static void copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
+
+    static void updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
+    static bool checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase );
+    static void reloadSummaryCase( RimSummaryCase* summaryCase );
 };

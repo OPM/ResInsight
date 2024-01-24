@@ -18,57 +18,31 @@
 
 #include "RicReplaceSummaryCaseFeature.h"
 
+#include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
 #include "RicImportGeneralDataFeature.h"
 
+#include "RimEclipseCase.h"
 #include "RimFileSummaryCase.h"
-#include "RimProject.h"
-#include "RimSummaryAddress.h"
-#include "RimSummaryCalculation.h"
-#include "RimSummaryCalculationCollection.h"
-#include "RimSummaryCalculationVariable.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
-#include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCurve.h"
-#include "RimSummaryMultiPlot.h"
-#include "RimSummaryMultiPlotCollection.h"
-#include "RimSummaryPlot.h"
+#include "RimReloadCaseTools.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QFileInfo>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicReplaceSummaryCaseFeature, "RicReplaceSummaryCaseFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase )
-{
-    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-
-    for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
-    {
-        bool needsUpdate = RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
-        if ( needsUpdate )
-        {
-            summaryCalculation->parseExpression();
-            summaryCalculation->calculate();
-            summaryCalculation->updateDependentObjects();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RicReplaceSummaryCaseFeature::isCommandEnabled() const
 {
-    RimSummaryCase* rimSummaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
+    auto rimSummaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
     return rimSummaryCase != nullptr;
 }
 
@@ -77,44 +51,51 @@ bool RicReplaceSummaryCaseFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
-    RimFileSummaryCase* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
+    auto* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
     if ( !summaryCase ) return;
 
     const QStringList fileNames =
         RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE );
     if ( fileNames.isEmpty() ) return;
 
+    auto gridModel = RimReloadCaseTools::gridModelFromSummaryCase( summaryCase );
+
     QString oldSummaryHeaderFilename = summaryCase->summaryHeaderFilename();
-    summaryCase->setSummaryHeaderFileName( fileNames[0] );
-    summaryCase->updateAutoShortName();
-    summaryCase->createSummaryReaderInterface();
-    summaryCase->createRftReaderInterface();
-    summaryCase->refreshMetaData();
+
+    const auto& newFileName = fileNames.front();
+    summaryCase->setSummaryHeaderFileName( newFileName );
+    RiaSummaryTools::reloadSummaryCase( summaryCase );
 
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
 
-    RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );
-
-    // Find and update all changed calculations
-    std::set<int>                    ids;
-    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-    for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
+    if ( gridModel )
     {
-        bool needsUpdate = checkIfCalculationNeedsUpdate( summaryCalculation, summaryCase );
-        if ( needsUpdate )
-        {
-            ids.insert( summaryCalculation->id() );
-        }
-    }
+        QMessageBox msgBox;
+        msgBox.setIcon( QMessageBox::Question );
 
-    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
-    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
-    {
-        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+        QString questionText;
+        questionText =
+            QString( "Found an open grid case for the same reservoir model.\n\nDo you want to replace the file name in the grid case?" );
+
+        msgBox.setText( questionText );
+        msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
+
+        int ret = msgBox.exec();
+        if ( ret == QMessageBox::Yes )
         {
-            summaryPlot->loadDataAndUpdate();
+            RiaEclipseFileNameTools helper( newFileName );
+            auto                    newGridFileName = helper.findRelatedGridFile();
+            if ( !newGridFileName.isEmpty() )
+            {
+                auto previousGridFileName = gridModel->gridFileName();
+
+                gridModel->setGridFileName( newGridFileName );
+
+                RimReloadCaseTools::reloadEclipseGrid( gridModel );
+
+                RiaLogging::info( QString( "Replaced grid data for %1" ).arg( previousGridFileName ) );
+            }
         }
-        multiPlot->updatePlotTitles();
     }
 }
 
@@ -125,23 +106,4 @@ void RicReplaceSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Replace" );
     actionToSetup->setIcon( QIcon( ":/ReplaceCase16x16.png" ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation,
-                                                                  const RimSummaryCase*            summaryCase )
-{
-    std::vector<RimUserDefinedCalculationVariable*> variables = summaryCalculation->allVariables();
-    for ( RimUserDefinedCalculationVariable* variable : variables )
-    {
-        RimSummaryCalculationVariable* summaryVariable = dynamic_cast<RimSummaryCalculationVariable*>( variable );
-        if ( summaryVariable->summaryCase() == summaryCase )
-        {
-            return true;
-        }
-    }
-
-    return false;
 }

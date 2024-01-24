@@ -54,7 +54,6 @@ public:
     std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
                                                                   bool                                             showProgress = false );
 
-    RimSummaryCase* findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclResCase ) const;
     RimSummaryCase* findTopLevelSummaryCaseFromFileName( const QString& fileName ) const;
 
     void addCases( const std::vector<RimSummaryCase*> cases );
@@ -69,6 +68,7 @@ public:
     void                      removeCaseCollection( RimSummaryCaseCollection* caseCollection );
 
     void loadAllSummaryCaseData();
+    void loadSummaryData( RimSummaryCase* summaryCase );
 
     QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
 

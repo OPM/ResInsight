@@ -289,7 +289,7 @@ void RimTimeStepFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 
         if ( rimEclipseResultCase )
         {
-            RimReloadCaseTools::reloadAllEclipseGridData( rimEclipseResultCase );
+            RimReloadCaseTools::reloadEclipseGrid( rimEclipseResultCase );
         }
         else if ( rimGeoMechCase )
         {

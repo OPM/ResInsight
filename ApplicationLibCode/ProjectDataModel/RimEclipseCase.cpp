@@ -460,7 +460,7 @@ void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     RimCase::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_releaseResultMemory )
     {
-        RimReloadCaseTools::reloadAllEclipseGridData( this );
+        RimReloadCaseTools::reloadEclipseGrid( this );
 
         m_releaseResultMemory = oldValue.toBool();
     }

@@ -18,7 +18,7 @@
 
 #include "RimRftCase.h"
 
-#include "RicReloadSummaryCaseFeature.h"
+#include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimSummaryCase.h"
@@ -84,7 +84,7 @@ void RimRftCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 {
     auto parentCase = firstAncestorOfType<RimSummaryCase>();
 
-    if ( parentCase ) RicReloadSummaryCaseFeature::reloadSummaryCase( parentCase );
+    if ( parentCase ) RiaSummaryTools::reloadSummaryCase( parentCase );
 
     RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
 }

@@ -31,6 +31,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimReloadCaseTools.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -45,13 +46,10 @@ RimSummaryCase* RimSimWellInViewTools::summaryCaseForWell( RimSimWellInView* wel
     RimProject* project = RimProject::current();
     if ( !project ) return nullptr;
 
-    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
-    if ( !sumCaseColl ) return nullptr;
-
     auto eclCase = well->firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( eclCase )
     {
-        return sumCaseColl->findSummaryCaseFromEclipseResultCase( eclCase );
+        return RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( eclCase );
     }
 
     return nullptr;
