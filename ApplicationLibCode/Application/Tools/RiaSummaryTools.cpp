@@ -356,10 +356,9 @@ bool RiaSummaryTools::isCalculationRequired( const RimUserDefinedCalculation* su
     std::vector<RimUserDefinedCalculationVariable*> variables = summaryCalculation->allVariables();
     for ( RimUserDefinedCalculationVariable* variable : variables )
     {
-        auto* summaryVariable = dynamic_cast<RimSummaryCalculationVariable*>( variable );
-        if ( summaryVariable->summaryCase() == summaryCase )
+        if ( auto* summaryVariable = dynamic_cast<RimSummaryCalculationVariable*>( variable ) )
         {
-            return true;
+            return summaryVariable->summaryCase() == summaryCase;
         }
     }
 

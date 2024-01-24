@@ -46,5 +46,5 @@ private:
     static void clearAllGridData( RigEclipseCaseData* eclipseCaseData );
     static void updateAllPlots();
 
-    static bool findAndActivateFirstView( const RimSummaryCase* summaryCase );
+    static bool findGridModelAndActivateFirstView( const RimSummaryCase* summaryCase );
 };

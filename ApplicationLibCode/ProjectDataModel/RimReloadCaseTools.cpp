@@ -205,7 +205,7 @@ bool RimReloadCaseTools::openOrImportGridModelFromSummaryCase( const RimSummaryC
 {
     if ( !summaryCase ) return false;
 
-    if ( findAndActivateFirstView( summaryCase ) ) return true;
+    if ( findGridModelAndActivateFirstView( summaryCase ) ) return true;
 
     QString                 summaryFileName = summaryCase->summaryHeaderFilename();
     RiaEclipseFileNameTools fileHelper( summaryFileName );
@@ -239,7 +239,7 @@ void RimReloadCaseTools::updateAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimReloadCaseTools::findAndActivateFirstView( const RimSummaryCase* summaryCase )
+bool RimReloadCaseTools::findGridModelAndActivateFirstView( const RimSummaryCase* summaryCase )
 {
     auto gridCase = RimReloadCaseTools::gridModelFromSummaryCase( summaryCase );
     if ( gridCase )
@@ -249,9 +249,9 @@ bool RimReloadCaseTools::findAndActivateFirstView( const RimSummaryCase* summary
             RicShowMainWindowFeature::showMainWindow();
 
             Riu3DMainWindowTools::selectAsCurrentItem( gridCase->gridViews().front() );
-
-            return true;
         }
+
+        return true;
     }
 
     return false;
