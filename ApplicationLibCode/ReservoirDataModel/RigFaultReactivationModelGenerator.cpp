@@ -197,36 +197,6 @@ const std::array<int, 4> RigFaultReactivationModelGenerator::faceIJCornerIndexes
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigFaultReactivationModelGenerator::lineIntersect( const cvf::Plane& plane, cvf::Vec3d lineA, cvf::Vec3d lineB )
-{
-    double     dist = 0.0;
-    cvf::Vec3d intersect;
-    caf::HexGridIntersectionTools::planeLineIntersect( plane, lineA, lineB, &intersect, &dist, 0.01 );
-
-    return intersect;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-/// Returns 0 if the intersection in on the line between A and B
-/// Returns -1 if the intersections is on the infinte lineAB but outside A
-/// Returns 1 if the intersections is on the infinte lineAB but outside B
-///
-//--------------------------------------------------------------------------------------------------
-int RigFaultReactivationModelGenerator::lineIntersects( const cvf::Plane& plane,
-                                                        const cvf::Vec3d  lineA,
-                                                        const cvf::Vec3d  lineB,
-                                                        cvf::Vec3d&       intersection )
-{
-    double dist = 0.0;
-    if ( caf::HexGridIntersectionTools::planeLineIntersect( plane, lineA, lineB, &intersection, &dist, 0.0001 ) ) return 0;
-    if ( dist < 0.0 ) return -1;
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 size_t RigFaultReactivationModelGenerator::oppositeStartCellIndex( const std::vector<size_t> cellIndexColumn, FaceType face )
 {
     auto   oppositeStartFace  = cvf::StructGridInterface::oppositeFace( face );
@@ -686,43 +656,6 @@ std::pair<cvf::StructGridInterface::FaceType, cvf::StructGridInterface::FaceType
 
     CVF_ASSERT( false ); // not supported for K faces
     return { cvf::StructGridInterface::NO_FACE, cvf::StructGridInterface::NO_FACE };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::map<double, cvf::Vec3d> RigFaultReactivationModelGenerator::elementLayers( FaceType face, std::vector<size_t>& cellIndexColumn )
-{
-    auto cornerIndexes = faceIJCornerIndexes( face );
-
-    std::map<double, cvf::Vec3d> zPositions;
-
-    std::vector<size_t> okCells;
-
-    for ( auto cellIdx : cellIndexColumn )
-    {
-        RigCell cell    = m_grid->cell( cellIdx );
-        auto    corners = cell.faceCorners( face );
-
-        cvf::Vec3d intersect1 = lineIntersect( m_modelPlane, corners[cornerIndexes[0]], corners[cornerIndexes[1]] );
-        cvf::Vec3d intersect2 = lineIntersect( m_modelPlane, corners[cornerIndexes[2]], corners[cornerIndexes[3]] );
-
-        if ( intersect1.z() != intersect2.z() )
-        {
-            zPositions[intersect1.z()] = intersect1;
-            zPositions[intersect2.z()] = intersect2;
-            okCells.push_back( cellIdx );
-        }
-    }
-
-    // only keep cells that have a valid height at the plane intersection
-    cellIndexColumn.clear();
-    for ( auto idx : okCells )
-    {
-        cellIndexColumn.push_back( idx );
-    }
-
-    return zPositions;
 }
 
 //--------------------------------------------------------------------------------------------------
