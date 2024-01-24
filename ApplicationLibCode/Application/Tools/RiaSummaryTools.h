@@ -86,7 +86,9 @@ public:
     static void copyCurveDataSources( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
     static void copyCurveAxisData( RimSummaryCurve& curve, const RimSummaryCurve& otherCurve );
 
-    static void updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
-    static bool checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase );
     static void reloadSummaryCase( RimSummaryCase* summaryCase );
+
+private:
+    static void updateRequiredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
+    static bool isCalculationRequired( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase );
 };

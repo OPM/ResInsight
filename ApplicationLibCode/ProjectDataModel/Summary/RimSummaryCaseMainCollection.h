@@ -68,7 +68,6 @@ public:
     void                      removeCaseCollection( RimSummaryCaseCollection* caseCollection );
 
     void loadAllSummaryCaseData();
-    void loadSummaryData( RimSummaryCase* summaryCase );
 
     QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
 

@@ -332,13 +332,13 @@ void RiaSummaryTools::copyCurveAxisData( RimSummaryCurve& curve, const RimSummar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryTools::updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase )
+void RiaSummaryTools::updateRequiredCalculatedCurves( RimSummaryCase* sourceSummaryCase )
 {
     RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
     for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
     {
-        bool needsUpdate = RiaSummaryTools::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
+        bool needsUpdate = RiaSummaryTools::isCalculationRequired( summaryCalculation, sourceSummaryCase );
         if ( needsUpdate )
         {
             summaryCalculation->parseExpression();
@@ -351,7 +351,7 @@ void RiaSummaryTools::updateRequredCalculatedCurves( RimSummaryCase* sourceSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaSummaryTools::checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase )
+bool RiaSummaryTools::isCalculationRequired( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase )
 {
     std::vector<RimUserDefinedCalculationVariable*> variables = summaryCalculation->allVariables();
     for ( RimUserDefinedCalculationVariable* variable : variables )
@@ -374,12 +374,11 @@ void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
     if ( !summaryCase ) return;
 
     summaryCase->updateAutoShortName();
-
     summaryCase->createSummaryReaderInterface();
     summaryCase->createRftReaderInterface();
     summaryCase->refreshMetaData();
 
-    RiaSummaryTools::updateRequredCalculatedCurves( summaryCase );
+    RiaSummaryTools::updateRequiredCalculatedCurves( summaryCase );
 
     RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
