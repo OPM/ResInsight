@@ -385,6 +385,11 @@ void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
         for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
         {
             summaryPlot->loadDataAndUpdate();
+
+            // Consider to make the zoom optional
+            summaryPlot->zoomAll();
         }
+
+        multiPlot->updatePlotTitles();
     }
 }
