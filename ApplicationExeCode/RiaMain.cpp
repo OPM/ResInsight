@@ -77,6 +77,12 @@ int main( int argc, char* argv[] )
     }
 #endif
 
+    // The Qt::AA_ShareOpenGLContexts setting is needed when we have multiple viz widgets in flight
+    // and we have a setup where these widgets belong to different top-level windows, or end up
+    // belonging to different top-level windows through re-parenting.
+    // See test application QtTestBenchOpenGLWidget
+    QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
+
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();
 
