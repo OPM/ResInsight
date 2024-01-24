@@ -68,7 +68,9 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
 
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
 
-    if ( gridModel )
+    RiaEclipseFileNameTools helper( newFileName );
+    auto                    newGridFileName = helper.findRelatedGridFile();
+    if ( gridModel && !newGridFileName.isEmpty() )
     {
         QMessageBox msgBox;
         msgBox.setIcon( QMessageBox::Question );
@@ -83,18 +85,13 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
         int ret = msgBox.exec();
         if ( ret == QMessageBox::Yes )
         {
-            RiaEclipseFileNameTools helper( newFileName );
-            auto                    newGridFileName = helper.findRelatedGridFile();
-            if ( !newGridFileName.isEmpty() )
-            {
-                auto previousGridFileName = gridModel->gridFileName();
+            auto previousGridFileName = gridModel->gridFileName();
 
-                gridModel->setGridFileName( newGridFileName );
+            gridModel->setGridFileName( newGridFileName );
 
-                RimReloadCaseTools::reloadEclipseGrid( gridModel );
+            RimReloadCaseTools::reloadEclipseGrid( gridModel );
 
-                RiaLogging::info( QString( "Replaced grid data for %1" ).arg( previousGridFileName ) );
-            }
+            RiaLogging::info( QString( "Replaced grid data for %1" ).arg( previousGridFileName ) );
         }
     }
 }

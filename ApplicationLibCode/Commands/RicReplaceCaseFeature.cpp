@@ -97,7 +97,9 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
     QFileInfo fileInfoNew( fileName );
     eclipseResultCase->setCaseUserDescription( fileInfoNew.baseName() );
 
-    if ( summaryCase )
+    RiaEclipseFileNameTools helper( fileName );
+    auto                    summaryFileNames = helper.findSummaryFileCandidates();
+    if ( summaryCase && !summaryFileNames.empty() )
     {
         QMessageBox msgBox;
         msgBox.setIcon( QMessageBox::Question );
@@ -112,14 +114,9 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
         int ret = msgBox.exec();
         if ( ret == QMessageBox::Yes )
         {
-            RiaEclipseFileNameTools helper( fileName );
-            auto                    summaryFileNames = helper.findSummaryFileCandidates();
-            if ( !summaryFileNames.empty() )
-            {
-                summaryCase->setSummaryHeaderFileName( summaryFileNames.front() );
+            summaryCase->setSummaryHeaderFileName( summaryFileNames.front() );
 
-                RiaSummaryTools::reloadSummaryCase( summaryCase );
-            }
+            RiaSummaryTools::reloadSummaryCase( summaryCase );
         }
     }
 }
