@@ -19,6 +19,7 @@
 
 #include "RicReplaceCaseFeature.h"
 
+#include "RiaEclipseFileNameTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaSummaryTools.h"
 
@@ -111,13 +112,14 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
         int ret = msgBox.exec();
         if ( ret == QMessageBox::Yes )
         {
-            QString   previousSummaryHeaderFilename = summaryCase->summaryHeaderFilename();
-            QFileInfo fileInfoPrevious( previousSummaryHeaderFilename );
+            RiaEclipseFileNameTools helper( fileName );
+            auto                    summaryFileNames = helper.findSummaryFileCandidates();
+            if ( !summaryFileNames.empty() )
+            {
+                summaryCase->setSummaryHeaderFileName( summaryFileNames.front() );
 
-            QString newSummaryHeaderFilename = fileInfoNew.canonicalPath() + "/" + fileInfoNew.baseName() + fileInfoPrevious.suffix();
-            summaryCase->setSummaryHeaderFileName( fileName );
-
-            RiaSummaryTools::reloadSummaryCase( summaryCase );
+                RiaSummaryTools::reloadSummaryCase( summaryCase );
+            }
         }
     }
 }
