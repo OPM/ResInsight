@@ -35,14 +35,12 @@ class RigGriddedPart3d;
 class RigActiveCellInfo;
 class RigCell;
 
-class RimUserDefinedIndexFilter;
-
 class RigFaultReactivationModelGenerator : cvf::Object
 {
     using FaceType = cvf::StructGridInterface::FaceType;
 
 public:
-    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal, cvf::Vec3d direction );
+    RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d modelNormal, cvf::Vec3d direction );
     ~RigFaultReactivationModelGenerator() override;
 
     void setFault( const RigFault* fault );
@@ -66,7 +64,7 @@ public:
 
     const std::array<cvf::Vec3d, 12>&       frontPoints() const;
     const std::array<cvf::Vec3d, 12>&       backPoints() const;
-    const cvf::Vec3d                        normal() const;
+    const cvf::Vec3d                        modelNormal() const;
     const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottomPoints() const;
     std::pair<double, double>               depthTopBottom() const;
 
@@ -102,7 +100,7 @@ protected:
 
 private:
     cvf::Vec3d m_startPosition;
-    cvf::Vec3d m_normal;
+    cvf::Vec3d m_modelNormal;
     cvf::Vec3d m_modelDirection;
 
     cvf::Plane m_modelPlane;
@@ -115,9 +113,6 @@ private:
     cvf::cref<RigFault>          m_fault;
     cvf::cref<RigMainGrid>       m_grid;
     cvf::cref<RigActiveCellInfo> m_activeCellInfo;
-
-    RimUserDefinedIndexFilter* m_frontFilter;
-    RimUserDefinedIndexFilter* m_backFilter;
 
     double m_bufferAboveFault;
     double m_bufferBelowFault;

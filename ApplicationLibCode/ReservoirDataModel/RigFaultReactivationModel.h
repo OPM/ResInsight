@@ -80,7 +80,7 @@ public:
 
     const RigGriddedPart3d* grid( GridPart part ) const;
 
-    const cvf::Vec3d                        faultNormal() const;
+    const cvf::Vec3d                        modelNormal() const;
     const std::pair<cvf::Vec3d, cvf::Vec3d> faultTopBottom() const;
     std::pair<double, double>               depthTopBottom() const;
 

@@ -213,10 +213,10 @@ const RigGriddedPart3d* RigFaultReactivationModel::grid( RimFaultReactivation::G
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::Vec3d RigFaultReactivationModel::faultNormal() const
+const cvf::Vec3d RigFaultReactivationModel::modelNormal() const
 {
     if ( m_generator.get() == nullptr ) return { 0.0, 0.0, 0.0 };
-    return m_generator->normal();
+    return m_generator->modelNormal();
 }
 
 //--------------------------------------------------------------------------------------------------

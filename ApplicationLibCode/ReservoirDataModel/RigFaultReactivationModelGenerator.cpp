@@ -37,9 +37,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d normal, cvf::Vec3d modelDirection )
+RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec3d position, cvf::Vec3d modelNormal, cvf::Vec3d modelDirection )
     : m_startPosition( position )
-    , m_normal( normal )
+    , m_modelNormal( modelNormal )
     , m_modelDirection( modelDirection )
     , m_bufferAboveFault( 0.0 )
     , m_bufferBelowFault( 0.0 )
@@ -55,10 +55,8 @@ RigFaultReactivationModelGenerator::RigFaultReactivationModelGenerator( cvf::Vec
     , m_maxCellHeight( 20.0 )
     , m_minCellWidth( 20.0 )
     , m_faultZoneCells( 0 )
-    , m_frontFilter( nullptr )
-    , m_backFilter( nullptr )
 {
-    m_modelPlane.setFromPointAndNormal( position, normal );
+    m_modelPlane.setFromPointAndNormal( position, modelNormal );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,28 +262,18 @@ size_t RigFaultReactivationModelGenerator::oppositeStartCellIndex( const std::ve
 //--------------------------------------------------------------------------------------------------
 void RigFaultReactivationModelGenerator::updateFilters( std::vector<size_t> cellsFront, std::vector<size_t> cellsBack )
 {
-    if ( m_frontFilter == nullptr )
-    {
-        RimEclipseView* view = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
-        if ( view == nullptr ) return;
+    RimEclipseView* view = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
+    if ( view == nullptr ) return;
 
-        auto cellFilters = view->cellFilterCollection();
-        if ( cellFilters == nullptr ) return;
+    auto cellFilters = view->cellFilterCollection();
+    if ( cellFilters == nullptr ) return;
 
-        auto eCase    = cellFilters->firstAncestorOfType<RimEclipseCase>();
-        m_frontFilter = cellFilters->addNewUserDefinedIndexFilter( eCase, cellsFront );
-        m_frontFilter->setName( "Front" );
+    auto eCase       = cellFilters->firstAncestorOfType<RimEclipseCase>();
+    auto frontFilter = cellFilters->addNewUserDefinedIndexFilter( eCase, cellsFront );
+    frontFilter->setName( "Front" );
 
-        m_backFilter = cellFilters->addNewUserDefinedIndexFilter( eCase, cellsBack );
-        m_backFilter->setName( "Back" );
-    }
-    else
-    {
-        m_frontFilter->setCellIndexes( cellsFront );
-        m_backFilter->setCellIndexes( cellsBack );
-
-        m_frontFilter->triggerFilterChanged();
-    }
+    auto backFilter = cellFilters->addNewUserDefinedIndexFilter( eCase, cellsBack );
+    backFilter->setName( "Back" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -588,8 +576,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
     auto kLayersBack  = elementKLayers( cellColumnBack );
     auto kLayersFront = elementKLayers( cellColumnFront );
 
-    // updateFilters( cellColumnFront, cellColumnBack );
-
     // add extra fault buffer below the fault, starting at the deepest bottom-most cell on either side of the fault
 
     double front_bottom    = layersFront.begin()->first;
@@ -656,7 +642,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
                                  m_horizontalPartition,
                                  m_modelThickness,
                                  m_topReservoirFront.z(),
-                                 m_normal,
+                                 m_modelNormal,
                                  m_faultZoneCells );
     backPart->generateGeometry( m_backPoints,
                                 backReservoirLayers,
@@ -666,7 +652,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
                                 m_horizontalPartition,
                                 m_modelThickness,
                                 m_topReservoirBack.z(),
-                                m_normal,
+                                m_modelNormal,
                                 m_faultZoneCells );
 
     frontPart->generateLocalNodes( m_localCoordTransform );
@@ -891,9 +877,9 @@ const std::vector<cvf::Vec3d> RigFaultReactivationModelGenerator::interpolateExt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::Vec3d RigFaultReactivationModelGenerator::normal() const
+const cvf::Vec3d RigFaultReactivationModelGenerator::modelNormal() const
 {
-    return m_normal;
+    return m_modelNormal;
 }
 
 //--------------------------------------------------------------------------------------------------
