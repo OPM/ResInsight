@@ -690,6 +690,21 @@ void RiuViewer::mousePressEvent( QMouseEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuViewer::mouseDoubleClickEvent( QMouseEvent* event )
+{
+    if ( auto view = dynamic_cast<Rim3dView*>( m_rimView.p() ) )
+    {
+        view->zoomAll();
+
+        return;
+    }
+
+    caf::Viewer::mouseDoubleClickEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::removeAllColorLegends()
 {
     for ( size_t i = 0; i < m_visibleLegends.size(); i++ )
