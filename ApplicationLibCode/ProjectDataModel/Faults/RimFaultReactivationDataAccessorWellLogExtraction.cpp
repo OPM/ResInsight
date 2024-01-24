@@ -285,7 +285,7 @@ std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>, std::
                                                                                         double                           seabedDepth )
 {
     auto [faultTopPosition, faultBottomPosition] = model.faultTopBottom();
-    auto faultNormal                             = model.faultNormal() ^ cvf::Vec3d::Z_AXIS;
+    auto faultNormal                             = model.modelNormal() ^ cvf::Vec3d::Z_AXIS;
     faultNormal.normalize();
 
     double distanceFromFault     = 1.0;

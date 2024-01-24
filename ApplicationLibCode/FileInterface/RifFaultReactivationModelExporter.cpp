@@ -826,7 +826,7 @@ bool RifFaultReactivationModelExporter::exportModelSettings( const RimFaultReact
     QMap<QString, QVariant> settings;
 
     auto [topPosition, bottomPosition] = model->faultTopBottom();
-    auto faultNormal                   = model->faultNormal();
+    auto faultNormal                   = model->modelNormal();
 
     // make sure we move horizontally, and along the 2D model
     faultNormal.z() = 0.0;

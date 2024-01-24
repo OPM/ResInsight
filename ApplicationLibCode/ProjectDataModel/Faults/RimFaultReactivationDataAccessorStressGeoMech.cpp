@@ -90,7 +90,7 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
     m_s22Frames       = loadFrameLambda( femParts, getResultAddress( "ST", "S22" ), timeStepIndex );
 
     auto [faultTopPosition, faultBottomPosition] = m_model->faultTopBottom();
-    auto faultNormal                             = m_model->faultNormal() ^ cvf::Vec3d::Z_AXIS;
+    auto faultNormal                             = m_model->modelNormal() ^ cvf::Vec3d::Z_AXIS;
     faultNormal.normalize();
 
     double distanceFromFault     = 1.0;
