@@ -28,6 +28,7 @@
 #include "RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -37,7 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<SimulationWellCellBranch> RigMswCenterLineCalculator::calculateMswWellPipeGeometry( RimSimWellInView* rimWell )
+std::vector<SimulationWellCellBranch> RigMswCenterLineCalculator::calculateMswWellPipeGeometry( const RimSimWellInView* rimWell )
 {
     CVF_ASSERT( rimWell );
 
@@ -50,7 +51,13 @@ std::vector<SimulationWellCellBranch> RigMswCenterLineCalculator::calculateMswWe
         auto eclipseCaseData = eclipseView->eclipseCase()->eclipseCaseData();
         int  timeStepIndex   = eclipseView->currentTimeStep();
 
-        return calculateMswWellPipeGeometryForTimeStep( eclipseCaseData, simWellData, timeStepIndex );
+        int shortBranchMergeThreshold = 4;
+        if ( auto eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( eclipseView->eclipseCase() ) )
+        {
+            shortBranchMergeThreshold = eclipseResultCase->mswMergeThreshold();
+        }
+
+        return calculateMswWellPipeGeometryForTimeStep( eclipseCaseData, simWellData, timeStepIndex, shortBranchMergeThreshold );
     }
 
     return {};
@@ -62,10 +69,9 @@ std::vector<SimulationWellCellBranch> RigMswCenterLineCalculator::calculateMswWe
 std::vector<SimulationWellCellBranch>
     RigMswCenterLineCalculator::calculateMswWellPipeGeometryForTimeStep( const RigEclipseCaseData* eclipseCaseData,
                                                                          const RigSimWellData*     wellResults,
-                                                                         int                       timeStepIndex )
+                                                                         int                       timeStepIndex,
+                                                                         int                       shortBranchMergeThreshold )
 {
-    if ( timeStepIndex >= 0 && !wellResults->hasAnyValidCells( timeStepIndex ) ) return {};
-
     const RigWellResultFrame* wellFramePtr = nullptr;
 
     if ( timeStepIndex < 0 )
@@ -80,7 +86,7 @@ std::vector<SimulationWellCellBranch>
     const RigWellResultFrame&              wellFrame      = *wellFramePtr;
     const std::vector<RigWellResultBranch> resultBranches = wellFrame.wellResultBranches();
 
-    std::vector<WellBranch> wellBranches = mergeShortBranchesIntoLongBranches( resultBranches );
+    std::vector<WellBranch> wellBranches = mergeShortBranchesIntoLongBranches( resultBranches, shortBranchMergeThreshold );
 
     // Connect outlet segment of branches to parent branch
 
@@ -290,7 +296,8 @@ SimulationWellCellBranch
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigMswCenterLineCalculator::WellBranch>
-    RigMswCenterLineCalculator::mergeShortBranchesIntoLongBranches( const std::vector<RigWellResultBranch>& resBranches )
+    RigMswCenterLineCalculator::mergeShortBranchesIntoLongBranches( const std::vector<RigWellResultBranch>& resBranches,
+                                                                    int                                     shortBranchMergeThreshold )
 {
     std::vector<WellBranch> longWellBranches;
     std::vector<WellBranch> shortWellBranches;
@@ -314,8 +321,7 @@ std::vector<RigMswCenterLineCalculator::WellBranch>
             }
         }
 
-        const int resultPointThreshold = 3;
-        if ( resultBranch.branchResultPoints().size() > resultPointThreshold )
+        if ( resultBranch.branchResultPoints().size() > shortBranchMergeThreshold )
         {
             longWellBranches.push_back( branch );
         }

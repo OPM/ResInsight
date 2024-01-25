@@ -23,6 +23,7 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSimulationWellCenterLineCalculator.h"
 #include "RigWellPath.h"
 
 #include "Rim2dIntersectionView.h"
@@ -868,11 +869,10 @@ void RimExtrudedCurveIntersection::updateSimulationWellCenterline() const
     {
         if ( m_simulationWellBranchCenterlines.empty() )
         {
-            auto branches = m_simulationWell->wellPipeBranches();
-            for ( const auto& branch : branches )
-            {
-                m_simulationWellBranchCenterlines.push_back( branch->wellPathPoints() );
-            }
+            auto simWells                   = m_simulationWell()->wellBranchesForVisualization();
+            const auto& [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWells );
+
+            m_simulationWellBranchCenterlines = coords;
         }
     }
     else
