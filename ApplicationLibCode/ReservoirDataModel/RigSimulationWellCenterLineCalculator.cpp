@@ -43,7 +43,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( RimSimWellInView* rimWell )
+std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( const RimSimWellInView* rimWell )
 {
     std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
     std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
@@ -118,7 +118,7 @@ std::pair<std::vector<std::vector<cvf::Vec3d>>, std::vector<std::vector<RigWellR
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( RimSimWellInView*                     rimWell,
+void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( const RimSimWellInView*               rimWell,
                                                                                std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
                                                                                std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
 {

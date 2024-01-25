@@ -23,6 +23,7 @@
 #include "Rim3dPropertiesInterface.h"
 
 #include "RigWellDiskData.h"
+#include "RigWellResultBranch.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -75,6 +76,8 @@ public:
     caf::PdmFieldHandle* objectToggleField() override;
 
     std::vector<const RigWellPath*> wellPipeBranches() const;
+
+    std::vector<SimulationWellCellBranch> wellBranchesForVisualization() const;
 
     void   wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom );
     double pipeRadius();
