@@ -49,12 +49,14 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimIntersectionCollection.h"
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
 
+#include "cafPdmUiCheckBoxAndTextEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
@@ -102,6 +104,9 @@ RimEclipseResultCase::RimEclipseResultCase()
 #ifndef USE_HDF5
     m_sourSimFileName.uiCapability()->setUiHidden( true );
 #endif
+
+    CAF_PDM_InitField( &m_mswMergeThreshold, "MswMergeThreshold", std::make_pair( false, 3 ), "MSW Short Well Merge Threshold" );
+    m_mswMergeThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -564,6 +569,21 @@ RifReaderRftInterface* RimEclipseResultCase::rftReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimEclipseResultCase::mswMergeThreshold() const
+{
+    // This value is used in RigMswCenterLineCalculator::calculateMswWellPipeGeometry
+
+    if ( m_mswMergeThreshold().first )
+    {
+        return m_mswMergeThreshold().second;
+    }
+
+    return 4;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::setCaseInfo( const QString& userDescription, const QString& fileName )
 {
     setCaseUserDescription( userDescription );
@@ -607,6 +627,7 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     group->add( &m_activeFormationNames );
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
+    group->add( &m_mswMergeThreshold );
 
     if ( eclipseCaseData() && eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
          eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount() > 0 )
@@ -625,6 +646,16 @@ void RimEclipseResultCase::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     if ( changedField == &m_sourSimFileName )
     {
         loadAndUpdateSourSimData();
+    }
+
+    if ( changedField == &m_mswMergeThreshold )
+    {
+        for ( auto resView : reservoirViews() )
+        {
+            resView->scheduleSimWellGeometryRegen();
+            resView->scheduleCreateDisplayModelAndRedraw();
+            resView->intersectionCollection()->recomputeSimWellBranchData();
+        }
     }
 
     return RimEclipseCase::fieldChangedByUi( changedField, oldValue, newValue );

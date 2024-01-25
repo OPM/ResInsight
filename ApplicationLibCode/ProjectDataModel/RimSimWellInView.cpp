@@ -26,6 +26,7 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigMswCenterLineCalculator.h"
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigWellResultFrame.h"
@@ -186,6 +187,21 @@ std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
         return caseData->simulationWellBranches( name(), includeCellCenters, detectBrances );
     }
     return std::vector<const RigWellPath*>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<SimulationWellCellBranch> RimSimWellInView::wellBranchesForVisualization() const
+{
+    const RigSimWellData* simWellData = this->simWellData();
+
+    if ( simWellData && simWellData->isMultiSegmentWell() )
+    {
+        return RigMswCenterLineCalculator::calculateMswWellPipeGeometry( this );
+    }
+
+    return RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( this );
 }
 
 //--------------------------------------------------------------------------------------------------
