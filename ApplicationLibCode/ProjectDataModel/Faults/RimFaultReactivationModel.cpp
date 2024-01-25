@@ -638,7 +638,7 @@ void RimFaultReactivationModel::updateTimeSteps()
     if ( m_selectedTimeSteps().empty() )
     {
         std::vector<QDateTime> newVal;
-        if ( m_availableTimeSteps.size() >= 1 ) newVal.push_back( m_availableTimeSteps.front() );
+        if ( !m_availableTimeSteps.empty() ) newVal.push_back( m_availableTimeSteps.front() );
         if ( m_availableTimeSteps.size() >= 2 ) newVal.push_back( m_availableTimeSteps.back() );
 
         m_selectedTimeSteps.setValue( newVal );
