@@ -70,7 +70,7 @@ void RicReloadCaseFeature::onActionTriggered( bool isChecked )
             timeStepFilter[0]->clearFilteredTimeSteps();
         }
 
-        RimReloadCaseTools::reloadAllEclipseData( selectedCase );
+        RimReloadCaseTools::reloadEclipseGridAndSummary( selectedCase );
         selectedCase->updateConnectedEditors();
     }
 }

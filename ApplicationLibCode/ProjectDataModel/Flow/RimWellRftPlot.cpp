@@ -25,8 +25,6 @@
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
 
-#include "RicImportGridModelFromSummaryCaseFeature.h"
-
 #include "RifReaderEclipseRft.h"
 
 #include "RigCaseCellResultsData.h"
@@ -44,6 +42,7 @@
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimReloadCaseTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
@@ -896,7 +895,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
         {
             if ( summaryCase->rftReader() && summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
             {
-                auto eclipeGridModel = RicImportGridModelFromSummaryCaseFeature::gridModelFromSummaryCase( summaryCase );
+                auto eclipeGridModel = RimReloadCaseTools::gridModelFromSummaryCase( summaryCase );
                 auto parentEnsemble  = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
                 auto addr            = RifDataSourceForRftPlt( summaryCase, parentEnsemble, eclipeGridModel );
 

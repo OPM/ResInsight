@@ -20,17 +20,12 @@
 
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
-#include "RicReplaceSummaryCaseFeature.h"
 
-#include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryMultiPlot.h"
-#include "RimSummaryMultiPlotCollection.h"
-#include "RimSummaryPlot.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -38,18 +33,6 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicReloadSummaryCaseFeature, "RicReloadSummaryCaseFeature" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicReloadSummaryCaseFeature::reloadSummaryCase( RimSummaryCase* summaryCase )
-{
-    summaryCase->createSummaryReaderInterface();
-    summaryCase->createRftReaderInterface();
-    summaryCase->refreshMetaData();
-
-    RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -69,12 +52,10 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
     for ( RimSummaryCase* summaryCase : caseSelection )
     {
-        reloadSummaryCase( summaryCase );
+        RiaSummaryTools::reloadSummaryCase( summaryCase );
 
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }
-
-    RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
 }
 
 //--------------------------------------------------------------------------------------------------

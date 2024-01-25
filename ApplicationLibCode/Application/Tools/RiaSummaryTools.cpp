@@ -215,7 +215,7 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
 
     for ( RimUserDefinedCalculationVariable* v : calculation->allVariables() )
     {
-        RimSummaryCalculationVariable* scv = dynamic_cast<RimSummaryCalculationVariable*>( v );
+        auto* scv = dynamic_cast<RimSummaryCalculationVariable*>( v );
         if ( scv )
         {
             cases.push_back( scv->summaryCase() );
@@ -327,4 +327,69 @@ void RiaSummaryTools::copyCurveAxisData( RimSummaryCurve& curve, const RimSummar
     curve.setTopOrBottomAxisX( otherCurve.axisX() );
 
     curve.setLeftOrRightAxisY( otherCurve.axisY() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::updateRequiredCalculatedCurves( RimSummaryCase* sourceSummaryCase )
+{
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+
+    for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
+    {
+        bool needsUpdate = RiaSummaryTools::isCalculationRequired( summaryCalculation, sourceSummaryCase );
+        if ( needsUpdate )
+        {
+            summaryCalculation->parseExpression();
+            summaryCalculation->calculate();
+            summaryCalculation->updateDependentObjects();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaSummaryTools::isCalculationRequired( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase )
+{
+    std::vector<RimUserDefinedCalculationVariable*> variables = summaryCalculation->allVariables();
+    for ( RimUserDefinedCalculationVariable* variable : variables )
+    {
+        if ( auto* summaryVariable = dynamic_cast<RimSummaryCalculationVariable*>( variable ) )
+        {
+            return summaryVariable->summaryCase() == summaryCase;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryTools::reloadSummaryCase( RimSummaryCase* summaryCase )
+{
+    if ( !summaryCase ) return;
+
+    summaryCase->updateAutoShortName();
+    summaryCase->createSummaryReaderInterface();
+    summaryCase->createRftReaderInterface();
+    summaryCase->refreshMetaData();
+
+    RiaSummaryTools::updateRequiredCalculatedCurves( summaryCase );
+
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
+    {
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+        {
+            summaryPlot->loadDataAndUpdate();
+
+            // Consider to make the zoom optional
+            summaryPlot->zoomAll();
+        }
+
+        multiPlot->updatePlotTitles();
+    }
 }

@@ -34,12 +34,12 @@
 #include "RimFractureTemplate.h"
 #include "RimObservedEclipseUserData.h"
 #include "RimProject.h"
+#include "RimReloadCaseTools.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
@@ -449,31 +449,27 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
             currentDate = caseTimeSteps.back();
         }
 
-        RifEclipseSummaryAddress      wbhpPressureAddress = RifEclipseSummaryAddress::wellAddress( "WBHP", wellPathName.toStdString() );
-        RimSummaryCaseMainCollection* mainCollection      = RiaSummaryTools::summaryCaseMainCollection();
-        if ( mainCollection )
-        {
-            RimSummaryCase* summaryCase = mainCollection->findSummaryCaseFromEclipseResultCase( resultCase );
+        RifEclipseSummaryAddress wbhpPressureAddress = RifEclipseSummaryAddress::wellAddress( "WBHP", wellPathName.toStdString() );
 
-            if ( summaryCase && summaryCase->summaryReader() )
+        auto summaryCase = RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( resultCase );
+        if ( summaryCase && summaryCase->summaryReader() )
+        {
+            auto [isOk, values] = summaryCase->summaryReader()->values( wbhpPressureAddress );
+            if ( isOk )
             {
-                auto [isOk, values] = summaryCase->summaryReader()->values( wbhpPressureAddress );
-                if ( isOk )
+                std::vector<time_t> summaryTimeSteps = summaryCase->summaryReader()->timeSteps( wbhpPressureAddress );
+                CVF_ASSERT( values.size() == summaryTimeSteps.size() );
+                for ( size_t i = 0; i < summaryTimeSteps.size(); ++i )
                 {
-                    std::vector<time_t> summaryTimeSteps = summaryCase->summaryReader()->timeSteps( wbhpPressureAddress );
-                    CVF_ASSERT( values.size() == summaryTimeSteps.size() );
-                    for ( size_t i = 0; i < summaryTimeSteps.size(); ++i )
+                    QDateTime summaryDate = RiaQDateTimeTools::fromTime_t( summaryTimeSteps[i] );
+                    if ( initialProductionDate.isNull() && values[i] > 0.0 )
                     {
-                        QDateTime summaryDate = RiaQDateTimeTools::fromTime_t( summaryTimeSteps[i] );
-                        if ( initialProductionDate.isNull() && values[i] > 0.0 )
-                        {
-                            initialProductionDate = summaryDate;
-                            *initialWellPressure  = values[i];
-                        }
-                        if ( summaryDate <= currentDate )
-                        {
-                            *currentWellPressure = values[i];
-                        }
+                        initialProductionDate = summaryDate;
+                        *initialWellPressure  = values[i];
+                    }
+                    if ( summaryDate <= currentDate )
+                    {
+                        *currentWellPressure = values[i];
                     }
                 }
             }

@@ -18,8 +18,13 @@
 
 #include "RimReloadCaseTools.h"
 
+#include "RiaEclipseFileNameTools.h"
 #include "RiaFractureDefines.h"
+#include "RiaImportEclipseCaseTools.h"
+#include "RiaLogging.h"
 #include "RiaSummaryTools.h"
+
+#include "ApplicationCommands/RicShowMainWindowFeature.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -31,33 +36,39 @@
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCalculation.h"
 #include "RimGridCalculationCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 
+#include "Riu3DMainWindowTools.h"
+
+#include <QFileInfo>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReloadCaseTools::reloadAllEclipseData( RimEclipseCase* eclipseCase )
+void RimReloadCaseTools::reloadEclipseGridAndSummary( RimEclipseCase* eclipseCase )
 {
-    reloadAllEclipseData( eclipseCase, true );
+    reloadEclipseData( eclipseCase, true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReloadCaseTools::reloadAllEclipseGridData( RimEclipseCase* eclipseCase )
+void RimReloadCaseTools::reloadEclipseGrid( RimEclipseCase* eclipseCase )
 {
-    reloadAllEclipseData( eclipseCase, false );
+    reloadEclipseData( eclipseCase, false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReloadCaseTools::reloadAllEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData )
+void RimReloadCaseTools::reloadEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData )
 {
     CVF_ASSERT( eclipseCase );
 
@@ -85,11 +96,8 @@ void RimReloadCaseTools::reloadAllEclipseData( RimEclipseCase* eclipseCase, bool
 
     if ( reloadSummaryData )
     {
-        RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
-        if ( sumCaseColl )
-        {
-            sumCaseColl->loadAllSummaryCaseData();
-        }
+        auto summaryCase = RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( eclipseCase ) );
+        RiaSummaryTools::reloadSummaryCase( summaryCase );
     }
 
     updateAllPlots();
@@ -158,7 +166,93 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimReloadCaseTools::gridModelFromSummaryCase( const RimSummaryCase* summaryCase )
+{
+    if ( summaryCase )
+    {
+        QString                 summaryFileName = summaryCase->summaryHeaderFilename();
+        RiaEclipseFileNameTools fileHelper( summaryFileName );
+
+        auto candidateGridFileName = fileHelper.findRelatedGridFile();
+        return RimProject::current()->eclipseCaseFromGridFileName( candidateGridFileName );
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclipseResultCase )
+{
+    RiaEclipseFileNameTools helper( eclipseResultCase->gridFileName() );
+
+    RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
+
+    auto summaryFileNames = helper.findSummaryFileCandidates();
+    for ( const auto& fileName : summaryFileNames )
+    {
+        return sumCaseColl->findTopLevelSummaryCaseFromFileName( fileName );
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimReloadCaseTools::openOrImportGridModelFromSummaryCase( const RimSummaryCase* summaryCase )
+{
+    if ( !summaryCase ) return false;
+
+    if ( findGridModelAndActivateFirstView( summaryCase ) ) return true;
+
+    QString                 summaryFileName = summaryCase->summaryHeaderFilename();
+    RiaEclipseFileNameTools fileHelper( summaryFileName );
+    auto                    candidateGridFileName = fileHelper.findRelatedGridFile();
+
+    if ( QFileInfo::exists( candidateGridFileName ) )
+    {
+        bool createView = true;
+        auto id         = RiaImportEclipseCaseTools::openEclipseCaseFromFile( candidateGridFileName, createView );
+        if ( id > -1 )
+        {
+            RiaLogging::info( QString( "Imported %1" ).arg( candidateGridFileName ) );
+
+            return true;
+        }
+    }
+
+    RiaLogging::info( QString( "No grid case found based on summary file %1" ).arg( summaryFileName ) );
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimReloadCaseTools::updateAllPlots()
 {
     RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimReloadCaseTools::findGridModelAndActivateFirstView( const RimSummaryCase* summaryCase )
+{
+    auto gridCase = RimReloadCaseTools::gridModelFromSummaryCase( summaryCase );
+    if ( gridCase )
+    {
+        if ( !gridCase->gridViews().empty() )
+        {
+            RicShowMainWindowFeature::showMainWindow();
+
+            Riu3DMainWindowTools::selectAsCurrentItem( gridCase->gridViews().front() );
+        }
+
+        return true;
+    }
+
+    return false;
 }

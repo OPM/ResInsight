@@ -113,26 +113,6 @@ RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclipseResultCase ) const
-{
-    RiaEclipseFileNameTools helper( eclipseResultCase->gridFileName() );
-
-    auto summaryFileName = helper.findSummaryFileCandidates();
-    for ( const auto& candidateFileName : summaryFileName )
-    {
-        auto summaryCase = findTopLevelSummaryCaseFromFileName( candidateFileName );
-        if ( summaryCase )
-        {
-            return summaryCase;
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCaseMainCollection::findTopLevelSummaryCaseFromFileName( const QString& fileName ) const
 {
     for ( const auto& summaryCase : topLevelSummaryCases() )

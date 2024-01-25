@@ -19,6 +19,7 @@
 
 #include "RicReplaceCaseFeature.h"
 
+#include "RiaEclipseFileNameTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaSummaryTools.h"
 
@@ -41,6 +42,7 @@
 
 #include <QAction>
 #include <QFileInfo>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicReplaceCaseFeature, "RicReplaceCaseFeature" );
 
@@ -67,54 +69,54 @@ bool RicReplaceCaseFeature::isCommandEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimEclipseResultCase*> selectedEclipseCases;
-    caf::SelectionManager::instance()->objectsByType( &selectedEclipseCases );
+    auto eclipseResultCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultCase>();
+    if ( !eclipseResultCase ) return;
+
+    auto summaryCase = RimReloadCaseTools::findSummaryCaseFromEclipseResultCase( eclipseResultCase );
 
     RiaGuiApplication::clearAllSelections();
 
     const QStringList fileNames = RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType::ECLIPSE_RESULT_GRID );
     if ( fileNames.isEmpty() ) return;
 
-    const QString fileName = fileNames[0];
+    const auto& fileName = fileNames.front();
 
-    for ( RimEclipseResultCase* selectedCase : selectedEclipseCases )
+    eclipseResultCase->setGridFileName( fileName );
+    eclipseResultCase->reloadEclipseGridFile();
+
+    std::vector<RimTimeStepFilter*> timeStepFilter = eclipseResultCase->descendantsIncludingThisOfType<RimTimeStepFilter>();
+    if ( timeStepFilter.size() == 1 )
     {
-        selectedCase->setGridFileName( fileName );
-        selectedCase->reloadEclipseGridFile();
+        timeStepFilter[0]->clearFilteredTimeSteps();
+    }
 
-        std::vector<RimTimeStepFilter*> timeStepFilter = selectedCase->descendantsIncludingThisOfType<RimTimeStepFilter>();
-        if ( timeStepFilter.size() == 1 )
+    RimReloadCaseTools::reloadEclipseGrid( eclipseResultCase );
+    eclipseResultCase->updateConnectedEditors();
+
+    // Use the file base name as case user description
+    QFileInfo fileInfoNew( fileName );
+    eclipseResultCase->setCaseUserDescription( fileInfoNew.baseName() );
+
+    RiaEclipseFileNameTools helper( fileName );
+    auto                    summaryFileNames = helper.findSummaryFileCandidates();
+    if ( summaryCase && !summaryFileNames.empty() )
+    {
+        QMessageBox msgBox;
+        msgBox.setIcon( QMessageBox::Question );
+
+        QString questionText;
+        questionText = QString(
+            "Found an open summary case for the same reservoir model.\n\nDo you want to replace the file name for the summary case?" );
+
+        msgBox.setText( questionText );
+        msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
+
+        int ret = msgBox.exec();
+        if ( ret == QMessageBox::Yes )
         {
-            timeStepFilter[0]->clearFilteredTimeSteps();
-        }
+            summaryCase->setSummaryHeaderFileName( summaryFileNames.front() );
 
-        RimReloadCaseTools::reloadAllEclipseData( selectedCase );
-        selectedCase->updateConnectedEditors();
-
-        // Use the file base name as case user description
-        QFileInfo fi( fileName );
-        selectedCase->setCaseUserDescription( fi.baseName() );
-
-        // Find and update attached grid summary cases.
-        RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
-        if ( sumCaseColl )
-        {
-            auto summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase( selectedCase );
-            if ( summaryCase )
-            {
-                summaryCase->updateAutoShortName();
-                summaryCase->createSummaryReaderInterface();
-                summaryCase->createRftReaderInterface();
-
-                RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
-                for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
-                {
-                    for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
-                    {
-                        summaryPlot->loadDataAndUpdate();
-                    }
-                }
-            }
+            RiaSummaryTools::reloadSummaryCase( summaryCase );
         }
     }
 }
