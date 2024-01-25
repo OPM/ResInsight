@@ -49,7 +49,7 @@ public:
         extractBranchData( const std::vector<SimulationWellCellBranch> simulationBranch );
 
 private:
-    static void calculateWellPipeStaticCenterline( const RimSimWellInView*                             rimWell,
+    static void calculateWellPipeStaticCenterline( const RimSimWellInView*                       rimWell,
                                                    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
 
