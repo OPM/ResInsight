@@ -1,6 +1,7 @@
 """
 ResInsight SimulationWell
 """
+
 import grpc
 
 import SimulationWell_pb2
