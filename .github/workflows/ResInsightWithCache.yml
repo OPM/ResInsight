@@ -266,14 +266,14 @@ jobs:
 
       - name: Upload python distribution folder
         if: matrix.config.publish-to-pypi
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-distribution
           path: GrpcInterface/Python/dist
 
       - name: Upload Windows install artifact
         if: contains( matrix.config.os, 'windows')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
