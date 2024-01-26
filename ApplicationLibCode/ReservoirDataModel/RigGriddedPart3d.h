@@ -28,6 +28,9 @@
 #include <map>
 #include <vector>
 
+class RigMainGrid;
+class RigActiveCellInfo;
+
 //==================================================================================================
 ///
 ///
@@ -56,6 +59,8 @@ public:
 
     void generateLocalNodes( const cvf::Mat4d transform );
     void setUseLocalCoordinates( bool useLocalCoordinates );
+
+    void postProcessElementSets( const RigMainGrid* mainGrid, const RigActiveCellInfo* cellInfo );
 
     bool   useLocalCoordinates() const;
     double topHeight() const;

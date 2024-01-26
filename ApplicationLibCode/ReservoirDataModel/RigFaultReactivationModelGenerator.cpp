@@ -559,7 +559,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
     {
         bottom_point = extrapolatePoint( ( ++layersBack.begin() )->second, layersBack.begin()->second, m_bufferBelowFault );
     }
-    else if ( front_bottom < back_bottom )
+    else if ( m_bufferBelowFault > 0.0 )
     {
         bottom_point = extrapolatePoint( ( ++layersFront.begin() )->second, layersFront.begin()->second, m_bufferBelowFault );
     }
@@ -578,7 +578,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
     {
         top_point = extrapolatePoint( ( ++layersFront.rbegin() )->second, layersFront.rbegin()->second, m_bufferAboveFault );
     }
-    else if ( front_top < back_top )
+    else if ( m_bufferAboveFault > 0.0 )
     {
         top_point = extrapolatePoint( ( ++layersBack.rbegin() )->second, layersBack.rbegin()->second, m_bufferAboveFault );
     }
