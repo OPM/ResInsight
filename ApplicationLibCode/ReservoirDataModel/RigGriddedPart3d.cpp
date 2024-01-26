@@ -257,6 +257,10 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     m_elementLayers[ElementSets::OverBurden]  = { std::make_pair( inputPoints[3].z(), inputPoints[5].z() ) };
     m_elementLayers[ElementSets::UnderBurden] = { std::make_pair( inputPoints[0].z(), inputPoints[2].z() ) };
 
+    m_boundaryNodes[Boundary::Bottom]  = {};
+    m_boundaryNodes[Boundary::FarSide] = {};
+    m_boundaryNodes[Boundary::Fault]   = {};
+
     updateReservoirElementLayers( reservoirLayers, kLayers );
 
     size_t nVertCells = 0;
@@ -367,6 +371,10 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                     {
                         m_boundaryNodes[Boundary::FarSide].push_back( nodeIndex );
                     }
+                    else if ( h == (int)nHorzCells )
+                    {
+                        m_boundaryNodes[Boundary::Fault].push_back( nodeIndex );
+                    }
                 }
             }
 
@@ -396,6 +404,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
     m_boundaryElements[Boundary::Bottom]  = {};
     m_boundaryElements[Boundary::FarSide] = {};
+    m_boundaryElements[Boundary::Fault]   = {};
 
     int layerIndexOffset = 0;
     int elementIdx       = 0;

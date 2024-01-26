@@ -38,7 +38,8 @@ enum class BorderSurface
 enum class Boundary
 {
     FarSide,
-    Bottom
+    Bottom,
+    Fault
 };
 
 enum class ElementSets
