@@ -442,14 +442,15 @@ endif(RESINSIGHT_ENABLE_GRPC)
 # bundle libraries together with private installation
 if(RESINSIGHT_PRIVATE_INSTALL)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  
-    set(RESINSIGHT_INSTALL_RPATH "" CACHE STRING "RPATH to be injected into binary")
+
+    set(RESINSIGHT_INSTALL_RPATH
+        ""
+        CACHE STRING "RPATH to be injected into binary"
+    )
     mark_as_advanced(FORCE RESINSIGHT_INSTALL_RPATH)
 
     # Add ORIGIN to represent the directory where the binary is located
-    set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH}
-                                   "\$ORIGIN"
-    )
+    set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH} "\$ORIGIN")
 
     if(${RESINSIGHT_USE_ODB_API})
       # This is a "hack" to make ResInsight runtime find the ODB so files used
