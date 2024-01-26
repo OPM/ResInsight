@@ -18,6 +18,7 @@
 
 #include "RigGriddedPart3d.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigMainGrid.h"
 
 #include "RimFaultReactivationDataAccess.h"
@@ -725,5 +726,56 @@ void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
     {
         auto tn = node.getTransformedPoint( transform );
         m_localNodes.push_back( tn.getTransformedPoint( flipY ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Make sure any active cells outside the flat reservoir zone is added to the reservoir element set
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::postProcessElementSets( const RigMainGrid* mainGrid, const RigActiveCellInfo* cellInfo )
+{
+    std::map<ElementSets, std::vector<unsigned int>> newElementSets;
+
+    for ( auto elSet : { ElementSets::OverBurden, ElementSets::UnderBurden, ElementSets::IntraReservoir } )
+    {
+        newElementSets[elSet] = {};
+
+        for ( auto element : m_elementSets[elSet] )
+        {
+            auto corners = elementCorners( element );
+            int  nFound  = 0;
+
+            size_t cellIdx = 0;
+            for ( const auto& p : corners )
+            {
+                cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
+
+                if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+                {
+                    if ( cellInfo->isActive( cellIdx ) )
+                    {
+                        nFound++;
+                    }
+                }
+            }
+
+            if ( nFound > 0 )
+            {
+                m_elementSets[ElementSets::Reservoir].push_back( element );
+            }
+            else
+            {
+                newElementSets[elSet].push_back( element );
+            }
+        }
+    }
+
+    for ( auto elSet : { ElementSets::OverBurden, ElementSets::UnderBurden, ElementSets::IntraReservoir } )
+    {
+        m_elementSets[elSet].clear();
+        for ( auto element : newElementSets[elSet] )
+        {
+            m_elementSets[elSet].push_back( element );
+        }
     }
 }
