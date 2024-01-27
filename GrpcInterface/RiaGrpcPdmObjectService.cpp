@@ -462,6 +462,36 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcPdmObjectService::DeleteExistingPdmObject( grpc::ServerContext*   context,
+                                                               const rips::PdmObject* request,
+                                                               rips::Empty*           response )
+{
+    auto matchingObject = findCafObjectFromRipsObject( *request );
+
+    if ( matchingObject && matchingObject->parentField() )
+    {
+        auto parentField = matchingObject->parentField();
+        parentField->removeChild( matchingObject );
+
+        auto obj = parentField->ownerObject();
+        if ( obj && obj->uiCapability() )
+        {
+            std::vector<caf::PdmObjectHandle*> referringObjects;
+
+            obj->onChildDeleted( nullptr, referringObjects );
+            obj->uiCapability()->updateAllRequiredEditors();
+        }
+
+        delete matchingObject;
+
+        return grpc::Status::OK;
+    }
+    return grpc::Status( grpc::NOT_FOUND, "PdmObject not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject( grpc::ServerContext*                     context,
                                                             const rips::CreatePdmChildObjectRequest* request,
                                                             rips::PdmObject*                         reply )
@@ -571,6 +601,9 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcPdmObjectService::createCallbacks(
         new RiaGrpcUnaryCallback<Self, PdmObject, Empty>( this,
                                                           &Self::UpdateExistingPdmObject,
                                                           &Self::RequestUpdateExistingPdmObject ),
+        new RiaGrpcUnaryCallback<Self, PdmObject, Empty>( this,
+                                                          &Self::DeleteExistingPdmObject,
+                                                          &Self::RequestDeleteExistingPdmObject ),
         new RiaGrpcUnaryCallback<Self, CreatePdmChildObjectRequest, PdmObject>( this,
                                                                                 &Self::CreateChildPdmObject,
                                                                                 &Self::RequestCreateChildPdmObject ),
