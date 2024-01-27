@@ -231,30 +231,28 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectSetterChunk* c
         auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldName )
         {
-            caf::PdmProxyFieldHandle* proxyField = dynamic_cast<caf::PdmProxyFieldHandle*>( field );
+            auto* proxyField = dynamic_cast<caf::PdmProxyFieldHandle*>( field );
             if ( proxyField )
             {
                 m_proxyField = proxyField;
 
                 if ( dynamic_cast<caf::PdmProxyValueField<std::vector<int>>*>( field ) )
                 {
-                    m_dataHolder.reset( new DataHolder<std::vector<int>>( std::vector<int>( valueCount ) ) );
+                    m_dataHolder = std::make_unique<DataHolder<std::vector<int>>>( std::vector<int>( valueCount ) );
                     return grpc::Status::OK;
                 }
-                else if ( dynamic_cast<caf::PdmProxyValueField<std::vector<double>>*>( field ) )
+                if ( dynamic_cast<caf::PdmProxyValueField<std::vector<double>>*>( field ) )
                 {
-                    m_dataHolder.reset( new DataHolder<std::vector<double>>( std::vector<double>( valueCount ) ) );
+                    m_dataHolder = std::make_unique<DataHolder<std::vector<double>>>( std::vector<double>( valueCount ) );
                     return grpc::Status::OK;
                 }
-                else if ( dynamic_cast<caf::PdmProxyValueField<std::vector<QString>>*>( field ) )
+                if ( dynamic_cast<caf::PdmProxyValueField<std::vector<QString>>*>( field ) )
                 {
-                    m_dataHolder.reset( new DataHolder<std::vector<QString>>( std::vector<QString>( valueCount ) ) );
+                    m_dataHolder = std::make_unique<DataHolder<std::vector<QString>>>( std::vector<QString>( valueCount ) );
                     return grpc::Status::OK;
                 }
-                else
-                {
-                    CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
-                }
+
+                CAF_ASSERT( false && "The proxy field data type is not yet supported for streaming fields" );
             }
         }
     }
@@ -569,15 +567,13 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
                 }
                 return grpc::Status::OK;
             }
-            else
-            {
-                if ( method->isNullptrValidResult() )
-                {
-                    return grpc::Status::OK;
-                }
 
-                return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
+            if ( method->isNullptrValidResult() )
+            {
+                return grpc::Status::OK;
             }
+
+            return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
         }
         return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
     }
