@@ -21,6 +21,18 @@
 
 #include "cvfVector3.h"
 
+#include <QString>
+
+namespace caf
+{
+class PdmObject;
+}
+
+namespace rips
+{
+class PdmObject;
+}
+
 //==================================================================================================
 //
 // Various gRPC helper methods
@@ -31,4 +43,7 @@ class RiaGrpcHelper
 public:
     static void convertVec3dToPositiveDepth( cvf::Vec3d* vec );
     static void setCornerValues( rips::Vec3d* out, const cvf::Vec3d& in );
+
+    static caf::PdmObject* findCafObjectFromRipsObject( const rips::PdmObject& ripsObject );
+    static caf::PdmObject* findCafObjectFromScriptNameAndAddress( const QString& scriptClassName, uint64_t address );
 };

@@ -15,12 +15,13 @@
 //  for more details.
 //
 //////////////////////////////////////////////////////////////////////////////////
+
 #include "RiaGrpcPdmObjectService.h"
 
 #include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
+#include "RiaGrpcHelper.h"
 
-#include "ProjectDataModelCommands/CommandRouter/RimCommandRouter.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
@@ -168,7 +169,7 @@ RiaPdmObjectMethodStateHandler::RiaPdmObjectMethodStateHandler( bool clientToSer
 Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectGetterRequest* request )
 {
     CAF_ASSERT( !m_clientToServerStreamer );
-    m_fieldOwner      = RiaGrpcPdmObjectService::findCafObjectFromRipsObject( request->object() );
+    m_fieldOwner      = RiaGrpcHelper::findCafObjectFromRipsObject( request->object() );
     QString fieldName = QString::fromStdString( request->method() );
 
     std::vector<caf::PdmFieldHandle*> fields = m_fieldOwner->fields();
@@ -220,7 +221,7 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectSetterChunk* c
     CAF_ASSERT( chunk->has_set_request() );
     auto setRequest    = chunk->set_request();
     auto methodRequest = setRequest.request();
-    m_fieldOwner       = RiaGrpcPdmObjectService::findCafObjectFromRipsObject( methodRequest.object() );
+    m_fieldOwner       = RiaGrpcHelper::findCafObjectFromRipsObject( methodRequest.object() );
     QString fieldName  = QString::fromStdString( methodRequest.method() );
     int     valueCount = setRequest.data_count();
 
@@ -377,7 +378,7 @@ grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects( grpc::ServerConte
                                                                const rips::PdmDescendantObjectRequest* request,
                                                                rips::PdmObjectArray*                   reply )
 {
-    auto matchingObject = findCafObjectFromRipsObject( request->object() );
+    auto matchingObject = RiaGrpcHelper::findCafObjectFromRipsObject( request->object() );
 
     if ( matchingObject )
     {
@@ -402,7 +403,7 @@ grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects( grpc::ServerContext*  
                                                           const rips::PdmChildObjectRequest* request,
                                                           rips::PdmObjectArray*              reply )
 {
-    auto matchingObject = findCafObjectFromRipsObject( request->object() );
+    auto matchingObject = RiaGrpcHelper::findCafObjectFromRipsObject( request->object() );
     if ( matchingObject )
     {
         QString                           fieldName = QString::fromStdString( request->child_field() );
@@ -433,7 +434,7 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
                                                                const rips::PdmObject* request,
                                                                rips::Empty*           response )
 {
-    auto matchingObject = findCafObjectFromRipsObject( *request );
+    auto matchingObject = RiaGrpcHelper::findCafObjectFromRipsObject( *request );
 
     if ( matchingObject )
     {
@@ -466,7 +467,7 @@ grpc::Status RiaGrpcPdmObjectService::DeleteExistingPdmObject( grpc::ServerConte
                                                                const rips::PdmObject* request,
                                                                rips::Empty*           response )
 {
-    auto matchingObject = findCafObjectFromRipsObject( *request );
+    auto matchingObject = RiaGrpcHelper::findCafObjectFromRipsObject( *request );
 
     if ( matchingObject && matchingObject->parentField() )
     {
@@ -496,7 +497,7 @@ grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject( grpc::ServerContext*
                                                             const rips::CreatePdmChildObjectRequest* request,
                                                             rips::PdmObject*                         reply )
 {
-    auto matchingObject = findCafObjectFromRipsObject( request->object() );
+    auto matchingObject = RiaGrpcHelper::findCafObjectFromRipsObject( request->object() );
 
     if ( matchingObject )
     {
@@ -547,7 +548,7 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
                                                            const rips::PdmObjectMethodRequest* request,
                                                            rips::PdmObject*                    reply )
 {
-    auto matchingObject = findCafObjectFromRipsObject( request->object() );
+    auto matchingObject = RiaGrpcHelper::findCafObjectFromRipsObject( request->object() );
     if ( matchingObject )
     {
         QString methodKeyword = QString::fromStdString( request->method() );
@@ -627,42 +628,6 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcPdmObjectService::createCallbacks(
                                                                            &Self::RequestCallPdmObjectMethod ),
 
     };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromRipsObject( const rips::PdmObject& ripsObject )
-{
-    QString  scriptClassName = QString::fromStdString( ripsObject.class_keyword() );
-    uint64_t address         = ripsObject.address();
-    return findCafObjectFromScriptNameAndAddress( scriptClassName, address );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromScriptNameAndAddress( const QString& scriptClassName,
-                                                                                uint64_t       address )
-{
-    QString classKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( scriptClassName );
-
-    if ( classKeyword == RimCommandRouter::classKeywordStatic() ) return RiaApplication::instance()->commandRouter();
-
-    RimProject*                  project = RimProject::current();
-    std::vector<caf::PdmObject*> objectsOfCurrentClass;
-
-    project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
-
-    caf::PdmObject* matchingObject = nullptr;
-    for ( caf::PdmObject* testObject : objectsOfCurrentClass )
-    {
-        if ( reinterpret_cast<uint64_t>( testObject ) == address )
-        {
-            matchingObject = testObject;
-        }
-    }
-    return matchingObject;
 }
 
 static bool RiaGrpcPdmObjectService_init = RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcPdmObjectService>(
