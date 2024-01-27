@@ -52,17 +52,13 @@ class RiaGrpcServiceInterface
 public:
     virtual std::vector<RiaGrpcCallbackInterface*> createCallbacks() = 0;
     virtual ~RiaGrpcServiceInterface()                               = default;
+
     static RimCase* findCase( int caseId );
     static size_t   numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount = 64 * 1024u );
 
+protected:
     static void copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination );
     static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination );
-
-    static bool assignFieldValue( const QString&            stringValue,
-                                  caf::PdmFieldHandle*      field,
-                                  QVariant*                 oldValue,
-                                  QVariant*                 newValue,
-                                  caf::PdmScriptIOMessages* messages );
 
     static caf::PdmObjectHandle*
         emplaceChildField( caf::PdmObject* parent, const QString& fieldKeyword, const QString& keywordForClassToCreate );
@@ -71,6 +67,12 @@ public:
                                                     const QString&            keywordForClassToCreate );
     static caf::PdmObjectHandle* emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField,
                                                          const QString&                 keywordForClassToCreate );
+
+    static bool assignFieldValue( const QString&            stringValue,
+                                  caf::PdmFieldHandle*      field,
+                                  QVariant*                 oldValue,
+                                  QVariant*                 newValue,
+                                  caf::PdmScriptIOMessages* messages );
 };
 
 #include "cafFactory.h"
