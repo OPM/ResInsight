@@ -19,7 +19,6 @@
 #include "RiaGrpcServiceInterface.h"
 #include "RiaLogging.h"
 
-#include "RimCase.h"
 #include "RimProject.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
@@ -38,32 +37,6 @@
 
 #include <QDebug>
 #include <QXmlStreamReader>
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimCase* RiaGrpcServiceInterface::findCase( int caseId )
-{
-    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
-    for ( RimCase* rimCase : cases )
-    {
-        if ( caseId == rimCase->caseId() )
-        {
-            return rimCase;
-        }
-    }
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Find the number of data items that will fit in the given bytes.
-/// The default argument for numBytesWantedInPackage is meant to be a sensible size for GRPC.
-//--------------------------------------------------------------------------------------------------
-size_t RiaGrpcServiceInterface::numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount /*= 64 * 1024u*/ )
-{
-    size_t dataUnitCount = packageByteCount / dataUnitSize;
-    return dataUnitCount;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

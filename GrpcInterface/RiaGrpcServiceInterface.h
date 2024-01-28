@@ -22,7 +22,6 @@
 #include <vector>
 
 class RiaGrpcCallbackInterface;
-class RimCase;
 
 namespace caf
 {
@@ -53,9 +52,6 @@ public:
     virtual std::vector<RiaGrpcCallbackInterface*> createCallbacks() = 0;
     virtual ~RiaGrpcServiceInterface()                               = default;
 
-    static RimCase* findCase( int caseId );
-    static size_t   numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount = 64 * 1024u );
-
 protected:
     static void copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination );
     static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination );
@@ -76,4 +72,4 @@ protected:
 };
 
 #include "cafFactory.h"
-typedef caf::Factory<RiaGrpcServiceInterface, size_t> RiaGrpcServiceFactory;
+using RiaGrpcServiceFactory = caf::Factory<RiaGrpcServiceInterface, size_t>;

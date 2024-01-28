@@ -23,6 +23,8 @@
 
 #include <QString>
 
+class RimCase;
+
 namespace caf
 {
 class PdmObject;
@@ -46,4 +48,7 @@ public:
 
     static caf::PdmObject* findCafObjectFromRipsObject( const rips::PdmObject& ripsObject );
     static caf::PdmObject* findCafObjectFromScriptNameAndAddress( const QString& scriptClassName, uint64_t address );
+
+    static size_t   numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount = 64 * 1024u );
+    static RimCase* findCase( int caseId );
 };

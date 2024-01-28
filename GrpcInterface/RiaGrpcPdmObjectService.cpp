@@ -265,7 +265,7 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectSetterChunk* c
 Status RiaPdmObjectMethodStateHandler::assignReply( rips::PdmObjectGetterReply* reply )
 {
     CAF_ASSERT( m_dataHolder );
-    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( m_dataHolder->dataSizeOf() );
+    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( m_dataHolder->dataSizeOf() );
     size_t       indexInPackage = 0u;
     m_dataHolder->reserveReplyStorage( reply );
 

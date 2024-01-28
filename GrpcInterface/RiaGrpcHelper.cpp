@@ -19,6 +19,7 @@
 #include "RiaGrpcHelper.h"
 
 #include "RiaApplication.h"
+#include "RimCase.h"
 #include "RimCommandRouter.h"
 #include "RimProject.h"
 
@@ -78,4 +79,29 @@ caf::PdmObject* RiaGrpcHelper::findCafObjectFromScriptNameAndAddress( const QStr
         }
     }
     return matchingObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RiaGrpcHelper::numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount /*= 64 * 1024u */ )
+{
+    size_t dataUnitCount = packageByteCount / dataUnitSize;
+    return dataUnitCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCase* RiaGrpcHelper::findCase( int caseId )
+{
+    std::vector<RimCase*> cases = RimProject::current()->allGridCases();
+    for ( RimCase* rimCase : cases )
+    {
+        if ( caseId == rimCase->caseId() )
+        {
+            return rimCase;
+        }
+    }
+    return nullptr;
 }

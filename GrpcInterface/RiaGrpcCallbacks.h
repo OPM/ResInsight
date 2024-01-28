@@ -33,8 +33,6 @@ using grpc::ServerCompletionQueue;
 using grpc::ServerContext;
 using grpc::Status;
 
-class RiaGrpcServiceInterface;
-
 //==================================================================================================
 //
 // Base class for all gRPC-callbacks
