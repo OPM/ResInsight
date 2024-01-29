@@ -69,9 +69,12 @@ jobs:
         run: |
           cd build
           run-clang-tidy-15 -config-file ../ApplicationLibCode/.clang-tidy -fix files ApplicationLibCode
+          run-clang-tidy-15 -config-file ../GrpcInterface/.clang-tidy -fix files GrpcInterface
       - name: Run clang-format after clang-tidy
         run: |
           cd ApplicationLibCode
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-15 -i
+          cd ../GrpcInterface
           find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-15 -i
       - uses: peter-evans/create-pull-request@v5
         with:
@@ -82,3 +85,4 @@ jobs:
           branch-suffix: random
           add-paths: |
             ApplicationLibCode/*
+            GrpcInterface/*
