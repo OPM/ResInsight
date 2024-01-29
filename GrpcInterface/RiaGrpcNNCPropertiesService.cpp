@@ -19,6 +19,7 @@
 
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcCaseService.h"
+#include "RiaGrpcHelper.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -55,7 +56,7 @@ grpc::Status RiaNNCConnectionsStateHandler::init( const rips::CaseRequest* reque
     CAF_ASSERT( request );
     m_request = request;
 
-    RimCase* rimCase = RiaGrpcServiceInterface::findCase( m_request->id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( m_request->id() );
     m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
 
     if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->mainGrid() ) )
@@ -93,7 +94,7 @@ grpc::Status RiaNNCConnectionsStateHandler::assignReply( rips::NNCConnections* r
     const RigConnectionContainer& connections = mainGrid->nncData()->allConnections();
 
     size_t       connectionCount = connections.size();
-    const size_t packageSize     = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::NNCConnection ) );
+    const size_t packageSize     = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::NNCConnection ) );
     size_t       indexInPackage  = 0u;
     reply->mutable_connections()->Reserve( (int)packageSize );
     for ( ; indexInPackage < packageSize && m_currentIdx < connectionCount; ++indexInPackage )
@@ -147,7 +148,7 @@ grpc::Status RiaNNCValuesStateHandler::init( const rips::NNCValuesRequest* reque
     CAF_ASSERT( request );
     m_request = request;
 
-    RimCase* rimCase = RiaGrpcServiceInterface::findCase( m_request->case_id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( m_request->case_id() );
     m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
 
     if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->mainGrid() ) )
@@ -204,7 +205,7 @@ grpc::Status RiaNNCValuesStateHandler::assignReply( rips::NNCValues* reply )
     }
 
     size_t       connectionCount = connections.size();
-    const size_t packageSize     = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( double ) );
+    const size_t packageSize     = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( double ) );
     size_t       indexInPackage  = 0u;
     reply->mutable_values()->Reserve( (int)packageSize );
     for ( ; indexInPackage < packageSize && m_currentIdx < connectionCount; ++indexInPackage )
@@ -238,7 +239,7 @@ grpc::Status RiaGrpcNNCPropertiesService::GetAvailableNNCProperties( grpc::Serve
                                                                      const CaseRequest*      request,
                                                                      AvailableNNCProperties* reply )
 {
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcServiceInterface::findCase( request->id() ) );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( request->id() ) );
     if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
     {
         RigNNCData* nncData = eclipseCase->eclipseCaseData()->mainGrid()->nncData();
@@ -332,7 +333,7 @@ std::vector<double>* getOrCreateConnectionScalarResultByName( RigNNCData* nncDat
 grpc::Status RiaNNCInputValuesStateHandler::init( const NNCValuesInputRequest* request )
 {
     int caseId    = request->case_id();
-    m_eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcServiceInterface::findCase( caseId ) );
+    m_eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcHelper::findCase( caseId ) );
 
     if ( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->mainGrid() )
     {
@@ -341,7 +342,7 @@ grpc::Status RiaNNCInputValuesStateHandler::init( const NNCValuesInputRequest* r
         m_timeStep           = request->time_step();
         m_propertyName       = QString::fromStdString( request->property_name() );
 
-        RigNNCData*          nncData      = m_eclipseCase->eclipseCaseData()->mainGrid()->nncData();
+        RigNNCData* nncData = m_eclipseCase->eclipseCaseData()->mainGrid()->nncData();
         std::vector<double>* resultsToAdd = getOrCreateConnectionScalarResultByName( nncData, m_propertyName, m_timeStep );
         if ( !resultsToAdd )
         {

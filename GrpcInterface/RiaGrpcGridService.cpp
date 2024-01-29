@@ -47,7 +47,7 @@ grpc::Status RiaCellCenterStateHandler::init( const rips::GridRequest* request )
     CAF_ASSERT( request );
     m_request = request;
 
-    RimCase* rimCase = RiaGrpcServiceInterface::findCase( m_request->case_request().id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( m_request->case_request().id() );
     m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
 
     if ( !m_eclipseCase )
@@ -71,7 +71,7 @@ grpc::Status RiaCellCenterStateHandler::init( const rips::GridRequest* request )
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaCellCenterStateHandler::assignReply( rips::CellCenters* reply )
 {
-    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
+    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
     size_t       indexInPackage = 0u;
     reply->mutable_centers()->Reserve( (int)packageSize );
     for ( ; indexInPackage < packageSize && m_currentCellIdx < m_grid->cellCount(); ++indexInPackage )
@@ -98,7 +98,7 @@ grpc::Status RiaCellCenterStateHandler::assignReply( rips::CellCenters* reply )
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaCellCenterStateHandler::assignCornersReply( rips::CellCornersArray* reply )
 {
-    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
+    const size_t packageSize    = RiaGrpcHelper::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
     size_t       indexInPackage = 0u;
     reply->mutable_cells()->Reserve( (int)packageSize );
 
@@ -137,7 +137,7 @@ grpc::Status RiaGrpcGridService::GetDimensions( grpc::ServerContext*     context
                                                 const rips::GridRequest* request,
                                                 rips::GridDimensions*    reply )
 {
-    RimCase* rimCase = findCase( request->case_request().id() );
+    RimCase* rimCase = RiaGrpcHelper::findCase( request->case_request().id() );
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
     if ( eclipseCase )

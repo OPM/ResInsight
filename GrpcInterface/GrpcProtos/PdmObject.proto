@@ -14,6 +14,7 @@ service PdmObjectService
 	rpc CallPdmObjectGetter(PdmObjectGetterRequest) returns (stream PdmObjectGetterReply) {}
 	rpc CallPdmObjectSetter(stream PdmObjectSetterChunk) returns (ClientToServerStreamReply) {}
 	rpc CallPdmObjectMethod(PdmObjectMethodRequest) returns (PdmObject) {}
+	rpc DeleteExistingPdmObject(PdmObject) returns (Empty) {}
 }
 
 message PdmDescendantObjectRequest

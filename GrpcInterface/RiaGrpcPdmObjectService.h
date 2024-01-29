@@ -17,10 +17,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "PdmObject.grpc.pb.h"
 #include "RiaGrpcServiceInterface.h"
 
-#include <grpcpp/grpcpp.h>
+#include "PdmObject.grpc.pb.h"
+
 #include <vector>
 
 namespace caf
@@ -30,7 +30,7 @@ class PdmProxyFieldHandle;
 
 struct AbstractDataHolder
 {
-    virtual ~AbstractDataHolder() = default;
+    virtual ~AbstractDataHolder()                                                                = default;
     virtual size_t dataCount() const                                                             = 0;
     virtual size_t dataSizeOf() const                                                            = 0;
     virtual void   reserveReplyStorage( rips::PdmObjectGetterReply* reply ) const                = 0;
@@ -47,7 +47,7 @@ struct AbstractDataHolder
 //==================================================================================================
 class RiaPdmObjectMethodStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaPdmObjectMethodStateHandler( bool clientToServerStreamer = false );
@@ -79,9 +79,11 @@ public:
     grpc::Status GetAncestorPdmObject( grpc::ServerContext*                context,
                                        const rips::PdmParentObjectRequest* request,
                                        rips::PdmObject*                    reply ) override;
+
     grpc::Status GetDescendantPdmObjects( grpc::ServerContext*                    context,
                                           const rips::PdmDescendantObjectRequest* request,
                                           rips::PdmObjectArray*                   reply ) override;
+
     grpc::Status GetChildPdmObjects( grpc::ServerContext*               context,
                                      const rips::PdmChildObjectRequest* request,
                                      rips::PdmObjectArray*              reply ) override;
@@ -94,20 +96,23 @@ public:
                                           const rips::PdmObject* request,
                                           rips::Empty*           response ) override;
 
+    grpc::Status DeleteExistingPdmObject( grpc::ServerContext*   context,
+                                          const rips::PdmObject* request,
+                                          rips::Empty*           response ) override;
+
     grpc::Status CallPdmObjectGetter( grpc::ServerContext*                context,
                                       const rips::PdmObjectGetterRequest* request,
                                       rips::PdmObjectGetterReply*         reply,
                                       RiaPdmObjectMethodStateHandler*     stateHandler );
+
     grpc::Status CallPdmObjectSetter( grpc::ServerContext*              context,
                                       const rips::PdmObjectSetterChunk* chunk,
                                       rips::ClientToServerStreamReply*  reply,
                                       RiaPdmObjectMethodStateHandler*   stateHandler );
+
     grpc::Status CallPdmObjectMethod( grpc::ServerContext*                context,
                                       const rips::PdmObjectMethodRequest* request,
                                       rips::PdmObject*                    reply ) override;
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
-
-    static caf::PdmObject* findCafObjectFromRipsObject( const rips::PdmObject& ripsObject );
-    static caf::PdmObject* findCafObjectFromScriptNameAndAddress( const QString& scriptClassName, uint64_t address );
 };
