@@ -341,7 +341,7 @@ grpc::Status RiaNNCInputValuesStateHandler::init( const NNCValuesInputRequest* r
         m_timeStep           = request->time_step();
         m_propertyName       = QString::fromStdString( request->property_name() );
 
-        RigNNCData*          nncData      = m_eclipseCase->eclipseCaseData()->mainGrid()->nncData();
+        RigNNCData* nncData = m_eclipseCase->eclipseCaseData()->mainGrid()->nncData();
         std::vector<double>* resultsToAdd = getOrCreateConnectionScalarResultByName( nncData, m_propertyName, m_timeStep );
         if ( !resultsToAdd )
         {
