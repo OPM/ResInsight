@@ -74,4 +74,4 @@ public:
 };
 
 #include "cafFactory.h"
-typedef caf::Factory<RiaGrpcServiceInterface, size_t> RiaGrpcServiceFactory;
+using RiaGrpcServiceFactory = caf::Factory<RiaGrpcServiceInterface, size_t>;

@@ -43,7 +43,7 @@ class RiuEclipseSelectionItem;
 //==================================================================================================
 class RiaActiveCellInfoStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaActiveCellInfoStateHandler();
@@ -84,7 +84,7 @@ protected:
 //==================================================================================================
 class RiaSelectedCellsStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaSelectedCellsStateHandler();

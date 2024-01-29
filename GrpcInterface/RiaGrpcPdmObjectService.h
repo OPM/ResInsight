@@ -47,7 +47,7 @@ struct AbstractDataHolder
 //==================================================================================================
 class RiaPdmObjectMethodStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaPdmObjectMethodStateHandler( bool clientToServerStreamer = false );

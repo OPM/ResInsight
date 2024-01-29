@@ -34,7 +34,7 @@ class RimEclipseCase;
 //==================================================================================================
 class RiaNNCConnectionsStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaNNCConnectionsStateHandler();
@@ -54,7 +54,7 @@ protected:
 //==================================================================================================
 class RiaNNCValuesStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaNNCValuesStateHandler();
@@ -76,7 +76,7 @@ protected:
 class RiaNNCInputValuesStateHandler
 {
 public:
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaNNCInputValuesStateHandler( bool t = true );
