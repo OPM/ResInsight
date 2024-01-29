@@ -43,7 +43,7 @@ class RiuEclipseSelectionItem;
 //==================================================================================================
 class RiaActiveCellInfoStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaActiveCellInfoStateHandler();
@@ -84,7 +84,7 @@ protected:
 //==================================================================================================
 class RiaSelectedCellsStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     RiaSelectedCellsStateHandler();
@@ -109,7 +109,7 @@ class RiaGrpcCaseService final : public rips::Case::AsyncService, public RiaGrpc
 {
 public:
     grpc::Status
-                 GetGridCount( grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridCount* reply ) override;
+        GetGridCount( grpc::ServerContext* context, const rips::CaseRequest* request, rips::GridCount* reply ) override;
     grpc::Status GetCellCount( grpc::ServerContext*         context,
                                const rips::CellInfoRequest* request,
                                rips::CellCount*             reply ) override;
@@ -121,7 +121,7 @@ public:
                                     rips::DaysSinceStart*    reply ) override;
     grpc::Status GetCaseInfo( grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply ) override;
     grpc::Status
-                 GetPdmObject( grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply ) override;
+        GetPdmObject( grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply ) override;
     grpc::Status GetCellInfoForActiveCells( grpc::ServerContext*           context,
                                             const rips::CellInfoRequest*   request,
                                             rips::CellInfoArray*           reply,

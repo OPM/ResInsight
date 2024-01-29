@@ -81,7 +81,7 @@ class RiaGrpcServiceCallback : public RiaGrpcCallbackInterface
 {
 public:
     RiaGrpcServiceCallback( ServiceT* service );
-    ~RiaGrpcServiceCallback();
+    ~RiaGrpcServiceCallback() override;
 
     QString         name() const override;
     const RequestT& request() const;
@@ -125,7 +125,7 @@ public:
     void                      onProcessRequest() override;
 
 protected:
-    virtual QString methodType() const override;
+    QString methodType() const override;
 
 private:
     ServerContext   m_context;
@@ -165,7 +165,7 @@ public:
     void                      onProcessRequest() override;
 
 protected:
-    virtual QString methodType() const override;
+    QString methodType() const override;
 
 private:
     ServerContext                  m_context;
@@ -209,7 +209,7 @@ public:
     void                      onFinishRequest() override;
 
 protected:
-    virtual QString methodType() const override;
+    QString methodType() const override;
 
 private:
     ServerContext                  m_context;

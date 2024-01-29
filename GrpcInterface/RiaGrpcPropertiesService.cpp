@@ -53,7 +53,7 @@ using namespace rips;
 
 class RiaCellResultsStateHandler
 {
-    typedef grpc::Status Status;
+    using Status = grpc::Status;
 
 public:
     //--------------------------------------------------------------------------------------------------
