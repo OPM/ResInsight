@@ -1291,6 +1291,8 @@ std::vector<QString> RimWellConnectivityTable::getViewFilteredWellNamesFromFilte
         const auto productionWellResultFrame = wellResult->staticWellResultFrame();
         for ( const auto& resultPoint : productionWellResultFrame->allResultPoints() )
         {
+            if ( !resultPoint.isCell() ) continue;
+
             if ( cellIdxCalc.isCellVisible( resultPoint.gridIndex(), resultPoint.cellIndex() ) )
             {
                 productionWells.push_back( wellResult->m_wellName );
