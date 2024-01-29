@@ -42,7 +42,7 @@ public:
     grpc::Status
         GetSelectedCases( grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply ) override;
     grpc::Status
-                 GetAllCaseGroups( grpc::ServerContext* context, const rips::Empty* request, rips::CaseGroups* reply ) override;
+        GetAllCaseGroups( grpc::ServerContext* context, const rips::Empty* request, rips::CaseGroups* reply ) override;
     grpc::Status GetAllCases( grpc::ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply ) override;
     grpc::Status GetCasesInGroup( grpc::ServerContext*   context,
                                   const rips::CaseGroup* request,
