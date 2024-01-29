@@ -326,6 +326,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "FGIMR", { A::SUMMARY_FIELD, "Gas Import Rate, at and below this group" } } );
     info.insert( { "FGIMT", { A::SUMMARY_FIELD, "Gas Import Total, at and below this group" } } );
     info.insert( { "FGLIR", { A::SUMMARY_FIELD, "Gas Lift Injection Rate" } } );
+    info.insert( { "FGLIT", { A::SUMMARY_FIELD, "Gas Lift Injection Total" } } );
     info.insert( { "FWGPR", { A::SUMMARY_FIELD, "Wet Gas Production Rate" } } );
     info.insert( { "FWGPT", { A::SUMMARY_FIELD, "Wet Gas Production Total" } } );
     info.insert( { "FWGPRH", { A::SUMMARY_FIELD, "Wet Gas Production Rate History" } } );
@@ -796,6 +797,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "GGIMR", { A::SUMMARY_GROUP, "Gas Import Rate, at and below this group" } } );
     info.insert( { "GGIMT", { A::SUMMARY_GROUP, "Gas Import Total, at and below this group" } } );
     info.insert( { "GGLIR", { A::SUMMARY_GROUP, "Gas Lift Injection Rate" } } );
+    info.insert( { "GGLIT", { A::SUMMARY_GROUP, "Gas Lift Injection Total" } } );
     info.insert( { "GWGPR", { A::SUMMARY_GROUP, "Wet Gas Production Rate" } } );
     info.insert( { "GWGPT", { A::SUMMARY_GROUP, "Wet Gas Production Total" } } );
     info.insert( { "GWGPRH", { A::SUMMARY_GROUP, "Wet Gas Production Rate History" } } );
@@ -1216,6 +1218,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "WGPGR", { A::SUMMARY_WELL, "Gas Production Guide Rate" } } );
     info.insert( { "WGIGR", { A::SUMMARY_WELL, "Gas Injection Guide Rate" } } );
     info.insert( { "WGLIR", { A::SUMMARY_WELL, "Gas Lift Injection Rate" } } );
+    info.insert( { "WGLIT", { A::SUMMARY_WELL, "Gas Lift Injection Total" } } );
     info.insert( { "WWGPR", { A::SUMMARY_WELL, "Wet Gas Production Rate" } } );
     info.insert( { "WWGPT", { A::SUMMARY_WELL, "Wet Gas Production Total" } } );
     info.insert( { "WWGPRH", { A::SUMMARY_WELL, "Wet Gas Production Rate History" } } );
