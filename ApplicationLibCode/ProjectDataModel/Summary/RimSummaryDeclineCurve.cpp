@@ -328,12 +328,13 @@ void RimSummaryDeclineCurve::updateExpressionText()
 
     std::vector<std::vector<QString>> text;
 
-    for ( auto [key, value] : parameters )
+    for ( auto [key, unit, value] : parameters )
     {
         auto keyString   = QString::fromStdString( key );
+        auto unitString  = QString::fromStdString( unit );
         auto valueString = QString::number( value );
 
-        text.push_back( { keyString, valueString } );
+        text.push_back( { keyString, unitString, valueString } );
     }
 
     QString htmlTable = RiaTextStringTools::createHtmlTable( text );
@@ -344,11 +345,11 @@ void RimSummaryDeclineCurve::updateExpressionText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<std::string, double>> RimSummaryDeclineCurve::curveParameters( const std::vector<double>& values,
-                                                                                     const std::vector<time_t>& timeSteps,
-                                                                                     time_t                     minTimeStep,
-                                                                                     time_t                     maxTimeStep,
-                                                                                     bool                       isAccumulatedResult ) const
+std::vector<std::tuple<std::string, std::string, double>> RimSummaryDeclineCurve::curveParameters( const std::vector<double>& values,
+                                                                                                   const std::vector<time_t>& timeSteps,
+                                                                                                   time_t                     minTimeStep,
+                                                                                                   time_t                     maxTimeStep,
+                                                                                                   bool isAccumulatedResult ) const
 {
     if ( values.empty() || timeSteps.empty() ) return {};
 
@@ -357,18 +358,20 @@ std::vector<std::pair<std::string, double>> RimSummaryDeclineCurve::curveParamet
 
     if ( timeStepsInRange.empty() || valuesInRange.empty() ) return {};
 
-    auto [initialProductionRate, initialDeclineRate] =
+    auto [initialProductionRate, initialDeclineRatePerSecond] =
         computeInitialProductionAndDeclineRate( valuesInRange, timeStepsInRange, isAccumulatedResult );
-    if ( std::isinf( initialProductionRate ) || std::isnan( initialProductionRate ) || std::isinf( initialDeclineRate ) ||
-         std::isnan( initialDeclineRate ) )
+    if ( std::isinf( initialProductionRate ) || std::isnan( initialProductionRate ) || std::isinf( initialDeclineRatePerSecond ) ||
+         std::isnan( initialDeclineRatePerSecond ) )
     {
         return {};
     }
 
-    std::vector<std::pair<std::string, double>> parameters;
-    parameters.push_back( { "InitialProductionRate", initialProductionRate } );
-    parameters.push_back( { "InitialDeclineRate", initialDeclineRate } );
-    parameters.push_back( { "BFactor", m_hyperbolicDeclineConstant } );
+    auto initialDeclineRatePerYear = initialDeclineRatePerSecond * 60 * 24 * 365;
+
+    std::vector<std::tuple<std::string, std::string, double>> parameters;
+    parameters.push_back( { "Initial Production Rate", "SM3/STREAM DAY", initialProductionRate } );
+    parameters.push_back( { "Initial Decline Rate", "FRACTION 1/YEAR", initialDeclineRatePerYear } );
+    parameters.push_back( { "B Factor", "UNITLESS", m_hyperbolicDeclineConstant } );
 
     auto timeToExtractValues = timeStepsInRange.back();
 
@@ -428,13 +431,13 @@ std::vector<std::pair<std::string, double>> RimSummaryDeclineCurve::curveParamet
         auto [liquidVectorName, liquidRateValue] = computeValue( reader, adr, timeToExtractValues, "LPR" );
         if ( !liquidVectorName.empty() )
         {
-            parameters.push_back( { "LiquidRate (" + liquidVectorName + ")", liquidRateValue } );
+            parameters.push_back( { "LiquidRate (" + liquidVectorName + ")", "SM3/STREAM DAY", liquidRateValue } );
         }
 
         auto [gorVectorName, gorValue] = computeValue( reader, adr, timeToExtractValues, "GOR" );
         if ( !gorVectorName.empty() )
         {
-            parameters.push_back( { "Gas-Oil-Ratio (" + gorVectorName + ")", gorValue } );
+            parameters.push_back( { "Gas-Oil-Ratio (" + gorVectorName + ")", "SM3/SM3", gorValue } );
         }
     }
 
