@@ -112,6 +112,9 @@ std::list<QMdiSubWindow*> RiuMdiArea::subWindowListSortedByVerticalPosition()
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::tileWindowsHorizontally()
 {
+    // Make sure that all windows are windowed and not maximized
+    tileSubWindows();
+
     QPoint position( 0, 0 );
 
     for ( auto* window : subWindowListSortedByPosition() )
@@ -129,6 +132,9 @@ void RiuMdiArea::tileWindowsHorizontally()
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::tileWindowsVertically()
 {
+    // Make sure that all windows are windowed and not maximized
+    tileSubWindows();
+
     auto windowList = subWindowListSortedByVerticalPosition();
 
     QPoint position( 0, 0 );
