@@ -20,6 +20,7 @@
 
 #include "RiaQDateTimeTools.h"
 #include "RiaSummaryTools.h"
+#include "RiaTextStringTools.h"
 #include "RiaTimeTTools.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -319,30 +320,35 @@ void RimSummaryDeclineCurve::updateExpressionText()
 {
     auto [minTimeStep, maxTimeStep] = selectedTimeStepRange();
 
-    auto a = curveParameters( RimSummaryCurve::valuesY(),
-                              RimSummaryCurve::timeStepsY(),
-                              minTimeStep,
-                              maxTimeStep,
-                              RiaSummaryTools::hasAccumulatedData( summaryAddressY() ) );
+    auto parameters = curveParameters( RimSummaryCurve::valuesY(),
+                                       RimSummaryCurve::timeStepsY(),
+                                       minTimeStep,
+                                       maxTimeStep,
+                                       RiaSummaryTools::hasAccumulatedData( summaryAddressY() ) );
 
-    QString text;
+    std::vector<std::vector<QString>> text;
 
-    for ( auto [key, value] : a )
+    for ( auto [key, value] : parameters )
     {
-        text += QString( "%1 - %2\n" ).arg( QString::fromStdString( key ) ).arg( value );
+        auto keyString   = QString::fromStdString( key );
+        auto valueString = QString::number( value );
+
+        text.push_back( { keyString, valueString } );
     }
 
-    m_expressionText = text;
+    QString htmlTable = RiaTextStringTools::createHtmlTable( text );
+
+    m_expressionText = htmlTable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, double> RimSummaryDeclineCurve::curveParameters( const std::vector<double>& values,
-                                                                       const std::vector<time_t>& timeSteps,
-                                                                       time_t                     minTimeStep,
-                                                                       time_t                     maxTimeStep,
-                                                                       bool                       isAccumulatedResult ) const
+std::vector<std::pair<std::string, double>> RimSummaryDeclineCurve::curveParameters( const std::vector<double>& values,
+                                                                                     const std::vector<time_t>& timeSteps,
+                                                                                     time_t                     minTimeStep,
+                                                                                     time_t                     maxTimeStep,
+                                                                                     bool                       isAccumulatedResult ) const
 {
     if ( values.empty() || timeSteps.empty() ) return {};
 
@@ -359,10 +365,10 @@ std::map<std::string, double> RimSummaryDeclineCurve::curveParameters( const std
         return {};
     }
 
-    std::map<std::string, double> parameters;
-    parameters["InitialProductionRate"] = initialProductionRate;
-    parameters["InitialDeclineRate"]    = initialDeclineRate;
-    parameters["BFactor"]               = m_hyperbolicDeclineConstant;
+    std::vector<std::pair<std::string, double>> parameters;
+    parameters.push_back( { "InitialProductionRate", initialProductionRate } );
+    parameters.push_back( { "InitialDeclineRate", initialDeclineRate } );
+    parameters.push_back( { "BFactor", m_hyperbolicDeclineConstant } );
 
     auto timeToExtractValues = timeStepsInRange.back();
 
@@ -422,13 +428,13 @@ std::map<std::string, double> RimSummaryDeclineCurve::curveParameters( const std
         auto [liquidVectorName, liquidRateValue] = computeValue( reader, adr, timeToExtractValues, "LPR" );
         if ( !liquidVectorName.empty() )
         {
-            parameters["LiquidRate (" + liquidVectorName + ")"] = liquidRateValue;
+            parameters.push_back( { "LiquidRate (" + liquidVectorName + ")", liquidRateValue } );
         }
 
         auto [gorVectorName, gorValue] = computeValue( reader, adr, timeToExtractValues, "GOR" );
         if ( !gorVectorName.empty() )
         {
-            parameters["Gas-Oil-Ratio (" + gorVectorName + ")"] = gorValue;
+            parameters.push_back( { "Gas-Oil-Ratio (" + gorVectorName + ")", gorValue } );
         }
     }
 
@@ -555,6 +561,14 @@ void RimSummaryDeclineCurve::defineEditorAttribute( const caf::PdmFieldHandle* f
             myAttr->m_minimum     = 0;
             myAttr->m_maximum     = 100;
             myAttr->m_showSpinBox = false;
+        }
+    }
+
+    if ( field == &m_expressionText )
+    {
+        if ( auto* attr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute ) )
+        {
+            attr->textMode = caf::PdmUiTextEditorAttribute::HTML;
         }
     }
 }

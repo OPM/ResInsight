@@ -95,12 +95,12 @@ private:
     std::pair<time_t, time_t> fullTimeStepRange() const;
     std::pair<time_t, time_t> selectedTimeStepRange() const;
 
-    void                          updateExpressionText();
-    std::map<std::string, double> curveParameters( const std::vector<double>& values,
-                                                   const std::vector<time_t>& timeSteps,
-                                                   time_t                     minTimeStep,
-                                                   time_t                     maxTimeStep,
-                                                   bool                       isAccumulatedResult ) const;
+    void                                        updateExpressionText();
+    std::vector<std::pair<std::string, double>> curveParameters( const std::vector<double>& values,
+                                                                 const std::vector<time_t>& timeSteps,
+                                                                 time_t                     minTimeStep,
+                                                                 time_t                     maxTimeStep,
+                                                                 bool                       isAccumulatedResult ) const;
 
 private:
     caf::PdmField<caf::AppEnum<DeclineCurveType>> m_declineCurveType;
