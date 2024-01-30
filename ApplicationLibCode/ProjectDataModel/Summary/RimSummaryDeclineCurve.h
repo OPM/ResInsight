@@ -58,6 +58,7 @@ public:
 
 protected:
     void updateTimeAnnotations() override;
+    void onLoadDataAndUpdate( bool updateParentPlot ) override;
 
 private:
     QString createCurveAutoName() override;
@@ -94,10 +95,19 @@ private:
     std::pair<time_t, time_t> fullTimeStepRange() const;
     std::pair<time_t, time_t> selectedTimeStepRange() const;
 
+    void                          updateExpressionText();
+    std::map<std::string, double> curveParameters( const std::vector<double>& values,
+                                                   const std::vector<time_t>& timeSteps,
+                                                   time_t                     minTimeStep,
+                                                   time_t                     maxTimeStep,
+                                                   bool                       isAccumulatedResult ) const;
+
 private:
     caf::PdmField<caf::AppEnum<DeclineCurveType>> m_declineCurveType;
     caf::PdmField<int>                            m_predictionYears;
     caf::PdmField<double>                         m_hyperbolicDeclineConstant;
+
+    caf::PdmField<QString> m_expressionText;
 
     // Time step range defined in the range [0..100] as time_t can hold values that do not fit into int used by QSpinBox
     caf::PdmField<int> m_minTimeSliderPosition;
