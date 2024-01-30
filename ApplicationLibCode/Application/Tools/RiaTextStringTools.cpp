@@ -161,6 +161,30 @@ QString RiaTextStringTools::replaceTemplateTextWithValues( const QString& templa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaTextStringTools::createHtmlTable( const std::vector<std::vector<QString>>& tableCellContent )
+{
+    QString htmlTable;
+
+    htmlTable += "<table border=\"0\" cellpadding=\"5\" cellspacing=\"0\">\n";
+
+    for ( const auto& row : tableCellContent )
+    {
+        htmlTable += "<tr>\n";
+        for ( const auto& cell : row )
+        {
+            htmlTable += "<td>" + cell + "</td>\n";
+        }
+        htmlTable += "</tr>\n";
+    }
+
+    htmlTable += "</table>\n";
+
+    return htmlTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegExp& regExp )
 {
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )

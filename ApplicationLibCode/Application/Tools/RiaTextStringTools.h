@@ -39,6 +39,8 @@ QStringList splitSkipEmptyParts( const QString& text, const QRegExp& regExp );
 
 QString replaceTemplateTextWithValues( const QString& templateText, const std::map<QString, QString>& valueMap );
 
+QString createHtmlTable( const std::vector<std::vector<QString>>& tableCellContent );
+
 } // namespace RiaTextStringTools
 
 //--------------------------------------------------------------------------------------------------
