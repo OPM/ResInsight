@@ -1269,6 +1269,13 @@ void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
         if ( !identifierPath.empty() )
         {
             identifierPath.pop_back();
+
+            if ( !identifierPath.empty() && identifierPath.back().first == SummaryIdentifierType::INPUT_ID )
+            {
+                // If the last identifier is an id, remove it as we get two ids for calculated results. One entry for the input vector name
+                // and one for the calculation id
+                identifierPath.pop_back();
+            }
         }
     }
 }
