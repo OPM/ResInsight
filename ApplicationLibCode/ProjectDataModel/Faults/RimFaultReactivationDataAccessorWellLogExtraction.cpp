@@ -70,7 +70,17 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction:
 {
     // Fill in missing values
     fillInMissingValuesWithGradient( intersections, values, gradient );
-    return findValueAndPosition( intersections, values, position );
+    auto [value, extractionPosition] = findValueAndPosition( intersections, values, position );
+
+    double minDistance = computeMinimumDistance( position, intersections );
+    if ( minDistance < 1.0 )
+    {
+        return { value, extractionPosition };
+    }
+    else
+    {
+        return { value, cvf::Vec3d::UNDEFINED };
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

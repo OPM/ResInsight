@@ -77,7 +77,11 @@ private:
                                     const cvf::Vec3d&         position,
                                     const std::vector<float>& scalarResults ) const;
 
-    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d& position, double gradient, int timeStepIndex, int frameIndex ) const;
+    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d&              position,
+                                                   double                         gradient,
+                                                   RimFaultReactivation::GridPart gridPart,
+                                                   int                            timeStepIndex,
+                                                   int                            frameIndex ) const;
 
     RigFemScalarResultFrames* dataFrames( StressType stressType ) const;
 
@@ -86,12 +90,9 @@ private:
     RigFemScalarResultFrames* m_s11Frames;
     RigFemScalarResultFrames* m_s22Frames;
     RigFemScalarResultFrames* m_s33Frames;
+    RigFemScalarResultFrames* m_porBarFrames;
     const RigFemPart*         m_femPart;
 
-    cvf::ref<RigWellPath>                m_faceAWellPath;
-    cvf::ref<RigWellPath>                m_faceBWellPath;
-    int                                  m_partIndexA;
-    int                                  m_partIndexB;
-    cvf::ref<RigGeoMechWellLogExtractor> m_extractorA;
-    cvf::ref<RigGeoMechWellLogExtractor> m_extractorB;
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
+    std::map<RimFaultReactivation::GridPart, cvf::ref<RigGeoMechWellLogExtractor>> m_extractors;
 };
