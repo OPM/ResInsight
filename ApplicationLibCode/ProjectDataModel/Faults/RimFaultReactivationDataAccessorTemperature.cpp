@@ -111,6 +111,15 @@ double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::
 
         auto [value, pos] =
             RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( intersections, values, position, m_seabedTemperature );
+        if ( pos.isUndefined() )
+        {
+            auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
+            if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+            {
+                double tempFromEclipse = m_resultAccessor->cellScalar( cellIdx );
+                if ( !std::isinf( tempFromEclipse ) ) return tempFromEclipse;
+            }
+        }
 
         return value;
     }
