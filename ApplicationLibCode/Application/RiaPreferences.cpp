@@ -137,6 +137,7 @@ RiaPreferences::RiaPreferences()
     m_loggerFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_loggerFlushInterval, "loggerFlushInterval", 500, "Logging Flush Interval [ms]" );
+    CAF_PDM_InitField( &m_loggerTrapSignalAndFlush, "loggerTrapSignalAndFlush", false, "Trap SIGNAL and Flush File Logs" );
 
     CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -478,6 +479,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* loggingGroup = uiOrdering.addNewGroup( "Logging" );
         loggingGroup->add( &m_loggerFilename );
         loggingGroup->add( &m_loggerFlushInterval );
+        loggingGroup->add( &m_loggerTrapSignalAndFlush );
+        m_loggerTrapSignalAndFlush.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
         m_loggerFlushInterval.uiCapability()->setUiReadOnly( !m_loggerFilename().first );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
@@ -969,6 +972,14 @@ QString RiaPreferences::loggerFilename() const
 int RiaPreferences::loggerFlushInterval() const
 {
     return m_loggerFlushInterval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::loggerTrapSignalAndFlush() const
+{
+    return m_loggerTrapSignalAndFlush();
 }
 
 //--------------------------------------------------------------------------------------------------
