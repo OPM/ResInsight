@@ -40,6 +40,7 @@
 #include "RimGeoMechCase.h"
 #include "RimWellIADataAccess.h"
 
+#include "cvfGeometryTools.h"
 #include "cvfVector3.h"
 
 #include <cmath>
@@ -83,7 +84,17 @@ std::pair<double, cvf::Vec3d>
 {
     // Fill in missing values
     fillInMissingValuesWithTopValue( intersections, values, seabedTemperature );
-    return findValueAndPosition( intersections, values, position );
+    auto [value, extractionPosition] = findValueAndPosition( intersections, values, position );
+
+    double minDistance = computeMinimumDistance( position, intersections );
+    if ( minDistance < 1.0 )
+    {
+        return { value, extractionPosition };
+    }
+    else
+    {
+        return { value, cvf::Vec3d::UNDEFINED };
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -396,4 +407,23 @@ void RimFaultReactivationDataAccessorWellLogExtraction::insertOverburdenValues( 
     {
         values[i] = computeValueWithGradient( intersections, values, i, lastOverburdenIndex, -overburdenGradient );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationDataAccessorWellLogExtraction::computeMinimumDistance( const cvf::Vec3d&              position,
+                                                                                  const std::vector<cvf::Vec3d>& positions )
+{
+    double minDistance = std::numeric_limits<double>::max();
+    for ( size_t i = 1; i < positions.size(); i++ )
+    {
+        cvf::Vec3d point1 = positions[i - 1];
+        cvf::Vec3d point2 = positions[i - 0];
+
+        double candidateDistance = cvf::GeometryTools::linePointSquareDist( point1, point2, position );
+        minDistance              = std::min( candidateDistance, minDistance );
+    }
+
+    return std::sqrt( minDistance );
 }
