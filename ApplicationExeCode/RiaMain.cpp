@@ -18,6 +18,7 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaMainTools.h"
+#include "RiaPreferences.h"
 
 #ifdef ENABLE_GRPC
 #include "RiaGrpcConsoleApplication.h"
@@ -38,6 +39,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
+
+#include <signal.h>
+
+void manageSegFailure( int signalCode );
 
 RiaApplication* createApplication( int& argc, char* argv[] )
 {
@@ -108,6 +113,17 @@ int main( int argc, char* argv[] )
 
     QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
     setlocale( LC_NUMERIC, "C" );
+
+    // Set up signal handlers
+    if ( RiaPreferences::current()->loggerTrapSignalAndFlush() )
+    {
+        signal( SIGINT, manageSegFailure );
+        signal( SIGILL, manageSegFailure );
+        signal( SIGFPE, manageSegFailure );
+        signal( SIGSEGV, manageSegFailure );
+        signal( SIGTERM, manageSegFailure );
+        signal( SIGABRT, manageSegFailure );
+    }
 
     // Handle the command line arguments.
     // Todo: Move to a one-shot timer, delaying the execution until we are inside the event loop.
