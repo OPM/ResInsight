@@ -2850,24 +2850,12 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     {
         for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
         {
-            if ( curve->summaryAddressY().isCalculated() )
-            {
-                std::vector<RifEclipseSummaryAddress> calcAddresses;
-                RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(), sumCases, calcAddresses );
-                for ( const auto& adr : calcAddresses )
-                {
-                    addresses.emplace_back( adr );
-                }
-            }
-            else
-            {
-                addresses.push_back( curve->curveAddress() );
-                sumCases.push_back( curve->summaryCaseY() );
+            addresses.push_back( curve->curveAddress() );
+            sumCases.push_back( curve->summaryCaseY() );
 
-                if ( curve->summaryCaseX() )
-                {
-                    sumCases.push_back( curve->summaryCaseX() );
-                }
+            if ( curve->summaryCaseX() )
+            {
+                sumCases.push_back( curve->summaryCaseX() );
             }
         }
     }
