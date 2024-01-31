@@ -114,6 +114,16 @@ double RimFaultReactivationDataAccessorPorePressure::valueAtPosition( const cvf:
 
         auto [value, pos] =
             RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( intersections, values, position, m_defaultPorePressureGradient );
+        if ( pos.isUndefined() )
+        {
+            auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
+            if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+            {
+                double valueFromEclipse = m_resultAccessor->cellScalar( cellIdx );
+                if ( !std::isinf( valueFromEclipse ) ) return RiaEclipseUnitTools::barToPascal( valueFromEclipse );
+            }
+        }
+
         return RiaEclipseUnitTools::barToPascal( value );
     }
 

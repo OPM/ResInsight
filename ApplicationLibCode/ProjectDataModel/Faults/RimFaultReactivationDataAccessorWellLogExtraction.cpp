@@ -64,13 +64,23 @@ RimFaultReactivationDataAccessorWellLogExtraction::~RimFaultReactivationDataAcce
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                  std::vector<double>& values,
-                                                                                                  const cvf::Vec3d&    position,
-                                                                                                  double               gradient )
+                                                                                                  std::vector<double>&           values,
+                                                                                                  const cvf::Vec3d&              position,
+                                                                                                  double                         gradient )
 {
     // Fill in missing values
     fillInMissingValuesWithGradient( intersections, values, gradient );
-    return findValueAndPosition( intersections, values, position );
+    auto [value, extractionPosition] = findValueAndPosition( intersections, values, position );
+
+    double minDistance = computeMinimumDistance( position, intersections );
+    if ( minDistance < 1.0 )
+    {
+        return { value, extractionPosition };
+    }
+    else
+    {
+        return { value, cvf::Vec3d::UNDEFINED };
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

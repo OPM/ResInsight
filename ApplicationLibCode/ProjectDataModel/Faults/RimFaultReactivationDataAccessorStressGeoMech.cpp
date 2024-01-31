@@ -88,6 +88,7 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
     m_s33Frames       = loadFrameLambda( femParts, getResultAddress( "ST", "S33" ), timeStepIndex );
     m_s11Frames       = loadFrameLambda( femParts, getResultAddress( "ST", "S11" ), timeStepIndex );
     m_s22Frames       = loadFrameLambda( femParts, getResultAddress( "ST", "S22" ), timeStepIndex );
+    m_porBarFrames    = loadFrameLambda( femParts, RigFemAddressDefines::nodalPorBarAddress(), timeStepIndex );
 
     auto [faultTopPosition, faultBottomPosition] = m_model->faultTopBottom();
     auto faultNormal                             = m_model->modelNormal() ^ cvf::Vec3d::Z_AXIS;
@@ -96,31 +97,27 @@ void RimFaultReactivationDataAccessorStressGeoMech::updateResultAccessor()
     double distanceFromFault     = 1.0;
     auto [topDepth, bottomDepth] = m_model->depthTopBottom();
 
-    RigFemPartCollection* geoMechPartCollection = m_geoMechCaseData->femParts();
-    std::string           errorName             = "fault reactivation data access";
+    std::string errorName = "fault reactivation data access";
 
+    for ( auto gridPart : m_model->allGridParts() )
     {
+        double                  sign = m_model->normalPointsAt() == gridPart ? -1.0 : 1.0;
         std::vector<cvf::Vec3d> wellPoints =
             RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
                                                                                    faultBottomPosition,
                                                                                    m_seabedDepth,
                                                                                    bottomDepth,
-                                                                                   faultNormal * distanceFromFault );
-        m_faceAWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
-        m_partIndexA    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
-        m_extractorA    = new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, m_faceAWellPath.p(), errorName );
-    }
+                                                                                   sign * faultNormal * distanceFromFault );
 
-    {
-        std::vector<cvf::Vec3d> wellPoints =
-            RimFaultReactivationDataAccessorWellLogExtraction::generateWellPoints( faultTopPosition,
-                                                                                   faultBottomPosition,
-                                                                                   m_seabedDepth,
-                                                                                   bottomDepth,
-                                                                                   -faultNormal * distanceFromFault );
-        m_faceBWellPath = new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
-        m_partIndexB    = geoMechPartCollection->getPartIndexFromPoint( wellPoints[1] );
-        m_extractorB    = new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, m_faceBWellPath.p(), errorName );
+        cvf::ref<RigWellPath> wellPath =
+            new RigWellPath( wellPoints, RimFaultReactivationDataAccessorWellLogExtraction::generateMds( wellPoints ) );
+        m_wellPaths[gridPart] = wellPath;
+
+        std::string                          errorName = "fault reactivation data access";
+        cvf::ref<RigGeoMechWellLogExtractor> extractor =
+            new RigGeoMechWellLogExtractor( m_geoMechCaseData, partIndex, wellPath.p(), errorName );
+
+        m_extractors[gridPart] = extractor;
     }
 }
 
@@ -138,7 +135,7 @@ RigFemResultAddress RimFaultReactivationDataAccessorStressGeoMech::getResultAddr
 //--------------------------------------------------------------------------------------------------
 bool RimFaultReactivationDataAccessorStressGeoMech::isDataAvailable() const
 {
-    return m_s11Frames && m_s22Frames && m_s33Frames && m_femPart;
+    return m_s11Frames && m_s22Frames && m_s33Frames && m_porBarFrames && m_femPart;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,13 +174,13 @@ RigFemScalarResultFrames* RimFaultReactivationDataAccessorStressGeoMech::dataFra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d& position,
-                                                                                              double            gradient,
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d&              position,
+                                                                                              double                         gradient,
                                                                                               RimFaultReactivation::GridPart gridPart ) const
 {
     int timeStepIndex = 0;
     int frameIndex    = m_s33Frames->frameCount( timeStepIndex ) - 1;
-    return calculatePorBar( position, m_gradient, timeStepIndex, frameIndex );
+    return calculatePorBar( position, m_gradient, gridPart, timeStepIndex, frameIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,14 +212,15 @@ double RimFaultReactivationDataAccessorStressGeoMech::interpolatedResultValue( R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d& position,
-                                                                                              double            gradient,
-                                                                                              int               timeStepIndex,
-                                                                                              int               frameIndex ) const
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d&              position,
+                                                                                              double                         gradient,
+                                                                                              RimFaultReactivation::GridPart gridPart,
+                                                                                              int                            timeStepIndex,
+                                                                                              int frameIndex ) const
 {
-    RigFemPartCollection*                partCollection = m_geoMechCaseData->femParts();
-    cvf::ref<RigGeoMechWellLogExtractor> extractor      = m_partIndexA == partCollection->getPartIndexFromPoint( position ) ? m_extractorA
-                                                                                                                            : m_extractorB;
+    CAF_ASSERT( m_extractors.find( gridPart ) != m_extractors.end() );
+    auto extractor = m_extractors.find( gridPart )->second;
+
     if ( !extractor->valid() )
     {
         RiaLogging::error( "Invalid extractor when extracting PorBar" );
@@ -233,5 +231,28 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::cal
     std::vector<double> values;
     extractor->curveData( resAddr, timeStepIndex, frameIndex, &values );
 
-    return RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( extractor->intersections(), values, position, gradient );
+    auto [value, extractionPos] =
+        RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( extractor->intersections(), values, position, gradient );
+
+    if ( extractionPos.isUndefined() )
+    {
+        // If extraction position is not defined the position is not close to the border between the two parts.
+        // This means it should be safe to use POR-BAR from the model.
+        const std::vector<float>& frameData = m_porBarFrames->frameData( timeStepIndex, frameIndex );
+
+        // Use data from geo mech grid if defined (only position is reservoir).
+        RimWellIADataAccess iaDataAccess( m_geoMechCase );
+        double              gridValue = iaDataAccess.interpolatedResultValue( m_femPart, frameData, RIG_NODAL, position );
+        if ( !std::isinf( gridValue ) )
+        {
+            return { gridValue, position };
+        }
+
+        // Use calculated value when POR-BAR is inf (outside of reservoir).
+        return { value, position };
+    }
+    else
+    {
+        return { value, extractionPos };
+    }
 }
