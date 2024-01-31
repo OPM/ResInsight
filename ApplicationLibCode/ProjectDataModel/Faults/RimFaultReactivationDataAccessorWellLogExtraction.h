@@ -80,12 +80,13 @@ protected:
     static double              computeGradient( double depth1, double value1, double depth2, double value2 );
     static std::vector<double> extractDepthValues( const std::vector<cvf::Vec3d>& intersections );
 
-    static void insertUnderburdenValues( const std::vector<cvf::Vec3d>& intersections,
-                                         std::vector<double>&           values,
-                                         int                            firstUnderburdenIndex,
-                                         double                         bottomValue );
-    static void insertOverburdenValues( const std::vector<cvf::Vec3d>& intersections,
-                                        std::vector<double>&           values,
-                                        int                            lastOverburdenIndex,
-                                        double                         topValue );
+    static void   insertUnderburdenValues( const std::vector<cvf::Vec3d>& intersections,
+                                           std::vector<double>&           values,
+                                           int                            firstUnderburdenIndex,
+                                           double                         bottomValue );
+    static void   insertOverburdenValues( const std::vector<cvf::Vec3d>& intersections,
+                                          std::vector<double>&           values,
+                                          int                            lastOverburdenIndex,
+                                          double                         topValue );
+    static double computeMinimumDistance( const cvf::Vec3d& position, const std::vector<cvf::Vec3d>& positions );
 };
