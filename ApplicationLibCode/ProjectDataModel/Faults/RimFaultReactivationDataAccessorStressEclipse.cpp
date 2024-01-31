@@ -28,6 +28,7 @@
 #include "RigEclipseWellLogExtractor.h"
 #include "RigFaultReactivationModel.h"
 #include "RigGriddedPart3d.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 #include "RigWellPath.h"
 
@@ -176,7 +177,7 @@ bool RimFaultReactivationDataAccessorStressEclipse::isPositionValid( const cvf::
                                                                      RimFaultReactivation::GridPart gridPart ) const
 {
     auto [porBar, extractionPosition] = calculatePorBar( position, m_gradient, gridPart );
-    return !std::isinf( porBar ) && extractionPosition != cvf::Vec3d::UNDEFINED;
+    return !std::isinf( porBar );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,8 +198,20 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::cal
         auto [values, intersections] =
             RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
-        auto [value, pos] = RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( intersections, values, position, m_gradient );
-        return { value, pos };
+        auto [value, extractionPos] =
+            RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( intersections, values, position, m_gradient );
+        if ( extractionPos.isUndefined() )
+        {
+            auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
+            if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+            {
+                double valueFromEclipse = m_resultAccessor->cellScalar( cellIdx );
+                if ( !std::isinf( valueFromEclipse ) ) return { valueFromEclipse, position };
+            }
+            return { value, position };
+        }
+
+        return { value, extractionPos };
     }
 
     return { std::numeric_limits<double>::infinity(), cvf::Vec3d::UNDEFINED };
