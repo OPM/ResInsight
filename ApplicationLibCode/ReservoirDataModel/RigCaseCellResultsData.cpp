@@ -2779,6 +2779,13 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
 {
     m_activeFormationNamesData = activeFormationNames;
 
+    if ( !activeFormationNames )
+    {
+        clearScalarResult(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES, RiaResultNames::activeFormationNamesResultName() ) );
+        return;
+    }
+
     size_t totalGlobCellCount = m_ownerMainGrid->globalCellArray().size();
     addStaticScalarResult( RiaDefines::ResultCatType::FORMATION_NAMES, RiaResultNames::activeFormationNamesResultName(), false, totalGlobCellCount );
 
