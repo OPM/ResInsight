@@ -122,6 +122,7 @@ public:
     void ensureFaultDataIsComputed();
     bool ensureNncDataIsComputed();
     void createDisplayModelAndUpdateAllViews();
+    void computeActiveCellsBoundingBox();
 
     void setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings );
 

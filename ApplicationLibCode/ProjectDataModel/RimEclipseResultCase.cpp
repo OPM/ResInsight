@@ -318,7 +318,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
     CVF_ASSERT( eclipseCaseData() );
     CVF_ASSERT( readerInterface.notNull() );
 
-    eclipseCaseData()->computeActiveCellBoundingBoxes();
+    computeActiveCellsBoundingBox();
 
     m_activeCellInfoIsReadFromFile = true;
 

@@ -247,7 +247,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         if ( i == 0 )
         {
-            rimReservoir->eclipseCaseData()->computeActiveCellBoundingBoxes();
+            rimReservoir->computeActiveCellsBoundingBox();
         }
     }
 }
@@ -375,7 +375,7 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 
             if ( i == 0 )
             {
-                rimStaticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
+                rimStaticsCase->computeActiveCellsBoundingBox();
             }
         }
     }
@@ -432,7 +432,7 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createStatisticsCase( bool 
     if ( selectDefaultResults ) newStatisticsCase->populateResultSelectionAfterLoadingGrid();
 
     newStatisticsCase->openEclipseGridFile();
-    newStatisticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
+    newStatisticsCase->computeActiveCellsBoundingBox();
     newStatisticsCase->selectAllTimeSteps();
 
     return newStatisticsCase;

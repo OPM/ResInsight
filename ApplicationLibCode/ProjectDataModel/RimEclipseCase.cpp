@@ -626,7 +626,7 @@ void RimEclipseCase::computeCachedData()
 
         {
             auto task = pInf.task( "", 1 );
-            rigEclipseCase->computeActiveCellBoundingBoxes();
+            computeActiveCellsBoundingBox();
         }
 
         {
@@ -769,6 +769,26 @@ void RimEclipseCase::createDisplayModelAndUpdateAllViews()
 
         v->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::computeActiveCellsBoundingBox()
+{
+    if ( !eclipseCaseData() ) return;
+
+    bool useOptimizedVersion = true;
+
+    if ( auto proj = RimProject::current() )
+    {
+        if ( proj->isProjectFileVersionEqualOrOlderThan( "2023.12.0" ) )
+        {
+            useOptimizedVersion = false;
+        }
+    }
+
+    eclipseCaseData()->computeActiveCellBoundingBoxes( useOptimizedVersion );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -322,7 +322,7 @@ void RicCreateTemporaryLgrFeature::computeCachedData( RimEclipseCase* eclipseCas
         if ( eclipseCaseData )
         {
             eclipseCaseData->mainGrid()->computeCachedData();
-            eclipseCaseData->computeActiveCellBoundingBoxes();
+            eclipseCase->computeActiveCellsBoundingBox();
         }
 
         if ( cellResultsDataMatrix )

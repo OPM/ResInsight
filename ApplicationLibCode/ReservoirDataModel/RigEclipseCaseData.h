@@ -103,7 +103,7 @@ public:
                                          const RigWellResultPoint&           sourceWellCellResult,
                                          const RigWellResultPoint&           otherWellCellResult ) const;
 
-    void computeActiveCellBoundingBoxes();
+    void computeActiveCellBoundingBoxes( bool useOptimizedVersion );
 
     RiaDefines::EclipseUnitSystem unitsType() const { return m_unitsType; }
     void                          setUnitsType( RiaDefines::EclipseUnitSystem unitsType ) { m_unitsType = unitsType; }
@@ -126,7 +126,8 @@ public:
 private:
     void computeActiveCellIJKBBox();
     void computeWellCellsPrGrid();
-    void computeActiveCellsGeometryBoundingBox();
+    void computeActiveCellsGeometryBoundingBoxSlow();
+    void computeActiveCellsGeometryBoundingBoxOptimized();
 
     const RigFormationNames* activeFormationNames() const;
 

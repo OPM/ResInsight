@@ -159,7 +159,8 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
     activeCellInfo->setGridActiveCellCounts( 0, eclipseCase->mainGrid()->globalCellArray().size() );
     activeCellInfo->computeDerivedData();
 
-    eclipseCase->computeActiveCellBoundingBoxes();
+    bool useOptimizedVersion = true;
+    eclipseCase->computeActiveCellBoundingBoxes( useOptimizedVersion );
 }
 
 //--------------------------------------------------------------------------------------------------
