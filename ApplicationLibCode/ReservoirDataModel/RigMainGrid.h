@@ -118,6 +118,7 @@ private:
     void buildCellSearchTree();
     void buildCellSearchTreeOptimized( size_t cellsPerBoundingBox );
     bool hasFaultWithName( const QString& name ) const;
+    void computeBoundingBox();
 
     static std::array<double, 6> defaultMapAxes();
 
@@ -133,7 +134,7 @@ private:
 
     cvf::Vec3d                     m_displayModelOffset;
     cvf::ref<cvf::BoundingBoxTree> m_cellSearchTree;
-    mutable cvf::BoundingBox       m_boundingBox;
+    cvf::BoundingBox               m_boundingBox;
 
     bool m_flipXAxis;
     bool m_flipYAxis;
