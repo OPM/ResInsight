@@ -2,6 +2,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCell.h
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseData.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseDataTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridManager.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.h
@@ -103,6 +104,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseDataTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridManager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.cpp
