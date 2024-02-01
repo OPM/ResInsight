@@ -17,10 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimNamedObject.h"
+#include "RimPolygonInterface.h"
+
+#include "cafPdmFieldCvfVec3d.h"
+
 #include "cvfVector3.h"
 
-class RimPolygon : public RimNamedObject
+class RimPolygon : public RimPolygonInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -33,5 +36,5 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmField<std::vector<cvf::Vec3d>> m_individualCellIndices;
+    caf::PdmField<std::vector<cvf::Vec3d>> m_pointsInDomainCoords;
 };
