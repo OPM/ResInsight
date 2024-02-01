@@ -625,11 +625,9 @@ void RimEclipseCase::computeCachedData()
         caf::ProgressInfo pInf( 30, "" );
 
         {
-            auto task = pInf.task( "", 1 );
-            computeActiveCellsBoundingBox();
-        }
+            // NB! Call computeCachedData() first, as this function also computes the bounding box used in other functions, specifically
+            // computeActiveCellsBoundingBox()
 
-        {
             auto task = pInf.task( "Calculating Cell Search Tree", 10 );
 
             std::string aabbTreeInfo;
@@ -637,6 +635,11 @@ void RimEclipseCase::computeCachedData()
 
             // Debug output of the content of the AABB tree
             // RiaLogging::debug( QString::fromStdString( aabbTreeInfo ) );
+        }
+
+        {
+            auto task = pInf.task( "", 1 );
+            computeActiveCellsBoundingBox();
         }
 
         {
