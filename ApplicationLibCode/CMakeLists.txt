@@ -140,6 +140,7 @@ list(
   ProjectDataModel/Intersections/CMakeLists_files.cmake
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
   ProjectDataModel/ProcessControl/CMakeLists_files.cmake
+  ProjectDataModel/Polygons/CMakeLists_files.cmake
   ProjectDataModel/WellLog/CMakeLists_files.cmake
   ProjectDataModel/WellMeasurement/CMakeLists_files.cmake
   ProjectDataModel/WellPath/CMakeLists_files.cmake
