@@ -40,6 +40,8 @@
 #include "RicfCommandObject.h"
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
+#include "Polygons/RimPolygonCollection.h"
+
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -548,6 +550,8 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         {
             seismicData->ensureFileReaderIsInitialized();
         }
+
+        oilField->polygonCollection()->loadData();
     }
 
     {

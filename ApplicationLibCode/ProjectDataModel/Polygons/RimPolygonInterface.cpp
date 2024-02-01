@@ -16,37 +16,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimPolygon.h"
+#include "RimPolygonInterface.h"
 
-CAF_PDM_SOURCE_INIT( RimPolygon, "RimPolygon" );
+CAF_PDM_SOURCE_INIT( RimPolygonInterface, "RimPolygonInterfaceInterface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygon::RimPolygon()
+RimPolygonInterface::RimPolygonInterface()
 {
-    CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
-
-    CAF_PDM_InitFieldNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Points" );
+    CAF_PDM_InitObject( "PolygonInterface", ":/PolylinesFromFile16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygon::~RimPolygon()
+RimPolygonInterface::~RimPolygonInterface()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+void RimPolygonInterface::loadData()
 {
 }
