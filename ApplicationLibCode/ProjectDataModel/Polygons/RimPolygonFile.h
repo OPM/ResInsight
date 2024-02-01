@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,32 +15,34 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimPolygonInterface.h"
 
-class RimPolygonInterface;
+#include "cafFilePath.h"
+#include "cafPdmChildField.h"
 
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimPolygonCollection : public caf::PdmObject
+class RimPolygonCollection;
+
+class RimPolygonFile : public RimPolygonInterface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimPolygonCollection();
-    ~RimPolygonCollection() override;
+    RimPolygonFile();
+    ~RimPolygonFile() override;
 
-    void loadData();
-    void addPolygon( RimPolygonInterface* polygon );
-    void deletePolygons();
+    void loadData() override;
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmChildArrayField<RimPolygonInterface*> m_polygons;
+    void loadPolygonsFromFile();
+
+private:
+    caf::PdmField<caf::FilePath> m_stimPlanFileName;
+
+    caf::PdmChildField<RimPolygonCollection*> m_polygons;
 };

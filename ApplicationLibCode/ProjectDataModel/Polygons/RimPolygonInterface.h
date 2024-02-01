@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,32 +15,18 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimNamedObject.h"
+#include "cvfVector3.h"
 
-class RimPolygonInterface;
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimPolygonCollection : public caf::PdmObject
+class RimPolygonInterface : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimPolygonCollection();
-    ~RimPolygonCollection() override;
+    RimPolygonInterface();
+    ~RimPolygonInterface() override;
 
-    void loadData();
-    void addPolygon( RimPolygonInterface* polygon );
-    void deletePolygons();
-
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
-
-private:
-    caf::PdmChildArrayField<RimPolygonInterface*> m_polygons;
+    virtual void loadData();
 };
