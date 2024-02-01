@@ -19,10 +19,12 @@
 #include "RimWellAllocationPlot.h"
 
 #include "RiaNumericalTools.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseCaseDataTools.h"
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigSimWellData.h"
@@ -95,7 +97,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_timeStep, "PlotTimeStep", 0, "Time Step" );
-    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
+    CAF_PDM_InitField( &m_wellName, "WellName", RiaDefines::selectionTextNone(), "Well" );
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Plot Type" );
     CAF_PDM_InitFieldNoDefault( &m_flowType, "FlowType", "Flow Type" );
     CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
@@ -216,6 +218,57 @@ void RimWellAllocationPlot::deleteViewWidget()
         m_wellAllocationPlotWidget->setParent( nullptr );
         delete m_wellAllocationPlotWidget;
         m_wellAllocationPlotWidget = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::setCase( RimEclipseResultCase* eclipseCase )
+{
+    bool emptyPreviousCase = !m_case;
+
+    m_case = eclipseCase;
+
+    if ( m_case )
+    {
+        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+    }
+    else
+    {
+        m_flowDiagSolution = nullptr;
+        m_timeStep         = 0;
+    }
+
+    if ( !m_case )
+        m_timeStep = 0;
+    else
+    {
+        if ( emptyPreviousCase )
+        {
+            m_timeStep = (int)( m_case->timeStepDates().size() - 1 );
+        }
+
+        m_timeStep = std::min( m_timeStep(), ( (int)m_case->timeStepDates().size() ) - 1 );
+    }
+
+    if ( m_wellName().isEmpty() || m_wellName() == RiaDefines::selectionTextNone() )
+    {
+        auto firstProducer = RigEclipseCaseDataTools::firstProducer( m_case->eclipseCaseData() );
+        if ( !firstProducer.isEmpty() )
+        {
+            m_wellName = firstProducer;
+        }
+        else
+        {
+            std::set<QString> sortedWellNames = findSortedWellNames();
+            if ( sortedWellNames.empty() )
+                m_wellName = RiaDefines::selectionTextNone();
+            else if ( sortedWellNames.count( m_wellName() ) == 0 )
+            {
+                m_wellName = *sortedWellNames.begin();
+            }
+        }
     }
 }
 
@@ -732,36 +785,26 @@ void RimWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
+    if ( changedField == &m_showWindow )
+    {
+        if ( !m_case )
+        {
+            auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+            if ( !resultCases.empty() )
+            {
+                setCase( resultCases.front() );
+                onLoadDataAndUpdate();
+            }
+        }
+    }
+
     if ( changedField == &m_userName || changedField == &m_showPlotTitle )
     {
         updateWidgetTitleWindowTitle();
     }
     else if ( changedField == &m_case )
     {
-        if ( m_flowDiagSolution && m_case )
-        {
-            m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-        }
-        else
-        {
-            m_flowDiagSolution = nullptr;
-        }
-
-        if ( !m_case )
-            m_timeStep = 0;
-        else if ( m_timeStep >= static_cast<int>( m_case->timeStepDates().size() ) )
-        {
-            m_timeStep = std::max( 0, ( (int)m_case->timeStepDates().size() ) - 1 );
-        }
-
-        std::set<QString> sortedWellNames = findSortedWellNames();
-        if ( sortedWellNames.empty() )
-            m_wellName = "";
-        else if ( sortedWellNames.count( m_wellName() ) == 0 )
-        {
-            m_wellName = *sortedWellNames.begin();
-        }
-
+        setCase( m_case );
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_wellName || changedField == &m_timeStep || changedField == &m_flowDiagSolution ||
@@ -849,7 +892,11 @@ void RimWellAllocationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    if ( !m_case ) return;
+    if ( !m_case )
+    {
+        m_flowDiagSolution = nullptr;
+        return;
+    }
 
     // If no 3D view is open, we have to make sure the case is opened
     if ( !m_case->ensureReservoirCaseIsOpen() )
