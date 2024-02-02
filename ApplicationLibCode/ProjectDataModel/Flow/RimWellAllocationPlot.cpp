@@ -49,6 +49,7 @@
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogLasFile.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPlotTools.h"
 
@@ -130,6 +131,9 @@ RimWellAllocationPlot::RimWellAllocationPlot()
                                                          RiaDefines::DepthTypeEnum::PSEUDO_LENGTH } );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
+    m_accumulatedWellFlowPlot->nameConfig()->setCustomName( "Accumulated Flow Chart" );
+    m_accumulatedWellFlowPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
+    m_accumulatedWellFlowPlot->updateAutoName();
 
     m_showWindow = false;
     setDeletable( true );
