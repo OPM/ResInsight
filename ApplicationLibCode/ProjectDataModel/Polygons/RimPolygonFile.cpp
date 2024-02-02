@@ -18,7 +18,6 @@
 
 #include "RimPolygonFile.h"
 #include "RimPolygon.h"
-#include "RimPolygonCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygonFile, "RimPolygonFileFile" );
 
@@ -29,10 +28,8 @@ RimPolygonFile::RimPolygonFile()
 {
     CAF_PDM_InitObject( "PolygonFile", ":/PolylinesFromFile16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name" );
+    CAF_PDM_InitFieldNoDefault( &m_fileName, "StimPlanFileName", "File Name" );
     CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
-    m_polygons = new RimPolygonCollection();
-    m_polygons.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,13 +67,13 @@ void RimPolygonFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFile::loadPolygonsFromFile()
 {
-    m_polygons()->deletePolygons();
+    // m_polygons()->deletePolygons();
 
     auto polygon = new RimPolygon();
     polygon->setName( "Polygon 1" );
-    m_polygons()->addPolygon( polygon );
+    m_polygons.push_back( polygon );
 
     polygon = new RimPolygon();
     polygon->setName( "Polygon 2" );
-    m_polygons()->addPolygon( polygon );
+    m_polygons.push_back( polygon );
 }

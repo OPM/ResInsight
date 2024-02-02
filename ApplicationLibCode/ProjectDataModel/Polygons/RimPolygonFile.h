@@ -20,9 +20,9 @@
 #include "RimPolygonInterface.h"
 
 #include "cafFilePath.h"
-#include "cafPdmChildField.h"
+#include "cafPdmChildArrayField.h"
 
-class RimPolygonCollection;
+class RimPolygon;
 
 class RimPolygonFile : public RimPolygonInterface
 {
@@ -42,7 +42,7 @@ private:
     void loadPolygonsFromFile();
 
 private:
-    caf::PdmField<caf::FilePath> m_stimPlanFileName;
+    caf::PdmField<caf::FilePath> m_fileName;
 
-    caf::PdmChildField<RimPolygonCollection*> m_polygons;
+    caf::PdmChildArrayField<RimPolygon*> m_polygons;
 };

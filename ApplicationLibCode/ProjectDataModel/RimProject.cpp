@@ -33,6 +33,7 @@
 #include "RigGridBase.h"
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
+#include "Polygons/RimPolygonCollection.h"
 #include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimAnalysisPlotCollection.h"
 #include "RimAnnotationCollection.h"
