@@ -93,6 +93,8 @@ QString namingVariableTimestep();
 QString namingVariableAirGap();
 QString namingVariableWaterDepth();
 
+QString selectionTextNone();
+
 double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();
 double maximumDefaultValuePlot();

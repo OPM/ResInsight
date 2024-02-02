@@ -358,6 +358,8 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
         return -1;
     }
 
+    RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
+
     if ( createView )
     {
         RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
