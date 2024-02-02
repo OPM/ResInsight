@@ -174,6 +174,9 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
+    RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
+    mainPlotColl->ensureDefaultFlowPlotsAreCreated();
+
     auto sumPlotManager = dynamic_cast<RimSummaryPlotManager*>( m_summaryPlotManager.get() );
     if ( sumPlotManager )
     {
