@@ -36,7 +36,6 @@ RimSummaryMultiPlotCollection::RimSummaryMultiPlotCollection()
     CAF_PDM_InitObject( "Summary Plots", ":/MultiPlot16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryMultiPlots, "MultiSummaryPlots", "Summary Plots" );
-    m_summaryMultiPlots.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_summaryMultiPlots );
 }
 

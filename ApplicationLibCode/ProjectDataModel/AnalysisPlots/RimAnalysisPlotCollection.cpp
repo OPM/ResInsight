@@ -36,7 +36,6 @@ RimAnalysisPlotCollection::RimAnalysisPlotCollection()
     CAF_PDM_InitObject( "Analysis Plots", ":/AnalysisPlots16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_analysisPlots, "AnalysisPlots", "Analysis Plots" );
-    m_analysisPlots.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

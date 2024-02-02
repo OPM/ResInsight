@@ -64,7 +64,6 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_dataSources, "AnalysisPlotData", "" );
     m_dataSources.uiCapability()->setUiTreeChildrenHidden( true );
-    m_dataSources.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pushButtonSelectSummaryAddress );

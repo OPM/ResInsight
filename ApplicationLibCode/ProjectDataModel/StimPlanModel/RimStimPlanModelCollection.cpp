@@ -35,7 +35,6 @@ RimStimPlanModelCollection::RimStimPlanModelCollection()
     CAF_PDM_InitScriptableObject( "StimPlan Models" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModels, "StimPlanModels", "" );
-    m_stimPlanModels.uiCapability()->setUiTreeHidden( true );
 
     setName( "StimPlan Models" );
     nameField()->uiCapability()->setUiHidden( true );

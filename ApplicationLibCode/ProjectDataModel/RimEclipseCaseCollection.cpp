@@ -44,10 +44,8 @@ RimEclipseCaseCollection::RimEclipseCaseCollection()
     CAF_PDM_InitObject( "Grid Models", ":/Cases16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "" );
-    cases.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &caseGroups, "CaseGroups", "" );
-    caseGroups.uiCapability()->setUiTreeHidden( true );
 
     m_gridCollection = new RigGridManager;
 }

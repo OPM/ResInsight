@@ -58,20 +58,16 @@ RimSeismicView::RimSeismicView()
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field" );
-    m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
-    m_seismicSectionCollection.uiCapability()->setUiTreeHidden( true );
     m_seismicSectionCollection = new RimSeismicSectionCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
-    m_annotationCollection.uiCapability()->setUiTreeHidden( true );
     m_annotationCollection = new RimAnnotationInViewCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_overlayInfoConfig, "OverlayInfoConfig", "Info Box" );
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView( this );
-    m_overlayInfoConfig.uiCapability()->setUiTreeHidden( true );
 
     m_scaleTransform = new cvf::Transform();
 

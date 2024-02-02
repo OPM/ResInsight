@@ -42,7 +42,6 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
     CAF_PDM_InitField( &m_showGrid, "Show3dWellLogGrid", true, "Show Grid" );
     CAF_PDM_InitField( &m_showBackground, "Show3dWellLogBackground", false, "Show Background" );
     CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "ArrayOf3dWellLogCurves", "" );
-    m_3dWellLogCurves.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

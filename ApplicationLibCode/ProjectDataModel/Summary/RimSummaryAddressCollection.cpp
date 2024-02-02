@@ -72,10 +72,8 @@ RimSummaryAddressCollection::RimSummaryAddressCollection()
     m_contentType.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_adresses, "SummaryAddresses", "Addresses" );
-    m_adresses.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_subfolders, "AddressSubfolders", "Subfolders" );
-    m_subfolders.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
     m_caseId.uiCapability()->setUiHidden( true );

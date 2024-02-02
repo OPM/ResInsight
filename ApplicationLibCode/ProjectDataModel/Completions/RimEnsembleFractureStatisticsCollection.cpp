@@ -30,7 +30,6 @@ RimEnsembleFractureStatisticsCollection::RimEnsembleFractureStatisticsCollection
     CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplates16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatistics, "FractureGroupStatistics", "" );
-    m_fractureGroupStatistics.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

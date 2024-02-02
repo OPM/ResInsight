@@ -92,12 +92,9 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abstract base class for Eclipse Cases" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
-    reservoirViews.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
-    m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "" );
-    m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis" );
     CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis" );
@@ -108,7 +105,6 @@ RimEclipseCase::RimEclipseCase()
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
     m_contourMapCollection = new RimEclipseContourMapViewCollection;
-    m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
@@ -116,17 +112,14 @@ RimEclipseCase::RimEclipseCase()
 
     CAF_PDM_InitFieldNoDefault( &m_resultAddressCollections, "ResultAddressCollections", "Result Addresses" );
     m_resultAddressCollections.uiCapability()->setUiHidden( true );
-    m_resultAddressCollections.uiCapability()->setUiTreeHidden( true );
     m_resultAddressCollections.xmlCapability()->disableIO();
 
     // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
-    m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
     m_matrixModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_fractureModelResults = new RimReservoirCellResultsStorage;
-    m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     setReservoirData( nullptr );

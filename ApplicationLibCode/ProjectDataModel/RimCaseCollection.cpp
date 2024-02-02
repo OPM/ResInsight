@@ -33,7 +33,6 @@ RimCaseCollection::RimCaseCollection()
     CAF_PDM_InitObject( "Derived Statistics" );
 
     CAF_PDM_InitFieldNoDefault( &reservoirs, "Reservoirs", "Reservoirs ChildArrayField" );
-    reservoirs.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

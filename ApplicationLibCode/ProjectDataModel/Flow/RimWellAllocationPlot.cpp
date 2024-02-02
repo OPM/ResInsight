@@ -104,7 +104,6 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
     CAF_PDM_InitField( &m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold" );
     CAF_PDM_InitFieldNoDefault( &m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow" );
-    m_accumulatedWellFlowPlot.uiCapability()->setUiTreeHidden( true );
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
     m_accumulatedWellFlowPlot->setDepthUnit( RiaDefines::DepthUnitType::UNIT_NONE );
     m_accumulatedWellFlowPlot->setDepthType( RiaDefines::DepthTypeEnum::CONNECTION_NUMBER );
@@ -112,15 +111,12 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow" );
-    m_totalWellAllocationPlot.uiCapability()->setUiTreeHidden( true );
     m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
 
     CAF_PDM_InitFieldNoDefault( &m_wellAllocationPlotLegend, "WellAllocLegend", "Legend" );
-    m_wellAllocationPlotLegend.uiCapability()->setUiTreeHidden( true );
     m_wellAllocationPlotLegend = new RimWellAllocationPlotLegend;
 
     CAF_PDM_InitFieldNoDefault( &m_tofAccumulatedPhaseFractionsPlot, "TofAccumulatedPhaseFractionsPlot", "TOF Accumulated Phase Fractions" );
-    m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiTreeHidden( true );
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
     setAsPlotMdiWindow();

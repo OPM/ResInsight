@@ -35,7 +35,6 @@ RimEnsembleWellLogs::RimEnsembleWellLogs()
     CAF_PDM_InitScriptableObject( "Ensemble Well Logs" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogFiles, "WellLogFiles", "" );
-    m_wellLogFiles.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -186,7 +186,6 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_description, "TrackDescription", "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "Curves", "Curves" );
-    m_curves.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_curves );
     reorderability->orderChanged.connect( this, &RimWellLogTrack::curveDataChanged );
 
@@ -278,12 +277,10 @@ RimWellLogTrack::RimWellLogTrack()
     m_underburdenHeight.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
-    m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet, "EnsembleWellLogCurveSet", "Ensemble Well Logs Curve Set" );
-    m_ensembleWellLogCurveSet.uiCapability()->setUiTreeHidden( true );
 
     m_formationsForCaseWithSimWellOnly = false;
 }

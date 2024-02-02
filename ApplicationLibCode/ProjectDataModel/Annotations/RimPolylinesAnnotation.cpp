@@ -47,7 +47,6 @@ RimPolylinesAnnotation::RimPolylinesAnnotation()
     CAF_PDM_InitFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
 
     m_appearance = new RimPolylineAppearance();
-    m_appearance.uiCapability()->setUiTreeHidden( true );
     m_appearance.uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );

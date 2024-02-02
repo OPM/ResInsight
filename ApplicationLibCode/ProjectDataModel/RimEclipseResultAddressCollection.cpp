@@ -32,7 +32,6 @@ RimEclipseResultAddressCollection::RimEclipseResultAddressCollection()
     CAF_PDM_InitObject( "Folder", ":/Folder.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_adresses, "Addresses", "Addresses" );
-    m_adresses.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_resultType, "ResultType", "Type" );
     m_resultType.uiCapability()->setUiHidden( true );

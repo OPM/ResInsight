@@ -137,7 +137,6 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
-    m_targets.uiCapability()->setUiTreeHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( false );
 

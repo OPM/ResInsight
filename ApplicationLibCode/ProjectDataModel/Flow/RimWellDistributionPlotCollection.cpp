@@ -70,7 +70,6 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "" );
-    m_plots.uiCapability()->setUiTreeHidden( true );
     m_plots.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Show Oil" );

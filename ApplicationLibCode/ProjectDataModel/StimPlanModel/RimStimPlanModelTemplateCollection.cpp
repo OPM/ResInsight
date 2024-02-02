@@ -39,7 +39,6 @@ RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
     CAF_PDM_InitScriptableObject( "StimPlan Model Templates", ":/FractureTemplates16x16.png" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelTemplates, "StimPlanModelTemplates", "StimPlan Model Templates" );
-    m_stimPlanModelTemplates.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_nextValidId, "NextValidId", 0, "" );
     m_nextValidId.uiCapability()->setUiHidden( true );

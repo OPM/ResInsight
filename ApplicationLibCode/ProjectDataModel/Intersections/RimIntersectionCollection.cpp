@@ -56,10 +56,8 @@ RimIntersectionCollection::RimIntersectionCollection()
     CAF_PDM_InitScriptableObject( "Intersections", ":/CrossSections16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_intersections, "CrossSections", "Intersections" );
-    m_intersections.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes" );
-    m_intersectionBoxes.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
