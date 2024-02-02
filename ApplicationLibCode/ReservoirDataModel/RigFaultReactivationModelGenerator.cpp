@@ -440,8 +440,8 @@ std::vector<size_t>
         if ( intersect1.z() != intersect2.z() )
         {
             cellColumn.push_back( intersectedCell );
-            layers[intersect1.z()] = intersect1;
-            layers[intersect2.z()] = intersect2;
+            if ( !intersect1.isZero() ) layers[intersect1.z()] = intersect1;
+            if ( !intersect2.isZero() ) layers[intersect2.z()] = intersect2;
         }
 
         if ( kLayer == k )
@@ -473,6 +473,8 @@ std::pair<size_t, size_t> RigFaultReactivationModelGenerator::findCellWithInters
 
     for ( auto& cell : cellRow )
     {
+        if ( cell.isInvalid() ) continue;
+
         auto corners = cell.faceCorners( face );
 
         cvf::Vec3d intersect;
@@ -559,7 +561,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
     {
         bottom_point = extrapolatePoint( ( ++layersBack.begin() )->second, layersBack.begin()->second, m_bufferBelowFault );
     }
-    else if ( m_bufferBelowFault > 0.0 )
+    else
     {
         bottom_point = extrapolatePoint( ( ++layersFront.begin() )->second, layersFront.begin()->second, m_bufferBelowFault );
     }
@@ -578,7 +580,7 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
     {
         top_point = extrapolatePoint( ( ++layersFront.rbegin() )->second, layersFront.rbegin()->second, m_bufferAboveFault );
     }
-    else if ( m_bufferAboveFault > 0.0 )
+    else
     {
         top_point = extrapolatePoint( ( ++layersBack.rbegin() )->second, layersBack.rbegin()->second, m_bufferAboveFault );
     }
