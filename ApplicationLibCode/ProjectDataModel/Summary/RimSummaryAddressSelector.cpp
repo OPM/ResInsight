@@ -61,7 +61,6 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
     m_summaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address" );
-    m_summaryAddress.uiCapability()->setUiTreeHidden( true );
     m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "" );

@@ -127,17 +127,14 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_completions, "Completions", "Completions" );
     m_completions = new RimWellPathCompletions;
-    m_completions.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_completionSettings, "CompletionSettings", "Completion Settings" );
     m_completionSettings = new RimWellPathCompletionSettings;
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogFiles, "WellLogFiles", "Well Log Files" );
-    m_wellLogFiles.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "CollectionOf3dWellLogCurves", "3D Track" );
     m_3dWellLogCurves = new Rim3dWellLogCurveCollection;
-    m_3dWellLogCurves.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_formationKeyInFile, "WellPathFormationKeyInFile", QString( "" ), "Key in File" );
     m_formationKeyInFile.uiCapability()->setUiReadOnly( true );

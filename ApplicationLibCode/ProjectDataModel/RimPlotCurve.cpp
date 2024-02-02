@@ -127,7 +127,6 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_curveAppearance, "PlotCurveAppearance", "PlotCurveAppearance" );
     m_curveAppearance = new RimPlotCurveAppearance;
-    m_curveAppearance.uiCapability()->setUiTreeHidden( true );
     m_curveAppearance.uiCapability()->setUiTreeChildrenHidden( true );
     m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onCurveAppearanceChanged );
     m_curveAppearance->fillColorChanged.connect( this, &RimPlotCurve::onFillColorChanged );

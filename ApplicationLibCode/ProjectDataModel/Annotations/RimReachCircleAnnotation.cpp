@@ -53,7 +53,6 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
     CAF_PDM_InitFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
 
     m_appearance = new RimReachCircleLineAppearance();
-    m_appearance.uiCapability()->setUiTreeHidden( true );
     m_appearance.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_centerPointEventHandler.reset( new RicVec3dPickEventHandler( &m_centerPointXyd ) );

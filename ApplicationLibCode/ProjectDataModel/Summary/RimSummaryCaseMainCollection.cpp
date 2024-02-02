@@ -96,9 +96,6 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
     CAF_PDM_InitFieldNoDefault( &m_caseCollections, "SummaryCaseCollections", "" );
-
-    m_cases.uiCapability()->setUiTreeHidden( true );
-    m_caseCollections.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

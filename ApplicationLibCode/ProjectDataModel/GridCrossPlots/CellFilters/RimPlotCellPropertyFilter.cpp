@@ -47,7 +47,6 @@ RimPlotCellPropertyFilter::RimPlotCellPropertyFilter()
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
-    m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_lowerBound, "LowerBound", 0.0, "Min" );

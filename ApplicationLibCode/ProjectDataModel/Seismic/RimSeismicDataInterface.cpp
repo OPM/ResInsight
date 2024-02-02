@@ -36,7 +36,6 @@ RimSeismicDataInterface::RimSeismicDataInterface()
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_userClipValue, "userClipValue", std::make_pair( false, 0.0 ), "Clip Value" );
     CAF_PDM_InitField( &m_userMuteThreshold,

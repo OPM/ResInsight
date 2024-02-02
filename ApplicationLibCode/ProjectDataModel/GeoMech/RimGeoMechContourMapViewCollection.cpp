@@ -13,7 +13,6 @@ RimGeoMechContourMapViewCollection::RimGeoMechContourMapViewCollection()
     CAF_PDM_InitObject( "GeoMech Contour Maps", ":/2DMaps16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapViews, "GeoMechViews", "Contour Maps", ":/CrossSection16x16.png" );
-    m_contourMapViews.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

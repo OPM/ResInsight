@@ -34,7 +34,6 @@ RimParameterList::RimParameterList()
 
     CAF_PDM_InitFieldNoDefault( &m_parameterNames, "ParameterNames", "Parameters" );
     m_parameterNames.uiCapability()->setUiHidden( true );
-    m_parameterNames.uiCapability()->setUiTreeHidden( true );
     m_parameterNames.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_name, "Name", QString(), "Name" );

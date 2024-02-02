@@ -841,7 +841,6 @@ WellSelectionPage::WellSelectionPage( RimWellPathImport* wellPathImport, QWidget
 
     m_regionsWithVisibleWells = new ObjectGroupWithHeaders;
     m_regionsWithVisibleWells->objects.uiCapability()->setUiHidden( true );
-    m_regionsWithVisibleWells->objects.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -888,7 +887,6 @@ void WellSelectionPage::buildWellTreeView()
         {
             caf::PdmObjectCollection* regGroup = new caf::PdmObjectCollection;
             regGroup->objects.uiCapability()->setUiHidden( true );
-            regGroup->objects.uiCapability()->setUiTreeHidden( true );
 
             regGroup->setUiName( oilRegion->userDescriptionField()->uiCapability()->uiValue().toString() );
 
@@ -901,7 +899,6 @@ void WellSelectionPage::buildWellTreeView()
                 {
                     caf::PdmObjectCollection* fieldGroup = new caf::PdmObjectCollection;
                     fieldGroup->objects.uiCapability()->setUiHidden( true );
-                    fieldGroup->objects.uiCapability()->setUiTreeHidden( true );
 
                     fieldGroup->setUiName( oilField->userDescriptionField()->uiCapability()->uiValue().toString() );
 

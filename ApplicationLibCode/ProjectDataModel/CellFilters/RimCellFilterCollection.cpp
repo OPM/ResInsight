@@ -48,12 +48,10 @@ RimCellFilterCollection::RimCellFilterCollection()
     m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Filters" );
-    m_cellFilters.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_cellFilters );
 
     // for backwards project file compatibility with old CellRangeFilterCollection
     CAF_PDM_InitFieldNoDefault( &m_rangeFilters_OBSOLETE, "RangeFilters", "Range Filters" );
-    m_rangeFilters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_rangeFilters_OBSOLETE.xmlCapability()->setIOWritable( false );
 }
 

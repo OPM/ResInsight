@@ -153,7 +153,6 @@ RimFractureTemplate::RimFractureTemplate()
 
     CAF_PDM_InitFieldNoDefault( &m_fractureContainment, "FractureContainmentField", "Fracture Containment" );
     m_fractureContainment = new RimFractureContainment();
-    m_fractureContainment.uiCapability()->setUiTreeHidden( true );
     m_fractureContainment.uiCapability()->setUiTreeChildrenHidden( true );
 
     // Non-Darcy Flow options

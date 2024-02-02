@@ -50,10 +50,8 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
     m_collectionName.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "SurfacesInViewFieldCollections", "SurfacesInViewFieldCollections" );
-    m_collectionsInView.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "Surfaces" );
-    m_surfacesInView.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceCollectionRef", "SurfaceCollection" );
     m_surfaceCollection.uiCapability()->setUiHidden( true );

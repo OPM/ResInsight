@@ -40,10 +40,8 @@ RimSeismicDataCollection::RimSeismicDataCollection()
     CAF_PDM_InitObject( "Data", ":/SeismicData24x24.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
-    m_seismicData.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_differenceData, "DifferenceData", "Seismic Difference Data" );
-    m_differenceData.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( false );
 }

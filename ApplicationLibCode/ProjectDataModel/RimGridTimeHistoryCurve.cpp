@@ -59,15 +59,12 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     m_geometrySelectionText.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition" );
-    m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result Definition" );
-    m_geoMechResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geoMechResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_geometrySelectionItem, "GeometrySelectionItem", "Geometry Selection" );
-    m_geometrySelectionItem.uiCapability()->setUiTreeHidden( true );
     m_geometrySelectionItem.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_plotAxis, "PlotAxis", caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ), "Axis" );

@@ -120,7 +120,6 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig = new RimSummaryCurveAutoName();
-    m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_summaryCurveSelectionEditor = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();

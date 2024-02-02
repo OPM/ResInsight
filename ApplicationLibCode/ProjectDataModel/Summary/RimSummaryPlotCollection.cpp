@@ -40,7 +40,6 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
     CAF_PDM_InitScriptableObject( "Single Summary Plots", ":/SummaryPlotsLight16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPlots, "SummaryPlots", "Single Summary Plots" );
-    m_summaryPlots.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_summaryPlots );
 }
 

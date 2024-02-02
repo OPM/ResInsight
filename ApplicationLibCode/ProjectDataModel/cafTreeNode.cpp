@@ -194,8 +194,6 @@ cafObjectReferenceTreeNode::cafObjectReferenceTreeNode()
 
     CAF_PDM_InitFieldNoDefault( &m_referencedObject, "ReferencedObject", "Referenced Object" );
 
-    m_childNodes.uiCapability()->setUiTreeHidden( true );
-
     uiCapability()->setUiTreeHidden( true );
 }
 

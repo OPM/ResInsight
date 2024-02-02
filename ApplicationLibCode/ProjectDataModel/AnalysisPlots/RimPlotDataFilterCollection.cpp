@@ -32,7 +32,6 @@ RimPlotDataFilterCollection::RimPlotDataFilterCollection()
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "IsActive" );
     m_isActive.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_filters, "PlotDataFiltersField", "" );
-    m_filters.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

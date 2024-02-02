@@ -56,9 +56,6 @@ RimObservedDataCollection::RimObservedDataCollection()
     CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "" );
     CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "" );
     CAF_PDM_InitFieldNoDefault( &m_observedPressureDepthArray, "PressureDepthDataArray", "" );
-    m_observedDataArray.uiCapability()->setUiTreeHidden( true );
-    m_observedFmuRftArray.uiCapability()->setUiTreeHidden( true );
-    m_observedPressureDepthArray.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

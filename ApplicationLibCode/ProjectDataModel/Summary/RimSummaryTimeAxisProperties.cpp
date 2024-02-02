@@ -149,7 +149,6 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     m_majorTickmarkCount.uiCapability()->enableAutoValueSupport( true );
 
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "" );
-    m_annotations.uiCapability()->setUiTreeHidden( true );
     m_annotations.uiCapability()->setUiTreeChildrenHidden( true );
 }
 

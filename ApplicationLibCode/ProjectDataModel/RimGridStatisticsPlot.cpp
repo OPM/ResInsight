@@ -62,7 +62,6 @@ RimGridStatisticsPlot::RimGridStatisticsPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property" );
     m_property = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
-    m_property.uiCapability()->setUiTreeHidden( true );
     m_property.uiCapability()->setUiTreeChildrenHidden( true );
     m_property->setTernaryEnabled( false );
 

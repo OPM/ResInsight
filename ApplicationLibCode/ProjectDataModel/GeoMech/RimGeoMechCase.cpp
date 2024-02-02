@@ -106,7 +106,6 @@ RimGeoMechCase::RimGeoMechCase()
                                                     "The Abaqus Based GeoMech Case" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &geoMechViews, "GeoMechViews", "Views", "", "", "", "All GeoMech Views in the Case" );
-    geoMechViews.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_cohesion, "CaseCohesion", 10.0, "Cohesion", "", "Used to calculate the SE:SFI result", "" );
     CAF_PDM_InitField( &m_frictionAngleDeg, "FrctionAngleDeg", 30.0, "Friction Angle [Deg]", "", "Used to calculate the SE:SFI result", "" );
@@ -147,11 +146,9 @@ RimGeoMechCase::RimGeoMechCase()
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
     m_contourMapCollection = new RimGeoMechContourMapViewCollection;
-    m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_mudWeightWindowParameters, "MudWeightWindowParameters", "Mud Weight Window Parameters" );
     m_mudWeightWindowParameters = new RimMudWeightWindowParameters;
-    m_mudWeightWindowParameters.uiCapability()->setUiTreeHidden( true );
 
     m_displayNameOption = RimCaseDisplayNameTools::DisplayName::CUSTOM;
     m_displayNameOption.uiCapability()->setUiHidden( true );

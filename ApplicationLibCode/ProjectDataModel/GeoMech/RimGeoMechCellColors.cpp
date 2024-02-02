@@ -34,7 +34,6 @@ RimGeoMechCellColors::RimGeoMechCellColors()
 {
     CAF_PDM_InitFieldNoDefault( &legendConfig, "LegendDefinition", "Color Legend" );
     legendConfig = new RimRegularLegendConfig();
-    legendConfig.uiCapability()->setUiTreeHidden( true );
     legendConfig->changed.connect( this, &RimGeoMechCellColors::onLegendConfigChanged );
 }
 
