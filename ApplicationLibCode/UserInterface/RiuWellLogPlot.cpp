@@ -132,15 +132,32 @@ void RiuWellLogPlot::reinsertScrollbar()
     int                            colCount    = m_gridLayout->columnCount();
     int                            rowCount    = m_gridLayout->rowCount();
 
+    bool showScrollBar = !plotWidgets.empty();
+
+    if ( depthTrackPlot() )
+    {
+        double minVisible, maxVisible;
+        double minAvailable, maxAvailable;
+
+        depthTrackPlot()->visibleDepthRange( &minVisible, &maxVisible );
+        depthTrackPlot()->availableDepthRange( &minAvailable, &maxAvailable );
+
+        // Hide scrollbar if the visible range covers the complete available range
+        if ( minVisible <= minAvailable && maxVisible >= maxAvailable )
+        {
+            showScrollBar = false;
+        }
+    }
+
     if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
     {
         m_gridLayout->addLayout( m_horizontalTrackScrollBarLayout, rowCount, 0, 1, colCount );
-        m_horizontalTrackScrollBar->setVisible( !plotWidgets.empty() );
+        m_horizontalTrackScrollBar->setVisible( showScrollBar );
     }
     else
     {
         m_gridLayout->addLayout( m_verticalTrackScrollBarLayout, 2, colCount, 1, 1 );
-        m_verticalTrackScrollBar->setVisible( !plotWidgets.empty() );
+        m_verticalTrackScrollBar->setVisible( showScrollBar );
         m_gridLayout->setColumnStretch( colCount, 0 );
     }
 }
