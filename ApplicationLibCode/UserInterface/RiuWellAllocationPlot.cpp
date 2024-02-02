@@ -101,6 +101,7 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createPlotWidget();
 
     plotWidgetsLayout->addWidget( wellFlowWidget );
+    plotWidgetsLayout->addSpacing( 10 );
 
     {
         caf::CmdFeatureMenuBuilder menuBuilder;
