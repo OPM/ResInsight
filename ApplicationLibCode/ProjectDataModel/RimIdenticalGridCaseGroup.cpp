@@ -63,10 +63,8 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     groupId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField" );
-    statisticsCaseCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &caseCollection, "CaseCollection", "Source Cases ChildArrayField" );
-    caseCollection.uiCapability()->setUiTreeHidden( true );
 
     caseCollection = new RimCaseCollection;
     caseCollection->uiCapability()->setUiName( "Source Cases" );

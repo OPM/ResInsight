@@ -118,7 +118,6 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics" );
     m_statistics = new RimEnsembleStatistics( this );
-    m_statistics.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_userDefinedName, "UserDefinedName", QString( "Ensemble Curve Set" ), "Curve Set Name" );
 
@@ -131,7 +130,6 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_curveAppearance, "PlotCurveAppearance", "PlotCurveAppearance" );
     m_curveAppearance = new RimPlotCurveAppearance;
-    m_curveAppearance.uiCapability()->setUiTreeHidden( true );
     m_curveAppearance->setInterpolationVisible( false );
     m_curveAppearance->setColorVisible( false );
     m_curveAppearance->setFillOptionsVisible( false );

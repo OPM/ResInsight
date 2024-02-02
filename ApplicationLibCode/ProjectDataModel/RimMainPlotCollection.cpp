@@ -84,52 +84,36 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_show.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlotCollection, "WellLogPlotCollection", "" );
-    m_wellLogPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_rftPlotCollection, "RftPlotCollection", "" );
-    m_rftPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_pltPlotCollection, "PltPlotCollection", "" );
-    m_pltPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryMultiPlotCollection, "SummaryMultiPlotCollection", "Multi Summary Plots" );
-    m_summaryMultiPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_analysisPlotCollection, "AnalysisPlotCollection", "Analysis Plots" );
-    m_analysisPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_correlationPlotCollection, "CorrelationPlotCollection", "Correlation Plots" );
-    m_correlationPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection_OBSOLETE, "SummaryCrossPlotCollection", "Summary Cross Plots" );
-    m_summaryCrossPlotCollection_OBSOLETE.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryTableCollection, "SummaryTableCollection", "Summary Tables" );
-    m_summaryTableCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots" );
-    m_flowPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots" );
-    m_gridCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlotCollection, "RimSaturationPressurePlotCollection", "Saturation Pressure Plots" );
-    m_saturationPressurePlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots" );
-    m_multiPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelPlotCollection, "StimPlanModelPlotCollection", "" );
-    m_stimPlanModelPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_vfpPlotCollection, "VfpPlotCollection", "" );
-    m_vfpPlotCollection.uiCapability()->setUiTreeHidden( true );
 #ifdef USE_QTCHARTS
     CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "" );
-    m_gridStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection, "EnsembleFractureStatisticsPlotCollection", "" );
-    m_ensembleFractureStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 #endif
 
     m_wellLogPlotCollection               = new RimWellLogPlotCollection();
@@ -152,7 +136,6 @@ RimMainPlotCollection::RimMainPlotCollection()
 #endif
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection_OBSOLETE, "SummaryPlotCollection", "Summary Plots" );
-    m_summaryPlotCollection_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_summaryPlotCollection_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_summaryPlotCollection_OBSOLETE = new RimSummaryPlotCollection();
 }

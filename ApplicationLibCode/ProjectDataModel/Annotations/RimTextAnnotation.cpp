@@ -68,7 +68,6 @@ RimTextAnnotation::RimTextAnnotation()
 
     CAF_PDM_InitFieldNoDefault( &m_textAppearance, "TextAppearance", "Text Appearance" );
     m_textAppearance = new RimAnnotationTextAppearance();
-    m_textAppearance.uiCapability()->setUiTreeHidden( true );
     m_textAppearance.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );

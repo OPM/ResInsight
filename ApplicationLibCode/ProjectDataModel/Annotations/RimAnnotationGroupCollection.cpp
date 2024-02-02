@@ -49,7 +49,6 @@ RimAnnotationGroupCollection::RimAnnotationGroupCollection()
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations" );
 
     m_isActive.uiCapability()->setUiHidden( true );
-    m_annotations.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

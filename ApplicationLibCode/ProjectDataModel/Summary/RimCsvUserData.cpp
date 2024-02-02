@@ -48,7 +48,6 @@ RimCsvUserData::RimCsvUserData()
     CAF_PDM_InitFieldNoDefault( &m_parseOptions, "ParseOptions", "" );
     m_parseOptions = new RicPasteAsciiDataToSummaryPlotFeatureUi();
     m_parseOptions.uiCapability()->setUiTreeChildrenHidden( true );
-    m_parseOptions.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

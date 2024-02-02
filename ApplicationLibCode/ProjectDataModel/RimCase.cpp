@@ -67,12 +67,10 @@ RimCase::RimCase()
     CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names File" );
 
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter" );
-    m_timeStepFilter.uiCapability()->setUiTreeHidden( true );
     m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden( true );
     m_timeStepFilter = new RimTimeStepFilter;
 
     CAF_PDM_InitFieldNoDefault( &m_2dIntersectionViewCollection, "IntersectionViewCollection", "2D Intersection Views", ":/CrossSections16x16.png" );
-    m_2dIntersectionViewCollection.uiCapability()->setUiTreeHidden( true );
     m_2dIntersectionViewCollection = new Rim2dIntersectionViewCollection();
 }
 

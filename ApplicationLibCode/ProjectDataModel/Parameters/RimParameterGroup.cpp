@@ -72,7 +72,6 @@ RimParameterGroup::RimParameterGroup()
 
     CAF_PDM_InitFieldNoDefault( &m_lists, "ParameterLists", "Parameter Lists" );
     m_lists.uiCapability()->setUiHidden( true );
-    m_lists.uiCapability()->setUiTreeHidden( true );
     m_lists.uiCapability()->setUiTreeChildrenHidden( true );
 }
 

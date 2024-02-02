@@ -156,8 +156,6 @@ RimGridInfoCollection::RimGridInfoCollection()
     m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_gridInfos, "GridInfos", "Grid Infos" );
-
-    m_gridInfos.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

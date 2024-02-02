@@ -36,7 +36,6 @@ RimIntersectionResultsDefinitionCollection::RimIntersectionResultsDefinitionColl
     m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionResultsDefs, "IntersectionResultDefinitions", "Data Sources" );
-    m_intersectionResultsDefs.uiCapability()->setUiTreeHidden( true );
 
     m_intersectionResultsDefs.push_back( new RimIntersectionResultDefinition ); // Add the default result definition
 }

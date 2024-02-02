@@ -109,7 +109,6 @@ RimAnalysisPlot::RimAnalysisPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "" );
     m_analysisPlotDataSelection.uiCapability()->setUiTreeChildrenHidden( true );
-    m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
 
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
@@ -161,13 +160,11 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_barTextFontSize, "BarTextFontSize", "Font Size" );
 
     CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties" );
-    m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_valueAxisProperties = new RimPlotAxisProperties;
     m_valueAxisProperties->setNameAndAxis( "Value-Axis", "Value-Axis", RiuQwtPlotTools::fromQwtPlotAxis( QwtAxis::YLeft ) );
     m_valueAxisProperties->enableRangeSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection" );
-    m_plotDataFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotDataFilterCollection = new RimPlotDataFilterCollection;
 
     connectAxisSignals( m_valueAxisProperties() );

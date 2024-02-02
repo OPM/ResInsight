@@ -108,7 +108,6 @@ RimGridCrossPlotRegressionCurve::RimGridCrossPlotRegressionCurve()
     auto rectAnnotation = new RimPlotRectAnnotation;
     rectAnnotation->setName( "Data Selection" );
     m_rectAnnotations.push_back( rectAnnotation );
-    m_rectAnnotations.uiCapability()->setUiTreeHidden( true );
     m_rectAnnotations.uiCapability()->setUiTreeChildrenHidden( true );
 
     setCheckState( false );
