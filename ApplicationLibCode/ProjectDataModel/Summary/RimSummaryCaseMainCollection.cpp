@@ -96,7 +96,6 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
     CAF_PDM_InitFieldNoDefault( &m_caseCollections, "SummaryCaseCollections", "" );
-
 }
 
 //--------------------------------------------------------------------------------------------------

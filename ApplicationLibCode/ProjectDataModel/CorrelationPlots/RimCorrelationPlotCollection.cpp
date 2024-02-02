@@ -38,7 +38,6 @@ RimCorrelationPlotCollection::RimCorrelationPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_correlationPlots, "CorrelationPlots", "Correlation Plots" );
     CAF_PDM_InitFieldNoDefault( &m_correlationReports, "CorrelationReports", "Correlation Reports" );
-
 }
 
 //--------------------------------------------------------------------------------------------------
