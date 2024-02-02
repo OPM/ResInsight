@@ -31,10 +31,14 @@ public:
     RimPolygon();
     ~RimPolygon() override;
 
+    std::vector<cvf::Vec3d> pointsInDomainCoords() const;
+    bool                    isClosed() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_pointsInDomainCoords;
+    caf::PdmField<bool>                    m_isClosed;
 };

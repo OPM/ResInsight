@@ -21,7 +21,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimPolygonInterface;
+class RimPolygon;
+class RimPolygonFile;
 
 //==================================================================================================
 ///
@@ -36,11 +37,12 @@ public:
     ~RimPolygonCollection() override;
 
     void loadData();
-    void addPolygon( RimPolygonInterface* polygon );
+    void addPolygon( RimPolygon* polygon );
     void deletePolygons();
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
-    caf::PdmChildArrayField<RimPolygonInterface*> m_polygons;
+    caf::PdmChildArrayField<RimPolygon*>     m_polygons;
+    caf::PdmChildArrayField<RimPolygonFile*> m_polygonFiles;
 };

@@ -30,14 +30,16 @@ RimPolygonCollection::RimPolygonCollection()
     CAF_PDM_InitObject( "Polygons", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
+    CAF_PDM_InitFieldNoDefault( &m_polygonFiles, "PolygonFiles", "Polygon Files" );
 
     auto polygon = new RimPolygon();
     polygon->setName( "Polygon 1" );
     m_polygons().push_back( polygon );
 
-    //     auto polygonFile = new RimPolygonFile();
-    //     polygonFile->setName( "Polygon 2" );
-    //     m_polygons().push_back( polygonFile );
+    auto polygonFile = new RimPolygonFile();
+    polygonFile->setName( "Polygon 2" );
+    polygonFile->loadData();
+    m_polygonFiles().push_back( polygonFile );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +63,7 @@ void RimPolygonCollection::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::addPolygon( RimPolygonInterface* polygon )
+void RimPolygonCollection::addPolygon( RimPolygon* polygon )
 {
     m_polygons().push_back( polygon );
 }
