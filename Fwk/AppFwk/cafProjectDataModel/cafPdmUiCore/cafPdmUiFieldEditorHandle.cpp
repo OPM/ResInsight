@@ -40,11 +40,10 @@
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
+#include "cafQShortenedLabel.h"
 
 #include <QAbstractScrollArea>
-#include <QLabel>
 #include <QMenu>
-#include <QVariant>
 
 namespace caf
 {

@@ -45,6 +45,7 @@
 #include "cafPdmUiOrdering.h"
 #include "cafQShortenedLabel.h"
 
+#include <QApplication>
 #include <QBoxLayout>
 #include <QClipboard>
 #include <QDir>

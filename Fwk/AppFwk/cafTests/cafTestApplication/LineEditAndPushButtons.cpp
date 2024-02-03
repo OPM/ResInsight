@@ -7,6 +7,8 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include <QGuiApplication>
+
 CAF_PDM_SOURCE_INIT( LineEditAndPushButtons, "LineEditAndPushButtons" );
 
 //--------------------------------------------------------------------------------------------------

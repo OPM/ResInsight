@@ -36,9 +36,7 @@
 #include "cafQShortenedLabel.h"
 
 #include <QApplication>
-#include <QFontMetrics>
 #include <QResizeEvent>
-#include <QVBoxLayout>
 
 using namespace caf;
 
