@@ -36,6 +36,7 @@
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafQShortenedLabel.h"
 
 #include <QAbstractItemModel>
 

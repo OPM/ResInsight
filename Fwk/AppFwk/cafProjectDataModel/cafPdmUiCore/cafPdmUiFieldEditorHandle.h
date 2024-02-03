@@ -38,13 +38,6 @@
 #include "cafClassTypeName.h"
 #include "cafFactory.h"
 #include "cafPdmUiEditorHandle.h"
-#include "cafQShortenedLabel.h"
-
-#include <vector>
-
-#include <QPointer>
-#include <QString>
-#include <QWidget>
 
 class QLabel;
 

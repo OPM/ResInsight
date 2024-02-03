@@ -37,6 +37,7 @@
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafQShortenedLabel.h"
 
 #include <QDoubleValidator>
 #include <QGroupBox>

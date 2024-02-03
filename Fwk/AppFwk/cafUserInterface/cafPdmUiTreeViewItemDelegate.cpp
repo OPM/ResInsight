@@ -49,6 +49,7 @@
 #include "cafPdmUiTreeViewQModel.h"
 #include "cafSelectionManager.h"
 
+#include <QApplication>
 #include <QEvent>
 #include <QIcon>
 #include <QModelIndexList>
