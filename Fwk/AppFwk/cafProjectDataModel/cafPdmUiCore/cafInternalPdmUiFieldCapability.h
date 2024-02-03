@@ -43,6 +43,10 @@ public:
     PdmFieldUiCap( FieldType* field, bool giveOwnership )
         : PdmUiFieldHandle( field, giveOwnership )
     {
+        // In almost all use cases, we want to hide the visual appearance of the child field.
+        // The object contained in the child field will be visible in the project tree as a child of the
+        // parent object.
+        setUiTreeHidden( true );
     }
 
     // Gui generalized interface
@@ -66,6 +70,11 @@ public:
     PdmFieldUiCap( FieldType* field, bool giveOwnership )
         : PdmUiFieldHandle( field, giveOwnership )
     {
+        // In almost all use cases, we want to hide the visual appearance of the child array field.
+        // They are usually members of a collection object, and this object is usually visible in the project tree
+        // The objects contained in the child array field will be visible in the project tree as children of the
+        // collection object
+        setUiTreeHidden( true );
     }
 
     // Gui generalized interface

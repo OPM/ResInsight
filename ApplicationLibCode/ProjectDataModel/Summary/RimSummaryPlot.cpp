@@ -156,6 +156,7 @@ RimSummaryPlot::RimSummaryPlot()
     m_asciiDataCurves.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_axisPropertiesArray, "AxisProperties", "Axes", ":/Axes16x16.png" );
+    m_axisPropertiesArray.uiCapability()->setUiTreeHidden( false );
 
     auto leftAxis = addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
     leftAxis->setAlwaysRequired( true );
