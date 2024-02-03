@@ -2,8 +2,8 @@
 #include "cafAssert.h"
 #include "cafInternalPdmFieldIoHelper.h"
 #include "cafPdmObjectFactory.h"
-#include "cafPdmXmlObjectHandle.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmXmlObjectHandle.h"
 
 #include <QStringList>
 
