@@ -38,26 +38,16 @@
 
 #include "cafPdmObjectHandle.h"
 
-#include "cafPdmPointer.h"
-#include "cafPdmUiOrdering.h"
-
-#include <set>
-
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
+#include "cafInternalPdmUiFieldCapability.h"
 #include "cafPdmObjectCapability.h"
-
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmXmlObjectHandleMacros.h"
 
-#include "cafInternalPdmUiFieldCapability.h"
-#include "cafInternalPdmXmlFieldCapability.h"
 #include "cafPdmFieldHandle.h"
-
-#include "cafIconProvider.h"
-#include "cafPdmUiFieldSpecialization.h"
 
 namespace caf
 {
@@ -183,16 +173,7 @@ public:
 
     /// Does the same as the above method, but omits the default value.
     /// Consider this method private. Please use the CAF_PDM_InitFieldNoDefault() macro instead.
-    void addFieldUiNoDefault( PdmFieldHandle* field, const QString& keyword, PdmUiItemInfo* fieldDescription )
-    {
-        addField( field, keyword );
-
-        PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-        if ( uiFieldHandle )
-        {
-            uiFieldHandle->setUiItemInfo( fieldDescription );
-        }
-    }
+    void addFieldUiNoDefault( PdmFieldHandle* field, const QString& keyword, PdmUiItemInfo* fieldDescription );
 
     /// Returns _this_ if _this_ has requested class keyword
     /// Traverses parents recursively and returns first parent of the requested
