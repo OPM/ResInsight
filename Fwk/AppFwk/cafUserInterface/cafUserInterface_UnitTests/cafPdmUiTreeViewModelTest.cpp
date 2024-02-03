@@ -34,6 +34,7 @@ public:
         CAF_PDM_InitObject( "DemoPdmObject", "", "Tooltip DemoPdmObject", "WhatsThis DemoPdmObject" );
 
         CAF_PDM_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
+        m_simpleObjPtrField.uiCapability()->setUiTreeHidden( false );
     }
 
     ~DemoPdmObject() { m_simpleObjPtrField.deleteChildren(); }
