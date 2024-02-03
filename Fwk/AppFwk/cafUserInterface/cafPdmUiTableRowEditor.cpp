@@ -36,9 +36,8 @@
 
 #include "cafPdmUiTableRowEditor.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiEditorHandle.h"
+#include "cafPdmUiObjectHandle.h"
+#include "cafPdmUiOrdering.h"
 #include "cafPdmUiTableViewQModel.h"
 
 namespace caf
