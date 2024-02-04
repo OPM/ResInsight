@@ -29,6 +29,7 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QClipboard>
 
 CAF_CMD_SOURCE_INIT( RicAppendPointsToPolygonFilterFeature, "RicAppendPointsToPolygonFilterFeature" );

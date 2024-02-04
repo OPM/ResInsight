@@ -47,6 +47,7 @@
 #include "cafUtils.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QDebug>
 #include <QDir>
 
