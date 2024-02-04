@@ -40,6 +40,9 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 
+#include <QApplication>
+
+
 CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT( RicWellTarget3dEditor );
 
 //--------------------------------------------------------------------------------------------------
