@@ -22,9 +22,9 @@
 
 #include "cafFixedAtlasFont.h"
 
+#include "cafAssert.h"
 #include <QDesktopWidget>
 #include <cmath>
-#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
