@@ -36,11 +36,8 @@
 
 #include "cafToggleItemsFeatureImpl.h"
 
-//#include "RiaFeatureCommandContext.h"
-//#include "RiaGuiApplication.h"
-//#include "RiuMainWindow.h"
-//#include "RiuPlotMainWindow.h"
-
+#include "cafCmdFeatureManager.h"
+#include "cafPdmField.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiObjectHandle.h"
@@ -50,7 +47,6 @@
 
 #include <QModelIndex>
 
-#include "cafCmdFeatureManager.h"
 #include <vector>
 
 namespace caf
