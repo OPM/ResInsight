@@ -45,6 +45,7 @@
 
 class QToolBar;
 class QMainWindow;
+class QAction;
 
 namespace caf
 {

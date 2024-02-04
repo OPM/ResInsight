@@ -44,7 +44,6 @@
 #include "cafPdmUiOrdering.h"
 
 #include "cafFactory.h"
-#include "cafQShortenedLabel.h"
 
 #include <QBoxLayout>
 
