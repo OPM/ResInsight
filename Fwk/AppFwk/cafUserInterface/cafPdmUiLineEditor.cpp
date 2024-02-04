@@ -43,7 +43,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUniqueIdValidator.h"
-#include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 #include "cafUiAppearanceSettings.h"
 #include "cafUiIconFactory.h"

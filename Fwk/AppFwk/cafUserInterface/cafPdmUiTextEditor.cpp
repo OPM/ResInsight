@@ -41,7 +41,6 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafQShortenedLabel.h"
 
 #include <QIntValidator>
 #include <QLabel>

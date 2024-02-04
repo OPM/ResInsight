@@ -38,8 +38,7 @@
 #include "cafClassTypeName.h"
 #include "cafFactory.h"
 #include "cafPdmUiEditorHandle.h"
-
-class QLabel;
+#include "cafQShortenedLabel.h"
 
 namespace caf
 {
