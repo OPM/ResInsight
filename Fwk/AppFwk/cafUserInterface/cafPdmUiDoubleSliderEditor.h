@@ -38,7 +38,6 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiSliderTools.h"
-#include "cafQShortenedLabel.h"
 
 #include <QLabel>
 #include <QLineEdit>

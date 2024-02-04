@@ -42,7 +42,6 @@
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTableViewDelegate.h"
 #include "cafPdmUiTableViewQModel.h"
-#include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 
 #include <QApplication>

@@ -40,7 +40,6 @@
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
-#include "cafQShortenedLabel.h"
 
 #include <QAbstractScrollArea>
 #include <QMenu>

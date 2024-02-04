@@ -43,7 +43,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiOrdering.h"
-#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QBoxLayout>
