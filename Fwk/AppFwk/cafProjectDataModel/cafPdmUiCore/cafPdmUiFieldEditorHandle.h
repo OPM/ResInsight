@@ -92,9 +92,9 @@ public:
     void              setUiField( PdmUiFieldHandle* uiFieldHandle );
 
     void     createWidgets( QWidget* parent );
-    QWidget* combinedWidget() { return m_combinedWidget; }
-    QWidget* editorWidget() { return m_editorWidget; }
-    QWidget* labelWidget() { return m_labelWidget; }
+    QWidget* combinedWidget();
+    QWidget* editorWidget();
+    QWidget* labelWidget();
     QMargins labelContentMargins() const;
     int      rowStretchFactor() const;
 
@@ -102,9 +102,9 @@ protected: // Virtual interface to override
     /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to
     /// being "Label" Editor" or a single combined widget.
 
-    virtual QWidget* createCombinedWidget( QWidget* parent ) { return nullptr; }
-    virtual QWidget* createEditorWidget( QWidget* parent ) { return nullptr; }
-    virtual QWidget* createLabelWidget( QWidget* parent ) { return nullptr; }
+    virtual QWidget* createCombinedWidget( QWidget* parent );
+    virtual QWidget* createEditorWidget( QWidget* parent );
+    virtual QWidget* createLabelWidget( QWidget* parent );
 
     void setValueToField( const QVariant& value );
 
