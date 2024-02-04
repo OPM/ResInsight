@@ -5,6 +5,7 @@
 #include <QXmlStreamWriter>
 
 #include "cafInternalPdmFieldIoHelper.h"
+#include "cafInternalPdmFilePathStreamOperators.h"
 #include "cafInternalPdmStreamOperators.h"
 
 namespace caf
