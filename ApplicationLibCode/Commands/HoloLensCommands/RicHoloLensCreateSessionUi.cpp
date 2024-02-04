@@ -24,7 +24,6 @@
 #include "RicHoloLensServerSettings.h"
 
 #include "cafPdmSettings.h"
-#include "cafPdmUiOrdering.h"
 
 #include "cvfAssert.h"
 

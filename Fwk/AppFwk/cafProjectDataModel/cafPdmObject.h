@@ -44,6 +44,7 @@ class QXmlStreamWriter;
 #include "cafInternalPdmUiFieldCapability.h"
 #include "cafPdmObjectCapability.h"
 #include "cafPdmUiObjectHandle.h"
+#include "cafPdmUiOrdering.h"
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmXmlObjectHandleMacros.h"
 
