@@ -39,6 +39,7 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
