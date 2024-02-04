@@ -4,6 +4,8 @@
 #include "cafPdmObjectFactory.h"
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmObjectHandle.h"
+#include "cafPdmReferenceHelper.h"
 
 #include <QStringList>
 
