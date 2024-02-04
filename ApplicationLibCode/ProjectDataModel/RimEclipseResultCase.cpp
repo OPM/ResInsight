@@ -62,9 +62,11 @@
 #include "cafProgressInfo.h"
 #include "cafUtils.h"
 
+#include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+
 #include <fstream>
 #include <string>
 

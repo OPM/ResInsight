@@ -32,6 +32,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 
+#include <QApplication>
 #include <QMenu>
 #include <QPointer>
 

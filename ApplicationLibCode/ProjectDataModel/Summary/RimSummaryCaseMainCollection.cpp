@@ -47,6 +47,7 @@
 
 #include "cafProgressInfo.h"
 
+#include <QCoreApplication>
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
