@@ -63,6 +63,7 @@
 
 #include "cvfVector3.h"
 
+#include <QApplication>
 #include <QFileInfo>
 
 #include <array>
