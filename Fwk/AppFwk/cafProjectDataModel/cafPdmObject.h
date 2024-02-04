@@ -48,8 +48,6 @@ class QXmlStreamWriter;
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmXmlObjectHandleMacros.h"
 
-#include "cafPdmFieldHandle.h"
-
 namespace caf
 {
 class PdmFieldHandle;
