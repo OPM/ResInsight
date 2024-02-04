@@ -44,6 +44,8 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
 
+#include <QIODevice>
+
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, ... )                          \
     {                                                                                                \
         std::vector<QString> arguments = { __VA_ARGS__ };                                            \
