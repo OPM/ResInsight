@@ -1,6 +1,8 @@
 #pragma once
 
 #include "cafPdmUiFieldHandle.h"
+#include "cafPdmChildField.h"
+#include "cafPdmChildArrayField.h"
 
 namespace caf
 {
