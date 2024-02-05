@@ -240,11 +240,12 @@ jobs:
 
       - name: Stats for buildcache
         run: ${{ github.workspace }}/buildcache/bin/buildcache -s
+
       - name: Run Unit Tests
         if: matrix.config.execute-unit-tests
         shell: bash
         run: |
-          cmakebuild/ApplicationExeCode/ResInsight --unittest
+          cmakebuild/ApplicationLibCode/UnitTests/ResInsight-tests
 
       - name: (Python) Check types using mypy
         if: matrix.config.build-python-module

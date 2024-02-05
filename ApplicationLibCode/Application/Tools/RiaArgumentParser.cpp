@@ -130,9 +130,6 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
 
     progOpt->registerOption( "updateregressiontestbase", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "regressiontest", "<folder>", "System command", cvf::ProgramOptions::SINGLE_VALUE );
-#ifdef USE_UNIT_TESTS
-    progOpt->registerOption( "unittest", "", "System command" );
-#endif
     progOpt->registerOption( "generate", "[<outputFile>]", "Generate code or documentation", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "ignoreArgs", "", "System command. Ignore all arguments. Mostly for testing purposes" );
     progOpt->registerOption( "version", "", "Display the application version string" );

@@ -1,11 +1,6 @@
-configure_file(
-  ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
-  ${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h
-)
+# ResInsight unit tests
 
-set(SOURCE_GROUP_HEADER_FILES)
-
-set(SOURCE_GROUP_SOURCE_FILES
+set(SOURCE_UNITTEST_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Ert-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifcCommandCore-Test.cpp
@@ -104,17 +99,113 @@ set(SOURCE_GROUP_SOURCE_FILES
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
-  list(APPEND GPRC_UNIT_TEST_SOURCE_FILES
+  list(APPEND SOURCE_UNITTEST_FILES
        ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcInterface-Test.cpp
   )
-  list(APPEND SOURCE_GROUP_SOURCE_FILES ${GRPC_UNIT_TEST_SOURCE_FILES})
 endif(RESINSIGHT_ENABLE_GRPC)
 
-list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
+# Obsolete test
+if(RESINSIGHT_USE_ODB_API_OBSOLETE)
+  list(APPEND SOURCE_UNITTEST_FILES
+       ${CMAKE_CURRENT_LIST_DIR}/RifOdbReader-Test.cpp
+  )
+endif(RESINSIGHT_USE_ODB_API_OBSOLETE)
 
-list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
-
-source_group(
-  "UnitTests" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-                    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.11.0
 )
+
+FetchContent_MakeAvailable(googletest)
+
+# ##############################################################################
+# Copy required Dll/.so to output folder
+# ##############################################################################
+
+# create an empty library target that will be used to copy files to the build
+# folder
+add_library(ResInsightDummyTestTarget EXCLUDE_FROM_ALL empty.cpp)
+set_property(
+  TARGET ResInsightDummyTestTarget PROPERTY FOLDER "FileCopyTargetsTest"
+)
+
+# create a custom target that copies the files to the build folder
+foreach(riFileName ${RI_FILENAMES})
+  list(
+    APPEND
+    copyCommands
+    COMMAND
+    ${CMAKE_COMMAND}
+    -E
+    copy_if_different
+    ${riFileName}
+    $<TARGET_FILE_DIR:ResInsightDummyTestTarget>
+  )
+endforeach()
+add_custom_target(PreBuildFileCopyTest ${copyCommands})
+set_property(TARGET PreBuildFileCopyTest PROPERTY FOLDER "FileCopyTargetsTest")
+
+add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
+
+# Make ResInsight-tests depend on the prebuild target.
+add_dependencies(ResInsight-tests PreBuildFileCopyTest)
+
+configure_file(
+  ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
+  ${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h
+)
+
+target_include_directories(
+  ResInsight-tests
+  PUBLIC ${CMAKE_BINARY_DIR}/Generated
+         "$<TARGET_PROPERTY:ApplicationLibCode,PUBLIC_INCLUDE_DIRECTORIES>"
+         ${RI_PRIVATE_INCLUDES} ${PROJECT_SOURCE_DIR}/Commands
+)
+
+target_compile_features(ResInsight-tests PRIVATE cxx_std_20)
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  list(APPEND THIRD_PARTY_LIBRARIES rt atomic)
+endif()
+
+set(LINK_LIBRARIES
+    ${THIRD_PARTY_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    ${QT_LIBRARIES}
+    ${OPM_LIBRARIES}
+    ${APP_FWK_LIBRARIES}
+    ${VIZ_FWK_LIBRARIES}
+    ApplicationLibCode
+    Commands
+    RigGeoMechDataModel
+    RifGeoMechFileInterface
+)
+
+if(RESINSIGHT_ENABLE_GRPC)
+  list(APPEND LINK_LIBRARIES GrpcInterface)
+endif()
+
+if(RESINSIGHT_USE_ODB_API)
+  list(APPEND LINK_LIBRARIES RifOdbReader)
+endif()
+
+target_link_libraries(ResInsight-tests PUBLIC ${LINK_LIBRARIES} GTest::gtest)
+
+if(MSVC)
+  add_custom_command(
+    TARGET ResInsight-tests
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:ResInsight-tests>
+            $<TARGET_FILE_DIR:ResInsight-tests>
+    COMMAND_EXPAND_LISTS
+  )
+endif(MSVC)
+
+add_test(NAME ResInsight-tests COMMAND ResInsight-tests)
+
+install(TARGETS ResInsight-tests DESTINATION ${RESINSIGHT_INSTALL_FOLDER})

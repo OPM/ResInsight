@@ -142,10 +142,6 @@
 #include <unistd.h> // for usleep
 #endif // WIN32
 
-#ifdef USE_UNIT_TESTS
-#include "gtest/gtest.h"
-#endif // USE_UNIT_TESTS
-
 //==================================================================================================
 ///
 /// \class RiaGuiApplication
@@ -482,22 +478,6 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         }
 
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
-    }
-
-    // Unit testing
-    // --------------------------------------------------------
-    if ( cvf::Option o = progOpt->option( "unittest" ) )
-    {
-        int testReturnValue = launchUnitTestsWithConsole();
-        if ( testReturnValue == 0 )
-        {
-            return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
-        }
-        else
-        {
-            RiaLogging::error( "Error running unit tests" );
-            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
-        }
     }
 
     if ( cvf::Option o = progOpt->option( "regressiontest" ) )
@@ -889,31 +869,6 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
     }
 
     return ApplicationStatus::KEEP_GOING;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RiaGuiApplication::launchUnitTestsWithConsole()
-{
-    // Following code is taken from cvfAssert.cpp
-#ifdef WIN32
-    {
-        // Allocate a new console for this app
-        // Only one console can be associated with an app, so should fail if a console is already present.
-        AllocConsole();
-
-        FILE* consoleFilePointer;
-
-        freopen_s( &consoleFilePointer, "CONOUT$", "w", stdout );
-        freopen_s( &consoleFilePointer, "CONOUT$", "w", stderr );
-
-        // Make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
-        std::ios::sync_with_stdio();
-    }
-#endif
-
-    return launchUnitTests();
 }
 
 //--------------------------------------------------------------------------------------------------

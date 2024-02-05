@@ -315,7 +315,7 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
     if ( !columnInfoList ) return false;
 
     columnInfoList->clear();
-    while ( !headerFound )
+    while ( !headerFound && dataStream->status() == QTextStream::Status::Ok )
     {
         QString line = dataStream->readLine();
         if ( line.trimmed().isEmpty() )
@@ -341,7 +341,7 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
         auto    startOfLineWithDataValues = dataStream->pos();
         bool    hasDataValues             = false;
         QString nameFromData;
-        while ( !hasDataValues )
+        while ( !hasDataValues && !dataStream->atEnd() )
         {
             QString candidateLine = dataStream->readLine();
 
@@ -373,6 +373,8 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                        
                 startOfLineWithDataValues = dataStream->pos();
             }
         }
+
+        if ( !hasDataValues ) break;
 
         dataStream->seek( startOfLineWithDataValues );
 

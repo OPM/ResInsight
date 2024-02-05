@@ -516,7 +516,6 @@ void RiuMainWindow::createMenus()
     testMenu->addSeparator();
     testMenu->addAction( m_showRegressionTestDialog );
     testMenu->addAction( m_executePaintEventPerformanceTest );
-    testMenu->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectNoGlobalPathsFeature" ) );
@@ -665,7 +664,6 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar( tr( "Test" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
-        toolbar->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestDialogFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicShowClassNamesFeature" ) );

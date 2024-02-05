@@ -154,22 +154,6 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
-    // Unit testing
-    // --------------------------------------------------------
-    if ( cvf::Option o = progOpt->option( "unittest" ) )
-    {
-        int testReturnValue = launchUnitTestsWithConsole();
-        if ( testReturnValue == 0 )
-        {
-            return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
-        }
-        else
-        {
-            RiaLogging::error( "Error running unit tests" );
-            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
-        }
-    }
-
     if ( cvf::Option o = progOpt->option( "startdir" ) )
     {
         CVF_ASSERT( o.valueCount() == 1 );
