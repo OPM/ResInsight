@@ -80,11 +80,6 @@ private:
 
     static void addOverburdenAndUnderburdenPoints( std::vector<cvf::Vec3d>& intersections, const std::vector<cvf::Vec3d>& wellPathPoints );
 
-    static std::pair<bool, RimFaultReactivation::ElementSets>
-        findElementSetForPoint( const RigGriddedPart3d&                                                       part,
-                                const cvf::Vec3d&                                                             point,
-                                const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets );
-
     RimEclipseCase*             m_eclipseCase;
     RigEclipseCaseData*         m_caseData;
     const RigMainGrid*          m_mainGrid;

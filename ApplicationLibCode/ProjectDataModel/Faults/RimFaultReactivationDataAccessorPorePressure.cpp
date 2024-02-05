@@ -112,8 +112,12 @@ double RimFaultReactivationDataAccessorPorePressure::valueAtPosition( const cvf:
         auto [values, intersections] =
             RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
-        auto [value, pos] =
-            RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( intersections, values, position, m_defaultPorePressureGradient );
+        auto [value, pos] = RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( model,
+                                                                                                gridPart,
+                                                                                                intersections,
+                                                                                                values,
+                                                                                                position,
+                                                                                                m_defaultPorePressureGradient );
         if ( pos.isUndefined() )
         {
             auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
