@@ -31,6 +31,7 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
@@ -322,6 +323,12 @@ void RimGeoMechView::onCreateDisplayModel()
     m_seismicVizModel->removeAllParts();
     m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), femBBox );
     nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
+
+    // Polygons
+
+    m_polygonVizModel->removeAllParts();
+    m_polygonCollection->appendPartsToModel( m_polygonVizModel.p(), transform.p(), femBBox );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
 
     // Surfaces
 
@@ -1046,6 +1053,8 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
+
+    uiTreeOrdering.add( m_polygonCollection );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

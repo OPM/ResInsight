@@ -815,7 +815,7 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
     }
     else if ( type() == CrossSectionEnum::CS_POLYLINE )
     {
-        lines.push_back( m_polygon->pointsInDomainCoords() );
+        if ( m_polygon() ) lines.push_back( m_polygon->pointsInDomainCoords() );
     }
     else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
