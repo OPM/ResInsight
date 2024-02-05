@@ -63,11 +63,26 @@ RimFaultReactivationDataAccessorWellLogExtraction::~RimFaultReactivationDataAcce
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const std::vector<cvf::Vec3d>& intersections,
-                                                                                                  std::vector<double>& values,
-                                                                                                  const cvf::Vec3d&    position,
-                                                                                                  double               gradient )
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const RigFaultReactivationModel& model,
+                                                                                                  RimFaultReactivation::GridPart   gridPart,
+                                                                                                  const std::vector<cvf::Vec3d>& intersections,
+                                                                                                  std::vector<double>&           values,
+                                                                                                  const cvf::Vec3d&              position,
+                                                                                                  double                         gradient )
 {
+    auto part = model.grid( gridPart );
+    CAF_ASSERT( part );
+    auto elementSets = part->elementSets();
+
+    auto [isOk, elementSet] = RimFaultReactivationDataAccessorWellLogExtraction::findElementSetForPoint( *part, position, elementSets );
+    if ( isOk && ( elementSet == RimFaultReactivation::ElementSets::OverBurden || elementSet == RimFaultReactivation::ElementSets::UnderBurden ) )
+    {
+        auto calculatePorePressure = []( double depth, double gradient )
+        { return RiaEclipseUnitTools::pascalToBar( gradient * 9.81 * depth * 1000.0 ); };
+
+        return { calculatePorePressure( std::abs( position.z() ), gradient ), position };
+    }
+
     // Fill in missing values
     fillInMissingValuesWithGradient( intersections, values, gradient );
     auto [value, extractionPosition] = findValueAndPosition( intersections, values, position );
@@ -436,4 +451,35 @@ double RimFaultReactivationDataAccessorWellLogExtraction::computeMinimumDistance
     }
 
     return std::sqrt( minDistance );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, RimFaultReactivation::ElementSets> RimFaultReactivationDataAccessorWellLogExtraction::findElementSetForPoint(
+    const RigGriddedPart3d&                                                       part,
+    const cvf::Vec3d&                                                             point,
+    const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets )
+{
+    for ( auto [elementSet, elements] : elementSets )
+    {
+        for ( unsigned int elementIndex : elements )
+        {
+            // Find nodes from element
+            auto positions = part.elementCorners( elementIndex );
+
+            std::array<cvf::Vec3d, 8> coordinates;
+            for ( size_t i = 0; i < positions.size(); ++i )
+            {
+                coordinates[i] = positions[i];
+            }
+
+            if ( RigHexIntersectionTools::isPointInCell( point, coordinates.data() ) )
+            {
+                return { true, elementSet };
+            }
+        }
+    }
+
+    return { false, RimFaultReactivation::ElementSets::OverBurden };
 }

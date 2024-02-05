@@ -199,7 +199,7 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::cal
             RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
         auto [value, extractionPos] =
-            RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( intersections, values, position, m_gradient );
+            RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( *m_model, gridPart, intersections, values, position, m_gradient );
         if ( extractionPos.isUndefined() )
         {
             auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
@@ -248,7 +248,8 @@ std::vector<double>
         double deltaDepth = previousDepth - currentDepth;
         double density    = previousDensity;
 
-        auto [isOk, elementSet] = findElementSetForPoint( *part, intersections[i], elementSets );
+        auto [isOk, elementSet] =
+            RimFaultReactivationDataAccessorWellLogExtraction::findElementSetForPoint( *part, intersections[i], elementSets );
         if ( isOk )
         {
             // Unit: kg/m^3
@@ -264,37 +265,6 @@ std::vector<double>
 
     return values;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<bool, RimFaultReactivation::ElementSets> RimFaultReactivationDataAccessorStressEclipse::findElementSetForPoint(
-    const RigGriddedPart3d&                                                       part,
-    const cvf::Vec3d&                                                             point,
-    const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets )
-{
-    for ( auto [elementSet, elements] : elementSets )
-    {
-        for ( unsigned int elementIndex : elements )
-        {
-            // Find nodes from element
-            auto positions = part.elementCorners( elementIndex );
-
-            std::array<cvf::Vec3d, 8> coordinates;
-            for ( size_t i = 0; i < positions.size(); ++i )
-            {
-                coordinates[i] = positions[i];
-            }
-
-            if ( RigHexIntersectionTools::isPointInCell( point, coordinates.data() ) )
-            {
-                return { true, elementSet };
-            }
-        }
-    }
-
-    return { false, RimFaultReactivation::ElementSets::OverBurden };
-};
 
 //--------------------------------------------------------------------------------------------------
 ///

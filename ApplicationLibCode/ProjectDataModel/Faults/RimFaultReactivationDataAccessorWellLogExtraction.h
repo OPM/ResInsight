@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RigGriddedPart3d.h"
 #include "RimFaultReactivationDataAccessor.h"
 #include "RimFaultReactivationEnums.h"
 
@@ -29,6 +30,7 @@ class RigWellPath;
 class RigEclipseWellLogExtractor;
 class RigEclipseCaseData;
 class RigResultAccessor;
+class RigGriddedPart3d;
 
 //==================================================================================================
 ///
@@ -40,8 +42,12 @@ public:
     RimFaultReactivationDataAccessorWellLogExtraction();
     ~RimFaultReactivationDataAccessorWellLogExtraction();
 
-    static std::pair<double, cvf::Vec3d>
-        calculatePorBar( const std::vector<cvf::Vec3d>& intersections, std::vector<double>& values, const cvf::Vec3d& position, double gradient );
+    static std::pair<double, cvf::Vec3d> calculatePorBar( const RigFaultReactivationModel& model,
+                                                          RimFaultReactivation::GridPart   gridPart,
+                                                          const std::vector<cvf::Vec3d>&   intersections,
+                                                          std::vector<double>&             values,
+                                                          const cvf::Vec3d&                position,
+                                                          double                           gradient );
 
     static std::pair<double, cvf::Vec3d> calculateTemperature( const std::vector<cvf::Vec3d>& intersections,
                                                                std::vector<double>&           values,
@@ -63,6 +69,11 @@ public:
                                                                                                   RigEclipseWellLogExtractor& extractor,
                                                                                                   const RigWellPath&          wellPath );
     static std::pair<int, int> findIntersectionsForTvd( const std::vector<cvf::Vec3d>& intersections, double tvd );
+
+    static std::pair<bool, RimFaultReactivation::ElementSets>
+        findElementSetForPoint( const RigGriddedPart3d&                                                       part,
+                                const cvf::Vec3d&                                                             point,
+                                const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets );
 
 protected:
     static std::pair<int, int> findOverburdenAndUnderburdenIndex( const std::vector<double>& values );
