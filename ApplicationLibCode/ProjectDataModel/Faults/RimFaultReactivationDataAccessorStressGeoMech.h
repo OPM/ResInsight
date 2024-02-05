@@ -62,8 +62,10 @@ private:
 
     double extractStressValue( StressType stressType, const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const override;
 
-    std::pair<double, cvf::Vec3d>
-        calculatePorBar( const cvf::Vec3d& position, double gradient, RimFaultReactivation::GridPart gridPart ) const override;
+    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d&                 position,
+                                                   RimFaultReactivation::ElementSets elementSet,
+                                                   double                            gradient,
+                                                   RimFaultReactivation::GridPart    gridPart ) const override;
 
     bool isPositionValid( const cvf::Vec3d&              position,
                           const cvf::Vec3d&              topPosition,
@@ -77,21 +79,22 @@ private:
                                     const cvf::Vec3d&         position,
                                     const std::vector<float>& scalarResults ) const;
 
-    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d&              position,
-                                                   double                         gradient,
-                                                   RimFaultReactivation::GridPart gridPart,
-                                                   int                            timeStepIndex,
-                                                   int                            frameIndex ) const;
+    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d&                 position,
+                                                   RimFaultReactivation::ElementSets elementSet,
+                                                   double                            gradient,
+                                                   RimFaultReactivation::GridPart    gridPart,
+                                                   int                               timeStepIndex,
+                                                   int                               frameIndex ) const;
 
     RigFemScalarResultFrames* dataFrames( StressType stressType ) const;
 
-    RimGeoMechCase*           m_geoMechCase;
-    RigGeoMechCaseData*       m_geoMechCaseData;
-    RigFemScalarResultFrames* m_s11Frames;
-    RigFemScalarResultFrames* m_s22Frames;
-    RigFemScalarResultFrames* m_s33Frames;
-    RigFemScalarResultFrames* m_porBarFrames;
-    const RigFemPart*         m_femPart;
+    RimGeoMechCase*                 m_geoMechCase;
+    RigGeoMechCaseData*             m_geoMechCaseData;
+    RigFemScalarResultFrames*       m_s11Frames;
+    RigFemScalarResultFrames*       m_s22Frames;
+    RigFemScalarResultFrames*       m_s33Frames;
+    const RigFemScalarResultFrames* m_porBarFrames;
+    const RigFemPart*               m_femPart;
 
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>                m_wellPaths;
     std::map<RimFaultReactivation::GridPart, cvf::ref<RigGeoMechWellLogExtractor>> m_extractors;

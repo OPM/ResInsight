@@ -66,20 +66,13 @@ RimFaultReactivationDataAccessorWellLogExtraction::~RimFaultReactivationDataAcce
 std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const RigFaultReactivationModel& model,
                                                                                                   RimFaultReactivation::GridPart   gridPart,
                                                                                                   const std::vector<cvf::Vec3d>& intersections,
-                                                                                                  std::vector<double>&           values,
-                                                                                                  const cvf::Vec3d&              position,
-                                                                                                  double                         gradient )
+                                                                                                  std::vector<double>& values,
+                                                                                                  const cvf::Vec3d&    position,
+                                                                                                  RimFaultReactivation::ElementSets elementSet,
+                                                                                                  double gradient )
 {
-    auto part = model.grid( gridPart );
-    CAF_ASSERT( part );
-    auto elementSets = part->elementSets();
-
-    auto [isOk, elementSet] = RimFaultReactivationDataAccessorWellLogExtraction::findElementSetForPoint( *part, position, elementSets );
-    if ( isOk && ( elementSet == RimFaultReactivation::ElementSets::OverBurden || elementSet == RimFaultReactivation::ElementSets::UnderBurden ) )
+    if ( elementSet == RimFaultReactivation::ElementSets::OverBurden || elementSet == RimFaultReactivation::ElementSets::UnderBurden )
     {
-        auto calculatePorePressure = []( double depth, double gradient )
-        { return RiaEclipseUnitTools::pascalToBar( gradient * 9.81 * depth * 1000.0 ); };
-
         return { calculatePorePressure( std::abs( position.z() ), gradient ), position };
     }
 
@@ -235,9 +228,6 @@ void RimFaultReactivationDataAccessorWellLogExtraction::fillInMissingValuesWithG
                                                                                          double                         gradient )
 {
     CAF_ASSERT( intersections.size() == values.size() );
-
-    auto calculatePorePressure = []( double depth, double gradient )
-    { return RiaEclipseUnitTools::pascalToBar( gradient * 9.81 * depth * 1000.0 ); };
 
     auto [lastOverburdenIndex, firstUnderburdenIndex] = findOverburdenAndUnderburdenIndex( values );
 
@@ -482,4 +472,12 @@ std::pair<bool, RimFaultReactivation::ElementSets> RimFaultReactivationDataAcces
     }
 
     return { false, RimFaultReactivation::ElementSets::OverBurden };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationDataAccessorWellLogExtraction::calculatePorePressure( double depth, double gradient )
+{
+    return RiaEclipseUnitTools::pascalToBar( gradient * 9.81 * depth * 1000.0 );
 }

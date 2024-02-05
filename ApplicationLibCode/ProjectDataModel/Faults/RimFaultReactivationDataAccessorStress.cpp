@@ -83,19 +83,22 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
 
     cvf::Vec3d topPosition( position.x(), position.y(), topDepth );
     cvf::Vec3d bottomPosition( position.x(), position.y(), bottomDepth );
+    auto       part = model.grid( gridPart );
+
+    auto [isOk, elementSet] = findElementSetForElementIndex( part->elementSets(), static_cast<int>( elementIndex ) );
 
     if ( isPositionValid( position, topPosition, bottomPosition, gridPart ) )
     {
         if ( m_property == RimFaultReactivation::Property::StressTop )
         {
-            auto [porBar, extractionPos] = calculatePorBar( topPosition, m_gradient, gridPart );
+            auto [porBar, extractionPos] = calculatePorBar( topPosition, elementSet, m_gradient, gridPart );
             if ( std::isinf( porBar ) ) return porBar;
             double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
             return -RiaEclipseUnitTools::barToPascal( s33 - porBar );
         }
         else if ( m_property == RimFaultReactivation::Property::StressBottom )
         {
-            auto [porBar, extractionPos] = calculatePorBar( bottomPosition, m_gradient, gridPart );
+            auto [porBar, extractionPos] = calculatePorBar( bottomPosition, elementSet, m_gradient, gridPart );
             if ( std::isinf( porBar ) ) return porBar;
             double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
             return -RiaEclipseUnitTools::barToPascal( s33 - porBar );
@@ -110,11 +113,11 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
         }
         else if ( m_property == RimFaultReactivation::Property::LateralStressComponentX )
         {
-            return lateralStressComponentX( position, gridPart );
+            return lateralStressComponentX( position, elementSet, gridPart );
         }
         else if ( m_property == RimFaultReactivation::Property::LateralStressComponentY )
         {
-            return lateralStressComponentY( position, gridPart );
+            return lateralStressComponentY( position, elementSet, gridPart );
         }
     }
 
@@ -124,9 +127,11 @@ double RimFaultReactivationDataAccessorStress::valueAtPosition( const cvf::Vec3d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStress::lateralStressComponentX( const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const
+double RimFaultReactivationDataAccessorStress::lateralStressComponentX( const cvf::Vec3d&                 position,
+                                                                        RimFaultReactivation::ElementSets elementSet,
+                                                                        RimFaultReactivation::GridPart    gridPart ) const
 {
-    auto [porBar, extractionPos] = calculatePorBar( position, m_gradient, gridPart );
+    auto [porBar, extractionPos] = calculatePorBar( position, elementSet, m_gradient, gridPart );
     if ( std::isinf( porBar ) ) return porBar;
     double s11 = extractStressValue( StressType::S11, extractionPos, gridPart );
     double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
@@ -136,9 +141,11 @@ double RimFaultReactivationDataAccessorStress::lateralStressComponentX( const cv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStress::lateralStressComponentY( const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const
+double RimFaultReactivationDataAccessorStress::lateralStressComponentY( const cvf::Vec3d&                 position,
+                                                                        RimFaultReactivation::ElementSets elementSet,
+                                                                        RimFaultReactivation::GridPart    gridPart ) const
 {
-    auto [porBar, extractionPos] = calculatePorBar( position, m_gradient, gridPart );
+    auto [porBar, extractionPos] = calculatePorBar( position, elementSet, m_gradient, gridPart );
     if ( std::isinf( porBar ) ) return porBar;
     double s22 = extractStressValue( StressType::S22, extractionPos, gridPart );
     double s33 = extractStressValue( StressType::S33, extractionPos, gridPart );
