@@ -146,7 +146,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 set(LINK_LIBRARIES ApplicationLibCode Commands RigGeoMechDataModel
-                   RifGeoMechFileInterface ${THIRD_PARTY_LIBRARIES}
+                   RifGeoMechFileInterface ${THIRD_PARTY_LIBRARIES} ${OPENGL_LIBRARIES}
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
