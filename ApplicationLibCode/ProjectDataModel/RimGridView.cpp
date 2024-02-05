@@ -18,6 +18,7 @@
 
 #include "RimGridView.h"
 
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -96,6 +97,9 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
     m_seismicSectionCollection = new RimSeismicSectionCollection();
 
+    CAF_PDM_InitFieldNoDefault( &m_polygonCollection, "PolygonCollection", "Polygon Collection Field" );
+    m_polygonCollection = new RimPolygonInViewCollection();
+
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
 
@@ -104,6 +108,9 @@ RimGridView::RimGridView()
 
     m_intersectionVizModel = new cvf::ModelBasicList;
     m_intersectionVizModel->setName( "CrossSectionModel" );
+
+    m_polygonVizModel = new cvf::ModelBasicList;
+    m_polygonVizModel->setName( "PolygonModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,6 +166,14 @@ RimSurfaceInViewCollection* RimGridView::surfaceInViewCollection() const
 RimSeismicSectionCollection* RimGridView::seismicSectionCollection() const
 {
     return m_seismicSectionCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonInViewCollection* RimGridView::polygonCollection() const
+{
+    return m_polygonCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -473,6 +488,8 @@ void RimGridView::updateSurfacesInViewTreeItems()
     {
         delete m_surfaceCollection;
     }
+
+    m_polygonCollection->syncPolygonsInView();
 
     updateConnectedEditors();
 }
