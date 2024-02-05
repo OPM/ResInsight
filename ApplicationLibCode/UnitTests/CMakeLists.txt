@@ -1,4 +1,3 @@
-
 # ResInsight unit tests
 
 set(SOURCE_UNITTEST_FILES
@@ -112,19 +111,18 @@ if(RESINSIGHT_USE_ODB_API_OBSOLETE)
   )
 endif(RESINSIGHT_USE_ODB_API_OBSOLETE)
 
-
 include(FetchContent)
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.11.0
+  GIT_TAG release-1.11.0
 )
 
 FetchContent_MakeAvailable(googletest)
 
 include(GoogleTest)
 
-add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp )
+add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
 
 configure_file(
   ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
@@ -132,11 +130,10 @@ configure_file(
 )
 
 target_include_directories(
-  ResInsight-tests 
-  PUBLIC ${CMAKE_BINARY_DIR}/Generated 
-  "$<TARGET_PROPERTY:ApplicationLibCode,PUBLIC_INCLUDE_DIRECTORIES>"
-  ${RI_PRIVATE_INCLUDES}
-  ${PROJECT_SOURCE_DIR}/Commands
+  ResInsight-tests
+  PUBLIC ${CMAKE_BINARY_DIR}/Generated
+         "$<TARGET_PROPERTY:ApplicationLibCode,PUBLIC_INCLUDE_DIRECTORIES>"
+         ${RI_PRIVATE_INCLUDES} ${PROJECT_SOURCE_DIR}/Commands
 )
 
 target_compile_features(ResInsight-tests PRIVATE cxx_std_20)
@@ -148,12 +145,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND THIRD_PARTY_LIBRARIES rt atomic)
 endif()
 
-set(LINK_LIBRARIES
-    ApplicationLibCode
-    Commands
-    RigGeoMechDataModel 
-    RifGeoMechFileInterface
-    ${THIRD_PARTY_LIBRARIES}
+set(LINK_LIBRARIES ApplicationLibCode Commands RigGeoMechDataModel
+                   RifGeoMechFileInterface ${THIRD_PARTY_LIBRARIES}
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
@@ -164,8 +157,8 @@ if(RESINSIGHT_USE_ODB_API)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 
-target_link_libraries(ResInsight-tests PUBLIC ${LINK_LIBRARIES} GTest::gtest_main )
+target_link_libraries(
+  ResInsight-tests PUBLIC ${LINK_LIBRARIES} GTest::gtest_main
+)
 
 gtest_discover_tests(ResInsight-tests)
-
-
