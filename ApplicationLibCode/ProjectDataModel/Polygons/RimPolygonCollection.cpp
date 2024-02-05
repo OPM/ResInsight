@@ -31,15 +31,6 @@ RimPolygonCollection::RimPolygonCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
     CAF_PDM_InitFieldNoDefault( &m_polygonFiles, "PolygonFiles", "Polygon Files" );
-
-    auto polygon = new RimPolygon();
-    polygon->setName( "Polygon 1" );
-    m_polygons().push_back( polygon );
-
-    auto polygonFile = new RimPolygonFile();
-    polygonFile->setName( "Polygon 2" );
-    polygonFile->loadData();
-    m_polygonFiles().push_back( polygonFile );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +54,7 @@ void RimPolygonCollection::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::addPolygon( RimPolygon* polygon )
+void RimPolygonCollection::addUserDefinedPolygon( RimPolygon* polygon )
 {
     m_polygons().push_back( polygon );
 }
@@ -71,9 +62,56 @@ void RimPolygonCollection::addPolygon( RimPolygon* polygon )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonCollection::deletePolygons()
+void RimPolygonCollection::deleteUserDefinedPolygons()
 {
     m_polygons().deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonCollection::addPolygonFile( RimPolygonFile* polygonFile )
+{
+    m_polygonFiles().push_back( polygonFile );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygon*> RimPolygonCollection::userDefinedPolygons() const
+{
+    return m_polygons.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygonFile*> RimPolygonCollection::polygonFiles() const
+{
+    return m_polygonFiles.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygon*> RimPolygonCollection::allPolygons() const
+{
+    std::vector<RimPolygon*> allPolygons;
+
+    for ( auto& p : m_polygonFiles() )
+    {
+        for ( auto& polygon : p->polygons() )
+        {
+            allPolygons.push_back( polygon );
+        }
+    }
+
+    for ( auto& polygon : m_polygons.childrenByType() )
+    {
+        allPolygons.push_back( polygon );
+    }
+
+    return allPolygons;
 }
 
 //--------------------------------------------------------------------------------------------------
