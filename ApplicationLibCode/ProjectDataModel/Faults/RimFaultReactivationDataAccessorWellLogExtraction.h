@@ -42,12 +42,13 @@ public:
     RimFaultReactivationDataAccessorWellLogExtraction();
     ~RimFaultReactivationDataAccessorWellLogExtraction();
 
-    static std::pair<double, cvf::Vec3d> calculatePorBar( const RigFaultReactivationModel& model,
-                                                          RimFaultReactivation::GridPart   gridPart,
-                                                          const std::vector<cvf::Vec3d>&   intersections,
-                                                          std::vector<double>&             values,
-                                                          const cvf::Vec3d&                position,
-                                                          double                           gradient );
+    static std::pair<double, cvf::Vec3d> calculatePorBar( const RigFaultReactivationModel&  model,
+                                                          RimFaultReactivation::GridPart    gridPart,
+                                                          const std::vector<cvf::Vec3d>&    intersections,
+                                                          std::vector<double>&              values,
+                                                          const cvf::Vec3d&                 position,
+                                                          RimFaultReactivation::ElementSets elementSet,
+                                                          double                            gradient );
 
     static std::pair<double, cvf::Vec3d> calculateTemperature( const std::vector<cvf::Vec3d>& intersections,
                                                                std::vector<double>&           values,
@@ -100,4 +101,6 @@ protected:
                                           int                            lastOverburdenIndex,
                                           double                         topValue );
     static double computeMinimumDistance( const cvf::Vec3d& position, const std::vector<cvf::Vec3d>& positions );
+
+    static double calculatePorePressure( double depth, double gradient );
 };

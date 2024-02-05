@@ -21,6 +21,7 @@
 #include "RigFaultReactivationModel.h"
 #include "RigMainGrid.h"
 
+#include "RimFaultReactivationEnums.h"
 #include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -47,4 +48,22 @@ void RimFaultReactivationDataAccessor::setModelAndTimeStep( const RigFaultReacti
     m_model    = &model;
     m_timeStep = timeStep;
     updateResultAccessor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, RimFaultReactivation::ElementSets> RimFaultReactivationDataAccessor::findElementSetForElementIndex(
+    const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets,
+    int                                                                           elementIndex )
+{
+    for ( auto [s, indexes] : elementSets )
+    {
+        if ( std::find( indexes.begin(), indexes.end(), elementIndex ) != indexes.end() )
+        {
+            return std::pair<bool, RimFaultReactivation::ElementSets>( true, s );
+        }
+    }
+
+    return std::pair<bool, RimFaultReactivation::ElementSets>( false, RimFaultReactivation::ElementSets::OverBurden );
 }

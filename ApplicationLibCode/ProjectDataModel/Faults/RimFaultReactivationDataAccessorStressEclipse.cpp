@@ -176,15 +176,17 @@ bool RimFaultReactivationDataAccessorStressEclipse::isPositionValid( const cvf::
                                                                      const cvf::Vec3d&              bottomPosition,
                                                                      RimFaultReactivation::GridPart gridPart ) const
 {
-    auto [porBar, extractionPosition] = calculatePorBar( position, m_gradient, gridPart );
-    return !std::isinf( porBar );
+    // auto [porBar, extractionPosition] = calculatePorBar( position, m_gradient, gridPart );
+    // return !std::isinf( porBar );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::calculatePorBar( const cvf::Vec3d& position,
-                                                                                              double            gradient,
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::calculatePorBar( const cvf::Vec3d&                 position,
+                                                                                              RimFaultReactivation::ElementSets elementSet,
+                                                                                              double                            gradient,
                                                                                               RimFaultReactivation::GridPart gridPart ) const
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
@@ -198,8 +200,13 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressEclipse::cal
         auto [values, intersections] =
             RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
-        auto [value, extractionPos] =
-            RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( *m_model, gridPart, intersections, values, position, m_gradient );
+        auto [value, extractionPos] = RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( *m_model,
+                                                                                                          gridPart,
+                                                                                                          intersections,
+                                                                                                          values,
+                                                                                                          position,
+                                                                                                          elementSet,
+                                                                                                          m_gradient );
         if ( extractionPos.isUndefined() )
         {
             auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
@@ -269,8 +276,9 @@ std::vector<double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentX( const cvf::Vec3d&              position,
-                                                                               RimFaultReactivation::GridPart gridPart ) const
+double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentX( const cvf::Vec3d&                 position,
+                                                                               RimFaultReactivation::ElementSets elementSet,
+                                                                               RimFaultReactivation::GridPart    gridPart ) const
 {
     return m_lateralStressComponent;
 }
@@ -278,8 +286,9 @@ double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentX( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentY( const cvf::Vec3d&              position,
-                                                                               RimFaultReactivation::GridPart gridPart ) const
+double RimFaultReactivationDataAccessorStressEclipse::lateralStressComponentY( const cvf::Vec3d&                 position,
+                                                                               RimFaultReactivation::ElementSets elementSet,
+                                                                               RimFaultReactivation::GridPart    gridPart ) const
 {
     return m_lateralStressComponent;
 }

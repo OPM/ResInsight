@@ -109,24 +109,24 @@ double RimFaultReactivationDataAccessorPorePressure::valueAtPosition( const cvf:
         CAF_ASSERT( m_wellPaths.find( gridPart ) != m_wellPaths.end() );
         auto wellPath = m_wellPaths.find( gridPart )->second;
 
+        auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
+        if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+        {
+            double valueFromEclipse = m_resultAccessor->cellScalar( cellIdx );
+            if ( !std::isinf( valueFromEclipse ) ) return RiaEclipseUnitTools::barToPascal( valueFromEclipse );
+        }
+
         auto [values, intersections] =
             RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
-        auto [value, pos] = RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( model,
+        RimFaultReactivation::ElementSets elementSet = RimFaultReactivation::ElementSets::UnderBurden;
+        auto [value, pos]                            = RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( model,
                                                                                                 gridPart,
                                                                                                 intersections,
                                                                                                 values,
                                                                                                 position,
+                                                                                                elementSet,
                                                                                                 m_defaultPorePressureGradient );
-        if ( pos.isUndefined() )
-        {
-            auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-            if ( cellIdx != cvf::UNDEFINED_SIZE_T )
-            {
-                double valueFromEclipse = m_resultAccessor->cellScalar( cellIdx );
-                if ( !std::isinf( valueFromEclipse ) ) return RiaEclipseUnitTools::barToPascal( valueFromEclipse );
-            }
-        }
 
         return RiaEclipseUnitTools::barToPascal( value );
     }
