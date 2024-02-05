@@ -17,14 +17,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPolygonInterface.h"
+#include "RimNamedObject.h"
 
 #include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 
 class RimPolygon;
 
-class RimPolygonFile : public RimPolygonInterface
+class RimPolygonFile : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -32,7 +32,9 @@ public:
     RimPolygonFile();
     ~RimPolygonFile() override;
 
-    void loadData() override;
+    void loadData();
+
+    std::vector<RimPolygon*> polygons() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
