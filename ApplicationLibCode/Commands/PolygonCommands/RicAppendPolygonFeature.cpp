@@ -37,9 +37,7 @@ void RicAppendPolygonFeature::onActionTriggered( bool isChecked )
     auto proj              = RimProject::current();
     auto polygonCollection = proj->activeOilField()->polygonCollection();
 
-    auto newPolygon = new RimPolygon();
-    newPolygon->setName( "Polygon " + QString::number( polygonCollection->userDefinedPolygons().size() + 1 ) );
-    polygonCollection->addUserDefinedPolygon( newPolygon );
+    auto newPolygon = polygonCollection->appendUserDefinedPolygon();
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 
     RiuPlotMainWindowTools::setExpanded( newPolygon );

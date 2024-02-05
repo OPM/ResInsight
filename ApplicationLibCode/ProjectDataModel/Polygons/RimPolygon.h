@@ -28,15 +28,23 @@ class RimPolygon : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> objectChanged;
+
+public:
     RimPolygon();
     ~RimPolygon() override;
 
+    void                    setPointsInDomainCoords( const std::vector<cvf::Vec3d>& points );
+    void                    appendPointInDomainCoords( const cvf::Vec3d& point );
     std::vector<cvf::Vec3d> pointsInDomainCoords() const;
     bool                    isClosed() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
 private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_pointsInDomainCoords;

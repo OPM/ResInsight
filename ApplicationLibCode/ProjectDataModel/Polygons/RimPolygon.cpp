@@ -24,6 +24,8 @@ CAF_PDM_SOURCE_INIT( RimPolygon, "RimPolygon" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolygon::RimPolygon()
+    : objectChanged( this )
+
 {
     CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
@@ -38,6 +40,22 @@ RimPolygon::RimPolygon()
 //--------------------------------------------------------------------------------------------------
 RimPolygon::~RimPolygon()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::setPointsInDomainCoords( const std::vector<cvf::Vec3d>& points )
+{
+    m_pointsInDomainCoords = points;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::appendPointInDomainCoords( const cvf::Vec3d& point )
+{
+    m_pointsInDomainCoords.v().push_back( point );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +77,27 @@ bool RimPolygon::isClosed() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygon::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
 }
@@ -68,4 +107,8 @@ void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( changedField == &m_pointsInDomainCoords )
+    {
+        objectChanged.send();
+    }
 }
