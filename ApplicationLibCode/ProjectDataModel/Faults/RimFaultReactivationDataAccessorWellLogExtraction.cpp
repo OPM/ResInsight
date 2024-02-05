@@ -66,9 +66,9 @@ RimFaultReactivationDataAccessorWellLogExtraction::~RimFaultReactivationDataAcce
 std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( const RigFaultReactivationModel& model,
                                                                                                   RimFaultReactivation::GridPart   gridPart,
                                                                                                   const std::vector<cvf::Vec3d>& intersections,
-                                                                                                  std::vector<double>&           values,
-                                                                                                  const cvf::Vec3d&              position,
-                                                                                                  double                         gradient )
+                                                                                                  std::vector<double>& values,
+                                                                                                  const cvf::Vec3d&    position,
+                                                                                                  double               gradient )
 {
     auto part = model.grid( gridPart );
     CAF_ASSERT( part );
