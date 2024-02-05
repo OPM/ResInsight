@@ -90,7 +90,6 @@ find_package(Eigen3 REQUIRED)
 # Defining all the source (and header) files
 # ##############################################################################
 
-
 list(
   APPEND
   REFERENCED_CMAKE_FILES
@@ -235,12 +234,8 @@ qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
 # ##############################################################################
 source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
 
-list(
-  APPEND
-  ALL_SOURCE_FILES
-  ${CPP_SOURCES}
-  ${MOC_SOURCE_FILES}
-  ${FORM_FILES_CPP}
+list(APPEND ALL_SOURCE_FILES ${CPP_SOURCES} ${MOC_SOURCE_FILES}
+     ${FORM_FILES_CPP}
 )
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
@@ -439,4 +434,3 @@ if(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
   enable_testing()
   add_subdirectory(UnitTests)
 endif()
-

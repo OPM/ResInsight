@@ -271,7 +271,7 @@ set(LINK_LIBRARIES
     ${VIZ_FWK_LIBRARIES}
     ApplicationLibCode
     Commands
-    RigGeoMechDataModel 
+    RigGeoMechDataModel
     RifGeoMechFileInterface
 )
 
