@@ -17,13 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPolygonInterface.h"
+#include "RimNamedObject.h"
 
 #include "cafPdmFieldCvfVec3d.h"
 
 #include "cvfVector3.h"
 
-class RimPolygon : public RimPolygonInterface
+class RimPolygon : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
