@@ -36,9 +36,10 @@ public:
     RimPolygonCollection();
     ~RimPolygonCollection() override;
 
-    void loadData();
-    void addUserDefinedPolygon( RimPolygon* polygon );
-    void deleteUserDefinedPolygons();
+    void        loadData();
+    RimPolygon* appendUserDefinedPolygon();
+    void        addUserDefinedPolygon( RimPolygon* polygon );
+    void        deleteUserDefinedPolygons();
 
     void addPolygonFile( RimPolygonFile* polygonFile );
 

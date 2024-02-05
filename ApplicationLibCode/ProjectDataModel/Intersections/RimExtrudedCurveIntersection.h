@@ -40,6 +40,7 @@ class RimSurfaceCollection;
 class RimSurfaceIntersectionCollection;
 class RimSurfaceIntersectionCurve;
 class RimSurfaceIntersectionBand;
+class RimPolygon;
 
 namespace caf
 {
@@ -142,6 +143,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void initAfterRead() override;
 
 private:
     static void setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute );
@@ -157,11 +159,14 @@ private:
     void appendOptionItemsForSources( int currentLevel, RimSurfaceCollection* currentCollection, QList<caf::PdmOptionItemInfo>& options ) const;
 
     void onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter );
+    void onPolygonChanged( const caf::SignalEmitter* emitter );
 
     std::vector<cvf::Vec3d> pointsXYD() const;
     void                    setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD );
 
     RimEclipseView* eclipseView() const;
+
+    void setAndConnectPolygon( RimPolygon* polygon );
 
 private:
     caf::PdmField<QString> m_name;
@@ -180,6 +185,7 @@ private:
 
     caf::PdmPtrField<RimWellPath*>      m_wellPath;
     caf::PdmPtrField<RimSimWellInView*> m_simulationWell;
+    caf::PdmPtrField<RimPolygon*>       m_polygon;
 
     caf::PdmField<bool> m_inputPolylineFromViewerEnabled;
     caf::PdmField<bool> m_inputExtrusionPointsFromViewerEnabled;

@@ -54,6 +54,18 @@ void RimPolygonCollection::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPolygon* RimPolygonCollection::appendUserDefinedPolygon()
+{
+    auto newPolygon = new RimPolygon();
+    newPolygon->setName( "Polygon " + QString::number( userDefinedPolygons().size() + 1 ) );
+    addUserDefinedPolygon( newPolygon );
+
+    return newPolygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::addUserDefinedPolygon( RimPolygon* polygon )
 {
     m_polygons().push_back( polygon );
