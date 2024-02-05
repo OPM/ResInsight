@@ -229,8 +229,12 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::cal
     std::vector<double> values;
     extractor->curveData( resAddr, timeStepIndex, frameIndex, &values );
 
-    auto [value, extractionPos] =
-        RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( extractor->intersections(), values, position, gradient );
+    auto [value, extractionPos] = RimFaultReactivationDataAccessorWellLogExtraction::calculatePorBar( *m_model,
+                                                                                                      gridPart,
+                                                                                                      extractor->intersections(),
+                                                                                                      values,
+                                                                                                      position,
+                                                                                                      gradient );
 
     if ( extractionPos.isUndefined() )
     {
