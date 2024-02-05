@@ -17,15 +17,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPolygonInView.h"
+
+#include "RigPolyLinesData.h"
+
 #include "Rim3dView.h"
 #include "RimPolygon.h"
 #include "RimTools.h"
+#include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 
 #include "RivPolylinePartMgr.h"
 
-#include "cafDisplayCoordTransform.h"
+#include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
-#include "RigPolyLinesData.h"
+#include "cafDisplayCoordTransform.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygonInView, "RimPolygonInView" );
@@ -34,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonInView, "RimPolygonInView" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolygonInView::RimPolygonInView()
-
+    : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
     CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
@@ -42,6 +48,19 @@ RimPolygonInView::RimPolygonInView()
     m_polygon.uiCapability()->setUiReadOnly( true );
 
     nameField()->uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
+    m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
+    m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    // m_targets.uiCapability()->setUiTreeHidden(true);
+    m_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_targets.uiCapability()->setCustomContextMenuEnabled( true );
+
+    setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,13 +103,71 @@ void RimPolygonInView::appendPartsToModel( cvf::ModelBasicList*        model,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
+{
+    m_targets.push_back( targetToInsert );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::deleteTarget( RimPolylineTarget* targetToDelete )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::updateEditorsAndVisualization()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::updateVisualization()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylineTarget*> RimPolygonInView::activeTargets() const
+{
+    return m_targets.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonInView::pickingEnabled() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PickEventHandler* RimPolygonInView::pickEventHandler() const
+{
+    return m_pickTargetsEventHandler.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<RigPolyLinesData> RimPolygonInView::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
 
     if ( m_polygon )
     {
-        pld->setPolyLine( polygon()->pointsInDomainCoords() );
+        std::vector<cvf::Vec3d> line;
+        for ( const RimPolylineTarget* target : m_targets )
+        {
+            line.push_back( target->targetPointXYZ() );
+        }
+        pld->setPolyLine( line );
     }
 
     return pld;
@@ -104,6 +181,7 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     updateNameField();
 
     uiOrdering.add( m_polygon );
+    uiOrdering.add( &m_enablePicking );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,12 +210,35 @@ QList<caf::PdmOptionItemInfo> RimPolygonInView::calculateValueOptions( const caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    RicPolyline3dEditorAttribute* attrib = dynamic_cast<RicPolyline3dEditorAttribute*>( attribute );
+    if ( attrib )
+    {
+        attrib->pickEventHandler = m_pickTargetsEventHandler;
+        attrib->enablePicking    = m_enablePicking;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInView::updateNameField()
 {
+    m_targets.deleteChildren();
+
     QString name = "Undefined";
     if ( m_polygon() )
     {
         name = m_polygon->name();
+
+        for ( auto p : m_polygon->pointsInDomainCoords() )
+        {
+            auto target = new RimPolylineTarget();
+            target->setAsPointXYZ( p );
+
+            m_targets.push_back( target );
+        }
     }
 
     setName( name );

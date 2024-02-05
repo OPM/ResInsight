@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
 
 #include "cafPdmFieldCvfVec3d.h"
@@ -26,6 +27,7 @@
 
 class RimPolygon;
 class RivPolylinePartMgr;
+class RicPolylineTargetsPickEventHandler;
 
 namespace cvf
 {
@@ -38,7 +40,7 @@ namespace caf
 class DisplayCoordTransform;
 } // namespace caf
 
-class RimPolygonInView : public RimCheckableNamedObject, public RimPolylinesDataInterface
+class RimPolygonInView : public RimCheckableNamedObject, public RimPolylinesDataInterface, public RimPolylinePickerInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -51,11 +53,21 @@ public:
 
     void appendPartsToModel( cvf::ModelBasicList* model, caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
 
+    // RimPolylinesDataInterface
+    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void deleteTarget( RimPolylineTarget* targetToDelete ) override;
+    void updateEditorsAndVisualization() override;
+    void updateVisualization() override;
+    std::vector<RimPolylineTarget*> activeTargets() const override;
+    bool                            pickingEnabled() const override;
+    caf::PickEventHandler*          pickEventHandler() const override;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     void                       updateNameField();
@@ -63,5 +75,10 @@ private:
 
 private:
     caf::PdmPtrField<RimPolygon*> m_polygon;
-    cvf::ref<RivPolylinePartMgr>  m_polylinePartMgr;
+
+    caf::PdmField<bool>                         m_enablePicking;
+    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+
+    cvf::ref<RivPolylinePartMgr>                        m_polylinePartMgr;
+    std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 };
