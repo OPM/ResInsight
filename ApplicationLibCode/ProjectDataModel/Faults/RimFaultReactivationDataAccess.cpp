@@ -41,6 +41,7 @@
 #include "RimFaultReactivationDataAccessorVoidRatio.h"
 #include "RimFaultReactivationEnums.h"
 #include "RimFaultReactivationModel.h"
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -179,20 +180,26 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
         CAF_ASSERT( it != borderSurfaceElements.end() && "Sea bed border surface does not exist" );
         std::set<unsigned int> seabedElements( it->second.begin(), it->second.end() );
 
-        std::vector<double> values;
-
         if ( nodeProperties.contains( property ) )
         {
-            for ( auto& node : grid->dataNodes() )
+            int                 numNodes = grid->dataNodes().size();
+            std::vector<double> values( numNodes, std::numeric_limits<double>::infinity() );
+
+#pragma omp parallel for
+            for ( int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++ )
             {
-                double value = accessor->valueAtPosition( node, model, gridPart );
-                values.push_back( value );
+                double value      = accessor->valueAtPosition( grid->dataNodes()[nodeIndex], model, gridPart );
+                values[nodeIndex] = value;
             }
+            return values;
         }
         else
         {
-            size_t numElements = grid->elementIndices().size();
-            for ( size_t elementIndex = 0; elementIndex < numElements; elementIndex++ )
+            int                 numElements = grid->elementIndices().size();
+            std::vector<double> values( numElements, std::numeric_limits<double>::infinity() );
+
+#pragma omp parallel for
+            for ( int elementIndex = 0; elementIndex < numElements; elementIndex++ )
             {
                 std::vector<cvf::Vec3d> corners = grid->elementDataCorners( elementIndex );
 
@@ -203,13 +210,12 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
                 double topDepth    = computeAverageDepth( corners, { 0, 1, 2, 3 } ) - topDepthAdjust;
                 double bottomDepth = computeAverageDepth( corners, { 4, 5, 6, 7 } );
 
-                cvf::Vec3d position = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
-                double     value    = accessor->valueAtPosition( position, model, gridPart, topDepth, bottomDepth, elementIndex );
-                values.push_back( value );
+                cvf::Vec3d position  = RigCaseToCaseCellMapperTools::calculateCellCenter( corners.data() );
+                double     value     = accessor->valueAtPosition( position, model, gridPart, topDepth, bottomDepth, elementIndex );
+                values[elementIndex] = value;
             }
+            return values;
         }
-
-        return values;
     }
 
     return {};
