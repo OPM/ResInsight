@@ -271,13 +271,13 @@ set(LINK_LIBRARIES
     ${VIZ_FWK_LIBRARIES}
     ApplicationLibCode
     Commands
+    RigGeoMechDataModel 
+    RifGeoMechFileInterface
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
 endif()
-
-list(APPEND LINK_LIBRARIES RigGeoMechDataModel RifGeoMechFileInterface)
 
 if(RESINSIGHT_USE_ODB_API)
   add_definitions(-DUSE_ODB_API)

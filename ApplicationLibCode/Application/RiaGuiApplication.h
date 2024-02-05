@@ -127,7 +127,6 @@ public:
     // Public RiaApplication overrides
     void              initialize() override;
     ApplicationStatus handleArguments( gsl::not_null<cvf::ProgramOptions*> progOpt ) override;
-    int               launchUnitTestsWithConsole() override;
     void              addToRecentFiles( const QString& fileName ) override;
     void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) override;
 

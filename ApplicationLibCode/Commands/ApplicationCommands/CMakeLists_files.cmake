@@ -1,5 +1,4 @@
 set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicLaunchUnitTestsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotWindowFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMainWindowFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicTileWindowsFeature.h
@@ -24,7 +23,6 @@ set(SOURCE_GROUP_HEADER_FILES
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicLaunchUnitTestsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotWindowFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMainWindowFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicTileWindowsFeature.cpp

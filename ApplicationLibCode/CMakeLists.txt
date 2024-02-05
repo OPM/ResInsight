@@ -90,22 +90,6 @@ find_package(Eigen3 REQUIRED)
 # Defining all the source (and header) files
 # ##############################################################################
 
-# Use all h files in the subdirectories to make them available in the project
-file(GLOB_RECURSE HEADER_FILES *.h)
-
-set(SOCKET_INTERFACE_FILES
-    SocketInterface/RiaSocketServer.cpp
-    SocketInterface/RiaProjectInfoCommands.cpp
-    SocketInterface/RiaCaseInfoCommands.cpp
-    SocketInterface/RiaGeometryCommands.cpp
-    SocketInterface/RiaNNCCommands.cpp
-    SocketInterface/RiaPropertyDataCommands.cpp
-    SocketInterface/RiaWellDataCommands.cpp
-    SocketInterface/RiaSocketTools.cpp
-    SocketInterface/RiaSocketDataTransfer.cpp
-)
-
-list(APPEND CPP_SOURCES ${SOCKET_INTERFACE_FILES} ${UNIT_TEST_FILES})
 
 list(
   APPEND
@@ -159,22 +143,8 @@ list(
   UserInterface/AnalysisPlots/CMakeLists_files.cmake
   CommandFileInterface/CMakeLists_files.cmake
   CommandFileInterface/Core/CMakeLists_files.cmake
+  SocketInterface/CMakeLists_files.cmake
 )
-
-option(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS
-       "Include ApplicationCode Unit Tests" OFF
-)
-mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
-if(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
-  add_definitions(-DUSE_UNIT_TESTS)
-
-  list(APPEND REFERENCED_CMAKE_FILES UnitTests/CMakeLists_files.cmake)
-
-  list(APPEND CPP_SOURCES
-       ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-  )
-
-endif()
 
 # Include source file lists from *.cmake files
 foreach(referencedfile ${REFERENCED_CMAKE_FILES})
@@ -235,14 +205,11 @@ if(RESINSIGHT_FOUND_HDF5)
   list(APPEND CPP_SOURCES ${HDF5_FILES})
 
   add_definitions(-DUSE_HDF5)
+  add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
 
   if(MSVC)
-    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
     list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_HDF5_DIR}/include)
-
   else()
-    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-    add_definitions(${HDF5_DEFINITIONS})
     list(APPEND RI_PRIVATE_INCLUDES ${HDF5_INCLUDE_DIRS})
   endif() # MSVC
 
@@ -267,8 +234,6 @@ qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
 # Create source groups - see also included CMakeLists_files.cmake
 # ##############################################################################
 source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
-source_group("SocketInterface" FILES ${SOCKET_INTERFACE_FILES})
-source_group("UnitTests" FILES ${UNIT_TEST_FILES})
 
 list(
   APPEND
@@ -276,12 +241,6 @@ list(
   ${CPP_SOURCES}
   ${MOC_SOURCE_FILES}
   ${FORM_FILES_CPP}
-  ${HEADER_FILES}
-  ${REFERENCED_CMAKE_FILES}
-  ../ResInsightVersion.cmake
-  .clang-format
-  .clang-tidy
-  Adm/RiaVersionInfo.h.cmake
 )
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
@@ -291,11 +250,6 @@ mark_as_advanced(FORCE RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
 if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
   message("Precompiled Headers is enabled on : ${PROJECT_NAME}")
   target_precompile_headers(ApplicationLibCode PRIVATE pch.h)
-
-  set_source_files_properties(
-    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-    PROPERTIES SKIP_PRECOMPILE_HEADERS ON
-  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -382,16 +336,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 target_link_libraries(
-  ${PROJECT_NAME} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES}
+  ${PROJECT_NAME} PUBLIC ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES}
 )
 
 target_include_directories(
   ${PROJECT_NAME}
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Commands
           ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
-          ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
           ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands/CommandRouter
-          ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/AnalysisPlots
           ${RI_PRIVATE_INCLUDES}
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
          ${CMAKE_CURRENT_SOURCE_DIR}/Adm
@@ -437,8 +389,10 @@ target_include_directories(
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultAccessors
          ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultCalculators
+         ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
          ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
          ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
+         ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/AnalysisPlots
          ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
          ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
          ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechFileInterface
@@ -472,3 +426,17 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
     )
   endforeach(fileToExclude)
 endif()
+
+# ##############################################################################
+# Unit tests
+# ##############################################################################
+
+option(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS
+       "Include ApplicationLibCode Unit Tests" OFF
+)
+mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
+if(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
+  enable_testing()
+  add_subdirectory(UnitTests)
+endif()
+
