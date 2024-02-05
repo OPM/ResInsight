@@ -30,6 +30,8 @@ RimPolygonFile::RimPolygonFile()
 
     CAF_PDM_InitFieldNoDefault( &m_fileName, "StimPlanFileName", "File Name" );
     CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -29,6 +29,8 @@ RimPolygon::RimPolygon()
 
     CAF_PDM_InitFieldNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Points" );
     CAF_PDM_InitField( &m_isClosed, "IsClosed", true, "Closed Polygon" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

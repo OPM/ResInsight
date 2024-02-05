@@ -37,8 +37,14 @@ public:
     ~RimPolygonCollection() override;
 
     void loadData();
-    void addPolygon( RimPolygon* polygon );
-    void deletePolygons();
+    void addUserDefinedPolygon( RimPolygon* polygon );
+    void deleteUserDefinedPolygons();
+
+    void addPolygonFile( RimPolygonFile* polygonFile );
+
+    std::vector<RimPolygon*>     userDefinedPolygons() const;
+    std::vector<RimPolygonFile*> polygonFiles() const;
+    std::vector<RimPolygon*>     allPolygons() const;
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
