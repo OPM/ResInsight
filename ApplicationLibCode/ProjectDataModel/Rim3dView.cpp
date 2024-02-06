@@ -537,11 +537,6 @@ QImage Rim3dView::snapshotWindowContent()
 {
     if ( m_viewer )
     {
-        // Force update of scheduled display models before snapshotting
-        RiaViewRedrawScheduler::instance()->updateAndRedrawScheduledViews();
-
-        m_viewer->repaint();
-
         return m_viewer->snapshotImage();
     }
 
