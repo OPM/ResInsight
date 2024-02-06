@@ -160,7 +160,7 @@ std::vector<RimPolylineTarget*> RimPolygonInView::activeTargets() const
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonInView::pickingEnabled() const
 {
-    return true;
+    return m_enablePicking();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,6 +253,11 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( changedField == &m_enablePicking )
+    {
+        updateAllRequiredEditors();
+    }
+
     updateVisualization();
 }
 
