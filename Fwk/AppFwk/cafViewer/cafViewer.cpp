@@ -1204,59 +1204,6 @@ bool caf::Viewer::isShadersSupported()
 QImage caf::Viewer::snapshotImage()
 {
     return grabFramebuffer();
-
-    // Qt5 : Call paintEvent() manually to make sure invisible widgets are rendered properly
-    // If this call is skipped, we get an assert in cvf::FramebufferObject::bind()
-    paintEvent( nullptr );
-
-    QImage image;
-    if ( m_offscreenFbo.notNull() && m_offscreenViewportWidth > 0 && m_offscreenViewportHeight > 0 )
-    {
-        cvf::ref<cvf::OpenGLContext> myOglContext = cvfOpenGLContext();
-
-        m_offscreenFbo->bind( myOglContext.p() );
-
-        GLint iOldPackAlignment = 0;
-        glGetIntegerv( GL_PACK_ALIGNMENT, &iOldPackAlignment );
-        glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-        CVF_CHECK_OGL( myOglContext.p() );
-
-        cvf::UByteArray arr( 3 * m_offscreenViewportWidth * m_offscreenViewportHeight );
-
-        glReadPixels( 0,
-                      0,
-                      static_cast<GLsizei>( m_offscreenViewportWidth ),
-                      static_cast<GLsizei>( m_offscreenViewportHeight ),
-                      GL_RGB,
-                      GL_UNSIGNED_BYTE,
-                      arr.ptr() );
-        CVF_CHECK_OGL( myOglContext.p() );
-
-        glPixelStorei( GL_PACK_ALIGNMENT, iOldPackAlignment );
-        CVF_CHECK_OGL( myOglContext.p() );
-
-        cvf::FramebufferObject::useDefaultWindowFramebuffer( myOglContext.p() );
-
-        cvf::TextureImage texImage;
-        texImage.setFromRgb( arr.ptr(), m_offscreenViewportWidth, m_offscreenViewportHeight );
-
-        image = cvfqt::Utils::toQImage( texImage );
-    }
-    else
-    {
-        QScreen* screen = QGuiApplication::primaryScreen();
-
-        if ( const QWindow* window = windowHandle() ) screen = window->screen();
-
-        if ( screen )
-        {
-            auto windowId       = winId();
-            auto originalPixmap = screen->grabWindow( windowId );
-            image               = originalPixmap.toImage();
-        }
-    }
-
-    return image;
 }
 
 //--------------------------------------------------------------------------------------------------
