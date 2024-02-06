@@ -180,9 +180,6 @@ caf::Viewer::Viewer( QWidget* parent )
     m_overlayImage->setBlending( cvf::OverlayImage::TEXTURE_ALPHA );
     m_overlayImage->setLayoutFixedPosition( cvf::Vec2i( 0, 0 ) );
 
-    setupMainRendering();
-    setupRenderingSequence();
-
     m_showPerfInfoHud = false;
 
     sm_viewers.push_back( this );
@@ -897,6 +894,15 @@ void caf::Viewer::paintGL()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void caf::Viewer::onWidgetOpenGLReady()
+{
+    setupMainRendering();
+    setupRenderingSequence();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void caf::Viewer::setDefaultPerspectiveNearPlaneDistance( double dist )
 {
     m_defaultPerspectiveNearPlaneDistance = dist;
@@ -1203,7 +1209,12 @@ bool caf::Viewer::isShadersSupported()
 //--------------------------------------------------------------------------------------------------
 QImage caf::Viewer::snapshotImage()
 {
-    return grabFramebuffer();
+    auto image = grabFramebuffer();
+
+    // Convert to RGB32 format to avoid visual artifacts related to alpha channel
+    image.reinterpretAsFormat( QImage::Format_RGB32 );
+
+    return image;
 }
 
 //--------------------------------------------------------------------------------------------------
