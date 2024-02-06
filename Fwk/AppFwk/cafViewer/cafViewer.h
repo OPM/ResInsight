@@ -251,10 +251,8 @@ private:
     void                        updateOverlayImagePresence();
 
     // System to make sure we share OpenGL resources
-    static Viewer*                  sharedWidget();
     static cvf::OpenGLContextGroup* contextGroup();
 
-    static std::list<Viewer*>                sm_viewers;
     static cvf::ref<cvf::OpenGLContextGroup> sm_openGLContextGroup;
 
     caf::FrameAnimationControl* m_animationControl;

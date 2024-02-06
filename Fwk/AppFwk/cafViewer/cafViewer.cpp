@@ -112,7 +112,6 @@ private:
 
 } // namespace caf
 
-std::list<caf::Viewer*>           caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 
 //--------------------------------------------------------------------------------------------------
@@ -181,8 +180,6 @@ caf::Viewer::Viewer( QWidget* parent )
     m_overlayImage->setLayoutFixedPosition( cvf::Vec2i( 0, 0 ) );
 
     m_showPerfInfoHud = false;
-
-    sm_viewers.push_back( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,8 +188,6 @@ caf::Viewer::Viewer( QWidget* parent )
 caf::Viewer::~Viewer()
 {
     //this->cvfShutdownOpenGLContext();
-
-    sm_viewers.remove( this );
 
     // To delete the layout widget
     if ( m_layoutWidget ) m_layoutWidget->deleteLater();
@@ -277,19 +272,6 @@ void caf::Viewer::setupRenderingSequence()
     }
 
     updateCamera( width(), height() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::Viewer* caf::Viewer::sharedWidget()
-{
-    if ( !sm_viewers.empty() )
-    {
-        return *( sm_viewers.begin() );
-    }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
