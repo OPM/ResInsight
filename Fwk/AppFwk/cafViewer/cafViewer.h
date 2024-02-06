@@ -204,7 +204,7 @@ protected:
 
     // Standard overrides. Not for overriding
     void resizeGL( int width, int height ) override;
-    void paintEvent( QPaintEvent* event ) override;
+    void paintGL() override;
 
     // Support the navigation policy concept
     bool event( QEvent* e ) override;

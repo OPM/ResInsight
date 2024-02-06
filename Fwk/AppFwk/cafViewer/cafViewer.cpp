@@ -793,10 +793,8 @@ bool caf::Viewer::isPerfInfoHudEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::Viewer::paintEvent( QPaintEvent* event )
+void caf::Viewer::paintGL()
 {
-    makeCurrent();
-
     cvf::ref<cvf::OpenGLContext> myOglContext = cvfOpenGLContext();
     CVF_CHECK_OGL( myOglContext.p() );
     CVF_ASSERT( myOglContext->isContextValid() );
@@ -1205,6 +1203,8 @@ bool caf::Viewer::isShadersSupported()
 //--------------------------------------------------------------------------------------------------
 QImage caf::Viewer::snapshotImage()
 {
+    return grabFramebuffer();
+
     // Qt5 : Call paintEvent() manually to make sure invisible widgets are rendered properly
     // If this call is skipped, we get an assert in cvf::FramebufferObject::bind()
     paintEvent( nullptr );
