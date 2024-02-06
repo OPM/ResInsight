@@ -230,6 +230,10 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
 
             gen.addFragmentCode(ShaderSourceRepository::fs_Unlit);
             m_shaderProgram = gen.generate();
+        }
+
+        if (m_shaderProgram->programOglId() == 0)
+        {
             m_shaderProgram->linkProgram(oglContext);
         }
 
