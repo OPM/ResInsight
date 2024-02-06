@@ -120,7 +120,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(googletest)
 
-
 # create an empty library target that will be used to copy files to the build
 # folder
 add_library(ResInsightDummyTestTarget EXCLUDE_FROM_ALL empty.cpp)
@@ -142,12 +141,10 @@ endforeach()
 add_custom_target(PreBuildFileCopyTesting ${copyCommands})
 set_property(TARGET PreBuildFileCopyTesting PROPERTY FOLDER "FileCopyTargets")
 
-
 add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
 
 # Make ResInsight-tests depend on the prebuild target.
 add_dependencies(ResInsight-tests PreBuildFileCopyTesting)
-
 
 configure_file(
   ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
@@ -191,8 +188,6 @@ if(RESINSIGHT_USE_ODB_API)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 
-target_link_libraries(
-  ResInsight-tests PUBLIC ${LINK_LIBRARIES} GTest::gtest
-)
+target_link_libraries(ResInsight-tests PUBLIC ${LINK_LIBRARIES} GTest::gtest)
 
 add_test(NAME ResInsight-tests COMMAND ResInsight-tests)
