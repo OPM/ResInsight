@@ -29,6 +29,7 @@
 
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -110,6 +111,8 @@ void RimPolygonInView::insertTarget( const RimPolylineTarget* targetToInsertBefo
         m_targets.insert( index, targetToInsert );
     else
         m_targets.push_back( targetToInsert );
+
+    updatePolygonFromTargets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,6 +122,8 @@ void RimPolygonInView::deleteTarget( RimPolylineTarget* targetToDelete )
 {
     m_targets.removeChild( targetToDelete );
     delete targetToDelete;
+
+    updatePolygonFromTargets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,6 +174,17 @@ caf::PickEventHandler* RimPolygonInView::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_targets )
+    {
+        updatePolygonFromTargets();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<RigPolyLinesData> RimPolygonInView::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
@@ -189,6 +205,41 @@ cvf::ref<RigPolyLinesData> RimPolygonInView::polyLinesData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::updatePolygonFromTargets()
+{
+    if ( m_polygon )
+    {
+        std::vector<cvf::Vec3d> points;
+        for ( const RimPolylineTarget* target : m_targets )
+        {
+            points.push_back( target->targetPointXYZ() );
+        }
+        m_polygon->setPointsInDomainCoords( points );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::updateTargetsFromPolygon()
+{
+    if ( m_polygon )
+    {
+        m_targets.deleteChildren();
+
+        for ( const auto& p : m_polygon->pointsInDomainCoords() )
+        {
+            auto target = new RimPolylineTarget();
+            target->setAsPointXYZ( p );
+
+            m_targets.push_back( target );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     updateNameField();
@@ -203,7 +254,6 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 void RimPolygonInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateVisualization();
-    ;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,6 +320,20 @@ void RimPolygonInView::defineEditorAttribute( const caf::PdmFieldHandle* field, 
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    menuBuilder << "RicNewPolylineTargetFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicDeletePolylineTargetFeature";
+
+    menuBuilder.appendToMenu( menu );
 }
 
 //--------------------------------------------------------------------------------------------------
