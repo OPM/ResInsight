@@ -105,7 +105,11 @@ void RimPolygonInView::appendPartsToModel( cvf::ModelBasicList*        model,
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
 {
-    m_targets.push_back( targetToInsert );
+    size_t index = m_targets.indexOf( targetToInsertBefore );
+    if ( index < m_targets.size() )
+        m_targets.insert( index, targetToInsert );
+    else
+        m_targets.push_back( targetToInsert );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,6 +117,8 @@ void RimPolygonInView::insertTarget( const RimPolylineTarget* targetToInsertBefo
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::deleteTarget( RimPolylineTarget* targetToDelete )
 {
+    m_targets.removeChild( targetToDelete );
+    delete targetToDelete;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,6 +126,8 @@ void RimPolygonInView::deleteTarget( RimPolylineTarget* targetToDelete )
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::updateEditorsAndVisualization()
 {
+    updateConnectedEditors();
+    updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,6 +135,11 @@ void RimPolygonInView::updateEditorsAndVisualization()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::updateVisualization()
 {
+    auto view = firstAncestorOfType<Rim3dView>();
+    if ( view )
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,6 +202,8 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    updateVisualization();
+    ;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,25 +238,64 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInView::updateNameField()
+void RimPolygonInView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    m_targets.deleteChildren();
-
-    QString name = "Undefined";
-    if ( m_polygon() )
+    if ( field == &m_enablePicking )
     {
-        name = m_polygon->name();
-
-        for ( auto p : m_polygon->pointsInDomainCoords() )
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
         {
-            auto target = new RimPolylineTarget();
-            target->setAsPointXYZ( p );
-
-            m_targets.push_back( target );
+            if ( !m_enablePicking )
+            {
+                pbAttribute->m_buttonText = "Start Picking Points";
+            }
+            else
+            {
+                pbAttribute->m_buttonText = "Stop Picking Points";
+            }
         }
     }
 
-    setName( name );
+    if ( field == &m_targets )
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttribute )
+        {
+            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+
+            if ( m_enablePicking )
+            {
+                tvAttribute->baseColor.setRgb( 255, 220, 255 );
+                tvAttribute->alwaysEnforceResizePolicy = true;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::updateNameField()
+{
+    /*
+        m_targets.deleteChildren();
+
+        QString name = "Undefined";
+        if ( m_polygon() )
+        {
+            name = m_polygon->name();
+
+            for ( auto p : m_polygon->pointsInDomainCoords() )
+            {
+                auto target = new RimPolylineTarget();
+                target->setAsPointXYZ( p );
+
+                m_targets.push_back( target );
+            }
+        }
+
+        setName( name );
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
