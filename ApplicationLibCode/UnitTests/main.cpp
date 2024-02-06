@@ -20,6 +20,8 @@
 
 #include "RiaConsoleApplication.h"
 
+#include <QLocale>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -27,6 +29,9 @@ int main( int argc, char** argv )
 {
     RiaApplication* app = new RiaConsoleApplication( argc, argv );
     app->initialize();
+
+    QLocale::setDefault( QLocale( QLocale::English, QLocale::UnitedStates ) );
+    setlocale( LC_NUMERIC, "C" );
 
     testing::InitGoogleTest( &argc, argv );
     int result = RUN_ALL_TESTS();
