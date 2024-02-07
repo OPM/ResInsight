@@ -23,6 +23,7 @@
 #include <cctype>
 #include <charconv>
 #include <regex>
+#include <sstream>
 
 const std::string WHITESPACE = " \n\r\t\f\v";
 
