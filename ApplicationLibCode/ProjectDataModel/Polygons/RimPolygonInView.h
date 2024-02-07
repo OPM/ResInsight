@@ -23,8 +23,8 @@
 
 #include "cafPdmFieldCvfVec3d.h"
 
-#include "cafPdmPtrField.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmPtrField.h"
 
 class RimPolygon;
 class RivPolylinePartMgr;
