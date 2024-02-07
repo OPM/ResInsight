@@ -24,10 +24,12 @@
 #include "cafPdmFieldCvfVec3d.h"
 
 #include "cafPdmPtrField.h"
+#include "cafPdmChildArrayField.h"
 
 class RimPolygon;
 class RivPolylinePartMgr;
 class RicPolylineTargetsPickEventHandler;
+class RimPolylineTarget;
 
 namespace cvf
 {
