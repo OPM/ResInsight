@@ -182,7 +182,7 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
 
         if ( nodeProperties.contains( property ) )
         {
-            int                 numNodes = grid->dataNodes().size();
+            int                 numNodes = static_cast<int>( grid->dataNodes().size() );
             std::vector<double> values( numNodes, std::numeric_limits<double>::infinity() );
 
 #pragma omp parallel for
@@ -195,7 +195,7 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
         }
         else
         {
-            int                 numElements = grid->elementIndices().size();
+            int                 numElements = static_cast<int>( grid->elementIndices().size() );
             std::vector<double> values( numElements, std::numeric_limits<double>::infinity() );
 
 #pragma omp parallel for
