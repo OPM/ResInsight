@@ -55,5 +55,5 @@ private:
     RimGeoMechCase*                m_geoMechCase;
     RimFaultReactivation::Property m_property;
     RigGeoMechCaseData*            m_geoMechCaseData;
-    RigFemScalarResultFrames*      m_resultFrames;
+    std::vector<float>             m_data;
 };

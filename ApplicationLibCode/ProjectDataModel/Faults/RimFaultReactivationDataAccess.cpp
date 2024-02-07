@@ -185,7 +185,6 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
             int                 numNodes = static_cast<int>( grid->dataNodes().size() );
             std::vector<double> values( numNodes, std::numeric_limits<double>::infinity() );
 
-#pragma omp parallel for
             for ( int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++ )
             {
                 double value      = accessor->valueAtPosition( grid->dataNodes()[nodeIndex], model, gridPart );
@@ -198,7 +197,6 @@ std::vector<double> RimFaultReactivationDataAccess::extractModelData( const RigF
             int                 numElements = static_cast<int>( grid->elementIndices().size() );
             std::vector<double> values( numElements, std::numeric_limits<double>::infinity() );
 
-#pragma omp parallel for
             for ( int elementIndex = 0; elementIndex < numElements; elementIndex++ )
             {
                 std::vector<cvf::Vec3d> corners = grid->elementDataCorners( elementIndex );

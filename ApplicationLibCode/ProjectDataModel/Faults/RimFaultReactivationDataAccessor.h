@@ -24,6 +24,7 @@
 
 #include <limits>
 #include <map>
+#include <vector>
 
 class RigMainGrid;
 class RigFaultReactivationModel;
@@ -51,6 +52,10 @@ public:
 
 protected:
     virtual void updateResultAccessor() = 0;
+
+    static std::pair<bool, RimFaultReactivation::ElementSets>
+        findElementSetForElementIndex( const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets,
+                                       int                                                                           elementIndex );
 
     const RigFaultReactivationModel* m_model;
     size_t                           m_timeStep;

@@ -59,16 +59,22 @@ private:
 
     double extractStressValue( StressType stressType, const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const override;
 
-    std::pair<double, cvf::Vec3d>
-        calculatePorBar( const cvf::Vec3d& position, double gradient, RimFaultReactivation::GridPart gridPart ) const override;
+    std::pair<double, cvf::Vec3d> calculatePorBar( const cvf::Vec3d&                 position,
+                                                   RimFaultReactivation::ElementSets elementSet,
+                                                   double                            gradient,
+                                                   RimFaultReactivation::GridPart    gridPart ) const override;
 
     bool isPositionValid( const cvf::Vec3d&              position,
                           const cvf::Vec3d&              topPosition,
                           const cvf::Vec3d&              bottomPosition,
                           RimFaultReactivation::GridPart gridPart ) const override;
 
-    double lateralStressComponentX( const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const override;
-    double lateralStressComponentY( const cvf::Vec3d& position, RimFaultReactivation::GridPart gridPart ) const override;
+    double lateralStressComponentX( const cvf::Vec3d&                 position,
+                                    RimFaultReactivation::ElementSets elementSet,
+                                    RimFaultReactivation::GridPart    gridPart ) const override;
+    double lateralStressComponentY( const cvf::Vec3d&                 position,
+                                    RimFaultReactivation::ElementSets elementSet,
+                                    RimFaultReactivation::GridPart    gridPart ) const override;
 
     static std::vector<double> integrateVerticalStress( const RigWellPath&                                         wellPath,
                                                         const std::vector<cvf::Vec3d>&                             intersections,

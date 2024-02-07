@@ -172,13 +172,14 @@ RigFemScalarResultFrames* RimFaultReactivationDataAccessorStressGeoMech::dataFra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d& position,
-                                                                                              double            gradient,
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d&                 position,
+                                                                                              RimFaultReactivation::ElementSets elementSet,
+                                                                                              double                            gradient,
                                                                                               RimFaultReactivation::GridPart gridPart ) const
 {
     int timeStepIndex = 0;
     int frameIndex    = m_s33Frames->frameCount( timeStepIndex ) - 1;
-    return calculatePorBar( position, m_gradient, gridPart, timeStepIndex, frameIndex );
+    return calculatePorBar( position, elementSet, m_gradient, gridPart, timeStepIndex, frameIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,10 +211,11 @@ double RimFaultReactivationDataAccessorStressGeoMech::interpolatedResultValue( R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d&              position,
-                                                                                              double                         gradient,
-                                                                                              RimFaultReactivation::GridPart gridPart,
-                                                                                              int                            timeStepIndex,
+std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::calculatePorBar( const cvf::Vec3d&                 position,
+                                                                                              RimFaultReactivation::ElementSets elementSet,
+                                                                                              double                            gradient,
+                                                                                              RimFaultReactivation::GridPart    gridPart,
+                                                                                              int timeStepIndex,
                                                                                               int frameIndex ) const
 {
     CAF_ASSERT( m_extractors.find( gridPart ) != m_extractors.end() );
@@ -234,6 +236,7 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorStressGeoMech::cal
                                                                                                       extractor->intersections(),
                                                                                                       values,
                                                                                                       position,
+                                                                                                      elementSet,
                                                                                                       gradient );
 
     if ( extractionPos.isUndefined() )
