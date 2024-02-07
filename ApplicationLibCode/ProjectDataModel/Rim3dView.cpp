@@ -358,14 +358,11 @@ cvf::Color3f Rim3dView::backgroundColor() const
 //--------------------------------------------------------------------------------------------------
 QWidget* Rim3dView::createViewWidget( QWidget* mainWindowParent )
 {
-    QGLFormat glFormat;
-    glFormat.setDirectRendering( RiaGuiApplication::instance()->useShaders() );
-
     // If parent widget is a live widget, the application will get OpenGL window issues if started on a non-primary
     // screen. Using nullptr as parent solves the issue.
     // https://github.com/OPM/ResInsight/issues/8192
     //
-    m_viewer = new RiuViewer( glFormat, nullptr );
+    m_viewer = new RiuViewer( nullptr );
     m_viewer->setOwnerReservoirView( this );
 
     cvf::String xLabel;
@@ -537,11 +534,6 @@ QImage Rim3dView::snapshotWindowContent()
 {
     if ( m_viewer )
     {
-        // Force update of scheduled display models before snapshotting
-        RiaViewRedrawScheduler::instance()->updateAndRedrawScheduledViews();
-
-        m_viewer->repaint();
-
         return m_viewer->snapshotImage();
     }
 

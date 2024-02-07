@@ -27,10 +27,8 @@
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimGridView.h"
-#include "RimProject.h"
-#include "RimViewController.h"
 #include "RimViewLinker.h"
 
 #include "RivGridBoxGenerator.h"
@@ -60,19 +58,14 @@
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
-#include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
 #include "cvfOverlayItem.h"
-#include "cvfPartRenderHintCollection.h"
-#include "cvfRenderQueueSorter.h"
-#include "cvfRenderSequence.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
 
-#include <QLabel>
-#include <QMouseEvent>
-
 #include <algorithm>
+
+#include <QLabel>
 
 using cvf::ManipulatorTrackball;
 
@@ -92,8 +85,8 @@ std::unique_ptr<QCursor> RiuViewer::s_hoverCursor;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
-    : caf::Viewer( format, parent )
+RiuViewer::RiuViewer( QWidget* parent )
+    : caf::Viewer( parent )
     , m_isNavigationRotationEnabled( true )
     , m_zScale( 1.0 )
 {
