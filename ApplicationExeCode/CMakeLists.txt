@@ -315,8 +315,70 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
 endif()
 
 # ##############################################################################
-# Copy required Dll/.so to output folder
+# Copy Dlls on MSVC
 # ##############################################################################
+if(MSVC)
+
+  if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
+    set(RESINSIGHT_USE_ODB_API 1)
+  endif()
+
+  # Odb Dlls
+  if(RESINSIGHT_USE_ODB_API)
+    # Find all the dlls
+    file(GLOB RI_ALL_ODB_DLLS ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
+
+    # Strip off the path
+    foreach(aDLL ${RI_ALL_ODB_DLLS})
+      get_filename_component(filenameWithExt ${aDLL} NAME)
+      list(APPEND RI_ODB_DLLS ${filenameWithExt})
+    endforeach(aDLL)
+
+    foreach(aDLL ${RI_ODB_DLLS})
+      list(APPEND RI_FILENAMES ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
+    endforeach()
+  endif()
+
+  # OpenVDS Dlls
+  set(OPENVDS_DLL_NAMES openvds segyutils)
+  foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
+    list(APPEND RI_FILENAMES
+         ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
+    )
+  endforeach(OPENVDS_DLL_NAME)
+  list(APPEND RI_FILENAMES
+       ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
+  )
+
+  # HDF5 Dlls
+  if(RESINSIGHT_FOUND_HDF5)
+    set(HDF5_DLL_NAMES hdf5 hdf5_cpp szip zlib)
+    foreach(HDF5_DLL_NAME ${HDF5_DLL_NAMES})
+      list(APPEND RI_FILENAMES ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll)
+    endforeach(HDF5_DLL_NAME)
+  endif()
+
+else()
+  # Linux
+
+  # OpenVDS lib files
+  list(APPEND RI_FILENAMES ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport)
+
+  set(OPENVDS_LIB_NAMES
+      libopenvds.so
+      libopenvds.so.3
+      libopenvds.so.3.2.7
+      libopenvds-e1541338.so.3.2.7
+      libsegyutils.so
+      libsegyutils.so.3
+      libsegyutils.so.3.2.7
+  )
+  foreach(OPENVDS_LIB_NAME ${OPENVDS_LIB_NAMES})
+    list(APPEND RI_FILENAMES
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/${OPENVDS_LIB_NAME}
+    )
+  endforeach(OPENVDS_LIB_NAME)
+endif(MSVC)
 
 # create an empty library target that will be used to copy files to the build
 # folder

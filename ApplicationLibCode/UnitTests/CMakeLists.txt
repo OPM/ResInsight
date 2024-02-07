@@ -120,16 +120,11 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(googletest)
 
-add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
-
-# ##############################################################################
-# Copy required Dll/.so to output folder
-# ##############################################################################
 
 # create an empty library target that will be used to copy files to the build
 # folder
 add_library(ResInsightDummyTestTarget EXCLUDE_FROM_ALL empty.cpp)
-set_property(TARGET ResInsightDummyTestTarget PROPERTY FOLDER "FileCopyTargetsTest")
+set_property(TARGET ResInsightDummyTestTarget PROPERTY FOLDER "FileCopyTargets")
 
 # create a custom target that copies the files to the build folder
 foreach(riFileName ${RI_FILENAMES})
@@ -144,11 +139,15 @@ foreach(riFileName ${RI_FILENAMES})
     $<TARGET_FILE_DIR:ResInsightDummyTestTarget>
   )
 endforeach()
-add_custom_target(PreBuildFileCopyTest ${copyCommands})
-set_property(TARGET PreBuildFileCopyTest PROPERTY FOLDER "FileCopyTargetsTest")
+add_custom_target(PreBuildFileCopyTesting ${copyCommands})
+set_property(TARGET PreBuildFileCopyTesting PROPERTY FOLDER "FileCopyTargets")
 
-# Make ResInsight depend on the prebuild target.
-add_dependencies(ResInsight-tests PreBuildFileCopyTest)
+
+add_executable(ResInsight-tests ${SOURCE_UNITTEST_FILES} main.cpp)
+
+# Make ResInsight-tests depend on the prebuild target.
+add_dependencies(ResInsight-tests PreBuildFileCopyTesting)
+
 
 configure_file(
   ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
@@ -195,13 +194,5 @@ endif()
 target_link_libraries(
   ResInsight-tests PUBLIC ${LINK_LIBRARIES} GTest::gtest
 )
-
-if(MSVC)
-  add_custom_command( TARGET ResInsight-tests POST_BUILD
-                      COMMAND ${CMAKE_COMMAND} -E copy
-                          $<TARGET_RUNTIME_DLLS:ResInsight-tests>
-                          $<TARGET_FILE_DIR:ResInsight-tests>
-                      COMMAND_EXPAND_LISTS)
-endif(MSVC)
 
 add_test(NAME ResInsight-tests COMMAND ResInsight-tests)
