@@ -193,10 +193,14 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         this->setRowSelectionLevel( editorAttrib.rowSelectionLevel );
         this->enableHeaderText( editorAttrib.enableHeaderText );
 
-        QPalette myPalette( m_tableView->palette() );
-        myPalette.setColor( QPalette::Base, editorAttrib.baseColor );
-        m_tableView->setPalette( myPalette );
-        m_tableView->repaint();
+        if ( editorAttrib.baseColor.isValid() )
+        {
+            m_tableView->setStyleSheet( QString( "background-color: %1;" ).arg( editorAttrib.baseColor.name() ) );
+        }
+        else
+        {
+            m_tableView->setStyleSheet( "" );
+        }
 
         // Drop target settings
         m_tableView->setAcceptDrops( editorAttrib.enableDropTarget );

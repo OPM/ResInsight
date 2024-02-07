@@ -25,6 +25,7 @@
 #include "RimTools.h"
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 
+#include "RiuGuiTheme.h"
 #include "RivPolylinePartMgr.h"
 
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
@@ -320,7 +321,7 @@ void RimPolygonInView::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 
             if ( m_enablePicking )
             {
-                tvAttribute->baseColor.setRgb( 255, 220, 255 );
+                tvAttribute->baseColor                 = RiuGuiTheme::getColorByVariableName( "externalInputColor" );
                 tvAttribute->alwaysEnforceResizePolicy = true;
             }
         }
@@ -346,25 +347,13 @@ void RimPolygonInView::defineCustomContextMenu( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::updateNameField()
 {
-    /*
-        m_targets.deleteChildren();
+    QString name = "Undefined";
+    if ( m_polygon() )
+    {
+        name = m_polygon->name();
+    }
 
-        QString name = "Undefined";
-        if ( m_polygon() )
-        {
-            name = m_polygon->name();
-
-            for ( auto p : m_polygon->pointsInDomainCoords() )
-            {
-                auto target = new RimPolylineTarget();
-                target->setAsPointXYZ( p );
-
-                m_targets.push_back( target );
-            }
-        }
-
-        setName( name );
-    */
+    setName( name );
 }
 
 //--------------------------------------------------------------------------------------------------
