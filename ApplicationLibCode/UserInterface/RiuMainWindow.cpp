@@ -516,7 +516,6 @@ void RiuMainWindow::createMenus()
     testMenu->addSeparator();
     testMenu->addAction( m_showRegressionTestDialog );
     testMenu->addAction( m_executePaintEventPerformanceTest );
-    testMenu->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectNoGlobalPathsFeature" ) );
