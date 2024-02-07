@@ -127,7 +127,9 @@ FetchContent_MakeAvailable(googletest)
 # create an empty library target that will be used to copy files to the build
 # folder
 add_library(ResInsightDummyTestTarget EXCLUDE_FROM_ALL empty.cpp)
-set_property(TARGET ResInsightDummyTestTarget PROPERTY FOLDER "FileCopyTargetsTest")
+set_property(
+  TARGET ResInsightDummyTestTarget PROPERTY FOLDER "FileCopyTargetsTest"
+)
 
 # create a custom target that copies the files to the build folder
 foreach(riFileName ${RI_FILENAMES})
@@ -195,11 +197,13 @@ endif()
 target_link_libraries(ResInsight-tests PUBLIC ${LINK_LIBRARIES} GTest::gtest)
 
 if(MSVC)
-  add_custom_command( TARGET ResInsight-tests POST_BUILD
-                      COMMAND ${CMAKE_COMMAND} -E copy
-                          $<TARGET_RUNTIME_DLLS:ResInsight-tests>
-                          $<TARGET_FILE_DIR:ResInsight-tests>
-                      COMMAND_EXPAND_LISTS)
+  add_custom_command(
+    TARGET ResInsight-tests
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:ResInsight-tests>
+            $<TARGET_FILE_DIR:ResInsight-tests>
+    COMMAND_EXPAND_LISTS
+  )
 endif(MSVC)
 
 add_test(NAME ResInsight-tests COMMAND ResInsight-tests)
