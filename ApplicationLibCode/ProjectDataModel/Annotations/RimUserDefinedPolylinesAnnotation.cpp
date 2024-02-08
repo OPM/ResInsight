@@ -155,31 +155,6 @@ void RimUserDefinedPolylinesAnnotation::deleteTarget( RimPolylineTarget* targetT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<RimPolylineTarget*, RimPolylineTarget*>
-    RimUserDefinedPolylinesAnnotation::findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore )
-{
-    RimPolylineTarget* before = nullptr;
-    RimPolylineTarget* after  = nullptr;
-
-    bool foundTarget = false;
-    for ( const auto& wt : m_targets )
-    {
-        if ( wt == targetToInsertBefore )
-        {
-            foundTarget = true;
-        }
-
-        if ( wt->isEnabled() && !after && foundTarget ) after = wt;
-
-        if ( wt->isEnabled() && !foundTarget ) before = wt;
-    }
-
-    return { before, after };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::updateEditorsAndVisualization()
 {
     updateConnectedEditors();
