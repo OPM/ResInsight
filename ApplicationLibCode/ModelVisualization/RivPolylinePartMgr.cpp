@@ -107,6 +107,7 @@ void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* d
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName( "RivPolylinePartMgr" );
         part->setDrawable( drawableGeo.p() );
+        part->updateBoundingBox();
 
         caf::MeshEffectGenerator effgen( polylineDef->lineColor() );
         effgen.setLineWidth( polylineDef->lineThickness() );
@@ -177,6 +178,7 @@ void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* d
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName( "RivPolylinePartMgr" );
         part->setDrawable( vectorDrawable.p() );
+        part->updateBoundingBox();
 
         part->setEffect( new cvf::Effect() );
         part->setPriority( RivPartPriority::PartType::MeshLines );
