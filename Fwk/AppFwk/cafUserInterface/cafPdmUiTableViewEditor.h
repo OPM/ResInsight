@@ -107,11 +107,8 @@ public:
         , resizePolicy( NO_AUTOMATIC_RESIZE )
         , enableDropTarget( false )
     {
-        QPalette myPalette;
-        baseColor = myPalette.color( QPalette::Active, QPalette::Base );
     }
 
-    int              selectionLevel;
     int              tableSelectionLevel;
     int              rowSelectionLevel;
     bool             enableHeaderText;
