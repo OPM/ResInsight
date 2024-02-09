@@ -243,8 +243,17 @@ enum class View3dContent
     ALL               = 0b00011111
 };
 
+enum class ItemIn3dView
+{
+    NONE    = 0b00000000,
+    SURFACE = 0b00000001,
+    POLYGON = 0b00000010,
+    ALL     = 0b00000011
+};
+
 }; // namespace RiaDefines
 
 // Activate bit mask operators at global scope
 ENABLE_BITMASK_OPERATORS( RiaDefines::MultiPlotPageUpdateType )
 ENABLE_BITMASK_OPERATORS( RiaDefines::View3dContent )
+ENABLE_BITMASK_OPERATORS( RiaDefines::ItemIn3dView )

@@ -41,6 +41,7 @@
 #include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationCollection.h"
@@ -647,6 +648,11 @@ void RimEclipseView::onCreateDisplayModel()
         nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
     }
 
+    // Polygons
+    m_polygonVizModel->removeAllParts();
+    m_polygonCollection->appendPartsToModel( m_polygonVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
+
     // Well path model
     m_wellPathPipeVizModel->removeAllParts();
 
@@ -1077,7 +1083,7 @@ void RimEclipseView::appendStreamlinesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onLoadDataAndUpdate()
 {
-    updateSurfacesInViewTreeItems();
+    updateViewTreeItems( RiaDefines::ItemIn3dView::ALL );
 
     onUpdateScaleTransform();
 
@@ -1946,6 +1952,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
+
+    uiTreeOrdering.add( m_polygonCollection );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

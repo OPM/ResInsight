@@ -35,6 +35,8 @@
 #include "RimSurfaceCollection.h"
 #include "RimWellPathCollection.h"
 
+#include "Polygons/RimPolygonCollection.h"
+
 CAF_PDM_SOURCE_INIT( RimOilField, "ResInsightOilField" );
 //--------------------------------------------------------------------------------------------------
 ///
@@ -55,6 +57,7 @@ RimOilField::RimOilField()
 
     CAF_PDM_InitFieldNoDefault( &annotationCollection, "AnnotationCollection", "Annotations" );
     CAF_PDM_InitFieldNoDefault( &ensembleWellLogsCollection, "EnsembleWellLogsCollection", "Ensemble Well Logs" );
+    CAF_PDM_InitFieldNoDefault( &polygonCollection, "PolygonCollection", "Polygons" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureTemplateCollection_OBSOLETE, "FractureDefinitionCollection", "Defenition of Fractures" );
 
@@ -80,6 +83,7 @@ RimOilField::RimOilField()
     formationNamesCollection     = new RimFormationNamesCollection();
     annotationCollection         = new RimAnnotationCollection();
     ensembleWellLogsCollection   = new RimEnsembleWellLogsCollection();
+    polygonCollection            = new RimPolygonCollection();
 
     m_fractureTemplateCollection_OBSOLETE = new RimFractureTemplateCollection;
     m_fractureTemplateCollection_OBSOLETE.xmlCapability()->setIOWritable( false );
