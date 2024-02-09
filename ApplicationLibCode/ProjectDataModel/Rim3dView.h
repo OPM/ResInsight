@@ -193,7 +193,7 @@ public:
     RimViewLinker*     assosiatedViewLinker() const override;
     RimViewController* viewController() const override;
 
-    virtual void updateSurfacesInViewTreeItems();
+    virtual void updateViewTreeItems( RiaDefines::ItemIn3dView itemType );
 
     RimAnnotationInViewCollection* annotationCollection() const;
     void                           syncronizeLocalAnnotationsFromGlobal();

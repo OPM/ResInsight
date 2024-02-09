@@ -25,6 +25,8 @@
 #include "RigGeoMechCaseData.h"
 #include "RigReservoirGridTools.h"
 
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -496,6 +498,20 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimTools::polygonOptionItems( QList<caf::PdmOptionItemInfo>* options )
+{
+    auto project = RimProject::current();
+    auto coll    = project->activeOilField()->polygonCollection();
+
+    for ( auto* p : coll->allPolygons() )
+    {
+        options->push_back( caf::PdmOptionItemInfo( p->name(), p, false, p->uiIconProvider() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimTools::colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
     if ( !options ) return;
@@ -544,6 +560,15 @@ RimSurfaceCollection* RimTools::surfaceCollection()
 {
     RimProject* proj = RimProject::current();
     return proj->activeOilField()->surfaceCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonCollection* RimTools::polygonCollection()
+{
+    RimProject* proj = RimProject::current();
+    return proj->activeOilField()->polygonCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

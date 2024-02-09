@@ -41,6 +41,7 @@ class RimCase;
 class RimWellPath;
 class RimSurfaceCollection;
 class RimFaultInViewCollection;
+class RimPolygonCollection;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -69,6 +70,7 @@ public:
     static void colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly = false );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void polygonOptionItems( QList<caf::PdmOptionItemInfo>* options );
 
     static void faultOptionItems( QList<caf::PdmOptionItemInfo>* options, RimFaultInViewCollection* coll );
 
@@ -76,6 +78,7 @@ public:
     static RimWellPath*           firstWellPath();
 
     static RimSurfaceCollection* surfaceCollection();
+    static RimPolygonCollection* polygonCollection();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 

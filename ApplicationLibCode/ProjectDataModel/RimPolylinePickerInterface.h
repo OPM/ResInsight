@@ -18,10 +18,15 @@
 
 #pragma once
 
-#include "RimPolylineTarget.h"
-#include "cafPickEventHandler.h"
-
+#include <utility>
 #include <vector>
+
+namespace caf
+{
+class PickEventHandler;
+}
+
+class RimPolylineTarget;
 
 class RimPolylinePickerInterface
 {
