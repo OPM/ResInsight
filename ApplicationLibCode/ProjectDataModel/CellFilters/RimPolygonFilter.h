@@ -20,39 +20,34 @@
 
 #include "RimCellFilter.h"
 #include "RimCellFilterIntervalTool.h"
-#include "RimPolylinePickerInterface.h"
-#include "RimPolylinesDataInterface.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cafPickEventHandler.h"
 
-#include "cvfColor3.h"
-
-#include <list>
-#include <memory>
-
-class RicPolylineTargetsPickEventHandler;
-class RimPolylineTarget;
-class RimCase;
-class RimEclipseCase;
-class RimGeoMechCase;
+class RimPolygon;
 class RigGridBase;
-class RigMainGrid;
 class RigFemPartGrid;
-class RigPolylinesData;
-class RigEclipseCaseData;
+class RimPolygonInView;
+
+namespace cvf
+{
+class ModelBasicList;
+class BoundingBox;
+
+}; // namespace cvf
+
+namespace caf
+{
+class DisplayCoordTransform;
+};
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface, public RimPolylinesDataInterface
+class RimPolygonFilter : public RimCellFilter
 {
     CAF_PDM_HEADER_INIT;
 
@@ -71,38 +66,33 @@ public:
     };
 
     RimPolygonFilter();
-    ~RimPolygonFilter() override;
 
     void enableFilter( bool bEnable );
     void enableKFilter( bool bEnable );
 
     bool isFilterEnabled() const override;
 
-    void updateVisualization() override;
-    void updateEditorsAndVisualization() override;
-    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
-    void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void enablePicking( bool enable );
-
-    std::vector<RimPolylineTarget*> activeTargets() const override;
-    bool                            pickingEnabled() const override;
-    caf::PickEventHandler*          pickEventHandler() const override;
 
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
     void onGridChanged() override;
 
-    cvf::ref<RigPolyLinesData> polyLinesData() const override;
+    void configurePolygonEditor();
+    void appendPartsToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
+
+    RimPolygonInView* polygonEditor() const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QString fullName() const override;
 
 private:
-    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
     void updateCells();
     void updateCellsForEclipse( const std::vector<cvf::Vec3d>& points, RimEclipseCase* eCase );
     void updateCellsForGeoMech( const std::vector<cvf::Vec3d>& points, RimGeoMechCase* gCase );
@@ -118,26 +108,25 @@ private:
 
     void initializeCellList();
 
-    caf::PdmField<bool>                                m_enablePicking;
-    caf::PdmChildArrayField<RimPolylineTarget*>        m_targets;
+    bool isPolygonClosed() const;
+
+    void connectObjectSignals( RimPolygon* polygon );
+    void onObjectChanged( const caf::SignalEmitter* emitter );
+
+private:
     caf::PdmField<caf::AppEnum<PolygonFilterModeType>> m_polyFilterMode;
     caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
     caf::PdmField<bool>                                m_enableFiltering;
-    caf::PdmField<bool>                                m_showLines;
-    caf::PdmField<bool>                                m_showSpheres;
-    caf::PdmField<int>                                 m_lineThickness;
-    caf::PdmField<double>                              m_sphereRadiusFactor;
-    caf::PdmField<cvf::Color3f>                        m_lineColor;
-    caf::PdmField<cvf::Color3f>                        m_sphereColor;
-    caf::PdmField<double>                              m_polygonPlaneDepth;
-    caf::PdmField<bool>                                m_lockPolygonToPlane;
     caf::PdmField<bool>                                m_enableKFilter;
     caf::PdmField<QString>                             m_kFilterStr;
-    caf::PdmField<bool>                                m_closePolygon;
-
-    std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
     std::vector<std::vector<size_t>> m_cells;
 
     RimCellFilterIntervalTool m_intervalTool;
+
+    // Local polygon and polygon editor
+    caf::PdmPtrField<RimPolygon*>         m_cellFilterPolygon;
+    caf::PdmChildField<RimPolygon*>       m_internalPolygon;
+    caf::PdmChildField<RimPolygonInView*> m_polygonEditor;
+    caf::PdmField<bool>                   m_editPolygonButton;
 };

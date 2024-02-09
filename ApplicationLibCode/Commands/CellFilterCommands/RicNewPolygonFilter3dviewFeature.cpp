@@ -18,6 +18,8 @@
 
 #include "RicNewPolygonFilter3dviewFeature.h"
 
+#include "Polygons/RimPolygonInView.h"
+
 #include "RiaApplication.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
@@ -49,7 +51,7 @@ void RicNewPolygonFilter3dviewFeature::onActionTriggered( bool isChecked )
     RimPolygonFilter* lastCreatedOrUpdated = filtColl->addNewPolygonFilter( sourceCase );
     if ( lastCreatedOrUpdated )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated->polygonEditor() );
     }
 }
 
