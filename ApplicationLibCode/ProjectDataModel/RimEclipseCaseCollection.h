@@ -33,6 +33,7 @@ class RigMainGrid;
 class RimEclipseCase;
 class RimIdenticalGridCaseGroup;
 class RimWellPathCollection;
+class RimEclipseCaseEnsemble;
 
 //==================================================================================================
 ///
@@ -48,6 +49,7 @@ public:
 
     caf::PdmChildArrayField<RimEclipseCase*>            cases;
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroups;
+    caf::PdmChildArrayField<RimEclipseCaseEnsemble*>    caseEnsembles;
 
     void close();
 
