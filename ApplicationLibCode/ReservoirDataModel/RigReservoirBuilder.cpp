@@ -159,7 +159,7 @@ void RigReservoirBuilder::createGridsAndCells( RigEclipseCaseData* eclipseCase )
     activeCellInfo->setGridActiveCellCounts( 0, eclipseCase->mainGrid()->globalCellArray().size() );
     activeCellInfo->computeDerivedData();
 
-    bool useOptimizedVersion = true;
+    bool useOptimizedVersion = false; // workaround, optimized version causes assert in debug builds
     eclipseCase->computeActiveCellBoundingBoxes( useOptimizedVersion );
 }
 
