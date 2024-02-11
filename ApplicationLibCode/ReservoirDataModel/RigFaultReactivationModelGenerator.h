@@ -75,10 +75,8 @@ protected:
     static std::pair<FaceType, FaceType> sideFacesIJ( FaceType face );
 
     static cvf::Vec3d extrapolatePoint( cvf::Vec3d startPoint, cvf::Vec3d endPoint, double stopDepth );
-    static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight );
-    static void       mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double minHeight );
-
-    std::vector<int> elementKLayers( const std::vector<size_t>& cellIndexColumn );
+    static void       splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight );
+    static void       mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, double minHeight );
 
     std::vector<size_t> buildCellColumn( size_t startCell, FaceType startFace, std::map<double, cvf::Vec3d>& layers );
 

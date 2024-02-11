@@ -364,33 +364,6 @@ const std::vector<double> RigFaultReactivationModelGenerator::partition( double 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RigFaultReactivationModelGenerator::elementKLayers( const std::vector<size_t>& cellIndexColumn )
-{
-    std::vector<int> kLayers;
-
-    size_t i, j, k;
-    for ( auto idx : cellIndexColumn )
-    {
-        m_grid->ijkFromCellIndexUnguarded( idx, &i, &j, &k );
-
-        if ( m_activeCellInfo->isActive( idx ) )
-        {
-            kLayers.push_back( (int)k );
-        }
-        else
-        {
-            kLayers.push_back( -1 * (int)k );
-        }
-    }
-
-    std::reverse( kLayers.begin(), kLayers.end() );
-
-    return kLayers;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<size_t>
     RigFaultReactivationModelGenerator::buildCellColumn( size_t startCellIndex, FaceType startFace, std::map<double, cvf::Vec3d>& layers )
 {
@@ -543,11 +516,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
     std::map<double, cvf::Vec3d> layersFront;
     std::vector<size_t>          cellColumnFront = buildCellColumn( oppositeStartCellIdx, oppositeStartFace, layersFront );
 
-    // identify k layers used to classify reservoir/inter-reservoir
-
-    auto kLayersBack  = elementKLayers( cellColumnBack );
-    auto kLayersFront = elementKLayers( cellColumnFront );
-
     // add extra fault buffer below the fault, starting at the deepest bottom-most cell on either side of the fault
 
     double front_bottom    = layersFront.begin()->first;
@@ -588,11 +556,11 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
 
     // make sure layers aren't too small or too thick
 
-    mergeTinyLayers( layersFront, kLayersFront, m_minCellHeight );
-    mergeTinyLayers( layersBack, kLayersBack, m_minCellHeight );
+    mergeTinyLayers( layersFront, m_minCellHeight );
+    mergeTinyLayers( layersBack, m_minCellHeight );
 
-    splitLargeLayers( layersFront, kLayersFront, m_maxCellHeight );
-    splitLargeLayers( layersBack, kLayersBack, m_maxCellHeight );
+    splitLargeLayers( layersFront, m_maxCellHeight );
+    splitLargeLayers( layersBack, m_maxCellHeight );
 
     std::vector<cvf::Vec3d> frontReservoirLayers;
     for ( auto& kvp : layersFront )
@@ -608,7 +576,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
 
     frontPart->generateGeometry( m_frontPoints,
                                  frontReservoirLayers,
-                                 kLayersFront,
                                  m_maxCellHeight,
                                  m_cellSizeHeightFactor,
                                  m_horizontalPartition,
@@ -618,7 +585,6 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
                                  m_faultZoneCells );
     backPart->generateGeometry( m_backPoints,
                                 backReservoirLayers,
-                                kLayersBack,
                                 m_maxCellHeight,
                                 m_cellSizeHeightFactor,
                                 m_horizontalPartition,
@@ -674,9 +640,8 @@ cvf::Vec3d RigFaultReactivationModelGenerator::extrapolatePoint( cvf::Vec3d star
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double minHeight )
+void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::Vec3d>& layers, double minHeight )
 {
-    std::vector<int>        newKLayers;
     std::vector<cvf::Vec3d> newLayers;
 
     const int nLayers = (int)layers.size();
@@ -692,7 +657,6 @@ void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::
 
     // bottom layer must always be included
     newLayers.push_back( vals.front() );
-    newKLayers.push_back( kLayers.front() );
 
     // remove any layer that is less than minHeight above the previous layer, starting at the bottom
     for ( int k = 1; k < nLayers - 1; k++ )
@@ -701,7 +665,6 @@ void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::
         {
             continue;
         }
-        newKLayers.push_back( kLayers[k] );
         newLayers.push_back( vals[k] );
     }
     // top layer must always be included
@@ -713,7 +676,6 @@ void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::
     {
         if ( std::abs( newLayers[nNewLayers - 1].z() - newLayers[nNewLayers - 2].z() ) < minHeight )
         {
-            newKLayers.pop_back();
             newLayers.pop_back();
             newLayers.pop_back();
             newLayers.push_back( vals.back() );
@@ -725,25 +687,16 @@ void RigFaultReactivationModelGenerator::mergeTinyLayers( std::map<double, cvf::
     {
         layers[p.z()] = p;
     }
-
-    kLayers.clear();
-    for ( auto k : newKLayers )
-    {
-        kLayers.push_back( k );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf::Vec3d>& layers, std::vector<int>& kLayers, double maxHeight )
+void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf::Vec3d>& layers, double maxHeight )
 {
     std::vector<cvf::Vec3d> additionalPoints;
 
-    std::vector<int> newKLayers;
-
-    const int nLayers  = (int)layers.size();
-    const int nKLayers = (int)kLayers.size();
+    const int nLayers = (int)layers.size();
 
     std::vector<double>     keys;
     std::vector<cvf::Vec3d> vals;
@@ -764,22 +717,14 @@ void RigFaultReactivationModelGenerator::splitLargeLayers( std::map<double, cvf:
                 for ( auto& p : points )
                 {
                     additionalPoints.push_back( p );
-                    newKLayers.push_back( kLayers[k - 1] );
                 }
             }
         }
-        if ( k < nKLayers ) newKLayers.push_back( kLayers[k] );
     }
 
     for ( auto& p : additionalPoints )
     {
         layers[p.z()] = p;
-    }
-
-    kLayers.clear();
-    for ( auto k : newKLayers )
-    {
-        kLayers.push_back( k );
     }
 }
 

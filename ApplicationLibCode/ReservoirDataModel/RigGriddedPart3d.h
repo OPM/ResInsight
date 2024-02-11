@@ -48,7 +48,6 @@ public:
 
     void generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
                            const std::vector<cvf::Vec3d>&    reservoirLayers,
-                           const std::vector<int>&           kLayers,
                            double                            maxCellHeight,
                            double                            cellSizeFactor,
                            const std::vector<double>&        horizontalPartition,
@@ -79,10 +78,9 @@ public:
     const std::map<Boundary, std::vector<unsigned int>>&    boundaryElements() const;
     const std::map<Boundary, std::vector<unsigned int>>&    boundaryNodes() const;
     const std::map<ElementSets, std::vector<unsigned int>>& elementSets() const;
-    const std::vector<int>                                  elementKLayer() const;
-    std::vector<cvf::Vec3d>                                 elementCorners( size_t elementIndex ) const;
-    std::vector<cvf::Vec3d>                                 elementDataCorners( size_t elementIndex ) const;
-    const std::vector<std::pair<double, double>>            layers( ElementSets elementSet ) const;
+    const std::vector<cvf::Vec3d>                           elementCorners( size_t elementIndex ) const;
+    const std::vector<cvf::Vec3d>                           elementDataCorners( size_t elementIndex ) const;
+    const std::pair<int, int>                               elementCountHorzVert() const;
 
 protected:
     static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
@@ -91,7 +89,6 @@ protected:
     static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
 
     void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, const std::vector<double>& horzPartition );
-    void updateReservoirElementLayers( const std::vector<cvf::Vec3d>& reservoirLayers, const std::vector<int>& kLayers );
 
 private:
     enum class Regions
@@ -114,15 +111,16 @@ private:
     double m_topHeight;
     double m_faultSafetyDistance;
 
+    int m_nVertElements;
+    int m_nHorzElements;
+
     std::vector<cvf::Vec3d>                                                  m_nodes;
     std::vector<cvf::Vec3d>                                                  m_dataNodes;
     std::vector<cvf::Vec3d>                                                  m_localNodes;
     std::vector<std::vector<unsigned int>>                                   m_elementIndices;
-    std::vector<int>                                                         m_elementKLayer;
     std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>> m_borderSurfaceElements;
     std::vector<std::vector<cvf::Vec3d>>                                     m_meshLines;
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryElements;
     std::map<Boundary, std::vector<unsigned int>>                            m_boundaryNodes;
     std::map<ElementSets, std::vector<unsigned int>>                         m_elementSets;
-    std::map<ElementSets, std::vector<std::pair<double, double>>>            m_elementLayers;
 };
