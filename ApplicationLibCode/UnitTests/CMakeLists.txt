@@ -209,6 +209,10 @@ if(MSVC)
             $<TARGET_FILE_DIR:ResInsight-tests>
     COMMAND_EXPAND_LISTS
   )
+
+  set_target_properties(
+    ResInsight-tests PROPERTIES COMPILE_FLAGS "/wd4190"}
+  )
 endif(MSVC)
 
 add_test(NAME ResInsight-tests COMMAND ResInsight-tests)
