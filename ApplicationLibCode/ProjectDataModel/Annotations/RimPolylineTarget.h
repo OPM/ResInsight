@@ -38,14 +38,11 @@ public:
     RimPolylineTarget();
     ~RimPolylineTarget() override;
 
-    bool isEnabled() const;
-
     void setAsPointTargetXYD( const cvf::Vec3d& point );
     void setAsPointXYZ( const cvf::Vec3d& point );
 
     cvf::Vec3d             targetPointXYZ() const;
     caf::PdmUiFieldHandle* targetPointUiCapability();
-    void                   enableFullUpdate( bool enable );
 
     void triggerVisualizationUpdate() const;
 
@@ -54,7 +51,5 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    bool                      m_isFullUpdateEnabled;
-    caf::PdmField<bool>       m_isEnabled;
     caf::PdmField<cvf::Vec3d> m_targetPointXyd;
 };
