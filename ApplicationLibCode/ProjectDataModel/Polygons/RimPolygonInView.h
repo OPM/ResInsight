@@ -21,6 +21,8 @@
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
 
+#include "RivPolylinePartMgr.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmPtrField.h"
 
