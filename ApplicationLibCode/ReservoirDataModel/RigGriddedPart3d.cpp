@@ -37,6 +37,8 @@ RigGriddedPart3d::RigGriddedPart3d()
     : m_useLocalCoordinates( false )
     , m_topHeight( 0.0 )
     , m_faultSafetyDistance( 1.0 )
+    , m_nVertElements( 0 )
+    , m_nHorzElements( 0 )
 {
 }
 
@@ -61,8 +63,9 @@ void RigGriddedPart3d::reset()
     m_elementIndices.clear();
     m_meshLines.clear();
     m_elementSets.clear();
-    m_elementKLayer.clear();
-    m_elementLayers.clear();
+    m_nVertElements = 0;
+    m_nHorzElements = 0;
+    m_topHeight     = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,37 +178,6 @@ std::vector<double> RigGriddedPart3d::extractZValues( std::vector<cvf::Vec3d> po
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::updateReservoirElementLayers( const std::vector<cvf::Vec3d>& reservoirLayers, const std::vector<int>& kLayers )
-{
-    const int nLayers = (int)reservoirLayers.size();
-
-    if ( nLayers < 2 ) return;
-
-    int    prevLayer = kLayers[0];
-    double start     = reservoirLayers[0].z();
-
-    for ( int l = 1; l < nLayers; l++ )
-    {
-        auto currentZone = ( prevLayer >= 0 ) ? ElementSets::Reservoir : ElementSets::IntraReservoir;
-
-        if ( l == nLayers - 1 )
-        {
-            m_elementLayers[currentZone].push_back( std::make_pair( start, reservoirLayers[l].z() ) );
-            continue;
-        }
-
-        if ( ( ( prevLayer < 0 ) && ( kLayers[l] >= 0 ) ) || ( ( prevLayer >= 0 ) && ( kLayers[l] < 0 ) ) )
-        {
-            m_elementLayers[currentZone].push_back( std::make_pair( start, reservoirLayers[l].z() ) );
-            start = reservoirLayers[l].z();
-        }
-        prevLayer = kLayers[l];
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 ///  Point index in input
 ///
 ///
@@ -226,11 +198,9 @@ void RigGriddedPart3d::updateReservoirElementLayers( const std::vector<cvf::Vec3
 ///
 /// Assumes horizontal lines are parallel
 ///
-///
 //--------------------------------------------------------------------------------------------------
 void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
                                          const std::vector<cvf::Vec3d>&    reservoirLayers,
-                                         const std::vector<int>&           kLayers,
                                          const double                      maxCellHeight,
                                          double                            cellSizeFactor,
                                          const std::vector<double>&        horizontalPartition,
@@ -254,17 +224,12 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     layersPerRegion[Regions::LowerUnderburden].pop_back(); // to avoid overlap with bottom of next region
     layersPerRegion[Regions::Reservoir].pop_back(); // to avoid overlap with bottom of next region
 
-    m_elementLayers[ElementSets::OverBurden]  = { std::make_pair( inputPoints[3].z(), inputPoints[5].z() ) };
-    m_elementLayers[ElementSets::UnderBurden] = { std::make_pair( inputPoints[0].z(), inputPoints[2].z() ) };
-
     m_boundaryNodes[Boundary::Bottom]  = {};
     m_boundaryNodes[Boundary::FarSide] = {};
     m_boundaryNodes[Boundary::Fault]   = {};
 
-    updateReservoirElementLayers( reservoirLayers, kLayers );
-
-    size_t nVertCells = 0;
-    size_t nHorzCells = horizontalPartition.size() - 1;
+    size_t       nVertCells = 0;
+    const size_t nHorzCells = horizontalPartition.size() - 1;
 
     for ( auto region : allRegions() )
     {
@@ -278,6 +243,9 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     size_t reserveSize = ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     m_nodes.reserve( reserveSize );
     m_dataNodes.reserve( reserveSize );
+
+    m_nHorzElements = (int)nHorzCells;
+    m_nVertElements = (int)nVertCells - 1;
 
     unsigned int nodeIndex = 0;
     unsigned int layer     = 0;
@@ -389,7 +357,6 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     // ** generate elements of type hex8
 
     m_elementIndices.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
-    m_elementKLayer.resize( (size_t)( ( nVertCells - 1 ) * nHorzCells * nThicknessCells ) );
 
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::Seabed]       = {};
     m_borderSurfaceElements[RimFaultReactivation::BorderSurface::UpperSurface] = {};
@@ -409,18 +376,12 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     int layerIndexOffset = 0;
     int elementIdx       = 0;
     layer                = 0;
-    int kLayer           = 0;
 
     const int nVertCellsLower = (int)layersPerRegion[Regions::LowerUnderburden].size();
     const int nVertCellsFault = (int)( layersPerRegion[Regions::UpperUnderburden].size() + layersPerRegion[Regions::Reservoir].size() +
                                        layersPerRegion[Regions::LowerOverburden].size() );
 
-    const int nVertCellsUnderburden =
-        (int)( layersPerRegion[Regions::LowerUnderburden].size() + layersPerRegion[Regions::UpperUnderburden].size() );
-    const int nVertCellsReservoir = nVertCellsUnderburden + (int)( layersPerRegion[Regions::Reservoir].size() );
-
     RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
-    RimFaultReactivation::ElementSets   currentElementSet    = RimFaultReactivation::ElementSets::UnderBurden;
 
     const int nextLayerIdxOff = ( (int)nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
@@ -432,9 +393,6 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     {
         if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
         if ( v >= nVertCellsLower + nVertCellsFault ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
-
-        if ( v >= nVertCellsUnderburden ) currentElementSet = RimFaultReactivation::ElementSets::Reservoir;
-        if ( v >= nVertCellsReservoir ) currentElementSet = RimFaultReactivation::ElementSets::OverBurden;
 
         int i = layerIndexOffset;
 
@@ -468,27 +426,6 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                 bool inFaultZone = ( currentSurfaceRegion == RimFaultReactivation::BorderSurface::FaultSurface ) && ( h > nFaultZoneStart );
 
                 if ( inFaultZone ) m_elementSets[RimFaultReactivation::ElementSets::FaultZone].push_back( elementIdx );
-
-                if ( currentElementSet == RimFaultReactivation::ElementSets::Reservoir )
-                {
-                    m_elementKLayer[elementIdx] = kLayers[kLayer];
-                    if ( !inFaultZone )
-                    {
-                        if ( kLayers[kLayer] < 0 )
-                        {
-                            m_elementSets[RimFaultReactivation::ElementSets::IntraReservoir].push_back( elementIdx );
-                        }
-                        else
-                        {
-                            m_elementSets[currentElementSet].push_back( elementIdx );
-                        }
-                    }
-                }
-                else
-                {
-                    if ( !inFaultZone ) m_elementSets[currentElementSet].push_back( elementIdx );
-                    m_elementKLayer[elementIdx] = -2000;
-                }
             }
             i += nThicknessOff;
         }
@@ -496,11 +433,6 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
         // add elements to border surface in current region
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 2 );
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
-
-        if ( currentElementSet == RimFaultReactivation::ElementSets::Reservoir )
-        {
-            kLayer++;
-        }
 
         layerIndexOffset += nextLayerIdxOff;
     }
@@ -628,7 +560,7 @@ const std::vector<std::vector<unsigned int>>& RigGriddedPart3d::elementIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) const
+const std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) const
 {
     return extractCornersForElement( m_elementIndices, m_nodes, elementIndex );
 }
@@ -636,9 +568,17 @@ std::vector<cvf::Vec3d> RigGriddedPart3d::elementCorners( size_t elementIndex ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigGriddedPart3d::elementDataCorners( size_t elementIndex ) const
+const std::vector<cvf::Vec3d> RigGriddedPart3d::elementDataCorners( size_t elementIndex ) const
 {
     return extractCornersForElement( m_elementIndices, m_dataNodes, elementIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::pair<int, int> RigGriddedPart3d::elementCountHorzVert() const
+{
+    return { m_nHorzElements, m_nVertElements };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -675,23 +615,6 @@ const std::map<RimFaultReactivation::BorderSurface, std::vector<unsigned int>>& 
 const std::vector<std::vector<cvf::Vec3d>>& RigGriddedPart3d::meshLines() const
 {
     return m_meshLines;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<int> RigGriddedPart3d::elementKLayer() const
-{
-    return m_elementKLayer;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<std::pair<double, double>> RigGriddedPart3d::layers( RigGriddedPart3d::ElementSets elementSet ) const
-{
-    if ( m_elementLayers.count( elementSet ) == 0 ) return {};
-    return m_elementLayers.at( elementSet );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -739,52 +662,108 @@ void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Make sure any active cells outside the flat reservoir zone is added to the reservoir element set
+///
 //--------------------------------------------------------------------------------------------------
 void RigGriddedPart3d::postProcessElementSets( const RigMainGrid* mainGrid, const RigActiveCellInfo* cellInfo )
 {
-    std::map<ElementSets, std::vector<unsigned int>> newElementSets;
+    std::set<unsigned int> usedElements;
 
-    for ( auto elSet : { ElementSets::OverBurden, ElementSets::UnderBurden, ElementSets::IntraReservoir } )
+    // fault zone elements are already assigned
+    for ( auto elIdx : m_elementSets[ElementSets::FaultZone] )
     {
-        newElementSets[elSet] = {};
+        usedElements.insert( elIdx );
+    }
 
-        for ( auto element : m_elementSets[elSet] )
+    // look for overburden, starting at top going down
+    updateElementSet( ElementSets::OverBurden, usedElements, mainGrid, cellInfo, m_nVertElements - 1, -1, -1 );
+
+    // look for underburden, starting at bottom going up
+    updateElementSet( ElementSets::UnderBurden, usedElements, mainGrid, cellInfo, 0, m_nVertElements, 1 );
+
+    // remaining elements are in the reservoir
+    m_elementSets[ElementSets::IntraReservoir] = {};
+    m_elementSets[ElementSets::Reservoir]      = {};
+
+    for ( unsigned int element = 0; element < m_elementIndices.size(); element++ )
+    {
+        if ( usedElements.contains( element ) ) continue;
+
+        auto corners = elementCorners( element );
+        bool bActive = false;
+
+        size_t cellIdx = 0;
+        for ( const auto& p : corners )
         {
-            auto corners = elementCorners( element );
-            int  nFound  = 0;
+            cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
 
-            size_t cellIdx = 0;
-            for ( const auto& p : corners )
+            bActive = ( cellIdx != cvf::UNDEFINED_SIZE_T ) && ( cellInfo->isActive( cellIdx ) );
+            if ( bActive ) break;
+        }
+
+        if ( bActive )
+        {
+            m_elementSets[ElementSets::Reservoir].push_back( element );
+        }
+        else
+        {
+            m_elementSets[ElementSets::IntraReservoir].push_back( element );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
+                                         std::set<unsigned int>&  usedElements,
+                                         const RigMainGrid*       mainGrid,
+                                         const RigActiveCellInfo* cellInfo,
+                                         int                      rowStart,
+                                         int                      rowEnd,
+                                         int                      rowInc )
+{
+    for ( int col = 0; col < m_nHorzElements; col++ )
+    {
+        for ( int row = rowStart; row != rowEnd; row += rowInc )
+        {
+            const unsigned int elIdx = (unsigned int)( 2 * ( ( row * m_nHorzElements ) + col ) );
+
+            bool bStop = false;
+
+            for ( unsigned int t = 0; t < 2; t++ )
             {
-                cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
-
-                if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+                if ( usedElements.contains( elIdx + t ) )
                 {
-                    if ( cellInfo->isActive( cellIdx ) )
+                    bStop = true;
+                    break;
+                }
+
+                auto corners = elementCorners( elIdx + t );
+
+                size_t cellIdx = 0;
+                for ( const auto& p : corners )
+                {
+                    cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
+
+                    if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) && ( cellInfo->isActive( cellIdx ) ) )
                     {
-                        nFound++;
+                        bStop = true;
+                        break;
                     }
                 }
             }
 
-            if ( nFound > 0 )
+            if ( bStop )
             {
-                m_elementSets[ElementSets::Reservoir].push_back( element );
+                break;
             }
             else
             {
-                newElementSets[elSet].push_back( element );
+                m_elementSets[elSet].push_back( elIdx );
+                m_elementSets[elSet].push_back( elIdx + 1 );
+                usedElements.insert( elIdx );
+                usedElements.insert( elIdx + 1 );
             }
-        }
-    }
-
-    for ( auto elSet : { ElementSets::OverBurden, ElementSets::UnderBurden, ElementSets::IntraReservoir } )
-    {
-        m_elementSets[elSet].clear();
-        for ( auto element : newElementSets[elSet] )
-        {
-            m_elementSets[elSet].push_back( element );
         }
     }
 }
