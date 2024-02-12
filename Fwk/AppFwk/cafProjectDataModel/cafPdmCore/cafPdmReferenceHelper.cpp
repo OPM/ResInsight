@@ -328,7 +328,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference( PdmFieldHandle* f
     if ( reference.isEmpty() ) return nullptr;
     if ( reference.trimmed().isEmpty() ) return nullptr;
 
-#if ( QT_VERSION < QT_VERSION_CHECK( 6, 0, 0 ) )
+#if ( QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 ) )
     auto SkipEmptyParts = QString::SkipEmptyParts;
 #else
     auto SkipEmptyParts = Qt::SkipEmptyParts;
