@@ -726,13 +726,13 @@ void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
     {
         for ( int row = rowStart; row != rowEnd; row += rowInc )
         {
-            unsigned int elIdx = (unsigned int)( 2 * ( ( row * m_nHorzElements ) + col ) );
+            const unsigned int elIdx = (unsigned int)( 2 * ( ( row * m_nHorzElements ) + col ) );
 
             bool bStop = false;
 
             for ( unsigned int t = 0; t < 2; t++ )
             {
-                if ( usedElements.contains( elIdx ) )
+                if ( usedElements.contains( elIdx + t ) )
                 {
                     bStop = true;
                     break;
