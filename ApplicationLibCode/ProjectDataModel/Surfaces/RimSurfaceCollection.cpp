@@ -302,7 +302,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
     proj->allViews( views );
     for ( auto view : views )
     {
-        view->updateSurfacesInViewTreeItems();
+        view->updateViewTreeItems( RiaDefines::ItemIn3dView::SURFACE );
 
         if ( auto gridView = dynamic_cast<RimGridView*>( view ) )
         {
@@ -355,7 +355,7 @@ void RimSurfaceCollection::updateViews()
 
     for ( auto view : views )
     {
-        view->updateSurfacesInViewTreeItems();
+        view->updateViewTreeItems( RiaDefines::ItemIn3dView::SURFACE );
     }
 
     for ( auto view : views )

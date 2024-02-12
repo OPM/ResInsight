@@ -32,6 +32,7 @@ class RimCellFilterCollection;
 class RimWellMeasurementInViewCollection;
 class RimSurfaceInViewCollection;
 class RimSeismicSectionCollection;
+class RimPolygonInViewCollection;
 
 class RimGridView : public Rim3dView
 {
@@ -54,6 +55,7 @@ public:
     RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
     RimWellMeasurementInViewCollection*         measurementCollection() const;
     RimSeismicSectionCollection*                seismicSectionCollection() const;
+    RimPolygonInViewCollection*                 polygonCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
 
@@ -68,7 +70,7 @@ public:
     bool isGridVisualizationMode() const override;
 
     void updateWellMeasurements();
-    void updateSurfacesInViewTreeItems() override;
+    void updateViewTreeItems( RiaDefines::ItemIn3dView itemType ) override;
 
 protected:
     virtual void       updateViewFollowingCellFilterUpdates();
@@ -90,6 +92,7 @@ protected:
 protected:
     cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
     cvf::ref<cvf::ModelBasicList> m_intersectionVizModel;
+    cvf::ref<cvf::ModelBasicList> m_polygonVizModel;
 
     // Fields
     caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
@@ -104,6 +107,7 @@ protected:
     caf::PdmChildField<RimCellFilterCollection*>            m_cellFilterCollection;
     caf::PdmChildField<RimCellFilterCollection*>            m_overrideCellFilterCollection;
     caf::PdmChildField<RimSeismicSectionCollection*>        m_seismicSectionCollection;
+    caf::PdmChildField<RimPolygonInViewCollection*>         m_polygonCollection;
 
 private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
