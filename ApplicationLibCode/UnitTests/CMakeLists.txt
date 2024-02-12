@@ -1,7 +1,7 @@
 # ResInsight unit tests
 
 if(MSVC)
-  # TARGET_RUNTIME_DLLS requires 3.21 
+  # TARGET_RUNTIME_DLLS requires 3.21
   cmake_minimum_required(VERSION 3.21)
 endif(MSVC)
 
@@ -210,9 +210,7 @@ if(MSVC)
     COMMAND_EXPAND_LISTS
   )
 
-  set_target_properties(
-    ResInsight-tests PROPERTIES COMPILE_FLAGS "/wd4190"}
-  )
+  set_target_properties(ResInsight-tests PROPERTIES COMPILE_FLAGS "/wd4190"})
 endif(MSVC)
 
 add_test(NAME ResInsight-tests COMMAND ResInsight-tests)
