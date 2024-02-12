@@ -26,6 +26,7 @@
 
 #include <array>
 #include <map>
+#include <set>
 #include <vector>
 
 class RigMainGrid;
@@ -89,6 +90,14 @@ protected:
     static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
 
     void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, const std::vector<double>& horzPartition );
+
+    void updateElementSet( ElementSets              elSet,
+                           std::set<unsigned int>&  usedElements,
+                           const RigMainGrid*       mainGrid,
+                           const RigActiveCellInfo* cellInfo,
+                           int                      rowStart,
+                           int                      rowEnd,
+                           int                      rowInc );
 
 private:
     enum class Regions

@@ -676,52 +676,108 @@ void RigGriddedPart3d::generateLocalNodes( const cvf::Mat4d transform )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Make sure any active cells outside the flat reservoir zone is added to the reservoir element set
+///
 //--------------------------------------------------------------------------------------------------
 void RigGriddedPart3d::postProcessElementSets( const RigMainGrid* mainGrid, const RigActiveCellInfo* cellInfo )
 {
-    std::map<ElementSets, std::vector<unsigned int>> newElementSets;
+    std::set<unsigned int> usedElements;
 
-    for ( auto elSet : { ElementSets::OverBurden, ElementSets::UnderBurden, ElementSets::IntraReservoir } )
+    // fault zone elements are already assigned
+    for ( auto elIdx : m_elementSets[ElementSets::FaultZone] )
     {
-        newElementSets[elSet] = {};
+        usedElements.insert( elIdx );
+    }
 
-        for ( auto element : m_elementSets[elSet] )
+    // look for overburden, starting at top going down
+    updateElementSet( ElementSets::OverBurden, usedElements, mainGrid, cellInfo, m_nVertElements - 1, -1, -1 );
+
+    // look for underburden, starting at bottom going up
+    updateElementSet( ElementSets::UnderBurden, usedElements, mainGrid, cellInfo, 0, m_nVertElements, 1 );
+
+    // remaining elements are in the reservoir
+    m_elementSets[ElementSets::IntraReservoir] = {};
+    m_elementSets[ElementSets::Reservoir]      = {};
+
+    for ( unsigned int element = 0; element < m_elementIndices.size(); element++ )
+    {
+        if ( usedElements.contains( element ) ) continue;
+
+        auto corners = elementCorners( element );
+        bool bActive = false;
+
+        size_t cellIdx = 0;
+        for ( const auto& p : corners )
         {
-            auto corners = elementCorners( element );
-            int  nFound  = 0;
+            cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
 
-            size_t cellIdx = 0;
-            for ( const auto& p : corners )
+            bActive = ( cellIdx != cvf::UNDEFINED_SIZE_T ) && ( cellInfo->isActive( cellIdx ) );
+            if ( bActive ) break;
+        }
+
+        if ( bActive )
+        {
+            m_elementSets[ElementSets::Reservoir].push_back( element );
+        }
+        else
+        {
+            m_elementSets[ElementSets::IntraReservoir].push_back( element );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
+                                         std::set<unsigned int>&  usedElements,
+                                         const RigMainGrid*       mainGrid,
+                                         const RigActiveCellInfo* cellInfo,
+                                         int                      rowStart,
+                                         int                      rowEnd,
+                                         int                      rowInc )
+{
+    for ( int col = 0; col < m_nHorzElements; col++ )
+    {
+        for ( int row = rowStart; row != rowEnd; row += rowInc )
+        {
+            unsigned int elIdx = (unsigned int)( 2 * ( ( row * m_nHorzElements ) + col ) );
+
+            bool bStop = false;
+
+            for ( unsigned int t = 0; t < 2; t++ )
             {
-                cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
-
-                if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+                if ( usedElements.contains( elIdx ) )
                 {
-                    if ( cellInfo->isActive( cellIdx ) )
+                    bStop = true;
+                    break;
+                }
+
+                auto corners = elementCorners( elIdx + t );
+
+                size_t cellIdx = 0;
+                for ( const auto& p : corners )
+                {
+                    cellIdx = mainGrid->findReservoirCellIndexFromPoint( p );
+
+                    if ( ( cellIdx != cvf::UNDEFINED_SIZE_T ) && ( cellInfo->isActive( cellIdx ) ) )
                     {
-                        nFound++;
+                        bStop = true;
+                        break;
                     }
                 }
             }
 
-            if ( nFound > 0 )
+            if ( bStop )
             {
-                m_elementSets[ElementSets::Reservoir].push_back( element );
+                break;
             }
             else
             {
-                newElementSets[elSet].push_back( element );
+                m_elementSets[elSet].push_back( elIdx );
+                m_elementSets[elSet].push_back( elIdx + 1 );
+                usedElements.insert( elIdx );
+                usedElements.insert( elIdx + 1 );
             }
-        }
-    }
-
-    for ( auto elSet : { ElementSets::OverBurden, ElementSets::UnderBurden, ElementSets::IntraReservoir } )
-    {
-        m_elementSets[elSet].clear();
-        for ( auto element : newElementSets[elSet] )
-        {
-            m_elementSets[elSet].push_back( element );
         }
     }
 }

@@ -482,17 +482,20 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
     {
         Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
 
-        QString stepName = view->timeStepName( view->currentTimeStep() );
+        if ( view )
+        {
+            QString stepName = view->timeStepName( view->currentTimeStep() );
 
-        m_animationProgress->setFormat( "Time Step: %v/%m " + stepName );
-        m_animationProgress->setMinimum( 0 );
-        m_animationProgress->setMaximum( static_cast<int>( view->timeStepCount() ) - 1 );
-        m_animationProgress->setValue( view->currentTimeStep() );
+            m_animationProgress->setFormat( "Time Step: %v/%m " + stepName );
+            m_animationProgress->setMinimum( 0 );
+            m_animationProgress->setMaximum( static_cast<int>( view->timeStepCount() ) - 1 );
+            m_animationProgress->setValue( view->currentTimeStep() );
 
-        m_animationProgress->resize( columnWidth, m_animationProgress->sizeHint().height() );
-        m_animationProgress->render( painter, QPoint( columnPos, yPos ) );
+            m_animationProgress->resize( columnWidth, m_animationProgress->sizeHint().height() );
+            m_animationProgress->render( painter, QPoint( columnPos, yPos ) );
 
-        yPos += m_animationProgress->height() + margin;
+            yPos += m_animationProgress->height() + margin;
+        }
     }
 
     if ( m_showInfoText && !isComparisonViewActive() )
@@ -1037,6 +1040,8 @@ RimViewWindow* RiuViewer::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::optimizeClippingPlanes()
 {
+    if ( m_rimView == nullptr ) return;
+
     if ( m_showWindowEdgeAxes )
     {
         m_windowEdgeAxisOverlay->setDisplayCoordTransform( m_rimView->displayCoordTransform().p() );
