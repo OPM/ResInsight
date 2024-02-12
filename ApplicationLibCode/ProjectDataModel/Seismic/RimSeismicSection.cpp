@@ -22,6 +22,7 @@
 #include "RiuSeismicHistogramPanel.h"
 
 #include "Rim3dView.h"
+#include "RimPolylineTarget.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 #include "RimSeismicDataInterface.h"
