@@ -600,7 +600,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
         for ( int i = 0; i < (int)m_targets.size(); i++ )
         {
-            if ( m_targets[i]->isEnabled() ) points.push_back( m_targets[i]->targetPointXYZ() );
+            points.push_back( m_targets[i]->targetPointXYZ() );
         }
         updateTextureSectionFromPoints( points, zmin, zmax );
     }
