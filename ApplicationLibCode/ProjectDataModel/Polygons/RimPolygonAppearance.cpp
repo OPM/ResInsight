@@ -31,7 +31,6 @@
 
 #include "cvfBoundingBox.h"
 
-
 CAF_PDM_SOURCE_INIT( RimPolygonAppearance, "RimPolygonAppearance" );
 
 //--------------------------------------------------------------------------------------------------
