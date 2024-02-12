@@ -39,9 +39,9 @@ std::pair<RimPolylineTarget*, RimPolylineTarget*>
             foundTarget = true;
         }
 
-        if ( wt->isEnabled() && !after && foundTarget ) after = wt;
+        if ( !after && foundTarget ) after = wt;
 
-        if ( wt->isEnabled() && !foundTarget ) before = wt;
+        if ( !foundTarget ) before = wt;
     }
 
     return { before, after };
