@@ -376,18 +376,12 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     int layerIndexOffset = 0;
     int elementIdx       = 0;
     layer                = 0;
-    int kLayer           = 0;
 
     const int nVertCellsLower = (int)layersPerRegion[Regions::LowerUnderburden].size();
     const int nVertCellsFault = (int)( layersPerRegion[Regions::UpperUnderburden].size() + layersPerRegion[Regions::Reservoir].size() +
                                        layersPerRegion[Regions::LowerOverburden].size() );
 
-    const int nVertCellsUnderburden =
-        (int)( layersPerRegion[Regions::LowerUnderburden].size() + layersPerRegion[Regions::UpperUnderburden].size() );
-    const int nVertCellsReservoir = nVertCellsUnderburden + (int)( layersPerRegion[Regions::Reservoir].size() );
-
     RimFaultReactivation::BorderSurface currentSurfaceRegion = RimFaultReactivation::BorderSurface::LowerSurface;
-    RimFaultReactivation::ElementSets   currentElementSet    = RimFaultReactivation::ElementSets::UnderBurden;
 
     const int nextLayerIdxOff = ( (int)nHorzCells + 1 ) * ( nThicknessCells + 1 );
     const int nThicknessOff   = nThicknessCells + 1;
@@ -399,9 +393,6 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     {
         if ( v >= nVertCellsLower ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::FaultSurface;
         if ( v >= nVertCellsLower + nVertCellsFault ) currentSurfaceRegion = RimFaultReactivation::BorderSurface::UpperSurface;
-
-        if ( v >= nVertCellsUnderburden ) currentElementSet = RimFaultReactivation::ElementSets::Reservoir;
-        if ( v >= nVertCellsReservoir ) currentElementSet = RimFaultReactivation::ElementSets::OverBurden;
 
         int i = layerIndexOffset;
 
@@ -442,11 +433,6 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
         // add elements to border surface in current region
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 2 );
         m_borderSurfaceElements[currentSurfaceRegion].push_back( elementIdx - 1 );
-
-        if ( currentElementSet == RimFaultReactivation::ElementSets::Reservoir )
-        {
-            kLayer++;
-        }
 
         layerIndexOffset += nextLayerIdxOff;
     }
