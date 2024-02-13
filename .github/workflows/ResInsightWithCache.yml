@@ -210,6 +210,7 @@ jobs:
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
               -D RESINSIGHT_BUNDLE_OPENSSL=true
+              -D RESINSIGHT_QT5_BUNDLE_LIBRARIES=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_PRECOMPILED_HEADERS=false
@@ -272,8 +273,7 @@ jobs:
           name: python-distribution
           path: GrpcInterface/Python/dist
 
-      - name: Upload Windows install artifact
-        if: contains( matrix.config.os, 'windows')
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ResInsight-${{ matrix.config.name }}

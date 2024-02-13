@@ -6,7 +6,7 @@ import sys
 
 org_name = "OPM"
 repo_name = "ResInsight"
-keep_artifacts = 20
+keep_artifacts = 100
 
 def get_all_artifacts(repo_name: str, headers: dict) -> []:
     amount_items_per_page = 50
