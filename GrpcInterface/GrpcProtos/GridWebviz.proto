@@ -40,6 +40,7 @@ message CellIndexFilter
 
 message PropertyFilter
 {
+    // Timestep ??
     string propertyFilename = 1;
     float valueMin = 2;
     float valueMax = 3;
@@ -51,7 +52,6 @@ message GridDimensions
     uint32 jNum = 2;
     uint32 kNum = 3;
 }
-
 
 message GetGridSurfaceRequest
 {
@@ -66,37 +66,29 @@ message GetGridSurfaceResponse
     repeated float vertexArray = 1;
     repeated fixed32 quadIndicesArr = 2;        // 4*NumQuads long
     repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per quad, longnumQuads long
-    repeated fixed32 propertyIndicesArr = 4;    // SHOULD WE HAVE THIS?? Index of property result per quad, numQuads long
     GridDimensions gridDimensions = 5;
     Vec3d originUtm = 6;
 }
 
-
 message CutAlongPolylineRequest 
 {
     string gridFilename = 1;
-    IJKIndexFilter ijkIndexFilter = 2;          // Should these be present here??
-    CellIndexFilter cellIndexFilter = 3;
-    PropertyFilter propertyFilter = 4;
-    repeated double fencePolylineUtmXY = 4;
+    repeated double fencePolylineUtmXY = 2;
 }
 
 message FenceMeshSection
 {
-    // U-axis defined by vector from start to end
-    // V-axis is global Z
-    repeated float vertexArrayUV = 1;               // Plane local UV vertex coordinates
+    // U-axis defined by vector from start to end, Z is global Z
+    repeated float vertexArrayUZ = 1;
     repeated fixed32 polyIndicesArr = 2;
     repeated fixed32 verticesPerPolygonArr = 3;     // Number of vertices per polygon, numPolygons long
     repeated fixed32 sourceCellIndicesArr = 4;      // The originating cell index per polygon, numPolygons long
-    repeated fixed32 propertyIndicesArr = 5;        // SHOULD WE HAVE THIS?? Index of property result per polygon, numPolygons long
     Vec2d startUtmXY = 6;
     Vec2d endUtmXY = 7;
 }
 
 message CutAlongPolylineResponse
 {
-    double originZ = 1;
+    repeated FenceMeshSection feceMeshSections = 1;
     GridDimensions gridDimensions = 2;
-    repeated FenceMeshSection feceMeshSections = 3;
 }
