@@ -162,6 +162,8 @@ private:
     caf::PdmField<cvf::Color3f>                 m_modelPart2Color;
 
     caf::PdmField<bool> m_showModelPlane;
+    caf::PdmField<bool> m_flipNodeOrderFW;
+    caf::PdmField<bool> m_flipNodeOrderHW;
 
     caf::PdmField<double> m_modelExtentFromAnchor;
     caf::PdmField<double> m_modelMinZ;

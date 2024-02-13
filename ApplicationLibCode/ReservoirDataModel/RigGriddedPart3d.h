@@ -61,6 +61,7 @@ public:
     void setUseLocalCoordinates( bool useLocalCoordinates );
 
     void postProcessElementSets( const RigMainGrid* mainGrid, const RigActiveCellInfo* cellInfo );
+    void flipNodeOrder();
 
     bool   useLocalCoordinates() const;
     double topHeight() const;
