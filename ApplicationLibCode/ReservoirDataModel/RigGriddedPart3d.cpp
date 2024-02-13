@@ -688,7 +688,7 @@ void RigGriddedPart3d::postProcessElementSets( const RigMainGrid* mainGrid, cons
     {
         if ( usedElements.contains( element ) ) continue;
 
-        auto corners = elementCorners( element );
+        auto corners = elementDataCorners( element );
         bool bActive = false;
 
         size_t cellIdx = 0;
@@ -738,7 +738,7 @@ void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
                     break;
                 }
 
-                auto corners = elementCorners( elIdx + t );
+                auto corners = elementDataCorners( elIdx + t );
 
                 size_t cellIdx = 0;
                 for ( const auto& p : corners )
@@ -765,5 +765,17 @@ void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
                 usedElements.insert( elIdx + 1 );
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::flipNodeOrder()
+{
+    for ( auto& nodes : m_elementIndices )
+    {
+        std::swap( nodes[1], nodes[3] );
+        std::swap( nodes[5], nodes[7] );
     }
 }

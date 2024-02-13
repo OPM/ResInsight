@@ -99,6 +99,8 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_faultZoneCells, "FaultZoneCells", 0, "Fault Zone Width [cells]" );
 
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
+    CAF_PDM_InitField( &m_flipNodeOrderFW, "FlipNodeOrderFW", false, "FW: Flip Node Order" );
+    CAF_PDM_InitField( &m_flipNodeOrderHW, "FlipNodeOrderHW", false, "HW: Flip Node Order" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
@@ -342,6 +344,7 @@ void RimFaultReactivationModel::updateVisualization()
     m_2Dmodel->setGenerator( generator );
     m_2Dmodel->updateGeometry( m_startCellIndex, (cvf::StructGridInterface::FaceType)m_startCellFace() );
     m_2Dmodel->postProcessElementSets( eclipseCase() );
+    m_2Dmodel->flipNodeOrder( m_flipNodeOrderFW, m_flipNodeOrderHW );
 
     view->scheduleCreateDisplayModelAndRedraw();
 }
@@ -471,6 +474,9 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     gridModelGrp->add( &m_cellWidthGrowFactor );
 
     gridModelGrp->add( &m_modelThickness );
+
+    gridModelGrp->add( &m_flipNodeOrderFW );
+    gridModelGrp->add( &m_flipNodeOrderHW );
 
     auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
     appModelGrp->setCollapsedByDefault();
