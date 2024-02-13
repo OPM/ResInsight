@@ -214,5 +214,3 @@ if(MSVC)
 endif(MSVC)
 
 add_test(NAME ResInsight-tests COMMAND ResInsight-tests)
-
-install(TARGETS ResInsight-tests DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
