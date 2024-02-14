@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+// Will this work if we import only part of the protos?
+package rips;
+
+service GridWebviz
+{
+    rpc getGridSurface(GetGridSurfaceRequest) returns (GetGridSurfaceResponse);
+    rpc cutAlongPolyline(CutAlongPolylineRequest) returns (CutAlongPolylineResponse);
+}
+
+
+message Vec2d
+{
+    double x = 1;
+    double y = 2;
+}
+
+message Vec3d
+{
+    double x = 1;
+    double y = 2;
+    double z = 3;
+}
+
+message IJKIndexFilter
+{
+    int32 iMin = 1;
+    int32 iMax = 2;
+    int32 jMin = 3;
+    int32 jMax = 4;
+    int32 kMin = 5;
+    int32 kMax = 6;
+}
+
+message CellIndexFilter
+{
+    repeated fixed32 cellIndicesArr = 1;
+}
+
+message PropertyFilter
+{
+    // Timestep ??
+    string propertyFilename = 1;
+    float valueMin = 2;
+    float valueMax = 3;
+}
+
+message GridDimensions
+{
+    uint32 iNum = 1;
+    uint32 jNum = 2;
+    uint32 kNum = 3;
+}
+
+message GetGridSurfaceRequest
+{
+    string gridFilename = 1;
+    IJKIndexFilter ijkIndexFilter = 2;
+    CellIndexFilter cellIndexFilter = 3;
+    PropertyFilter propertyFilter = 4;
+}
+
+message GetGridSurfaceResponse
+{
+    repeated float vertexArray = 1;
+    repeated fixed32 quadIndicesArr = 2;        // 4*NumQuads long
+    repeated fixed32 sourceCellIndicesArr = 3;  // The originating cell index per quad, longnumQuads long
+    GridDimensions gridDimensions = 5;
+    Vec3d originUtm = 6;
+}
+
+message CutAlongPolylineRequest 
+{
+    string gridFilename = 1;
+    repeated double fencePolylineUtmXY = 2;
+}
+
+message FenceMeshSection
+{
+    // U-axis defined by vector from start to end, Z is global Z
+    repeated float vertexArrayUZ = 1;
+    repeated fixed32 polyIndicesArr = 2;
+    repeated fixed32 verticesPerPolygonArr = 3;     // Number of vertices per polygon, numPolygons long
+    repeated fixed32 sourceCellIndicesArr = 4;      // The originating cell index per polygon, numPolygons long
+    Vec2d startUtmXY = 6;
+    Vec2d endUtmXY = 7;
+}
+
+message CutAlongPolylineResponse
+{
+    repeated FenceMeshSection feceMeshSections = 1;
+    GridDimensions gridDimensions = 2;
+}
