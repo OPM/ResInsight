@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFaultReactivationDataAccessorTemperature.h"
+#include "RigFaultReactivationModel.h"
 #include "RimFaultReactivationEnums.h"
 
 #include "RiaDefines.h"
@@ -78,6 +79,48 @@ void RimFaultReactivationDataAccessorTemperature::updateResultAccessor()
         RimFaultReactivationDataAccessorWellLogExtraction::createEclipseWellPathExtractors( *m_model, *m_caseData, m_seabedDepth );
     m_wellPaths  = wellPaths;
     m_extractors = extractors;
+
+    m_gradient = computeGradient();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find the top encounter with reservoir (of the two well paths), and create gradient from that point
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationDataAccessorTemperature::computeGradient() const
+{
+    double gradient = std::numeric_limits<double>::infinity();
+    double minDepth = -std::numeric_limits<double>::max();
+    for ( auto gridPart : m_model->allGridParts() )
+    {
+        auto extractor = m_extractors.find( gridPart )->second;
+        auto wellPath  = m_wellPaths.find( gridPart )->second;
+
+        auto [values, intersections] =
+            RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
+
+        int lastOverburdenIndex = RimFaultReactivationDataAccessorWellLogExtraction::findLastOverburdenIndex( values );
+        if ( lastOverburdenIndex != -1 )
+        {
+            double depth = intersections[lastOverburdenIndex].z();
+            double value = values[lastOverburdenIndex];
+
+            if ( !std::isinf( value ) )
+            {
+                double currentGradient =
+                    RimFaultReactivationDataAccessorWellLogExtraction::computeGradient( intersections[0].z(),
+                                                                                        m_seabedTemperature,
+                                                                                        intersections[lastOverburdenIndex].z(),
+                                                                                        values[lastOverburdenIndex] );
+                if ( !std::isinf( value ) && !std::isnan( currentGradient ) && depth > minDepth )
+                {
+                    gradient = currentGradient;
+                    minDepth = depth;
+                }
+            }
+        }
+    }
+
+    return gradient;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +143,13 @@ double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::
 {
     if ( ( m_mainGrid != nullptr ) && m_resultAccessor.notNull() )
     {
+        auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
+        if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+        {
+            double tempFromEclipse = m_resultAccessor->cellScalar( cellIdx );
+            if ( !std::isinf( tempFromEclipse ) ) return tempFromEclipse;
+        }
+
         CAF_ASSERT( m_extractors.find( gridPart ) != m_extractors.end() );
         auto extractor = m_extractors.find( gridPart )->second;
 
@@ -110,16 +160,7 @@ double RimFaultReactivationDataAccessorTemperature::valueAtPosition( const cvf::
             RimFaultReactivationDataAccessorWellLogExtraction::extractValuesAndIntersections( *m_resultAccessor.p(), *extractor.p(), *wellPath );
 
         auto [value, pos] =
-            RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( intersections, values, position, m_seabedTemperature );
-        if ( pos.isUndefined() )
-        {
-            auto cellIdx = m_mainGrid->findReservoirCellIndexFromPoint( position );
-            if ( cellIdx != cvf::UNDEFINED_SIZE_T )
-            {
-                double tempFromEclipse = m_resultAccessor->cellScalar( cellIdx );
-                if ( !std::isinf( tempFromEclipse ) ) return tempFromEclipse;
-            }
-        }
+            RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( intersections, position, m_seabedTemperature, m_gradient );
 
         return value;
     }

@@ -51,9 +51,9 @@ public:
                                                           double                            gradient );
 
     static std::pair<double, cvf::Vec3d> calculateTemperature( const std::vector<cvf::Vec3d>& intersections,
-                                                               std::vector<double>&           values,
                                                                const cvf::Vec3d&              position,
-                                                               double                         seabedTemperature );
+                                                               double                         seabedTemperature,
+                                                               double                         gradient );
     static std::pair<std::map<RimFaultReactivation::GridPart, cvf::ref<RigWellPath>>,
                      std::map<RimFaultReactivation::GridPart, cvf::ref<RigEclipseWellLogExtractor>>>
         createEclipseWellPathExtractors( const RigFaultReactivationModel& model, RigEclipseCaseData& eclipseCaseData, double seabedDepth );
@@ -76,6 +76,10 @@ public:
                                 const cvf::Vec3d&                                                             point,
                                 const std::map<RimFaultReactivation::ElementSets, std::vector<unsigned int>>& elementSets );
 
+    static int findLastOverburdenIndex( const std::vector<double>& values );
+
+    static double computeGradient( double depth1, double value1, double depth2, double value2 );
+
 protected:
     static std::pair<int, int> findOverburdenAndUnderburdenIndex( const std::vector<double>& values );
     static double              computeValueWithGradient( const std::vector<cvf::Vec3d>& intersections,
@@ -89,7 +93,6 @@ protected:
     static std::pair<double, cvf::Vec3d>
         findValueAndPosition( const std::vector<cvf::Vec3d>& intersections, const std::vector<double>& values, const cvf::Vec3d& position );
 
-    static double              computeGradient( double depth1, double value1, double depth2, double value2 );
     static std::vector<double> extractDepthValues( const std::vector<cvf::Vec3d>& intersections );
 
     static void   insertUnderburdenValues( const std::vector<cvf::Vec3d>& intersections,
@@ -103,4 +106,5 @@ protected:
     static double computeMinimumDistance( const cvf::Vec3d& position, const std::vector<cvf::Vec3d>& positions );
 
     static double calculatePorePressure( double depth, double gradient );
+    static double calculateTemperature( double topValue, double topDepth, double depth, double gradient );
 };

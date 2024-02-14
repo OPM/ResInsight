@@ -438,6 +438,7 @@ RigWbsParameter RigWbsParameter::waterDensity()
                              { LAS_FILE, SourceAddress( "RHO_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) } } );
     return param;
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
