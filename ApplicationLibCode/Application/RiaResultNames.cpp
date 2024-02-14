@@ -595,5 +595,9 @@ std::vector<QString> RiaResultNames::wbsDerivedResultNames()
         wbsSHMkMaxResult(),
         wbsFGMkExpResult(),
         wbsFGMkMinResult(),
+        wbsPPMinResult(),
+        wbsPPMaxResult(),
+        wbsPPExpResult(),
+        wbsPPInitialResult(),
     };
 }
