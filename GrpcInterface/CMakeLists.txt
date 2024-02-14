@@ -251,13 +251,10 @@ endif()
 
 # install gRPC Python files
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
-  message(STATUS "Installing Python modules")
+  message(STATUS "Installing Python modules (requirements.txt)")
   add_custom_command(
     TARGET PipInstall
-    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --user
-            wheel setuptools pytest
-    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --user
-            grpcio-tools)
+    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install -r ${GRPC_PYTHON_SOURCE_PATH}/requirements.txt --user )
 endif()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
