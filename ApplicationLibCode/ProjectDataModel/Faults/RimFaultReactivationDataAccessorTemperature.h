@@ -51,13 +51,15 @@ public:
                             size_t                           elementIndex = std::numeric_limits<size_t>::max() ) const override;
 
 private:
-    void updateResultAccessor() override;
+    void   updateResultAccessor() override;
+    double computeGradient() const;
 
     RimEclipseCase*     m_eclipseCase;
     RigEclipseCaseData* m_caseData;
     const RigMainGrid*  m_mainGrid;
     double              m_seabedTemperature;
     double              m_seabedDepth;
+    double              m_gradient;
 
     cvf::ref<RigResultAccessor> m_resultAccessor;
 

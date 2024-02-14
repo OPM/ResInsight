@@ -96,23 +96,11 @@ std::pair<double, cvf::Vec3d> RimFaultReactivationDataAccessorWellLogExtraction:
 //--------------------------------------------------------------------------------------------------
 std::pair<double, cvf::Vec3d>
     RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( const std::vector<cvf::Vec3d>& intersections,
-                                                                             std::vector<double>&           values,
                                                                              const cvf::Vec3d&              position,
-                                                                             double                         seabedTemperature )
+                                                                             double                         seabedTemperature,
+                                                                             double                         gradient )
 {
-    // Fill in missing values
-    fillInMissingValuesWithTopValue( intersections, values, seabedTemperature );
-    auto [value, extractionPosition] = findValueAndPosition( intersections, values, position );
-
-    double minDistance = computeMinimumDistance( position, intersections );
-    if ( minDistance < 1.0 )
-    {
-        return { value, extractionPosition };
-    }
-    else
-    {
-        return { value, cvf::Vec3d::UNDEFINED };
-    }
+    return { calculateTemperature( seabedTemperature, intersections[0].z(), std::abs( position.z() ), gradient ), position };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,16 +170,6 @@ std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findInter
 //--------------------------------------------------------------------------------------------------
 std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findOverburdenAndUnderburdenIndex( const std::vector<double>& values )
 {
-    auto findLastOverburdenIndex = []( const std::vector<double>& values )
-    {
-        for ( size_t i = 0; i < values.size(); i++ )
-        {
-            if ( !std::isinf( values[i] ) ) return static_cast<int>( i );
-        }
-
-        return -1;
-    };
-
     auto findFirstUnderburdenIndex = []( const std::vector<double>& values )
     {
         for ( size_t i = values.size() - 1; i > 0; i-- )
@@ -205,6 +183,19 @@ std::pair<int, int> RimFaultReactivationDataAccessorWellLogExtraction::findOverb
     int lastOverburdenIndex   = findLastOverburdenIndex( values );
     int firstUnderburdenIndex = findFirstUnderburdenIndex( values );
     return { lastOverburdenIndex, firstUnderburdenIndex };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimFaultReactivationDataAccessorWellLogExtraction::findLastOverburdenIndex( const std::vector<double>& values )
+{
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        if ( !std::isinf( values[i] ) ) return static_cast<int>( i );
+    }
+
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -480,4 +471,13 @@ std::pair<bool, RimFaultReactivation::ElementSets> RimFaultReactivationDataAcces
 double RimFaultReactivationDataAccessorWellLogExtraction::calculatePorePressure( double depth, double gradient )
 {
     return RiaEclipseUnitTools::pascalToBar( gradient * 9.81 * depth * 1000.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFaultReactivationDataAccessorWellLogExtraction::calculateTemperature( double topValue, double topDepth, double depth, double gradient )
+{
+    double tvdDiff = topDepth - depth;
+    return tvdDiff * gradient + topValue;
 }
