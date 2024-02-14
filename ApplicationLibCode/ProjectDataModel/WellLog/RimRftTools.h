@@ -46,9 +46,15 @@ public:
                                                                     const QDateTime&          timeStep,
                                                                     RiaDefines::RftBranchType branchType );
 
-    static std::vector<double> seglenstValues( RifReaderRftInterface*    readerRft,
-                                               const QString&            wellName,
-                                               const QDateTime&          dateTime,
-                                               int                       segmentBranchIndex,
-                                               RiaDefines::RftBranchType segmentBranchType );
+    static std::vector<double> segmentStartMdValues( RifReaderRftInterface*    readerRft,
+                                                     const QString&            wellName,
+                                                     const QDateTime&          dateTime,
+                                                     int                       segmentBranchIndex,
+                                                     RiaDefines::RftBranchType segmentBranchType );
+
+    static std::vector<double> segmentEndMdValues( RifReaderRftInterface*    readerRft,
+                                                   const QString&            wellName,
+                                                   const QDateTime&          dateTime,
+                                                   int                       segmentBranchIndex,
+                                                   RiaDefines::RftBranchType segmentBranchType );
 };
