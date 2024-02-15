@@ -170,7 +170,7 @@ jobs:
           sudo ./llvm.sh 16 all
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@master
+        uses: jurplel/install-qt-action@main
         with:
           version: 5.12.12
           dir: "${{ github.workspace }}/Qt/"

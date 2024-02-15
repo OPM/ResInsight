@@ -43,7 +43,7 @@ jobs:
           sudo apt-get install clang-tidy-15 clang-format-15
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@master
+        uses: jurplel/install-qt-action@main
         with:
           version: 5.12.12
           modules: qtscript
