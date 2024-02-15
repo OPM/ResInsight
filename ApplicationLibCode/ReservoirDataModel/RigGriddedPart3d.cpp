@@ -400,15 +400,15 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
         {
             for ( int t = 0; t < nThicknessCells; t++, elementIdx++ )
             {
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
-
                 m_elementIndices[elementIdx].push_back( t + i );
-                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
-                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
                 m_elementIndices[elementIdx].push_back( t + i + 1 );
+                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
+                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
+
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff );
 
                 if ( v == 0 )
                 {
@@ -765,17 +765,5 @@ void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
                 usedElements.insert( elIdx + 1 );
             }
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::flipNodeOrder()
-{
-    for ( auto& nodes : m_elementIndices )
-    {
-        std::swap( nodes[1], nodes[3] );
-        std::swap( nodes[5], nodes[7] );
     }
 }
