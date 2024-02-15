@@ -87,7 +87,6 @@ public:
     RimFaultReactivation::GridPart normalPointsAt() const;
 
     void postProcessElementSets( const RimEclipseCase* eCase );
-    void flipNodeOrder( bool flipFW, bool flipHW );
 
 private:
     std::shared_ptr<RigFaultReactivationModelGenerator> m_generator;
