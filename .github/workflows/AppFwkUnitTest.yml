@@ -34,7 +34,7 @@ jobs:
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@main
+        uses: jurplel/install-qt-action@a7683763fa44598d9faf6157a27632def618ad42
         with:
           version: ${{ matrix.qtver }}
           dir: "${{ github.workspace }}/Qt/"
