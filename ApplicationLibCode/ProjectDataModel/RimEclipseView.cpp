@@ -20,6 +20,7 @@
 
 #include "RimEclipseView.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
@@ -1953,7 +1954,10 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
 
-    uiTreeOrdering.add( m_polygonCollection );
+    if ( RiaApplication::enableDevelopmentFeatures() )
+    {
+        uiTreeOrdering.add( m_polygonCollection );
+    }
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
