@@ -18,9 +18,6 @@
 
 #include "RicCreateWellTargetsPickEventHandler.h"
 
-#include "RiaGuiApplication.h"
-#include "RiaOffshoreSphericalCoords.h"
-
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -30,6 +27,7 @@
 #include "RigWellPathGeometryTools.h"
 
 #include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
 #include "RimModeledWellPath.h"
@@ -46,10 +44,6 @@
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
-
-#include "cvfStructGridGeometryGenerator.h"
-
-#include <QDebug>
 
 #include <vector>
 
@@ -130,7 +124,14 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
             doSetAzimuthAndInclination = false;
 
             cvf::Vec3d domainRayOrigin = rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalRayOrigin() );
-            cvf::Vec3d domainRayEnd    = targetPointInDomain + ( targetPointInDomain - domainRayOrigin );
+
+            auto         rayVector        = ( targetPointInDomain - domainRayOrigin );
+            const double minimumRayLength = rimView->ownerCase()->characteristicCellSize() * 2;
+            if ( rayVector.length() < minimumRayLength )
+            {
+                rayVector = rayVector.getNormalized() * minimumRayLength;
+            }
+            cvf::Vec3d domainRayEnd = targetPointInDomain + rayVector;
 
             cvf::Vec3d hexElementIntersection = findHexElementIntersection( rimView, firstPickItem, domainRayOrigin, domainRayEnd );
             CVF_TIGHT_ASSERT( !hexElementIntersection.isUndefined() );
@@ -255,22 +256,27 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
     {
         std::vector<HexIntersectionInfo> intersectionInfo;
         RigHexIntersectionTools::lineHexCellIntersection( domainRayOrigin, domainRayEnd, cornerVertices.data(), cellIndex, &intersectionInfo );
-        if ( !intersectionInfo.empty() )
+
+        if ( intersectionInfo.empty() ) return cvf::Vec3d::UNDEFINED;
+
+        if ( intersectionInfo.size() == 1 )
         {
-            // Sort intersection on distance to ray origin
-            CVF_ASSERT( intersectionInfo.size() > 1 );
-            std::sort( intersectionInfo.begin(),
-                       intersectionInfo.end(),
-                       [&domainRayOrigin]( const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs ) {
-                           return ( lhs.m_intersectionPoint - domainRayOrigin ).lengthSquared() <
-                                  ( rhs.m_intersectionPoint - domainRayOrigin ).lengthSquared();
-                       } );
-            const double eps             = 1.0e-2;
-            cvf::Vec3d   intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
-            cvf::Vec3d   newPoint        = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
-            CVF_ASSERT( RigHexIntersectionTools::isPointInCell( newPoint, cornerVertices.data() ) );
-            return newPoint;
+            return intersectionInfo.front().m_intersectionPoint;
         }
+
+        // Sort intersection on distance to ray origin
+        std::sort( intersectionInfo.begin(),
+                   intersectionInfo.end(),
+                   [&domainRayOrigin]( const HexIntersectionInfo& lhs, const HexIntersectionInfo& rhs ) {
+                       return ( lhs.m_intersectionPoint - domainRayOrigin ).lengthSquared() <
+                              ( rhs.m_intersectionPoint - domainRayOrigin ).lengthSquared();
+                   } );
+        const double eps             = 1.0e-2;
+        cvf::Vec3d   intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
+        cvf::Vec3d   newPoint        = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
+        CVF_ASSERT( RigHexIntersectionTools::isPointInCell( newPoint, cornerVertices.data() ) );
+        return newPoint;
     }
+
     return cvf::Vec3d::UNDEFINED;
 }
