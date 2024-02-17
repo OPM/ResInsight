@@ -35,16 +35,13 @@
 //##################################################################################################
 #pragma once
 
-#include <QIcon>
-#include <QPixmap>
 #include <QSize>
-#include <QString>
-
 #include <memory>
 #include <vector>
 
 class QIcon;
 class QPixmap;
+class QString;
 
 namespace caf
 {
@@ -60,6 +57,7 @@ public:
     IconProvider( const QPixmap& pixmap );
     IconProvider( const IconProvider& rhs );
     IconProvider& operator=( const IconProvider& rhs );
+    ~IconProvider();
 
     void setActive( bool active );
     bool valid() const;
@@ -77,17 +75,11 @@ public:
 
 private:
     static bool isGuiApplication();
-    void        copyPixmap( const IconProvider& rhs );
 
     bool backgroundColorsAreValid() const;
 
 private:
-    bool m_active;
-
-    QString                  m_iconResourceString;
-    QString                  m_overlayResourceString;
-    std::vector<QString>     m_backgroundColorStrings;
-    QSize                    m_preferredSize;
-    std::unique_ptr<QPixmap> m_pixmap;
+    class Impl;
+    std::unique_ptr<Impl> m_impl;
 };
 } // namespace caf

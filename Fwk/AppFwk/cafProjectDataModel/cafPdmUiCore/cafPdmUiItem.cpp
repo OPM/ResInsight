@@ -39,6 +39,8 @@
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiObjectEditorHandle.h"
 
+#include <QIcon>
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------

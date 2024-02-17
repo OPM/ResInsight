@@ -36,38 +36,60 @@
 #include "cafIconProvider.h"
 
 #include <QApplication>
+#include <QIcon>
 #include <QLinearGradient>
 #include <QPainter>
 #include <QPixmapCache>
 
 using namespace caf;
 
+class caf::IconProvider::Impl
+{
+public:
+    bool                 m_active;
+    QString              m_iconResourceString;
+    QString              m_overlayResourceString;
+    std::vector<QString> m_backgroundColorStrings;
+    QSize                m_preferredSize;
+    QPixmap              m_pixmap;
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 IconProvider::IconProvider( const QSize& preferredSize )
-    : m_active( true )
-    , m_preferredSize( preferredSize )
+    : m_impl( new Impl )
 {
+    m_impl->m_active        = true;
+    m_impl->m_preferredSize = preferredSize;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 IconProvider::IconProvider( const QString& iconResourceString, const QSize& preferredSize )
-    : m_active( true )
-    , m_iconResourceString( iconResourceString )
-    , m_preferredSize( preferredSize )
+    : m_impl( new Impl )
 {
+    m_impl->m_active             = true;
+    m_impl->m_iconResourceString = iconResourceString;
+    m_impl->m_preferredSize      = preferredSize;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 caf::IconProvider::IconProvider( const QPixmap& pixmap )
-    : m_active( true )
-    , m_preferredSize( pixmap.size() )
-    , m_pixmap( new QPixmap( pixmap ) )
+    : m_impl( new Impl )
+{
+    m_impl->m_active        = true;
+    m_impl->m_pixmap        = pixmap;
+    m_impl->m_preferredSize = pixmap.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+IconProvider::~IconProvider()
 {
 }
 
@@ -75,13 +97,8 @@ caf::IconProvider::IconProvider( const QPixmap& pixmap )
 ///
 //--------------------------------------------------------------------------------------------------
 IconProvider::IconProvider( const IconProvider& rhs )
-    : m_active( rhs.m_active )
-    , m_iconResourceString( rhs.m_iconResourceString )
-    , m_overlayResourceString( rhs.m_overlayResourceString )
-    , m_backgroundColorStrings( rhs.m_backgroundColorStrings )
-    , m_preferredSize( rhs.m_preferredSize )
 {
-    copyPixmap( rhs );
+    *m_impl = *rhs.m_impl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,12 +106,7 @@ IconProvider::IconProvider( const IconProvider& rhs )
 //--------------------------------------------------------------------------------------------------
 IconProvider& IconProvider::operator=( const IconProvider& rhs )
 {
-    m_active                 = rhs.m_active;
-    m_iconResourceString     = rhs.m_iconResourceString;
-    m_overlayResourceString  = rhs.m_overlayResourceString;
-    m_backgroundColorStrings = rhs.m_backgroundColorStrings;
-    m_preferredSize          = rhs.m_preferredSize;
-    copyPixmap( rhs );
+    *m_impl = *rhs.m_impl;
 
     return *this;
 }
@@ -104,7 +116,7 @@ IconProvider& IconProvider::operator=( const IconProvider& rhs )
 //--------------------------------------------------------------------------------------------------
 void IconProvider::setActive( bool active )
 {
-    m_active = active;
+    m_impl->m_active = active;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,14 +126,14 @@ bool caf::IconProvider::valid() const
 {
     if ( isGuiApplication() )
     {
-        if ( m_pixmap && !m_pixmap->isNull() ) return true;
+        if ( !m_impl->m_pixmap.isNull() ) return true;
 
         if ( backgroundColorsAreValid() )
         {
             return true;
         }
 
-        if ( !m_iconResourceString.isEmpty() )
+        if ( !m_impl->m_iconResourceString.isEmpty() )
         {
             return true;
         }
@@ -134,7 +146,7 @@ bool caf::IconProvider::valid() const
 //--------------------------------------------------------------------------------------------------
 void IconProvider::setPreferredSize( const QSize& size )
 {
-    m_preferredSize = size;
+    m_impl->m_preferredSize = size;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,7 +154,7 @@ void IconProvider::setPreferredSize( const QSize& size )
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<QIcon> IconProvider::icon() const
 {
-    return this->icon( m_preferredSize );
+    return this->icon( m_impl->m_preferredSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,16 +167,17 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
         return nullptr;
     }
 
-    if ( m_pixmap ) return std::unique_ptr<QIcon>( new QIcon( *m_pixmap ) );
+    if ( !m_impl->m_pixmap.isNull() ) return std::unique_ptr<QIcon>( new QIcon( m_impl->m_pixmap ) );
 
     QPixmap pixmap( size );
 
     bool validIcon = false;
-    if ( !m_backgroundColorStrings.empty() )
+    if ( !m_impl->m_backgroundColorStrings.empty() )
     {
-        if ( m_backgroundColorStrings.size() == 1u && QColor::isValidColor( m_backgroundColorStrings.front() ) )
+        if ( m_impl->m_backgroundColorStrings.size() == 1u &&
+             QColor::isValidColor( m_impl->m_backgroundColorStrings.front() ) )
         {
-            pixmap.fill( QColor( m_backgroundColorStrings.front() ) );
+            pixmap.fill( QColor( m_impl->m_backgroundColorStrings.front() ) );
             validIcon = true;
         }
         else
@@ -174,15 +187,15 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
             // Draw color gradient based on background colors
 
             QLinearGradient gradient( QPointF( 0.0f, 0.0f ), QPoint( size.width(), 0.0f ) );
-            for ( size_t i = 0; i < m_backgroundColorStrings.size(); ++i )
+            for ( size_t i = 0; i < m_impl->m_backgroundColorStrings.size(); ++i )
             {
-                if ( !QColor::isValidColor( m_backgroundColorStrings[i] ) )
+                if ( !QColor::isValidColor( m_impl->m_backgroundColorStrings[i] ) )
                 {
                     validIcon = false;
                     break;
                 }
-                QColor color( m_backgroundColorStrings[i] );
-                float  frac = i / ( (float)m_backgroundColorStrings.size() - 1.0 );
+                QColor color( m_impl->m_backgroundColorStrings[i] );
+                float  frac = i / ( (float)m_impl->m_backgroundColorStrings.size() - 1.0 );
                 gradient.setColorAt( frac, color );
             }
             QBrush   gradientBrush( gradient );
@@ -200,31 +213,31 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
     else
         pixmap.fill( Qt::transparent );
 
-    if ( !m_iconResourceString.isEmpty() )
+    if ( !m_impl->m_iconResourceString.isEmpty() )
     {
         QPixmap pm;
-        if ( !QPixmapCache::find( m_iconResourceString, &pm ) )
+        if ( !QPixmapCache::find( m_impl->m_iconResourceString, &pm ) )
         {
-            pm.load( m_iconResourceString );
-            QPixmapCache::insert( m_iconResourceString, pm );
+            pm.load( m_impl->m_iconResourceString );
+            QPixmapCache::insert( m_impl->m_iconResourceString, pm );
         }
 
         if ( !pm.isNull() )
         {
             QIcon    resourceStringIcon( pm );
-            QPixmap  iconPixmap = resourceStringIcon.pixmap( size, m_active ? QIcon::Normal : QIcon::Disabled );
+            QPixmap  iconPixmap = resourceStringIcon.pixmap( size, m_impl->m_active ? QIcon::Normal : QIcon::Disabled );
             QPainter painter( &pixmap );
             painter.drawPixmap( 0, 0, iconPixmap );
             validIcon = true;
         }
     }
 
-    if ( !m_overlayResourceString.isEmpty() )
+    if ( !m_impl->m_overlayResourceString.isEmpty() )
     {
-        QIcon overlayIcon( m_overlayResourceString );
+        QIcon overlayIcon( m_impl->m_overlayResourceString );
         if ( !overlayIcon.isNull() )
         {
-            QPixmap  overlayPixmap = overlayIcon.pixmap( size, m_active ? QIcon::Normal : QIcon::Disabled );
+            QPixmap  overlayPixmap = overlayIcon.pixmap( size, m_impl->m_active ? QIcon::Normal : QIcon::Disabled );
             QPainter painter( &pixmap );
             painter.drawPixmap( 0, 0, overlayPixmap );
             validIcon = true;
@@ -239,7 +252,7 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
 //--------------------------------------------------------------------------------------------------
 void IconProvider::setIconResourceString( const QString& iconResourceString )
 {
-    m_iconResourceString = iconResourceString;
+    m_impl->m_iconResourceString = iconResourceString;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,7 +260,7 @@ void IconProvider::setIconResourceString( const QString& iconResourceString )
 //--------------------------------------------------------------------------------------------------
 void IconProvider::setOverlayResourceString( const QString& overlayResourceString )
 {
-    m_overlayResourceString = overlayResourceString;
+    m_impl->m_overlayResourceString = overlayResourceString;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,7 +268,7 @@ void IconProvider::setOverlayResourceString( const QString& overlayResourceStrin
 //--------------------------------------------------------------------------------------------------
 void IconProvider::setBackgroundColorString( const QString& colorName )
 {
-    m_backgroundColorStrings = { colorName };
+    m_impl->m_backgroundColorStrings = { colorName };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,7 +276,7 @@ void IconProvider::setBackgroundColorString( const QString& colorName )
 //--------------------------------------------------------------------------------------------------
 void IconProvider::setBackgroundColorGradient( const std::vector<QString>& colorNames )
 {
-    m_backgroundColorStrings = colorNames;
+    m_impl->m_backgroundColorStrings = colorNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,7 +284,7 @@ void IconProvider::setBackgroundColorGradient( const std::vector<QString>& color
 //--------------------------------------------------------------------------------------------------
 void caf::IconProvider::setPixmap( const QPixmap& pixmap )
 {
-    m_pixmap.reset( new QPixmap( pixmap ) );
+    m_impl->m_pixmap = pixmap;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,23 +298,12 @@ bool caf::IconProvider::isGuiApplication()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void IconProvider::copyPixmap( const IconProvider& rhs )
-{
-    if ( rhs.m_pixmap )
-    {
-        m_pixmap = std::unique_ptr<QPixmap>( new QPixmap( *rhs.m_pixmap ) );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool IconProvider::backgroundColorsAreValid() const
 {
-    if ( !m_backgroundColorStrings.empty() )
+    if ( !m_impl->m_backgroundColorStrings.empty() )
     {
         bool validBackgroundColors = true;
-        for ( QString colorName : m_backgroundColorStrings )
+        for ( QString colorName : m_impl->m_backgroundColorStrings )
         {
             if ( !QColor::isValidColor( colorName ) )
             {
