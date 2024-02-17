@@ -46,13 +46,49 @@ using namespace caf;
 class caf::IconProvider::Impl
 {
 public:
-    bool                 m_active;
-    QString              m_iconResourceString;
-    QString              m_overlayResourceString;
-    std::vector<QString> m_backgroundColorStrings;
-    QSize                m_preferredSize;
-    QPixmap              m_pixmap;
+    Impl()
+        : m_active( false )
+        , m_preferredSize( QSize( 16, 16 ) )
+    {
+    }
+    Impl( const Impl& rhs )
+    {
+        m_active                 = rhs.m_active;
+        m_iconResourceString     = rhs.m_iconResourceString;
+        m_overlayResourceString  = rhs.m_overlayResourceString;
+        m_backgroundColorStrings = rhs.m_backgroundColorStrings;
+        m_preferredSize          = rhs.m_preferredSize;
+        if ( rhs.m_pixmap )
+        {
+            m_pixmap = std::make_unique<QPixmap>( *rhs.m_pixmap );
+        }
+    }
+
+    bool                     m_active;
+    QString                  m_iconResourceString;
+    QString                  m_overlayResourceString;
+    std::vector<QString>     m_backgroundColorStrings;
+    QSize                    m_preferredSize;
+    std::unique_ptr<QPixmap> m_pixmap;
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+IconProvider::IconProvider()
+    : m_impl( new Impl )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+IconProvider::IconProvider( const QString& iconResourceString )
+    : m_impl( new Impl )
+{
+    m_impl->m_active             = true;
+    m_impl->m_iconResourceString = iconResourceString;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -82,7 +118,7 @@ caf::IconProvider::IconProvider( const QPixmap& pixmap )
     : m_impl( new Impl )
 {
     m_impl->m_active        = true;
-    m_impl->m_pixmap        = pixmap;
+    m_impl->m_pixmap        = std::make_unique<QPixmap>( pixmap );
     m_impl->m_preferredSize = pixmap.size();
 }
 
@@ -102,6 +138,8 @@ IconProvider::IconProvider( const IconProvider& rhs )
         m_impl = std::make_unique<Impl>( *rhs.m_impl );
     else
         m_impl = std::make_unique<Impl>();
+
+    copyPixmap( rhs );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +147,12 @@ IconProvider::IconProvider( const IconProvider& rhs )
 //--------------------------------------------------------------------------------------------------
 IconProvider& IconProvider::operator=( const IconProvider& rhs )
 {
-    *m_impl = *rhs.m_impl;
+    m_impl->m_active                 = rhs.m_impl->m_active;
+    m_impl->m_iconResourceString     = rhs.m_impl->m_iconResourceString;
+    m_impl->m_overlayResourceString  = rhs.m_impl->m_overlayResourceString;
+    m_impl->m_backgroundColorStrings = rhs.m_impl->m_backgroundColorStrings;
+    m_impl->m_preferredSize          = rhs.m_impl->m_preferredSize;
+    copyPixmap( rhs );
 
     return *this;
 }
@@ -129,7 +172,7 @@ bool caf::IconProvider::valid() const
 {
     if ( isGuiApplication() )
     {
-        if ( !m_impl->m_pixmap.isNull() ) return true;
+        if ( m_impl->m_pixmap && !m_impl->m_pixmap->isNull() ) return true;
 
         if ( backgroundColorsAreValid() )
         {
@@ -170,7 +213,7 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
         return nullptr;
     }
 
-    if ( !m_impl->m_pixmap.isNull() ) return std::unique_ptr<QIcon>( new QIcon( m_impl->m_pixmap ) );
+    if ( m_impl->m_pixmap ) return std::unique_ptr<QIcon>( new QIcon( *m_impl->m_pixmap ) );
 
     QPixmap pixmap( size );
 
@@ -287,7 +330,7 @@ void IconProvider::setBackgroundColorGradient( const std::vector<QString>& color
 //--------------------------------------------------------------------------------------------------
 void caf::IconProvider::setPixmap( const QPixmap& pixmap )
 {
-    m_impl->m_pixmap = pixmap;
+    m_impl->m_pixmap.reset( new QPixmap( pixmap ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,6 +339,17 @@ void caf::IconProvider::setPixmap( const QPixmap& pixmap )
 bool caf::IconProvider::isGuiApplication()
 {
     return dynamic_cast<QApplication*>( QCoreApplication::instance() ) != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void IconProvider::copyPixmap( const IconProvider& rhs )
+{
+    if ( rhs.m_impl->m_pixmap )
+    {
+        m_impl->m_pixmap = std::unique_ptr<QPixmap>( new QPixmap( *rhs.m_impl->m_pixmap ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

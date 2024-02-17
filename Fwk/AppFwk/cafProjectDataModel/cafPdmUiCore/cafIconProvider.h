@@ -35,13 +35,13 @@
 //##################################################################################################
 #pragma once
 
-#include <QSize>
 #include <memory>
 #include <vector>
 
 class QIcon;
 class QPixmap;
 class QString;
+class QSize;
 
 namespace caf
 {
@@ -52,8 +52,10 @@ namespace caf
 class IconProvider
 {
 public:
-    IconProvider( const QSize& preferredSize = QSize( 16, 16 ) );
-    IconProvider( const QString& iconResourceString, const QSize& preferredSize = QSize( 16, 16 ) );
+    IconProvider();
+    IconProvider( const QSize& preferredSize );
+    IconProvider( const QString& iconResourceString );
+    IconProvider( const QString& iconResourceString, const QSize& preferredSize );
     IconProvider( const QPixmap& pixmap );
     IconProvider( const IconProvider& rhs );
     IconProvider& operator=( const IconProvider& rhs );
@@ -75,6 +77,7 @@ public:
 
 private:
     static bool isGuiApplication();
+    void        copyPixmap( const IconProvider& rhs );
 
     bool backgroundColorsAreValid() const;
 
