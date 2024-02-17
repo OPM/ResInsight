@@ -43,8 +43,6 @@
 #include <vector>
 
 #include <QPointer>
-#include <QString>
-#include <QWidget>
 
 class QLabel;
 
