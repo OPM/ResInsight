@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cafAssert.h"
 #include "cafPdmBase.h"
 #include "cafSignal.h"
 
