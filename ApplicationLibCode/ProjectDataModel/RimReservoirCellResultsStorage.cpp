@@ -19,6 +19,7 @@
 
 #include "RimReservoirCellResultsStorage.h"
 
+#include "RifReaderEclipseOutput.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
@@ -36,7 +37,7 @@
 
 #include "cvfGeometryTools.h"
 
-#include "RifReaderEclipseOutput.h"
+#include <QDataStream>
 #include <QDebug>
 #include <QDir>
 #include <QFile>

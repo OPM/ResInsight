@@ -98,7 +98,10 @@ IconProvider::~IconProvider()
 //--------------------------------------------------------------------------------------------------
 IconProvider::IconProvider( const IconProvider& rhs )
 {
-    *m_impl = *rhs.m_impl;
+    if ( rhs.m_impl )
+        m_impl = std::make_unique<Impl>( *rhs.m_impl );
+    else
+        m_impl = std::make_unique<Impl>();
 }
 
 //--------------------------------------------------------------------------------------------------

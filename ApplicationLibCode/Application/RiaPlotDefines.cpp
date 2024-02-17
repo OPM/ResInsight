@@ -23,6 +23,8 @@
 
 #include "cafAppEnum.h"
 
+#include <QPaintDevice>
+
 namespace caf
 {
 template <>

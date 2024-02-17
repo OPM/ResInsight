@@ -40,6 +40,8 @@
 #include "qwt_plot_shapeitem.h"
 #include "qwt_scale_widget.h"
 
+#include <QIcon>
+
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
