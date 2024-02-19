@@ -23,6 +23,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimPolylinePickerInterface::handleScalingFactor() const
+{
+    return 1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<RimPolylineTarget*, RimPolylineTarget*>
     RimPolylinePickerInterface::findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore )
 {
