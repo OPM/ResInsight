@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "Definitions.proto";
+import "VectorDefines.proto";
 
 package rips;
 

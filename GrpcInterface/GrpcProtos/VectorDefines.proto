@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package rips;
+
+message Vec3i {
+  int32 i = 1;
+  int32 j = 2;
+  int32 k = 3;
+}
+
+message Vec2d
+{
+    double x = 1;
+    double y = 2;
+}
+
+message Vec3d
+{
+	double x = 1;
+	double y = 2;
+	double z = 3;
+}

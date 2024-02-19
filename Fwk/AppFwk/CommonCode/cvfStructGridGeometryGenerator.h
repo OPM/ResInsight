@@ -195,6 +195,8 @@ public:
     ref<DrawableGeo> createMeshDrawable();
     ref<DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
 
+    cvf::ref<cvf::Vec3fArray> getOrCreateVertices();
+
     static ref<DrawableGeo> createMeshDrawableFromSingleCell( const StructGridInterface* grid, size_t cellIndex );
 
     static ref<DrawableGeo> createMeshDrawableFromSingleCell( const StructGridInterface* grid,

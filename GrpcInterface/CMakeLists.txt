@@ -49,6 +49,7 @@ set(SOURCE_GROUP_HEADER_FILES
     RiaGrpcNNCPropertiesService.h
     RiaGrpcPdmObjectService.h
     RiaGrpcApplicationInterface.h
+    RiaGrpcGridGeometryExtractionService.h
     )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -64,7 +65,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     RiaGrpcPropertiesService.cpp
     RiaGrpcNNCPropertiesService.cpp
     RiaGrpcPdmObjectService.cpp
-    RiaGrpcApplicationInterface.cpp)
+    RiaGrpcApplicationInterface.cpp
+    RiaGrpcGridGeometryExtractionService.cpp
+)
 
 # Find Protobuf installation Looks for protobuf-config.cmake file installed by
 # Protobuf's cmake installation.
@@ -136,7 +139,20 @@ set(_LINK_LIBRARIES
     ApplicationLibCode)
 
 # Proto files
-file(GLOB GRPC_PROTO_FILES GrpcProtos/*.proto)
+set(GRPC_PROTO_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/App.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/Case.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/Commands.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/Definitions.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/Grid.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/GridGeometryExtraction.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/NNCProperties.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/PdmObject.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/Project.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/Properties.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/SimulationWell.proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcProtos/VectorDefines.proto
+)
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Python")
 

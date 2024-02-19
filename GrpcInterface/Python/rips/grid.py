@@ -8,7 +8,7 @@ about Case grids.
 import Case_pb2
 import Grid_pb2
 import Grid_pb2_grpc
-import Definitions_pb2
+import VectorDefines_pb2
 
 from typing import Tuple, Optional, List
 from grpc import Channel
@@ -30,7 +30,7 @@ class Grid:
         self.index: int = index
         self.cached_dimensions = None
 
-    def dimensions(self) -> Optional[Definitions_pb2.Vec3i]:
+    def dimensions(self) -> Optional[VectorDefines_pb2.Vec3i]:
         """The dimensions in i, j, k direction
 
         Returns:
@@ -58,7 +58,7 @@ class Grid:
         for chunk in chunks:
             yield chunk
 
-    def cell_centers(self) -> List[Definitions_pb2.Vec3d]:
+    def cell_centers(self) -> List[VectorDefines_pb2.Vec3d]:
         """The cell center for all cells in given grid
 
         Returns:

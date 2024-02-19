@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "VectorDefines.proto";
+
 package rips;
 
 message Empty
@@ -11,18 +13,6 @@ message ClientToServerStreamReply
 	int64 accepted_value_count = 1;
 }
 
-message Vec3i {
-  int32 i = 1;
-  int32 j = 2;
-  int32 k = 3;
-}
-
-message Vec3d
-{
-	double x = 1;
-	double y = 2;
-	double z = 3;
-}
 
 message CellCenters
 {

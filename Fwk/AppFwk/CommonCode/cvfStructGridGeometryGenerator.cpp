@@ -212,6 +212,21 @@ ref<DrawableGeo> StructGridGeometryGenerator::generateSurface()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Vec3fArray> StructGridGeometryGenerator::getOrCreateVertices()
+{
+    if ( m_vertices.isNull() || m_vertices->size() == 0 )
+    {
+        computeArrays();
+    }
+
+    CVF_ASSERT( m_vertices.notNull() );
+
+    return m_vertices;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Generates simplified mesh as line drawing
 /// Must call generateSurface first
 //--------------------------------------------------------------------------------------------------
