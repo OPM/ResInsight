@@ -103,8 +103,6 @@ private:
                                               const well_segment_type* segment,
                                               const char*              wellName );
 
-    void importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults );
-
     void openInitFile();
 
     void extractResultValuesBasedOnPorosityModel( RiaDefines::PorosityModelType matrixOrFracture,

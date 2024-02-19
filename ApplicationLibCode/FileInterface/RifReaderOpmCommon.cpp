@@ -31,6 +31,8 @@
 #include "RigSimWellData.h"
 #include "RigWellResultFrame.h"
 
+#include "cafProgressInfo.h"
+
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/EclipseState/Runspec.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
@@ -65,6 +67,8 @@ RifReaderOpmCommon::~RifReaderOpmCommon()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
 {
+    caf::ProgressInfo progress( 100, "Reading Grid" );
+
     QStringList fileSet;
     if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( fileName, &fileSet ) ) return false;
 
@@ -79,7 +83,24 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
             return false;
         }
 
-        buildMetaData( eclipseCase );
+        {
+            auto task = progress.task( "Reading faults", 25 );
+
+            if ( isFaultImportEnabled() )
+            {
+                cvf::Collection<RigFault> faults;
+
+                importFaults( fileSet, &faults );
+
+                RigMainGrid* mainGrid = eclipseCase->mainGrid();
+                mainGrid->setFaults( faults );
+            }
+        }
+
+        {
+            auto task = progress.task( "Reading Results Meta data", 50 );
+            buildMetaData( eclipseCase );
+        }
 
         return true;
     }
