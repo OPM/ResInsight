@@ -19,8 +19,6 @@
 #pragma once
 
 #include "cafPdmPointer.h"
-#include "cvfAssert.h"
-#include "cvfCollection.h"
 #include "cvfObject.h"
 
 namespace cvf
@@ -37,24 +35,16 @@ class DisplayCoordTransform;
 }
 
 class Rim3dView;
-class RivPolylinePartMgr;
 
 class RivCellFilterPartMgr : public cvf::Object
 {
 public:
     RivCellFilterPartMgr( Rim3dView* view );
-    ~RivCellFilterPartMgr() override;
 
     void appendGeometryPartsToModel( cvf::ModelBasicList*              model,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
-    void clearGeometryCache();
-
 private:
-    void createCellFilterPartManagers();
-
-private:
-    caf::PdmPointer<Rim3dView>          m_rimView;
-    cvf::Collection<RivPolylinePartMgr> m_cellFilterPartMgrs;
+    caf::PdmPointer<Rim3dView> m_rimView;
 };

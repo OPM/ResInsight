@@ -22,8 +22,6 @@
 #include "RimCellFilterCollection.h"
 #include "RimPolygonFilter.h"
 
-#include "RivPolylinePartMgr.h"
-
 #include "cafPdmObject.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -37,52 +35,20 @@ RivCellFilterPartMgr::RivCellFilterPartMgr( Rim3dView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivCellFilterPartMgr::~RivCellFilterPartMgr()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RivCellFilterPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*              model,
                                                        const caf::DisplayCoordTransform* displayCoordTransform,
                                                        const cvf::BoundingBox&           boundingBox )
-{
-    createCellFilterPartManagers();
-
-    for ( auto& partMgr : m_cellFilterPartMgrs )
-    {
-        partMgr->appendDynamicGeometryPartsToModel( model, displayCoordTransform, boundingBox );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivCellFilterPartMgr::createCellFilterPartManagers()
 {
     std::vector<RimCellFilterCollection*> colls = m_rimView->descendantsIncludingThisOfType<RimCellFilterCollection>();
 
     if ( colls.empty() ) return;
     auto coll = colls.front();
 
-    clearGeometryCache();
-
     for ( auto filter : coll->filters() )
     {
-        RimPolygonFilter* polyFilter = dynamic_cast<RimPolygonFilter*>( filter );
-        if ( polyFilter )
+        if ( auto polyFilter = dynamic_cast<RimPolygonFilter*>( filter ) )
         {
-            RivPolylinePartMgr* ppm = new RivPolylinePartMgr( m_rimView, polyFilter, coll );
-            m_cellFilterPartMgrs.push_back( ppm );
+            polyFilter->appendPartsToModel( model, displayCoordTransform, boundingBox );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivCellFilterPartMgr::clearGeometryCache()
-{
-    m_cellFilterPartMgrs.clear();
 }
