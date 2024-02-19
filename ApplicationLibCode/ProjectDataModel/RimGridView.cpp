@@ -97,8 +97,8 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
     m_seismicSectionCollection = new RimSeismicSectionCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_polygonCollection, "PolygonCollection", "Polygon Collection Field" );
-    m_polygonCollection = new RimPolygonInViewCollection();
+    CAF_PDM_InitFieldNoDefault( &m_polygonInViewCollection, "PolygonCollection", "Polygon Collection Field" );
+    m_polygonInViewCollection = new RimPolygonInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
@@ -171,9 +171,9 @@ RimSeismicSectionCollection* RimGridView::seismicSectionCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonInViewCollection* RimGridView::polygonCollection() const
+RimPolygonInViewCollection* RimGridView::polygonInViewCollection() const
 {
-    return m_polygonCollection();
+    return m_polygonInViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -495,7 +495,7 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
-        m_polygonCollection->syncPolygonsInView();
+        m_polygonInViewCollection->syncPolygonsInView();
     }
 
     updateConnectedEditors();

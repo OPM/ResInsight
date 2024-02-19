@@ -324,7 +324,7 @@ void RimGeoMechView::onCreateDisplayModel()
     // Polygons
 
     m_polygonVizModel->removeAllParts();
-    m_polygonCollection->appendPartsToModel( m_polygonVizModel.p(), transform.p(), femBBox );
+    m_polygonInViewCollection->appendPartsToModel( m_polygonVizModel.p(), transform.p(), femBBox );
     nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
 
     // Surfaces
@@ -1053,7 +1053,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
-        uiTreeOrdering.add( m_polygonCollection );
+        uiTreeOrdering.add( m_polygonInViewCollection );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
