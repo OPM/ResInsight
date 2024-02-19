@@ -95,3 +95,11 @@ void RimPolygonInViewCollection::appendPartsToModel( cvf::ModelBasicList*       
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygonInView*> RimPolygonInViewCollection::polygonsInView() const
+{
+    return m_polygons.childrenByType();
+}

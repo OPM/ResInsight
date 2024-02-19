@@ -245,10 +245,12 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     updateNameField();
 
-    uiOrdering.add( &m_handleScalingFactor );
-
-    if ( m_polygon() ) uiOrdering.add( m_polygon );
+    uiOrdering.add( m_polygon );
     uiOrdering.add( &m_enablePicking );
+
+    uiOrdering.add( &m_targets );
+    uiOrdering.add( &m_handleScalingFactor );
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------

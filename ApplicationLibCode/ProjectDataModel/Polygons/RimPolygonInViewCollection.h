@@ -22,6 +22,7 @@
 #include "cafPdmObject.h"
 
 class RimPolygonInView;
+class RimPolygon;
 
 namespace cvf
 {
@@ -48,6 +49,8 @@ public:
     void syncPolygonsInView();
 
     void appendPartsToModel( cvf::ModelBasicList* model, caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
+
+    std::vector<RimPolygonInView*> polygonsInView() const;
 
 private:
     caf::PdmChildArrayField<RimPolygonInView*> m_polygons;
