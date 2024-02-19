@@ -18,9 +18,12 @@
 
 #include "RicNewPolygonFilterFeature.h"
 
+#include "Polygons/RimPolygonInView.h"
+
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimPolygonFilter.h"
+
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
@@ -46,7 +49,7 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
     RimPolygonFilter* lastCreatedOrUpdated = filtColl->addNewPolygonFilter( sourceCase );
     if ( lastCreatedOrUpdated )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated->polygonEditor() );
     }
 }
 
