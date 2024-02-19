@@ -1004,7 +1004,7 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
 
     if ( reservoirViews().empty() )
     {
-        RicNewViewFeature::addReservoirView( this, nullptr );
+        RicNewViewFeature::addReservoirView( this, nullptr, viewCollection() );
     }
 
     if ( reservoirViews().size() == 1 )

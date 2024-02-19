@@ -68,6 +68,7 @@ public:
     ~RimEclipseCase() override;
 
     std::vector<RimEclipseView*> reservoirViews() const;
+    RimEclipseViewCollection*    viewCollection() const;
 
     std::vector<QString> filesContainingFaults() const;
     void                 setFilesContainingFaults( const std::vector<QString>& val );
@@ -92,6 +93,7 @@ public:
     const RimReservoirCellResultsStorage* resultsStorage( RiaDefines::PorosityModelType porosityModel ) const;
 
     RimEclipseView* createAndAddReservoirView( bool useGlobalViewCollection = false );
+    RimEclipseView* createAndAddReservoirView( RimEclipseViewCollection* viewColl );
     RimEclipseView* createCopyAndAddView( const RimEclipseView* sourceView );
 
     const RigVirtualPerforationTransmissibilities* computeAndGetVirtualPerforationTransmissibilities();
@@ -140,7 +142,6 @@ protected:
     void                                computeCachedData();
     void                                setReservoirData( RigEclipseCaseData* eclipseCase );
     std::vector<QString>                additionalFiles() const;
-    RimEclipseViewCollection*           viewCollection() const;
     RimEclipseViewCollection*           globalViewCollection() const;
     RimEclipseContourMapViewCollection* contourMapViewCollection() const;
     void addViewsFromViewCollection( std::vector<RimEclipseView*>& views, const RimEclipseViewCollection* viewColl ) const;

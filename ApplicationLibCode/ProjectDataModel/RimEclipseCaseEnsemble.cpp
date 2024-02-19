@@ -20,8 +20,8 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseViewCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -40,10 +40,14 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
     m_groupId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_caseCollection, "CaseCollection", "Ensemble Cases" );
-
     m_caseCollection = new RimCaseCollection;
     m_caseCollection->uiCapability()->setUiName( "Cases" );
     m_caseCollection->uiCapability()->setUiIconFromResourceString( ":/Cases16x16.png" );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedCase, "SelectedCase", "Selected Case" );
+
+    CAF_PDM_InitFieldNoDefault( &m_viewCollection, "ViewCollection", "Views" );
+    m_viewCollection = new RimEclipseViewCollection;
 
     setDeletable( true );
 }
@@ -55,6 +59,9 @@ RimEclipseCaseEnsemble::~RimEclipseCaseEnsemble()
 {
     delete m_caseCollection;
     m_caseCollection = nullptr;
+
+    delete m_viewCollection;
+    m_viewCollection = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,4 +97,73 @@ bool RimEclipseCaseEnsemble::contains( RimEclipseCase* reservoir ) const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimEclipseCaseEnsemble::cases() const
+{
+    return m_caseCollection->reservoirs.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::addView( RimEclipseView* view )
+{
+    m_viewCollection->addView( view );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimEclipseCaseEnsemble::addViewForCase( RimEclipseCase* eclipseCase )
+{
+    return m_viewCollection->addView( eclipseCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseCaseEnsemble::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_selectedCase )
+    {
+        for ( auto eclCase : cases() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( eclCase->caseUserDescription(), eclCase, false, eclCase->uiIconProvider() ) );
+        }
+
+        return options;
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_selectedCase )
+    {
+        for ( auto view : m_viewCollection->views() )
+        {
+            view->setEclipseCase( m_selectedCase() );
+            view->loadDataAndUpdate();
+            view->updateGridBoxData();
+            view->updateAnnotationItems();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseViewCollection* RimEclipseCaseEnsemble::viewCollection() const
+{
+    return m_viewCollection;
 }
