@@ -30,6 +30,7 @@ class RimPolygon;
 class RigGridBase;
 class RigFemPartGrid;
 class RimPolygonInView;
+class RigEclipseCaseData;
 
 namespace cvf
 {
