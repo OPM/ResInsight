@@ -91,7 +91,7 @@ public:
     RimReservoirCellResultsStorage*       resultsStorage( RiaDefines::PorosityModelType porosityModel );
     const RimReservoirCellResultsStorage* resultsStorage( RiaDefines::PorosityModelType porosityModel ) const;
 
-    RimEclipseView* createAndAddReservoirView();
+    RimEclipseView* createAndAddReservoirView( bool addToViews = true );
     RimEclipseView* createCopyAndAddView( const RimEclipseView* sourceView );
 
     const RigVirtualPerforationTransmissibilities* computeAndGetVirtualPerforationTransmissibilities();

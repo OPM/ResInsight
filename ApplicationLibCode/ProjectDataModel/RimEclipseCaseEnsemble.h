@@ -20,11 +20,14 @@
 
 #include "RimNamedObject.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 
 class RimCaseCollection;
 class RimEclipseCase;
+class RimEclipseView;
 
 //==================================================================================================
 //
@@ -43,7 +46,17 @@ public:
     void removeCase( RimEclipseCase* reservoir );
     bool contains( RimEclipseCase* reservoir ) const;
 
+    std::vector<RimEclipseCase*> cases() const;
+
+    void addView( RimEclipseView* view );
+
+protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
 private:
-    caf::PdmField<int>                     m_groupId;
-    caf::PdmChildField<RimCaseCollection*> m_caseCollection;
+    caf::PdmField<int>                       m_groupId;
+    caf::PdmChildField<RimCaseCollection*>   m_caseCollection;
+    caf::PdmChildArrayField<RimEclipseView*> m_views;
+    caf::PdmPtrField<RimEclipseCase*>        m_selectedCase;
 };

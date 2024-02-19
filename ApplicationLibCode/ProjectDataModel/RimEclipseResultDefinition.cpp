@@ -769,15 +769,15 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         {
             options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-            auto eclipseCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
-            if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
+            auto currentCase = eclipseCase();
+            if ( currentCase && currentCase->eclipseCaseData() && currentCase->eclipseCaseData()->mainGrid() )
             {
                 RimProject* proj = RimProject::current();
 
                 std::vector<RimEclipseCase*> allCases = proj->eclipseCases();
                 for ( RimEclipseCase* otherCase : allCases )
                 {
-                    if ( otherCase == eclipseCase ) continue;
+                    if ( otherCase == currentCase ) continue;
 
                     if ( otherCase->eclipseCaseData() && otherCase->eclipseCaseData()->mainGrid() )
                     {
@@ -792,7 +792,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if ( fieldNeedingOptions == &m_timeLapseBaseTimestep )
         {
-            RimEclipseCase* currentCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
+            RimEclipseCase* currentCase = eclipseCase();
 
             RimEclipseCase* baseCase = currentCase;
             if ( m_differenceCase )

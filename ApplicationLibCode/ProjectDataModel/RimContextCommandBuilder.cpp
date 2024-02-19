@@ -49,6 +49,7 @@
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCaseEnsemble.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
@@ -271,6 +272,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseCasesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewStatisticsCaseFeature";
+        }
+        else if ( dynamic_cast<RimEclipseCaseEnsemble*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewViewForGridEnsembleFeature";
         }
         else if ( dynamic_cast<RimGeoMechModels*>( firstUiItem ) )
         {

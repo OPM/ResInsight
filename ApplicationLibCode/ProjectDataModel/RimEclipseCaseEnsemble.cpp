@@ -23,6 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -45,6 +46,10 @@ RimEclipseCaseEnsemble::RimEclipseCaseEnsemble()
     m_caseCollection = new RimCaseCollection;
     m_caseCollection->uiCapability()->setUiName( "Cases" );
     m_caseCollection->uiCapability()->setUiIconFromResourceString( ":/Cases16x16.png" );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedCase, "SelectedCase", "Selected Case" );
+
+    CAF_PDM_InitFieldNoDefault( &m_views, "Views", "Views" );
 
     setDeletable( true );
 }
@@ -98,4 +103,57 @@ bool RimEclipseCaseEnsemble::contains( RimEclipseCase* reservoir ) const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimEclipseCaseEnsemble::cases() const
+{
+    return m_caseCollection->reservoirs.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::addView( RimEclipseView* view )
+{
+    m_views.push_back( view );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseCaseEnsemble::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_selectedCase )
+    {
+        for ( auto eclCase : cases() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( eclCase->caseUserDescription(), eclCase, false, eclCase->uiIconProvider() ) );
+        }
+
+        return options;
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCaseEnsemble::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_selectedCase )
+    {
+        for ( auto view : m_views )
+        {
+            view->setEclipseCase( m_selectedCase() );
+            view->loadDataAndUpdate();
+            view->updateGridBoxData();
+            view->updateAnnotationItems();
+        }
+    }
 }

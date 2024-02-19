@@ -291,7 +291,7 @@ void RimEclipseCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RimEclipseCase::createAndAddReservoirView()
+RimEclipseView* RimEclipseCase::createAndAddReservoirView( bool addToViews )
 {
     RimEclipseView* rimEclipseView = new RimEclipseView();
 
@@ -313,7 +313,10 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 
     caf::PdmDocument::updateUiIconStateRecursively( rimEclipseView );
 
-    reservoirViews().push_back( rimEclipseView );
+    if ( addToViews )
+    {
+        reservoirViews().push_back( rimEclipseView );
+    }
 
     return rimEclipseView;
 }
