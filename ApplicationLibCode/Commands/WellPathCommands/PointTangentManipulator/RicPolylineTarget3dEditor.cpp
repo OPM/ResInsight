@@ -21,6 +21,7 @@
 #include "RicPointTangentManipulator.h"
 
 #include "Rim3dView.h"
+#include "RimPolylinePickerInterface.h"
 #include "RimPolylineTarget.h"
 
 #include "RiuViewer.h"
@@ -96,8 +97,13 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigNam
 
     cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
-    const double handleScalingFactor = 0.7;
-    const double handleSize          = handleScalingFactor * view->characteristicCellSize();
+    double scalingFactor = 0.7;
+    if ( auto pickerInterface = target->firstAncestorOrThisOfType<RimPolylinePickerInterface>() )
+    {
+        scalingFactor *= pickerInterface->handleScalingFactor();
+    }
+
+    const double handleSize = scalingFactor * view->characteristicCellSize();
 
     m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() ) );
     m_manipulator->setHandleSize( handleSize );
