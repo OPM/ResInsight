@@ -281,16 +281,16 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
 
     if ( resultDefinition->hasResult() )
     {
-        const std::vector<float>& scalarResults =
-            geomData->femPartResults()->resultValues( resultDefinition->resultAddress(), gridIndex, timeStepIndex, frameIndex );
+        auto                      address       = RigFemAddressDefines::getResultLookupAddress( resultDefinition->resultAddress() );
+        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues( address, gridIndex, timeStepIndex, frameIndex );
         if ( !scalarResults.empty() )
         {
-            caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultDefinition->resultPositionType();
+            caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = address.resultPosType;
             resultInfoText->append( resPosAppEnum.uiText() + ", " );
             resultInfoText->append( resultDefinition->resultFieldUiName() + ", " );
             resultInfoText->append( resultDefinition->resultComponentUiName() + ":\n" );
 
-            if ( resultDefinition->resultPositionType() != RIG_ELEMENT_NODAL_FACE )
+            if ( address.resultPosType != RIG_ELEMENT_NODAL_FACE )
             {
                 RigFemPart*    femPart         = geomData->femParts()->part( gridIndex );
                 RigElementType elmType         = femPart->elementType( cellIndex );
@@ -302,8 +302,8 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
                 {
                     float scalarValue = std::numeric_limits<float>::infinity();
                     int   nodeIdx     = elementConn[lNodeIdx];
-                    if ( resultDefinition->resultPositionType() == RIG_NODAL ||
-                         ( resultDefinition->resultPositionType() == RIG_DIFFERENTIALS &&
+                    if ( address.resultPosType == RIG_NODAL ||
+                         ( address.resultPosType == RIG_DIFFERENTIALS &&
                            resultDefinition->resultFieldName() == QString::fromStdString( RigFemAddressDefines::porBar() ) ) )
                     {
                         scalarValue = scalarResults[nodeIdx];
@@ -407,13 +407,15 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
 
         RigGeoMechCaseData* geomData = m_geomResDef->geoMechCase()->geoMechData();
 
+        auto address = RigFemAddressDefines::getResultLookupAddress( resultColors->resultAddress() );
+
         const std::vector<float>& scalarResults =
-            geomData->femPartResults()->resultValues( resultColors->resultAddress(), m_gridIndex, m_timeStepIndex, m_frameIndex );
+            geomData->femPartResults()->resultValues( address, m_gridIndex, m_timeStepIndex, m_frameIndex );
 
         if ( !scalarResults.empty() && m_displayCoordView )
         {
             RigFemPart*         femPart              = geomData->femParts()->part( m_gridIndex );
-            RigFemResultPosEnum activeResultPosition = resultColors->resultPositionType();
+            RigFemResultPosEnum activeResultPosition = address.resultPosType;
 
             cvf::Vec3d intersectionPointInDomain =
                 m_displayCoordView->displayCoordTransform()->translateToDomainCoord( m_intersectionPointInDisplay );
@@ -443,11 +445,7 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
             }
             else if ( m_isIntersectionTriangleSet && activeResultPosition == RIG_ELEMENT_NODAL_FACE )
             {
-                RiuGeoMechXfTensorResultAccessor tensAccessor( geomData->femPartResults(),
-                                                               resultColors->resultAddress(),
-                                                               m_gridIndex,
-                                                               m_timeStepIndex,
-                                                               m_frameIndex );
+                RiuGeoMechXfTensorResultAccessor tensAccessor( geomData->femPartResults(), address, m_gridIndex, m_timeStepIndex, m_frameIndex );
                 float tensValue = tensAccessor.calculateElmNodeValue( m_intersectionTriangle, closestElmNodResIdx );
 
                 text.append( QString( "Closest result: N[%1], in Element[%2] transformed onto intersection: %3 \n" )
