@@ -1270,10 +1270,9 @@ QString RimEclipseView::createAutoName() const
     }
 
     QStringList generatedAutoTags;
-
-    if ( m_eclipseCase && nameConfig()->addCaseName() )
+    if ( nameConfig()->addCaseName() && ownerCase() )
     {
-        generatedAutoTags.push_back( m_eclipseCase->caseUserDescription() );
+        generatedAutoTags.push_back( ownerCase()->caseUserDescription() );
     }
 
     if ( nameConfig()->addProperty() )

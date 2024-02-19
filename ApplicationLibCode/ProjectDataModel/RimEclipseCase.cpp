@@ -312,6 +312,14 @@ void RimEclipseCase::initAfterRead()
 RimEclipseView* RimEclipseCase::createAndAddReservoirView( bool useGlobalViewCollection )
 {
     RimEclipseViewCollection* viewColl = useGlobalViewCollection ? globalViewCollection() : viewCollection();
+    return createAndAddReservoirView( viewColl );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimEclipseCase::createAndAddReservoirView( RimEclipseViewCollection* viewColl )
+{
     if ( !viewColl ) return nullptr;
 
     return viewColl->addView( this );

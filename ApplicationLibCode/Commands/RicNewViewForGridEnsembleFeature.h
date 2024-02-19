@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2024-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,36 +20,23 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseCase;
-class RimEclipseView;
-class RimGeoMechCase;
-class RimGeoMechView;
-class Rim3dView;
-class RimEclipseViewCollection;
 class RimEclipseCaseEnsemble;
+class RimEclipseView;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewViewFeature : public caf::CmdFeature
+class RicNewViewForGridEnsembleFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, RimEclipseViewCollection* viewColl );
+    static void addView( RimEclipseCaseEnsemble* eclipseCaseEnsemble );
 
 protected:
     bool isCommandEnabled() const override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-private:
-    static Rim3dView* createReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase, RimEclipseViewCollection* viewColl );
-
-    static RimEclipseCase*           selectedEclipseCase();
-    static RimGeoMechCase*           selectedGeoMechCase();
-    static RimEclipseView*           selectedEclipseView();
-    static RimGeoMechView*           selectedGeoMechView();
-    static RimEclipseViewCollection* selectedEclipseViewCollection();
-    static RimEclipseCaseEnsemble*   selectedEclipseCaseEnsemble();
+    static RimEclipseCaseEnsemble* selectedEclipseCaseEnsemble();
 };
