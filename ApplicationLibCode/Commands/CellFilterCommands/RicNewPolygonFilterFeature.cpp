@@ -49,7 +49,7 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
     RimPolygonFilter* lastCreatedOrUpdated = filtColl->addNewPolygonFilter( sourceCase );
     if ( lastCreatedOrUpdated )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated->polygonEditor() );
+        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
     }
 }
 

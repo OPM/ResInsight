@@ -35,8 +35,10 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
+#include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
+
 #include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTreeOrdering.h"
 
 #include <limits>
 
@@ -68,6 +70,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
 //--------------------------------------------------------------------------------------------------
 RimPolygonFilter::RimPolygonFilter()
     : RimCellFilter( RimCellFilter::INDEX )
+    , m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
     , m_intervalTool( true )
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png" );
@@ -86,6 +89,8 @@ RimPolygonFilter::RimPolygonFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_polygonEditor, "PolygonEditor", "Polygon Editor" );
     m_polygonEditor = new RimPolygonInView;
+    m_polygonEditor->uiCapability()->setUiTreeHidden( true );
+    m_polygonEditor.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter" );
 
@@ -100,6 +105,8 @@ RimPolygonFilter::RimPolygonFilter()
 
     updateIconState();
     setDeletable( true );
+
+    setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +165,12 @@ void RimPolygonFilter::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
+    if ( auto attrib = dynamic_cast<RicPolyline3dEditorAttribute*>( attribute ) )
+    {
+        attrib->pickEventHandler = m_pickTargetsEventHandler;
+        attrib->enablePicking    = m_polygonEditor->pickingEnabled();
+    }
+
     if ( field == &m_editPolygonButton )
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
@@ -219,23 +232,14 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     {
         m_polyFilterMode.uiCapability()->setUiReadOnly( readOnlyState );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
-{
-    RimCellFilter::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 
     bool showPolygonEditor = ( m_cellFilterPolygon() == m_internalPolygon() );
 
     if ( showPolygonEditor )
     {
-        uiTreeOrdering.add( m_polygonEditor() );
+        caf::PdmUiGroup* mudWeightWindowGroup = uiOrdering.addNewGroup( "Mud Weight Window" );
+        m_polygonEditor()->uiOrdering( uiConfigName, *mudWeightWindowGroup );
     }
-
-    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -747,9 +751,56 @@ void RimPolygonFilter::appendPartsToModel( cvf::ModelBasicList*              mod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonInView* RimPolygonFilter::polygonEditor() const
+void RimPolygonFilter::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
 {
-    return m_polygonEditor();
+    m_polygonEditor->insertTarget( targetToInsertBefore, targetToInsert );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::deleteTarget( RimPolylineTarget* targetToDelete )
+{
+    m_polygonEditor->deleteTarget( targetToDelete );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::updateEditorsAndVisualization()
+{
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::updateVisualization()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
+{
+    return m_polygonEditor->activeTargets();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonFilter::pickingEnabled() const
+{
+    return m_polygonEditor->pickingEnabled();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
+{
+    return m_pickTargetsEventHandler.get();
 }
 
 //--------------------------------------------------------------------------------------------------
