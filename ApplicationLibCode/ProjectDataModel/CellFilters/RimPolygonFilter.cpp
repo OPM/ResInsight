@@ -35,10 +35,7 @@
 #include "RimPolylineTarget.h"
 #include "RimTools.h"
 
-#include "Riu3DMainWindowTools.h"
-
 #include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTreeOrdering.h"
 
 #include <limits>
 

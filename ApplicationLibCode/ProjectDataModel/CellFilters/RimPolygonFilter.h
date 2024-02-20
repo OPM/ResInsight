@@ -31,18 +31,6 @@ class RigFemPartGrid;
 class RigEclipseCaseData;
 class RimPolylineTarget;
 
-namespace cvf
-{
-class ModelBasicList;
-class BoundingBox;
-
-}; // namespace cvf
-
-namespace caf
-{
-class DisplayCoordTransform;
-};
-
 //==================================================================================================
 ///
 ///
