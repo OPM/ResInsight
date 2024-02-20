@@ -22,10 +22,10 @@
 #include "RimOilField.h"
 #include "RimPolygon.h"
 #include "RimPolygonCollection.h"
-#include "RimPolygonFilter.h"
 #include "RimPolygonInView.h"
 #include "RimPolygonInViewCollection.h"
 #include "RimProject.h"
+
 #include "Riu3DMainWindowTools.h"
 
 //--------------------------------------------------------------------------------------------------
