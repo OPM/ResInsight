@@ -95,6 +95,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculation.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationImporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationExporter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -189,6 +190,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifGridCalculationExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationImporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCalculationExporter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifPolygonReader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
