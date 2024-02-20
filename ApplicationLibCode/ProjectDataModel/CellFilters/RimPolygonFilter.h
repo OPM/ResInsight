@@ -22,14 +22,12 @@
 #include "RimCellFilterIntervalTool.h"
 
 #include "cafAppEnum.h"
-#include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
 class RimPolygon;
 class RigGridBase;
 class RigFemPartGrid;
-class RimPolygonInView;
 class RigEclipseCaseData;
 
 namespace cvf
@@ -71,22 +69,15 @@ public:
     void enableFilter( bool bEnable );
     void enableKFilter( bool bEnable );
 
+    void setPolygon( RimPolygon* polygon );
     bool isFilterEnabled() const override;
-
-    void enablePicking( bool enable );
 
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
     void onGridChanged() override;
 
-    void configurePolygonEditor();
-    void appendPartsToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
-
-    RimPolygonInView* polygonEditor() const;
-
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
@@ -111,7 +102,7 @@ private:
 
     bool isPolygonClosed() const;
 
-    void connectObjectSignals( RimPolygon* polygon );
+    void setPolygonAndConnectSignals( RimPolygon* polygon );
     void onObjectChanged( const caf::SignalEmitter* emitter );
 
 private:
@@ -121,13 +112,10 @@ private:
     caf::PdmField<bool>                                m_enableKFilter;
     caf::PdmField<QString>                             m_kFilterStr;
 
+    caf::PdmPtrField<RimPolygon*> m_cellFilterPolygon;
+    caf::PdmField<bool>           m_editPolygonButton;
+
     std::vector<std::vector<size_t>> m_cells;
 
     RimCellFilterIntervalTool m_intervalTool;
-
-    // Local polygon and polygon editor
-    caf::PdmPtrField<RimPolygon*>         m_cellFilterPolygon;
-    caf::PdmChildField<RimPolygon*>       m_internalPolygon;
-    caf::PdmChildField<RimPolygonInView*> m_polygonEditor;
-    caf::PdmField<bool>                   m_editPolygonButton;
 };

@@ -28,5 +28,6 @@ class PdmObject;
 class RimPolygonTools
 {
 public:
-    static void selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
+    static void        selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
+    static RimPolygon* createNewPolygon();
 };

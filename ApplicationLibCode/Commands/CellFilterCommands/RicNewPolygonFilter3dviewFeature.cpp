@@ -21,6 +21,8 @@
 #include "Polygons/RimPolygonInView.h"
 
 #include "RiaApplication.h"
+#include "RicNewPolygonFilterFeature.h"
+
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimGridView.h"
@@ -39,20 +41,13 @@ CAF_CMD_SOURCE_INIT( RicNewPolygonFilter3dviewFeature, "RicNewPolygonFilter3dvie
 //--------------------------------------------------------------------------------------------------
 void RicNewPolygonFilter3dviewFeature::onActionTriggered( bool isChecked )
 {
-    // Get the selected Cell Filter Collection
     RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !viewOrComparisonView ) return;
 
-    RimCellFilterCollection* filtColl = viewOrComparisonView->cellFilterCollection();
+    RimCellFilterCollection* filtColl   = viewOrComparisonView->cellFilterCollection();
+    RimCase*                 sourceCase = viewOrComparisonView->ownerCase();
 
-    // and the case to use
-    RimCase* sourceCase = viewOrComparisonView->ownerCase();
-
-    RimPolygonFilter* lastCreatedOrUpdated = filtColl->addNewPolygonFilter( sourceCase );
-    if ( lastCreatedOrUpdated )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated->polygonEditor() );
-    }
+    RicNewPolygonFilterFeature::appendNewPolygonFilter( sourceCase, filtColl );
 }
 
 //--------------------------------------------------------------------------------------------------

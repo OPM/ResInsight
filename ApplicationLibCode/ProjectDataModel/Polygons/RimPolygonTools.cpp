@@ -19,9 +19,13 @@
 #include "RimPolygonTools.h"
 
 #include "RimGridView.h"
+#include "RimOilField.h"
+#include "RimPolygon.h"
+#include "RimPolygonCollection.h"
+#include "RimPolygonFilter.h"
 #include "RimPolygonInView.h"
 #include "RimPolygonInViewCollection.h"
-
+#include "RimProject.h"
 #include "Riu3DMainWindowTools.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -37,10 +41,25 @@ void RimPolygonTools::selectPolygonInView( RimPolygon* polygon, caf::PdmObject* 
         {
             if ( polygonInView && polygonInView->polygon() == polygon )
             {
+                polygonInView->enablePicking( true );
                 Riu3DMainWindowTools::selectAsCurrentItem( polygonInView );
 
                 return;
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygon* RimPolygonTools::createNewPolygon()
+{
+    auto proj              = RimProject::current();
+    auto polygonCollection = proj->activeOilField()->polygonCollection();
+
+    auto newPolygon = polygonCollection->appendUserDefinedPolygon();
+    polygonCollection->uiCapability()->updateAllRequiredEditors();
+
+    return newPolygon;
 }

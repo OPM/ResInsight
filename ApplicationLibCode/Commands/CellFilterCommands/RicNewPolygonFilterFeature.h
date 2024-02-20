@@ -20,12 +20,19 @@
 
 #include "cafCmdFeature.h"
 
+class RimCellFilterCollection;
+class RimCase;
+class RimPolygonFilter;
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicNewPolygonFilterFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static RimPolygonFilter* appendNewPolygonFilter( RimCase* sourceCase, RimCellFilterCollection* cellFilterCollection );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

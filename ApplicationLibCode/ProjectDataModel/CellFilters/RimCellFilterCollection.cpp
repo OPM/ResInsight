@@ -260,8 +260,6 @@ RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase
     RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
     addFilter( pFilter );
-    pFilter->configurePolygonEditor();
-    pFilter->enablePicking( true );
     onFilterUpdated( pFilter );
     return pFilter;
 }

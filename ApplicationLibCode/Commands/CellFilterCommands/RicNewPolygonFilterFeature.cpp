@@ -19,6 +19,7 @@
 #include "RicNewPolygonFilterFeature.h"
 
 #include "Polygons/RimPolygonInView.h"
+#include "Polygons/RimPolygonTools.h"
 
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
@@ -36,21 +37,38 @@ CAF_CMD_SOURCE_INIT( RicNewPolygonFilterFeature, "RicNewPolygonFilterFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPolygonFilter* RicNewPolygonFilterFeature::appendNewPolygonFilter( RimCase* sourceCase, RimCellFilterCollection* cellFilterCollection )
+{
+    if ( !sourceCase || !cellFilterCollection )
+    {
+        return nullptr;
+    }
+
+    RimPolygonFilter* polygonFilter = cellFilterCollection->addNewPolygonFilter( sourceCase );
+    if ( polygonFilter )
+    {
+        auto polygon = RimPolygonTools::createNewPolygon();
+        polygonFilter->setPolygon( polygon );
+
+        RimPolygonTools::selectPolygonInView( polygon, polygonFilter );
+        return polygonFilter;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 {
-    // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
     if ( colls.empty() ) return;
     RimCellFilterCollection* filtColl = colls[0];
 
-    // and the case to use
     RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
 
-    RimPolygonFilter* lastCreatedOrUpdated = filtColl->addNewPolygonFilter( sourceCase );
-    if ( lastCreatedOrUpdated )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated->polygonEditor() );
-    }
+    appendNewPolygonFilter( sourceCase, filtColl );
 }
 
 //--------------------------------------------------------------------------------------------------
