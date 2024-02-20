@@ -19,6 +19,7 @@
 #pragma once
 
 class RimPolygon;
+class RimPolygonInView;
 
 namespace caf
 {
@@ -28,6 +29,7 @@ class PdmObject;
 class RimPolygonTools
 {
 public:
-    static void        selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
-    static RimPolygon* createNewPolygon();
+    static void              selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
+    static RimPolygon*       createNewPolygon();
+    static RimPolygonInView* findPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
 };

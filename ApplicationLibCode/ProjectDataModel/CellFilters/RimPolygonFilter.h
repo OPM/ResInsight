@@ -29,6 +29,7 @@ class RimPolygon;
 class RigGridBase;
 class RigFemPartGrid;
 class RigEclipseCaseData;
+class RimPolylineTarget;
 
 namespace cvf
 {
@@ -101,6 +102,7 @@ private:
     void initializeCellList();
 
     bool isPolygonClosed() const;
+    void setIsPolygonClosed( const bool& isClosed );
 
     void setPolygonAndConnectSignals( RimPolygon* polygon );
     void onObjectChanged( const caf::SignalEmitter* emitter );
@@ -118,4 +120,7 @@ private:
     std::vector<std::vector<size_t>> m_cells;
 
     RimCellFilterIntervalTool m_intervalTool;
+
+    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+    caf::PdmProxyValueField<bool>               m_closePolygon;
 };

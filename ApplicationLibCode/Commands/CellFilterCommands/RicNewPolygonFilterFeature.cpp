@@ -18,6 +18,7 @@
 
 #include "RicNewPolygonFilterFeature.h"
 
+#include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInView.h"
 #include "Polygons/RimPolygonTools.h"
 
@@ -48,6 +49,7 @@ RimPolygonFilter* RicNewPolygonFilterFeature::appendNewPolygonFilter( RimCase* s
     if ( polygonFilter )
     {
         auto polygon = RimPolygonTools::createNewPolygon();
+        polygon->setIsClosed( true );
         polygonFilter->setPolygon( polygon );
 
         RimPolygonTools::selectPolygonInView( polygon, polygonFilter );

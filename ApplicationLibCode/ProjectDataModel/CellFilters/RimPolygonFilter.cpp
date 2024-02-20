@@ -32,6 +32,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
+#include "RimPolylineTarget.h"
 #include "RimTools.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -86,6 +87,16 @@ RimPolygonFilter::RimPolygonFilter()
     CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
     m_editPolygonButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_editPolygonButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
+    m_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_targets.uiCapability()->setUiTreeHidden( true );
+    m_targets.uiCapability()->setUiHidden( true );
+    m_targets.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_closePolygon, "ClosePolygon", "Closed Polygon" );
+    m_closePolygon.registerGetMethod( this, &RimPolygonFilter::isPolygonClosed );
+    m_closePolygon.registerSetMethod( this, &RimPolygonFilter::setIsPolygonClosed );
 
     m_propagateToSubGrids = false;
 
@@ -149,6 +160,29 @@ QString RimPolygonFilter::fullName() const
 void RimPolygonFilter::initAfterRead()
 {
     RimCellFilter::initAfterRead();
+
+    // Move existing polygons to global polygon
+    if ( !m_targets.empty() )
+    {
+        std::vector<cvf::Vec3d> points;
+        for ( const auto& target : m_targets )
+        {
+            points.push_back( target->targetPointXYZ() );
+        }
+
+        auto polygon = RimPolygonTools::createNewPolygon();
+        polygon->setPointsInDomainCoords( points );
+
+        polygon->setIsClosed( true );
+
+        setPolygonAndConnectSignals( polygon );
+
+        auto polygonInView = RimPolygonTools::findPolygonInView( polygon, this );
+        if ( polygonInView )
+        {
+            polygonInView->setPolygon( polygon );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,6 +211,7 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     group->add( &m_editPolygonButton, { .newRow = false } );
     group->add( &m_filterMode );
     group->add( &m_enableFiltering );
+    group->add( &m_closePolygon );
 
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
     group1->add( &m_polyFilterMode );
@@ -705,6 +740,17 @@ bool RimPolygonFilter::isPolygonClosed() const
     if ( m_cellFilterPolygon() ) return m_cellFilterPolygon->isClosed();
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::setIsPolygonClosed( const bool& isClosed )
+{
+    if ( m_cellFilterPolygon() )
+    {
+        m_cellFilterPolygon->setIsClosed( isClosed );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

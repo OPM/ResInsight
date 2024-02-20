@@ -33,20 +33,11 @@
 //--------------------------------------------------------------------------------------------------
 void RimPolygonTools::selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject )
 {
-    if ( auto gridView = sourceObject->firstAncestorOfType<RimGridView>() )
+    auto polygonInView = findPolygonInView( polygon, sourceObject );
+    if ( polygonInView )
     {
-        auto polyCollection = gridView->polygonInViewCollection();
-
-        for ( auto polygonInView : polyCollection->polygonsInView() )
-        {
-            if ( polygonInView && polygonInView->polygon() == polygon )
-            {
-                polygonInView->enablePicking( true );
-                Riu3DMainWindowTools::selectAsCurrentItem( polygonInView );
-
-                return;
-            }
-        }
+        polygonInView->enablePicking( true );
+        Riu3DMainWindowTools::selectAsCurrentItem( polygonInView );
     }
 }
 
@@ -62,4 +53,25 @@ RimPolygon* RimPolygonTools::createNewPolygon()
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 
     return newPolygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonInView* RimPolygonTools::findPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject )
+{
+    if ( auto gridView = sourceObject->firstAncestorOfType<RimGridView>() )
+    {
+        auto polyCollection = gridView->polygonInViewCollection();
+
+        for ( auto polygonInView : polyCollection->polygonsInView() )
+        {
+            if ( polygonInView && polygonInView->polygon() == polygon )
+            {
+                return polygonInView;
+            }
+        }
+    }
+
+    return nullptr;
 }
