@@ -22,6 +22,7 @@
 #include "RimCellFilterIntervalTool.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
