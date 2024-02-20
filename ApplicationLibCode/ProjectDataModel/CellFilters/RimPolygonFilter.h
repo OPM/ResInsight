@@ -121,6 +121,6 @@ private:
 
     RimCellFilterIntervalTool m_intervalTool;
 
-    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+    caf::PdmChildArrayField<RimPolylineTarget*> m_OBSOLETE_targets;
     caf::PdmProxyValueField<bool>               m_closePolygon;
 };

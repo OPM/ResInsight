@@ -88,11 +88,11 @@ RimPolygonFilter::RimPolygonFilter()
     m_editPolygonButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_editPolygonButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
-    m_targets.uiCapability()->setUiTreeChildrenHidden( true );
-    m_targets.uiCapability()->setUiTreeHidden( true );
-    m_targets.uiCapability()->setUiHidden( true );
-    m_targets.xmlCapability()->setIOWritable( false );
+    CAF_PDM_InitFieldNoDefault( &m_OBSOLETE_targets, "Targets", "Targets" );
+    m_OBSOLETE_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_OBSOLETE_targets.uiCapability()->setUiTreeHidden( true );
+    m_OBSOLETE_targets.uiCapability()->setUiHidden( true );
+    m_OBSOLETE_targets.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_closePolygon, "ClosePolygon", "Closed Polygon" );
     m_closePolygon.registerGetMethod( this, &RimPolygonFilter::isPolygonClosed );
@@ -162,17 +162,16 @@ void RimPolygonFilter::initAfterRead()
     RimCellFilter::initAfterRead();
 
     // Move existing polygons to global polygon
-    if ( !m_targets.empty() )
+    if ( !m_OBSOLETE_targets.empty() )
     {
         std::vector<cvf::Vec3d> points;
-        for ( const auto& target : m_targets )
+        for ( const auto& target : m_OBSOLETE_targets )
         {
             points.push_back( target->targetPointXYZ() );
         }
 
         auto polygon = RimPolygonTools::createNewPolygon();
         polygon->setPointsInDomainCoords( points );
-
         polygon->setIsClosed( true );
 
         setPolygonAndConnectSignals( polygon );
@@ -180,6 +179,7 @@ void RimPolygonFilter::initAfterRead()
         auto polygonInView = RimPolygonTools::findPolygonInView( polygon, this );
         if ( polygonInView )
         {
+            // Call set polygon to make sure the well targets are updated
             polygonInView->setPolygon( polygon );
         }
     }
