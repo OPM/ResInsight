@@ -20,6 +20,10 @@
 
 #include "RiaTextStringTools.h"
 
+#include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
+
+#include "RifCsvUserDataParser.h"
+
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
@@ -83,4 +87,77 @@ std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseText( const QString&
     }
 
     return polylines;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseTextCsv( const QString& content, QString* errorMessage )
+{
+    RifCsvUserDataPastedTextParser parser( content, errorMessage );
+
+    AsciiDataParseOptions parseOptions;
+    parseOptions.cellSeparator    = ",";
+    parseOptions.decimalSeparator = ".";
+
+    std::vector<std::pair<QString, std::vector<double>>> readValues;
+
+    if ( parser.parse( parseOptions ) )
+    {
+        for ( auto s : parser.tableData().columnInfos() )
+        {
+            if ( s.dataType != Column::NUMERIC ) continue;
+            QString columnName = QString::fromStdString( s.columnName() );
+            readValues.push_back( { columnName, s.values } );
+        }
+    }
+
+    if ( readValues.size() == 4 )
+    {
+        // Three first columns represent XYZ, last column polygon ID
+
+        const auto firstSize = readValues[0].second.size();
+        if ( ( firstSize == readValues[1].second.size() ) && ( firstSize == readValues[2].second.size() ) &&
+             ( firstSize == readValues[3].second.size() ) )
+        {
+            std::vector<std::vector<cvf::Vec3d>> polylines;
+
+            std::vector<cvf::Vec3d> polygon;
+
+            int polygonId = -1;
+            for ( size_t i = 0; i < firstSize; i++ )
+            {
+                int currentPolygonId = static_cast<int>( readValues[3].second[i] );
+                if ( polygonId != currentPolygonId )
+                {
+                    if ( !polygon.empty() ) polylines.push_back( polygon );
+                    polygon.clear();
+                    polygonId = currentPolygonId;
+                }
+
+                cvf::Vec3d point( readValues[0].second[i], readValues[1].second[i], -readValues[2].second[i] );
+
+                polygon.push_back( point );
+            }
+
+            if ( !polygon.empty() ) polylines.push_back( polygon );
+
+            return polylines;
+        }
+    }
+
+    if ( readValues.size() == 3 )
+    {
+        std::vector<std::vector<cvf::Vec3d>> polylines( 1 );
+
+        for ( size_t i = 0; i < readValues[0].second.size(); i++ )
+        {
+            cvf::Vec3d point( readValues[0].second[i], readValues[1].second[i], -readValues[2].second[i] );
+            polylines.back().push_back( point );
+        }
+
+        return polylines;
+    }
+
+    return {};
 }

@@ -54,3 +54,29 @@ TEST( RifPolygonReader, MultiplePolygonsInSameFile )
     EXPECT_TRUE( secondPolygon.size() == 3 );
     EXPECT_DOUBLE_EQ( secondPolygon.back().x(), 59601.45 );
 }
+
+TEST( RifPolygonReader, CsvImport )
+{
+    std::string fileContent = R"(
+X_UTME,Y_UTMN,Z_TVDSS,POLY_ID
+460536.5500488281,5934613.072753906,1652.97265625,0
+460535.4345703125,5934678.220581055,1652.8203125,0
+460534.3497314453,5934741.589111328,1652.672119140625,0
+460534.5389404297,5934747.926269531,1652.6595458984375,0
+460530.44287109375,5934829.321044922,1652.448974609375,0
+460530.20642089844,5934842.320922852,1652.6920166015625,0
+460535.5516357422,5934890.617675781,1653.71240234375,0
+460548.05139160156,5935007.113769531,1656.166259765625,0
+460550.3292236328,5935027.826538086,1656.641845703125,0
+)";
+
+    QString fileContentAsQString = QString::fromStdString( fileContent );
+    QString errorMessage;
+
+    auto polygons = RifPolygonReader::parseTextCsv( fileContentAsQString, &errorMessage );
+    EXPECT_TRUE( polygons.size() == 1 );
+
+    auto firstPolygon = polygons.front();
+    EXPECT_TRUE( firstPolygon.size() == 9 );
+    EXPECT_DOUBLE_EQ( firstPolygon.back().z(), -1656.641845703125 );
+}
