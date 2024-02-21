@@ -34,6 +34,7 @@
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonCollection.h"
 #include "Polygons/RimPolygonInView.h"
+#include "Polygons/RimPolygonTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -123,6 +124,12 @@ RimPolygonFilter::RimPolygonFilter()
     m_editPolygonButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_editPolygonButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitFieldNoDefault( &m_OBSOLETE_targets, "Targets", "Targets" );
+    m_OBSOLETE_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_OBSOLETE_targets.uiCapability()->setUiTreeHidden( true );
+    m_OBSOLETE_targets.uiCapability()->setUiHidden( true );
+    m_OBSOLETE_targets.xmlCapability()->setIOWritable( false );
+
     m_propagateToSubGrids = false;
 
     updateIconState();
@@ -178,6 +185,18 @@ QString RimPolygonFilter::fullName() const
 void RimPolygonFilter::initAfterRead()
 {
     RimCellFilter::initAfterRead();
+
+    // Move existing polygons to global polygon
+    if ( !m_OBSOLETE_targets.empty() )
+    {
+        std::vector<cvf::Vec3d> points;
+        for ( const auto& target : m_OBSOLETE_targets )
+        {
+            points.push_back( target->targetPointXYZ() );
+        }
+
+        m_internalPolygon->setPointsInDomainCoords( points );
+    }
 
     configurePolygonEditor();
 }
@@ -297,7 +316,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 {
     if ( changedField == &m_editPolygonButton )
     {
-        if ( m_cellFilterPolygon() ) Riu3DMainWindowTools::selectAsCurrentItem( m_cellFilterPolygon() );
+        RimPolygonTools::selectPolygonInView( m_cellFilterPolygon(), this );
 
         m_editPolygonButton = false;
 

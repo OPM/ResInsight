@@ -23,11 +23,13 @@
 #include "RimPolylinePickerInterface.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
 class RimPolygon;
+class RimPolylineTarget;
 class RigGridBase;
 class RigFemPartGrid;
 class RimPolygonInView;
@@ -148,4 +150,6 @@ private:
     caf::PdmField<bool>                   m_editPolygonButton;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
+
+    caf::PdmChildArrayField<RimPolylineTarget*> m_OBSOLETE_targets;
 };
