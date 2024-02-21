@@ -124,7 +124,7 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
         {
             auto resultName = result.toStdString();
 
-            auto resultEntries = m_initFile->getList();
+            const auto& resultEntries = m_initFile->getList();
             for ( const auto& entry : resultEntries )
             {
                 const auto& [keyword, kwType, size] = entry;
@@ -132,17 +132,17 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
                 {
                     if ( kwType == EclIO::eclArrType::REAL )
                     {
-                        auto fileValues = m_initFile->getInitData<float>( resultName );
+                        const auto& fileValues = m_initFile->getInitData<float>( resultName );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
                     else if ( kwType == EclIO::eclArrType::DOUB )
                     {
-                        auto fileValues = m_initFile->getInitData<double>( resultName );
+                        const auto& fileValues = m_initFile->getInitData<double>( resultName );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
                     else if ( kwType == EclIO::eclArrType::INTE )
                     {
-                        auto fileValues = m_initFile->getInitData<int>( resultName );
+                        const auto& fileValues = m_initFile->getInitData<int>( resultName );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
                 }
@@ -176,8 +176,8 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
         {
             auto resultName = result.toStdString();
 
-            auto stepNumbers = m_restartFile->listOfReportStepNumbers();
-            auto stepNumber  = stepNumbers[stepIndex];
+            const auto& stepNumbers = m_restartFile->listOfReportStepNumbers();
+            auto        stepNumber  = stepNumbers[stepIndex];
 
             auto resultEntries = m_restartFile->getList();
             for ( const auto& entry : resultEntries )
@@ -187,17 +187,17 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                 {
                     if ( kwType == EclIO::eclArrType::DOUB )
                     {
-                        auto fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
+                        const auto& fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
                     if ( kwType == EclIO::eclArrType::REAL )
                     {
-                        auto fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber );
+                        const auto& fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
                     else if ( kwType == EclIO::eclArrType::INTE )
                     {
-                        auto fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
+                        const auto& fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
                         values->insert( values->end(), fileValues.begin(), fileValues.end() );
                     }
                 }
@@ -220,7 +220,7 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<EclIO::EclFile::EclEntry> entries )
+static std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<EclIO::EclFile::EclEntry> entries )
 {
     std::vector<RifKeywordValueCount> fileKeywordInfo;
 
@@ -475,16 +475,16 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
 
             if ( restartFile->hasArray( inteheadString, seqNum ) )
             {
-                auto intehead = restartFile->getRestartData<int>( inteheadString, seqNum );
-                auto year     = intehead[VI::intehead::YEAR];
-                auto month    = intehead[VI::intehead::MONTH];
-                auto day      = intehead[VI::intehead::DAY];
+                const auto& intehead = restartFile->getRestartData<int>( inteheadString, seqNum );
+                auto        year     = intehead[VI::intehead::YEAR];
+                auto        month    = intehead[VI::intehead::MONTH];
+                auto        day      = intehead[VI::intehead::DAY];
 
                 double daySinceSimStart = 0.0;
 
                 if ( restartFile->hasArray( doubheadString, seqNum ) )
                 {
-                    auto doubhead = restartFile->getRestartData<double>( doubheadString, seqNum );
+                    const auto& doubhead = restartFile->getRestartData<double>( doubheadString, seqNum );
                     if ( !doubhead.empty() )
                     {
                         // Read out the simulation time from start from DOUBHEAD. There is no enum defined to access this value.
