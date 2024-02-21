@@ -34,18 +34,6 @@ class RimPolygonInView;
 class RigEclipseCaseData;
 class RicPolylineTargetsPickEventHandler;
 
-namespace cvf
-{
-class ModelBasicList;
-class BoundingBox;
-
-}; // namespace cvf
-
-namespace caf
-{
-class DisplayCoordTransform;
-};
-
 //==================================================================================================
 ///
 ///
@@ -80,8 +68,7 @@ public:
     void updateCellIndexFilter( cvf::UByteArray* includeVisibility, cvf::UByteArray* excludeVisibility, int gridIndex ) override;
     void onGridChanged() override;
 
-    void configurePolygonEditor();
-    void appendPartsToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
+    void              configurePolygonEditor();
     RimPolygonInView* polygonInView() const;
 
 protected:

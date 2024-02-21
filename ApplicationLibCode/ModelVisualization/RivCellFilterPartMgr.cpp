@@ -39,16 +39,18 @@ void RivCellFilterPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*     
                                                        const caf::DisplayCoordTransform* displayCoordTransform,
                                                        const cvf::BoundingBox&           boundingBox )
 {
-    std::vector<RimCellFilterCollection*> colls = m_rimView->descendantsIncludingThisOfType<RimCellFilterCollection>();
+    /*
+        std::vector<RimCellFilterCollection*> colls = m_rimView->descendantsIncludingThisOfType<RimCellFilterCollection>();
 
-    if ( colls.empty() ) return;
-    auto coll = colls.front();
+        if ( colls.empty() ) return;
+        auto coll = colls.front();
 
-    for ( auto filter : coll->filters() )
-    {
-        if ( auto polyFilter = dynamic_cast<RimPolygonFilter*>( filter ) )
+        for ( auto filter : coll->filters() )
         {
-            polyFilter->appendPartsToModel( model, displayCoordTransform, boundingBox );
+            if ( auto polyFilter = dynamic_cast<RimPolygonFilter*>( filter ) )
+            {
+                polyFilter->appendPartsToModel( model, displayCoordTransform, boundingBox );
+            }
         }
-    }
+    */
 }
