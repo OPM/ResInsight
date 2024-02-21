@@ -30,6 +30,7 @@
 #include "RicfCommandObject.h"
 
 #include "RifEclipseOutputFileTools.h"
+#include "RifEclipseRestartDataAccess.h"
 #include "RifInputPropertyLoader.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
@@ -137,9 +138,15 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
             return false;
         }
 
-        auto defaultReader = RiaPreferences::current()->gridModelReader();
+        auto readerType = m_gridModelReader().value();
 
-        if ( defaultReader == RiaDefines::GridModelReader::RESDATA )
+        // opmcommon reader only reads EGRID
+        if ( !gridFileName().toLower().endsWith( ".egrid" ) )
+        {
+            readerType = RiaDefines::GridModelReader::RESDATA;
+        }
+
+        if ( readerType == RiaDefines::GridModelReader::RESDATA )
         {
             auto readerEclipseOutput = new RifReaderEclipseOutput();
 

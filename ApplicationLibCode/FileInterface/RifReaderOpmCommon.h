@@ -26,7 +26,11 @@ namespace Opm::EclIO
 {
 class EInit;
 class ERst;
+class EGrid;
 } // namespace Opm::EclIO
+
+class RigMainGrid;
+class RigGridBase;
 
 //==================================================================================================
 //
@@ -38,13 +42,23 @@ public:
     RifReaderOpmCommon();
     ~RifReaderOpmCommon() override;
 
-    bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) override;
+    bool open( const QString& fileName, RigEclipseCaseData* caseData ) override;
 
     bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
     bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
 private:
-    void buildMetaData( RigEclipseCaseData* eclipseCase );
+    void buildMetaData( RigEclipseCaseData* caseData );
+    bool importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
+    void transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
+                           Opm::EclIO::EGrid&  opmGrid,
+                           RigMainGrid*        riMainGrid,
+                           RigGridBase*        riGrid,
+                           RigEclipseCaseData* caseData,
+                           size_t              matrixActiveStartIndex,
+                           size_t              fractureActiveStartIndex );
+
+    bool isDualPorosity( Opm::EclIO::EGrid& opmMainGrid );
 
     struct TimeDataFile
     {
@@ -66,5 +80,6 @@ private:
     std::shared_ptr<Opm::EclIO::ERst>  m_restartFile;
     std::shared_ptr<Opm::EclIO::EInit> m_initFile;
 
-    std::vector<QDateTime> m_timeSteps;
+    std::vector<QDateTime>   m_timeSteps;
+    std::vector<std::string> m_gridNames;
 };

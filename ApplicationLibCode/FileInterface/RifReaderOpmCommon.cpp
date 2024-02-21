@@ -23,8 +23,10 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RifEclipseOutputFileTools.h"
+#include "RifEclipseReportKeywords.h"
 #include "RifOpmGridTools.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
@@ -38,6 +40,7 @@
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Schedule/Well/Connection.hpp"
 #include "opm/input/eclipse/Schedule/Well/Well.hpp"
+#include "opm/io/eclipse/EGrid.hpp"
 #include "opm/io/eclipse/EInit.hpp"
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/io/eclipse/RestartFileView.hpp"
@@ -67,7 +70,7 @@ RifReaderOpmCommon::~RifReaderOpmCommon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
+bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* caseData )
 {
     caf::ProgressInfo progress( 100, "Reading Grid" );
 
@@ -78,7 +81,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
     {
         m_gridFileName = fileName.toStdString();
 
-        if ( !RifOpmGridTools::importGrid( m_gridFileName, eclipseCase->mainGrid(), eclipseCase ) )
+        if ( !importGrid( caseData->mainGrid(), caseData ) )
         {
             RiaLogging::error( "Failed to open grid file " + fileName );
 
@@ -94,14 +97,20 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 
                 importFaults( fileSet, &faults );
 
-                RigMainGrid* mainGrid = eclipseCase->mainGrid();
+                RigMainGrid* mainGrid = caseData->mainGrid();
                 mainGrid->setFaults( faults );
             }
         }
 
         {
-            auto task = progress.task( "Reading Results Meta data", 50 );
-            buildMetaData( eclipseCase );
+            auto task = progress.task( "Reading Results Meta data", 25 );
+            buildMetaData( caseData );
+        }
+
+        {
+            auto                task = progress.task( "Reading Active Cell Information", 25 );
+            std::vector<double> matrixActiveCells;
+            staticResult( "PORV", RiaDefines::PorosityModelType::MATRIX_MODEL, &matrixActiveCells );
         }
 
         return true;
@@ -118,6 +127,229 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData )
+{
+    Opm::EclIO::EGrid opmGrid( m_gridFileName );
+
+    RigActiveCellInfo* activeCellInfo         = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+    const auto& dims = opmGrid.dimension();
+    mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
+    mainGrid->setGridName( "Main grid" );
+    mainGrid->setDualPorosity( opmGrid.porosity_mode() > 0 );
+
+    auto totalCellCount           = opmGrid.totalNumberOfCells();
+    auto globalMatrixActiveSize   = opmGrid.activeCells();
+    auto globalFractureActiveSize = opmGrid.activeFracCells();
+
+    const auto& lgr_names = opmGrid.list_of_lgrs();
+    m_gridNames.clear();
+    m_gridNames.push_back( "global" );
+    m_gridNames.insert( m_gridNames.end(), lgr_names.begin(), lgr_names.end() );
+    const auto& lgr_parent_names = opmGrid.list_of_lgr_parents();
+    const int   numLGRs          = (int)lgr_names.size();
+
+    std::vector<Opm::EclIO::EGrid> lgrGrids;
+
+    for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+    {
+        lgrGrids.emplace_back( Opm::EclIO::EGrid( m_gridFileName, lgr_names[lgrIdx] ) );
+        RigLocalGrid* localGrid = new RigLocalGrid( mainGrid );
+
+        const auto& lgrDims = lgrGrids[lgrIdx].dimension();
+        localGrid->setGridPointDimensions( cvf::Vec3st( lgrDims[0] + 1, lgrDims[1] + 1, lgrDims[2] + 1 ) );
+
+        localGrid->setGridId( lgrIdx + 1 );
+        localGrid->setGridName( lgr_names[lgrIdx] );
+        mainGrid->addLocalGrid( localGrid );
+
+        localGrid->setIndexToStartOfCells( totalCellCount );
+
+        totalCellCount += lgrGrids[lgrIdx].totalNumberOfCells();
+    }
+
+    activeCellInfo->setReservoirCellCount( totalCellCount );
+    fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
+
+    mainGrid->globalCellArray().reserve( (size_t)totalCellCount );
+    mainGrid->nodes().reserve( (size_t)totalCellCount * 8 );
+
+    caf::ProgressInfo progInfo( 3 + numLGRs, "" );
+
+    {
+        auto task = progInfo.task( "Loading Main Grid Data", 3 );
+        transferGeometry( opmGrid, opmGrid, mainGrid, mainGrid, caseData, 0, 0 );
+    }
+
+    activeCellInfo->setGridCount( 1 + numLGRs );
+    fractureActiveCellInfo->setGridCount( 1 + numLGRs );
+
+    activeCellInfo->setGridActiveCellCounts( 0, globalMatrixActiveSize );
+    fractureActiveCellInfo->setGridActiveCellCounts( 0, globalFractureActiveSize );
+
+    bool hasParentInfo = ( lgr_parent_names.size() >= (size_t)numLGRs );
+
+    for ( int lgrIdx = 0; lgrIdx < numLGRs; lgrIdx++ )
+    {
+        auto task = progInfo.task( "LGR number " + QString::number( lgrIdx + 1 ), 1 );
+
+        RigGridBase* parentGrid = hasParentInfo ? mainGrid->gridByName( lgr_parent_names[lgrIdx] ) : mainGrid;
+
+        RigLocalGrid* localGrid = static_cast<RigLocalGrid*>( mainGrid->gridById( lgrIdx + 1 ) );
+        localGrid->setParentGrid( parentGrid );
+
+        transferGeometry( opmGrid, lgrGrids[lgrIdx], mainGrid, localGrid, caseData, globalMatrixActiveSize, globalFractureActiveSize );
+
+        int matrixActiveCellCount = lgrGrids[lgrIdx].activeCells();
+        globalMatrixActiveSize += matrixActiveCellCount;
+        activeCellInfo->setGridActiveCellCounts( lgrIdx + 1, matrixActiveCellCount );
+
+        int fractureActiveCellCount = lgrGrids[lgrIdx].activeFracCells();
+        globalFractureActiveSize += fractureActiveCellCount;
+        fractureActiveCellInfo->setGridActiveCellCounts( lgrIdx + 1, fractureActiveCellCount );
+    }
+
+    mainGrid->initAllSubGridsParentGridPointer();
+    activeCellInfo->computeDerivedData();
+    fractureActiveCellInfo->computeDerivedData();
+
+    auto opmMapAxes = opmGrid.get_mapaxes();
+    if ( opmMapAxes.size() == 6 )
+    {
+        std::array<double, 6> mapAxes;
+        for ( size_t i = 0; i < opmMapAxes.size(); ++i )
+        {
+            mapAxes[i] = opmMapAxes[i];
+        }
+
+        // Set the map axes transformation matrix on the main grid
+        mainGrid->setMapAxes( mapAxes );
+        mainGrid->setUseMapAxes( true );
+
+        auto transform = mainGrid->mapAxisTransform();
+
+        // Invert the transformation matrix to convert from file coordinates to domain coordinates
+        transform.invert();
+
+#pragma omp parallel for
+        for ( long i = 0; i < static_cast<long>( mainGrid->nodes().size() ); i++ )
+        {
+            auto& n = mainGrid->nodes()[i];
+            n.transformPoint( transform );
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmCommon::transferGeometry( Opm::EclIO::EGrid&  opmMainGrid,
+                                           Opm::EclIO::EGrid&  opmGrid,
+                                           RigMainGrid*        mainGrid,
+                                           RigGridBase*        localGrid,
+                                           RigEclipseCaseData* caseData,
+                                           size_t              matrixActiveStartIndex,
+                                           size_t              fractureActiveStartIndex )
+{
+    int    cellCount      = opmGrid.totalNumberOfCells();
+    size_t cellStartIndex = mainGrid->globalCellArray().size();
+    size_t nodeStartIndex = mainGrid->nodes().size();
+
+    RigActiveCellInfo* activeCellInfo         = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+
+    RigCell defaultCell;
+    defaultCell.setHostGrid( localGrid );
+    mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
+
+    mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
+
+    auto& riNodes = mainGrid->nodes();
+
+    opmGrid.loadData();
+    opmGrid.load_grid_data();
+
+    // same mapping as libecl
+    const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+
+    const auto host_parentcell = opmGrid.hostCellsGlobalIndex();
+
+#pragma omp parallel for
+    for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( localGrid->cellCount() ); opmCellIndex++ )
+    {
+        auto opmIJK = opmGrid.ijk_from_global_index( opmCellIndex );
+
+        auto     riReservoirIndex = localGrid->cellIndexFromIJK( opmIJK[0], opmIJK[1], opmIJK[2] );
+        RigCell& cell             = mainGrid->globalCellArray()[cellStartIndex + riReservoirIndex];
+        cell.setGridLocalCellIndex( riReservoirIndex );
+
+        // active cell index
+        int matrixActiveIndex = opmGrid.active_index( opmIJK[0], opmIJK[1], opmIJK[2] );
+        if ( matrixActiveIndex != -1 )
+        {
+            activeCellInfo->setCellResultIndex( cellStartIndex + opmCellIndex, matrixActiveStartIndex + matrixActiveIndex );
+        }
+
+        int fractureActiveIndex = opmGrid.active_frac_index( opmIJK[0], opmIJK[1], opmIJK[2] );
+        if ( fractureActiveIndex != -1 )
+        {
+            fractureActiveCellInfo->setCellResultIndex( cellStartIndex + opmCellIndex, fractureActiveStartIndex + fractureActiveIndex );
+        }
+
+        // parent cell index
+        if ( ( host_parentcell.size() > (size_t)opmCellIndex ) && host_parentcell[opmCellIndex] >= 0 )
+        {
+            cell.setParentCellIndex( host_parentcell[opmCellIndex] );
+        }
+        else
+        {
+            cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
+        }
+
+        // corner coordinates
+        std::array<double, 8> opmX{};
+        std::array<double, 8> opmY{};
+        std::array<double, 8> opmZ{};
+        opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
+
+        // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
+        auto riNodeStartIndex = nodeStartIndex + riReservoirIndex * 8;
+
+        for ( size_t opmNodeIndex = 0; opmNodeIndex < 8; opmNodeIndex++ )
+        {
+            auto   riCornerIndex = cellMappingECLRi[opmNodeIndex];
+            size_t riNodeIndex   = riNodeStartIndex + riCornerIndex;
+
+            auto& riNode = riNodes[riNodeIndex];
+            riNode.x()   = opmX[opmNodeIndex];
+            riNode.y()   = opmY[opmNodeIndex];
+            riNode.z()   = -opmZ[opmNodeIndex];
+
+            cell.cornerIndices()[riCornerIndex] = riNodeIndex;
+        }
+
+        cell.setInvalid( cell.isLongPyramidCell() );
+    }
+
+    // subgrid pointers
+    RigLocalGrid* realLocalGrid = dynamic_cast<RigLocalGrid*>( localGrid );
+    RigGridBase*  parentGrid    = realLocalGrid != nullptr ? realLocalGrid->parentGrid() : nullptr;
+
+    if ( parentGrid != nullptr )
+    {
+        for ( auto localCellInGlobalIdx : opmGrid.hostCellsGlobalIndex() )
+        {
+            parentGrid->cell( localCellInGlobalIdx ).setSubGrid( realLocalGrid );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
 {
     if ( m_initFile )
@@ -126,27 +358,31 @@ bool RifReaderOpmCommon::staticResult( const QString& result, RiaDefines::Porosi
         {
             auto resultName = result.toStdString();
 
-            auto resultEntries = m_initFile->getList();
+            const auto& resultEntries = m_initFile->getList();
             for ( const auto& entry : resultEntries )
             {
                 const auto& [keyword, kwType, size] = entry;
                 if ( keyword == resultName )
                 {
-                    if ( kwType == EclIO::eclArrType::REAL )
+                    for ( auto& gridName : m_gridNames )
                     {
-                        auto fileValues = m_initFile->getInitData<float>( resultName );
-                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                        if ( kwType == EclIO::eclArrType::REAL )
+                        {
+                            const auto& fileValues = m_initFile->getInitData<float>( resultName, gridName );
+                            values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                        }
+                        else if ( kwType == EclIO::eclArrType::DOUB )
+                        {
+                            const auto& fileValues = m_initFile->getInitData<double>( resultName, gridName );
+                            values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                        }
+                        else if ( kwType == EclIO::eclArrType::INTE )
+                        {
+                            const auto& fileValues = m_initFile->getInitData<int>( resultName, gridName );
+                            values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                        }
                     }
-                    else if ( kwType == EclIO::eclArrType::DOUB )
-                    {
-                        auto fileValues = m_initFile->getInitData<double>( resultName );
-                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
-                    }
-                    else if ( kwType == EclIO::eclArrType::INTE )
-                    {
-                        auto fileValues = m_initFile->getInitData<int>( resultName );
-                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
-                    }
+                    break;
                 }
             }
 
@@ -178,8 +414,8 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
         {
             auto resultName = result.toStdString();
 
-            auto stepNumbers = m_restartFile->listOfReportStepNumbers();
-            auto stepNumber  = stepNumbers[stepIndex];
+            const auto& stepNumbers = m_restartFile->listOfReportStepNumbers();
+            auto        stepNumber  = stepNumbers[stepIndex];
 
             auto resultEntries = m_restartFile->getList();
             for ( const auto& entry : resultEntries )
@@ -187,21 +423,46 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
                 const auto& [keyword, kwType, size] = entry;
                 if ( keyword == resultName )
                 {
-                    if ( kwType == EclIO::eclArrType::DOUB )
+                    for ( auto& gridName : m_gridNames )
                     {
-                        auto fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
-                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                        if ( gridName == "global" ) // main grid
+                        {
+                            if ( kwType == EclIO::eclArrType::DOUB )
+                            {
+                                const auto& fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber );
+                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            }
+                            if ( kwType == EclIO::eclArrType::REAL )
+                            {
+                                const auto& fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber );
+                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            }
+                            else if ( kwType == EclIO::eclArrType::INTE )
+                            {
+                                const auto& fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
+                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            }
+                        }
+                        else
+                        {
+                            if ( kwType == EclIO::eclArrType::DOUB )
+                            {
+                                const auto& fileValues = m_restartFile->getRestartData<double>( resultName, stepNumber, gridName );
+                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            }
+                            if ( kwType == EclIO::eclArrType::REAL )
+                            {
+                                const auto& fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber, gridName );
+                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            }
+                            else if ( kwType == EclIO::eclArrType::INTE )
+                            {
+                                const auto& fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber, gridName );
+                                values->insert( values->end(), fileValues.begin(), fileValues.end() );
+                            }
+                        }
                     }
-                    if ( kwType == EclIO::eclArrType::REAL )
-                    {
-                        auto fileValues = m_restartFile->getRestartData<float>( resultName, stepNumber );
-                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
-                    }
-                    else if ( kwType == EclIO::eclArrType::INTE )
-                    {
-                        auto fileValues = m_restartFile->getRestartData<int>( resultName, stepNumber );
-                        values->insert( values->end(), fileValues.begin(), fileValues.end() );
-                    }
+                    break;
                 }
             }
 
@@ -222,30 +483,30 @@ bool RifReaderOpmCommon::dynamicResult( const QString&                result,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordValueCount> createKeywordInfo( std::vector<EclIO::EclFile::EclEntry> entries )
+static std::vector<RifEclipseKeywordValueCount> createKeywordInfo( std::vector<EclIO::EclFile::EclEntry> entries )
 {
-    std::vector<RifKeywordValueCount> fileKeywordInfo;
+    RifEclipseReportKeywords keywordsReport;
 
     for ( const auto& entry : entries )
     {
         const auto& [keyword, kwType, size] = entry;
 
-        RifKeywordValueCount::KeywordDataType dataType = RifKeywordValueCount::KeywordDataType::UNKNOWN;
+        RifEclipseKeywordValueCount::KeywordDataType dataType = RifEclipseKeywordValueCount::KeywordDataType::UNKNOWN;
 
         if ( kwType == EclIO::eclArrType::INTE )
-            dataType = RifKeywordValueCount::KeywordDataType::INTEGER;
+            dataType = RifEclipseKeywordValueCount::KeywordDataType::INTEGER;
         else if ( kwType == EclIO::eclArrType::REAL )
-            dataType = RifKeywordValueCount::KeywordDataType::FLOAT;
+            dataType = RifEclipseKeywordValueCount::KeywordDataType::FLOAT;
         else if ( kwType == EclIO::eclArrType::DOUB )
-            dataType = RifKeywordValueCount::KeywordDataType::DOUBLE;
+            dataType = RifEclipseKeywordValueCount::KeywordDataType::DOUBLE;
 
-        if ( dataType != RifKeywordValueCount::KeywordDataType::UNKNOWN )
+        if ( dataType != RifEclipseKeywordValueCount::KeywordDataType::UNKNOWN )
         {
-            fileKeywordInfo.emplace_back( RifKeywordValueCount( keyword, static_cast<size_t>( size ), dataType ) );
+            keywordsReport.appendKeywordCount( keyword, static_cast<size_t>( size ), dataType );
         }
     }
 
-    return fileKeywordInfo;
+    return keywordsReport.keywordValueCounts();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,8 +543,11 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         std::vector<EclIO::EclFile::EclEntry> entries;
         for ( auto reportNumber : m_restartFile->listOfReportStepNumbers() )
         {
-            auto reportEntries = m_restartFile->listOfRstArrays( reportNumber );
-            entries.insert( entries.end(), reportEntries.begin(), reportEntries.end() );
+            for ( auto& gridName : m_gridNames )
+            {
+                auto gridEntries = m_restartFile->listOfRstArrays( reportNumber, gridName );
+                entries.insert( entries.end(), gridEntries.begin(), gridEntries.end() );
+            }
         }
 
         auto timeStepsFromFile = readTimeSteps( m_restartFile );
@@ -302,7 +566,7 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
         auto last = std::unique( entries.begin(), entries.end() );
         entries.erase( last, entries.end() );
 
-        std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
+        std::vector<RifEclipseKeywordValueCount> keywordInfo = createKeywordInfo( entries );
 
         RifEclipseOutputFileTools::createResultEntries( keywordInfo, timeStepInfos, RiaDefines::ResultCatType::DYNAMIC_NATIVE, eclipseCase );
 
@@ -315,8 +579,17 @@ void RifReaderOpmCommon::buildMetaData( RigEclipseCaseData* eclipseCase )
     {
         m_initFile = std::make_unique<EclIO::EInit>( initFileName );
 
-        auto                              entries     = m_initFile->list_arrays();
-        std::vector<RifKeywordValueCount> keywordInfo = createKeywordInfo( entries );
+        // entries from main grid
+        auto entries = m_initFile->list_arrays();
+        // add lgr entries, too
+        auto nGrids = m_gridNames.size();
+        for ( size_t i = 1; i < nGrids; i++ )
+        {
+            auto gridEntries = m_initFile->list_arrays( m_gridNames[i] );
+            entries.insert( entries.end(), gridEntries.begin(), gridEntries.end() );
+        }
+
+        std::vector<RifEclipseKeywordValueCount> keywordInfo = createKeywordInfo( entries );
 
         RifEclipseOutputFileTools::createResultEntries( keywordInfo, { firstTimeStepInfo }, RiaDefines::ResultCatType::STATIC_NATIVE, eclipseCase );
     }
@@ -477,16 +750,16 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
 
             if ( restartFile->hasArray( inteheadString, seqNum ) )
             {
-                auto intehead = restartFile->getRestartData<int>( inteheadString, seqNum );
-                auto year     = intehead[VI::intehead::YEAR];
-                auto month    = intehead[VI::intehead::MONTH];
-                auto day      = intehead[VI::intehead::DAY];
+                const auto& intehead = restartFile->getRestartData<int>( inteheadString, seqNum );
+                auto        year     = intehead[VI::intehead::YEAR];
+                auto        month    = intehead[VI::intehead::MONTH];
+                auto        day      = intehead[VI::intehead::DAY];
 
                 double daySinceSimStart = 0.0;
 
                 if ( restartFile->hasArray( doubheadString, seqNum ) )
                 {
-                    auto doubhead = restartFile->getRestartData<double>( doubheadString, seqNum );
+                    const auto& doubhead = restartFile->getRestartData<double>( doubheadString, seqNum );
                     if ( !doubhead.empty() )
                     {
                         // Read out the simulation time from start from DOUBHEAD. There is no enum defined to access this value.
@@ -507,4 +780,88 @@ std::vector<RifReaderOpmCommon::TimeDataFile> RifReaderOpmCommon::readTimeSteps(
     }
 
     return reportTimeData;
+}
+
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// std::vector<std::vector<int>>
+//     RifReaderOpmCommon::activeCellsFromPorvKeyword( const ecl_file_type* ecl_file, bool dualPorosity, const int cellCountMainGrid )
+//{
+//     CAF_ASSERT( ecl_file );
+//
+//     std::vector<std::vector<int>> activeCellsAllGrids;
+//
+//     // Active cell count is always the same size as the number of cells in the grid
+//     // If we have dual porosity, we have to divide by 2
+//     //
+//     // See documentation of active cells in top of ecl_grid.cpp
+//
+//     bool divideCellCountByTwo = dualPorosity;
+//
+//     int porvKeywordCount = ecl_file_get_num_named_kw( ecl_file, PORV_KW );
+//     for ( size_t gridIdx = 0; gridIdx < static_cast<size_t>( porvKeywordCount ); gridIdx++ )
+//     {
+//         std::vector<double> porvValues;
+//         RifEclipseOutputFileTools::keywordData( ecl_file, PORV_KW, gridIdx, &porvValues );
+//
+//         int activeCellCount = static_cast<int>( porvValues.size() );
+//
+//         // For some cases, the dual porosity flag is not interpreted correctly. Add a fallback by checking the number of
+//         // cells in the main grid
+//         // https://github.com/OPM/ResInsight/issues/9833
+//         if ( ( gridIdx == 0 ) && ( activeCellCount == cellCountMainGrid * 2 ) ) divideCellCountByTwo = true;
+//
+//         if ( divideCellCountByTwo )
+//         {
+//             activeCellCount /= 2;
+//         }
+//
+//         std::vector<int> activeCellsOneGrid;
+//         activeCellsOneGrid.resize( activeCellCount, 0 );
+//
+//         for ( int poreValueIndex = 0; poreValueIndex < static_cast<int>( porvValues.size() ); poreValueIndex++ )
+//         {
+//             int indexToCell = poreValueIndex;
+//             if ( indexToCell >= activeCellCount )
+//             {
+//                 indexToCell = poreValueIndex - activeCellCount;
+//             }
+//
+//             if ( porvValues[poreValueIndex] > 0.0 )
+//             {
+//                 if ( dualPorosity )
+//                 {
+//                     if ( poreValueIndex < activeCellCount )
+//                     {
+//                         activeCellsOneGrid[indexToCell] += CELL_ACTIVE_MATRIX;
+//                     }
+//                     else
+//                     {
+//                         activeCellsOneGrid[indexToCell] += CELL_ACTIVE_FRACTURE;
+//                     }
+//                 }
+//                 else
+//                 {
+//                     activeCellsOneGrid[indexToCell] = CELL_ACTIVE_MATRIX;
+//                 }
+//             }
+//         }
+//
+//         activeCellsAllGrids.push_back( activeCellsOneGrid );
+//     }
+//
+//     return activeCellsAllGrids;
+// }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderOpmCommon::isDualPorosity( Opm::EclIO::EGrid& opmMainGrid )
+{
+    bool dualPorosity = opmMainGrid.porosity_mode() > 0;
+
+    std::vector<double> matrixActiveCells;
+    staticResult( "PORV", RiaDefines::PorosityModelType::MATRIX_MODEL, &matrixActiveCells );
+    return dualPorosity;
 }

@@ -313,6 +313,21 @@ const RigGridBase* RigMainGrid::gridByIndex( size_t localGridIndex ) const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns the grid with the given name. Main Grid itself could be retreived by using name ""
+//--------------------------------------------------------------------------------------------------
+RigGridBase* RigMainGrid::gridByName( const std::string& name )
+{
+    if ( name.empty() ) return this;
+
+    for ( auto& grid : m_localGrids )
+    {
+        if ( grid->gridName() == name ) return grid.p();
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::setFlipAxis( bool flipXAxis, bool flipYAxis )
