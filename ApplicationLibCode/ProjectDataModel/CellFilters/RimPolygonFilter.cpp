@@ -207,6 +207,9 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
+    // When interactive edit of polyline coordinates in enabled in RimPolygonInView::m_enablePicking, the editors to RimPolygonFilter must
+    // be updated to trigger calls to RimPolylinePickerInterface
+
     updateConnectedEditors();
 }
 
@@ -269,7 +272,7 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     if ( isPolygonDefinedLocally() )
     {
         caf::PdmUiGroup* polyDefinitionGroup = uiOrdering.addNewGroup( "Polygon Definition" );
-        m_polygonEditor()->uiOrdering( uiConfigName, *polyDefinitionGroup );
+        m_polygonEditor()->uiOrderingForLocalPolygon( uiConfigName, *polyDefinitionGroup );
     }
 }
 
@@ -303,12 +306,15 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_polygonDataSource )
     {
-        if ( !isPolygonDefinedLocally() && m_cellFilterPolygon() == nullptr )
+        if ( !isPolygonDefinedLocally() )
         {
-            auto polygonCollection = RimTools::polygonCollection();
-            if ( polygonCollection && !polygonCollection->allPolygons().empty() )
+            if ( m_cellFilterPolygon() == nullptr || m_cellFilterPolygon() == m_internalPolygon )
             {
-                m_cellFilterPolygon = polygonCollection->allPolygons().front();
+                auto polygonCollection = RimTools::polygonCollection();
+                if ( polygonCollection && !polygonCollection->allPolygons().empty() )
+                {
+                    m_cellFilterPolygon = polygonCollection->allPolygons().front();
+                }
             }
         }
         configurePolygonEditor();

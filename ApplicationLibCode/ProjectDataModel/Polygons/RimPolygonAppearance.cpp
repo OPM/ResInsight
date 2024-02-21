@@ -78,7 +78,7 @@ RimPolygonAppearance::RimPolygonAppearance()
 {
     CAF_PDM_InitObject( "Polygon", ":/PolylinesFromFile16x16.png" );
 
-    CAF_PDM_InitField( &m_isClosed, "IsClosed", false, "Closed Polygon" );
+    CAF_PDM_InitField( &m_isClosed, "IsClosed", true, "Closed Polygon" );
     CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines" );
     CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres" );
 

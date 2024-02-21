@@ -295,6 +295,16 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_enablePicking );
+    uiOrdering.add( &m_targets );
+    uiOrdering.add( &m_handleScalingFactor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimPolygonInView::handleScalingFactor() const
 {
     return m_handleScalingFactor();
