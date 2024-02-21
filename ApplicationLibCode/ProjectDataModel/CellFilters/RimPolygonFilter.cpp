@@ -745,7 +745,17 @@ void RimPolygonFilter::appendPartsToModel( cvf::ModelBasicList*              mod
                                            const caf::DisplayCoordTransform* scaleTransform,
                                            const cvf::BoundingBox&           boundingBox )
 {
+    return;
+
     return m_polygonEditor->appendPartsToModel( model, scaleTransform, boundingBox );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolygonInView* RimPolygonFilter::polygonInView() const
+{
+    return m_polygonEditor();
 }
 
 //--------------------------------------------------------------------------------------------------

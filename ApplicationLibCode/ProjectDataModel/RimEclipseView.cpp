@@ -650,9 +650,7 @@ void RimEclipseView::onCreateDisplayModel()
     }
 
     // Polygons
-    m_polygonVizModel->removeAllParts();
-    m_polygonCollection->appendPartsToModel( m_polygonVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
+    appendPolygonPartsToModel( transform.p(), ownerCase()->allCellsBoundingBox() );
 
     // Well path model
     m_wellPathPipeVizModel->removeAllParts();

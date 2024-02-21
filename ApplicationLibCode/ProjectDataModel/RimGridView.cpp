@@ -18,7 +18,6 @@
 
 #include "RimGridView.h"
 
-#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -41,6 +40,9 @@
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
+
+#include "Polygons/RimPolygonInView.h"
+#include "Polygons/RimPolygonInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
@@ -393,6 +395,36 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox )
+{
+    m_polygonVizModel->removeAllParts();
+
+    std::vector<RimPolygonInView*> polygonsInView;
+    if ( m_polygonCollection )
+    {
+        polygonsInView = m_polygonCollection->polygonsInView();
+    }
+
+    if ( cellFilterCollection() )
+    {
+        auto cellFilterPolygonsInView = cellFilterCollection()->cellFilterPolygons();
+        polygonsInView.insert( polygonsInView.end(), cellFilterPolygonsInView.begin(), cellFilterPolygonsInView.end() );
+    }
+
+    for ( RimPolygonInView* polygonInView : polygonsInView )
+    {
+        if ( polygonInView )
+        {
+            polygonInView->appendPartsToModel( m_polygonVizModel.p(), scaleTransform, boundingBox );
+        }
+    }
+
+    nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
 }
 
 //--------------------------------------------------------------------------------------------------

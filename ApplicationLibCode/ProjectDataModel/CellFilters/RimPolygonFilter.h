@@ -82,6 +82,7 @@ public:
 
     void configurePolygonEditor();
     void appendPartsToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
+    RimPolygonInView* polygonInView() const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

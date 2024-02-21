@@ -80,6 +80,7 @@ protected:
     RimGridCollection* gridCollection() const;
     void               clearReservoirCellVisibilities();
     void               addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering );
+    void               appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
@@ -112,6 +113,7 @@ protected:
 private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
 
+private:
     cvf::ref<cvf::UByteArray> m_currentReservoirCellVisibility;
     bool                      m_previousGridModeMeshLinesWasFaults;
 };

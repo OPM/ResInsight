@@ -23,10 +23,6 @@
 #include "RimPolygonInView.h"
 #include "RimTools.h"
 
-#include "cafDisplayCoordTransform.h"
-
-#include "cvfModelBasicList.h"
-
 CAF_PDM_SOURCE_INIT( RimPolygonInViewCollection, "RimPolygonInViewCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -83,15 +79,7 @@ void RimPolygonInViewCollection::syncPolygonsInView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonInViewCollection::appendPartsToModel( cvf::ModelBasicList*        model,
-                                                     caf::DisplayCoordTransform* scaleTransform,
-                                                     const cvf::BoundingBox&     boundingBox )
+std::vector<RimPolygonInView*> RimPolygonInViewCollection::polygonsInView() const
 {
-    for ( auto polygon : m_polygons )
-    {
-        if ( polygon && polygon->isChecked() )
-        {
-            polygon->appendPartsToModel( model, scaleTransform, boundingBox );
-        }
-    }
+    return m_polygons.childrenByType();
 }

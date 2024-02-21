@@ -486,3 +486,21 @@ void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* incl
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygonInView*> RimCellFilterCollection::cellFilterPolygons() const
+{
+    std::vector<RimPolygonInView*> polyInView;
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        if ( auto polygonFilter = dynamic_cast<RimPolygonFilter*>( filter.p() ) )
+        {
+            polyInView.push_back( polygonFilter->polygonInView() );
+        }
+    }
+
+    return polyInView;
+}
