@@ -292,6 +292,10 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     {
         caf::PdmUiGroup* polyDefinitionGroup = uiOrdering.addNewGroup( "Polygon Definition" );
         m_polygonEditor()->uiOrderingForLocalPolygon( uiConfigName, *polyDefinitionGroup );
+
+        caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
+        appearanceGroup->setCollapsedByDefault();
+        m_internalPolygon->uiOrderingForLocalPolygon( uiConfigName, *appearanceGroup );
     }
 }
 

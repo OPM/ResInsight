@@ -56,6 +56,14 @@ cvf::ref<RigPolyLinesData> RimPolygon::polyLinesData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygon::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    m_appearance->uiOrdering( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::setPointsInDomainCoords( const std::vector<cvf::Vec3d>& points )
 {
     m_pointsInDomainCoords = points;
