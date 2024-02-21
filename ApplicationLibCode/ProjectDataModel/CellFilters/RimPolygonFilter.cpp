@@ -26,12 +26,14 @@
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
 
-#include "Polygons/RimPolygon.h"
-#include "Polygons/RimPolygonInView.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimPolylineTarget.h"
 #include "RimTools.h"
+
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
+#include "Polygons/RimPolygonInView.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -61,6 +63,22 @@ void caf::AppEnum<RimPolygonFilter::PolygonIncludeType>::setUp()
     setDefault( RimPolygonFilter::PolygonIncludeType::CENTER );
 }
 
+template <>
+void caf::AppEnum<RimPolygonFilter::GeometricalShape>::setUp()
+{
+    addItem( RimPolygonFilter::GeometricalShape::AREA, "AREA", "Area Filter" );
+    addItem( RimPolygonFilter::GeometricalShape::LINE, "LINE", "Line Filter" );
+    setDefault( RimPolygonFilter::GeometricalShape::AREA );
+}
+
+template <>
+void caf::AppEnum<RimPolygonFilter::PolygonDataSource>::setUp()
+{
+    addItem( RimPolygonFilter::PolygonDataSource::DEFINED_IN_FILTER, "DEFINED_IN_FILTER", "Defined in Filter" );
+    addItem( RimPolygonFilter::PolygonDataSource::GLOBAL_POLYGON, "GLOBAL_POLYGON", "Polygon in Project" );
+    setDefault( RimPolygonFilter::PolygonDataSource::DEFINED_IN_FILTER );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
@@ -78,6 +96,11 @@ RimPolygonFilter::RimPolygonFilter()
     CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical Filter" );
 
     CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include" );
+    CAF_PDM_InitFieldNoDefault( &m_polygonDataSource, "PolygonDataSource", "Data Source" );
+
+    CAF_PDM_InitFieldNoDefault( &m_geometricalShape, "GeometricalShape", "" );
+    m_geometricalShape.registerGetMethod( this, &RimPolygonFilter::geometricalShape );
+    m_geometricalShape.registerSetMethod( this, &RimPolygonFilter::setGeometricalShape );
 
     CAF_PDM_InitFieldNoDefault( &m_internalPolygon, "InternalPolygon", "Polygon For Filter" );
     m_internalPolygon = new RimPolygon;
@@ -187,15 +210,18 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add( &m_name );
 
+    auto dataSourceGroup = uiOrdering.addNewGroup( "Polygon Data Source" );
+    dataSourceGroup->add( &m_polygonDataSource );
+    if ( m_polygonDataSource() == PolygonDataSource::GLOBAL_POLYGON )
+    {
+        dataSourceGroup->add( &m_cellFilterPolygon );
+        dataSourceGroup->add( &m_editPolygonButton, { .newRow = false } );
+    }
+
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
+    group->add( &m_geometricalShape );
     group->add( &m_enableFiltering );
-
-    uiOrdering.add( &m_cellFilterPolygon );
-    if ( m_cellFilterPolygon() != m_internalPolygon() )
-    {
-        uiOrdering.add( &m_editPolygonButton, { .newRow = false } );
-    }
 
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
     group1->add( &m_polyFilterMode );
@@ -233,11 +259,9 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         m_polyFilterMode.uiCapability()->setUiReadOnly( readOnlyState );
     }
 
-    bool showPolygonEditor = ( m_cellFilterPolygon() == m_internalPolygon() );
-
-    if ( showPolygonEditor )
+    if ( m_polygonDataSource() == PolygonDataSource::DEFINED_IN_FILTER )
     {
-        caf::PdmUiGroup* mudWeightWindowGroup = uiOrdering.addNewGroup( "Mud Weight Window" );
+        caf::PdmUiGroup* mudWeightWindowGroup = uiOrdering.addNewGroup( "Polygon Definition" );
         m_polygonEditor()->uiOrdering( uiConfigName, *mudWeightWindowGroup );
     }
 }
@@ -251,13 +275,6 @@ QList<caf::PdmOptionItemInfo> RimPolygonFilter::calculateValueOptions( const caf
     if ( fieldNeedingOptions == &m_cellFilterPolygon )
     {
         RimTools::polygonOptionItems( &options );
-        if ( !options.empty() )
-        {
-            options.push_front( caf::PdmOptionItemInfo( "Project Polygons", nullptr ) );
-        }
-
-        options.push_front(
-            caf::PdmOptionItemInfo( m_internalPolygon()->name(), m_internalPolygon(), false, m_internalPolygon->uiIconProvider() ) );
     }
 
     return options;
@@ -275,6 +292,18 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         m_editPolygonButton = false;
 
         return;
+    }
+
+    if ( changedField == &m_polygonDataSource )
+    {
+        if ( m_polygonDataSource() == PolygonDataSource::GLOBAL_POLYGON && m_cellFilterPolygon() == nullptr )
+        {
+            auto polygonCollection = RimTools::polygonCollection();
+            if ( polygonCollection && !polygonCollection->allPolygons().empty() )
+            {
+                m_cellFilterPolygon = polygonCollection->allPolygons().front();
+            }
+        }
     }
 
     if ( changedField == &m_cellFilterPolygon )
@@ -799,6 +828,34 @@ bool RimPolygonFilter::pickingEnabled() const
 caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 {
     return m_pickTargetsEventHandler.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::AppEnum<RimPolygonFilter::GeometricalShape> RimPolygonFilter::geometricalShape() const
+{
+    if ( m_cellFilterPolygon && !m_cellFilterPolygon->isClosed() ) return GeometricalShape::LINE;
+
+    return GeometricalShape::AREA;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::setGeometricalShape( const caf::AppEnum<GeometricalShape>& shape )
+{
+    if ( m_cellFilterPolygon )
+    {
+        if ( shape == GeometricalShape::LINE )
+        {
+            m_cellFilterPolygon->setIsClosed( false );
+        }
+        else
+        {
+            m_cellFilterPolygon->setIsClosed( true );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

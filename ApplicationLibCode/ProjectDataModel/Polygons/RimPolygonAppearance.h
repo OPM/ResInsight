@@ -34,6 +34,7 @@ public:
 
     void applyAppearanceSettings( RigPolyLinesData* polyLinesData );
 
+    void setIsClosed( bool isClosed );
     bool isClosed() const;
 
 public:

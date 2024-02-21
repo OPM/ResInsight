@@ -109,6 +109,15 @@ void RimPolygonAppearance::applyAppearanceSettings( RigPolyLinesData* polyLinesD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonAppearance::setIsClosed( bool isClosed )
+{
+    m_isClosed = isClosed;
+    objectChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPolygonAppearance::isClosed() const
 {
     return m_isClosed();

@@ -43,6 +43,18 @@ class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class PolygonDataSource
+    {
+        DEFINED_IN_FILTER,
+        GLOBAL_POLYGON
+    };
+
+    enum class GeometricalShape
+    {
+        AREA,
+        LINE
+    };
+
     enum class PolygonFilterModeType
     {
         DEPTH_Z,
@@ -110,12 +122,18 @@ private:
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
 
+    caf::AppEnum<GeometricalShape> geometricalShape() const;
+    void                           setGeometricalShape( const caf::AppEnum<GeometricalShape>& shape );
+
 private:
-    caf::PdmField<caf::AppEnum<PolygonFilterModeType>> m_polyFilterMode;
-    caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
-    caf::PdmField<bool>                                m_enableFiltering;
-    caf::PdmField<bool>                                m_enableKFilter;
-    caf::PdmField<QString>                             m_kFilterStr;
+    caf::PdmField<caf::AppEnum<PolygonFilterModeType>>      m_polyFilterMode;
+    caf::PdmField<caf::AppEnum<PolygonIncludeType>>         m_polyIncludeType;
+    caf::PdmField<caf::AppEnum<PolygonDataSource>>          m_polygonDataSource;
+    caf::PdmProxyValueField<caf::AppEnum<GeometricalShape>> m_geometricalShape;
+
+    caf::PdmField<bool>    m_enableFiltering;
+    caf::PdmField<bool>    m_enableKFilter;
+    caf::PdmField<QString> m_kFilterStr;
 
     std::vector<std::vector<size_t>> m_cells;
 
