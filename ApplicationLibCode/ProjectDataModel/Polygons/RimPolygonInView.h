@@ -62,7 +62,7 @@ public:
     std::vector<RimPolylineTarget*> activeTargets() const override;
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
-    double                          handleScalingFactor() const override;
+    double                          scalingFactorForTarget() const override;
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 

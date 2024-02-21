@@ -100,7 +100,7 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigNam
     double scalingFactor = 0.7;
     if ( auto pickerInterface = target->firstAncestorOrThisOfType<RimPolylinePickerInterface>() )
     {
-        scalingFactor *= pickerInterface->handleScalingFactor();
+        scalingFactor *= pickerInterface->scalingFactorForTarget();
     }
 
     const double handleSize = scalingFactor * view->characteristicCellSize();

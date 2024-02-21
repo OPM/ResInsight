@@ -23,7 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimPolylinePickerInterface::handleScalingFactor() const
+double RimPolylinePickerInterface::scalingFactorForTarget() const
 {
     return 1.0;
 }

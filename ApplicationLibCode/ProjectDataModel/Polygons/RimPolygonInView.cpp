@@ -305,7 +305,7 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimPolygonInView::handleScalingFactor() const
+double RimPolygonInView::scalingFactorForTarget() const
 {
     return m_handleScalingFactor();
 }
