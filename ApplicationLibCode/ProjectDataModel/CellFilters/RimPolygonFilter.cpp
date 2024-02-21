@@ -108,7 +108,6 @@ RimPolygonFilter::RimPolygonFilter()
     m_internalPolygon->uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterPolygon, "Polygon", "Polygon" );
-    m_cellFilterPolygon = m_internalPolygon;
 
     CAF_PDM_InitFieldNoDefault( &m_polygonEditor, "PolygonEditor", "Polygon Editor" );
     m_polygonEditor = new RimPolygonInView;
@@ -206,13 +205,21 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Polygon Data Source" );
     dataSourceGroup->add( &m_polygonDataSource );
-    if ( m_polygonDataSource() == PolygonDataSource::GLOBAL_POLYGON )
+    if ( !isPolygonDefinedLocally() )
     {
         dataSourceGroup->add( &m_cellFilterPolygon );
         dataSourceGroup->add( &m_editPolygonButton, { .newRow = false } );
@@ -259,10 +266,10 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         m_polyFilterMode.uiCapability()->setUiReadOnly( readOnlyState );
     }
 
-    if ( m_polygonDataSource() == PolygonDataSource::DEFINED_IN_FILTER )
+    if ( isPolygonDefinedLocally() )
     {
-        caf::PdmUiGroup* mudWeightWindowGroup = uiOrdering.addNewGroup( "Polygon Definition" );
-        m_polygonEditor()->uiOrdering( uiConfigName, *mudWeightWindowGroup );
+        caf::PdmUiGroup* polyDefinitionGroup = uiOrdering.addNewGroup( "Polygon Definition" );
+        m_polygonEditor()->uiOrdering( uiConfigName, *polyDefinitionGroup );
     }
 }
 
@@ -296,7 +303,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_polygonDataSource )
     {
-        if ( m_polygonDataSource() == PolygonDataSource::GLOBAL_POLYGON && m_cellFilterPolygon() == nullptr )
+        if ( !isPolygonDefinedLocally() && m_cellFilterPolygon() == nullptr )
         {
             auto polygonCollection = RimTools::polygonCollection();
             if ( polygonCollection && !polygonCollection->allPolygons().empty() )
@@ -304,6 +311,8 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
                 m_cellFilterPolygon = polygonCollection->allPolygons().front();
             }
         }
+        configurePolygonEditor();
+        updateAllRequiredEditors();
     }
 
     if ( changedField == &m_cellFilterPolygon )
@@ -760,11 +769,17 @@ void RimPolygonFilter::updateCells()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::configurePolygonEditor()
 {
-    m_polygonEditor->setPolygon( m_cellFilterPolygon() );
+    RimPolygon* polygon = nullptr;
+    if ( isPolygonDefinedLocally() )
+        polygon = m_internalPolygon();
+    else
+        polygon = m_cellFilterPolygon();
+
+    m_polygonEditor->setPolygon( polygon );
 
     // Must connect the signals after polygon is assigned to the polygon editor
     // When assigning an object to a ptr field, all signals are disconnected
-    connectObjectSignals( m_cellFilterPolygon() );
+    connectObjectSignals( polygon );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -835,7 +850,14 @@ caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RimPolygonFilter::GeometricalShape> RimPolygonFilter::geometricalShape() const
 {
-    if ( m_cellFilterPolygon && !m_cellFilterPolygon->isClosed() ) return GeometricalShape::LINE;
+    if ( isPolygonDefinedLocally() )
+    {
+        if ( !m_internalPolygon->isClosed() ) return GeometricalShape::LINE;
+    }
+    else
+    {
+        if ( m_cellFilterPolygon && !m_cellFilterPolygon->isClosed() ) return GeometricalShape::LINE;
+    }
 
     return GeometricalShape::AREA;
 }
@@ -845,16 +867,13 @@ caf::AppEnum<RimPolygonFilter::GeometricalShape> RimPolygonFilter::geometricalSh
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::setGeometricalShape( const caf::AppEnum<GeometricalShape>& shape )
 {
-    if ( m_cellFilterPolygon )
+    if ( isPolygonDefinedLocally() )
     {
-        if ( shape == GeometricalShape::LINE )
-        {
-            m_cellFilterPolygon->setIsClosed( false );
-        }
-        else
-        {
-            m_cellFilterPolygon->setIsClosed( true );
-        }
+        m_internalPolygon->setIsClosed( shape == GeometricalShape::AREA );
+    }
+    else if ( m_cellFilterPolygon() )
+    {
+        m_cellFilterPolygon->setIsClosed( shape == GeometricalShape::AREA );
     }
 }
 
@@ -877,9 +896,18 @@ void RimPolygonFilter::initializeCellList()
 //--------------------------------------------------------------------------------------------------
 bool RimPolygonFilter::isPolygonClosed() const
 {
-    if ( m_polygonEditor->polygon() ) return m_polygonEditor->polygon()->isClosed();
+    if ( isPolygonDefinedLocally() ) return m_internalPolygon->isClosed();
 
-    return false;
+    if ( m_cellFilterPolygon() ) return m_cellFilterPolygon->isClosed();
+
+    return true;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonFilter::isPolygonDefinedLocally() const
+{
+    return m_polygonDataSource() == PolygonDataSource::DEFINED_IN_FILTER;
 }
 
 //--------------------------------------------------------------------------------------------------

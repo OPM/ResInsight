@@ -89,6 +89,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     QString fullName() const override;
 
@@ -109,6 +110,7 @@ private:
     void initializeCellList();
 
     bool isPolygonClosed() const;
+    bool isPolygonDefinedLocally() const;
 
     void connectObjectSignals( RimPolygon* polygon );
     void onObjectChanged( const caf::SignalEmitter* emitter );
