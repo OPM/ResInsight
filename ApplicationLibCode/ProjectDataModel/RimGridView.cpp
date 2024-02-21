@@ -99,8 +99,8 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
     m_seismicSectionCollection = new RimSeismicSectionCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_polygonCollection, "PolygonCollection", "Polygon Collection Field" );
-    m_polygonCollection = new RimPolygonInViewCollection();
+    CAF_PDM_InitFieldNoDefault( &m_polygonInViewCollection, "PolygonInViewCollection", "Polygon Collection Field" );
+    m_polygonInViewCollection = new RimPolygonInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
@@ -173,9 +173,9 @@ RimSeismicSectionCollection* RimGridView::seismicSectionCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonInViewCollection* RimGridView::polygonCollection() const
+RimPolygonInViewCollection* RimGridView::polygonInViewCollection() const
 {
-    return m_polygonCollection();
+    return m_polygonInViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,9 +405,9 @@ void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTr
     m_polygonVizModel->removeAllParts();
 
     std::vector<RimPolygonInView*> polygonsInView;
-    if ( m_polygonCollection )
+    if ( m_polygonInViewCollection )
     {
-        polygonsInView = m_polygonCollection->polygonsInView();
+        polygonsInView = m_polygonInViewCollection->polygonsInView();
     }
 
     if ( cellFilterCollection() )
@@ -527,7 +527,7 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
-        m_polygonCollection->syncPolygonsInView();
+        m_polygonInViewCollection->syncPolygonsInView();
     }
 
     updateConnectedEditors();

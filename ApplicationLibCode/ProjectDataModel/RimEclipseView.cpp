@@ -1954,7 +1954,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
-        uiTreeOrdering.add( m_polygonCollection );
+        uiTreeOrdering.add( m_polygonInViewCollection );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
