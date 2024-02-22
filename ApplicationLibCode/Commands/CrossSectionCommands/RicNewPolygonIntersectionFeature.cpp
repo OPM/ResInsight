@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,42 +16,33 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewPolygonFilterFeature.h"
+#include "RicNewPolygonIntersectionFeature.h"
+
+#include "RiaApplication.h"
+
+#include "RimExtrudedCurveIntersection.h"
+#include "RimGridView.h"
+#include "RimIntersectionCollection.h"
 
 #include "Polygons/RimPolygon.h"
 #include "Polygons/RimPolygonInView.h"
 
-#include "RimCase.h"
-#include "RimCellFilterCollection.h"
-#include "RimGridView.h"
-#include "RimPolygonFilter.h"
-
-#include "Riu3DMainWindowTools.h"
-
-#include "cafSelectionManagerTools.h"
-#include "cafUtils.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewPolygonFilterFeature, "RicNewPolygonFilterFeature" );
+CAF_CMD_SOURCE_INIT( RicNewPolygonIntersectionFeature, "RicNewPolygonIntersectionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
+void RicNewPolygonIntersectionFeature::onActionTriggered( bool isChecked )
 {
-    auto cellFilterCollection = caf::SelectionManager::instance()->selectedItemOfType<RimCellFilterCollection>();
+    RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
+    if ( !activeView ) return;
 
-    if ( !cellFilterCollection )
-    {
-        RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-        if ( activeView )
-        {
-            cellFilterCollection = activeView->cellFilterCollection();
-        }
-    }
-
-    if ( !cellFilterCollection ) return;
+    auto collection = activeView->intersectionCollection();
+    if ( !collection ) return;
 
     auto polygon = caf::SelectionManager::instance()->selectedItemOfType<RimPolygon>();
     if ( !polygon )
@@ -62,19 +53,16 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    auto sourceCase = cellFilterCollection->firstAncestorOrThisOfTypeAsserted<RimCase>();
-
-    if ( auto lastCreatedOrUpdated = cellFilterCollection->addNewPolygonFilter( sourceCase, polygon ) )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
-    }
+    auto intersection = new RimExtrudedCurveIntersection();
+    intersection->configureForProjectPolyLine( polygon );
+    collection->appendIntersectionAndUpdate( intersection );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFilterFeature::setupActionLook( QAction* actionToSetup )
+void RicNewPolygonIntersectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/CellFilter_Polygon.png" ) );
-    actionToSetup->setText( "New Polygon Filter" );
+    actionToSetup->setIcon( QIcon( ":/CrossSection16x16.png" ) );
+    actionToSetup->setText( "Create Polygon Intersection" );
 }

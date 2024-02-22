@@ -33,6 +33,7 @@ class RimUserDefinedFilter;
 class RimUserDefinedIndexFilter;
 class RimCase;
 class RimPolygonInView;
+class RimPolygon;
 
 namespace cvf
 {
@@ -53,7 +54,7 @@ public:
 
     caf::Signal<> filtersChanged;
 
-    RimPolygonFilter*          addNewPolygonFilter( RimCase* srcCase );
+    RimPolygonFilter*          addNewPolygonFilter( RimCase* srcCase, RimPolygon* polygon );
     RimCellRangeFilter*        addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection = -1, int defaultSlice = -1 );
     RimCellIndexFilter*        addNewCellIndexFilter( RimCase* srcCase );
     RimUserDefinedFilter*      addNewUserDefinedFilter( RimCase* srcCase );
