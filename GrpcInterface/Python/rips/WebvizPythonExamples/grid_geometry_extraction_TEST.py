@@ -14,12 +14,18 @@ from rips.generated.GridGeometryExtraction_pb2 import *
 rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
-get_grid_surface_request = GridGeometryExtraction__pb2.GetGridSurfaceRequest(gridFilename=None, ijkIndexFilter=None,cellIndexFilter=None,propertyFilter=None)
+grid_file_name = None
+ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(iMin=0, iMax =1, jMin=2, jMax=3, kMin=0, kMax=3)
+
+get_grid_surface_request = GridGeometryExtraction__pb2.GetGridSurfaceRequest(gridFilename=grid_file_name, ijkIndexFilter=ijk_index_filter,cellIndexFilter=None,propertyFilter=None)
 get_grid_surface_response: GridGeometryExtraction__pb2.GetGridSurfaceResponse = grid_geometry_extraction_stub.GetGridSurface(get_grid_surface_request)
 
 get_grid_surface_response.gridDimensions
 vertex_array = get_grid_surface_response.vertexArray
 quad_indices_array = get_grid_surface_response.quadIndicesArr
+origin_utm = get_grid_surface_response.originUtm
+source_cell_indices_arr = get_grid_surface_response.sourceCellIndicesArr
+grid_dimensions = get_grid_surface_response.gridDimensions
 
 num_vertex_coords = 3 # [x, y, z]
 num_vertices_per_quad = 4 # [v1, v2, v3, v4]
@@ -59,6 +65,10 @@ fig = go.Figure(data=[go.Mesh3d(
     colorscale=[[0, 'gold'],[0.5, 'mediumturquoise'],[1.0, 'magenta']]
 )])
 
+print(f"Number of quads: {num_quads}")
+print(f"Source cell indices array length: {len(source_cell_indices_arr)}")
+print(f"Origin UTM coordinates [x, y, z]: [{origin_utm.x}, {origin_utm.y}, {origin_utm.z}]")
+print(f"Grid dimensions [I, J, K]: [{grid_dimensions.dimensions.i}, {grid_dimensions.dimensions.j}, {grid_dimensions.dimensions.k}]")
 print(fig.data)
 
 fig.show()

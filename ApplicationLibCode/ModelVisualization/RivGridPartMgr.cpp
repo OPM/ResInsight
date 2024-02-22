@@ -204,6 +204,33 @@ void RivGridPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Returns the surface vertices of the grid part
+///
+/// Creates vertices if they do not exist
+/// Used for gRPC service GridGeometryExtraction
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3fArray* RivGridPartMgr::getOrCreateSurfaceVertices()
+{
+    return m_surfaceGenerator.getOrCreateVertices();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Get map from quad index to cell index
+///
+/// Used for gRPC service GridGeometryExtraction
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RivGridPartMgr::getSurfaceQuadToCellIndicesArray()
+{
+    auto* gridQuadToCellFaceMapper = m_surfaceGenerator.quadToCellFaceMapper();
+    if ( gridQuadToCellFaceMapper == nullptr )
+    {
+        return std::vector<size_t>();
+    }
+
+    return gridQuadToCellFaceMapper->quadToCellIndicesArray();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::updateCellColor( cvf::Color4f color )

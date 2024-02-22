@@ -97,6 +97,8 @@ public:
                                            const cvf::UByteArray*              rangeFilterVisibility,
                                            RimEclipsePropertyFilterCollection* propFilterColl );
 
+    RivReservoirPartMgr* rangeFilteredReservoirPartManager( size_t timeStepIndex );
+
 private:
     void createGeometry( RivCellSetEnum geometryType );
     void computeVisibility( cvf::UByteArray* cellVisibility, RivCellSetEnum geometryType, RigGridBase* grid, size_t gridIdx );

@@ -18,7 +18,13 @@
 #pragma once
 
 #include "GridGeometryExtraction.grpc.pb.h"
+#include "RiaApplication.h"
 #include "RiaGrpcServiceInterface.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RivGridPartMgr.h"
+
+#include "cvfArray.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -51,4 +57,17 @@ public:
 
 public:
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
+
+private:
+    void resetInternalPointers();
+
+    grpc::Status loadGridGeometryFromAbsoluteFilePath( const std::string filePath );
+    grpc::Status initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( const std::string filePath );
+    grpc::Status initializeMainGridPartManagerFromEclipseView();
+    grpc::Status applyIJKCellFilterToEclipseCase( const rips::IJKIndexFilter& filter );
+
+    RiaApplication* m_application         = nullptr;
+    RimEclipseCase* m_eclipseCase         = nullptr;
+    RimEclipseView* m_eclipseView         = nullptr;
+    RivGridPartMgr* m_mainGridPartManager = nullptr;
 };

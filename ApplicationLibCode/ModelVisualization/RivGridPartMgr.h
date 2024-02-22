@@ -30,6 +30,8 @@
 
 #include "cvfStructGridGeometryGenerator.h"
 
+#include <vector>
+
 namespace cvf
 {
 class StructGridInterface;
@@ -68,6 +70,9 @@ public:
     void updateCellEdgeResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors );
 
     void appendPartsToModel( cvf::ModelBasicList* model );
+
+    cvf::Vec3fArray*    getOrCreateSurfaceVertices();
+    std::vector<size_t> getSurfaceQuadToCellIndicesArray();
 
 private:
     void generatePartGeometry( cvf::StructGridGeometryGenerator& geoBuilder );

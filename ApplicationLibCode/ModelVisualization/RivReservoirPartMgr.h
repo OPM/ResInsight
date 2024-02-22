@@ -76,6 +76,8 @@ public:
     // Element Vector Result
     void appendElementVectorResultPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex );
 
+    RivGridPartMgr* mainGridPartManager();
+
 private:
     cvf::Collection<RivGridPartMgr>         m_allGrids; // Main grid and all LGR's
     cvf::ref<RivElementVectorResultPartMgr> m_elementVectorResultMgr;
