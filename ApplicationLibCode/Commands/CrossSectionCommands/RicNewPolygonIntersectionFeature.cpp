@@ -54,7 +54,6 @@ void RicNewPolygonIntersectionFeature::onActionTriggered( bool isChecked )
     }
 
     auto intersection = new RimExtrudedCurveIntersection();
-    // intersection->setName( polygon->name() );
     intersection->configureForProjectPolyLine( polygon );
     collection->appendIntersectionAndUpdate( intersection );
 }

@@ -184,6 +184,8 @@ void RimExtrudedCurveIntersection::configureForProjectPolyLine( RimPolygon* poly
 {
     m_type           = CrossSectionEnum::CS_POLYGON;
     m_projectPolygon = polygon;
+
+    updateName();
 }
 
 //--------------------------------------------------------------------------------------------------
