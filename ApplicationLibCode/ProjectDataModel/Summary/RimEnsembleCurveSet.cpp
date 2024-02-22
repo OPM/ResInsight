@@ -1062,7 +1062,7 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
         treeItemAttribute->tags.clear();
-        auto tag     = caf::PdmUiTreeViewItemAttribute::Tag::create();
+        auto tag     = caf::PdmUiTreeViewItemAttribute::createTag();
         tag->bgColor = RiaColorTools::toQColor( m_colorForRealizations );
         tag->fgColor = RiaColorTools::toQColor( m_statistics->color() );
         tag->text    = "---";

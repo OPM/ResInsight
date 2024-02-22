@@ -1262,7 +1262,7 @@ void RimPlotCurve::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUi
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
         treeItemAttribute->tags.clear();
-        auto tag = caf::PdmUiTreeViewItemAttribute::Tag::create();
+        auto tag = caf::PdmUiTreeViewItemAttribute::createTag();
 
         // Blend with background for a nice look
         auto   backgroundColor  = RiuGuiTheme::getColorByVariableName( "backgroundColor1" );
