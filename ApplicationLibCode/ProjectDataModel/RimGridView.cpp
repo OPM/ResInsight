@@ -18,7 +18,6 @@
 
 #include "RimGridView.h"
 
-#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -41,6 +40,9 @@
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
+
+#include "Polygons/RimPolygonInView.h"
+#include "Polygons/RimPolygonInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
@@ -97,8 +99,8 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
     m_seismicSectionCollection = new RimSeismicSectionCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_polygonCollection, "PolygonCollection", "Polygon Collection Field" );
-    m_polygonCollection = new RimPolygonInViewCollection();
+    CAF_PDM_InitFieldNoDefault( &m_polygonInViewCollection, "PolygonInViewCollection", "Polygon Collection Field" );
+    m_polygonInViewCollection = new RimPolygonInViewCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
@@ -171,9 +173,9 @@ RimSeismicSectionCollection* RimGridView::seismicSectionCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonInViewCollection* RimGridView::polygonCollection() const
+RimPolygonInViewCollection* RimGridView::polygonInViewCollection() const
 {
-    return m_polygonCollection();
+    return m_polygonInViewCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -398,6 +400,36 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox )
+{
+    m_polygonVizModel->removeAllParts();
+
+    std::vector<RimPolygonInView*> polygonsInView;
+    if ( m_polygonInViewCollection )
+    {
+        polygonsInView = m_polygonInViewCollection->polygonsInView();
+    }
+
+    if ( cellFilterCollection() )
+    {
+        auto cellFilterPolygonsInView = cellFilterCollection()->cellFilterPolygons();
+        polygonsInView.insert( polygonsInView.end(), cellFilterPolygonsInView.begin(), cellFilterPolygonsInView.end() );
+    }
+
+    for ( RimPolygonInView* polygonInView : polygonsInView )
+    {
+        if ( polygonInView )
+        {
+            polygonInView->appendPartsToModel( m_polygonVizModel.p(), scaleTransform, boundingBox );
+        }
+    }
+
+    nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridView::onClearReservoirCellVisibilitiesIfNecessary()
 {
     if ( propertyFilterCollection() && propertyFilterCollection()->hasActiveDynamicFilters() )
@@ -495,7 +527,7 @@ void RimGridView::updateViewTreeItems( RiaDefines::ItemIn3dView itemType )
 
     if ( bitmaskEnum.AnyOf( RiaDefines::ItemIn3dView::POLYGON ) )
     {
-        m_polygonCollection->syncPolygonsInView();
+        m_polygonInViewCollection->syncPolygonsInView();
     }
 
     updateConnectedEditors();

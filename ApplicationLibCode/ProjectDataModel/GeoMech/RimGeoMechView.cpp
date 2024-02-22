@@ -322,10 +322,7 @@ void RimGeoMechView::onCreateDisplayModel()
     nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
 
     // Polygons
-
-    m_polygonVizModel->removeAllParts();
-    m_polygonCollection->appendPartsToModel( m_polygonVizModel.p(), transform.p(), femBBox );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_polygonVizModel.p(), isUsingOverrideViewer() );
+    appendPolygonPartsToModel( transform.p(), ownerCase()->allCellsBoundingBox() );
 
     // Surfaces
 
@@ -1053,7 +1050,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
-        uiTreeOrdering.add( m_polygonCollection );
+        uiTreeOrdering.add( m_polygonInViewCollection );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );

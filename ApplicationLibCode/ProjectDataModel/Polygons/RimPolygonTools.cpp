@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,48 +16,48 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewPolygonFilterFeature.h"
+#include "RimPolygonTools.h"
 
-#include "Polygons/RimPolygonInView.h"
-
-#include "RimCase.h"
-#include "RimCellFilterCollection.h"
-#include "RimPolygonFilter.h"
+#include "RimGridView.h"
+#include "RimOilField.h"
+#include "RimPolygon.h"
+#include "RimPolygonCollection.h"
+#include "RimPolygonInView.h"
+#include "RimPolygonInViewCollection.h"
+#include "RimProject.h"
 
 #include "Riu3DMainWindowTools.h"
-
-#include "cafSelectionManagerTools.h"
-#include "cafUtils.h"
-
-#include <QAction>
-
-CAF_CMD_SOURCE_INIT( RicNewPolygonFilterFeature, "RicNewPolygonFilterFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
+void RimPolygonTools::selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject )
 {
-    // Find the selected Cell Filter Collection
-    std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
-    if ( colls.empty() ) return;
-    RimCellFilterCollection* filtColl = colls[0];
-
-    // and the case to use
-    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
-
-    RimPolygonFilter* lastCreatedOrUpdated = filtColl->addNewPolygonFilter( sourceCase );
-    if ( lastCreatedOrUpdated )
+    auto polygonInView = findPolygonInView( polygon, sourceObject );
+    if ( polygonInView )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        polygonInView->enablePicking( true );
+        Riu3DMainWindowTools::selectAsCurrentItem( polygonInView );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolygonFilterFeature::setupActionLook( QAction* actionToSetup )
+RimPolygonInView* RimPolygonTools::findPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject )
 {
-    actionToSetup->setIcon( QIcon( ":/CellFilter_Polygon.png" ) );
-    actionToSetup->setText( "New Polygon Filter" );
+    if ( auto gridView = sourceObject->firstAncestorOfType<RimGridView>() )
+    {
+        auto polyCollection = gridView->polygonInViewCollection();
+
+        for ( auto polygonInView : polyCollection->polygonsInView() )
+        {
+            if ( polygonInView && polygonInView->polygon() == polygon )
+            {
+                return polygonInView;
+            }
+        }
+    }
+
+    return nullptr;
 }

@@ -38,6 +38,7 @@ public:
     virtual std::vector<RimPolylineTarget*> activeTargets() const                                                 = 0;
     virtual bool                            pickingEnabled() const                                                = 0;
     virtual caf::PickEventHandler*          pickEventHandler() const                                              = 0;
+    virtual double                          scalingFactorForTarget() const;
 
     std::pair<RimPolylineTarget*, RimPolylineTarget*> findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore );
 };

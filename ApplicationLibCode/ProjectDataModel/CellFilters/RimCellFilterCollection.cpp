@@ -260,6 +260,7 @@ RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase
     RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
     addFilter( pFilter );
+    pFilter->configurePolygonEditor();
     pFilter->enablePicking( true );
     onFilterUpdated( pFilter );
     return pFilter;
@@ -484,4 +485,22 @@ void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* incl
             filter->updateCellIndexFilter( includeCellVisibility, excludeCellVisibility, (int)gridIndex );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygonInView*> RimCellFilterCollection::cellFilterPolygons() const
+{
+    std::vector<RimPolygonInView*> polyInView;
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        if ( auto polygonFilter = dynamic_cast<RimPolygonFilter*>( filter.p() ) )
+        {
+            polyInView.push_back( polygonFilter->polygonInView() );
+        }
+    }
+
+    return polyInView;
 }

@@ -18,6 +18,8 @@
 
 #include "RicNewPolygonFilter3dviewFeature.h"
 
+#include "Polygons/RimPolygonInView.h"
+
 #include "RiaApplication.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"

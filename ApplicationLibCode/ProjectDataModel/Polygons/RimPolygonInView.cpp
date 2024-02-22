@@ -58,6 +58,8 @@ RimPolygonInView::RimPolygonInView()
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
     m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
+    CAF_PDM_InitField( &m_handleScalingFactor, "HandleScalingFactor", 1.0, "Handle Scaling Factor" );
+
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
@@ -243,6 +245,8 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     updateNameField();
 
+    uiOrdering.add( &m_handleScalingFactor );
+
     if ( m_polygon() ) uiOrdering.add( m_polygon );
     uiOrdering.add( &m_enablePicking );
 }
@@ -286,6 +290,24 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
         attrib->pickEventHandler = m_pickTargetsEventHandler;
         attrib->enablePicking    = m_enablePicking;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_enablePicking );
+    uiOrdering.add( &m_targets );
+    uiOrdering.add( &m_handleScalingFactor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimPolygonInView::scalingFactorForTarget() const
+{
+    return m_handleScalingFactor();
 }
 
 //--------------------------------------------------------------------------------------------------

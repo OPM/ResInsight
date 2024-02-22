@@ -55,7 +55,6 @@ public:
     void appendPartsToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
     void enablePicking( bool enable );
 
-    // RimPolylinesDataInterface
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
     void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void updateEditorsAndVisualization() override;
@@ -63,11 +62,14 @@ public:
     std::vector<RimPolylineTarget*> activeTargets() const override;
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
+    double                          scalingFactorForTarget() const override;
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -87,6 +89,7 @@ private:
     caf::PdmPtrField<RimPolygon*> m_polygon;
 
     caf::PdmField<bool>                         m_enablePicking;
+    caf::PdmField<double>                       m_handleScalingFactor;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
 
     cvf::ref<RivPolylinePartMgr>                        m_polylinePartMgr;

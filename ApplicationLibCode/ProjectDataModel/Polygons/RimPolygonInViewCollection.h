@@ -23,17 +23,6 @@
 
 class RimPolygonInView;
 
-namespace cvf
-{
-class ModelBasicList;
-class BoundingBox;
-} // namespace cvf
-
-namespace caf
-{
-class DisplayCoordTransform;
-} // namespace caf
-
 //==================================================================================================
 ///
 ///
@@ -47,7 +36,7 @@ public:
 
     void syncPolygonsInView();
 
-    void appendPartsToModel( cvf::ModelBasicList* model, caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
+    std::vector<RimPolygonInView*> polygonsInView() const;
 
 private:
     caf::PdmChildArrayField<RimPolygonInView*> m_polygons;

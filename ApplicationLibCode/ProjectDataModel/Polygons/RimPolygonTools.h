@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021-     Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,17 +18,19 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+class RimPolygon;
+class RimPolygonInView;
 
-//==================================================================================================
-///
-//==================================================================================================
-class RicAppendPointsToPolygonFilterFeature : public caf::CmdFeature
+namespace caf
 {
-    CAF_CMD_HEADER_INIT;
+class PdmObject;
+}
 
-protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+class RimPolygonTools
+{
+public:
+    static void selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
+
+private:
+    static RimPolygonInView* findPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
 };

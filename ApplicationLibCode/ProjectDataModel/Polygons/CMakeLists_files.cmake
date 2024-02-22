@@ -5,6 +5,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInView.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInViewCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonAppearance.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPolygonTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -14,6 +15,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonInViewCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPolygonAppearance.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPolygonTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

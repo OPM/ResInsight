@@ -55,7 +55,7 @@ public:
     RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
     RimWellMeasurementInViewCollection*         measurementCollection() const;
     RimSeismicSectionCollection*                seismicSectionCollection() const;
-    RimPolygonInViewCollection*                 polygonCollection() const;
+    RimPolygonInViewCollection*                 polygonInViewCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
 
@@ -80,6 +80,7 @@ protected:
     RimGridCollection* gridCollection() const;
     void               clearReservoirCellVisibilities();
     void               addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering );
+    void               appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTransform, const cvf::BoundingBox& boundingBox );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
@@ -107,11 +108,12 @@ protected:
     caf::PdmChildField<RimCellFilterCollection*>            m_cellFilterCollection;
     caf::PdmChildField<RimCellFilterCollection*>            m_overrideCellFilterCollection;
     caf::PdmChildField<RimSeismicSectionCollection*>        m_seismicSectionCollection;
-    caf::PdmChildField<RimPolygonInViewCollection*>         m_polygonCollection;
+    caf::PdmChildField<RimPolygonInViewCollection*>         m_polygonInViewCollection;
 
 private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
 
+private:
     cvf::ref<cvf::UByteArray> m_currentReservoirCellVisibility;
     bool                      m_previousGridModeMeshLinesWasFaults;
 };
