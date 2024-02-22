@@ -250,18 +250,16 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add( &m_name );
 
-    auto dataSourceGroup = uiOrdering.addNewGroup( "Polygon Data Source" );
-    dataSourceGroup->add( &m_polygonDataSource );
-    if ( !isPolygonDefinedLocally() )
-    {
-        dataSourceGroup->add( &m_cellFilterPolygon );
-        dataSourceGroup->add( &m_editPolygonButton, { .newRow = false } );
-    }
-
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
     group->add( &m_geometricalShape );
     group->add( &m_enableFiltering );
+    group->add( &m_polygonDataSource );
+    if ( !isPolygonDefinedLocally() )
+    {
+        group->add( &m_cellFilterPolygon );
+        group->add( &m_editPolygonButton, { .newRow = false } );
+    }
 
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
     group1->add( &m_polyFilterMode );
