@@ -207,7 +207,7 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path        " );
     CAF_PDM_InitScriptableFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_projectPolygon, "ProjectPolygon", "Project Polygon" );
+    CAF_PDM_InitFieldNoDefault( &m_projectPolygon, "ProjectPolygon", "Project Polygon" );
     CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
     m_editPolygonButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_editPolygonButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
