@@ -22,8 +22,13 @@
 #include "RiaVec3Tools.h"
 
 #include "RigMainGrid.h"
+#include "RigPolyLinesData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigWellPath.h"
+
+#include "Polygons/RimPolygon.h"
+#include "Polygons/RimPolygonCollection.h"
+#include "Polygons/RimPolygonTools.h"
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
@@ -62,6 +67,7 @@ void caf::AppEnum<RimExtrudedCurveIntersection::CrossSectionEnum>::setUp()
     addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well" );
     addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
     addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_AZIMUTHLINE, "CS_AZIMUTHLINE", "Azimuth and Dip" );
+    addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYGON, "CS_POLYGON", "Project Polygon" );
     setDefault( RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE );
 }
 
@@ -174,6 +180,14 @@ void RimExtrudedCurveIntersection::configureForPolyLine()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::configureForProjectPolyLine()
+{
+    m_type = CrossSectionEnum::CS_POLYGON;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::configureForAzimuthLine()
 {
     m_type                                   = CrossSectionEnum::CS_AZIMUTHLINE;
@@ -192,6 +206,12 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path        " );
     CAF_PDM_InitScriptableFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_projectPolygon, "ProjectPolygon", "Project Polygon" );
+    CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
+    m_editPolygonButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_editPolygonButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_userPolylineXyz, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_userPolylineXydForUi, "PointsUi", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
@@ -424,11 +444,11 @@ void RimExtrudedCurveIntersection::setKFilterOverride( bool collectionOverride, 
 void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive || changedField == &m_type || changedField == &m_direction || changedField == &m_wellPath ||
-         changedField == &m_simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength ||
-         changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &m_showInactiveCells ||
-         changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold ||
-         changedField == &m_depthLowerThreshold || changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType ||
-         changedField == &m_enableKFilter || changedField == &m_kFilterText || changedField == &m_kFilterCollectionOverride )
+         changedField == &m_simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength || changedField == &m_lengthUp ||
+         changedField == &m_lengthDown || changedField == &m_showInactiveCells || changedField == &m_useSeparateDataSource ||
+         changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold || changedField == &m_depthLowerThreshold ||
+         changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType || changedField == &m_enableKFilter ||
+         changedField == &m_kFilterText || changedField == &m_kFilterCollectionOverride || changedField == &m_projectPolygon )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -496,6 +516,15 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
+
+    if ( changedField == &m_editPolygonButton )
+    {
+        RimPolygonTools::selectPolygonInView( m_projectPolygon(), this );
+
+        m_editPolygonButton = false;
+
+        return;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -524,6 +553,11 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
     {
         geometryGroup->add( &m_userPolylineXydForUi );
         geometryGroup->add( &m_inputPolylineFromViewerEnabled );
+    }
+    else if ( type() == CrossSectionEnum::CS_POLYGON )
+    {
+        geometryGroup->add( &m_projectPolygon );
+        geometryGroup->add( &m_editPolygonButton, { .newRow = false } );
     }
     else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
@@ -653,6 +687,19 @@ QList<caf::PdmOptionItemInfo> RimExtrudedCurveIntersection::calculateValueOption
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_projectPolygon )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        RimTools::polygonOptionItems( &options );
+
+        if ( m_projectPolygon() == nullptr )
+        {
+            auto polygonCollection = RimTools::polygonCollection();
+            auto polygons          = polygonCollection->allPolygons();
+            if ( !polygons.empty() ) m_projectPolygon = polygons.front();
+        }
+    }
     else if ( fieldNeedingOptions == &m_branchIndex )
     {
         updateSimulationWellCenterline();
@@ -776,6 +823,13 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
     else if ( type() == CrossSectionEnum::CS_POLYLINE )
     {
         lines.push_back( m_userPolylineXyz );
+    }
+    else if ( type() == CrossSectionEnum::CS_POLYGON )
+    {
+        if ( m_projectPolygon )
+        {
+            lines = m_projectPolygon->polyLinesData()->polyLines();
+        }
     }
     else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
@@ -1063,6 +1117,14 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
     else if ( field == &m_customExtrusionPoints )
     {
         setBaseColor( m_inputExtrusionPointsFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
+    }
+
+    if ( field == &m_editPolygonButton )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Edit";
+        }
     }
 }
 

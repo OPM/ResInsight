@@ -41,6 +41,7 @@ class RimSurfaceCollection;
 class RimSurfaceIntersectionCollection;
 class RimSurfaceIntersectionCurve;
 class RimSurfaceIntersectionBand;
+class RimPolygon;
 
 namespace caf
 {
@@ -63,7 +64,8 @@ public:
         CS_WELL_PATH,
         CS_SIMULATION_WELL,
         CS_POLYLINE,
-        CS_AZIMUTHLINE
+        CS_AZIMUTHLINE,
+        CS_POLYGON,
     };
 
     enum class CrossSectionDirEnum
@@ -103,6 +105,7 @@ public:
     void configureForSimulationWell( RimSimWellInView* simWell );
     void configureForWellPath( RimWellPath* wellPath );
     void configureForPolyLine();
+    void configureForProjectPolyLine();
     void configureForAzimuthLine();
 
     std::vector<std::vector<cvf::Vec3d>> polyLines( cvf::Vec3d* flattenedPolylineStartPoint = nullptr ) const;
@@ -180,6 +183,9 @@ private:
 
     caf::PdmPtrField<RimWellPath*>      m_wellPath;
     caf::PdmPtrField<RimSimWellInView*> m_simulationWell;
+
+    caf::PdmPtrField<RimPolygon*> m_projectPolygon;
+    caf::PdmField<bool>           m_editPolygonButton;
 
     caf::PdmField<bool> m_inputPolylineFromViewerEnabled;
     caf::PdmField<bool> m_inputExtrusionPointsFromViewerEnabled;
