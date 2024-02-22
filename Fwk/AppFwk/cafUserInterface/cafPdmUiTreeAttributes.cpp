@@ -47,7 +47,8 @@ std::unique_ptr<caf::PdmUiTreeViewItemAttribute::Tag> caf::PdmUiTreeViewItemAttr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute, const QString& iconResourceString )
+void caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute,
+                                                                        const QString&             iconResourceString )
 {
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
