@@ -36,6 +36,7 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cvfModelBasicList.h"
 
@@ -175,6 +176,8 @@ bool RimPolygonInView::pickingEnabled() const
 //--------------------------------------------------------------------------------------------------
 caf::PickEventHandler* RimPolygonInView::pickEventHandler() const
 {
+    if ( m_polygon() && polygon()->isReadOnly() ) return nullptr;
+
     return m_pickTargetsEventHandler.get();
 }
 
@@ -244,10 +247,18 @@ void RimPolygonInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     updateNameField();
 
-    uiOrdering.add( &m_handleScalingFactor );
+    bool enableEdit = true;
+    if ( m_polygon() && m_polygon->isReadOnly() ) enableEdit = false;
 
-    if ( m_polygon() ) uiOrdering.add( m_polygon );
-    uiOrdering.add( &m_enablePicking );
+    uiOrdering.add( m_polygon );
+
+    if ( enableEdit )
+    {
+        uiOrdering.add( &m_enablePicking );
+        uiOrdering.add( &m_targets );
+        uiOrdering.add( &m_handleScalingFactor );
+    }
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,6 +300,11 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
         attrib->pickEventHandler = m_pickTargetsEventHandler;
         attrib->enablePicking    = m_enablePicking;
     }
+
+    if ( m_polygon() && m_polygon->isReadOnly() )
+    {
+        caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/padlock.svg" );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,6 +315,14 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
     uiOrdering.add( &m_enablePicking );
     uiOrdering.add( &m_targets );
     uiOrdering.add( &m_handleScalingFactor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    if ( m_polygon() ) m_polygon->appendMenuItems( menuBuilder );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,6 +375,8 @@ void RimPolygonInView::defineEditorAttribute( const caf::PdmFieldHandle* field, 
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
 {
+    if ( m_polygon() && m_polygon->isReadOnly() ) return;
+
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     menuBuilder << "RicNewPolylineTargetFeature";

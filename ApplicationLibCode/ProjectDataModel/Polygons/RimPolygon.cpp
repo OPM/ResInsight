@@ -19,7 +19,11 @@
 #include "RimPolygon.h"
 
 #include "RigPolyLinesData.h"
+
 #include "RimPolygonAppearance.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiTreeAttributes.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygon, "RimPolygon" );
 
@@ -64,6 +68,15 @@ void RimPolygon::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygon::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewPolygonIntersectionFeature";
+    menuBuilder << "RicNewPolygonFilterFeature";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::setPointsInDomainCoords( const std::vector<cvf::Vec3d>& points )
 {
     m_pointsInDomainCoords = points;
@@ -98,6 +111,22 @@ bool RimPolygon::isClosed() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygon::setReadOnly( bool isReadOnly )
+{
+    m_isReadOnly = isReadOnly;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygon::isReadOnly() const
+{
+    return m_isReadOnly();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );
@@ -106,6 +135,8 @@ void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
     auto groupPoints = uiOrdering.addNewGroup( "Points" );
     groupPoints->setCollapsedByDefault();
     groupPoints->add( &m_pointsInDomainCoords );
+
+    m_pointsInDomainCoords.uiCapability()->setUiReadOnly( m_isReadOnly() );
 
     auto group = uiOrdering.addNewGroup( "Appearance" );
     m_appearance->uiOrdering( uiConfigName, *group );
@@ -128,4 +159,15 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 void RimPolygon::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
     objectChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( m_isReadOnly )
+    {
+        caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/padlock.svg" );
+    }
 }
