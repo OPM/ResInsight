@@ -19,7 +19,10 @@
 #include "RimPolygon.h"
 
 #include "RigPolyLinesData.h"
+
 #include "RimPolygonAppearance.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygon, "RimPolygon" );
 
@@ -59,6 +62,14 @@ cvf::ref<RigPolyLinesData> RimPolygon::polyLinesData() const
 void RimPolygon::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_appearance->uiOrdering( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewPolygonIntersectionFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

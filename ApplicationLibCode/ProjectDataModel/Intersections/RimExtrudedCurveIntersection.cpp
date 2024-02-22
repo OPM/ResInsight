@@ -180,9 +180,10 @@ void RimExtrudedCurveIntersection::configureForPolyLine()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::configureForProjectPolyLine()
+void RimExtrudedCurveIntersection::configureForProjectPolyLine( RimPolygon* polygon )
 {
-    m_type = CrossSectionEnum::CS_POLYGON;
+    m_type           = CrossSectionEnum::CS_POLYGON;
+    m_projectPolygon = polygon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -458,7 +459,8 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
         recomputeSimulationWellBranchData();
     }
 
-    if ( changedField == &m_simulationWell || changedField == &m_wellPath || changedField == &m_branchIndex )
+    if ( changedField == &m_simulationWell || changedField == &m_wellPath || changedField == &m_branchIndex ||
+         changedField == &m_projectPolygon || changedField == &m_type )
     {
         updateName();
     }
@@ -990,6 +992,10 @@ void RimExtrudedCurveIntersection::updateName()
     else if ( m_type() == CrossSectionEnum::CS_WELL_PATH && m_wellPath() )
     {
         m_name = m_wellPath()->name();
+    }
+    else if ( m_type() == CrossSectionEnum::CS_POLYGON && m_projectPolygon() )
+    {
+        m_name = m_projectPolygon->name();
     }
 
     Rim2dIntersectionView* iView = correspondingIntersectionView();

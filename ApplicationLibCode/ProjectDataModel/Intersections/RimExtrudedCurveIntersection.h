@@ -105,7 +105,7 @@ public:
     void configureForSimulationWell( RimSimWellInView* simWell );
     void configureForWellPath( RimWellPath* wellPath );
     void configureForPolyLine();
-    void configureForProjectPolyLine();
+    void configureForProjectPolyLine( RimPolygon* polygon );
     void configureForAzimuthLine();
 
     std::vector<std::vector<cvf::Vec3d>> polyLines( cvf::Vec3d* flattenedPolylineStartPoint = nullptr ) const;

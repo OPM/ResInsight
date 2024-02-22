@@ -28,6 +28,11 @@
 
 class RimPolygonAppearance;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 class RimPolygon : public RimNamedObject, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
@@ -48,6 +53,7 @@ public:
     void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 protected:
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
