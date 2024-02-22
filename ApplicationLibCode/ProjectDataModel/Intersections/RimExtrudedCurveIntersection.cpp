@@ -828,7 +828,7 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
     {
         if ( m_projectPolygon )
         {
-            lines = m_projectPolygon->polyLinesData()->polyLines();
+            lines = m_projectPolygon->polyLinesData()->completePolyLines();
         }
     }
     else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
