@@ -15,7 +15,7 @@ rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
 grid_file_name = None
-ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(iMin=0, iMax =1, jMin=2, jMax=3, kMin=0, kMax=3)
+ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(iMin=0, iMax =1, jMin=1, jMax=3, kMin=0, kMax=3)
 
 get_grid_surface_request = GridGeometryExtraction__pb2.GetGridSurfaceRequest(
     gridFilename=grid_file_name, ijkIndexFilter=ijk_index_filter, cellIndexFilter=None, propertyFilter=None

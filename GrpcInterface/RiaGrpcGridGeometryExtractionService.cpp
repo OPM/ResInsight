@@ -47,24 +47,24 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     resetInternalPointers();
 
     // Initialize pointer
-    auto firstStatus = initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( request->gridfilename() );
-    if ( firstStatus.error_code() != grpc::StatusCode::OK )
+    grpc::Status status = initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( request->gridfilename() );
+    if ( status.error_code() != grpc::StatusCode::OK )
     {
-        return firstStatus;
+        return status;
     }
 
     // Apply ijk-filtering - assuming 0-indexing from gRPC
-    auto secondStatus = applyIJKCellFilterToEclipseCase( request->ijkindexfilter() );
-    if ( secondStatus.error_code() != grpc::StatusCode::OK )
+    status = applyIJKCellFilterToEclipseCase( request->ijkindexfilter() );
+    if ( status.error_code() != grpc::StatusCode::OK )
     {
-        return secondStatus;
+        return status;
     }
 
     // Retrieve grid surface vertices from eclipse view
-    auto thirdStatus = initializeMainGridPartManagerFromEclipseView();
-    if ( thirdStatus.error_code() != grpc::StatusCode::OK )
+    status = initializeMainGridPartManagerFromEclipseView();
+    if ( status.error_code() != grpc::StatusCode::OK )
     {
-        return thirdStatus;
+        return status;
     }
 
     auto* gridSurfaceVertices = m_mainGridPartManager->getOrCreateSurfaceVertices();
