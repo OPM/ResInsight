@@ -61,9 +61,11 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     caf::PdmField<bool>                       m_isReadOnly;
+    caf::PdmField<bool>                       m_editPolygonButton;
     caf::PdmField<std::vector<cvf::Vec3d>>    m_pointsInDomainCoords;
     caf::PdmChildField<RimPolygonAppearance*> m_appearance;
 };

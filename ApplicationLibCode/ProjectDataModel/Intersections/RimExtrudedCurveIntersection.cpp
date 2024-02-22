@@ -214,6 +214,7 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
     m_editPolygonButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_editPolygonButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_editPolygonButton.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_userPolylineXyz, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
 
@@ -523,7 +524,7 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField == &m_editPolygonButton )
     {
-        RimPolygonTools::selectPolygonInView( m_projectPolygon(), this );
+        RimPolygonTools::selectAndActivatePolygonInView( m_projectPolygon(), this );
 
         m_editPolygonButton = false;
 

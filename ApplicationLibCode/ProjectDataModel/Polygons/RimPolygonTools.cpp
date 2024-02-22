@@ -31,7 +31,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonTools::selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject )
+void RimPolygonTools::selectAndActivatePolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject )
 {
     auto polygonInView = findPolygonInView( polygon, sourceObject );
     if ( polygonInView )
@@ -51,7 +51,7 @@ RimPolygonInView* RimPolygonTools::findPolygonInView( RimPolygon* polygon, caf::
         return nullptr;
     }
 
-    if ( auto gridView = sourceObject->firstAncestorOfType<RimGridView>() )
+    if ( auto gridView = sourceObject->firstAncestorOrThisOfType<RimGridView>() )
     {
         auto polyCollection = gridView->polygonInViewCollection();
 

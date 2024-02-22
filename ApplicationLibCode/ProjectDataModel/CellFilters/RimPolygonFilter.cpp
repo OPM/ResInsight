@@ -329,7 +329,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 {
     if ( changedField == &m_editPolygonButton )
     {
-        RimPolygonTools::selectPolygonInView( m_cellFilterPolygon(), this );
+        RimPolygonTools::selectAndActivatePolygonInView( m_cellFilterPolygon(), this );
 
         m_editPolygonButton = false;
 
