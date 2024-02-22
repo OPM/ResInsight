@@ -44,44 +44,41 @@ bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& e
     std::vector<RimExtrudedCurveIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
-    if ( selection.size() == 1 )
+    if ( selection.size() != 1 ) return false;
+
+    RimExtrudedCurveIntersection* intersection = selection[0];
+
+    RimGridView* gridView = intersection->firstAncestorOrThisOfTypeAsserted<RimGridView>();
+
+    if ( RiaApplication::instance()->activeMainOrComparisonGridView() != gridView )
     {
-        {
-            RimExtrudedCurveIntersection* intersection = selection[0];
+        return false;
+    }
 
-            RimGridView* gridView = intersection->firstAncestorOrThisOfTypeAsserted<RimGridView>();
+    cvf::ref<caf::DisplayCoordTransform> transForm = gridView->displayCoordTransform();
 
-            if ( RiaApplication::instance()->activeMainOrComparisonGridView() != gridView )
-            {
-                return false;
-            }
+    cvf::Vec3d domainCoord = transForm->transformToDomainCoord( eventObject.m_pickItemInfos.front().globalPickedPoint() );
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = gridView->displayCoordTransform();
+    if ( intersection->inputPolyLineFromViewerEnabled() )
+    {
+        intersection->appendPointToPolyLine( domainCoord );
 
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord( eventObject.m_pickItemInfos.front().globalPickedPoint() );
+        // Further Ui processing is stopped when true is returned
+        return true;
+    }
+    else if ( intersection->inputExtrusionPointsFromViewerEnabled() )
+    {
+        intersection->appendPointToExtrusionDirection( domainCoord );
 
-            if ( intersection->inputPolyLineFromViewerEnabled() )
-            {
-                intersection->appendPointToPolyLine( domainCoord );
+        // Further Ui processing is stopped when true is returned
+        return true;
+    }
+    else if ( intersection->inputTwoAzimuthPointsFromViewerEnabled() )
+    {
+        intersection->appendPointToAzimuthLine( domainCoord );
 
-                // Further Ui processing is stopped when true is returned
-                return true;
-            }
-            else if ( intersection->inputExtrusionPointsFromViewerEnabled() )
-            {
-                intersection->appendPointToExtrusionDirection( domainCoord );
-
-                // Further Ui processing is stopped when true is returned
-                return true;
-            }
-            else if ( intersection->inputTwoAzimuthPointsFromViewerEnabled() )
-            {
-                intersection->appendPointToAzimuthLine( domainCoord );
-
-                // Further Ui processing is stopped when true is returned
-                return true;
-            }
-        }
+        // Further Ui processing is stopped when true is returned
+        return true;
     }
 
     return false;

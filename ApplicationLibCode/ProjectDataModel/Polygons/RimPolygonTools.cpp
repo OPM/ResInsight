@@ -46,6 +46,11 @@ void RimPolygonTools::selectPolygonInView( RimPolygon* polygon, caf::PdmObject* 
 //--------------------------------------------------------------------------------------------------
 RimPolygonInView* RimPolygonTools::findPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject )
 {
+    if ( !polygon || !sourceObject )
+    {
+        return nullptr;
+    }
+
     if ( auto gridView = sourceObject->firstAncestorOfType<RimGridView>() )
     {
         auto polyCollection = gridView->polygonInViewCollection();

@@ -62,7 +62,7 @@ void RicPolyline3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
     m_targetEditors.clear();
 
-    if ( !pickerInterface ) return;
+    if ( !pickerInterface || !pickerInterface->pickEventHandler() ) return;
 
     if ( pickerInterface->pickingEnabled() )
     {
