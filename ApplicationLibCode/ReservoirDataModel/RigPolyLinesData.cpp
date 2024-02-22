@@ -44,9 +44,35 @@ RigPolyLinesData::~RigPolyLinesData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<cvf::Vec3d>>& RigPolyLinesData::polyLines() const
+const std::vector<std::vector<cvf::Vec3d>>& RigPolyLinesData::rawPolyLines() const
 {
     return m_polylines;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the polylines with the last point equal to the first point if the polyline is closed
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::vector<cvf::Vec3d>> RigPolyLinesData::completePolyLines() const
+{
+    if ( !m_closePolyline ) return m_polylines;
+
+    std::vector<std::vector<cvf::Vec3d>> completeLines;
+    for ( const auto& polyline : m_polylines )
+    {
+        auto completePolyline = polyline;
+        if ( !polyline.empty() )
+        {
+            const double epsilon = 1e-6;
+
+            if ( polyline.front().pointDistance( polyline.back() ) > epsilon )
+            {
+                completePolyline.push_back( polyline.front() );
+            }
+        }
+        completeLines.push_back( completePolyline );
+    }
+
+    return completeLines;
 }
 
 //--------------------------------------------------------------------------------------------------

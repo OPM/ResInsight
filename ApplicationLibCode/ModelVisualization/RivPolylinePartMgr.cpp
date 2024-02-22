@@ -82,7 +82,7 @@ bool RivPolylinePartMgr::isPolylinesInBoundingBox( std::vector<std::vector<cvf::
 void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* displayXf, const cvf::BoundingBox& boundingBox )
 {
     auto polylineDef = m_polylineInterface->polyLinesData();
-    if ( polylineDef.isNull() || polylineDef->polyLines().empty() )
+    if ( polylineDef.isNull() || polylineDef->rawPolyLines().empty() )
     {
         clearAllGeometry();
         return;
@@ -192,7 +192,7 @@ void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* d
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::Vec3d>> RivPolylinePartMgr::getPolylinesPointsInDomain( RigPolyLinesData* lineDef )
 {
-    auto polylines = lineDef->polyLines();
+    auto polylines = lineDef->rawPolyLines();
     if ( !lineDef->lockToZPlane() ) return polylines;
 
     const double planeZ = lineDef->lockedZValue();
