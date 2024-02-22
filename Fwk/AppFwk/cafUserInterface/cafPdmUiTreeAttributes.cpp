@@ -34,72 +34,27 @@
 //
 //##################################################################################################
 
-#pragma once
-
-#include "cafPdmUiFieldEditorHandle.h"
-#include "cafSignal.h"
-
-#include <memory>
-
-namespace caf
-{
-class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
-{
-public:
-    struct Tag : public SignalEmitter
-    {
-        enum class Position
-        {
-            IN_FRONT,
-            AT_END
-        };
-        Tag()
-            : position( Position::AT_END )
-            , bgColor( Qt::red )
-            , fgColor( Qt::white )
-            , selectedOnly( false )
-            , clicked( this )
-        {
-        }
-        QString      text;
-        IconProvider icon;
-        Position     position;
-        QColor       bgColor;
-        QColor       fgColor;
-        bool         selectedOnly;
-        QRect        rect;
-
-        caf::Signal<size_t> clicked;
-
-    private:
-        Tag& operator=( const Tag& rhs ) { return *this; }
-    };
-
-    static std::unique_ptr<Tag> createTag();
-    static void createTagIfTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute, const QString& iconString );
-
-    std::vector<std::unique_ptr<Tag>> tags;
-};
+#include "cafPdmUiTreeAttributes.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTreeViewEditorAttribute : public PdmUiEditorAttribute
+std::unique_ptr<caf::PdmUiTreeViewItemAttribute::Tag> caf::PdmUiTreeViewItemAttribute::createTag()
 {
-public:
-    PdmUiTreeViewEditorAttribute()
-        : currentObject( nullptr )
-        , objectForUpdateOfUiTree( nullptr )
+    return std::make_unique<Tag>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute, const QString& iconResourceString )
+{
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
+        treeItemAttribute->tags.clear();
+        auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
+        tag->icon = caf::IconProvider( iconResourceString );
+
+        treeItemAttribute->tags.push_back( std::move( tag ) );
     }
-
-public:
-    QStringList columnHeaders;
-
-    /// This object is set as current item in the tree view in configureAndUpdateUi()
-    caf::PdmObjectHandle* currentObject;
-
-    caf::PdmObjectHandle* objectForUpdateOfUiTree;
-};
-
-} // namespace caf
+}

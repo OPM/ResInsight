@@ -204,7 +204,7 @@ void RimSummaryTimeAxisProperties::defineObjectEditorAttribute( QString uiConfig
         if ( treeItemAttribute )
         {
             treeItemAttribute->tags.clear();
-            auto tag  = caf::PdmUiTreeViewItemAttribute::Tag::create();
+            auto tag  = caf::PdmUiTreeViewItemAttribute::createTag();
             tag->icon = caf::IconProvider( ":/chain.png" );
 
             treeItemAttribute->tags.push_back( std::move( tag ) );
