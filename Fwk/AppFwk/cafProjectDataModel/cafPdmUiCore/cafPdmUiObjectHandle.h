@@ -13,6 +13,7 @@ class PdmObjectHandle;
 class PdmUiOrdering;
 class PdmFieldHandle;
 class PdmUiEditorAttribute;
+class CmdFeatureMenuBuilder;
 
 class PdmUiObjectHandle : public PdmUiItem, public PdmObjectCapability
 {
@@ -43,6 +44,9 @@ public:
     virtual bool useUndoRedoForFieldChanged() { return true; }
 
     void updateUiIconFromToggleField();
+
+    /// Append actions to menu builder
+    virtual void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const {}
 
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual
