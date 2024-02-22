@@ -15,10 +15,15 @@ rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
 grid_file_name = None
-ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(iMin=0, iMax =1, jMin=1, jMax=3, kMin=0, kMax=3)
+ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(
+    iMin=0, iMax=1, jMin=1, jMax=3, kMin=0, kMax=3
+)
 
 get_grid_surface_request = GridGeometryExtraction__pb2.GetGridSurfaceRequest(
-    gridFilename=grid_file_name, ijkIndexFilter=ijk_index_filter, cellIndexFilter=None, propertyFilter=None
+    gridFilename=grid_file_name,
+    ijkIndexFilter=ijk_index_filter,
+    cellIndexFilter=None,
+    propertyFilter=None,
 )
 get_grid_surface_response: GridGeometryExtraction__pb2.GetGridSurfaceResponse = (
     grid_geometry_extraction_stub.GetGridSurface(get_grid_surface_request)
@@ -74,8 +79,12 @@ fig = go.Figure(
 
 print(f"Number of quads: {num_quads}")
 print(f"Source cell indices array length: {len(source_cell_indices_arr)}")
-print(f"Origin UTM coordinates [x, y, z]: [{origin_utm.x}, {origin_utm.y}, {origin_utm.z}]")
-print(f"Grid dimensions [I, J, K]: [{grid_dimensions.dimensions.i}, {grid_dimensions.dimensions.j}, {grid_dimensions.dimensions.k}]")
+print(
+    f"Origin UTM coordinates [x, y, z]: [{origin_utm.x}, {origin_utm.y}, {origin_utm.z}]"
+)
+print(
+    f"Grid dimensions [I, J, K]: [{grid_dimensions.dimensions.i}, {grid_dimensions.dimensions.j}, {grid_dimensions.dimensions.k}]"
+)
 print(fig.data)
 
 fig.show()
