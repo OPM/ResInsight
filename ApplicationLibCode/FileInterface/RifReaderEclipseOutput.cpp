@@ -750,7 +750,6 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData( const QString&          
 
 //--------------------------------------------------------------------------------------------------
 ///
-/// See also RigStatistics::computeActiveCellUnion()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::readActiveCellInfo()
 {
