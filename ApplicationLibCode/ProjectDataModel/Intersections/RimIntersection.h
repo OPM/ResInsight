@@ -18,7 +18,6 @@
 #pragma once
 
 #include "cafPdmField.h"
-#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 

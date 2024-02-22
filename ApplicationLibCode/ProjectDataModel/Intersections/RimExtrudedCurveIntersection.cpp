@@ -21,7 +21,6 @@
 
 #include "RiaVec3Tools.h"
 
-#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigWellPath.h"
@@ -29,15 +28,8 @@
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEnsembleSurface.h"
 #include "RimGeoMechView.h"
-#include "RimGridView.h"
-#include "RimIntersectionResultDefinition.h"
-#include "RimIntersectionResultsDefinitionCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSurface.h"
@@ -48,12 +40,8 @@
 #include "RimTools.h"
 #include "RimWellPath.h"
 
-#include "RiuViewer.h"
-
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
-#include "cafCmdFeature.h"
-#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -61,12 +49,9 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiTreeSelectionEditor.h"
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
-#include "cvfPlane.h"
 
 namespace caf
 {
@@ -775,8 +760,6 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
     {
         if ( m_simulationWell() )
         {
-            updateSimulationWellCenterline();
-
             int branchIndexToUse = branchIndex();
 
             if ( 0 <= branchIndexToUse && branchIndexToUse < static_cast<int>( m_simulationWellBranchCenterlines.size() ) )
@@ -863,7 +846,7 @@ std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::polyLinesForExtrusionDirec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::updateSimulationWellCenterline() const
+void RimExtrudedCurveIntersection::updateSimulationWellCenterline()
 {
     if ( m_isActive() && type() == CrossSectionEnum::CS_SIMULATION_WELL && m_simulationWell() )
     {

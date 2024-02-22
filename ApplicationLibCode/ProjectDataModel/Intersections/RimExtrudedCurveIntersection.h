@@ -24,9 +24,10 @@
 #include "RimIntersectionEnums.h"
 
 #include "cafPdmChildField.h"
+#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmProxyValueField.h"
 
-#include <QString>
+#include "cvfVector3.h"
 
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
@@ -134,7 +135,7 @@ public:
     int  branchIndex() const;
     void rebuildGeometryAndScheduleCreateDisplayModel();
 
-protected:
+private:
     caf::PdmFieldHandle* userDescriptionField() final;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -143,13 +144,12 @@ protected:
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
-private:
     static void setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute );
     static void setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute );
 
     RimSimWellInViewCollection* simulationWellCollection() const;
     void                        updateAzimuthLine();
-    void                        updateSimulationWellCenterline() const;
+    void                        updateSimulationWellCenterline();
     void                        addExtents( std::vector<cvf::Vec3d>& polyLine ) const;
     void                        updateName();
     static double               azimuthInRadians( cvf::Vec3d vec );
@@ -202,7 +202,7 @@ private:
 
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;
 
-    mutable std::vector<std::vector<cvf::Vec3d>> m_simulationWellBranchCenterlines;
+    std::vector<std::vector<cvf::Vec3d>> m_simulationWellBranchCenterlines;
 
     caf::PdmField<bool>    m_enableKFilter;
     caf::PdmField<QString> m_kFilterText;
