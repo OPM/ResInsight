@@ -51,9 +51,9 @@ public:
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
     void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
 
 protected:
-    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;

@@ -74,6 +74,7 @@ public:
 
     void enableFilter( bool bEnable );
     void enableKFilter( bool bEnable );
+    void setPolygon( RimPolygon* polygon );
 
     bool isFilterEnabled() const override;
 

@@ -70,6 +70,7 @@ void RimPolygon::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrde
 void RimPolygon::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     menuBuilder << "RicNewPolygonIntersectionFeature";
+    menuBuilder << "RicNewPolygonFilterFeature";
 }
 
 //--------------------------------------------------------------------------------------------------

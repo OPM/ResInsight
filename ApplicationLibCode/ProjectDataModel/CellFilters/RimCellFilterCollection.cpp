@@ -255,13 +255,22 @@ bool RimCellFilterCollection::hasActiveIncludeRangeFilters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase )
+RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase, RimPolygon* polygon )
 {
     RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
+    pFilter->setPolygon( polygon );
     addFilter( pFilter );
     pFilter->configurePolygonEditor();
-    pFilter->enablePicking( true );
+    if ( polygon )
+    {
+        pFilter->enableFilter( true );
+    }
+    else
+    {
+        pFilter->enablePicking( true );
+    }
+
     onFilterUpdated( pFilter );
     return pFilter;
 }

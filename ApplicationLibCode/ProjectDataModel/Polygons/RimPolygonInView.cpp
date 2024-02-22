@@ -307,7 +307,7 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
-    menuBuilder << "RicNewPolygonIntersectionFeature";
+    if ( m_polygon() ) m_polygon->appendMenuItems( menuBuilder );
 }
 
 //--------------------------------------------------------------------------------------------------

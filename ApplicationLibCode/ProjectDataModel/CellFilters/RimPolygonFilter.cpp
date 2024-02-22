@@ -157,6 +157,18 @@ void RimPolygonFilter::enableKFilter( bool bEnable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::setPolygon( RimPolygon* polygon )
+{
+    if ( polygon )
+    {
+        m_polygonDataSource = PolygonDataSource::GLOBAL_POLYGON;
+        m_cellFilterPolygon = polygon;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPolygonFilter::isFilterEnabled() const
 {
     return m_isActive() && m_enableFiltering;
