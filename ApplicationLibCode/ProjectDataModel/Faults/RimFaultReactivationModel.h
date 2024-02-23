@@ -107,7 +107,7 @@ public:
     std::vector<QDateTime> selectedTimeSteps() const;
     std::vector<size_t>    selectedTimeStepIndexes() const;
 
-    std::array<double, 3> materialParameters( ElementSets elementSet ) const;
+    std::array<double, 4> materialParameters( ElementSets elementSet ) const;
 
     QStringList commandParameters() const;
 

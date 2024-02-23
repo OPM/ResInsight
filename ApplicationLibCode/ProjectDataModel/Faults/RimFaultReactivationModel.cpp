@@ -735,9 +735,9 @@ std::string RimFaultReactivationModel::baseFilePath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets elementSet ) const
+std::array<double, 4> RimFaultReactivationModel::materialParameters( ElementSets elementSet ) const
 {
-    std::array<double, 3>                     retVal   = { 0.0, 0.0, 0.0 };
+    std::array<double, 4>                     retVal   = { 0.0, 0.0, 0.0, 0.0 };
     static std::map<ElementSets, std::string> groupMap = { { ElementSets::OverBurden, "material_overburden" },
                                                            { ElementSets::Reservoir, "material_reservoir" },
                                                            { ElementSets::IntraReservoir, "material_intrareservoir" },
@@ -753,6 +753,7 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
         retVal[0] = grp->parameterDoubleValue( "youngs_modulus", 0.0 );
         retVal[1] = grp->parameterDoubleValue( "poissons_number", 0.0 );
         retVal[2] = grp->parameterDoubleValue( "density", 0.0 );
+        retVal[3] = grp->parameterDoubleValue( "expansion", 0.0 );
 
         break;
     }
