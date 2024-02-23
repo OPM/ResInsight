@@ -22,6 +22,7 @@
 
 #include "Rim3dView.h"
 #include "RimPolygon.h"
+#include "RimPolygonInViewCollection.h"
 #include "RimPolylineTarget.h"
 #include "RimTools.h"
 
@@ -180,6 +181,11 @@ bool RimPolygonInView::pickingEnabled() const
 //--------------------------------------------------------------------------------------------------
 caf::PickEventHandler* RimPolygonInView::pickEventHandler() const
 {
+    auto filterColl = firstAncestorOfType<RimPolygonInViewCollection>();
+    if ( filterColl && !filterColl->isChecked() ) return nullptr;
+
+    if ( !isChecked() ) return nullptr;
+
     if ( m_polygon() && polygon()->isReadOnly() ) return nullptr;
 
     return m_pickTargetsEventHandler.get();

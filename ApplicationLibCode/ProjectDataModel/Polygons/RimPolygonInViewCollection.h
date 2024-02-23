@@ -18,8 +18,8 @@
 
 #pragma once
 
+#include "RimCheckableObject.h"
 #include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
 
 class RimPolygonInView;
 
@@ -27,7 +27,7 @@ class RimPolygonInView;
 ///
 ///
 //==================================================================================================
-class RimPolygonInViewCollection : public caf::PdmObject
+class RimPolygonInViewCollection : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,6 +37,9 @@ public:
     void syncPolygonsInView();
 
     std::vector<RimPolygonInView*> polygonsInView() const;
+
+private:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     caf::PdmChildArrayField<RimPolygonInView*> m_polygons;

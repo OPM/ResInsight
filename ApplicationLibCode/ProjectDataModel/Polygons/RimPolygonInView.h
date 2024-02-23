@@ -89,6 +89,7 @@ private:
 private:
     caf::PdmPtrField<RimPolygon*> m_polygon;
 
+    caf::PdmField<bool>                         m_selectPolygon;
     caf::PdmField<bool>                         m_enablePicking;
     caf::PdmField<double>                       m_handleScalingFactor;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;

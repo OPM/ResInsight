@@ -405,14 +405,21 @@ void RimGridView::appendPolygonPartsToModel( caf::DisplayCoordTransform* scaleTr
     m_polygonVizModel->removeAllParts();
 
     std::vector<RimPolygonInView*> polygonsInView;
-    if ( m_polygonInViewCollection )
+    if ( m_polygonInViewCollection && m_polygonInViewCollection->isChecked() )
     {
-        polygonsInView = m_polygonInViewCollection->polygonsInView();
+        auto candidates = m_polygonInViewCollection->polygonsInView();
+        for ( auto polygonInView : candidates )
+        {
+            if ( polygonInView->isChecked() )
+            {
+                polygonsInView.push_back( polygonInView );
+            }
+        }
     }
 
-    if ( cellFilterCollection() )
+    if ( cellFilterCollection() && cellFilterCollection()->isActive() )
     {
-        auto cellFilterPolygonsInView = cellFilterCollection()->cellFilterPolygons();
+        auto cellFilterPolygonsInView = cellFilterCollection()->enabledCellFilterPolygons();
         polygonsInView.insert( polygonsInView.end(), cellFilterPolygonsInView.begin(), cellFilterPolygonsInView.end() );
     }
 

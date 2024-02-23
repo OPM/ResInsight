@@ -71,7 +71,7 @@ public:
     void compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const;
     void updateCellVisibilityByIndex( cvf::UByteArray* cellsIncluded, cvf::UByteArray* cellsExcluded, size_t gridIndex ) const;
 
-    std::vector<RimPolygonInView*> cellFilterPolygons() const;
+    std::vector<RimPolygonInView*> enabledCellFilterPolygons() const;
     std::vector<RimCellFilter*>    filters() const;
 
     bool hasActiveFilters() const;

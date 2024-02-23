@@ -26,6 +26,7 @@
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
 
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimPolylineTarget.h"
@@ -880,6 +881,11 @@ bool RimPolygonFilter::pickingEnabled() const
 //--------------------------------------------------------------------------------------------------
 caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 {
+    auto filterColl = firstAncestorOfType<RimCellFilterCollection>();
+    if ( filterColl && !filterColl->isActive() ) return nullptr;
+
+    if ( !isActive() ) return nullptr;
+
     return m_pickTargetsEventHandler.get();
 }
 
