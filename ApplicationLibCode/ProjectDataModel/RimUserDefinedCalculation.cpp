@@ -53,8 +53,7 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
     m_expression.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_helpButton, "HelpButton", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_helpButton );
-    m_helpButton.xmlCapability()->disableIO();
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_helpButton );
 
     CAF_PDM_InitFieldNoDefault( &m_helpText,
                                 "Label",

@@ -85,12 +85,10 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
-    m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_enablePicking );
 
     CAF_PDM_InitField( &m_showImage, "ShowImage", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_showImage );
-    m_showImage.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_showImage );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );

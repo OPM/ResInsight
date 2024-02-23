@@ -210,9 +210,7 @@ RimFractureTemplate::RimFractureTemplate()
                                  "" );
     CAF_PDM_InitField( &m_scaleApplyButton, "ScaleApplyButton", false, "Apply" );
 
-    m_scaleApplyButton.xmlCapability()->disableIO();
-    m_scaleApplyButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_scaleApplyButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_scaleApplyButton );
 }
 
 //--------------------------------------------------------------------------------------------------

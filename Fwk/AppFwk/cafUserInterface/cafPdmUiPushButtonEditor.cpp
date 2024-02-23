@@ -114,19 +114,39 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiPushButtonEditor::configureEditorForField( PdmFieldHandle* fieldHandle )
+void PdmUiPushButtonEditor::configureEditorLabelLeft( PdmFieldHandle* fieldHandle )
 {
     if ( fieldHandle )
     {
-        if ( fieldHandle->xmlCapability() )
+        if ( auto xmlCap = fieldHandle->xmlCapability() )
         {
-            fieldHandle->xmlCapability()->disableIO();
+            xmlCap->disableIO();
         }
 
-        if ( fieldHandle->uiCapability() )
+        if ( auto uiCap = fieldHandle->uiCapability() )
         {
-            fieldHandle->uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-            fieldHandle->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+            uiCap->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiPushButtonEditor::configureEditorLabelHidden( PdmFieldHandle* fieldHandle )
+{
+    if ( fieldHandle )
+    {
+        if ( auto xmlCap = fieldHandle->xmlCapability() )
+        {
+            xmlCap->disableIO();
+        }
+
+        if ( auto uiCap = fieldHandle->uiCapability() )
+        {
+            uiCap->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+            uiCap->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
         }
     }
 }

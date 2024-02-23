@@ -59,10 +59,10 @@ RiaMemoryCleanup::RiaMemoryCleanup()
     m_resultsToDelete.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_performDelete, "ClearSelectedData", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_performDelete );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_performDelete );
 
     CAF_PDM_InitFieldNoDefault( &m_showMemoryReport, "ShowMemoryReport", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_showMemoryReport );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_showMemoryReport );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -49,7 +49,7 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
     CAF_PDM_InitField( &m_name, "Name", QString( "User Defined Polyline" ), "Name" );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_enablePicking );
     m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );

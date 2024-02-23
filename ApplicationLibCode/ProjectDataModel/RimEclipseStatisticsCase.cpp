@@ -82,7 +82,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitScriptableObject( "Case Group Statistics", ":/Histogram16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_calculateEditCommand, "m_editingAllowed", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_calculateEditCommand );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_calculateEditCommand );
     m_calculateEditCommand = false;
 
     CAF_PDM_InitField( &m_selectionSummary, "SelectionSummary", QString( "" ), "Summary of Calculation Setup" );

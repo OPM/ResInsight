@@ -55,8 +55,7 @@ RimPolygonInView::RimPolygonInView()
     nameField()->uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
-    m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_enablePicking );
 
     CAF_PDM_InitField( &m_handleScalingFactor, "HandleScalingFactor", 1.0, "Handle Scaling Factor" );
 

@@ -233,15 +233,15 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitField( &m_lengthDown, "lengthDown", 1000.0, "Length Down" );
 
     CAF_PDM_InitFieldNoDefault( &m_inputPolylineFromViewerEnabled, "m_activateUiAppendPointsCommand", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputPolylineFromViewerEnabled );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_inputPolylineFromViewerEnabled );
     m_inputPolylineFromViewerEnabled = false;
 
     CAF_PDM_InitFieldNoDefault( &m_inputExtrusionPointsFromViewerEnabled, "inputExtrusionPointsFromViewerEnabled", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputExtrusionPointsFromViewerEnabled );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_inputExtrusionPointsFromViewerEnabled );
     m_inputExtrusionPointsFromViewerEnabled = false;
 
     CAF_PDM_InitFieldNoDefault( &m_inputTwoAzimuthPointsFromViewerEnabled, "inputTwoAzimuthPointsFromViewerEnabled", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputTwoAzimuthPointsFromViewerEnabled );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_inputTwoAzimuthPointsFromViewerEnabled );
     m_inputTwoAzimuthPointsFromViewerEnabled = false;
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections" );

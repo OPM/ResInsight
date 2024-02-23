@@ -47,9 +47,8 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
     m_filters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_newFilterButton, "NewEnsembleFilter", "New Filter" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_newFilterButton );
     m_newFilterButton = false;
-    m_newFilterButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_newFilterButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------

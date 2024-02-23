@@ -198,8 +198,7 @@ void RicUserDefinedCalculatorUi::assignPushButtonEditor( caf::PdmFieldHandle* fi
     CAF_ASSERT( fieldHandle );
     CAF_ASSERT( fieldHandle->uiCapability() );
 
-    fieldHandle->uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    fieldHandle->uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( fieldHandle );
 }
 
 //--------------------------------------------------------------------------------------------------

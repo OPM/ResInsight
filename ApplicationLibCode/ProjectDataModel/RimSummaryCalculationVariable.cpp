@@ -47,8 +47,7 @@ RimSummaryCalculationVariable::RimSummaryCalculationVariable()
     CAF_PDM_InitObject( "RimSummaryCalculationVariable", ":/octave.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_button, "PushButton", "" );
-    m_button.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_button.xmlCapability()->disableIO();
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_button );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Summary Case" );
     CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address" );

@@ -51,14 +51,12 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitField( &m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point" );
     m_anchorPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_anchorPointPickEnabledButtonField, "AnchorPointPick", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_anchorPointPickEnabledButtonField );
-    m_anchorPointPickEnabledButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_anchorPointPickEnabledButtonField );
 
     CAF_PDM_InitField( &m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point" );
     m_labelPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_labelPointPickEnabledButtonField, "LabelPointPick", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_labelPointPickEnabledButtonField );
-    m_labelPointPickEnabledButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_labelPointPickEnabledButtonField );
 
     CAF_PDM_InitField( &m_text, "Text", QString( "(New text)" ), "Text" );
     m_text.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );

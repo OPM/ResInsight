@@ -57,8 +57,7 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     m_showCurves.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_editPlot, "EditPlot", false, "" );
-    m_editPlot.xmlCapability()->disableIO();
-    m_editPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPlot );
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;

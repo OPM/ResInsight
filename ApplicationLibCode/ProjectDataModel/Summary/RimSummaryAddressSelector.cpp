@@ -64,8 +64,7 @@ RimSummaryAddressSelector::RimSummaryAddressSelector()
     m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_pushButtonSelectSummaryAddress );
-    m_pushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pushButtonSelectSummaryAddress );
     m_pushButtonSelectSummaryAddress = false;
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "PlotAxisProperties", "Axis" );

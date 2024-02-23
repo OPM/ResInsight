@@ -203,8 +203,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     m_categoryLegend        = new caf::CategoryLegend( standardFont, m_categoryMapper.p() );
 
     CAF_PDM_InitField( &m_resetUserDefinedValuesButton, "ResetDefaultValues", false, "Reset Default Values" );
-    m_resetUserDefinedValuesButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_resetUserDefinedValuesButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_resetUserDefinedValuesButton );
 
     CAF_PDM_InitField( &m_centerLegendAroundZero, "CenterLegendAroundZero", false, "Center Legend Around Zero" );
 
