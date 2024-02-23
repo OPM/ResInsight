@@ -90,8 +90,6 @@ bool RicUserDefinedCalculatorUi::parseExpression() const
         {
             notifyCalculatedNameChanged( m_currentCalculation()->id(), currentCurveName );
         }
-
-        m_currentCalculation()->updateDependentObjects();
     }
 
     return true;
