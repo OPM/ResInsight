@@ -51,6 +51,8 @@ public:
     virtual std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const = 0;
     virtual RiaDefines::EclipseUnitSystem unitSystem() const                                              = 0;
 
+    virtual void rebuildMetaData();
+
 protected:
     std::set<RifEclipseSummaryAddress> m_allResultAddresses; // Result and error addresses
     std::set<RifEclipseSummaryAddress> m_allErrorAddresses; // Error addresses

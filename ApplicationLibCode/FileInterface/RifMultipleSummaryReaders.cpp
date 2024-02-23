@@ -109,7 +109,7 @@ void RifMultipleSummaryReaders::rebuildMetaData()
     {
         // TODO: hack. Find a better way to rebuild calculated summary meta data.
         auto calcReader = dynamic_cast<RifCalculatedSummaryCurveReader*>( reader.p() );
-        if ( calcReader ) calcReader->buildMetaData();
+        if ( calcReader ) calcReader->rebuildMetaData();
 
         {
             auto resultAddresses = reader->allResultAddresses();

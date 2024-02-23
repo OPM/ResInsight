@@ -39,7 +39,7 @@ public:
     std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
 
-    void buildMetaData();
+    void rebuildMetaData() override;
 
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 

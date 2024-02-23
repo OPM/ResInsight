@@ -40,7 +40,7 @@ public:
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
-    void rebuildMetaData();
+    void rebuildMetaData() override;
 
 private:
     cvf::Collection<RifSummaryReaderInterface> m_readers;

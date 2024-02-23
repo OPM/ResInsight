@@ -81,7 +81,7 @@ std::string RifCalculatedSummaryCurveReader::unitName( const RifEclipseSummaryAd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifCalculatedSummaryCurveReader::buildMetaData()
+void RifCalculatedSummaryCurveReader::rebuildMetaData()
 {
     m_allResultAddresses.clear();
 

@@ -52,6 +52,13 @@ RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress( const RifEclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifSummaryReaderInterface::rebuildMetaData()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifSummaryReaderInterface::hasAddress( const RifEclipseSummaryAddress& resultAddress ) const
 {
     static const RifEclipseSummaryAddress defaultAdr = RifEclipseSummaryAddress();
