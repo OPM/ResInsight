@@ -43,9 +43,7 @@ RimPolygon::RimPolygon()
     CAF_PDM_InitFieldNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Points" );
 
     CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
-    m_editPolygonButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_editPolygonButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_editPolygonButton.xmlCapability()->disableIO();
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPolygonButton );
 
     CAF_PDM_InitFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
     m_appearance = new RimPolygonAppearance;
