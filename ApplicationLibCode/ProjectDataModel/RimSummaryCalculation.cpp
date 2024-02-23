@@ -27,26 +27,17 @@
 
 #include "RifSummaryReaderInterface.h"
 #include "RimDataSourceSteppingTools.h"
-#include "RimObservedDataCollection.h"
-#include "RimObservedSummaryData.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
-#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
-#include "RiuExpressionContextMenuManager.h"
-
 #include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiLineEditor.h"
-#include "cafPdmUiTableViewEditor.h"
-#include "cafPdmUiTextEditor.h"
 
 #include "expressionparser/ExpressionParser.h"
 
@@ -402,43 +393,6 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::updateDependentObjects()
 {
-    auto calcColl = firstAncestorOrThisOfTypeAsserted<RimSummaryCalculationCollection>();
-    calcColl->rebuildCaseMetaData();
-
-    // Refresh data sources tree
-    // Refresh meta data for all summary cases and rebuild AddressNodes in the summary tree
-    RimSummaryCaseMainCollection* summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection();
-    auto                          summaryCases          = summaryCaseCollection->allSummaryCases();
-    for ( RimSummaryCase* summaryCase : summaryCases )
-    {
-        if ( !summaryCase ) continue;
-
-        if ( auto reader = summaryCase->summaryReader() )
-        {
-            reader->rebuildMetaData();
-            summaryCase->onCalculationUpdated();
-        }
-    }
-
-    RimObservedDataCollection* observedDataCollection = RiaSummaryTools::observedDataCollection();
-    auto                       observedData           = observedDataCollection->allObservedSummaryData();
-    for ( auto obs : observedData )
-    {
-        if ( !obs ) continue;
-
-        if ( auto reader = obs->summaryReader() )
-        {
-            reader->rebuildMetaData();
-            obs->onCalculationUpdated();
-        }
-    }
-
-    auto summaryCaseCollections = summaryCaseCollection->summaryCaseCollections();
-    for ( RimSummaryCaseCollection* summaryCaseCollection : summaryCaseCollections )
-    {
-        summaryCaseCollection->onCalculationUpdated();
-    }
-
     RimSummaryMultiPlotCollection* summaryPlotCollection = RiaSummaryTools::summaryMultiPlotCollection();
     for ( auto multiPlot : summaryPlotCollection->multiPlots() )
     {
@@ -446,7 +400,7 @@ void RimSummaryCalculation::updateDependentObjects()
         {
             bool plotContainsCalculatedCurves = false;
 
-            for ( RimSummaryCurve* sumCurve : sumPlot->summaryCurves() )
+            for ( RimSummaryCurve* sumCurve : sumPlot->summaryAndEnsembleCurves() )
             {
                 if ( sumCurve->summaryAddressY().isCalculated() )
                 {
@@ -469,6 +423,7 @@ void RimSummaryCalculation::updateDependentObjects()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::removeDependentObjects()
 {
+    updateDependentObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

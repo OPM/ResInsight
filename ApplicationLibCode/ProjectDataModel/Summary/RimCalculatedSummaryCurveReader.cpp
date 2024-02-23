@@ -87,11 +87,11 @@ void RifCalculatedSummaryCurveReader::rebuildMetaData()
 
     for ( RimUserDefinedCalculation* calc : m_calculationCollection->calculations() )
     {
-        RimSummaryCalculation* sumCalc = dynamic_cast<RimSummaryCalculation*>( calc );
+        auto* sumCalc = dynamic_cast<RimSummaryCalculation*>( calc );
         CAF_ASSERT( sumCalc );
 
         const auto& allAddresses = sumCalc->allAddressesForSummaryCase( m_summaryCase );
-        for ( auto calculationAddress : allAddresses )
+        for ( const auto& calculationAddress : allAddresses )
         {
             if ( calculationAddress.address().isValid() )
             {
