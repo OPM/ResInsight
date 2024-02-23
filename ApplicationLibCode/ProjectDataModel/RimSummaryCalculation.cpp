@@ -402,33 +402,41 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::updateDependentObjects()
 {
-    RimSummaryCalculationCollection* calcColl = firstAncestorOrThisOfTypeAsserted<RimSummaryCalculationCollection>();
+    auto calcColl = firstAncestorOrThisOfTypeAsserted<RimSummaryCalculationCollection>();
     calcColl->rebuildCaseMetaData();
 
-    // Refresh data sources tree.
-    // TODO: refresh too much: would be enough to only refresh calculated resutls.
+    // Refresh data sources tree
+    // Refresh meta data for all summary cases and rebuild AddressNodes in the summary tree
     RimSummaryCaseMainCollection* summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection();
     auto                          summaryCases          = summaryCaseCollection->allSummaryCases();
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        summaryCase->createSummaryReaderInterface();
-        summaryCase->createRftReaderInterface();
-        summaryCase->refreshMetaData();
+        if ( !summaryCase ) continue;
+
+        if ( auto reader = summaryCase->summaryReader() )
+        {
+            reader->rebuildMetaData();
+            summaryCase->onCalculationUpdated();
+        }
     }
 
     RimObservedDataCollection* observedDataCollection = RiaSummaryTools::observedDataCollection();
     auto                       observedData           = observedDataCollection->allObservedSummaryData();
     for ( auto obs : observedData )
     {
-        obs->createSummaryReaderInterface();
-        obs->createRftReaderInterface();
-        obs->refreshMetaData();
+        if ( !obs ) continue;
+
+        if ( auto reader = obs->summaryReader() )
+        {
+            reader->rebuildMetaData();
+            obs->onCalculationUpdated();
+        }
     }
 
     auto summaryCaseCollections = summaryCaseCollection->summaryCaseCollections();
     for ( RimSummaryCaseCollection* summaryCaseCollection : summaryCaseCollections )
     {
-        summaryCaseCollection->refreshMetaData();
+        summaryCaseCollection->onCalculationUpdated();
     }
 
     RimSummaryMultiPlotCollection* summaryPlotCollection = RiaSummaryTools::summaryMultiPlotCollection();

@@ -1165,6 +1165,17 @@ void RimSummaryCaseCollection::refreshMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::onCalculationUpdated()
+{
+    m_dataVectorFolders->deleteCalculatedObjects();
+    m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
+
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::clearChildNodes()
 {
     m_dataVectorFolders->deleteChildren();

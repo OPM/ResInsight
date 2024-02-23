@@ -104,6 +104,7 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
     void refreshMetaData();
+    void onCalculationUpdated();
 
     void updateReferringCurveSets();
 
