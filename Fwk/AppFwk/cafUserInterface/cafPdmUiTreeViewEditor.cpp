@@ -615,7 +615,7 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
                 {
                     size_t indexInParentField = reorderability->indexOf( pdmObject );
                     {
-                        auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
+                        auto tag          = PdmUiTreeViewItemAttribute::createTag();
                         tag->icon         = caf::IconProvider( ":/caf/Up16x16.png" );
                         tag->selectedOnly = true;
                         if ( reorderability->canItemBeMovedUp( indexInParentField ) )
@@ -630,7 +630,7 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
                         m_delegate->addTag( filterIndex, std::move( tag ) );
                     }
                     {
-                        auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
+                        auto tag          = PdmUiTreeViewItemAttribute::createTag();
                         tag->icon         = IconProvider( ":/caf/Down16x16.png" );
                         tag->selectedOnly = true;
                         if ( reorderability->canItemBeMovedDown( indexInParentField ) )

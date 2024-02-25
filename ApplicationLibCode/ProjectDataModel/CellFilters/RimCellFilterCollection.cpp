@@ -145,6 +145,12 @@ void RimCellFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
     uiCapability()->updateConnectedEditors();
 
     onFilterUpdated( nullptr );
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        // Update the filters to make sure the 3D polygon targets are removed if the filter collection is disabled
+        filter->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,13 +261,22 @@ bool RimCellFilterCollection::hasActiveIncludeRangeFilters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase )
+RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase, RimPolygon* polygon )
 {
     RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
+    pFilter->setPolygon( polygon );
     addFilter( pFilter );
     pFilter->configurePolygonEditor();
-    pFilter->enablePicking( true );
+    if ( polygon )
+    {
+        pFilter->enableFilter( true );
+    }
+    else
+    {
+        pFilter->enablePicking( true );
+    }
+
     onFilterUpdated( pFilter );
     return pFilter;
 }
@@ -490,12 +505,14 @@ void RimCellFilterCollection::updateCellVisibilityByIndex( cvf::UByteArray* incl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolygonInView*> RimCellFilterCollection::cellFilterPolygons() const
+std::vector<RimPolygonInView*> RimCellFilterCollection::enabledCellFilterPolygons() const
 {
     std::vector<RimPolygonInView*> polyInView;
 
     for ( const auto& filter : m_cellFilters )
     {
+        if ( !filter->isActive() ) continue;
+
         if ( auto polygonFilter = dynamic_cast<RimPolygonFilter*>( filter.p() ) )
         {
             polyInView.push_back( polygonFilter->polygonInView() );

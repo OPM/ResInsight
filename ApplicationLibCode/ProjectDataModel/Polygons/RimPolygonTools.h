@@ -29,7 +29,7 @@ class PdmObject;
 class RimPolygonTools
 {
 public:
-    static void selectPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
+    static void selectAndActivatePolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );
 
 private:
     static RimPolygonInView* findPolygonInView( RimPolygon* polygon, caf::PdmObject* sourceObject );

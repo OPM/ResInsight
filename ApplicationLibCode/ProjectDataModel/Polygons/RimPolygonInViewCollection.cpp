@@ -18,6 +18,7 @@
 
 #include "RimPolygonInViewCollection.h"
 
+#include "Rim3dView.h"
 #include "RimPolygon.h"
 #include "RimPolygonCollection.h"
 #include "RimPolygonInView.h"
@@ -82,4 +83,25 @@ void RimPolygonInViewCollection::syncPolygonsInView()
 std::vector<RimPolygonInView*> RimPolygonInViewCollection::polygonsInView() const
 {
     return m_polygons.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    RimCheckableObject::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_isChecked )
+    {
+        for ( auto poly : polygonsInView() )
+        {
+            poly->updateConnectedEditors();
+        }
+
+        if ( auto view = firstAncestorOfType<Rim3dView>() )
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }

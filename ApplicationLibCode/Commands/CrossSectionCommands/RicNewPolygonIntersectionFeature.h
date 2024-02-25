@@ -18,29 +18,16 @@
 
 #pragma once
 
-#include "RimCheckableObject.h"
-#include "cafPdmChildArrayField.h"
-
-class RimPolygonInView;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimPolygonInViewCollection : public RimCheckableObject
+class RicNewPolygonIntersectionFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimPolygonInViewCollection();
-
-    void syncPolygonsInView();
-
-    std::vector<RimPolygonInView*> polygonsInView() const;
-
-private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-private:
-    caf::PdmChildArrayField<RimPolygonInView*> m_polygons;
+protected:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

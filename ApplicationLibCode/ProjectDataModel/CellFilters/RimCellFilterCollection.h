@@ -33,6 +33,7 @@ class RimUserDefinedFilter;
 class RimUserDefinedIndexFilter;
 class RimCase;
 class RimPolygonInView;
+class RimPolygon;
 
 namespace cvf
 {
@@ -53,7 +54,7 @@ public:
 
     caf::Signal<> filtersChanged;
 
-    RimPolygonFilter*          addNewPolygonFilter( RimCase* srcCase );
+    RimPolygonFilter*          addNewPolygonFilter( RimCase* srcCase, RimPolygon* polygon );
     RimCellRangeFilter*        addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection = -1, int defaultSlice = -1 );
     RimCellIndexFilter*        addNewCellIndexFilter( RimCase* srcCase );
     RimUserDefinedFilter*      addNewUserDefinedFilter( RimCase* srcCase );
@@ -70,7 +71,7 @@ public:
     void compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const;
     void updateCellVisibilityByIndex( cvf::UByteArray* cellsIncluded, cvf::UByteArray* cellsExcluded, size_t gridIndex ) const;
 
-    std::vector<RimPolygonInView*> cellFilterPolygons() const;
+    std::vector<RimPolygonInView*> enabledCellFilterPolygons() const;
     std::vector<RimCellFilter*>    filters() const;
 
     bool hasActiveFilters() const;

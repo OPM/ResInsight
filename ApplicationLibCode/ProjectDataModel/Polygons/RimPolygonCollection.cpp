@@ -139,6 +139,7 @@ std::vector<RimPolygon*> RimPolygonCollection::allPolygons() const
 void RimPolygonCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateViewTreeItems();
+    scheduleRedrawViews();
 }
 
 //--------------------------------------------------------------------------------------------------

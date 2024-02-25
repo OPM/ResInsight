@@ -26,6 +26,7 @@
 #include "RigMainGrid.h"
 #include "RigReservoirGridTools.h"
 
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimPolylineTarget.h"
@@ -156,6 +157,18 @@ void RimPolygonFilter::enableKFilter( bool bEnable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::setPolygon( RimPolygon* polygon )
+{
+    if ( polygon )
+    {
+        m_polygonDataSource = PolygonDataSource::GLOBAL_POLYGON;
+        m_cellFilterPolygon = polygon;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPolygonFilter::isFilterEnabled() const
 {
     return m_isActive() && m_enableFiltering;
@@ -238,18 +251,16 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add( &m_name );
 
-    auto dataSourceGroup = uiOrdering.addNewGroup( "Polygon Data Source" );
-    dataSourceGroup->add( &m_polygonDataSource );
-    if ( !isPolygonDefinedLocally() )
-    {
-        dataSourceGroup->add( &m_cellFilterPolygon );
-        dataSourceGroup->add( &m_editPolygonButton, { .newRow = false } );
-    }
-
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
     group->add( &m_geometricalShape );
     group->add( &m_enableFiltering );
+    group->add( &m_polygonDataSource );
+    if ( !isPolygonDefinedLocally() )
+    {
+        group->add( &m_cellFilterPolygon );
+        group->add( &m_editPolygonButton, { .newRow = false } );
+    }
 
     auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
     group1->add( &m_polyFilterMode );
@@ -319,7 +330,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 {
     if ( changedField == &m_editPolygonButton )
     {
-        RimPolygonTools::selectPolygonInView( m_cellFilterPolygon(), this );
+        RimPolygonTools::selectAndActivatePolygonInView( m_cellFilterPolygon(), this );
 
         m_editPolygonButton = false;
 
@@ -768,9 +779,9 @@ void RimPolygonFilter::updateCells()
     // get polyline as vector
     std::vector<cvf::Vec3d> points;
 
-    for ( auto target : m_polygonEditor->activeTargets() )
+    if ( m_polygonEditor && m_polygonEditor->polygon() )
     {
-        points.push_back( target->targetPointXYZ() );
+        points = m_polygonEditor->polygon()->pointsInDomainCoords();
     }
 
     // We need at least three points to make a closed polygon, or just 2 for a polyline
@@ -870,6 +881,11 @@ bool RimPolygonFilter::pickingEnabled() const
 //--------------------------------------------------------------------------------------------------
 caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 {
+    auto filterColl = firstAncestorOfType<RimCellFilterCollection>();
+    if ( filterColl && !filterColl->isActive() ) return nullptr;
+
+    if ( !isActive() ) return nullptr;
+
     return m_pickTargetsEventHandler.get();
 }
 

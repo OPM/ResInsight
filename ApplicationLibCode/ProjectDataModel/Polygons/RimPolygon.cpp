@@ -19,7 +19,15 @@
 #include "RimPolygon.h"
 
 #include "RigPolyLinesData.h"
+
+#include "RiaApplication.h"
+#include "Rim3dView.h"
 #include "RimPolygonAppearance.h"
+#include "RimPolygonTools.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 
 CAF_PDM_SOURCE_INIT( RimPolygon, "RimPolygon" );
 
@@ -33,6 +41,10 @@ RimPolygon::RimPolygon()
 
     CAF_PDM_InitField( &m_isReadOnly, "IsReadOnly", false, "Read Only" );
     CAF_PDM_InitFieldNoDefault( &m_pointsInDomainCoords, "PointsInDomainCoords", "Points" );
+
+    CAF_PDM_InitField( &m_editPolygonButton, "EditPolygonButton", false, "Edit" );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_editPolygonButton );
+
     CAF_PDM_InitFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
     m_appearance = new RimPolygonAppearance;
     m_appearance.uiCapability()->setUiTreeChildrenHidden( true );
@@ -59,6 +71,15 @@ cvf::ref<RigPolyLinesData> RimPolygon::polyLinesData() const
 void RimPolygon::uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_appearance->uiOrdering( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
+{
+    menuBuilder << "RicNewPolygonIntersectionFeature";
+    menuBuilder << "RicNewPolygonFilterFeature";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,14 +119,33 @@ bool RimPolygon::isClosed() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygon::setReadOnly( bool isReadOnly )
+{
+    m_isReadOnly = isReadOnly;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygon::isReadOnly() const
+{
+    return m_isReadOnly();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_isReadOnly );
+    uiOrdering.add( &m_editPolygonButton );
 
     auto groupPoints = uiOrdering.addNewGroup( "Points" );
     groupPoints->setCollapsedByDefault();
     groupPoints->add( &m_pointsInDomainCoords );
+
+    m_pointsInDomainCoords.uiCapability()->setUiReadOnly( m_isReadOnly() );
 
     auto group = uiOrdering.addNewGroup( "Appearance" );
     m_appearance->uiOrdering( uiConfigName, *group );
@@ -120,6 +160,16 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     {
         objectChanged.send();
     }
+
+    if ( changedField == &m_editPolygonButton )
+    {
+        auto activeView = RiaApplication::instance()->activeReservoirView();
+        RimPolygonTools::selectAndActivatePolygonInView( this, activeView );
+
+        m_editPolygonButton = false;
+
+        return;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,4 +178,29 @@ void RimPolygon::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 void RimPolygon::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
     objectChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_editPolygonButton )
+    {
+        if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
+        {
+            attrib->m_buttonText = "Edit in Active View";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( m_isReadOnly )
+    {
+        caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/padlock.svg" );
+    }
 }

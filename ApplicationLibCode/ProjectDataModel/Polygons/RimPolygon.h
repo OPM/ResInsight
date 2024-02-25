@@ -28,6 +28,11 @@
 
 class RimPolygonAppearance;
 
+namespace caf
+{
+class CmdFeatureMenuBuilder;
+}
+
 class RimPolygon : public RimNamedObject, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
@@ -43,17 +48,24 @@ public:
     void                    setIsClosed( bool isClosed );
     bool                    isClosed() const;
 
+    void setReadOnly( bool isReadOnly );
+    bool isReadOnly() const;
+
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
     void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     caf::PdmField<bool>                       m_isReadOnly;
+    caf::PdmField<bool>                       m_editPolygonButton;
     caf::PdmField<std::vector<cvf::Vec3d>>    m_pointsInDomainCoords;
     caf::PdmChildField<RimPolygonAppearance*> m_appearance;
 };
