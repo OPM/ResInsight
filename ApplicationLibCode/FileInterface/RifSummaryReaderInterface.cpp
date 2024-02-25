@@ -52,7 +52,7 @@ RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress( const RifEclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSummaryReaderInterface::rebuildMetaData()
+void RifSummaryReaderInterface::buildMetaData()
 {
 }
 

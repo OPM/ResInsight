@@ -60,7 +60,7 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
 
         if ( auto reader = summaryCase->summaryReader() )
         {
-            reader->rebuildMetaData();
+            reader->buildMetaData();
             summaryCase->onCalculationUpdated();
         }
     }
@@ -73,7 +73,7 @@ void RimSummaryCalculationCollection::updateDataDependingOnCalculations()
 
         if ( auto reader = obs->summaryReader() )
         {
-            reader->rebuildMetaData();
+            reader->buildMetaData();
             obs->onCalculationUpdated();
         }
     }

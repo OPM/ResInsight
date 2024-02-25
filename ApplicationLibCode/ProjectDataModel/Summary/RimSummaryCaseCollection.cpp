@@ -22,30 +22,23 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
-#include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
-#include "RiaWeightedMeanCalculator.h"
-
-#include "RicfCommandObject.h"
 
 #include "RifReaderRftInterface.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RimAnalysisPlotDataEntry.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
-#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#include <QDate>
 #include <QFileInfo>
 
-#include <algorithm>
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseCollection, "SummaryCaseSubCollection" );
@@ -284,7 +277,7 @@ void RimSummaryCaseCollection::setAsEnsemble( bool isEnsemble )
             calculateEnsembleParametersIntersectionHash();
         }
 
-        refreshMetaData();
+        buildMetaData();
     }
 }
 
@@ -1155,7 +1148,7 @@ void RimSummaryCaseCollection::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::refreshMetaData()
+void RimSummaryCaseCollection::buildMetaData()
 {
     clearChildNodes();
     buildChildNodes();

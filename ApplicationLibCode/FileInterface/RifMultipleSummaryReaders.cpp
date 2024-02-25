@@ -36,7 +36,7 @@ void RifMultipleSummaryReaders::addReader( RifSummaryReaderInterface* reader )
 
     m_readers.push_back( reader );
 
-    rebuildMetaData();
+    buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ void RifMultipleSummaryReaders::addReader( RifSummaryReaderInterface* reader )
 void RifMultipleSummaryReaders::removeReader( RifSummaryReaderInterface* reader )
 {
     m_readers.erase( reader );
-    rebuildMetaData();
+    buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ RiaDefines::EclipseUnitSystem RifMultipleSummaryReaders::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifMultipleSummaryReaders::rebuildMetaData()
+void RifMultipleSummaryReaders::buildMetaData()
 {
     m_allErrorAddresses.clear();
     m_allResultAddresses.clear();
@@ -109,7 +109,7 @@ void RifMultipleSummaryReaders::rebuildMetaData()
     {
         // TODO: hack. Find a better way to rebuild calculated summary meta data.
         auto calcReader = dynamic_cast<RifCalculatedSummaryCurveReader*>( reader.p() );
-        if ( calcReader ) calcReader->rebuildMetaData();
+        if ( calcReader ) calcReader->buildMetaData();
 
         {
             auto resultAddresses = reader->allResultAddresses();

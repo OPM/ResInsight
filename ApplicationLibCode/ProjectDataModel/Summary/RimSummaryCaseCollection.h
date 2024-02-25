@@ -19,19 +19,16 @@
 #pragma once
 
 #include "RiaDefines.h"
+
 #include "RifEclipseSummaryAddress.h"
 
 #include "RigEnsembleParameter.h"
-
-#include "RimObjectiveFunction.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
-
-#include "cvfObject.h"
 
 #include <QString>
 
@@ -103,7 +100,6 @@ public:
 
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
-    void refreshMetaData();
     void onCalculationUpdated();
 
     void updateReferringCurveSets();
@@ -128,6 +124,7 @@ private:
 
     void onCaseNameChanged( const SignalEmitter* emitter );
 
+    void buildMetaData();
     void buildChildNodes();
     void clearChildNodes();
 
