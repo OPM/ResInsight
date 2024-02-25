@@ -779,9 +779,9 @@ void RimPolygonFilter::updateCells()
     // get polyline as vector
     std::vector<cvf::Vec3d> points;
 
-    for ( auto target : m_polygonEditor->activeTargets() )
+    if ( m_polygonEditor && m_polygonEditor->polygon() )
     {
-        points.push_back( target->targetPointXYZ() );
+        points = m_polygonEditor->polygon()->pointsInDomainCoords();
     }
 
     // We need at least three points to make a closed polygon, or just 2 for a polyline
