@@ -1,11 +1,6 @@
-import sys
-import os
-
 import numpy as np
 
 import plotly.graph_objects as go
-
-sys.path.insert(1, os.path.join(sys.path[0], "../"))
 
 from rips.instance import *
 from rips.generated.GridGeometryExtraction_pb2_grpc import *
