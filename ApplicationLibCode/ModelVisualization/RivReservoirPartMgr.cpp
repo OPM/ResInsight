@@ -180,22 +180,6 @@ void RivReservoirPartMgr::appendElementVectorResultPartsToModel( cvf::ModelBasic
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get the part manager for main grid
-///
-/// Needed for the gRPC service for GridGeometryExtraction
-//--------------------------------------------------------------------------------------------------
-RivGridPartMgr* RivReservoirPartMgr::mainGridPartManager()
-{
-    if ( m_allGrids.empty() )
-    {
-        return nullptr;
-    }
-
-    // First grid should be the main grid
-    return m_allGrids.at( 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPartMgr::updateFaultColors( size_t timeStepIndex, RimEclipseCellColors* cellResultColors )

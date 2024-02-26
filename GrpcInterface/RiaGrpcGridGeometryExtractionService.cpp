@@ -63,14 +63,19 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
         }
     }
 
-    // Retrieve grid surface vertices from eclipse view
-    status = initializeMainGridPartManagerFromEclipseView();
+    // Ensure static geometry parts created for grid part manager in view
+    m_eclipseView->createGridGeometryParts();
+
+    // Initialize grid geometry generator
+    const bool useOpenMP             = false;
+    auto*      gridGeometryGenerator = new cvf::StructGridGeometryGenerator( m_eclipseView->mainGrid(), useOpenMP );
+    status = initializeGridGeometryGeneratorWithEclipseViewCellVisibility( gridGeometryGenerator );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
         return status;
     }
 
-    auto* gridSurfaceVertices = m_mainGridPartManager->getOrCreateSurfaceVertices();
+    auto* gridSurfaceVertices = gridGeometryGenerator->getOrCreateVertices();
     if ( gridSurfaceVertices == nullptr )
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No grid vertices found" );
@@ -96,7 +101,11 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     response->set_allocated_originutm( modelOffset );
 
     // Source cell indices from main grid part manager
-    const auto sourceCellIndicesArray = m_mainGridPartManager->getSurfaceQuadToCellIndicesArray();
+    std::vector<size_t> sourceCellIndicesArray = std::vector<size_t>();
+    if ( gridGeometryGenerator->quadToCellFaceMapper() != nullptr )
+    {
+        sourceCellIndicesArray = gridGeometryGenerator->quadToCellFaceMapper()->quadToCellIndicesArray();
+    }
     if ( sourceCellIndicesArray.empty() )
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No source cell indices array found" );
@@ -158,10 +167,9 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridGeometryExtractionService::cre
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcGridGeometryExtractionService::resetInternalPointers()
 {
-    m_application         = nullptr;
-    m_eclipseCase         = nullptr;
-    m_eclipseView         = nullptr;
-    m_mainGridPartManager = nullptr;
+    m_application = nullptr;
+    m_eclipseCase = nullptr;
+    m_eclipseView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,37 +212,30 @@ grpc::Status RiaGrpcGridGeometryExtractionService::applyIJKCellFilterToEclipseCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcGridGeometryExtractionService::initializeMainGridPartManagerFromEclipseView()
+grpc::Status RiaGrpcGridGeometryExtractionService::initializeGridGeometryGeneratorWithEclipseViewCellVisibility(
+    cvf::StructGridGeometryGenerator* generator )
 {
     if ( m_eclipseView == nullptr )
     {
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No initialized eclipse view found" );
     }
 
-    auto* viewPartManager = m_eclipseView->reservoirGridPartManager();
-    if ( viewPartManager == nullptr )
+    auto* mainGrid = m_eclipseCase->mainGrid();
+    if ( mainGrid == nullptr )
     {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No view part manager found for eclipse view" );
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No main grid found for eclipse view" );
     }
 
-    // Ensure static geometry parts created prior to getting part manager
-    viewPartManager->ensureStaticGeometryPartsCreated( RivCellSetEnum::RANGE_FILTERED );
+    // Cell visibilities
+    const int firstTimeStep    = 0;
+    auto*     cellVisibilities = new cvf::UByteArray( mainGrid->cellCount() );
+    m_eclipseView->calculateCurrentTotalCellVisibility( cellVisibilities, firstTimeStep );
 
-    const size_t timeStepIndex            = 0;
-    auto         rangeFilteredPartManager = viewPartManager->rangeFilteredReservoirPartManager( timeStepIndex );
+    // Face visibility filter
+    auto* faceVisibilityFilter = new RigGridCellFaceVisibilityFilter( mainGrid );
 
-    if ( rangeFilteredPartManager == nullptr )
-    {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No range filtered part manager found for eclipse view" );
-    }
-
-    auto* mainGridPartManager = rangeFilteredPartManager->mainGridPartManager();
-    if ( mainGridPartManager == nullptr )
-    {
-        return grpc::Status( grpc::StatusCode::NOT_FOUND,
-                             "No main grid part manager found for range filtered part manager" );
-    }
-    m_mainGridPartManager = mainGridPartManager;
+    generator->setCellVisibility( cellVisibilities );
+    generator->addFaceVisibilityFilter( faceVisibilityFilter );
 
     return grpc::Status::OK;
 }
@@ -313,6 +314,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::initializeApplicationAndEclip
         return grpc::Status( grpc::StatusCode::NOT_FOUND, "No eclipse view found for eclipse case" );
     }
     m_eclipseView = dynamic_cast<RimEclipseView*>( m_eclipseCase->views().front() );
+    m_eclipseView->setShowInactiveCells( true );
 
     return grpc::Status::OK;
 }

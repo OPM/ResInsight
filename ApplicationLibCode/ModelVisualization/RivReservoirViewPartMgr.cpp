@@ -911,14 +911,6 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Needed for the gRPC service for GridGeometryExtraction
-//--------------------------------------------------------------------------------------------------
-RivReservoirPartMgr* RivReservoirViewPartMgr::rangeFilteredReservoirPartManager( size_t timeStepIndex )
-{
-    return reservoirPartManager( RivCellSetEnum::RANGE_FILTERED, timeStepIndex );
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateCellColor( RivCellSetEnum geometryType, size_t timeStepIndex, cvf::Color4f color )

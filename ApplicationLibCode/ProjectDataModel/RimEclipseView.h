@@ -106,6 +106,8 @@ public:
     bool showInvalidCells() const;
     bool showInactiveCells() const;
 
+    void setShowInactiveCells( bool showInactive );
+
     // Access internal objects
     const RimPropertyFilterCollection* propertyFilterCollection() const override;
 
@@ -164,6 +166,8 @@ public:
 
     std::vector<RigEclipseResultAddress> additionalResultsForResultInfo() const;
 
+    void createGridGeometryParts();
+
 protected:
     void                 initAfterRead() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -220,6 +224,9 @@ private:
     void setVisibleGridPartsWatertight();
 
     void propagateEclipseCaseToChildObjects();
+
+    cvf::Collection<cvf::ModelBasicList> frameModelsForTimeSteps();
+    void                                 createRequiredReservoirPartManagers( cvf::Collection<cvf::ModelBasicList> frameModels );
 
 protected:
     cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;

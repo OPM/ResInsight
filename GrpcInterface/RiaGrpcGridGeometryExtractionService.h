@@ -25,6 +25,7 @@
 #include "RivGridPartMgr.h"
 
 #include "cvfArray.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -62,12 +63,12 @@ private:
     void resetInternalPointers();
 
     grpc::Status loadGridGeometryFromAbsoluteFilePath( const std::string filePath );
-    grpc::Status initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( const std::string filePath );
-    grpc::Status initializeMainGridPartManagerFromEclipseView();
     grpc::Status applyIJKCellFilterToEclipseCase( const rips::IJKIndexFilter& filter );
+    grpc::Status initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( const std::string filePath );
 
-    RiaApplication* m_application         = nullptr;
-    RimEclipseCase* m_eclipseCase         = nullptr;
-    RimEclipseView* m_eclipseView         = nullptr;
-    RivGridPartMgr* m_mainGridPartManager = nullptr;
+    grpc::Status initializeGridGeometryGeneratorWithEclipseViewCellVisibility( cvf::StructGridGeometryGenerator* generator );
+
+    RiaApplication* m_application = nullptr;
+    RimEclipseCase* m_eclipseCase = nullptr;
+    RimEclipseView* m_eclipseView = nullptr;
 };

@@ -386,6 +386,142 @@ void RimEclipseView::propagateEclipseCaseToChildObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Collection<cvf::ModelBasicList> RimEclipseView::frameModelsForTimeSteps()
+{
+    const bool hasPropertyFiltersActive = eclipsePropertyFilterCollection()->hasActiveFilters();
+
+    // Define a vector containing time step indices to produce geometry for.
+    // First entry in this vector is used to define the geometry only result mode with no results.
+    std::vector<size_t> timeStepIndices;
+
+    // The one and only geometry entry
+    timeStepIndices.push_back( 0 );
+
+    // Find the number of time frames the animation needs to show the requested data.
+
+    if ( ( isTimeStepDependentDataVisibleInThisOrComparisonView() && currentGridCellResults()->maxTimeStepCount() > 0 ) )
+    {
+        CVF_ASSERT( currentGridCellResults() );
+
+        size_t i;
+        for ( i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++ )
+        {
+            timeStepIndices.push_back( i );
+        }
+    }
+    else if ( cellResult()->hasStaticResult() || cellEdgeResult()->hasResult() || hasPropertyFiltersActive ||
+              intersectionCollection()->hasAnyActiveSeparateResults() ||
+              ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
+    {
+        // The one and only static result entry
+        timeStepIndices.push_back( 0 );
+    }
+
+    cvf::Collection<cvf::ModelBasicList> frameModels;
+    size_t                               timeIdx;
+    for ( timeIdx = 0; timeIdx < timeStepIndices.size(); timeIdx++ )
+    {
+        frameModels.push_back( new cvf::ModelBasicList );
+    }
+
+    return frameModels;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::createRequiredReservoirPartManagers( cvf::Collection<cvf::ModelBasicList> frameModels )
+{
+    const bool hasCellFiltersActive     = cellFilterCollection()->hasActiveFilters();
+    const bool hasPropertyFiltersActive = eclipsePropertyFilterCollection()->hasActiveFilters();
+
+    // Create vector of grid indices to render
+    std::vector<size_t> gridIndices = indicesToVisibleGrids();
+
+    ///
+    // Get or create the parts for "static" type geometry. The same geometry is used
+    // for the different frames. updateCurrentTimeStep updates the colors etc.
+    // For property filtered geometry : just set all the models as empty scenes
+    // updateCurrentTimeStep requests the actual parts
+
+    if ( !hasPropertyFiltersActive || ( viewController() && viewController()->isVisibleCellsOveridden() ) )
+    {
+        std::vector<RivCellSetEnum> geometryTypesToAdd;
+
+        if ( viewController() && viewController()->isVisibleCellsOveridden() )
+        {
+            geometryTypesToAdd.push_back( OVERRIDDEN_CELL_VISIBILITY );
+        }
+        else if ( hasCellFiltersActive && wellCollection()->hasVisibleWellCells() )
+        {
+            geometryTypesToAdd.push_back( RANGE_FILTERED );
+            geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
+            geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER );
+            geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER );
+            if ( showInactiveCells() )
+            {
+                geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
+            }
+        }
+        else if ( !hasCellFiltersActive && wellCollection()->hasVisibleWellCells() )
+        {
+            geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS );
+            geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS );
+        }
+        else if ( hasCellFiltersActive && !wellCollection()->hasVisibleWellCells() )
+        {
+            geometryTypesToAdd.push_back( RANGE_FILTERED );
+            geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
+            if ( showInactiveCells() )
+            {
+                geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
+            }
+        }
+        else
+        {
+            geometryTypesToAdd.push_back( ALL_WELL_CELLS ); // Should be all well cells
+            geometryTypesToAdd.push_back( ACTIVE );
+
+            if ( showInactiveCells() )
+            {
+                geometryTypesToAdd.push_back( INACTIVE );
+            }
+        }
+
+        // NOTE: This assignment must be done here, as m_visibleGridParts is used in code triggered by
+        // m_reservoirGridPartManager->appendStaticGeometryPartsToModel()
+        setVisibleGridParts( geometryTypesToAdd );
+
+        size_t frameIdx;
+        for ( frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx )
+        {
+            for ( size_t gtIdx = 0; gtIdx < geometryTypesToAdd.size(); ++gtIdx )
+            {
+                if ( isGridVisualizationMode() )
+                {
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameModels[frameIdx].p(),
+                                                                                  geometryTypesToAdd[gtIdx],
+                                                                                  gridIndices );
+                }
+                else
+                {
+                    m_reservoirGridPartManager->ensureStaticGeometryPartsCreated( geometryTypesToAdd[gtIdx] );
+                }
+            }
+        }
+        // Set static colors
+        onUpdateStaticCellColors();
+    }
+    else
+    {
+        std::vector<RivCellSetEnum> empty;
+        setVisibleGridParts( empty );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
@@ -477,128 +613,16 @@ void RimEclipseView::onCreateDisplayModel()
     const bool cellFiltersActive     = cellFilterCollection()->hasActiveFilters();
     const bool propertyFiltersActive = eclipsePropertyFilterCollection()->hasActiveFilters();
 
-    // Define a vector containing time step indices to produce geometry for.
-    // First entry in this vector is used to define the geometry only result mode with no results.
-    std::vector<size_t> timeStepIndices;
-
-    // The one and only geometry entry
-    timeStepIndices.push_back( 0 );
-
-    // Find the number of time frames the animation needs to show the requested data.
-
-    if ( ( isTimeStepDependentDataVisibleInThisOrComparisonView() && currentGridCellResults()->maxTimeStepCount() > 0 ) )
-    {
-        CVF_ASSERT( currentGridCellResults() );
-
-        size_t i;
-        for ( i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++ )
-        {
-            timeStepIndices.push_back( i );
-        }
-    }
-    else if ( cellResult()->hasStaticResult() || cellEdgeResult()->hasResult() || propertyFiltersActive ||
-              intersectionCollection()->hasAnyActiveSeparateResults() ||
-              ( surfaceInViewCollection() && surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
-    {
-        // The one and only static result entry
-        timeStepIndices.push_back( 0 );
-    }
-
-    cvf::Collection<cvf::ModelBasicList> frameModels;
-    size_t                               timeIdx;
-    for ( timeIdx = 0; timeIdx < timeStepIndices.size(); timeIdx++ )
-    {
-        frameModels.push_back( new cvf::ModelBasicList );
-    }
+    // Get frame models for all time steps
+    cvf::Collection<cvf::ModelBasicList> frameModels = frameModelsForTimeSteps();
 
     // Remove all existing animation frames from the viewer.
     // The parts are still cached in the RivReservoir geometry and friends
     nativeOrOverrideViewer()->removeAllFrames( isUsingOverrideViewer() );
-
     wellCollection()->scheduleIsWellPipesVisibleRecalculation();
 
-    // Create vector of grid indices to render
-    std::vector<size_t> gridIndices = indicesToVisibleGrids();
-
-    ///
-    // Get or create the parts for "static" type geometry. The same geometry is used
-    // for the different frames. updateCurrentTimeStep updates the colors etc.
-    // For property filtered geometry : just set all the models as empty scenes
-    // updateCurrentTimeStep requests the actual parts
-
-    if ( !propertyFiltersActive || ( viewController() && viewController()->isVisibleCellsOveridden() ) )
-    {
-        std::vector<RivCellSetEnum> geometryTypesToAdd;
-
-        if ( viewController() && viewController()->isVisibleCellsOveridden() )
-        {
-            geometryTypesToAdd.push_back( OVERRIDDEN_CELL_VISIBILITY );
-        }
-        else if ( cellFiltersActive && wellCollection()->hasVisibleWellCells() )
-        {
-            geometryTypesToAdd.push_back( RANGE_FILTERED );
-            geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
-            geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER );
-            geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER );
-            if ( showInactiveCells() )
-            {
-                geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
-            }
-        }
-        else if ( !cellFiltersActive && wellCollection()->hasVisibleWellCells() )
-        {
-            geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS );
-            geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS );
-        }
-        else if ( cellFiltersActive && !wellCollection()->hasVisibleWellCells() )
-        {
-            geometryTypesToAdd.push_back( RANGE_FILTERED );
-            geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
-            if ( showInactiveCells() )
-            {
-                geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
-            }
-        }
-        else
-        {
-            geometryTypesToAdd.push_back( ALL_WELL_CELLS ); // Should be all well cells
-            geometryTypesToAdd.push_back( ACTIVE );
-
-            if ( showInactiveCells() )
-            {
-                geometryTypesToAdd.push_back( INACTIVE );
-            }
-        }
-
-        // NOTE: This assignment must be done here, as m_visibleGridParts is used in code triggered by
-        // m_reservoirGridPartManager->appendStaticGeometryPartsToModel()
-        setVisibleGridParts( geometryTypesToAdd );
-
-        size_t frameIdx;
-        for ( frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx )
-        {
-            for ( size_t gtIdx = 0; gtIdx < geometryTypesToAdd.size(); ++gtIdx )
-            {
-                if ( isGridVisualizationMode() )
-                {
-                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameModels[frameIdx].p(),
-                                                                                  geometryTypesToAdd[gtIdx],
-                                                                                  gridIndices );
-                }
-                else
-                {
-                    m_reservoirGridPartManager->ensureStaticGeometryPartsCreated( geometryTypesToAdd[gtIdx] );
-                }
-            }
-        }
-        // Set static colors
-        onUpdateStaticCellColors();
-    }
-    else
-    {
-        std::vector<RivCellSetEnum> empty;
-        setVisibleGridParts( empty );
-    }
+    // Create required reservoir part managers
+    createRequiredReservoirPartManagers( frameModels );
 
     m_reservoirGridPartManager->clearWatertightGeometryFlags();
 
@@ -1655,6 +1679,17 @@ std::vector<RigEclipseResultAddress> RimEclipseView::additionalResultsForResultI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseView::createGridGeometryParts()
+{
+    if ( !( eclipseCase() && eclipseCase()->eclipseCaseData() ) ) return;
+
+    const auto frameModels = frameModelsForTimeSteps();
+    createRequiredReservoirPartManagers( frameModels );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimStreamlineInViewCollection* RimEclipseView::streamlineCollection() const
 {
     return m_streamlineCollection;
@@ -2393,6 +2428,14 @@ bool RimEclipseView::showInvalidCells() const
 bool RimEclipseView::showInactiveCells() const
 {
     return m_showInactiveCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::setShowInactiveCells( bool showInactive )
+{
+    m_showInactiveCells = showInactive;
 }
 
 //--------------------------------------------------------------------------------------------------
