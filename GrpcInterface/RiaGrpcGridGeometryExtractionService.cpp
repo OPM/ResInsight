@@ -54,10 +54,13 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     }
 
     // Apply ijk-filtering - assuming 0-indexing from gRPC
-    status = applyIJKCellFilterToEclipseCase( request->ijkindexfilter() );
-    if ( status.error_code() != grpc::StatusCode::OK )
+    if ( request->has_ijkindexfilter() )
     {
-        return status;
+        status = applyIJKCellFilterToEclipseCase( request->ijkindexfilter() );
+        if ( status.error_code() != grpc::StatusCode::OK )
+        {
+            return status;
+        }
     }
 
     // Retrieve grid surface vertices from eclipse view
