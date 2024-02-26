@@ -327,8 +327,7 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   execute_process(
     COMMAND git log -1 --pretty=format:%h
     OUTPUT_VARIABLE RESINSIGHT_GIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET
   )
 
   # Update submodules as needed
