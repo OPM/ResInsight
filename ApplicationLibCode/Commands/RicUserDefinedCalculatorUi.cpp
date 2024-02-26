@@ -91,7 +91,9 @@ bool RicUserDefinedCalculatorUi::parseExpression() const
             notifyCalculatedNameChanged( m_currentCalculation()->id(), currentCurveName );
         }
 
-        m_currentCalculation()->updateDependentObjects();
+        // Always rebuild the case meta data after parsing the expression. A change in name or change in result type will require rebuild of
+        // case metadata. The rebuild is considered lightweight and should not be a performance issue.
+        calculationCollection()->rebuildCaseMetaData();
     }
 
     return true;
@@ -220,17 +222,7 @@ bool RicUserDefinedCalculatorUi::calculate() const
 {
     if ( m_currentCalculation() )
     {
-        QString previousCurveName = m_currentCalculation->description();
-        if ( !m_currentCalculation()->parseExpression() )
-        {
-            return false;
-        }
-
-        QString currentCurveName = m_currentCalculation->description();
-        if ( previousCurveName != currentCurveName )
-        {
-            notifyCalculatedNameChanged( m_currentCalculation()->id(), currentCurveName );
-        }
+        if ( !parseExpression() ) return false;
 
         if ( !m_currentCalculation()->preCalculate() )
         {

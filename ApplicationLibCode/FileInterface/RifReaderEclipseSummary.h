@@ -54,10 +54,9 @@ public:
     std::pair<bool, std::vector<double>> values( const RifEclipseSummaryAddress& resultAddress ) const override;
     std::string                          unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
+    void                                 buildMetaData() override;
 
 private:
-    void buildMetaData();
-
     RifSummaryReaderInterface* currentSummaryReader() const;
 
 private:

@@ -78,7 +78,7 @@ public:
     RiaDefines::EclipseUnitSystem        unitSystem() const override;
 
 private:
-    void buildMetaData();
+    void buildMetaData() override;
     bool openFileReader( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     static void    increaseEsmryFileCount();
