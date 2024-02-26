@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicWellPathsImportSsihubFeature.h"
+#include "RicWellPathsImportOsduFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
