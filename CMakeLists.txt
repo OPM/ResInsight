@@ -324,6 +324,13 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 # ##############################################################################
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+  execute_process(
+    COMMAND git log -1 --pretty=format:%h
+    OUTPUT_VARIABLE RESINSIGHT_GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+
   # Update submodules as needed
   option(RESINSIGHT_UPDATE_SUBMODULES "Check submodules during build" ON)
   mark_as_advanced(RESINSIGHT_UPDATE_SUBMODULES)
