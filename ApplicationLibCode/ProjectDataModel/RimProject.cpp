@@ -106,7 +106,7 @@
 #include "RimGridStatisticsPlotCollection.h"
 #endif
 
-#include "SsiHubImportCommands/RimWellPathImport.h"
+#include "OsduImportCommands/RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
