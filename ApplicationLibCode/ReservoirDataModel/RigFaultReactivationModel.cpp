@@ -261,6 +261,7 @@ void RigFaultReactivationModel::postProcessElementSets( const RimEclipseCase* eC
 
     for ( auto part : allGridParts() )
     {
-        m_3dparts[part]->postProcessElementSets( eCase->mainGrid(), cellInfo );
+        auto gridPart = m_3dparts[part];
+        gridPart->postProcessElementSets( eCase->mainGrid(), cellInfo );
     }
 }

@@ -574,23 +574,38 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
 
     generatePointsFrontBack();
 
+    cvf::Vec3d                     tVec = m_modelThickness * m_modelNormal;
+    std::vector<cvf::Vec3d>        thicknessVectors;
+    std::vector<caf::Line<double>> faultLines;
+    const std::vector<double>      thicknessFactors = { -1.0, 0.0, 1.0 };
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        faultLines.push_back( caf::Line<double>( m_topFault + thicknessFactors[i] * tVec, m_bottomFault + thicknessFactors[i] * tVec ) );
+        thicknessVectors.push_back( thicknessFactors[i] * tVec );
+    }
+
     frontPart->generateGeometry( m_frontPoints,
                                  frontReservoirLayers,
                                  m_maxCellHeight,
                                  m_cellSizeHeightFactor,
                                  m_horizontalPartition,
-                                 m_modelThickness,
+                                 faultLines,
+                                 thicknessVectors,
                                  m_topReservoirFront.z(),
-                                 m_modelNormal,
                                  m_faultZoneCells );
+
+    std::reverse( faultLines.begin(), faultLines.end() );
+    std::reverse( thicknessVectors.begin(), thicknessVectors.end() );
+
     backPart->generateGeometry( m_backPoints,
                                 backReservoirLayers,
                                 m_maxCellHeight,
                                 m_cellSizeHeightFactor,
                                 m_horizontalPartition,
-                                m_modelThickness,
+                                faultLines,
+                                thicknessVectors,
                                 m_topReservoirBack.z(),
-                                -1.0 * m_modelNormal,
                                 m_faultZoneCells );
 
     frontPart->generateLocalNodes( m_localCoordTransform );

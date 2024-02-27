@@ -56,6 +56,8 @@ public:
 
     Line findLineBetweenNearestPoints( const Line& otherLine, bool* withinLineSegments = nullptr );
 
+    cvf::Vector3<S> closestPointOnLine( const cvf::Vector3<S>& point ) const;
+
 private:
     cvf::Vector3<S> m_start;
     cvf::Vector3<S> m_end;

@@ -39,7 +39,8 @@ enum class Boundary
 {
     FarSide,
     Bottom,
-    Fault
+    Fault,
+    Reservoir
 };
 
 enum class ElementSets
