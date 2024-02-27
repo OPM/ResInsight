@@ -51,6 +51,8 @@ public:
     void setReadOnly( bool isReadOnly );
     bool isReadOnly() const;
 
+    void disableStorageOfPolygonPoints();
+
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
     void uiOrderingForLocalPolygon( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );

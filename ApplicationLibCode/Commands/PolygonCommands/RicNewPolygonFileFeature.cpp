@@ -40,11 +40,11 @@ void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
-    QStringList     fileNames =
-        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                              "Import Polygons",
-                                              defaultDir,
-                                              "Text Files (*.txt);;Polylines (*.dat);;Polylines (*.pol);;All Files (*.*)" );
+    QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                  "Import Polygons",
+                                                                  defaultDir,
+                                                                  "Polylines (*.csv *.dat *.pol);;Text Files (*.txt);;Polylines "
+                                                                       "(*.dat);;Polylines (*.pol);;Polylines (*.csv);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 

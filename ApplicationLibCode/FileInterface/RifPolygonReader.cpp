@@ -24,7 +24,44 @@
 
 #include "RifCsvUserDataParser.h"
 
+#include <QFileInfo>
 #include <QTextStream>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<int, std::vector<cvf::Vec3d>>> RifPolygonReader::parsePolygonFile( const QString& fileName, QString* errorMessage )
+{
+    QFileInfo fi( fileName );
+
+    QFile dataFile( fileName );
+
+    if ( !dataFile.open( QFile::ReadOnly ) )
+    {
+        if ( errorMessage ) ( *errorMessage ) += "Could not open file: " + fileName + "\n";
+        return {};
+    }
+
+    QTextStream stream( &dataFile );
+    auto        fileContent = stream.readAll();
+
+    if ( fi.suffix().trimmed().toLower() == "csv" )
+    {
+        return parseTextCsv( fileContent, errorMessage );
+    }
+    else
+    {
+        auto polygons = parseText( fileContent, errorMessage );
+
+        std::vector<std::pair<int, std::vector<cvf::Vec3d>>> polygonsWithIds;
+        for ( auto& polygon : polygons )
+        {
+            polygonsWithIds.push_back( std::make_pair( -1, polygon ) );
+        }
+
+        return polygonsWithIds;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

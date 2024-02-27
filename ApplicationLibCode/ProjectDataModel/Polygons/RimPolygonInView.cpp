@@ -70,6 +70,7 @@ RimPolygonInView::RimPolygonInView()
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
+    m_targets.xmlCapability()->disableIO();
 
     setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 }

@@ -31,6 +31,10 @@
 class RifPolygonReader
 {
 public:
+    static std::vector<std::pair<int, std::vector<cvf::Vec3d>>> parsePolygonFile( const QString& fileName, QString* errorMessage );
+
+    // Defined public for testing purposes
+public:
     static std::vector<std::vector<cvf::Vec3d>>                 parseText( const QString& content, QString* errorMessage );
     static std::vector<std::pair<int, std::vector<cvf::Vec3d>>> parseTextCsv( const QString& content, QString* errorMessage );
 };

@@ -135,6 +135,14 @@ bool RimPolygon::isReadOnly() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygon::disableStorageOfPolygonPoints()
+{
+    m_pointsInDomainCoords.xmlCapability()->setIOWritable( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );

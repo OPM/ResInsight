@@ -42,7 +42,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    void loadPolygonsFromFile();
+    static std::vector<RimPolygon*> importDataFromFile( const QString& fileName );
 
 private:
     caf::PdmField<caf::FilePath> m_fileName;

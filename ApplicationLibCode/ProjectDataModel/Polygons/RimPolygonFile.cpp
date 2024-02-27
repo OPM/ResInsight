@@ -54,7 +54,24 @@ void RimPolygonFile::setFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFile::loadData()
 {
-    loadPolygonsFromFile();
+    auto polygonsFromFile = importDataFromFile( m_fileName().path() );
+
+    if ( m_polygons.size() == polygonsFromFile.size() )
+    {
+        for ( size_t i = 0; i < m_polygons.size(); i++ )
+        {
+            auto projectPoly = m_polygons()[i];
+            auto filePoly    = polygonsFromFile[i];
+            projectPoly->setPointsInDomainCoords( filePoly->pointsInDomainCoords() );
+            delete filePoly;
+        }
+    }
+    else
+    {
+        m_polygons.deleteChildren();
+
+        m_polygons.setValue( polygonsFromFile );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,62 +94,39 @@ void RimPolygonFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    loadPolygonsFromFile();
+    if ( changedField == &m_fileName )
+    {
+        m_polygons.deleteChildren();
+        loadData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFile::loadPolygonsFromFile()
+std::vector<RimPolygon*> RimPolygonFile::importDataFromFile( const QString& fileName )
 {
-    m_polygons.deleteChildren();
-
-    QFileInfo fi( m_fileName().path() );
-
-    QFile dataFile( m_fileName().path() );
-
-    if ( !dataFile.open( QFile::ReadOnly ) )
-    {
-        RiaLogging::error( "Could not open the File: " + ( m_fileName().path() ) + "\n" );
-        return;
-    }
-
-    QTextStream stream( &dataFile );
-    auto        fileContent = stream.readAll();
-
     QString errorMessages;
+    auto    filePolygons = RifPolygonReader::parsePolygonFile( fileName, &errorMessages );
 
-    if ( fi.suffix().trimmed().toLower() == "csv" )
+    std::vector<RimPolygon*> polygons;
+
+    for ( const auto& [polygonId, filePolygon] : filePolygons )
     {
-        auto filePolygons = RifPolygonReader::parseTextCsv( fileContent, &errorMessages );
+        auto polygon = new RimPolygon();
+        polygon->disableStorageOfPolygonPoints();
+        polygon->setReadOnly( true );
 
-        for ( const auto& [polygonId, filePolygon] : filePolygons )
-        {
-            auto polygon = new RimPolygon();
-
-            int id = ( polygonId != -1 ) ? polygonId : static_cast<int>( m_polygons.size() + 1 );
-            polygon->setName( QString( "Polygon %1" ).arg( id ) );
-            polygon->setPointsInDomainCoords( filePolygon );
-            m_polygons.push_back( polygon );
-        }
-    }
-    else
-    {
-        auto filePolygons = RifPolygonReader::parseText( fileContent, &errorMessages );
-
-        for ( const auto& filePolygon : filePolygons )
-        {
-            auto polygon = new RimPolygon();
-
-            int id = static_cast<int>( m_polygons.size() + 1 );
-            polygon->setName( QString( "Polygon %1" ).arg( id ) );
-            polygon->setPointsInDomainCoords( filePolygon );
-            m_polygons.push_back( polygon );
-        }
+        int id = ( polygonId != -1 ) ? polygonId : static_cast<int>( polygons.size() + 1 );
+        polygon->setName( QString( "Polygon %1" ).arg( id ) );
+        polygon->setPointsInDomainCoords( filePolygon );
+        polygons.push_back( polygon );
     }
 
     if ( !errorMessages.isEmpty() )
     {
         RiaLogging::error( errorMessages );
     }
+
+    return polygons;
 }
