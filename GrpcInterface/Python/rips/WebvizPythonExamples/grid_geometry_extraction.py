@@ -10,9 +10,11 @@ rips_instance = Instance.find()
 grid_geometry_extraction_stub = GridGeometryExtractionStub(rips_instance.channel)
 
 grid_file_name = None
+grid_file_name = "D:\\Git\\resinsight-tutorials\\model-data\\norne\\NORNE_ATW2013_RFTPLT_V2.EGRID"
 ijk_index_filter = GridGeometryExtraction__pb2.IJKIndexFilter(
     iMin=0, iMax=1, jMin=1, jMax=3, kMin=0, kMax=3
 )
+# ijk_index_filter = None
 
 get_grid_surface_request = GridGeometryExtraction__pb2.GetGridSurfaceRequest(
     gridFilename=grid_file_name,
@@ -35,15 +37,14 @@ num_vertex_coords = 3  # [x, y, z]
 num_vertices_per_quad = 4  # [v1, v2, v3, v4]
 num_quads = len(vertex_array) / (num_vertex_coords * num_vertices_per_quad)
 
+# Create x-, y-, and z-arrays
 x_array = []
 y_array = []
 z_array = []
-
-# Create x-, y-, and z-arrays
 for i in range(0, len(vertex_array), num_vertex_coords):
-    x_array.append(vertex_array[i])
-    y_array.append(vertex_array[i + 1])
-    z_array.append(vertex_array[i + 2])
+    x_array.append(vertex_array[i + 0] + origin_utm.x)
+    y_array.append(vertex_array[i + 1] + origin_utm.y)
+    z_array.append(vertex_array[i + 2] + origin_utm.z)
 
 # Create triangular mesh
 i_array = []
@@ -51,7 +52,7 @@ j_array = []
 k_array = []
 for i in range(0, len(quad_indices_array), num_vertices_per_quad):
     # Set the indices of the vertices of the triangles
-    i_array.extend([i, i])
+    i_array.extend([i + 0, i + 0])
     j_array.extend([i + 1, i + 2])
     k_array.extend([i + 2, i + 3])
 
