@@ -31,6 +31,8 @@ class RimPolygonFile : public RimNamedObject
 public:
     RimPolygonFile();
 
+    void setFileName( const QString& fileName );
+
     void loadData();
 
     std::vector<RimPolygon*> polygons() const;

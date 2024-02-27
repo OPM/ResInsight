@@ -41,10 +41,12 @@ RimPolygonCollection::RimPolygonCollection()
 //--------------------------------------------------------------------------------------------------
 void RimPolygonCollection::loadData()
 {
-    for ( auto& p : m_polygonFiles() )
-    {
-        p->loadData();
-    }
+    /*
+        for ( auto& p : m_polygonFiles() )
+        {
+            p->loadData();
+        }
+    */
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -77,6 +77,6 @@ X_UTME,Y_UTMN,Z_TVDSS,POLY_ID
     EXPECT_TRUE( polygons.size() == 1 );
 
     auto firstPolygon = polygons.front();
-    EXPECT_TRUE( firstPolygon.size() == 9 );
-    EXPECT_DOUBLE_EQ( firstPolygon.back().z(), -1656.641845703125 );
+    EXPECT_TRUE( firstPolygon.second.size() == 9 );
+    EXPECT_DOUBLE_EQ( firstPolygon.second.back().z(), -1656.641845703125 );
 }

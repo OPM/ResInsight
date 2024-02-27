@@ -92,7 +92,7 @@ std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseText( const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseTextCsv( const QString& content, QString* errorMessage )
+std::vector<std::pair<int, std::vector<cvf::Vec3d>>> RifPolygonReader::parseTextCsv( const QString& content, QString* errorMessage )
 {
     RifCsvUserDataPastedTextParser parser( content, errorMessage );
 
@@ -120,7 +120,7 @@ std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseTextCsv( const QStri
         if ( ( firstSize == readValues[1].second.size() ) && ( firstSize == readValues[2].second.size() ) &&
              ( firstSize == readValues[3].second.size() ) )
         {
-            std::vector<std::vector<cvf::Vec3d>> polylines;
+            std::vector<std::pair<int, std::vector<cvf::Vec3d>>> polylines;
 
             std::vector<cvf::Vec3d> polygon;
 
@@ -130,7 +130,7 @@ std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseTextCsv( const QStri
                 int currentPolygonId = static_cast<int>( readValues[3].second[i] );
                 if ( polygonId != currentPolygonId )
                 {
-                    if ( !polygon.empty() ) polylines.push_back( polygon );
+                    if ( !polygon.empty() ) polylines.push_back( std::make_pair( polygonId, polygon ) );
                     polygon.clear();
                     polygonId = currentPolygonId;
                 }
@@ -140,7 +140,7 @@ std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseTextCsv( const QStri
                 polygon.push_back( point );
             }
 
-            if ( !polygon.empty() ) polylines.push_back( polygon );
+            if ( !polygon.empty() ) polylines.push_back( std::make_pair( polygonId, polygon ) );
 
             return polylines;
         }
@@ -148,15 +148,16 @@ std::vector<std::vector<cvf::Vec3d>> RifPolygonReader::parseTextCsv( const QStri
 
     if ( readValues.size() == 3 )
     {
-        std::vector<std::vector<cvf::Vec3d>> polylines( 1 );
+        std::vector<cvf::Vec3d> points;
 
         for ( size_t i = 0; i < readValues[0].second.size(); i++ )
         {
             cvf::Vec3d point( readValues[0].second[i], readValues[1].second[i], -readValues[2].second[i] );
-            polylines.back().push_back( point );
+            points.push_back( point );
         }
 
-        return polylines;
+        int polygonId = -1;
+        return { std::make_pair( polygonId, points ) };
     }
 
     return {};

@@ -24,9 +24,12 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
+#include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicNewPolygonFileFeature, "RicNewPolygonFileFeature" );
 
@@ -35,16 +38,37 @@ CAF_CMD_SOURCE_INIT( RicNewPolygonFileFeature, "RicNewPolygonFileFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicNewPolygonFileFeature::onActionTriggered( bool isChecked )
 {
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
+    QStringList     fileNames =
+        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                              "Import Polygons",
+                                              defaultDir,
+                                              "Text Files (*.txt);;Polylines (*.dat);;Polylines (*.pol);;All Files (*.*)" );
+
+    if ( fileNames.isEmpty() ) return;
+
+    // Remember the path to next time
+    app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileNames.last() ).absolutePath() );
+
     auto proj              = RimProject::current();
     auto polygonCollection = proj->activeOilField()->polygonCollection();
 
-    auto newPolygonFile = new RimPolygonFile();
-    newPolygonFile->setName( "File Polygon " + QString::number( polygonCollection->polygonFiles().size() + 1 ) );
-    polygonCollection->addPolygonFile( newPolygonFile );
+    RimPolygonFile* objectToSelect = nullptr;
+
+    for ( const auto& filename : fileNames )
+    {
+        auto newPolygonFile = new RimPolygonFile();
+        newPolygonFile->setFileName( filename );
+        newPolygonFile->setName( "File Polygon " + QString::number( polygonCollection->polygonFiles().size() + 1 ) );
+        newPolygonFile->loadData();
+        polygonCollection->addPolygonFile( newPolygonFile );
+        objectToSelect = newPolygonFile;
+    }
     polygonCollection->uiCapability()->updateAllRequiredEditors();
 
-    RiuPlotMainWindowTools::setExpanded( newPolygonFile );
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPolygonFile );
+    RiuPlotMainWindowTools::setExpanded( objectToSelect );
+    RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
 }
 
 //--------------------------------------------------------------------------------------------------
