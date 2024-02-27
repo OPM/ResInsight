@@ -56,8 +56,7 @@ RimGridCalculationVariable::RimGridCalculationVariable()
     CAF_PDM_InitField( &m_timeStep, "TimeStep", allTimeStepsValue(), "Time Step" );
 
     CAF_PDM_InitFieldNoDefault( &m_button, "PushButton", "" );
-    m_button.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_button.xmlCapability()->disableIO();
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_button );
 }
 
 //--------------------------------------------------------------------------------------------------

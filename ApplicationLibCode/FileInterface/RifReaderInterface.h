@@ -23,6 +23,7 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
+#include "cvfCollection.h"
 #include "cvfObject.h"
 
 #include "cafPdmPointer.h"
@@ -36,6 +37,7 @@
 
 class RigEclipseCaseData;
 class RifReaderSettings;
+class RigFault;
 
 //==================================================================================================
 //
@@ -77,6 +79,7 @@ public:
 protected:
     bool   isTimeStepIncludedByFilter( size_t timeStepIndex ) const;
     size_t timeStepIndexOnFile( size_t timeStepIndex ) const;
+    void   importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults );
 
 private:
     const RifReaderSettings* readerSettings() const;

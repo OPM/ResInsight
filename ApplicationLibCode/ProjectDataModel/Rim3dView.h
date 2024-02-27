@@ -52,7 +52,6 @@ class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
 class RivWellPathsPartMgr;
-class RivCellFilterPartMgr;
 class RimViewNameConfig;
 
 namespace cvf
@@ -193,7 +192,7 @@ public:
     RimViewLinker*     assosiatedViewLinker() const override;
     RimViewController* viewController() const override;
 
-    virtual void updateSurfacesInViewTreeItems();
+    virtual void updateViewTreeItems( RiaDefines::ItemIn3dView itemType );
 
     RimAnnotationInViewCollection* annotationCollection() const;
     void                           syncronizeLocalAnnotationsFromGlobal();
@@ -222,7 +221,6 @@ protected:
                                      double                  characteristicCellSize );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
     void addMeasurementToModel( cvf::ModelBasicList* measureModel );
-    void addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel );
 
     // Override viewer
 
@@ -311,7 +309,6 @@ private:
 
     void createHighlightAndGridBoxDisplayModel();
     void appendMeasurementToModel();
-    void appendCellFiltersToModel();
     void appendAnnotationsToModel();
     void updateScreenSpaceModel();
 
@@ -349,7 +346,6 @@ private:
     // 3D display model data
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
-    cvf::ref<RivCellFilterPartMgr>  m_cellfilterPartManager;
 
     // Timer for animations
     std::unique_ptr<QTimer> m_animationTimer;

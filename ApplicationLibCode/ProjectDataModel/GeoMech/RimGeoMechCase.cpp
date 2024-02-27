@@ -116,13 +116,13 @@ RimGeoMechCase::RimGeoMechCase()
     m_elementPropertyFileNameIndexUiSelection.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_importElementPropertyFileCommand, "importElementPropertyFileCommad", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_importElementPropertyFileCommand );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_importElementPropertyFileCommand );
 
     CAF_PDM_InitField( &m_closeElementPropertyFileCommand, "closeElementPropertyFileCommad", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_closeElementPropertyFileCommand );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_closeElementPropertyFileCommand );
 
     CAF_PDM_InitField( &m_reloadElementPropertyFileCommand, "reloadElementPropertyFileCommand", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_reloadElementPropertyFileCommand );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_reloadElementPropertyFileCommand );
 
     caf::AppEnum<BiotCoefficientType> defaultBiotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
     CAF_PDM_InitField( &m_biotCoefficientType, "BiotCoefficientType", defaultBiotCoefficientType, "Biot Coefficient" );

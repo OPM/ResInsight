@@ -67,9 +67,7 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator" );
 
     CAF_PDM_InitField( &m_swapEnsemblesButton, "SwapEnsembles", false, "SwapEnsembles" );
-    m_swapEnsemblesButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_swapEnsemblesButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_swapEnsemblesButton.xmlCapability()->disableIO();
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_swapEnsemblesButton );
 
     CAF_PDM_InitField( &m_caseCount, "CaseCount", QString( "" ), "Matching Cases" );
     m_caseCount.uiCapability()->setUiReadOnly( true );

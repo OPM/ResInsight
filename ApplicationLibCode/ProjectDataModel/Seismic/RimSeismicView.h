@@ -90,7 +90,7 @@ protected:
 
     void setDefaultView() override;
 
-    void updateSurfacesInViewTreeItems() override;
+    void updateViewTreeItems( RiaDefines::ItemIn3dView itemType ) override;
 
 private:
     caf::PdmChildField<RimSurfaceInViewCollection*>  m_surfaceCollection;

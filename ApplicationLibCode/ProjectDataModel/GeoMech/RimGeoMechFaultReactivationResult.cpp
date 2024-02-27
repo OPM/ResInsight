@@ -74,7 +74,7 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
     CAF_PDM_InitField( &m_distanceFromFault, "DistanceFromFault", 5.0, "Distance From Fault" );
 
     CAF_PDM_InitFieldNoDefault( &m_createFaultReactivationPlot, "CreateReactivationPlot", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_createFaultReactivationPlot );
+    caf::PdmUiPushButtonEditor::configureEditorLabelLeft( &m_createFaultReactivationPlot );
 
     CAF_PDM_InitFieldNoDefault( &m_faultNormal, "FaultNormal", "" );
     CAF_PDM_InitFieldNoDefault( &m_faultTopPosition, "FaultTopPosition", "" );

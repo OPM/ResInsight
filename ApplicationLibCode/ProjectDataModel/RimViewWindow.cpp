@@ -319,7 +319,7 @@ void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
     if ( treeItemAttribute && RiaPreferencesSystem::current()->showViewIdInProjectTree() && id() >= 0 )
     {
         treeItemAttribute->tags.clear();
-        auto tag                   = caf::PdmUiTreeViewItemAttribute::Tag::create();
+        auto tag                   = caf::PdmUiTreeViewItemAttribute::createTag();
         tag->text                  = QString( "%1" ).arg( id() );
         cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );
         cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );

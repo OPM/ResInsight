@@ -21,13 +21,15 @@ CAF_CMD_SOURCE_INIT( RicNewPolylineTargetFeature, "RicNewPolylineTargetFeature" 
 
 #include "RimCase.h"
 #include "RimGridView.h"
+#include "RimPolylinePickerInterface.h"
 #include "RimPolylineTarget.h"
 #include "RimProject.h"
-#include "RimUserDefinedPolylinesAnnotation.h"
+
 #include "cafSelectionManager.h"
-#include <QAction>
 
 #include "cvfBoundingBox.h"
+
+#include <QAction>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicNewPolylineTargetFeature, "RicNewPolylineTargetFeature" 
 bool RicNewPolylineTargetFeature::isCommandEnabled() const
 {
     {
-        std::vector<RimUserDefinedPolylinesAnnotation*> objects;
+        std::vector<RimPolylinePickerInterface*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
 
         if ( !objects.empty() )
@@ -66,7 +68,7 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
     if ( !selectedTargets.empty() )
     {
         auto firstTarget = selectedTargets.front();
-        RimUserDefinedPolylinesAnnotation* polylineDef = firstTarget->firstAncestorOrThisOfTypeAsserted<RimUserDefinedPolylinesAnnotation>();
+        auto polylineDef = firstTarget->firstAncestorOrThisOfTypeAsserted<RimPolylinePickerInterface>();
 
         auto afterBeforePair = polylineDef->findActiveTargetsAroundInsertionPoint( firstTarget );
 
@@ -109,49 +111,40 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    std::vector<RimUserDefinedPolylinesAnnotation*> polylineDefs;
+    std::vector<RimPolylinePickerInterface*> polylineDefs;
     caf::SelectionManager::instance()->objectsByType( &polylineDefs );
     if ( !polylineDefs.empty() )
     {
         auto*                           polylineDef   = polylineDefs[0];
         std::vector<RimPolylineTarget*> activeTargets = polylineDef->activeTargets();
 
+        cvf::Vec3d newPos = cvf::Vec3d::ZERO;
+
         size_t targetCount = activeTargets.size();
-
-        if ( targetCount == 0 )
+        if ( targetCount > 1 )
         {
-            auto defaultPos = cvf::Vec3d::ZERO;
-
-            // Set decent position
+            newPos                    = activeTargets[targetCount - 1]->targetPointXYZ();
+            cvf::Vec3d nextLastToLast = newPos - activeTargets[targetCount - 2]->targetPointXYZ();
+            newPos += 0.5 * nextLastToLast;
+        }
+        else if ( targetCount > 0 )
+        {
+            newPos = activeTargets[targetCount - 1]->targetPointXYZ() + cvf::Vec3d( 0, 0, 200 );
+        }
+        else
+        {
             std::vector<RimGridView*> gridViews;
             RimProject::current()->allVisibleGridViews( gridViews );
             if ( !gridViews.empty() )
             {
                 auto minPos = gridViews.front()->ownerCase()->allCellsBoundingBox().min();
-                defaultPos  = minPos;
+                newPos      = minPos;
             }
-
-            polylineDef->appendTarget( defaultPos );
         }
-        else
-        {
-            cvf::Vec3d newPos = cvf::Vec3d::ZERO;
 
-            if ( targetCount > 1 )
-            {
-                newPos                    = activeTargets[targetCount - 1]->targetPointXYZ();
-                cvf::Vec3d nextLastToLast = newPos - activeTargets[targetCount - 2]->targetPointXYZ();
-                newPos += 0.5 * nextLastToLast;
-            }
-            else if ( targetCount > 0 )
-            {
-                newPos = activeTargets[targetCount - 1]->targetPointXYZ() + cvf::Vec3d( 0, 0, 200 );
-            }
-
-            auto* newTarget = new RimPolylineTarget;
-            newTarget->setAsPointTargetXYD( { newPos[0], newPos[1], -newPos[2] } );
-            polylineDef->insertTarget( nullptr, newTarget );
-        }
+        auto* newTarget = new RimPolylineTarget;
+        newTarget->setAsPointTargetXYD( { newPos[0], newPos[1], -newPos[2] } );
+        polylineDef->insertTarget( nullptr, newTarget );
 
         polylineDef->updateEditorsAndVisualization();
     }

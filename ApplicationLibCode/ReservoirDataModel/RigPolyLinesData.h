@@ -34,7 +34,8 @@ public:
     RigPolyLinesData();
     ~RigPolyLinesData() override;
 
-    const std::vector<std::vector<cvf::Vec3d>>& polyLines() const;
+    const std::vector<std::vector<cvf::Vec3d>>& rawPolyLines() const;
+    const std::vector<std::vector<cvf::Vec3d>>  completePolyLines() const;
 
     void setPolyLines( const std::vector<std::vector<cvf::Vec3d>>& polyLines );
     void setPolyLine( const std::vector<cvf::Vec3d>& polyline );

@@ -21,6 +21,7 @@
 
 #include "RiaPreferences.h"
 
+#include "RifEclipseInputFileTools.h"
 #include "RifReaderSettings.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -143,4 +144,37 @@ const RifReaderSettings* RifReaderInterface::readerSettings() const
 void RifReaderInterface::setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings )
 {
     m_readerSettings = readerSettings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderInterface::importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults )
+{
+    if ( !filenamesWithFaults().empty() )
+    {
+        for ( size_t i = 0; i < filenamesWithFaults().size(); i++ )
+        {
+            QString faultFilename = filenamesWithFaults()[i];
+
+            RifEclipseInputFileTools::parseAndReadFaults( faultFilename, faults );
+        }
+    }
+    else
+    {
+        foreach ( QString fname, fileSet )
+        {
+            if ( fname.endsWith( ".DATA" ) )
+            {
+                std::vector<QString> filenamesWithFaults;
+                RifEclipseInputFileTools::readFaultsInGridSection( fname, faults, &filenamesWithFaults, faultIncludeFileAbsolutePathPrefix() );
+
+                std::sort( filenamesWithFaults.begin(), filenamesWithFaults.end() );
+                std::vector<QString>::iterator last = std::unique( filenamesWithFaults.begin(), filenamesWithFaults.end() );
+                filenamesWithFaults.erase( last, filenamesWithFaults.end() );
+
+                setFilenamesWithFaults( filenamesWithFaults );
+            }
+        }
+    }
 }

@@ -102,7 +102,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitFieldNoDefault( &m_fixedMeasuredDepths, "FixedMeasuredDepths", "" );
 
     CAF_PDM_InitField( &m_pickPointsEnabled, "m_pickPointsEnabled", false, "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_pickPointsEnabled );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_pickPointsEnabled );
 
     CAF_PDM_InitScriptableField( &m_showSpheres, "ShowSpheres", true, "Spheres" );
     CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::CEETRON ), "Sphere Color" );

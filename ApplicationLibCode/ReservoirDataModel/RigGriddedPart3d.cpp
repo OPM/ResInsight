@@ -236,9 +236,9 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
         nVertCells += layersPerRegion[region].size();
     }
 
-    const std::vector<double> m_thicknessFactors = { -1.0, 0.0, 1.0 };
-    const int                 nThicknessCells    = 2;
-    cvf::Vec3d                tVec               = modelThickness * thicknessDirection;
+    const std::vector<double> thicknessFactors = { -1.0, 0.0, 1.0 };
+    const int                 nThicknessCells  = 2;
+    cvf::Vec3d                tVec             = modelThickness * thicknessDirection;
 
     size_t reserveSize = ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     m_nodes.reserve( reserveSize );
@@ -320,7 +320,7 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
                 for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
                 {
-                    m_nodes.push_back( p + m_thicknessFactors[t] * tVec );
+                    m_nodes.push_back( p + thicknessFactors[t] * tVec );
 
                     if ( h == (int)nHorzCells )
                     {
@@ -400,15 +400,15 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
         {
             for ( int t = 0; t < nThicknessCells; t++, elementIdx++ )
             {
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
-                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
-
                 m_elementIndices[elementIdx].push_back( t + i );
-                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
-                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
                 m_elementIndices[elementIdx].push_back( t + i + 1 );
+                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff + 1 );
+                m_elementIndices[elementIdx].push_back( t + i + nThicknessOff );
+
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + 1 );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff + 1 );
+                m_elementIndices[elementIdx].push_back( t + nextLayerIdxOff + i + nThicknessOff );
 
                 if ( v == 0 )
                 {
@@ -765,17 +765,5 @@ void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
                 usedElements.insert( elIdx + 1 );
             }
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigGriddedPart3d::flipNodeOrder()
-{
-    for ( auto& nodes : m_elementIndices )
-    {
-        std::swap( nodes[1], nodes[3] );
-        std::swap( nodes[5], nodes[7] );
     }
 }

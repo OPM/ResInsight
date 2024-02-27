@@ -99,8 +99,6 @@ RimFaultReactivationModel::RimFaultReactivationModel()
     CAF_PDM_InitField( &m_faultZoneCells, "FaultZoneCells", 0, "Fault Zone Width [cells]" );
 
     CAF_PDM_InitField( &m_showModelPlane, "ShowModelPlane", true, "Show 2D Model" );
-    CAF_PDM_InitField( &m_flipNodeOrderFW, "FlipNodeOrderFW", false, "FW: Flip Node Order" );
-    CAF_PDM_InitField( &m_flipNodeOrderHW, "FlipNodeOrderHW", false, "HW: Flip Node Order" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
@@ -344,7 +342,6 @@ void RimFaultReactivationModel::updateVisualization()
     m_2Dmodel->setGenerator( generator );
     m_2Dmodel->updateGeometry( m_startCellIndex, (cvf::StructGridInterface::FaceType)m_startCellFace() );
     m_2Dmodel->postProcessElementSets( eclipseCase() );
-    m_2Dmodel->flipNodeOrder( m_flipNodeOrderFW, m_flipNodeOrderHW );
 
     view->scheduleCreateDisplayModelAndRedraw();
 }
@@ -474,9 +471,6 @@ void RimFaultReactivationModel::defineUiOrdering( QString uiConfigName, caf::Pdm
     gridModelGrp->add( &m_cellWidthGrowFactor );
 
     gridModelGrp->add( &m_modelThickness );
-
-    gridModelGrp->add( &m_flipNodeOrderFW );
-    gridModelGrp->add( &m_flipNodeOrderHW );
 
     auto appModelGrp = modelGrp->addNewGroup( "Appearance" );
     appModelGrp->setCollapsedByDefault();
@@ -741,9 +735,9 @@ std::string RimFaultReactivationModel::baseFilePath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets elementSet ) const
+std::array<double, 4> RimFaultReactivationModel::materialParameters( ElementSets elementSet ) const
 {
-    std::array<double, 3>                     retVal   = { 0.0, 0.0, 0.0 };
+    std::array<double, 4>                     retVal   = { 0.0, 0.0, 0.0, 0.0 };
     static std::map<ElementSets, std::string> groupMap = { { ElementSets::OverBurden, "material_overburden" },
                                                            { ElementSets::Reservoir, "material_reservoir" },
                                                            { ElementSets::IntraReservoir, "material_intrareservoir" },
@@ -759,6 +753,7 @@ std::array<double, 3> RimFaultReactivationModel::materialParameters( ElementSets
         retVal[0] = grp->parameterDoubleValue( "youngs_modulus", 0.0 );
         retVal[1] = grp->parameterDoubleValue( "poissons_number", 0.0 );
         retVal[2] = grp->parameterDoubleValue( "density", 0.0 );
+        retVal[3] = grp->parameterDoubleValue( "expansion", 0.0 );
 
         break;
     }

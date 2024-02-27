@@ -379,14 +379,13 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
         if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( fileName, &fileSet ) ) return false;
 
-        m_fileName = fileName;
+        m_fileName              = fileName;
+        m_filesWithSameBaseName = fileSet;
     }
 
     ecl_grid_type* mainEclGrid = nullptr;
     {
         auto task = progress.task( "Open Init File and Load Main Grid", 19 );
-        // Keep the set of files of interest
-        m_filesWithSameBaseName = fileSet;
 
         openInitFile();
 
@@ -606,39 +605,6 @@ void RifReaderEclipseOutput::setFileDataAccess( RifEclipseRestartDataAccess* res
 const size_t* RifReaderEclipseOutput::eclipseCellIndexMapping()
 {
     return cellMappingECLRi;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults )
-{
-    if ( !filenamesWithFaults().empty() )
-    {
-        for ( size_t i = 0; i < filenamesWithFaults().size(); i++ )
-        {
-            QString faultFilename = filenamesWithFaults()[i];
-
-            RifEclipseInputFileTools::parseAndReadFaults( faultFilename, faults );
-        }
-    }
-    else
-    {
-        foreach ( QString fname, fileSet )
-        {
-            if ( fname.endsWith( ".DATA" ) )
-            {
-                std::vector<QString> filenamesWithFaults;
-                RifEclipseInputFileTools::readFaultsInGridSection( fname, faults, &filenamesWithFaults, faultIncludeFileAbsolutePathPrefix() );
-
-                std::sort( filenamesWithFaults.begin(), filenamesWithFaults.end() );
-                std::vector<QString>::iterator last = std::unique( filenamesWithFaults.begin(), filenamesWithFaults.end() );
-                filenamesWithFaults.erase( last, filenamesWithFaults.end() );
-
-                setFilenamesWithFaults( filenamesWithFaults );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

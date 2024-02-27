@@ -48,6 +48,15 @@ void caf::AppEnum<RimRftTopologyCurve::CurveType>::setUp()
 
     setDefault( RimRftTopologyCurve::CurveType::TUBING );
 }
+template <>
+void caf::AppEnum<RimRftTopologyCurve::SymbolLocationType>::setUp()
+{
+    addItem( RimRftTopologyCurve::SymbolLocationType::START, "START", "Start" );
+    addItem( RimRftTopologyCurve::SymbolLocationType::MID, "MID", "Midpoint" );
+    addItem( RimRftTopologyCurve::SymbolLocationType::END, "END", "End" );
+
+    setDefault( RimRftTopologyCurve::SymbolLocationType::END );
+}
 
 } // End namespace caf
 
@@ -68,6 +77,7 @@ RimRftTopologyCurve::RimRftTopologyCurve()
     CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveType, "CurveType", "Curve Type" );
+    CAF_PDM_InitFieldNoDefault( &m_symbolLocation, "SymbolLocation", "Symbol Location on Segment" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,6 +231,7 @@ void RimRftTopologyCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
     curveDataGroup->add( &m_curveType );
+    curveDataGroup->add( &m_symbolLocation );
 
     curveDataGroup->add( &m_segmentBranchIndex );
     curveDataGroup->add( &m_segmentBranchType );
@@ -289,8 +300,32 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
             std::vector<double> depths;
             std::vector<double> propertyValues;
 
-            std::vector<double> seglenstValues =
-                RimRftTools::seglenstValues( rftReader, m_wellName, m_timeStep, -1, RiaDefines::RftBranchType::RFT_UNKNOWN );
+            std::vector<double> symbolLocationDepths;
+            if ( m_symbolLocation() == SymbolLocationType::START )
+            {
+                symbolLocationDepths =
+                    RimRftTools::segmentStartMdValues( rftReader, m_wellName, m_timeStep, -1, RiaDefines::RftBranchType::RFT_UNKNOWN );
+            }
+            else if ( m_symbolLocation() == SymbolLocationType::MID )
+            {
+                symbolLocationDepths =
+                    RimRftTools::segmentStartMdValues( rftReader, m_wellName, m_timeStep, -1, RiaDefines::RftBranchType::RFT_UNKNOWN );
+                auto endDepths =
+                    RimRftTools::segmentEndMdValues( rftReader, m_wellName, m_timeStep, -1, RiaDefines::RftBranchType::RFT_UNKNOWN );
+
+                if ( symbolLocationDepths.size() == endDepths.size() )
+                {
+                    for ( size_t i = 0; i < symbolLocationDepths.size(); ++i )
+                    {
+                        symbolLocationDepths[i] = ( symbolLocationDepths[i] + endDepths[i] ) / 2.0;
+                    }
+                }
+            }
+            else if ( m_symbolLocation() == SymbolLocationType::END )
+            {
+                symbolLocationDepths =
+                    RimRftTools::segmentEndMdValues( rftReader, m_wellName, m_timeStep, -1, RiaDefines::RftBranchType::RFT_UNKNOWN );
+            }
 
             auto segment        = rftReader->segmentForWell( m_wellName, m_timeStep );
             auto segmentIndices = segment.segmentIndicesForBranchIndex( m_segmentBranchIndex(), m_segmentBranchType() );
@@ -317,7 +352,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                     for ( auto segmentIndex : packerSegmentIndices )
                     {
-                        depths.push_back( seglenstValues[segmentIndex] );
+                        depths.push_back( symbolLocationDepths[segmentIndex] );
 
                         propertyValues.push_back( curveValue );
                     }
@@ -326,7 +361,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 {
                     for ( auto segmentIndex : segmentIndices )
                     {
-                        depths.push_back( seglenstValues[segmentIndex] );
+                        depths.push_back( symbolLocationDepths[segmentIndex] );
 
                         propertyValues.push_back( curveValue );
                     }

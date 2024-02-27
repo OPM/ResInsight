@@ -23,6 +23,7 @@
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
+#include "Polygons/RimPolygonCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "Rim3dWellLogExtractionCurve.h"
@@ -1138,6 +1139,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicAddGridCalculationFeature";
         }
+        else if ( dynamic_cast<RimPolygonCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewPolygonFeature";
+            menuBuilder << "RicNewPolygonFileFeature";
+        }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
         {
@@ -1151,6 +1157,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
     if ( firstUiItem )
     {
+        if ( auto pdmObject = dynamic_cast<caf::PdmUiObjectHandle*>( firstUiItem ) )
+        {
+            pdmObject->appendMenuItems( menuBuilder );
+        }
+
         // Work in progress -- Start
         // All commands should be aware of selection of multiple objects
         // Based on the selection, the command feature can decide if the command

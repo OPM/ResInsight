@@ -60,8 +60,6 @@ public:
 
     void appendTarget( const cvf::Vec3d& defaultPos = cvf::Vec3d::ZERO );
 
-    std::pair<RimPolylineTarget*, RimPolylineTarget*> findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore );
-
     void enablePicking( bool enable );
 
 protected:

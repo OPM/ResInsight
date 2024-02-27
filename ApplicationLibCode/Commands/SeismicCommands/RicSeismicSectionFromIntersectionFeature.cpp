@@ -47,6 +47,7 @@ bool RicSeismicSectionFromIntersectionFeature::isCommandEnabled() const
     if ( intersection != nullptr )
     {
         return ( ( intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE ) ||
+                 ( intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYGON ) ||
                  ( intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH ) );
     }
 
@@ -70,7 +71,8 @@ void RicSeismicSectionFromIntersectionFeature::onActionTriggered( bool isChecked
     RimSeismicSection*           newSection = seisColl->addNewSection();
     if ( !newSection ) return;
 
-    if ( intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE )
+    if ( ( intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE ) ||
+         ( intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYGON ) )
     {
         newSection->setSectionType( RiaDefines::SeismicSectionType::SS_POLYLINE );
         newSection->setUserDescription( intersection->name() );

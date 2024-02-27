@@ -178,27 +178,48 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIndexOptions( RifReaderR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimRftTools::seglenstValues( RifReaderRftInterface*    readerRft,
-                                                 const QString&            wellName,
-                                                 const QDateTime&          dateTime,
-                                                 int                       segmentBranchIndex,
-                                                 RiaDefines::RftBranchType segmentBranchType )
+std::vector<double> RimRftTools::segmentStartMdValues( RifReaderRftInterface*    readerRft,
+                                                       const QString&            wellName,
+                                                       const QDateTime&          dateTime,
+                                                       int                       segmentBranchIndex,
+                                                       RiaDefines::RftBranchType segmentBranchType )
 {
-    std::vector<double> seglenstValues;
+    std::vector<double> values;
 
     auto resultNameSeglenst = RifEclipseRftAddress::createBranchSegmentAddress( wellName,
                                                                                 dateTime,
                                                                                 RiaDefines::segmentStartDepthResultName(),
                                                                                 segmentBranchIndex,
                                                                                 segmentBranchType );
-    readerRft->values( resultNameSeglenst, &seglenstValues );
+    readerRft->values( resultNameSeglenst, &values );
 
-    if ( seglenstValues.size() > 2 )
+    if ( values.size() > 2 )
     {
         // Segment 1 has zero length, assign seglenst to the start value of segment 2
         // Ref mail dated June 10, 2022, topic "SELENST fix"
-        seglenstValues[0] = seglenstValues[1];
+        values[0] = values[1];
     }
 
-    return seglenstValues;
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimRftTools::segmentEndMdValues( RifReaderRftInterface*    readerRft,
+                                                     const QString&            wellName,
+                                                     const QDateTime&          dateTime,
+                                                     int                       segmentBranchIndex,
+                                                     RiaDefines::RftBranchType segmentBranchType )
+{
+    std::vector<double> values;
+
+    auto resultNameSeglenst = RifEclipseRftAddress::createBranchSegmentAddress( wellName,
+                                                                                dateTime,
+                                                                                RiaDefines::segmentEndDepthResultName(),
+                                                                                segmentBranchIndex,
+                                                                                segmentBranchType );
+    readerRft->values( resultNameSeglenst, &values );
+
+    return values;
 }

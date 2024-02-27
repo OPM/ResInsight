@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021 Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,73 +16,67 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivCellFilterPartMgr.h"
+#include "RimPolygonFile.h"
+#include "RimPolygon.h"
 
-#include "Rim3dView.h"
-#include "RimCellFilterCollection.h"
-#include "RimPolygonFilter.h"
-
-#include "RivPolylinePartMgr.h"
-
-#include "cafPdmObject.h"
+CAF_PDM_SOURCE_INIT( RimPolygonFile, "RimPolygonFileFile" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivCellFilterPartMgr::RivCellFilterPartMgr( Rim3dView* view )
-    : m_rimView( view )
+RimPolygonFile::RimPolygonFile()
+{
+    CAF_PDM_InitObject( "PolygonFile", ":/PolylinesFromFile16x16.png" );
+
+    CAF_PDM_InitFieldNoDefault( &m_fileName, "StimPlanFileName", "File Name" );
+    CAF_PDM_InitFieldNoDefault( &m_polygons, "Polygons", "Polygons" );
+
+    setDeletable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFile::loadData()
+{
+    loadPolygonsFromFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolygon*> RimPolygonFile::polygons() const
+{
+    return m_polygons.childrenByType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivCellFilterPartMgr::~RivCellFilterPartMgr()
+void RimPolygonFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    loadPolygonsFromFile();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivCellFilterPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*              model,
-                                                       const caf::DisplayCoordTransform* displayCoordTransform,
-                                                       const cvf::BoundingBox&           boundingBox )
+void RimPolygonFile::loadPolygonsFromFile()
 {
-    createCellFilterPartManagers();
+    // m_polygons()->deletePolygons();
 
-    for ( auto& partMgr : m_cellFilterPartMgrs )
-    {
-        partMgr->appendDynamicGeometryPartsToModel( model, displayCoordTransform, boundingBox );
-    }
-}
+    auto polygon = new RimPolygon();
+    polygon->setName( "Polygon 1" );
+    m_polygons.push_back( polygon );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivCellFilterPartMgr::createCellFilterPartManagers()
-{
-    std::vector<RimCellFilterCollection*> colls = m_rimView->descendantsIncludingThisOfType<RimCellFilterCollection>();
-
-    if ( colls.empty() ) return;
-    auto coll = colls.front();
-
-    clearGeometryCache();
-
-    for ( auto filter : coll->filters() )
-    {
-        RimPolygonFilter* polyFilter = dynamic_cast<RimPolygonFilter*>( filter );
-        if ( polyFilter )
-        {
-            RivPolylinePartMgr* ppm = new RivPolylinePartMgr( m_rimView, polyFilter, coll );
-            m_cellFilterPartMgrs.push_back( ppm );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivCellFilterPartMgr::clearGeometryCache()
-{
-    m_cellFilterPartMgrs.clear();
+    polygon = new RimPolygon();
+    polygon->setName( "Polygon 2" );
+    m_polygons.push_back( polygon );
 }

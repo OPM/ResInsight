@@ -1,5 +1,3 @@
-
-
 //##################################################################################################
 //
 //   Custom Visualization Core library
@@ -73,11 +71,12 @@ public:
 
         caf::Signal<size_t> clicked;
 
-        static std::unique_ptr<Tag> create() { return std::make_unique<Tag>(); }
-
     private:
         Tag& operator=( const Tag& rhs ) { return *this; }
     };
+
+    static std::unique_ptr<Tag> createTag();
+    static void createTagIfTreeViewItemAttribute( caf::PdmUiEditorAttribute* attribute, const QString& iconString );
 
     std::vector<std::unique_ptr<Tag>> tags;
 };

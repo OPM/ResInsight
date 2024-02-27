@@ -107,7 +107,7 @@ public:
     std::vector<QDateTime> selectedTimeSteps() const;
     std::vector<size_t>    selectedTimeStepIndexes() const;
 
-    std::array<double, 3> materialParameters( ElementSets elementSet ) const;
+    std::array<double, 4> materialParameters( ElementSets elementSet ) const;
 
     QStringList commandParameters() const;
 
@@ -162,8 +162,6 @@ private:
     caf::PdmField<cvf::Color3f>                 m_modelPart2Color;
 
     caf::PdmField<bool> m_showModelPlane;
-    caf::PdmField<bool> m_flipNodeOrderFW;
-    caf::PdmField<bool> m_flipNodeOrderHW;
 
     caf::PdmField<double> m_modelExtentFromAnchor;
     caf::PdmField<double> m_modelMinZ;

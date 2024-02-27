@@ -20,6 +20,14 @@
 
 #include "cafCmdFeature.h"
 
+#include "RigWbsParameter.h"
+
+#include "RimPlotCurveAppearance.h"
+
+#include "cvfColor3.h"
+
+#include <set>
+
 class RimGeoMechCase;
 class RimGeoMechView;
 class RimWbsParameters;
@@ -48,4 +56,8 @@ private:
     static void createParametersTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int timeStep );
     static void createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int timeStep );
     static void createAnglesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int timeStep );
+
+    static std::set<RigWbsParameter> parametersForTrack();
+    static std::pair<cvf::Color3f, RiuQwtPlotCurveDefines::LineStyleEnum>
+        getColorAndLineStyle( const QString& resultName, size_t i, const std::vector<cvf::Color3f>& colors );
 };

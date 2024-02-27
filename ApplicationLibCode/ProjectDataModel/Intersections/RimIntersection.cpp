@@ -19,7 +19,6 @@
 #include "RimIntersection.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"

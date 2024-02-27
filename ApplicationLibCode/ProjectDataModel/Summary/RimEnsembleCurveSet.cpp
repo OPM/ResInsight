@@ -139,8 +139,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_yPushButtonSelectSummaryAddress );
-    m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_yPushButtonSelectSummaryAddress );
     m_yPushButtonSelectSummaryAddress = false;
 
     CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
@@ -191,8 +190,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton, "SelectObjectiveSummaryAddress", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_objectiveValuesSelectSummaryAddressPushButton );
-    m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &m_objectiveValuesSelectSummaryAddressPushButton );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function" );
@@ -1064,7 +1062,7 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
     if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
     {
         treeItemAttribute->tags.clear();
-        auto tag     = caf::PdmUiTreeViewItemAttribute::Tag::create();
+        auto tag     = caf::PdmUiTreeViewItemAttribute::createTag();
         tag->bgColor = RiaColorTools::toQColor( m_colorForRealizations );
         tag->fgColor = RiaColorTools::toQColor( m_statistics->color() );
         tag->text    = "---";

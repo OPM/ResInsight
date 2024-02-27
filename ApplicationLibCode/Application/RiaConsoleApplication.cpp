@@ -131,6 +131,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
     if ( progOpt->option( "version" ) )
     {
         QString text = QString( STRPRODUCTVER ) + "\n";
+        text += "SHA " + QString( RESINSIGHT_GIT_HASH ) + "\n";
 
         showFormattedTextInMessageBoxOrConsole( text );
 

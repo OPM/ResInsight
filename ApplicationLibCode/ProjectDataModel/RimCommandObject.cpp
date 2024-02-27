@@ -63,9 +63,7 @@ RimCommandExecuteScript::RimCommandExecuteScript()
     CAF_PDM_InitField( &isEnabled, "IsEnabled", true, "Enabled " );
 
     CAF_PDM_InitField( &execute, "Execute", true, "Execute" );
-    execute.xmlCapability()->disableIO();
-    execute.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    execute.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiPushButtonEditor::configureEditorLabelHidden( &execute );
 }
 
 //--------------------------------------------------------------------------------------------------

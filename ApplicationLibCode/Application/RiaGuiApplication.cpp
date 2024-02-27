@@ -463,6 +463,16 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
+    if ( progOpt->option( "version" ) )
+    {
+        QString text = QString( STRPRODUCTVER ) + "\n";
+        text += "SHA " + QString( RESINSIGHT_GIT_HASH ) + "\n";
+
+        showFormattedTextInMessageBoxOrConsole( text );
+
+        return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
+    }
+
     // Code generation
     // -----------------
     if ( cvf::Option o = progOpt->option( "generate" ) )

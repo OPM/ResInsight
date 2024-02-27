@@ -44,6 +44,13 @@ public:
         ANNULUS
     };
 
+    enum class SymbolLocationType
+    {
+        START,
+        MID,
+        END
+    };
+
 public:
     RimRftTopologyCurve();
 
@@ -77,12 +84,13 @@ protected:
     void onLoadDataAndUpdate( bool updateParentPlot ) override;
 
 private:
-    caf::PdmPtrField<RimSummaryCase*>                           m_summaryCase;
-    caf::PdmField<QDateTime>                                    m_timeStep;
-    caf::PdmField<QString>                                      m_wellName;
-    caf::PdmField<int>                                          m_segmentBranchIndex;
-    caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>>      m_segmentBranchType;
-    caf::PdmField<caf::AppEnum<RimRftTopologyCurve::CurveType>> m_curveType;
+    caf::PdmPtrField<RimSummaryCase*>                                    m_summaryCase;
+    caf::PdmField<QDateTime>                                             m_timeStep;
+    caf::PdmField<QString>                                               m_wellName;
+    caf::PdmField<int>                                                   m_segmentBranchIndex;
+    caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>>               m_segmentBranchType;
+    caf::PdmField<caf::AppEnum<RimRftTopologyCurve::CurveType>>          m_curveType;
+    caf::PdmField<caf::AppEnum<RimRftTopologyCurve::SymbolLocationType>> m_symbolLocation;
 
 public:
     void setAdditionalDataSources( const std::vector<RimPlotCurve*>& additionalDataSources );

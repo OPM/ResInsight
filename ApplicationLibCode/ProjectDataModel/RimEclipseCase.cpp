@@ -99,9 +99,11 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis" );
     CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults_OBSOLETE, "CachedFileNamesContainingFaults", "" );
-    m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden( true );
-    m_filesContainingFaults_OBSOLETE.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults, "CachedFileNamesContainingFaults", "" );
+    m_filesContainingFaults.uiCapability()->setUiHidden( true );
+    // Caching of file names causes issues when using the project file as template, do not save to disk
+    // https://github.com/OPM/ResInsight/issues/7308
+    m_filesContainingFaults.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
     m_contourMapCollection = new RimEclipseContourMapViewCollection;
@@ -927,7 +929,7 @@ std::vector<QString> RimEclipseCase::filesContainingFaults() const
 {
     std::vector<QString> stdPathList;
 
-    for ( auto& filePath : m_filesContainingFaults_OBSOLETE() )
+    for ( auto& filePath : m_filesContainingFaults() )
     {
         stdPathList.push_back( filePath.path() );
     }
@@ -946,7 +948,7 @@ void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& pathS
         filePaths.push_back( pathString );
     }
 
-    m_filesContainingFaults_OBSOLETE = filePaths;
+    m_filesContainingFaults = filePaths;
 }
 
 //--------------------------------------------------------------------------------------------------

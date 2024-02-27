@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021-     Equinor ASA
+//  Copyright (C) 2024     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,20 +15,35 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RimNamedObject.h"
 
-//==================================================================================================
-///
-//==================================================================================================
-class RicAppendPointsToPolygonFilterFeature : public caf::CmdFeature
+#include "cafFilePath.h"
+#include "cafPdmChildArrayField.h"
+
+class RimPolygon;
+
+class RimPolygonFile : public RimNamedObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimPolygonFile();
+
+    void loadData();
+
+    std::vector<RimPolygon*> polygons() const;
 
 protected:
-    bool isCommandEnabled() const override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+private:
+    void loadPolygonsFromFile();
+
+private:
+    caf::PdmField<caf::FilePath> m_fileName;
+
+    caf::PdmChildArrayField<RimPolygon*> m_polygons;
 };

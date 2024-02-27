@@ -99,7 +99,7 @@ RimSummaryAddressCollection::~RimSummaryAddressCollection()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryAddressCollection::hasDataVector( const QString quantityName ) const
 {
-    for ( auto& address : m_adresses )
+    for ( const auto& address : m_adresses )
     {
         if ( address->quantityName() == quantityName ) return true;
     }
@@ -344,6 +344,32 @@ void RimSummaryAddressCollection::deleteChildren()
 {
     m_adresses.deleteChildren();
     m_subfolders.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::deleteCalculatedObjects()
+{
+    std::vector<RimSummaryAddress*> toDelete;
+    for ( const auto& a : m_adresses )
+    {
+        if ( a->address().isCalculated() )
+        {
+            toDelete.push_back( a );
+        }
+    }
+
+    for ( auto a : toDelete )
+    {
+        m_adresses.removeChild( a );
+        delete a;
+    }
+
+    for ( auto& folder : m_subfolders )
+    {
+        folder->deleteCalculatedObjects();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

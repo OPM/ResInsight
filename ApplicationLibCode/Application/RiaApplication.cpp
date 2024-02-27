@@ -40,6 +40,8 @@
 #include "RicfCommandObject.h"
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
+#include "Polygons/RimPolygonCollection.h"
+
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -544,6 +546,8 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
         {
             seismicData->ensureFileReaderIsInitialized();
         }
+
+        oilField->polygonCollection()->loadData();
     }
 
     {
@@ -658,7 +662,10 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
                         }
                     }
 
-                    setActiveReservoirView( riv );
+                    if ( riv->showWindow() )
+                    {
+                        setActiveReservoirView( riv );
+                    }
 
                     RimGridView* rigv = dynamic_cast<RimGridView*>( riv );
                     if ( rigv ) rigv->cellFilterCollection()->updateIconState();

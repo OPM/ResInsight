@@ -62,13 +62,13 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::exportToStream( 
 
     // The two parts are "mirrored", so face number 4 of the two parts should face eachother.
     using FaultGridPart                                              = RimFaultReactivation::GridPart;
-    std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::FW, PartBorderSurface::FaultSurface }, 4 },
-                                                                         { { FaultGridPart::FW, PartBorderSurface::UpperSurface }, 4 },
-                                                                         { { FaultGridPart::FW, PartBorderSurface::LowerSurface }, 4 },
+    std::map<std::pair<FaultGridPart, PartBorderSurface>, int> faces = { { { FaultGridPart::FW, PartBorderSurface::FaultSurface }, 5 },
+                                                                         { { FaultGridPart::FW, PartBorderSurface::UpperSurface }, 5 },
+                                                                         { { FaultGridPart::FW, PartBorderSurface::LowerSurface }, 5 },
                                                                          { { FaultGridPart::FW, PartBorderSurface::Seabed }, 2 },
-                                                                         { { FaultGridPart::HW, PartBorderSurface::FaultSurface }, 4 },
-                                                                         { { FaultGridPart::HW, PartBorderSurface::UpperSurface }, 4 },
-                                                                         { { FaultGridPart::HW, PartBorderSurface::LowerSurface }, 4 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::FaultSurface }, 5 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::UpperSurface }, 5 },
+                                                                         { { FaultGridPart::HW, PartBorderSurface::LowerSurface }, 5 },
                                                                          { { FaultGridPart::HW, PartBorderSurface::Seabed }, 2 } };
 
     std::map<FaultGridPart, std::string> partNames = {
@@ -327,6 +327,7 @@ std::pair<bool, std::string>
         double      poissonNumber;
         double      permeability1;
         double      permeability2;
+        double      expansion;
     };
 
     RifInpExportTools::printSectionComment( stream, "MATERIALS" );
@@ -334,7 +335,7 @@ std::pair<bool, std::string>
 
     for ( auto [element, materialName] : materialNames )
     {
-        std::array<double, 3> parameters = rimModel.materialParameters( element );
+        std::array<double, 4> parameters = rimModel.materialParameters( element );
 
         // Incoming unit for Young's Modulus is GPa: convert to Pa.
         double youngsModulus = RiaEclipseUnitTools::gigaPascalToPascal( parameters[0] );
@@ -345,12 +346,15 @@ std::pair<bool, std::string>
         // Unit is already kg/m^3
         double density = parameters[2];
 
+        double expansion = parameters[3];
+
         materials.push_back( Material{ .name          = materialName,
                                        .density       = density,
                                        .youngsModulus = youngsModulus,
                                        .poissonNumber = poissonNumber,
                                        .permeability1 = 1e-09,
-                                       .permeability2 = 0.3 } );
+                                       .permeability2 = 0.3,
+                                       .expansion     = expansion } );
     }
 
     for ( Material mat : materials )
@@ -378,6 +382,8 @@ std::pair<bool, std::string>
 
         RifInpExportTools::printHeading( stream, "Permeability, specific=1." );
         RifInpExportTools::printNumbers( stream, { mat.permeability1, mat.permeability2 } );
+        RifInpExportTools::printHeading( stream, "Expansion" );
+        RifInpExportTools::printNumbers( stream, { mat.expansion } );
     }
 
     if ( densityFromGrid )

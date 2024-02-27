@@ -264,12 +264,3 @@ void RigFaultReactivationModel::postProcessElementSets( const RimEclipseCase* eC
         m_3dparts[part]->postProcessElementSets( eCase->mainGrid(), cellInfo );
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFaultReactivationModel::flipNodeOrder( bool flipFW, bool flipHW )
-{
-    if ( flipFW ) m_3dparts[GridPart::FW]->flipNodeOrder();
-    if ( flipHW ) m_3dparts[GridPart::HW]->flipNodeOrder();
-}

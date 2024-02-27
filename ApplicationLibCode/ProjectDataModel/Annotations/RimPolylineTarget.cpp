@@ -29,9 +29,7 @@ CAF_PDM_SOURCE_INIT( RimPolylineTarget, "PolylineTarget" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolylineTarget::RimPolylineTarget()
-    : m_isFullUpdateEnabled( true )
 {
-    CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "" );
     CAF_PDM_InitFieldNoDefault( &m_targetPointXyd, "TargetPointXyd", "Point" );
 }
 
@@ -40,14 +38,6 @@ RimPolylineTarget::RimPolylineTarget()
 //--------------------------------------------------------------------------------------------------
 RimPolylineTarget::~RimPolylineTarget()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPolylineTarget::isEnabled() const
-{
-    return m_isEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,14 +72,6 @@ cvf::Vec3d RimPolylineTarget::targetPointXYZ() const
 caf::PdmUiFieldHandle* RimPolylineTarget::targetPointUiCapability()
 {
     return m_targetPointXyd.uiCapability();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::enableFullUpdate( bool enable )
-{
-    m_isFullUpdateEnabled = enable;
 }
 
 //--------------------------------------------------------------------------------------------------

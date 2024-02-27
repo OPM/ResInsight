@@ -19,6 +19,7 @@
 
 #include "RimGeoMechView.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
@@ -31,6 +32,7 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
+#include "Polygons/RimPolygonInViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
@@ -153,7 +155,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     onUpdateScaleTransform();
 
-    updateSurfacesInViewTreeItems();
+    updateViewTreeItems( RiaDefines::ItemIn3dView::ALL );
 
     if ( m_geomechCase )
     {
@@ -318,6 +320,9 @@ void RimGeoMechView::onCreateDisplayModel()
     m_seismicVizModel->removeAllParts();
     m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), femBBox );
     nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
+
+    // Polygons
+    appendPolygonPartsToModel( transform.p(), ownerCase()->allCellsBoundingBox() );
 
     // Surfaces
 
@@ -1042,6 +1047,11 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
     if ( seismicSectionCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( seismicSectionCollection() );
+
+    if ( RiaApplication::enableDevelopmentFeatures() )
+    {
+        uiTreeOrdering.add( m_polygonInViewCollection );
+    }
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

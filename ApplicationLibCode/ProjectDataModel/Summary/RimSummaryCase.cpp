@@ -400,3 +400,20 @@ void RimSummaryCase::refreshMetaData()
     buildChildNodes();
     updateConnectedEditors();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::onCalculationUpdated()
+{
+    // Delete all calculated address objects
+    m_dataVectorFolders->deleteCalculatedObjects();
+
+    if ( auto reader = summaryReader() )
+    {
+        auto addresses = reader->allResultAddresses();
+        m_dataVectorFolders->updateFolderStructure( addresses, m_caseId );
+    }
+
+    updateConnectedEditors();
+}
