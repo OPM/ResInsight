@@ -49,22 +49,20 @@ public:
 
     void reset();
 
-    void generateGeometry( const std::array<cvf::Vec3d, 12>& inputPoints,
-                           const std::vector<cvf::Vec3d>&    reservoirLayers,
-                           double                            maxCellHeight,
-                           double                            cellSizeFactor,
-                           const std::vector<double>&        horizontalPartition,
-                           double                            modelThickness,
-                           double                            topHeight,
-                           cvf::Vec3d                        thicknessDirection,
-                           int                               nFaultZoneCells,
-                           std::pair<cvf::Vec3d, cvf::Vec3d> topBottomFaultPoints );
+    void generateGeometry( const std::array<cvf::Vec3d, 12>&    inputPoints,
+                           const std::vector<cvf::Vec3d>&       reservoirLayers,
+                           double                               maxCellHeight,
+                           double                               cellSizeFactor,
+                           const std::vector<double>&           horizontalPartition,
+                           const std::vector<caf::Line<double>> faultLines,
+                           const std::vector<cvf::Vec3d>&       thicknessVectors,
+                           double                               topHeight,
+                           int                                  nFaultZoneCells );
 
     void generateLocalNodes( const cvf::Mat4d transform );
     void setUseLocalCoordinates( bool useLocalCoordinates );
 
     void postProcessElementSets( const RigMainGrid* mainGrid, const RigActiveCellInfo* cellInfo );
-    void postProcessBoundaryNodes( const caf::Line<double>& faultLine );
 
     bool   useLocalCoordinates() const;
     double topHeight() const;
@@ -91,7 +89,7 @@ protected:
     static cvf::Vec3d          stepVector( cvf::Vec3d start, cvf::Vec3d stop, int nSteps );
     static std::vector<double> generateConstantLayers( double zFrom, double zTo, double maxSize );
     static std::vector<double> generateGrowingLayers( double zFrom, double zTo, double maxSize, double growfactor );
-    static std::vector<double> extractZValues( std::vector<cvf::Vec3d> );
+    static std::vector<double> extractZValues( const std::vector<cvf::Vec3d>& points );
 
     void generateVerticalMeshlines( const std::vector<cvf::Vec3d>& cornerPoints, const std::vector<double>& horzPartition );
 
