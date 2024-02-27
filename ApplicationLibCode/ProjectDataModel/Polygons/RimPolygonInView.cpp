@@ -18,6 +18,8 @@
 
 #include "RimPolygonInView.h"
 
+#include "RiaColorTools.h"
+
 #include "RigPolyLinesData.h"
 
 #include "Rim3dView.h"
@@ -88,6 +90,16 @@ RimPolygon* RimPolygonInView::polygon() const
 //--------------------------------------------------------------------------------------------------
 void RimPolygonInView::setPolygon( RimPolygon* polygon )
 {
+    if ( m_polygon )
+    {
+        m_polygon->objectChanged.disconnect( this );
+    }
+
+    if ( polygon )
+    {
+        polygon->objectChanged.connect( this, &RimPolygonInView::onObjectChanged );
+    }
+
     m_polygon = polygon;
 
     updateTargetsFromPolygon();
@@ -323,9 +335,23 @@ void RimPolygonInView::defineObjectEditorAttribute( QString uiConfigName, caf::P
         attrib->enablePicking    = m_enablePicking;
     }
 
-    if ( m_polygon() && m_polygon->isReadOnly() )
+    if ( m_polygon() )
     {
-        caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/padlock.svg" );
+        if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+        {
+            auto tag = caf::PdmUiTreeViewItemAttribute::createTag( RiaColorTools::toQColor( m_polygon->color() ),
+                                                                   RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                                   "---" );
+
+            tag->clicked.connect( m_polygon(), &RimPolygon::onColorTagClicked );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+
+        if ( m_polygon->isReadOnly() )
+        {
+            caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/padlock.svg" );
+        }
     }
 }
 
@@ -345,6 +371,25 @@ void RimPolygonInView::uiOrderingForLocalPolygon( QString uiConfigName, caf::Pdm
 void RimPolygonInView::appendMenuItems( caf::CmdFeatureMenuBuilder& menuBuilder ) const
 {
     if ( m_polygon() ) m_polygon->appendMenuItems( menuBuilder );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::onObjectChanged( const caf::SignalEmitter* emitter )
+{
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonInView::initAfterRead()
+{
+    if ( m_polygon )
+    {
+        m_polygon->objectChanged.connect( this, &RimPolygonInView::onObjectChanged );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

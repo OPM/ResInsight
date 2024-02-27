@@ -18,14 +18,19 @@
 
 #include "RimPolygon.h"
 
+#include "RiaApplication.h"
+#include "RiaColorTools.h"
+
 #include "RigPolyLinesData.h"
 
-#include "RiaApplication.h"
 #include "Rim3dView.h"
 #include "RimPolygonAppearance.h"
 #include "RimPolygonTools.h"
 
+#include "RiuGuiTheme.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiColorEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
@@ -143,6 +148,22 @@ void RimPolygon::disableStorageOfPolygonPoints()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RimPolygon::color() const
+{
+    return m_appearance->lineColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::setColor( const cvf::Color3f& color )
+{
+    m_appearance->setLineColor( color );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygon::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( nameField() );
@@ -197,8 +218,29 @@ void RimPolygon::defineEditorAttribute( const caf::PdmFieldHandle* field, QStrin
     {
         if ( auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) )
         {
-            attrib->m_buttonText = "Edit in Active View";
+            if ( m_isReadOnly() )
+            {
+                attrib->m_buttonText = "Select in Active View";
+            }
+            else
+            {
+                attrib->m_buttonText = "Edit in Active View";
+            }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygon::onColorTagClicked( const SignalEmitter* emitter, size_t index )
+{
+    QColor sourceColor = RiaColorTools::toQColor( color() );
+    QColor newColor    = caf::PdmUiColorEditor::getColor( sourceColor );
+
+    if ( newColor.isValid() && newColor != sourceColor )
+    {
+        setColor( RiaColorTools::fromQColorTo3f( newColor ) );
     }
 }
 
@@ -207,6 +249,17 @@ void RimPolygon::defineEditorAttribute( const caf::PdmFieldHandle* field, QStrin
 //--------------------------------------------------------------------------------------------------
 void RimPolygon::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        auto tag = caf::PdmUiTreeViewItemAttribute::createTag( RiaColorTools::toQColor( color() ),
+                                                               RiuGuiTheme::getColorByVariableName( "backgroundColor1" ),
+                                                               "---" );
+
+        tag->clicked.connect( this, &RimPolygon::onColorTagClicked );
+
+        treeItemAttribute->tags.push_back( std::move( tag ) );
+    }
+
     if ( m_isReadOnly )
     {
         caf::PdmUiTreeViewItemAttribute::createTagIfTreeViewItemAttribute( attribute, ":/padlock.svg" );
