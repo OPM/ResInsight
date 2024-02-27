@@ -27,6 +27,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfTextureImage.h"
 
+#include "cafLine.h"
+
 #include <cmath>
 #include <map>
 
@@ -207,7 +209,8 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                                          double                            modelThickness,
                                          double                            topHeight,
                                          cvf::Vec3d                        thicknessDirection,
-                                         int                               nFaultZoneCells )
+                                         int                               nFaultZoneCells,
+                                         std::pair<cvf::Vec3d, cvf::Vec3d> topBottomFaultPoints )
 {
     reset();
 
@@ -224,9 +227,10 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
     layersPerRegion[Regions::LowerUnderburden].pop_back(); // to avoid overlap with bottom of next region
     layersPerRegion[Regions::Reservoir].pop_back(); // to avoid overlap with bottom of next region
 
-    m_boundaryNodes[Boundary::Bottom]  = {};
-    m_boundaryNodes[Boundary::FarSide] = {};
-    m_boundaryNodes[Boundary::Fault]   = {};
+    m_boundaryNodes[Boundary::Bottom]    = {};
+    m_boundaryNodes[Boundary::FarSide]   = {};
+    m_boundaryNodes[Boundary::Fault]     = {};
+    m_boundaryNodes[Boundary::Reservoir] = {};
 
     size_t       nVertCells = 0;
     const size_t nHorzCells = horizontalPartition.size() - 1;
@@ -236,9 +240,16 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
         nVertCells += layersPerRegion[region].size();
     }
 
-    const std::vector<double> thicknessFactors = { -1.0, 0.0, 1.0 };
-    const int                 nThicknessCells  = 2;
-    cvf::Vec3d                tVec             = modelThickness * thicknessDirection;
+    const std::vector<double>      thicknessFactors = { -1.0, 0.0, 1.0 };
+    const int                      nThicknessCells  = 2;
+    cvf::Vec3d                     tVec             = modelThickness * thicknessDirection;
+    std::vector<caf::Line<double>> faultLines;
+
+    for ( int i = 0; i <= nThicknessCells; i++ )
+    {
+        faultLines.push_back( caf::Line<double>( topBottomFaultPoints.first + thicknessFactors[i] * tVec,
+                                                 topBottomFaultPoints.second + thicknessFactors[i] * tVec ) );
+    }
 
     size_t reserveSize = ( nVertCells + 1 ) * ( nHorzCells + 1 ) * ( nThicknessCells + 1 );
     m_nodes.reserve( reserveSize );
@@ -316,11 +327,26 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
 
             for ( int h = 0; h <= (int)nHorzCells; h++ )
             {
-                p = toPos - horizontalPartition[h] * stepHorz;
+                if ( h == (int)nHorzCells )
+                {
+                    p = toPos;
+                }
+                else
+                {
+                    p = toPos - horizontalPartition[h] * stepHorz;
+                }
 
                 for ( int t = 0; t <= nThicknessCells; t++, nodeIndex++ )
                 {
-                    m_nodes.push_back( p + thicknessFactors[t] * tVec );
+                    auto nodePoint = p + thicknessFactors[t] * tVec;
+
+                    if ( ( h == (int)nHorzCells ) &&
+                         ( ( region == Regions::Reservoir ) || region == Regions::LowerOverburden || region == Regions::UpperUnderburden ) )
+                    {
+                        nodePoint = faultLines[t].closestPointOnLine( nodePoint );
+                    }
+
+                    m_nodes.push_back( nodePoint );
 
                     if ( h == (int)nHorzCells )
                     {
@@ -342,6 +368,11 @@ void RigGriddedPart3d::generateGeometry( const std::array<cvf::Vec3d, 12>& input
                     else if ( h == (int)nHorzCells )
                     {
                         m_boundaryNodes[Boundary::Fault].push_back( nodeIndex );
+
+                        if ( region == Regions::Reservoir )
+                        {
+                            m_boundaryNodes[Boundary::Reservoir].push_back( nodeIndex );
+                        }
                     }
                 }
             }
@@ -765,5 +796,16 @@ void RigGriddedPart3d::updateElementSet( ElementSets              elSet,
                 usedElements.insert( elIdx + 1 );
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGriddedPart3d::postProcessBoundaryNodes( const caf::Line<double>& faultLine )
+{
+    for ( auto nodeIdx : m_boundaryNodes.at( RimFaultReactivation::Boundary::Reservoir ) )
+    {
+        m_nodes[nodeIdx] = faultLine.closestPointOnLine( m_nodes[nodeIdx] );
     }
 }

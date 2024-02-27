@@ -582,7 +582,8 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
                                  m_modelThickness,
                                  m_topReservoirFront.z(),
                                  m_modelNormal,
-                                 m_faultZoneCells );
+                                 m_faultZoneCells,
+                                 faultTopBottomPoints() );
     backPart->generateGeometry( m_backPoints,
                                 backReservoirLayers,
                                 m_maxCellHeight,
@@ -591,7 +592,8 @@ void RigFaultReactivationModelGenerator::generateGeometry( size_t            sta
                                 m_modelThickness,
                                 m_topReservoirBack.z(),
                                 -1.0 * m_modelNormal,
-                                m_faultZoneCells );
+                                m_faultZoneCells,
+                                faultTopBottomPoints() );
 
     frontPart->generateLocalNodes( m_localCoordTransform );
     backPart->generateLocalNodes( m_localCoordTransform );

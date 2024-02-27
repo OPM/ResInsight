@@ -204,13 +204,13 @@ std::pair<bool, std::string> RifFaultReactivationModelExporter::printParts(
         for ( auto [boundary, boundaryName] : boundaries )
         {
             // Create boundary condition sets for each side of the parts (except top).
-            auto boundaryNodes    = grid->boundaryNodes();
-            auto boundaryElements = grid->boundaryElements();
+            const auto& boundaryNodes    = grid->boundaryNodes();
+            const auto& boundaryElements = grid->boundaryElements();
 
-            const std::vector<unsigned int>& nodes = boundaryNodes[boundary];
+            const std::vector<unsigned int>& nodes = boundaryNodes.at( boundary );
             RifInpExportTools::printNodeSet( stream, boundaryName, false, nodes );
 
-            const std::vector<unsigned int>& elements = boundaryElements[boundary];
+            const std::vector<unsigned int>& elements = boundaryElements.at( boundary );
             RifInpExportTools::printElementSet( stream, boundaryName, false, elements );
         }
 

@@ -24,6 +24,8 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+#include "cafLine.h"
+
 #include <array>
 #include <map>
 #include <set>
@@ -55,12 +57,14 @@ public:
                            double                            modelThickness,
                            double                            topHeight,
                            cvf::Vec3d                        thicknessDirection,
-                           int                               nFaultZoneCells );
+                           int                               nFaultZoneCells,
+                           std::pair<cvf::Vec3d, cvf::Vec3d> topBottomFaultPoints );
 
     void generateLocalNodes( const cvf::Mat4d transform );
     void setUseLocalCoordinates( bool useLocalCoordinates );
 
     void postProcessElementSets( const RigMainGrid* mainGrid, const RigActiveCellInfo* cellInfo );
+    void postProcessBoundaryNodes( const caf::Line<double>& faultLine );
 
     bool   useLocalCoordinates() const;
     double topHeight() const;

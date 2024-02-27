@@ -25,6 +25,8 @@
 
 #include "RimEclipseCase.h"
 
+#include "cafLine.h"
+
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
@@ -259,8 +261,13 @@ void RigFaultReactivationModel::postProcessElementSets( const RimEclipseCase* eC
 
     auto cellInfo = eCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
+    auto [top, bottom] = faultTopBottom();
+    caf::Line<double> line( top, bottom );
+
     for ( auto part : allGridParts() )
     {
-        m_3dparts[part]->postProcessElementSets( eCase->mainGrid(), cellInfo );
+        auto gridPart = m_3dparts[part];
+        gridPart->postProcessElementSets( eCase->mainGrid(), cellInfo );
+        // gridPart->postProcessBoundaryNodes( line );
     }
 }

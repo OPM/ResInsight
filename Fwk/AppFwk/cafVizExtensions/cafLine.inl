@@ -105,3 +105,27 @@ caf::Line<S> caf::Line<S>::findLineBetweenNearestPoints( const Line& otherLine, 
     }
     return Line( start() + s * d1, otherLine.start() + t * d2 );
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the closest point on the line segment to the given point
+/// From https://paulbourke.net/geometry/pointlineplane/
+//--------------------------------------------------------------------------------------------------
+template <typename S>
+cvf::Vector3<S> caf::Line<S>::closestPointOnLine( const cvf::Vector3<S>& point ) const
+{
+    S distance = vector().length();
+
+    const double u = ( ( ( point.x() - start().x() ) * ( end().x() - start().x() ) ) +
+                       ( ( point.y() - start().y() ) * ( end().y() - start().y() ) ) +
+                       ( ( point.z() - start().z() ) * ( end().z() - start().z() ) ) ) /
+                     ( distance * distance );
+
+    if ( u < 0.0 ) return start();
+    if ( u > 1.0 ) return end();
+
+    cvf::Vector3<S> projectedPoint( ( start().x() + u * ( end().x() - start().x() ) ),
+                                    ( start().y() + u * ( end().y() - start().y() ) ),
+                                    ( start().z() + u * ( end().z() - start().z() ) ) );
+
+    return projectedPoint;
+}
