@@ -1706,18 +1706,19 @@ void Rim3dView::appendMeasurementToModel()
 {
     if ( !nativeOrOverrideViewer() ) return;
 
-    cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
-    if ( frameScene )
+    const cvf::String name = "Measurement";
+
+    cvf::Scene* scene = nativeOrOverrideViewer()->currentScene( isUsingOverrideViewer() );
+    if ( scene )
     {
-        cvf::String name = "Measurement";
-        this->removeModelByName( frameScene, name );
+        Rim3dView::removeModelByName( scene, name );
 
         cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
         model->setName( name );
 
         addMeasurementToModel( model.p() );
 
-        frameScene->addModel( model.p() );
+        scene->addModel( model.p() );
     }
 }
 
