@@ -183,30 +183,31 @@ void RiuWellImportWizard::httpFinished()
     m_file->flush();
     m_file->close();
 
-    QVariant redirectionTarget = m_reply->attribute( QNetworkRequest::RedirectionTargetAttribute );
-    if ( m_reply->error() )
-    {
-        m_file->remove();
-        QMessageBox::information( this, tr( "HTTP" ), tr( "Download failed: %1." ).arg( m_reply->errorString() ) );
-    }
-    else if ( !redirectionTarget.isNull() )
-    {
-        QUrl newUrl = m_url.resolved( redirectionTarget.toUrl() );
-        if ( QMessageBox::question( this, tr( "HTTP" ), tr( "Redirect to %1 ?" ).arg( newUrl.toString() ), QMessageBox::Yes | QMessageBox::No ) ==
-             QMessageBox::Yes )
-        {
-            m_url = newUrl;
-            m_reply->deleteLater();
-            m_file->open( QIODevice::WriteOnly );
-            m_file->resize( 0 );
-            startRequest( m_url );
-            return;
-        }
-    }
-    else
-    {
-        // m_statusLabel->setText(tr("Downloaded data to %1.").arg(m_destinationFolder));
-    }
+    // QVariant redirectionTarget = m_reply->attribute( QNetworkRequest::RedirectionTargetAttribute );
+    // if ( m_reply->error() )
+    // {
+    //     m_file->remove();
+    //     QMessageBox::information( this, tr( "HTTP" ), tr( "Download failed: %1." ).arg( m_reply->errorString() ) );
+    // }
+    // else if ( !redirectionTarget.isNull() )
+    // {
+    //     QUrl newUrl = m_url.resolved( redirectionTarget.toUrl() );
+    //     if ( QMessageBox::question( this, tr( "HTTP" ), tr( "Redirect to %1 ?" ).arg( newUrl.toString() ), QMessageBox::Yes |
+    //     QMessageBox::No ) ==
+    //          QMessageBox::Yes )
+    //     {
+    //         m_url = newUrl;
+    //         m_reply->deleteLater();
+    //         m_file->open( QIODevice::WriteOnly );
+    //         m_file->resize( 0 );
+    //         startRequest( m_url );
+    //         return;
+    //     }
+    // }
+    // else
+    // {
+    //     // m_statusLabel->setText(tr("Downloaded data to %1.").arg(m_destinationFolder));
+    // }
 
     if ( m_currentDownloadState == DOWNLOAD_WELL_PATH )
     {
