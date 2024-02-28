@@ -38,6 +38,7 @@
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Schedule/Well/Connection.hpp"
 #include "opm/input/eclipse/Schedule/Well/Well.hpp"
+#include "opm/io/eclipse/EGrid.hpp"
 #include "opm/io/eclipse/EInit.hpp"
 #include "opm/io/eclipse/ERst.hpp"
 #include "opm/io/eclipse/RestartFileView.hpp"
@@ -65,7 +66,7 @@ RifReaderOpmCommon::~RifReaderOpmCommon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* eclipseCase )
+bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* caseData )
 {
     caf::ProgressInfo progress( 100, "Reading Grid" );
 
@@ -76,7 +77,7 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
     {
         m_gridFileName = fileName.toStdString();
 
-        if ( !RifOpmGridTools::importGrid( m_gridFileName, eclipseCase->mainGrid(), eclipseCase ) )
+        if ( !RifOpmGridTools::importGrid( m_gridFileName, caseData->mainGrid(), caseData ) )
         {
             RiaLogging::error( "Failed to open grid file " + fileName );
 
@@ -92,14 +93,14 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
 
                 importFaults( fileSet, &faults );
 
-                RigMainGrid* mainGrid = eclipseCase->mainGrid();
+                RigMainGrid* mainGrid = caseData->mainGrid();
                 mainGrid->setFaults( faults );
             }
         }
 
         {
             auto task = progress.task( "Reading Results Meta data", 50 );
-            buildMetaData( eclipseCase );
+            buildMetaData( caseData );
         }
 
         return true;
@@ -108,6 +109,53 @@ bool RifReaderOpmCommon::open( const QString& fileName, RigEclipseCaseData* ecli
     {
         auto description = e.what();
         RiaLogging::error( description );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderOpmCommon::importGrid( RigMainGrid* mainGrid, RigEclipseCaseData* caseData )
+{
+    Opm::EclIO::EGrid opmGrid( m_gridFileName );
+
+    const auto& dims = opmGrid.dimension();
+    mainGrid->setGridPointDimensions( cvf::Vec3st( dims[0] + 1, dims[1] + 1, dims[2] + 1 ) );
+
+    RigCell defaultCell;
+    defaultCell.setHostGrid( mainGrid );
+    auto cellCount = opmGrid.totalNumberOfCells();
+    mainGrid->globalCellArray().resize( cellCount, defaultCell );
+    mainGrid->nodes().resize( 8 * cellCount );
+
+    RifOpmGridTools::transferCoordinatesCartesian( opmGrid, opmGrid, mainGrid, mainGrid, caseData );
+
+    auto opmMapAxes = opmGrid.get_mapaxes();
+    if ( opmMapAxes.size() == 6 )
+    {
+        std::array<double, 6> mapAxes;
+        for ( size_t i = 0; i < opmMapAxes.size(); ++i )
+        {
+            mapAxes[i] = opmMapAxes[i];
+        }
+
+        // Set the map axes transformation matrix on the main grid
+        mainGrid->setMapAxes( mapAxes );
+        mainGrid->setUseMapAxes( true );
+
+        auto transform = mainGrid->mapAxisTransform();
+
+        // Invert the transformation matrix to convert from file coordinates to domain coordinates
+        transform.invert();
+
+#pragma omp parallel for
+        for ( long i = 0; i < static_cast<long>( mainGrid->nodes().size() ); i++ )
+        {
+            auto& n = mainGrid->nodes()[i];
+            n.transformPoint( transform );
+        }
     }
 
     return true;

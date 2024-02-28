@@ -45,12 +45,10 @@ public:
     // If the grid is radial, the coordinates are imported and adjusted to fit the host cells
     static void importCoordinatesForRadialGrid( const std::string& gridFilePath, RigMainGrid* mainGrid );
 
-    static size_t cellCount( const std::string& gridFilePath );
-    static bool   importGrid( const std::string& gridFilePath, RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
+    static bool importGrid( const std::string& gridFilePath, RigMainGrid* mainGrid, RigEclipseCaseData* caseData );
 
     static std::vector<std::vector<int>> activeCellsFromActnumKeyword( Opm::EclIO::EGrid& grid );
 
-private:
     static void transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid );
     static void transferCoordinatesCartesian( Opm::EclIO::EGrid&  opmMainGrid,
                                               Opm::EclIO::EGrid&  opmGrid,
