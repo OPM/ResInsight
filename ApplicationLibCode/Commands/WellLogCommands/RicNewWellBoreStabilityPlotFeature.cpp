@@ -286,6 +286,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
         curve->setAutoNameComponents( false, true, false, false, false );
+        curve->updateCurveName();
 
         i++;
     }
@@ -352,6 +353,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         {
             curve->setCheckState( false );
         }
+        curve->updateCurveName();
     }
 
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
