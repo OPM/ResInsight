@@ -392,11 +392,13 @@ std::pair<cvf::Color3f, RiuQwtPlotCurveDefines::LineStyleEnum>
     if ( resultName == RiaResultNames::wbsFGMkMinResult() ) return { cvf::Color3f::BLUE, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT };
 
     if ( resultName == RiaResultNames::wbsPPInitialResult() )
-        return { cvf::Color3f::RED, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID };
-    if ( resultName == RiaResultNames::wbsPPExpResult() ) return { cvf::Color3f::RED, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH };
-    if ( resultName == RiaResultNames::wbsPPMinResult() ) return { cvf::Color3f::RED, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT };
+        return { cvf::Color3f::DEEP_PINK, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID };
+    if ( resultName == RiaResultNames::wbsPPExpResult() )
+        return { cvf::Color3f::DEEP_PINK, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH };
+    if ( resultName == RiaResultNames::wbsPPMinResult() )
+        return { cvf::Color3f::DEEP_PINK, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT };
     if ( resultName == RiaResultNames::wbsPPMaxResult() )
-        return { cvf::Color3f::RED, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT };
+        return { cvf::Color3f::DEEP_PINK, RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT };
 
     return { colors[i % colors.size()], RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID };
 }
