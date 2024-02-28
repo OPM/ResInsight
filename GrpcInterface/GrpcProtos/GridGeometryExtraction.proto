@@ -69,8 +69,14 @@ message FenceMeshSection
     Vec2d endUtmXY = 7;
 }
 
+//message CutAlongPolylineResponse
+//{
+  //  repeated FenceMeshSection feceMeshSections = 1;
+    //GridDimensions gridDimensions = 2;
+//}
+
 message CutAlongPolylineResponse
 {
-    repeated FenceMeshSection feceMeshSections = 1;
+    repeated float vertexArray = 1;
     GridDimensions gridDimensions = 2;
 }

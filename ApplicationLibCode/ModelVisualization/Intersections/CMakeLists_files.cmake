@@ -11,6 +11,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivEclipseIntersectionGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RivFemIntersectionGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RivIntersectionGeometryGeneratorInterface.h
+    ${CMAKE_CURRENT_LIST_DIR}/RivPolylineIntersectionGeometryGenerator.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -24,6 +25,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivSectionFlattener.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivEclipseIntersectionGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivFemIntersectionGrid.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivPolylineIntersectionGeometryGenerator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

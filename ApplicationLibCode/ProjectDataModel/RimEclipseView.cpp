@@ -128,6 +128,8 @@
 
 #include <climits>
 
+#pragma optimize( "", off )
+
 CAF_PDM_XML_SOURCE_INIT( RimEclipseView, "ReservoirView" );
 //--------------------------------------------------------------------------------------------------
 ///

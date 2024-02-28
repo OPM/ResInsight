@@ -1,6 +1,22 @@
-#include "RiaGrpcGridGeometryExtractionService.h"
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2024-     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+//////////////////////////////////////////////////////////////////////////////////
 
-// #include "VectorDefines.pb.h"
+#include "RiaGrpcGridGeometryExtractionService.h"
 
 #include "qstring.h"
 
@@ -9,6 +25,7 @@
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcHelper.h"
 #include "RifReaderSettings.h"
+#include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -23,7 +40,9 @@
 #include "RimGeoMechCase.h"
 #include "RimGridView.h"
 #include "RimProject.h"
+#include "RivEclipseIntersectionGrid.h"
 #include "RivGridPartMgr.h"
+#include "RivPolylineIntersectionGeometryGenerator.h"
 #include "RivReservoirPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
 
@@ -36,6 +55,8 @@
 #include "qfileinfo.h"
 #include "qstring.h"
 
+#pragma optimize( "", off )
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +67,7 @@ grpc::Status RiaGrpcGridGeometryExtractionService::GetGridSurface( grpc::ServerC
     // Reset all pointers
     resetInternalPointers();
 
-    // Initialize pointer
+    // Initialize pointers
     grpc::Status status = initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( request->gridfilename() );
     if ( status.error_code() != grpc::StatusCode::OK )
     {
@@ -144,7 +165,80 @@ grpc::Status RiaGrpcGridGeometryExtractionService::CutAlongPolyline( grpc::Serve
                                                                      const rips::CutAlongPolylineRequest* request,
                                                                      rips::CutAlongPolylineResponse*      response )
 {
-    return grpc::Status( grpc::StatusCode::UNIMPLEMENTED, "Not implemented" );
+    // Reset all pointers
+    resetInternalPointers();
+
+    // Initialize pointers
+    grpc::Status status = initializeApplicationAndEclipseCaseAndEclipseViewFromAbsoluteFilePath( request->gridfilename() );
+    if ( status.error_code() != grpc::StatusCode::OK )
+    {
+        return status;
+    }
+
+    // Ensure static geometry parts created for grid part manager in view
+    m_eclipseView->createGridGeometryParts();
+
+    auto& fencePolyline = request->fencepolylineutmxy();
+    if ( fencePolyline.size() < 2 )
+    {
+        return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "Invalid fence polyline" );
+    }
+
+    // Convert polyline to vector of cvf::Vec3d
+    std::vector<cvf::Vec3d> polyline;
+    const double            zValue = 0.0;
+    for ( int i = 0; i < fencePolyline.size(); i += 2 )
+    {
+        const double xValue = fencePolyline.Get( i );
+        const double yValue = fencePolyline.Get( i + 1 );
+        cvf::Vec3d   point  = cvf::Vec3d( xValue, yValue, zValue );
+        polyline.push_back( point );
+    }
+
+    RigActiveCellInfo*          activeCellInfo    = nullptr; // No active cell info for grid
+    const bool                  showInactiveCells = true;
+    RivEclipseIntersectionGrid* eclipseIntersectionGrid =
+        new RivEclipseIntersectionGrid( m_eclipseView->mainGrid(), activeCellInfo, showInactiveCells );
+
+    auto* polylineIntersectionGenerator = new RivPolylineIntersectionGeometryGenerator( polyline, eclipseIntersectionGrid );
+
+    // Handle cell visibilities
+    const int        firstTimeStep = 0;
+    cvf::UByteArray* visibleCells  = new cvf::UByteArray( m_eclipseView->mainGrid()->cellCount() );
+    m_eclipseView->calculateCurrentTotalCellVisibility( visibleCells, firstTimeStep );
+
+    // Loop to count number of visible cells
+    int numVisibleCells = 0;
+    for ( size_t i = 0; i < visibleCells->size(); ++i )
+    {
+        if ( ( *visibleCells )[i] != 0 )
+        {
+            ++numVisibleCells;
+        }
+    }
+
+    polylineIntersectionGenerator->generateIntersectionGeometry( visibleCells );
+    if ( !polylineIntersectionGenerator->isAnyGeometryPresent() )
+    {
+        return grpc::Status( grpc::StatusCode::INVALID_ARGUMENT, "No intersection geometry present" );
+    }
+
+    const auto& triangleVertices = polylineIntersectionGenerator->triangleVxes();
+    if ( triangleVertices->size() == 0 )
+    {
+        return grpc::Status( grpc::StatusCode::NOT_FOUND, "No triangle vertices found for polyline" );
+    }
+
+    // Set vertex_array and quadindicesarr response
+    for ( int i = 0; i < triangleVertices->size(); ++i )
+    {
+        const auto& vertex = triangleVertices->get( i );
+        response->add_vertexarray( vertex.x() );
+        response->add_vertexarray( vertex.y() );
+        response->add_vertexarray( vertex.z() );
+    }
+
+    return grpc::Status::OK;
 }
 
 //--------------------------------------------------------------------------------------------------
